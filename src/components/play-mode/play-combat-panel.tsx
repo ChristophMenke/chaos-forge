@@ -132,6 +132,13 @@ export function PlayCombatPanel({
         parts.push({ label: t("unarmoredBonus"), value: -2 });
       }
     }
+    // Epic AC bonus (e.g. Totem Tattoo +2)
+    if (epicEffects?.acBonus) {
+      parts.push({
+        label: t("epicAcBonus", { bonus: epicEffects.acBonus }),
+        value: -epicEffects.acBonus,
+      });
+    }
     return parts;
   }, [
     equippedArmor,
@@ -141,6 +148,7 @@ export function PlayCombatPanel({
     encumbrance,
     ignoreEncumbrance,
     isMagicalProtection,
+    epicEffects?.acBonus,
     t,
     locale,
   ]);
