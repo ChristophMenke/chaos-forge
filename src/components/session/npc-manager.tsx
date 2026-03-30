@@ -1,12 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { AvatarDisplay } from "@/components/avatar-display";
+import { NpcAvatarUpload } from "./npc-avatar-upload";
 import type { ChronicleNpcRow } from "@/lib/supabase/types";
+
+const PAGE_SIZE = 10;
 
 interface NpcManagerProps {
   npcs: ChronicleNpcRow[];
@@ -23,13 +27,42 @@ export function NpcManager({ npcs: initialNpcs }: NpcManagerProps) {
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [locationFilter, setLocationFilter] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
 
-  const filteredNpcs = npcs.filter(
-    (npc) =>
-      npc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      npc.location.toLowerCase().includes(searchQuery.toLowerCase())
+  // Unique locations for filter dropdown
+  const uniqueLocations = useMemo(
+    () =>
+      [...new Set(npcs.map((npc) => npc.location).filter(Boolean))].sort((a, b) =>
+        a.localeCompare(b)
+      ),
+    [npcs]
   );
+
+  // Filter + Search
+  const filteredNpcs = useMemo(() => {
+    return npcs.filter((npc) => {
+      const matchesLocation = !locationFilter || npc.location === locationFilter;
+      const query = searchQuery.toLowerCase();
+      const matchesSearch =
+        !query ||
+        npc.name.toLowerCase().includes(query) ||
+        npc.location.toLowerCase().includes(query) ||
+        npc.description.toLowerCase().includes(query);
+      return matchesLocation && matchesSearch;
+    });
+  }, [npcs, searchQuery, locationFilter]);
+
+  // Paging
+  const totalPages = Math.max(1, Math.ceil(filteredNpcs.length / PAGE_SIZE));
+  const pagedNpcs = filteredNpcs.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
+  function handleFilterChange(newSearch: string, newLocation: string) {
+    setSearchQuery(newSearch);
+    setLocationFilter(newLocation);
+    setPage(0);
+  }
 
   async function handleSave() {
     if (!name.trim()) return;
@@ -94,6 +127,10 @@ export function NpcManager({ npcs: initialNpcs }: NpcManagerProps) {
     setShowForm(false);
   }
 
+  function handleAvatarUploaded(npcId: string, url: string) {
+    setNpcs((prev) => prev.map((npc) => (npc.id === npcId ? { ...npc, avatar_url: url } : npc)));
+  }
+
   return (
     <div data-testid="npc-manager">
       <div className="mb-3 flex items-center justify-between">
@@ -108,16 +145,31 @@ export function NpcManager({ npcs: initialNpcs }: NpcManagerProps) {
         </Button>
       </div>
 
-      {/* Search */}
-      {npcs.length > 3 && (
+      {/* Search + Location Filter */}
+      <div className="mb-3 flex flex-col gap-2 sm:flex-row">
         <Input
           placeholder={t("searchNpcs")}
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="mb-3"
+          onChange={(e) => handleFilterChange(e.target.value, locationFilter)}
+          className="flex-1"
           data-testid="npc-search"
         />
-      )}
+        {uniqueLocations.length > 0 && (
+          <select
+            value={locationFilter}
+            onChange={(e) => handleFilterChange(searchQuery, e.target.value)}
+            className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+            data-testid="npc-location-filter"
+          >
+            <option value="">{t("npcAllLocations")}</option>
+            {uniqueLocations.map((loc) => (
+              <option key={loc} value={loc}>
+                {loc}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
 
       {/* Create/Edit Form */}
       {showForm && (
@@ -167,51 +219,94 @@ export function NpcManager({ npcs: initialNpcs }: NpcManagerProps) {
           {t("noNpcs")}
         </p>
       ) : (
-        <div className="flex flex-col gap-2">
-          {filteredNpcs.map((npc) => (
-            <div
-              key={npc.id}
-              className="rounded-lg border border-border bg-card/30 p-3"
-              data-testid={`npc-card-${npc.id}`}
-            >
-              <div className="flex items-start justify-between">
-                <div
-                  className="flex-1 cursor-pointer"
-                  onClick={() => setExpandedId(expandedId === npc.id ? null : npc.id)}
-                >
-                  <span className="font-medium">{npc.name}</span>
-                  {npc.location && (
-                    <span className="ml-2 text-sm text-muted-foreground">— {npc.location}</span>
-                  )}
-                </div>
-                <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => startEdit(npc)}
-                    data-testid={`npc-edit-${npc.id}`}
+        <>
+          <div className="flex flex-col gap-2">
+            {pagedNpcs.map((npc) => (
+              <div
+                key={npc.id}
+                className="rounded-lg border border-border bg-card/30 p-3"
+                data-testid={`npc-card-${npc.id}`}
+              >
+                <div className="flex items-start gap-3">
+                  {/* Avatar */}
+                  <NpcAvatarUpload
+                    npcId={npc.id}
+                    npcName={npc.name}
+                    currentAvatarUrl={npc.avatar_url}
+                    onUploaded={(url) => handleAvatarUploaded(npc.id, url)}
+                  />
+
+                  {/* Content */}
+                  <div
+                    className="flex-1 cursor-pointer"
+                    onClick={() => setExpandedId(expandedId === npc.id ? null : npc.id)}
                   >
-                    {tcom("edit")}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => handleDelete(npc.id)}
-                    data-testid={`npc-delete-${npc.id}`}
-                  >
-                    {tcom("delete")}
-                  </Button>
+                    <span className="font-medium">{npc.name}</span>
+                    {npc.location && (
+                      <span className="ml-2 text-sm text-muted-foreground">— {npc.location}</span>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => startEdit(npc)}
+                      data-testid={`npc-edit-${npc.id}`}
+                    >
+                      {tcom("edit")}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => handleDelete(npc.id)}
+                      data-testid={`npc-delete-${npc.id}`}
+                    >
+                      {tcom("delete")}
+                    </Button>
+                  </div>
                 </div>
+                {expandedId === npc.id && npc.description && (
+                  <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
+                    {npc.description}
+                  </p>
+                )}
               </div>
-              {expandedId === npc.id && npc.description && (
-                <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
-                  {npc.description}
-                </p>
-              )}
+            ))}
+          </div>
+
+          {/* Paging */}
+          {totalPages > 1 && (
+            <div
+              className="mt-3 flex items-center justify-center gap-3"
+              data-testid="npc-pagination"
+            >
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={page === 0}
+                data-testid="npc-prev"
+              >
+                {t("npcPrev")}
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                {t("npcPage", { current: page + 1, total: totalPages })}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                disabled={page >= totalPages - 1}
+                data-testid="npc-next"
+              >
+                {t("npcNext")}
+              </Button>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   );
