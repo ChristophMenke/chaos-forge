@@ -143,6 +143,7 @@
     "hpModPerLevel": "HP-Mod (CON): {mod}/Stufe"
   },
   "sheet": {
+    "alignment": "Gesinnung",
     "stats": "Werte",
     "combat": "Kampf",
     "notes": "Notizen",

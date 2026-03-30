@@ -143,6 +143,7 @@
     "hpModPerLevel": "HP Mod (CON): {mod}/Level"
   },
   "sheet": {
+    "alignment": "Alignment",
     "stats": "Stats",
     "combat": "Combat",
     "notes": "Notes",
