@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/client";
 import { localized } from "@/lib/utils/localize";
 import { DamageLevelCard } from "./damage-level-card";
 import { SimpleEpicCard } from "./simple-epic-card";
+import { BladeSystemCard } from "./blade-system-card";
 import type { CharacterRow, EpicItemRow } from "@/lib/supabase/types";
 
 interface EpicEquipmentViewProps {
@@ -113,17 +114,33 @@ export function EpicEquipmentView({ character, epicItems, isOwner }: EpicEquipme
         </div>
       ) : (
         <div className="flex flex-col gap-4" data-testid="epic-items-list">
-          {items.map((item) =>
-            item.max_damage_level > 0 ? (
-              <DamageLevelCard
-                key={item.id}
-                item={item}
-                locale={locale}
-                isOwner={isOwner}
-                onToggleEquip={handleToggleEquip}
-                onDamageLevelChange={handleDamageLevelChange}
-              />
-            ) : (
+          {items.map((item) => {
+            const isBladeSystem =
+              (item.simple_effects as Record<string, unknown>)?.type === "blade_system";
+            if (item.max_damage_level > 0) {
+              return (
+                <DamageLevelCard
+                  key={item.id}
+                  item={item}
+                  locale={locale}
+                  isOwner={isOwner}
+                  onToggleEquip={handleToggleEquip}
+                  onDamageLevelChange={handleDamageLevelChange}
+                />
+              );
+            }
+            if (isBladeSystem) {
+              return (
+                <BladeSystemCard
+                  key={item.id}
+                  item={item}
+                  locale={locale}
+                  isOwner={isOwner}
+                  onToggleEquip={handleToggleEquip}
+                />
+              );
+            }
+            return (
               <SimpleEpicCard
                 key={item.id}
                 item={item}
@@ -131,8 +148,8 @@ export function EpicEquipmentView({ character, epicItems, isOwner }: EpicEquipme
                 isOwner={isOwner}
                 onToggleEquip={handleToggleEquip}
               />
-            )
-          )}
+            );
+          })}
         </div>
       )}
     </div>

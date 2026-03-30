@@ -854,6 +854,16 @@
     "thiefDisabled": "Diebesfähigkeiten nicht nutzbar",
     "electricDamage": "1 Punkt elektrischer Schaden pro Runde",
     "saveVsDeath": "Rettungswurf gg. Todesmagie pro Runde",
-    "deviceOffline": "Gerät nicht funktionsfähig"
+    "deviceOffline": "Gerät nicht funktionsfähig",
+    "bladesReady": "Vorbereitete Klingen",
+    "bladeEmpty": "Leer",
+    "bladeThrown": "Geworfen",
+    "bladeLoad": "Bestücken",
+    "bladeThrow": "Werfen",
+    "bladeCollect": "Einsammeln",
+    "bladesThrown": "{count} Klinge(n) geworfen — einsammeln nicht vergessen!",
+    "mixtureInventory": "Mixtur-Vorrat",
+    "mixtureCraft": "Herstellen",
+    "description": "Beschreibung"
   }
 }
