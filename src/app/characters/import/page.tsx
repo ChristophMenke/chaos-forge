@@ -196,6 +196,16 @@ export default function ImportCharacterPage() {
             }
           );
         }
+        // Normalize classes: ensure level is never null, fallback to legacy level field
+        if (Array.isArray(char.classes)) {
+          char.classes = char.classes.map(
+            (cc: { class: string; level: number | null; xp: number | null }) => ({
+              ...cc,
+              level: cc.level ?? char.level ?? 1,
+              xp: cc.xp ?? char.xp ?? 0,
+            })
+          );
+        }
         setScanned(char);
       }
     } catch {
@@ -259,14 +269,9 @@ export default function ImportCharacterPage() {
         }))
         .filter((cc) => validClassIds.includes(cc.class));
 
-      console.log("[IMPORT DEBUG] scanned.classes:", JSON.stringify(scanned.classes));
-      console.log("[IMPORT DEBUG] scanned.class (legacy):", scanned.class);
-      console.log("[IMPORT DEBUG] resolvedClasses:", JSON.stringify(resolvedClasses));
-
       const primaryClass = resolvedClasses[0]?.class ?? null;
       const primaryLevel = resolvedClasses[0]?.level ?? 1;
       const primaryXp = resolvedClasses[0]?.xp ?? 0;
-      console.log("[IMPORT DEBUG] primaryClass:", primaryClass, "primaryLevel:", primaryLevel);
 
       // Validate kit: only allow known kits
       const validKits = [
@@ -349,7 +354,7 @@ export default function ImportCharacterPage() {
         const classRows = resolvedClasses.map((cc) => ({
           character_id: data.id,
           class_id: cc.class,
-          level: cc.level,
+          level: cc.level ?? 1,
           xp_current: cc.xp || 0,
         }));
         const { error: classError } = await supabase.from("character_classes").insert(classRows);
@@ -405,6 +410,7 @@ export default function ImportCharacterPage() {
           .from("nonweapon_proficiencies")
           .select("id, name, name_en");
         if (allNwps) {
+          const insertedNwpIds = new Set<string>();
           for (const nwpName of scanned.nwps) {
             const nwpLower = nwpName
               .toLowerCase()
@@ -418,7 +424,8 @@ export default function ImportCharacterPage() {
                 n.name.toLowerCase().includes(nwpLower) ||
                 (n.name_en && n.name_en.toLowerCase().includes(nwpLower))
             );
-            if (match) {
+            if (match && !insertedNwpIds.has(match.id)) {
+              insertedNwpIds.add(match.id);
               await supabase.from("character_nonweapon_proficiencies").insert({
                 character_id: data.id,
                 proficiency_id: match.id,
