@@ -228,11 +228,36 @@ export default function ImportCharacterPage() {
       }
 
       // Resolve classes: new multiclass format or legacy single-class
-      const resolvedClasses: ScannedClassEntry[] = scanned.classes?.length
-        ? scanned.classes
-        : scanned.class
-          ? [{ class: scanned.class, level: scanned.level ?? 1, xp: scanned.xp ?? 0 }]
-          : [];
+      const validClassIds = [
+        "fighter",
+        "ranger",
+        "paladin",
+        "mage",
+        "abjurer",
+        "conjurer",
+        "diviner",
+        "enchanter",
+        "illusionist",
+        "invoker",
+        "necromancer",
+        "transmuter",
+        "cleric",
+        "druid",
+        "thief",
+        "bard",
+      ];
+      const resolvedClasses: ScannedClassEntry[] = (
+        scanned.classes?.length
+          ? scanned.classes
+          : scanned.class
+            ? [{ class: scanned.class, level: scanned.level ?? 1, xp: scanned.xp ?? 0 }]
+            : []
+      )
+        .map((cc) => ({
+          ...cc,
+          class: cc.class.toLowerCase().trim() as ClassId,
+        }))
+        .filter((cc) => validClassIds.includes(cc.class));
 
       const primaryClass = resolvedClasses[0]?.class ?? null;
       const primaryLevel = resolvedClasses[0]?.level ?? 1;
@@ -322,7 +347,10 @@ export default function ImportCharacterPage() {
           level: cc.level,
           xp_current: cc.xp || 0,
         }));
-        await supabase.from("character_classes").insert(classRows);
+        const { error: classError } = await supabase.from("character_classes").insert(classRows);
+        if (classError) {
+          console.error("character_classes insert failed:", classError);
+        }
       }
 
       // Separate fighting styles from weapon proficiencies
