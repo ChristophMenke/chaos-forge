@@ -51,7 +51,8 @@
     "logout": "Abmelden",
     "more": "Mehr",
     "settings": "Einstellungen",
-    "newCharacter": "Neuer Charakter"
+    "newCharacter": "Neuer Charakter",
+    "rulebook": "Regelbuch"
   },
   "notFound": {
     "title": "404",
@@ -920,5 +921,21 @@
     "type": "Typ",
     "range": "Reichweite",
     "weight": "Gewicht"
+  },
+  "rulebook": {
+    "title": "Regelbuch-Chat",
+    "placeholder": "Stelle eine Frage zu den AD&D 2e Regeln...",
+    "send": "Senden",
+    "thinking": "Suche in den Regelbüchern...",
+    "welcome": "Willkommen beim Regelbuch-Chat! Stelle Fragen zu den AD&D 2nd Edition Regeln und erhalte Antworten direkt aus den Quellenbüchern.",
+    "exampleQuestions": "Beispielfragen:",
+    "example1": "Welche THAC0 hat ein Kämpfer auf Stufe 5?",
+    "example2": "Wie funktioniert der Meuchelmord?",
+    "example3": "Welche Zauber kann ein Wahrsager nicht wirken?",
+    "noAnswer": "Zu dieser Frage konnte keine passende Regelstelle gefunden werden.",
+    "error": "Fehler bei der Regelabfrage. Bitte versuche es erneut.",
+    "filterBooks": "Bücher filtern",
+    "allBooks": "Alle Bücher",
+    "source": "Quelle"
   }
 }

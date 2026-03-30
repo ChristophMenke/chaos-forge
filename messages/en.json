@@ -51,7 +51,8 @@
     "logout": "Log out",
     "more": "More",
     "settings": "Settings",
-    "newCharacter": "New Character"
+    "newCharacter": "New Character",
+    "rulebook": "Rulebook"
   },
   "notFound": {
     "title": "404",
@@ -920,5 +921,21 @@
     "type": "Type",
     "range": "Range",
     "weight": "Weight"
+  },
+  "rulebook": {
+    "title": "Rulebook Chat",
+    "placeholder": "Ask a question about the AD&D 2e rules...",
+    "send": "Send",
+    "thinking": "Searching the rulebooks...",
+    "welcome": "Welcome to the Rulebook Chat! Ask questions about AD&D 2nd Edition rules and get answers straight from the source books.",
+    "exampleQuestions": "Example questions:",
+    "example1": "What THAC0 does a Fighter have at level 5?",
+    "example2": "How does backstab work?",
+    "example3": "Which spells can a Diviner not cast?",
+    "noAnswer": "No matching rule was found for this question.",
+    "error": "Error querying the rules. Please try again.",
+    "filterBooks": "Filter books",
+    "allBooks": "All books",
+    "source": "Source"
   }
 }
