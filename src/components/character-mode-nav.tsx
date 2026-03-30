@@ -63,8 +63,8 @@ export function CharacterModeNav({ characterId, hasEpicItems }: CharacterModeNav
             }`}
             data-testid={mode.testId}
           >
-            <Icon className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">{mode.shortLabel}</span>
+            <Icon className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
+            <span className="hidden sm:inline lg:text-sm">{mode.shortLabel}</span>
           </Link>
         );
       })}

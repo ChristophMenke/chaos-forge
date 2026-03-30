@@ -67,7 +67,7 @@ export function EpicEquipmentView({ character, epicItems, isOwner }: EpicEquipme
 
   return (
     <div
-      className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 sm:p-6"
+      className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 sm:p-6"
       data-testid="epic-equipment-page"
     >
       {/* Header */}
