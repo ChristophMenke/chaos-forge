@@ -21,22 +21,11 @@ export function RulebookChat() {
   const [selectedBooks, setSelectedBooks] = useState<string[]>([]);
   const [showFilter, setShowFilter] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
-  const [containerHeight, setContainerHeight] = useState<number | null>(null);
 
-  // Measure available height: from container top to viewport bottom
+  // Abort in-flight request on unmount
   useEffect(() => {
-    function measure() {
-      if (containerRef.current) {
-        const top = containerRef.current.getBoundingClientRect().top;
-        setContainerHeight(window.innerHeight - top);
-      }
-    }
-    measure();
-    window.addEventListener("resize", measure);
     return () => {
-      window.removeEventListener("resize", measure);
       abortRef.current?.abort();
     };
   }, []);
@@ -139,12 +128,7 @@ export function RulebookChat() {
   const isEmpty = messages.length === 0 && !streamingContent;
 
   return (
-    <div
-      ref={containerRef}
-      className="flex flex-col p-3 sm:p-6"
-      style={containerHeight ? { height: containerHeight } : undefined}
-      data-testid="rulebook-chat"
-    >
+    <div className="flex min-h-0 flex-1 flex-col p-3 sm:p-6" data-testid="rulebook-chat">
       {/* Header */}
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
