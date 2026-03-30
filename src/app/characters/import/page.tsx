@@ -454,13 +454,25 @@ export default function ImportCharacterPage() {
             : 1;
           const bonus = item.magicBonus ?? 0;
 
+          // Tokenize for flexible matching (e.g. "Axe, hand/throwing" matches "Hand Axe")
+          const baseTokens = baseName.split(/[\s,/]+/).filter((t) => t.length > 2);
+          const matchesName = (dbName: string) => {
+            const db = dbName.toLowerCase();
+            // Direct substring match
+            if (db.includes(baseName) || baseName.includes(db)) return true;
+            // Token-based: all DB name words appear in the scanned name
+            const dbTokens = db.split(/[\s,/]+/).filter((t) => t.length > 2);
+            if (
+              dbTokens.length > 0 &&
+              dbTokens.every((dt) => baseTokens.some((bt) => bt.includes(dt) || dt.includes(bt)))
+            )
+              return true;
+            return false;
+          };
+
           // Try to match weapon
           const weapon = allWeapons?.find(
-            (w) =>
-              w.name.toLowerCase().includes(baseName) ||
-              (w.name_en && w.name_en.toLowerCase().includes(baseName)) ||
-              baseName.includes(w.name.toLowerCase()) ||
-              (w.name_en && baseName.includes(w.name_en.toLowerCase()))
+            (w) => matchesName(w.name) || (w.name_en && matchesName(w.name_en))
           );
           if (weapon) {
             await supabase.from("character_equipment").insert({
@@ -476,11 +488,7 @@ export default function ImportCharacterPage() {
 
           // Try to match armor
           const armor = allArmor?.find(
-            (a) =>
-              a.name.toLowerCase().includes(baseName) ||
-              (a.name_en && a.name_en.toLowerCase().includes(baseName)) ||
-              baseName.includes(a.name.toLowerCase()) ||
-              (a.name_en && baseName.includes(a.name_en.toLowerCase()))
+            (a) => matchesName(a.name) || (a.name_en && matchesName(a.name_en))
           );
           if (armor) {
             await supabase.from("character_equipment").insert({
