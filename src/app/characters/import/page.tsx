@@ -408,6 +408,7 @@ export default function ImportCharacterPage() {
             .replace(/\s*x\d+$/, "")
             .toLowerCase()
             .trim();
+          if (!baseName) continue;
           const qty = item.name.match(/x(\d+)$/)?.[1]
             ? parseInt(item.name.match(/x(\d+)$/)![1])
             : 1;
@@ -447,8 +448,6 @@ export default function ImportCharacterPage() {
               armor_id: armor.id,
               quantity: 1,
               equipped: true,
-              hit_bonus: bonus,
-              damage_bonus: bonus,
             });
           }
         }
@@ -1179,22 +1178,6 @@ export default function ImportCharacterPage() {
                                 className="h-8 text-sm"
                                 placeholder={t("spellName")}
                                 data-testid={`import-spell-name-${idx}`}
-                              />
-                              <Input
-                                type="number"
-                                min={1}
-                                max={9}
-                                value={(scanned.spells ?? [])[idx]?.level ?? 1}
-                                onChange={(e) => {
-                                  const updated = [...(scanned.spells ?? [])];
-                                  updated[idx] = {
-                                    ...updated[idx],
-                                    level: Math.max(1, Math.min(9, parseInt(e.target.value) || 1)),
-                                  };
-                                  updateField("spells", updated);
-                                }}
-                                className="h-8 w-16 text-center text-sm"
-                                data-testid={`import-spell-level-${idx}`}
                               />
                               <button
                                 type="button"
