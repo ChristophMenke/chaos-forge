@@ -449,7 +449,15 @@ export default function ImportCharacterPage() {
               quantity: 1,
               equipped: true,
             });
+            continue;
           }
+
+          // Unmatched items go to inventory
+          await supabase.from("character_inventory").insert({
+            character_id: data.id,
+            custom_name: item.name,
+            quantity: qty,
+          });
         }
       }
 
@@ -776,7 +784,7 @@ export default function ImportCharacterPage() {
                   id="import-kit"
                   value={scanned.kit ?? ""}
                   onChange={(e) => updateField("kit", e.target.value || null)}
-                  placeholder="Kein Kit"
+                  placeholder={t("noKit")}
                   data-testid="import-kit"
                 />
               </div>
@@ -805,7 +813,7 @@ export default function ImportCharacterPage() {
             {/* Personal Details */}
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="flex flex-col gap-1">
-                <Label htmlFor="import-playerName">Spieler</Label>
+                <Label htmlFor="import-playerName">{t("player")}</Label>
                 <Input
                   id="import-playerName"
                   value={scanned.playerName ?? ""}
@@ -814,7 +822,7 @@ export default function ImportCharacterPage() {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor="import-age">Alter</Label>
+                <Label htmlFor="import-age">{t("age")}</Label>
                 <Input
                   id="import-age"
                   type="number"
@@ -827,7 +835,7 @@ export default function ImportCharacterPage() {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor="import-gender">Geschlecht</Label>
+                <Label htmlFor="import-gender">{t("gender")}</Label>
                 <Input
                   id="import-gender"
                   value={scanned.gender ?? ""}
@@ -874,9 +882,7 @@ export default function ImportCharacterPage() {
               scanned.chaLeadership !== null ||
               scanned.chaAppearance !== null) && (
               <div data-testid="import-substats-section">
-                <p className="mb-2 text-sm font-medium text-muted-foreground">
-                  {"Player's Option Sub-Stats"}
-                </p>
+                <p className="mb-2 text-sm font-medium text-muted-foreground">{t("subStats")}</p>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                   {(
                     [
@@ -919,7 +925,7 @@ export default function ImportCharacterPage() {
             {/* HP */}
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1">
-                <Label htmlFor="import-hp">Max. HP</Label>
+                <Label htmlFor="import-hp">{t("maxHp")}</Label>
                 <Input
                   id="import-hp"
                   type="number"
@@ -931,7 +937,7 @@ export default function ImportCharacterPage() {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor="import-hpCurrent">Akt. HP</Label>
+                <Label htmlFor="import-hpCurrent">{t("currentHp")}</Label>
                 <Input
                   id="import-hpCurrent"
                   type="number"
@@ -1002,7 +1008,7 @@ export default function ImportCharacterPage() {
                         }}
                         className="rounded"
                       />
-                      Spec.
+                      {t("specialized")}
                     </label>
                     <button
                       type="button"
