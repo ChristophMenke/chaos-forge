@@ -30,7 +30,8 @@ export function StepAbilities({ state, onChange, showExceptionalStr }: StepAbili
               min={3}
               max={25}
               value={state[key]}
-              onChange={(e) => {
+              onChange={(e) => onChange({ [key]: parseInt(e.target.value) || 0 })}
+              onBlur={(e) => {
                 const val = Math.max(3, Math.min(25, parseInt(e.target.value) || 3));
                 onChange({ [key]: val });
               }}
@@ -50,6 +51,9 @@ export function StepAbilities({ state, onChange, showExceptionalStr }: StepAbili
             max={100}
             value={state.strExceptional ?? ""}
             onChange={(e) => {
+              onChange({ strExceptional: e.target.value ? parseInt(e.target.value) || 0 : null });
+            }}
+            onBlur={(e) => {
               const val = e.target.value
                 ? Math.max(1, Math.min(100, parseInt(e.target.value) || 1))
                 : null;

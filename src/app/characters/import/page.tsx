@@ -898,7 +898,8 @@ export default function ImportCharacterPage() {
                     min={3}
                     max={18}
                     value={scanned[attr]}
-                    onChange={(e) =>
+                    onChange={(e) => updateField(attr, parseInt(e.target.value) || 0)}
+                    onBlur={(e) =>
                       updateField(attr, Math.max(3, Math.min(18, parseInt(e.target.value) || 3)))
                     }
                     className="text-center"

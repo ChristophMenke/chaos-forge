@@ -1010,7 +1010,8 @@ export function CharacterSheet({
                       min={3}
                       max={25}
                       value={value}
-                      onChange={(e) =>
+                      onChange={(e) => update(key, parseInt(e.target.value) || 0)}
+                      onBlur={(e) =>
                         update(key, Math.max(3, Math.min(25, parseInt(e.target.value) || 3)))
                       }
                       className="mt-1 text-center font-mono text-lg"
@@ -1032,6 +1033,12 @@ export function CharacterSheet({
                           max={100}
                           value={character.str_exceptional ?? ""}
                           onChange={(e) =>
+                            update(
+                              "str_exceptional",
+                              e.target.value ? parseInt(e.target.value) || 0 : null
+                            )
+                          }
+                          onBlur={(e) =>
                             update(
                               "str_exceptional",
                               e.target.value
@@ -1066,6 +1073,12 @@ export function CharacterSheet({
                               onChange={(e) =>
                                 update(
                                   sub.key1,
+                                  e.target.value ? parseInt(e.target.value) || 0 : null
+                                )
+                              }
+                              onBlur={(e) =>
+                                update(
+                                  sub.key1,
                                   e.target.value
                                     ? Math.max(3, Math.min(25, parseInt(e.target.value) || 3))
                                     : null
@@ -1089,6 +1102,12 @@ export function CharacterSheet({
                               max={25}
                               value={(character[sub.key2] as number) ?? ""}
                               onChange={(e) =>
+                                update(
+                                  sub.key2,
+                                  e.target.value ? parseInt(e.target.value) || 0 : null
+                                )
+                              }
+                              onBlur={(e) =>
                                 update(
                                   sub.key2,
                                   e.target.value
