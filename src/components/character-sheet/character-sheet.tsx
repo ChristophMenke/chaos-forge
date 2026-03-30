@@ -13,7 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RACES } from "@/lib/rules/races";
 import { CLASSES } from "@/lib/rules/classes";
-import { getAlignmentLabel } from "@/lib/rules/alignment";
+import { getAlignmentLabel, ALL_ALIGNMENTS } from "@/lib/rules/alignment";
 import { getXpForNextLevel, getXpThreshold } from "@/lib/rules/experience";
 import type { ClassId, RaceId } from "@/lib/rules/types";
 import {
@@ -435,7 +435,22 @@ export function CharacterSheet({
               <Badge variant="outline" data-testid="sheet-level-badge">
                 {t("levelPerClass")}: {levelDisplay}
               </Badge>
-              <Badge variant="outline">{getAlignmentLabel(character.alignment, locale)}</Badge>
+              {isOwner ? (
+                <select
+                  className="rounded-md border border-border bg-transparent px-2 py-0.5 text-xs"
+                  value={character.alignment}
+                  onChange={(e) => update("alignment", e.target.value)}
+                  data-testid="sheet-alignment-select"
+                >
+                  {ALL_ALIGNMENTS.map((a) => (
+                    <option key={a} value={a}>
+                      {getAlignmentLabel(a, locale)}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <Badge variant="outline">{getAlignmentLabel(character.alignment, locale)}</Badge>
+              )}
               {activeClasses.length > 1 && (
                 <Badge variant="secondary" data-testid="sheet-multiclass-badge">
                   {t("multiclass")}

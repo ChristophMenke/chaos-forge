@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { localized } from "@/lib/utils/localize";
 import { RACES } from "@/lib/rules/races";
 import { CLASSES } from "@/lib/rules/classes";
+import { getAlignmentLabel } from "@/lib/rules/alignment";
 import {
   getStrengthModifiers,
   getDexterityModifiers,
@@ -40,6 +41,7 @@ export function StepSummary({ state }: StepSummaryProps) {
         {race && <Badge>{localized(race.name, race.name_en, locale)}</Badge>}
         {classNames && <Badge>{classNames}</Badge>}
         <Badge variant="outline">{t("levelBadge", { level: state.level })}</Badge>
+        <Badge variant="outline">{getAlignmentLabel(state.alignment, locale)}</Badge>
       </div>
 
       <Separator />

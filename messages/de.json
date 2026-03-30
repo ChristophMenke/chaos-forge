@@ -487,7 +487,8 @@
     "fileTooLarge": "Datei \"{name}\" ist zu groß (max. 10 MB pro Datei).",
     "totalTooLarge": "Gesamtgröße darf 50 MB nicht überschreiten.",
     "noFiles": "Keine Dateien ausgewählt.",
-    "preciseMode": "Präziser Scan (genauer bei handschriftlichen Bögen, langsamer)"
+    "preciseMode": "Präziser Scan (genauer bei handschriftlichen Bögen, langsamer)",
+    "alignment": "Gesinnung"
   },
   "print": {
     "print": "Drucken (Cmd+P)",

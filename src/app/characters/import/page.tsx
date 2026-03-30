@@ -2,12 +2,13 @@
 
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 import type { RaceId, ClassId } from "@/lib/rules/types";
+import { ALL_ALIGNMENTS, getAlignmentLabel } from "@/lib/rules/alignment";
 import { validateImportFiles } from "./import-validation";
 
 interface ScannedClassEntry {
@@ -80,6 +81,7 @@ interface FilePreview {
 export default function ImportCharacterPage() {
   const router = useRouter();
   const t = useTranslations("import");
+  const locale = useLocale();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [scanning, setScanning] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -578,13 +580,24 @@ export default function ImportCharacterPage() {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor="import-alignment">Gesinnung</Label>
-                <Input
+                <Label htmlFor="import-alignment">{t("alignment")}</Label>
+                <select
                   id="import-alignment"
-                  value={scanned.alignment ?? ""}
+                  className="rounded-md border border-border bg-transparent px-3 py-2 text-sm"
+                  value={
+                    ALL_ALIGNMENTS.includes(scanned.alignment as never)
+                      ? scanned.alignment
+                      : "true_neutral"
+                  }
                   onChange={(e) => updateField("alignment", e.target.value)}
                   data-testid="import-alignment"
-                />
+                >
+                  {ALL_ALIGNMENTS.map((a) => (
+                    <option key={a} value={a}>
+                      {getAlignmentLabel(a, locale)}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="flex flex-col gap-1">
                 <Label htmlFor="import-xp">XP</Label>
