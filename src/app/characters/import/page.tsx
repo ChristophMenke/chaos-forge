@@ -208,8 +208,8 @@ export default function ImportCharacterPage() {
         }
         setScanned(char);
       }
-    } catch {
-      setError("Scan fehlgeschlagen.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Scan fehlgeschlagen.");
     }
 
     setScanning(false);
