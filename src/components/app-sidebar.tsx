@@ -35,7 +35,15 @@ export function AppSidebar({ userEmail }: AppSidebarProps) {
       {/* Navigation Icons */}
       <div className="flex flex-1 flex-col items-center gap-1 pt-2 xl:items-stretch xl:px-2">
         {NAV_ITEMS.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+          const hasMoreSpecificMatch = NAV_ITEMS.some(
+            (other) =>
+              other.href !== item.href &&
+              other.href.startsWith(item.href + "/") &&
+              (pathname === other.href || pathname.startsWith(other.href + "/"))
+          );
+          const isActive =
+            !hasMoreSpecificMatch &&
+            (pathname === item.href || pathname.startsWith(item.href + "/"));
           return (
             <Tooltip key={item.href}>
               <TooltipTrigger
