@@ -439,6 +439,11 @@
   height: 0 !important;
 }
 
+/* Fix CSS Grid min-width: auto causing overflow on mobile */
+.grid > * {
+  min-width: 0;
+}
+
 /* Hide scrollbar utility */
 @utility scrollbar-hide {
   -ms-overflow-style: none;

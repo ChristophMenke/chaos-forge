@@ -515,7 +515,7 @@ export function CharacterSheet({
 
       <Tabs defaultValue="stats" className="w-full">
         <TabsList
-          className="flex w-full gap-0.5 overflow-x-auto scrollbar-hide sm:flex-wrap sm:overflow-x-visible"
+          className="flex h-auto w-full flex-wrap justify-start gap-0.5 group-data-horizontal/tabs:h-auto sm:justify-center [&>*]:flex-none sm:[&>*]:flex-1"
           data-testid="sheet-tabs"
         >
           <TabsTrigger value="stats" data-testid="tab-trigger-stats">

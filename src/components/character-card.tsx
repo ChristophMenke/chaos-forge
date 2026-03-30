@@ -85,7 +85,7 @@ export function CharacterCard({
   })();
 
   return (
-    <Link href={`/characters/${character.id}`}>
+    <Link href={`/characters/${character.id}`} className="min-w-0">
       <div
         className={`glass glass-hover tilt-card touch-press relative overflow-hidden rounded-xl p-4 ${colors.glow}`}
         data-testid={`character-card-${character.id}`}
@@ -124,7 +124,7 @@ export function CharacterCard({
           </div>
 
           {/* Content */}
-          <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5 pr-8">
+          <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5 pr-2 sm:pr-8">
             {/* Name */}
             <h3
               className="truncate font-heading text-lg leading-tight tracking-wide text-foreground"
