@@ -28,7 +28,7 @@ export class RulebookChatPage {
   }
 
   async goto() {
-    await this.page.goto("/rulebook");
+    await this.page.goto("/chat");
   }
 
   async sendMessage(text: string) {

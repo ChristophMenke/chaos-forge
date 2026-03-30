@@ -16,7 +16,7 @@ export const NAV_ITEMS = [
     testId: "nav-import",
   },
   {
-    href: "/rulebook",
+    href: "/chat",
     icon: BookOpen,
     labelKey: "rulebook" as const,
     testId: "nav-rulebook",
