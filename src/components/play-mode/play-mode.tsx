@@ -484,7 +484,7 @@ export function PlayMode({
   const visiblePanels = panels.filter((p) => p.show);
 
   return (
-    <div className="mx-auto w-full max-w-6xl" data-testid="play-mode">
+    <div className="mx-auto w-full max-w-7xl" data-testid="play-mode">
       <div className="flex justify-end px-4 pt-3">
         <CharacterModeNav characterId={character.id} hasEpicItems={epicItems.length > 0} />
       </div>
