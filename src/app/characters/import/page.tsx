@@ -612,21 +612,144 @@ export default function ImportCharacterPage() {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor="import-level">Stufe</Label>
-                <Input
-                  id="import-level"
-                  type="number"
-                  min={1}
-                  max={20}
-                  value={scanned.level ?? scanned.classes?.[0]?.level ?? 1}
-                  onChange={(e) => updateField("level", parseInt(e.target.value) || 1)}
-                  data-testid="import-level"
-                />
+                <Label htmlFor="import-race">{t("race")}</Label>
+                <select
+                  id="import-race"
+                  className="rounded-md border border-border bg-transparent px-3 py-2 text-sm"
+                  value={scanned.race ?? "human"}
+                  onChange={(e) => updateField("race", e.target.value as RaceId)}
+                  data-testid="import-race"
+                >
+                  {(
+                    [
+                      "human",
+                      "elf",
+                      "half_elf",
+                      "dwarf",
+                      "gnome",
+                      "halfling",
+                      "half_orc",
+                      "kobold",
+                    ] as const
+                  ).map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
-            {/* Kit, Alignment, XP */}
-            <div className="grid gap-4 sm:grid-cols-3">
+            {/* Classes */}
+            <div data-testid="import-classes">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-sm font-medium text-muted-foreground">{t("classes")}</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const current = scanned.classes ?? [];
+                    updateField("classes", [
+                      ...current,
+                      { class: "fighter" as ClassId, level: 1, xp: 0 },
+                    ]);
+                  }}
+                  data-testid="import-add-class"
+                >
+                  {t("addClass")}
+                </Button>
+              </div>
+              {(scanned.classes ?? []).map((cc, i) => (
+                <div
+                  key={i}
+                  className="mb-2 flex items-center gap-2"
+                  data-testid={`import-class-${i}`}
+                >
+                  <select
+                    className="rounded-md border border-border bg-transparent px-2 py-1.5 text-sm"
+                    value={cc.class}
+                    onChange={(e) => {
+                      const updated = [...(scanned.classes ?? [])];
+                      updated[i] = { ...updated[i], class: e.target.value as ClassId };
+                      updateField("classes", updated);
+                    }}
+                    data-testid={`import-class-select-${i}`}
+                  >
+                    {(
+                      [
+                        "fighter",
+                        "ranger",
+                        "paladin",
+                        "mage",
+                        "abjurer",
+                        "conjurer",
+                        "diviner",
+                        "enchanter",
+                        "illusionist",
+                        "invoker",
+                        "necromancer",
+                        "transmuter",
+                        "cleric",
+                        "druid",
+                        "thief",
+                        "bard",
+                      ] as const
+                    ).map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={30}
+                    value={cc.level}
+                    onChange={(e) => {
+                      const updated = [...(scanned.classes ?? [])];
+                      updated[i] = {
+                        ...updated[i],
+                        level: Math.max(1, parseInt(e.target.value) || 1),
+                      };
+                      updateField("classes", updated);
+                    }}
+                    className="h-8 w-20 text-center text-sm"
+                    data-testid={`import-class-level-${i}`}
+                  />
+                  <Input
+                    type="number"
+                    min={0}
+                    value={cc.xp}
+                    onChange={(e) => {
+                      const updated = [...(scanned.classes ?? [])];
+                      updated[i] = { ...updated[i], xp: parseInt(e.target.value) || 0 };
+                      updateField("classes", updated);
+                    }}
+                    className="h-8 w-28 text-center text-sm"
+                    placeholder="XP"
+                    data-testid={`import-class-xp-${i}`}
+                  />
+                  {(scanned.classes ?? []).length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated = (scanned.classes ?? []).filter((_, idx) => idx !== i);
+                        updateField("classes", updated);
+                      }}
+                      className="text-destructive hover:text-destructive/80"
+                      aria-label={t("removeClass")}
+                      data-testid={`import-class-remove-${i}`}
+                    >
+                      &times;
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Kit, Alignment */}
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1">
                 <Label htmlFor="import-kit">Kit</Label>
                 <Input
@@ -656,17 +779,6 @@ export default function ImportCharacterPage() {
                     </option>
                   ))}
                 </select>
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label htmlFor="import-xp">XP</Label>
-                <Input
-                  id="import-xp"
-                  type="number"
-                  min={0}
-                  value={scanned.xp ?? scanned.classes?.[0]?.xp ?? 0}
-                  onChange={(e) => updateField("xp", parseInt(e.target.value) || 0)}
-                  data-testid="import-xp"
-                />
               </div>
             </div>
 
