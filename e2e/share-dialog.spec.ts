@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { loginAsTestUser, createTestUser, deleteTestUser } from "./helpers/auth";
+import { createTestUser, deleteTestUser } from "./helpers/auth";
 import { CharacterSheetPage } from "./pages/character-sheet.page";
 
 const SHARE_TEST_EMAIL = "share-e2e-test@chaos-forge.de";
@@ -19,13 +19,15 @@ test.describe("Share Dialog", () => {
     page,
   }) => {
     test.setTimeout(60000);
-    await loginAsTestUser(page);
+    await page.goto("/characters");
     const sheet = new CharacterSheetPage(page);
 
-    // Navigate to Gor (owned by test user)
+    // Navigate to Gor (owned by test user) → choice page → manage
     const gorCard = page.locator("a", { hasText: "Gor" });
     await expect(gorCard).toBeVisible({ timeout: 10000 });
     await gorCard.click();
+    await expect(page.getByTestId("character-choice-page")).toBeVisible({ timeout: 15000 });
+    await page.getByTestId("character-manage-link").click();
     await sheet.container.waitFor({ timeout: 30000 });
 
     // Open share dialog
@@ -56,12 +58,14 @@ test.describe("Share Dialog", () => {
 
   test("public toggle switches between yes and no", async ({ page }) => {
     test.setTimeout(60000);
-    await loginAsTestUser(page);
+    await page.goto("/characters");
     const sheet = new CharacterSheetPage(page);
 
     const gorCard = page.locator("a", { hasText: "Gor" });
     await expect(gorCard).toBeVisible({ timeout: 10000 });
     await gorCard.click();
+    await expect(page.getByTestId("character-choice-page")).toBeVisible({ timeout: 15000 });
+    await page.getByTestId("character-manage-link").click();
     await sheet.container.waitFor({ timeout: 30000 });
 
     await sheet.shareButton.click();

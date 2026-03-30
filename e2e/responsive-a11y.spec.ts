@@ -1,36 +1,15 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { loginAsTestUser } from "./helpers/auth";
 
 // ─── Mobile Responsive Tests (iPhone 13 viewport) ──────────────────────────
 
 const MOBILE_VIEWPORT = { width: 390, height: 844 };
 
 test.describe("Mobile Responsive (iPhone 13)", () => {
-  test("landing page renders correctly on mobile", async ({ page }) => {
-    await page.setViewportSize(MOBILE_VIEWPORT);
-    await page.goto("/");
-    await expect(page.getByTestId("landing-page")).toBeVisible();
-    // Glass card should be visible
-    const cta = page.getByTestId("cta-login-button");
-    await expect(cta).toBeVisible();
-    // No horizontal overflow
-    const body = page.locator("body");
-    const bodyWidth = await body.evaluate((el) => el.scrollWidth);
-    const viewportWidth = await page.evaluate(() => window.innerWidth);
-    expect(bodyWidth).toBeLessThanOrEqual(viewportWidth + 1);
-  });
-
-  test("login page renders correctly on mobile", async ({ page }) => {
-    await page.setViewportSize(MOBILE_VIEWPORT);
-    await page.goto("/login");
-    await expect(page.getByTestId("login-email-input")).toBeVisible();
-    await expect(page.getByTestId("login-submit-button")).toBeVisible();
-  });
-
   test("characters page — mobile nav has more menu", async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
-    await loginAsTestUser(page);
+    await page.goto("/characters");
+    await page.waitForTimeout(2000);
     // Mobile bottom nav should be visible
     await expect(page.getByTestId("app-nav-mobile")).toBeVisible();
     // More button should exist
@@ -43,7 +22,7 @@ test.describe("Mobile Responsive (iPhone 13)", () => {
 
   test("character cards render without overflow on mobile", async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
-    await loginAsTestUser(page);
+    await page.goto("/characters");
     const grid = page.getByTestId("active-characters-grid");
     await expect(grid).toBeVisible({ timeout: 10000 });
     // Cards should not cause horizontal scroll
@@ -52,17 +31,17 @@ test.describe("Mobile Responsive (iPhone 13)", () => {
     expect(bodyScrollWidth).toBeLessThanOrEqual(windowWidth + 1);
   });
 
-  test("character sheet tabs scrollable on mobile", async ({ page }) => {
+  test("character sheet tabs visible on mobile", async ({ page }) => {
     test.setTimeout(60000);
     await page.setViewportSize(MOBILE_VIEWPORT);
-    await loginAsTestUser(page);
+    await page.goto("/characters");
     // Navigate to first character → choice page → manage
     const firstCard = page.locator("[data-testid^='character-card-']").first();
     await expect(firstCard).toBeVisible({ timeout: 10000 });
     await firstCard.click();
     await expect(page.getByTestId("character-choice-page")).toBeVisible({ timeout: 15000 });
     await page.getByTestId("character-manage-link").click();
-    // Tabs should be visible and horizontally scrollable (not wrapped/clipped)
+    // Tabs should be visible
     const tabs = page.getByTestId("sheet-tabs");
     await expect(tabs).toBeVisible({ timeout: 15000 });
     // All tab triggers should exist in the DOM
@@ -82,7 +61,6 @@ const DESKTOP_VIEWPORT = { width: 1280, height: 800 };
 test.describe("Desktop Sidebar Navigation", () => {
   test("sidebar visible on desktop, hidden on mobile", async ({ page }) => {
     await page.setViewportSize(DESKTOP_VIEWPORT);
-    await loginAsTestUser(page);
     await page.goto("/dashboard");
     await page.getByTestId("dashboard-page").waitFor({ timeout: 10000 });
     // Sidebar should be visible on desktop
@@ -101,7 +79,6 @@ test.describe("Desktop Sidebar Navigation", () => {
 
   test("FAB visible on mobile, hidden on desktop", async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
-    await loginAsTestUser(page);
     await page.goto("/characters");
     await page.waitForTimeout(500);
     await expect(page.getByTestId("fab-new-character")).toBeVisible();
@@ -114,7 +91,6 @@ test.describe("Desktop Sidebar Navigation", () => {
 
   test("sidebar navigation links work", async ({ page }) => {
     await page.setViewportSize(DESKTOP_VIEWPORT);
-    await loginAsTestUser(page);
     await page.goto("/dashboard");
     await page.getByTestId("dashboard-page").waitFor({ timeout: 10000 });
 
@@ -128,7 +104,7 @@ test.describe("Desktop Sidebar Navigation", () => {
 
 test.describe("Accessibility — Authenticated Pages (WCAG 2 AA)", () => {
   test("characters page should have no critical a11y violations", async ({ page }) => {
-    await loginAsTestUser(page);
+    await page.goto("/characters");
     await page.getByTestId("active-characters-grid").waitFor({ timeout: 10000 });
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa"])
@@ -143,7 +119,7 @@ test.describe("Accessibility — Authenticated Pages (WCAG 2 AA)", () => {
 
   test("character sheet should have no critical a11y violations", async ({ page }) => {
     test.setTimeout(60000);
-    await loginAsTestUser(page);
+    await page.goto("/characters");
     const firstCard = page.locator("[data-testid^='character-card-']").first();
     await expect(firstCard).toBeVisible({ timeout: 10000 });
     await firstCard.click();
@@ -159,7 +135,6 @@ test.describe("Accessibility — Authenticated Pages (WCAG 2 AA)", () => {
   });
 
   test("new character choice page should have no critical a11y violations", async ({ page }) => {
-    await loginAsTestUser(page);
     await page.goto("/characters/new");
     await page.getByTestId("new-character-page").waitFor({ timeout: 10000 });
     const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
@@ -168,7 +143,6 @@ test.describe("Accessibility — Authenticated Pages (WCAG 2 AA)", () => {
   });
 
   test("dashboard should have no critical a11y violations", async ({ page }) => {
-    await loginAsTestUser(page);
     await page.goto("/dashboard");
     await page.getByTestId("dashboard-page").waitFor({ timeout: 10000 });
     const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();

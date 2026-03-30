@@ -18,7 +18,7 @@ export function HpBar({ current, max, barClass }: HpBarProps) {
         />
       </div>
       <span
-        className="min-w-[4.5rem] text-right font-mono text-sm text-foreground/80"
+        className="flex-shrink-0 whitespace-nowrap text-right font-mono text-sm text-foreground/80"
         data-testid="hp-bar-text"
       >
         HP: {current}/{max}

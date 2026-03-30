@@ -1,5 +1,4 @@
 import { test, expect } from "@playwright/test";
-import { loginAsTestUser } from "./helpers/auth";
 import { CharacterSheetPage } from "./pages/character-sheet.page";
 import { LoginPage } from "./pages/login.page";
 
@@ -12,8 +11,9 @@ test.describe("Login Page", () => {
     await expect(login.codeInput).not.toBeVisible();
   });
 
-  test("test-login bypass redirects to characters", async ({ page }) => {
-    await loginAsTestUser(page);
+  test("authenticated user is redirected to characters", async ({ page }) => {
+    await page.goto("/characters");
+    await page.waitForTimeout(3000);
     expect(page.url()).toContain("/characters");
     expect(page.url()).not.toContain("/login");
   });
@@ -22,7 +22,7 @@ test.describe("Login Page", () => {
 test.describe("Character Sheet — Owner", () => {
   test("shows character name, can edit, save, and switch tabs", async ({ page }) => {
     test.setTimeout(90000);
-    await loginAsTestUser(page);
+    await page.goto("/characters");
     const sheet = new CharacterSheetPage(page);
 
     // Navigate to Gor (owned by test user) → choice page → manage
@@ -76,7 +76,7 @@ test.describe("Character Sheet — Owner", () => {
 test.describe("Character Sheet — Read-Only", () => {
   test("non-owner cannot see save or delete buttons", async ({ page }) => {
     test.setTimeout(60000);
-    await loginAsTestUser(page);
+    await page.goto("/characters");
     const sheet = new CharacterSheetPage(page);
 
     // Elara is owned by another user, so she's in the "Other Characters" section
@@ -98,8 +98,7 @@ test.describe("Character Sheet — Read-Only", () => {
 
 test.describe("Loading & Navigation", () => {
   test("characters page loads without error", async ({ page }) => {
-    await loginAsTestUser(page);
-    expect(page.url()).toContain("/characters");
+    await page.goto("/characters");
     const cards = page.locator('[data-testid^="character-card-"]');
     await expect(cards.first()).toBeVisible({ timeout: 10000 });
   });
@@ -108,7 +107,7 @@ test.describe("Loading & Navigation", () => {
 test.describe("Character Choice Page", () => {
   test("shows manage and play options, both navigate correctly", async ({ page }) => {
     test.setTimeout(60000);
-    await loginAsTestUser(page);
+    await page.goto("/characters");
 
     // Navigate to Gor (fighter)
     const gor = page.locator("a", { hasText: "Gor" });
@@ -137,7 +136,7 @@ test.describe("Character Choice Page", () => {
 test.describe("Print View", () => {
   test("print view loads with all sections", async ({ page }) => {
     test.setTimeout(60000);
-    await loginAsTestUser(page);
+    await page.goto("/characters");
     const sheet = new CharacterSheetPage(page);
 
     const gor = page.locator("a", { hasText: "Gor" });

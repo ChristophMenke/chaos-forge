@@ -14,9 +14,34 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   projects: [
+    // Auth setup — runs once, saves storage state for authenticated tests
+    {
+      name: "setup",
+      testMatch: /auth\.setup\.ts/,
+    },
+    // Authenticated tests — pre-loaded session cookies, parallel-safe
     {
       name: "chromium",
+      dependencies: ["setup"],
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: "e2e/.auth/user.json",
+      },
+      testMatch: ["regression.spec.ts", "responsive-a11y.spec.ts", "share-dialog.spec.ts"],
+    },
+    // Unauthenticated tests — no storage state
+    {
+      name: "chromium-noauth",
       use: { ...devices["Desktop Chrome"] },
+      testMatch: [
+        "smoke.spec.ts",
+        "landing.spec.ts",
+        "not-found.spec.ts",
+        "accessibility.spec.ts",
+        "auth-redirect.spec.ts",
+        "login.spec.ts",
+        "layout.spec.ts",
+      ],
     },
   ],
   webServer: {
