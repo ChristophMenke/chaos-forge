@@ -89,7 +89,11 @@
     "epicEquipmentDesc": "Manage unique items and their effects.",
     "manage": "Manage",
     "play": "Play",
-    "epic": "Epic"
+    "epic": "Epic",
+    "duplicate": "Duplicate",
+    "duplicateTitle": "Duplicate Character",
+    "duplicateMessage": "Name for the copy:",
+    "duplicating": "Duplicating..."
   },
   "wizard": {
     "basics": "Basics",

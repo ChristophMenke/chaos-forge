@@ -39,7 +39,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { AvatarUpload } from "@/components/avatar-upload";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { ShareDialog } from "./share-dialog";
-import { Share2, Printer, EyeOff, Eye, Trash2 } from "lucide-react";
+import { Share2, Printer, EyeOff, Eye, Trash2, Copy } from "lucide-react";
 import { CharacterModeNav } from "@/components/character-mode-nav";
 import Link from "next/link";
 import type {
@@ -131,6 +131,9 @@ export function CharacterSheet({
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
+  const [duplicateName, setDuplicateName] = useState("");
+  const [duplicating, setDuplicating] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [xpDialogOpen, setXpDialogOpen] = useState(false);
   const [payDialogOpen, setPayDialogOpen] = useState(false);
@@ -336,6 +339,7 @@ export function CharacterSheet({
     const { error: charError } = await supabase
       .from("characters")
       .update({
+        name: character.name,
         str: character.str,
         str_exceptional: character.str_exceptional,
         dex: character.dex,
@@ -409,6 +413,85 @@ export function CharacterSheet({
     router.refresh();
   }
 
+  async function handleDuplicate() {
+    if (!duplicateName.trim()) return;
+    setDuplicating(true);
+    const supabase = createClient();
+
+    // 1. Insert new character (copy all fields except id/timestamps/avatar)
+    const { id: _id, created_at: _ca, updated_at: _ua, avatar_url: _av, ...charFields } = character;
+    const { data: newChar, error: charErr } = await supabase
+      .from("characters")
+      .insert({ ...charFields, name: duplicateName.trim(), is_active: true })
+      .select("id")
+      .single();
+
+    if (charErr || !newChar) {
+      setDuplicating(false);
+      return;
+    }
+
+    const newId = newChar.id;
+
+    // 2. Duplicate related tables in parallel
+    const copyTable = async <T extends Record<string, unknown>>(
+      table: string,
+      rows: T[],
+      omitFields: string[] = ["id"]
+    ) => {
+      if (rows.length === 0) return;
+      const cleaned = rows.map((row) => {
+        const copy = { ...row, character_id: newId };
+        for (const f of omitFields) delete copy[f];
+        return copy;
+      });
+      await supabase.from(table).insert(cleaned);
+    };
+
+    // Fetch all related data
+    const [
+      { data: classes },
+      { data: equip },
+      { data: charSpells },
+      { data: weaponProfs },
+      { data: nwProfs },
+      { data: langs },
+      { data: inv },
+      { data: styles },
+      { data: epics },
+    ] = await Promise.all([
+      supabase.from("character_classes").select("*").eq("character_id", character.id),
+      supabase.from("character_equipment").select("*").eq("character_id", character.id),
+      supabase.from("character_spells").select("*").eq("character_id", character.id),
+      supabase.from("character_weapon_proficiencies").select("*").eq("character_id", character.id),
+      supabase
+        .from("character_nonweapon_proficiencies")
+        .select("*")
+        .eq("character_id", character.id),
+      supabase.from("character_languages").select("*").eq("character_id", character.id),
+      supabase.from("character_inventory").select("*").eq("character_id", character.id),
+      supabase.from("character_fighting_styles").select("*").eq("character_id", character.id),
+      supabase.from("epic_items").select("*").eq("character_id", character.id),
+    ]);
+
+    await Promise.all([
+      copyTable("character_classes", classes ?? []),
+      copyTable("character_equipment", equip ?? []),
+      copyTable("character_spells", charSpells ?? [], ["character_id"]),
+      copyTable("character_weapon_proficiencies", weaponProfs ?? []),
+      copyTable("character_nonweapon_proficiencies", nwProfs ?? []),
+      copyTable("character_languages", langs ?? []),
+      copyTable("character_inventory", inv ?? []),
+      copyTable("character_fighting_styles", styles ?? []),
+      copyTable("epic_items", epics ?? []),
+    ]);
+
+    setDuplicating(false);
+    setShowDuplicateDialog(false);
+    router.push(`/characters/${newId}/manage`);
+    router.refresh();
+  }
+
   return (
     <div className="mx-auto w-full max-w-7xl p-4 sm:p-6" data-testid="character-sheet">
       {/* Header */}
@@ -423,12 +506,22 @@ export function CharacterSheet({
             variant="square"
           />
           <div className="min-w-0 flex-1">
-            <h1
-              className="truncate font-heading text-2xl text-primary sm:text-3xl"
-              data-testid="sheet-name"
-            >
-              {character.name}
-            </h1>
+            {isOwner ? (
+              <input
+                className="w-full truncate border-none bg-transparent font-heading text-2xl text-primary outline-none focus:ring-1 focus:ring-primary/30 sm:text-3xl"
+                value={character.name}
+                onChange={(e) => update("name", e.target.value)}
+                aria-label="Name"
+                data-testid="sheet-name"
+              />
+            ) : (
+              <h1
+                className="truncate font-heading text-2xl text-primary sm:text-3xl"
+                data-testid="sheet-name"
+              >
+                {character.name}
+              </h1>
+            )}
             <div className="mt-1 flex flex-wrap gap-2">
               {race && <Badge>{localized(race.name, race.name_en, locale)}</Badge>}
               {classNames && <Badge data-testid="sheet-class-badge">{classNames}</Badge>}
@@ -536,6 +629,20 @@ export function CharacterSheet({
           )}
           {isOwner && (
             <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setDuplicateName(`${character.name} (${tc("duplicate")})`);
+                setShowDuplicateDialog(true);
+              }}
+              data-testid="sheet-duplicate-button"
+            >
+              <Copy className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">{tc("duplicate")}</span>
+            </Button>
+          )}
+          {isOwner && (
+            <Button
               variant="destructive"
               size="sm"
               onClick={() => setShowDeleteConfirm(true)}
@@ -555,6 +662,52 @@ export function CharacterSheet({
         onConfirm={handleDelete}
         onCancel={() => setShowDeleteConfirm(false)}
       />
+
+      {showDuplicateDialog && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          data-testid="duplicate-dialog"
+        >
+          <div className="glass mx-4 w-full max-w-md rounded-xl p-6">
+            <h3 className="font-heading text-lg text-primary">{tc("duplicateTitle")}</h3>
+            <p className="mt-2 text-sm text-muted-foreground">{tc("duplicateMessage")}</p>
+            <Input
+              className="mt-3"
+              value={duplicateName}
+              onChange={(e) => setDuplicateName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleDuplicate();
+              }}
+              autoFocus
+              data-testid="duplicate-name-input"
+            />
+            <div className="mt-4 flex justify-end gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDuplicateDialog(false)}
+                disabled={duplicating}
+              >
+                {tcom("cancel")}
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleDuplicate}
+                disabled={duplicating || !duplicateName.trim()}
+              >
+                {duplicating ? (
+                  <>
+                    <Spinner className="mr-2" />
+                    {tc("duplicating")}
+                  </>
+                ) : (
+                  tc("duplicate")
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isOwner && (
         <ShareDialog
