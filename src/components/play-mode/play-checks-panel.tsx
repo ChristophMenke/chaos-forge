@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { GlassCard } from "@/components/glass-card";
 import { Badge } from "@/components/ui/badge";
@@ -231,9 +231,14 @@ export function PlayChecksPanel({
         baseScore,
         modifier: nwp.proficiency.modifier,
         target,
+        description: nwp.proficiency.description
+          ? localized(nwp.proficiency.description, nwp.proficiency.description_en, locale)
+          : null,
       };
     });
   }, [nonweaponProficiencies, character, locale, eo]);
+
+  const [expandedNwp, setExpandedNwp] = useState<string | null>(null);
 
   return (
     <GlassCard hover={false} data-testid="play-checks-panel">
@@ -374,19 +379,29 @@ export function PlayChecksPanel({
             {nwpChecks.map((nwp) => (
               <div
                 key={nwp.name}
-                className="flex items-center justify-between rounded-md border border-border px-2 py-1"
+                className={`rounded-md border border-border px-2 py-1 ${nwp.description ? "cursor-pointer" : ""}`}
+                onClick={
+                  nwp.description
+                    ? () => setExpandedNwp(expandedNwp === nwp.name ? null : nwp.name)
+                    : undefined
+                }
               >
-                <div className="min-w-0 flex-1">
-                  <span className="text-xs">{nwp.name}</span>
-                  <span className="ml-1 text-[10px] text-muted-foreground">
-                    ({nwp.ability} {nwp.baseScore}
-                    {nwp.modifier !== 0 ? ` ${nwp.modifier > 0 ? "+" : ""}${nwp.modifier}` : ""})
-                  </span>
+                <div className="flex items-center justify-between">
+                  <div className="min-w-0 flex-1">
+                    <span className="text-xs">{nwp.name}</span>
+                    <span className="ml-1 text-[10px] text-muted-foreground">
+                      ({nwp.ability} {nwp.baseScore}
+                      {nwp.modifier !== 0 ? ` ${nwp.modifier > 0 ? "+" : ""}${nwp.modifier}` : ""})
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] text-muted-foreground">{t("target")}:</span>
+                    <span className="font-mono text-sm font-bold">{nwp.target}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-[10px] text-muted-foreground">{t("target")}:</span>
-                  <span className="font-mono text-sm font-bold">{nwp.target}</span>
-                </div>
+                {expandedNwp === nwp.name && nwp.description && (
+                  <p className="mt-1 pb-0.5 text-[10px] text-muted-foreground">{nwp.description}</p>
+                )}
               </div>
             ))}
           </div>

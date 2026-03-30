@@ -182,6 +182,8 @@ export interface NonweaponProficiencyRow {
   slots_required: number;
   is_custom: boolean;
   created_by: string | null;
+  description: string | null;
+  description_en: string | null;
 }
 
 export interface CharacterWeaponProficiencyRow {

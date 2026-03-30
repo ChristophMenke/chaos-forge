@@ -28,6 +28,7 @@ import { getKit, getEffectiveHitDie } from "@/lib/rules/kits";
 import { calculateAC, calculateEncumbrance } from "@/lib/rules/equipment";
 import { feetToMeters, lbsToKg } from "@/lib/utils/units";
 import { localized } from "@/lib/utils/localize";
+import { spellRange, spellArea } from "@/lib/utils/spell-display";
 import {
   getStrengthModifiers,
   getDexterityModifiers,
@@ -1007,11 +1008,11 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
                       alignment: AlignmentType.CENTER,
                       size: 18,
                     }),
-                    cell(cs.spell.range || "—", {
+                    cell(spellRange(cs.spell) || "—", {
                       alignment: AlignmentType.CENTER,
                       size: 18,
                     }),
-                    cell(cs.spell.area_of_effect || "—", {
+                    cell(spellArea(cs.spell) || "—", {
                       alignment: AlignmentType.CENTER,
                       size: 18,
                     }),

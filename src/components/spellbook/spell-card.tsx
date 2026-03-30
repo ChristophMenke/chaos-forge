@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getBookAbbreviation } from "@/lib/utils/source-books";
+import { spellName, spellRange, spellArea, spellDescription } from "@/lib/utils/spell-display";
 import type { CharacterSpellWithDetails, SpellRow } from "@/lib/supabase/types";
 
 interface SpellCardProps {
@@ -32,9 +33,8 @@ export const SpellCard = memo(function SpellCard({
 
   const spell = charSpell.spell;
 
-  const spellName = (s: SpellRow) => (locale === "en" && s.name_en ? s.name_en : s.name);
-  const spellDesc = (s: SpellRow) =>
-    locale === "en" && s.description_en ? s.description_en : s.description;
+  const getSpellName = (s: SpellRow) => spellName(s, locale);
+  const getSpellDesc = (s: SpellRow) => spellDescription(s, locale);
 
   return (
     <div
@@ -54,7 +54,7 @@ export const SpellCard = memo(function SpellCard({
             &#9733;
           </span>
         )}
-        <span className="min-w-0 flex-1 truncate text-sm font-medium">{spellName(spell)}</span>
+        <span className="min-w-0 flex-1 truncate text-sm font-medium">{getSpellName(spell)}</span>
         <Badge variant="outline" className="shrink-0 text-xs">
           L{spell.level}
         </Badge>
@@ -101,13 +101,13 @@ export const SpellCard = memo(function SpellCard({
               {tSpells("school")}: {spell.school ?? spell.sphere}
             </span>
             <span>
-              {tSpells("range")}: {spell.range}
+              {tSpells("range")}: {spellRange(spell)}
             </span>
             <span>
               {tSpells("duration")}: {spell.duration}
             </span>
             <span>
-              {tSpells("areaOfEffect")}: {spell.area_of_effect}
+              {tSpells("areaOfEffect")}: {spellArea(spell)}
             </span>
             {spell.casting_time && (
               <span>
@@ -128,7 +128,7 @@ export const SpellCard = memo(function SpellCard({
 
           {/* Description */}
           <div className="prose prose-sm max-w-none dark:prose-invert">
-            <ReactMarkdown>{spellDesc(spell)}</ReactMarkdown>
+            <ReactMarkdown>{getSpellDesc(spell)}</ReactMarkdown>
           </div>
 
           {/* Action buttons */}

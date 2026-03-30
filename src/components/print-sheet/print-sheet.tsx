@@ -2,6 +2,7 @@
 
 import { useTranslations, useLocale } from "next-intl";
 import { localized } from "@/lib/utils/localize";
+import { spellRange, spellArea } from "@/lib/utils/spell-display";
 import { RACES } from "@/lib/rules/races";
 import { CLASSES, getClassGroup } from "@/lib/rules/classes";
 import { getAlignmentLabel } from "@/lib/rules/alignment";
@@ -866,10 +867,8 @@ export function PrintSheet({
                                 {cs.prepared && <span className="ml-1 text-gray-500">★</span>}
                               </td>
                               <td className="py-0.5 text-center">{cs.spell.casting_time || "—"}</td>
-                              <td className="py-0.5 text-center">{cs.spell.range || "—"}</td>
-                              <td className="py-0.5 text-center">
-                                {cs.spell.area_of_effect || "—"}
-                              </td>
+                              <td className="py-0.5 text-center">{spellRange(cs.spell) || "—"}</td>
+                              <td className="py-0.5 text-center">{spellArea(cs.spell) || "—"}</td>
                               <td className="py-0.5 text-center">
                                 {(cs.spell.components ?? []).join(", ")}
                               </td>
