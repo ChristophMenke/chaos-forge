@@ -469,7 +469,26 @@
     "classDistribution": "Class Distribution",
     "latestSession": "Latest Session",
     "allCharacters": "All Characters",
-    "noCharacters": "No characters in the party yet."
+    "noCharacters": "No characters in the party yet.",
+    "totalSessions": "Sessions",
+    "daysSinceLastSession": "Days since last session",
+    "randomQuote": "Quote of the Day",
+    "latestNpcs": "Latest NPCs",
+    "xpOverview": "XP Overview",
+    "totalXp": "Total XP",
+    "tagCloud": "Campaign Tags",
+    "partyComposition": "Party Composition",
+    "throwback": "Throwback",
+    "throwbackPrefix": "{count} sessions ago",
+    "noQuotes": "No quotes yet.",
+    "noNpcs": "No NPCs yet.",
+    "noXp": "No XP awarded yet.",
+    "noTags": "No tags yet.",
+    "viewAll": "View all",
+    "groupWarrior": "Warrior",
+    "groupPriest": "Priest",
+    "groupRogue": "Rogue",
+    "groupWizard": "Wizard"
   },
   "import": {
     "title": "Import Character Sheet",
@@ -487,7 +506,8 @@
     "fileTooLarge": "File \"{name}\" is too large (max. 10 MB per file).",
     "totalTooLarge": "Total size must not exceed 50 MB.",
     "noFiles": "No files selected.",
-    "preciseMode": "Precise scan (more accurate for handwritten sheets, slower)"
+    "preciseMode": "Precise scan (more accurate for handwritten sheets, slower)",
+    "alignment": "Alignment"
   },
   "print": {
     "print": "Print (Cmd+P)",

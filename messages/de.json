@@ -469,7 +469,26 @@
     "classDistribution": "Klassenverteilung",
     "latestSession": "Letzte Session",
     "allCharacters": "Alle Charaktere",
-    "noCharacters": "Noch keine Charaktere in der Gruppe."
+    "noCharacters": "Noch keine Charaktere in der Gruppe.",
+    "totalSessions": "Sessions",
+    "daysSinceLastSession": "Tage seit letzter Session",
+    "randomQuote": "Zitat des Tages",
+    "latestNpcs": "Neueste NPCs",
+    "xpOverview": "XP-Übersicht",
+    "totalXp": "Gesamt-XP",
+    "tagCloud": "Kampagnen-Tags",
+    "partyComposition": "Party-Zusammensetzung",
+    "throwback": "Rückblick",
+    "throwbackPrefix": "Vor {count} Sessions",
+    "noQuotes": "Noch keine Zitate.",
+    "noNpcs": "Noch keine NPCs.",
+    "noXp": "Noch keine XP vergeben.",
+    "noTags": "Noch keine Tags.",
+    "viewAll": "Alle anzeigen",
+    "groupWarrior": "Krieger",
+    "groupPriest": "Priester",
+    "groupRogue": "Schurke",
+    "groupWizard": "Magier"
   },
   "import": {
     "title": "Charakterbogen importieren",
@@ -487,7 +506,8 @@
     "fileTooLarge": "Datei \"{name}\" ist zu groß (max. 10 MB pro Datei).",
     "totalTooLarge": "Gesamtgröße darf 50 MB nicht überschreiten.",
     "noFiles": "Keine Dateien ausgewählt.",
-    "preciseMode": "Präziser Scan (genauer bei handschriftlichen Bögen, langsamer)"
+    "preciseMode": "Präziser Scan (genauer bei handschriftlichen Bögen, langsamer)",
+    "alignment": "Gesinnung"
   },
   "print": {
     "print": "Drucken (Cmd+P)",

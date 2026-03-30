@@ -6,6 +6,7 @@ import { getClassGroupColors } from "@/lib/utils/class-colors";
 import { CLASSES } from "@/lib/rules/classes";
 import { RACES } from "@/lib/rules/races";
 import { localized } from "@/lib/utils/localize";
+import { getAlignmentLabel } from "@/lib/rules/alignment";
 import { Lock, Eye } from "lucide-react";
 import type { ClassGroup, ClassId } from "@/lib/rules/types";
 import type { CharacterRow, CharacterClassRow } from "@/lib/supabase/types";
@@ -133,10 +134,15 @@ export function CharacterCard({
               {character.name}
             </h3>
 
-            {/* Race + Class */}
+            {/* Race + Class + Alignment */}
             <div className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
               {race && <span>{localized(race.name, race.name_en, locale)}</span>}
               {classNames && <span>{classNames}</span>}
+              {character.alignment && (
+                <span className="text-muted-foreground/70">
+                  {getAlignmentLabel(character.alignment, locale)}
+                </span>
+              )}
             </div>
 
             {/* Visibility badge */}
