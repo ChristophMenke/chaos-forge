@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Datenbank & Auth:** Supabase (PostgreSQL + Row Level Security)
 - **Styling:** Tailwind CSS v4 + shadcn/ui + Glassmorphism Design-System
 - **i18n:** next-intl (Cookie-basiert, DE/EN) + `localized()` Utility für DB-Daten
-- **Unit-/Integrationstests:** Vitest (710+ Tests)
+- **Unit-/Integrationstests:** Vitest (755+ Tests)
 - **E2E-Tests:** Playwright (Chromium, POM-Pattern, getByTestId, axe-core A11y)
 - **Linting/Formatting:** ESLint (next config) + Prettier
 - **Hosting:** Vercel (Free-Tier)
@@ -56,11 +56,10 @@ src/
     level-badge.tsx       # Hexagonales Level-Badge (CSS clip-path)
     app-sidebar.tsx       # Desktop Left-Sidebar (Icons, Tooltips, Logout)
     app-nav.tsx           # Mobile Bottom-Nav + More-Menu
-    fab-new-character.tsx # Mobile FAB für neuen Charakter
-    epic-equipment/       # Epische Ausrüstung (Schadensstufen-Cards, Simple Items)
-    play-mode/            # Play Mode (Kampf, Zauber, Checks, Wahrnehmung, Inventar, Geldbörse)
+    epic-equipment/       # Epische Ausrüstung (Schadensstufen-Cards, Simple Items, Blade System)
+    play-mode/            # Play Mode (Kampf, Zauber, Checks, Wahrnehmung, Inventar, Geldbörse, Gestaltwandlung)
     spellbook/            # Standalone Spellbook-Seite (Suche, Filter, Prepare, Learn, Source-Book-Filter)
-    print-sheet/          # Druckansicht + Word-Export (.docx)
+    print-sheet/          # Druckansicht + Word-Export (.docx), Customization Panel
     session/              # Session-Einträge, Sprachnotizen (MediaRecorder)
     wizard/               # Character Wizard (7 Steps: Basics, Abilities, Race, Class, Kit, Combat, Summary)
     ui/                   # shadcn/ui Komponenten
@@ -71,7 +70,7 @@ src/
       alignment.ts        # 9 Gesinnungen (DE/EN), Klassen-Restriktionen
       classes.ts          # 16 Klassen-Definitionen, Attribut-Anforderungen, Fähigkeiten
       combat.ts           # THAC0, Angriffswürfe, Rettungswürfe, Angriffe/Runde (inkl. Spezialisierung)
-      epic-items.ts       # Epische Ausrüstung: Stat-Overrides, Thief-Penalties, Spell Failure, Perception
+      epic-items.ts       # Epische Ausrüstung: Stat-Overrides, Thief-Penalties, Spell Failure, Perception, Shapeshift, Auto-Unlock
       equipment.ts        # RK-Berechnung, Belastung, Bewegungsrate
       experience.ts       # XP-Tabellen, Stufen-Berechnung
       hitpoints.ts        # HP-Berechnung, CON-Bonus-Cap (Warrior +4, andere +2)
@@ -91,7 +90,11 @@ src/
       source-books.ts     # Quellenbuch-Abkürzungen (PHB, WSC1-4, PSC1-3, ToM, PO:S&M, etc.)
       docx-export.ts      # Word-Export Generator (1:1 Print-Layout)
       audio-recorder.ts   # MediaRecorder Wrapper (Safari-kompatibel)
-      units.ts            # lbsToKg(), feetToMeters()
+      units.ts            # lbsToKg(), feetToMeters(), convertImperialText()
+      spell-display.ts    # spellRange(), spellArea(), spellDescription() — metrische Konvertierung
+    hooks/                # Custom React Hooks
+      use-print-preferences.ts # Print-Layout-Preferences pro Charakter (localStorage)
+    print-config.ts       # Print-Section-IDs, Preferences-Typen, Persistence
   middleware.ts           # Next.js Middleware (Supabase Session-Refresh)
   test/                   # Vitest Setup, Smoke- & Regressionstests
 e2e/                      # Playwright E2E-Tests
@@ -100,7 +103,7 @@ e2e/                      # Playwright E2E-Tests
   helpers/                # Auth-Helper (Cookie-basierter Test-Login)
 messages/                 # i18n-Dateien (de.json, en.json)
 supabase/
-  migrations/             # 48 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items)
+  migrations/             # 59 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items)
 ressources/
   books/                  # OCR-Texte der AD&D 2e Regelbücher (metrisch konvertiert)
 ```
@@ -291,4 +294,5 @@ Finaler explorativer Test mit etablierten Testing-Heuristiken und gezielten "Tes
 5. **Advanced Features** — OCR/Vision-Import, Word-Export, Glassmorphism UI, Source Books ✅
 6. **Play Mode & Epische Ausrüstung** — Session-optimierte Ansicht, Epic Items mit Effekten, Mode-Navigation ✅
 7. **Dashboard Ausbau** — 8 Widgets (Zitat, NPCs, XP, Tags, Party, Session-Stats, Throwback) ✅
-8. **Nächste Schritte** — DM-Dashboard, Kampagnen-Verwaltung, weitere Kits aus den Complete Handbooks
+8. **Print/Export Customization** — Abschnitte ein-/ausblendbar, Reihenfolge änderbar, alle PHB-Modifier ✅
+9. **Nächste Schritte** — DM-Dashboard, Kampagnen-Verwaltung, weitere Kits aus den Complete Handbooks

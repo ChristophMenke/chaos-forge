@@ -14,22 +14,24 @@ Chaos Forge ersetzt umständliche Offline-Editoren aus den 90er Jahren durch ein
 - **Player's Option Sub-Stats** — Optionale Muscle/Stamina/Aim/Balance/Health/Fitness Sub-Scores für alle 6 Attribute
 - **Waffen-Spezialisierung** — Specialist-Kämpfer erhalten 3/2 Angriffe/Runde ab Level 1
 - **Zauberbuch** — Eigenständige Gameplay-Seite zum Verwalten, Vorbereiten und Lernen von Zaubern (Wizard Slots + Priest Spell Points)
-- **Druckansicht + Word-Export** — Optimiertes Print-Layout für den Spieltisch, exportierbar als .docx
+- **Druckansicht + Word-Export** — Optimiertes Print-Layout für den Spieltisch, exportierbar als .docx. Abschnitte ein-/ausblendbar und in der Reihenfolge anpassbar
 - **Glassmorphism UI** — Modernes "Epic Dark Mode" Design mit klassenbasierten Akzentfarben (Warrior=Rot, Priest=Gold, Rogue=Blau, Wizard=Teal)
 - **App Shell** — Desktop Left-Sidebar (Icons + Tooltips) + Mobile Bottom-Nav mit FAB, 3D-Tilt-Cards, Stagger-Reveal-Animationen
 - **Character Cards** — Avatar-Breakout, leuchtende HP-Bar mit Pulse bei <25%, hexagonales Level-Badge, dynamischer Glow, Alignment-Anzeige
 - **Aktive/Inaktive Charaktere** — Archivierung mit einklappbarer Sektion
-- **Character Import** — OCR/Vision-Import via Claude API (Foto oder PDF), Alignment-Dropdown
+- **Character Import** — OCR/Vision-Import via Claude API (Foto oder PDF), Zauber-Erkennung, magische Items, editierbare Review-UI
 - **Character Sharing** — Öffentliche/private Sichtbarkeit + gezieltes Teilen mit Mitspielern
-- **Epische Ausrüstung** — Generisches System für character-gebundene Items mit Effekten (Stat-Overrides, Thief-Penalties, Spell Failure, Schadensstufen)
-- **Play Mode** — Session-optimierte Ansicht mit Kampf, Zaubern, Prüfungen, Wahrnehmungswurf (Hausregel), Inventar, Geldbörse
+- **Epische Ausrüstung** — Generisches System für character-gebundene Items mit Effekten (Stat-Overrides, Thief-Penalties, Spell Failure, Schadensstufen, Gestaltwandlung, Spezialangriffe, Auto-Unlock nach Charakterstufe)
+- **Play Mode** — Session-optimierte Ansicht mit Kampf, Zaubern, Prüfungen, Wahrnehmungswurf (Hausregel), Inventar, Geldbörse, Gestaltwandlung, Spezialangriffe
 - **Dashboard** — Gruppen-Übersicht mit 8 Widgets (Zitat des Tages, Party-Zusammensetzung, XP-Ranking, Tag-Wolke, NPCs, Session-Stats, Throwback)
 - **Session-Chronik** — Timeline mit Tags (NPCs, Orte, Items, Quests), KI-Zusammenfassungen, Sprachnotizen
 - **Komplettes Zauber-Compendium** — 3.200+ Zauber aus allen AD&D 2e Quellenbüchern (Wizard Spell Compendium Vol 1-4, Priest Spell Compendium Vol 1-3, Tome of Magic, Player's Option)
 - **Source Book Tracking** — Jedes Item/Waffe/Zauber zeigt seine Quelle (PHB, WSC1-4, PSC1-3, ToM, etc.) mit Filter-Funktion
 - **i18n** — Vollständige Lokalisierung Deutsch/Englisch (Cookie-basiert via next-intl)
 - **Bilinguale Suche** — Zauber können in Deutsch und Englisch gefunden werden, unabhängig von Locale
-- **Responsive Design** — Desktop Left-Sidebar, Mobile Bottom-Nav mit More-Menu, FAB, Glassmorphism Cards
+- **Fertigkeiten** — NWP-Beschreibungen (PHB Chapter 5) beim Anklicken, Click-to-expand im Character Sheet und Play Mode
+- **Metrisches System** — Automatische Konvertierung von imperialen Einheiten (Fuß, Yards, Meilen) zu metrisch in Zauber-Texten
+- **Responsive Design** — Desktop Left-Sidebar, Mobile Bottom-Nav mit More-Menu, Glassmorphism Cards
 - **Accessibility** — WCAG 2 AA geprüft via axe-core Playwright Tests
 - **Regelwerk-Engine** — Reine TypeScript-Funktionen für alle PHB-Regeln + Player's Option
 
@@ -39,7 +41,7 @@ Chaos Forge ersetzt umständliche Offline-Editoren aus den 90er Jahren durch ein
 - **Datenbank & Auth:** Supabase (PostgreSQL + Row Level Security)
 - **Styling:** Tailwind CSS v4 + shadcn/ui + Glassmorphism Design-System
 - **i18n:** next-intl (Cookie-basiert, DE/EN) + `localized()` Utility für DB-Daten
-- **Testing:** Vitest (710+ Unit-Tests), Playwright (44+ E2E inkl. Responsive, A11y, Sidebar)
+- **Testing:** Vitest (755+ Unit-Tests), Playwright (44+ E2E inkl. Responsive, A11y, Sidebar)
 - **Hosting:** Vercel (Free-Tier optimiert)
 - **AI:** Anthropic Claude API (Character Import, Session Summaries)
 - **Export:** `docx` Paket für Word-Export
@@ -159,7 +161,7 @@ e2e/                      # Playwright E2E-Tests (POM-Pattern)
   helpers/                # Auth-Helper
 messages/                 # i18n-Dateien (de.json, en.json)
 supabase/
-  migrations/             # 48 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items)
+  migrations/             # 59 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items)
 ressources/
   books/                  # OCR-Texte der AD&D 2e Regelbücher
 ```
