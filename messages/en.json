@@ -924,7 +924,7 @@
   },
   "rulebook": {
     "title": "Rulebook Chat",
-    "placeholder": "Ask a question about the AD&D 2e rules...",
+    "placeholder": "Ask your question",
     "send": "Send",
     "thinking": "Searching the rulebooks...",
     "welcome": "Welcome to the Rulebook Chat! Ask questions about AD&D 2nd Edition rules and get answers straight from the source books.",
