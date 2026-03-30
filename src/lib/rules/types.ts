@@ -27,6 +27,12 @@ export interface DexterityModifiers {
   reactionAdj: number;
   missileAdj: number;
   defensiveAdj: number;
+  pickPockets: number; // % adjustment to thief skill
+  openLocks: number;
+  findTraps: number;
+  moveSilently: number;
+  hideInShadows: number;
+  climbWalls: number;
 }
 
 /** CON modifiers */
@@ -44,7 +50,8 @@ export interface IntelligenceModifiers {
   spellLevel: number | null; // max spell level for mages, null if non-caster
   chanceToLearn: number; // percentage
   maxSpellsPerLevel: number | string; // number or "All"
-  spellImmunity: number | null; // immune to spells of this level and below
+  spellImmunity: number | null; // immune to illusions of this level and below
+  bonusProficiencies: number; // additional NWP slots
 }
 
 /** WIS modifiers */
@@ -52,6 +59,7 @@ export interface WisdomModifiers {
   magicalDefenseAdj: number;
   bonusSpells: number[]; // bonus spell slots by spell level [1st, 2nd, ...]
   spellFailure: number; // percentage
+  spellImmunity: string | null; // immune to specific spells at WIS 19+
 }
 
 /** CHA modifiers */

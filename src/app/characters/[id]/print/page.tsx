@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/supabase/auth";
-import { PrintSheet } from "@/components/print-sheet/print-sheet";
+import { PrintSheetContainer } from "@/components/print-sheet/print-sheet";
 import type {
   CharacterRow,
   CharacterClassRow,
@@ -72,7 +72,7 @@ export default async function PrintPage({ params }: PrintPageProps) {
     .returns<CharacterFightingStyleRow[]>();
 
   return (
-    <PrintSheet
+    <PrintSheetContainer
       character={character}
       characterClasses={characterClasses ?? []}
       equipment={(equipment as CharacterEquipmentWithDetails[]) ?? []}
