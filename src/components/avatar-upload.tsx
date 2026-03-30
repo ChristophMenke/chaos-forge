@@ -7,7 +7,7 @@ import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
 import { Button } from "@/components/ui/button";
 import { AvatarDisplay } from "@/components/avatar-display";
-import { uploadAvatar, validateFile } from "@/lib/avatar/upload";
+import { uploadAvatar, deleteAvatar, validateFile } from "@/lib/avatar/upload";
 import type { CropArea } from "@/lib/avatar/resize";
 
 interface AvatarUploadProps {
@@ -103,6 +103,19 @@ export function AvatarUpload({
       handleClose();
       router.refresh();
     }
+  }
+
+  async function handleRemoveAvatar() {
+    setUploading(true);
+    setError(null);
+    try {
+      await deleteAvatar(userId, characterId);
+      handleClose();
+      router.refresh();
+    } catch {
+      setError("Löschen fehlgeschlagen.");
+    }
+    setUploading(false);
   }
 
   function handleDrop(e: React.DragEvent) {
@@ -226,6 +239,17 @@ export function AvatarUpload({
                   <p className="text-sm text-muted-foreground">{t("dropzone")}</p>
                   <p className="text-xs text-muted-foreground">{t("formats")}</p>
                 </div>
+                {currentAvatarUrl && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveAvatar}
+                    disabled={uploading}
+                    className="text-sm text-destructive underline hover:text-destructive/80"
+                    data-testid="avatar-remove-button"
+                  >
+                    {t("remove")}
+                  </button>
+                )}
               </>
             )}
 

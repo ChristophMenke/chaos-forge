@@ -7,14 +7,14 @@ import type { Area } from "react-easy-crop";
 import { Button } from "@/components/ui/button";
 import { AvatarDisplay } from "@/components/avatar-display";
 import { validateFile } from "@/lib/avatar/upload";
-import { uploadNpcAvatar } from "@/lib/avatar/npc-upload";
+import { uploadNpcAvatar, deleteNpcAvatar } from "@/lib/avatar/npc-upload";
 import type { CropArea } from "@/lib/avatar/resize";
 
 interface NpcAvatarUploadProps {
   npcId: string;
   npcName: string;
   currentAvatarUrl: string | null;
-  onUploaded: (url: string) => void;
+  onUploaded: (url: string | null) => void;
 }
 
 export function NpcAvatarUpload({
@@ -87,6 +87,18 @@ export function NpcAvatarUpload({
       onUploaded(result.url);
       handleClose();
     }
+  }
+
+  async function handleRemove() {
+    setUploading(true);
+    try {
+      await deleteNpcAvatar(npcId);
+      onUploaded(null);
+      handleClose();
+    } catch {
+      setError("Löschen fehlgeschlagen.");
+    }
+    setUploading(false);
   }
 
   return (
@@ -178,6 +190,17 @@ export function NpcAvatarUpload({
                   <p className="text-sm text-muted-foreground">{t("dropzone")}</p>
                   <p className="text-xs text-muted-foreground">{t("formats")}</p>
                 </div>
+                {currentAvatarUrl && (
+                  <button
+                    type="button"
+                    onClick={handleRemove}
+                    disabled={uploading}
+                    className="text-sm text-destructive underline hover:text-destructive/80"
+                    data-testid="npc-avatar-remove"
+                  >
+                    {t("remove")}
+                  </button>
+                )}
               </>
             )}
 

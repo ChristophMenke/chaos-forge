@@ -66,3 +66,9 @@ export async function uploadAvatar(
     };
   }
 }
+
+export async function deleteAvatar(userId: string, characterId: string): Promise<void> {
+  const supabase = createClient();
+  await supabase.storage.from("avatars").remove([`${userId}/${characterId}.webp`]);
+  await supabase.from("characters").update({ avatar_url: null }).eq("id", characterId);
+}

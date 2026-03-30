@@ -770,7 +770,8 @@
     "formats": "JPG, PNG or WebP (max. 10 MB)",
     "uploading": "Uploading...",
     "zoom": "Zoom",
-    "pickAnother": "Pick a different image"
+    "pickAnother": "Pick a different image",
+    "remove": "Remove image"
   },
   "sharing": {
     "title": "Share: {name}",

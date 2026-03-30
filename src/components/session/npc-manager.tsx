@@ -127,7 +127,7 @@ export function NpcManager({ npcs: initialNpcs }: NpcManagerProps) {
     setShowForm(false);
   }
 
-  function handleAvatarUploaded(npcId: string, url: string) {
+  function handleAvatarUploaded(npcId: string, url: string | null) {
     setNpcs((prev) => prev.map((npc) => (npc.id === npcId ? { ...npc, avatar_url: url } : npc)));
   }
 
