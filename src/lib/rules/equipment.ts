@@ -19,6 +19,8 @@ export interface ACCalculationInput {
   ignoreEncumbrance?: boolean;
   /** If true, equipped "armor" is magical protection (Bracers, Ring) — still counts as unarmored for PO bonus */
   isMagicalProtection?: boolean;
+  /** Epic AC bonus (positive value = AC improvement, e.g. 2 from Totem Tattoo) */
+  epicAcBonus?: number;
 }
 
 /**
@@ -38,6 +40,7 @@ export function calculateAC(input: ACCalculationInput): number {
     encumbrance = "unencumbered",
     ignoreEncumbrance = false,
     isMagicalProtection = false,
+    epicAcBonus = 0,
   } = input;
 
   // Magical protection (Bracers +4, Ring +1) is a BONUS subtracted from base 10,
@@ -56,7 +59,7 @@ export function calculateAC(input: ACCalculationInput): number {
     }
   }
 
-  return baseAC + shieldBonus + dexDefenseAdj + magicACModifier + unarmoredBonus;
+  return baseAC + shieldBonus + dexDefenseAdj + magicACModifier + unarmoredBonus - epicAcBonus;
 }
 
 /**

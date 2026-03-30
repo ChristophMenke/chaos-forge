@@ -827,7 +827,17 @@
     "wisMagicalDefense": "WIS Magical Defense",
     "perception": "Perception",
     "perceptionFormula": "(INT + WIS) / 2",
-    "perceptionBonus": "+{bonus} on sight-based checks"
+    "perceptionBonus": "+{bonus} on sight-based checks",
+    "shapeshift": "Shapeshift",
+    "normalForm": "Normal",
+    "attacks": "Attacks",
+    "day": "day",
+    "specialAttacks": "Special Attacks",
+    "used": "Use",
+    "available": "Reset",
+    "passiveAbilities": "Passive Abilities",
+    "passive_speak_with_animals": "Speak with Animals",
+    "epicAcBonus": "+{bonus} (Epic)"
   },
   "epic": {
     "title": "Epic Equipment",

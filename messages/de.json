@@ -827,7 +827,17 @@
     "wisMagicalDefense": "WIS Magische Abwehr",
     "perception": "Wahrnehmung",
     "perceptionFormula": "(INT + WIS) / 2",
-    "perceptionBonus": "+{bonus} auf sichtbedingte Checks"
+    "perceptionBonus": "+{bonus} auf sichtbedingte Checks",
+    "shapeshift": "Gestaltwandlung",
+    "normalForm": "Normal",
+    "attacks": "Angriffe",
+    "day": "Tag",
+    "specialAttacks": "Spezialangriffe",
+    "used": "Einsetzen",
+    "available": "Zurücksetzen",
+    "passiveAbilities": "Passive Fähigkeiten",
+    "passive_speak_with_animals": "Mit Tieren reden",
+    "epicAcBonus": "+{bonus} (Episch)"
   },
   "epic": {
     "title": "Epische Ausrüstung",

@@ -9,13 +9,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { localized } from "@/lib/utils/localize";
-import { getCurrentDamageLevelEffect } from "@/lib/rules/epic-items";
+import { getCurrentDamageLevelEffect, getAutoUnlockedLevel } from "@/lib/rules/epic-items";
 import type { EpicItemRow, DamageLevelEffect } from "@/lib/supabase/types";
 
 interface DamageLevelCardProps {
   item: EpicItemRow;
   locale: string;
   isOwner: boolean;
+  characterLevel?: number;
   onToggleEquip: (itemId: string) => void;
   onDamageLevelChange: (itemId: string, newLevel: number) => void;
 }
@@ -54,14 +55,23 @@ export function DamageLevelCard({
   item,
   locale,
   isOwner,
+  characterLevel,
   onToggleEquip,
   onDamageLevelChange,
 }: DamageLevelCardProps) {
   const t = useTranslations("epic");
   const [expanded, setExpanded] = useState(false);
 
-  const currentEffect = getCurrentDamageLevelEffect(item);
-  const glow = getGlowForDamage(item.damage_level, item.max_damage_level);
+  // Auto-unlock: if item has level_thresholds, compute effective level from character level
+  const hasAutoUnlock = !!(item.simple_effects as Record<string, unknown>)?.level_thresholds;
+  const effectiveLevel =
+    hasAutoUnlock && characterLevel != null
+      ? getAutoUnlockedLevel(item, characterLevel)
+      : item.damage_level;
+  const effectiveItem = hasAutoUnlock ? { ...item, damage_level: effectiveLevel } : item;
+
+  const currentEffect = getCurrentDamageLevelEffect(effectiveItem);
+  const glow = getGlowForDamage(effectiveLevel, item.max_damage_level);
 
   const statOverrides = currentEffect?.stat_overrides ?? {};
   const effectsList = currentEffect?.effects ?? [];
@@ -109,12 +119,11 @@ export function DamageLevelCard({
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium">
-            {t("damageLevelOf", {
-              current: item.damage_level,
-              max: item.max_damage_level,
-            })}
+            {hasAutoUnlock
+              ? t("damageLevelOf", { current: effectiveLevel, max: item.max_damage_level })
+              : t("damageLevelOf", { current: item.damage_level, max: item.max_damage_level })}
           </span>
-          {isOwner && (
+          {isOwner && !hasAutoUnlock && (
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
@@ -144,7 +153,7 @@ export function DamageLevelCard({
         <div className="flex gap-1.5" data-testid={`epic-damage-dots-${item.slug}`}>
           {Array.from({ length: item.max_damage_level }, (_, i) => {
             const level = i + 1;
-            const isFilled = level <= item.damage_level;
+            const isFilled = level <= effectiveLevel;
             return (
               <div
                 key={level}
@@ -219,7 +228,7 @@ export function DamageLevelCard({
         )}
 
         {/* No damage = functional */}
-        {item.damage_level === 0 && <p className="text-sm text-green-400">{t("functional")}</p>}
+        {effectiveLevel === 0 && <p className="text-sm text-green-400">{t("functional")}</p>}
       </div>
 
       {/* Expandable all levels table */}
@@ -249,7 +258,7 @@ export function DamageLevelCard({
                 {Array.from({ length: item.max_damage_level + 1 }, (_, i) => {
                   const effect = item.damage_levels[String(i)] as DamageLevelEffect | undefined;
                   if (!effect) return null;
-                  const isCurrent = i === item.damage_level;
+                  const isCurrent = i === effectiveLevel;
                   return (
                     <tr
                       key={i}
@@ -284,7 +293,7 @@ export function DamageLevelCard({
               <p>
                 {t("repairInfo", {
                   skill: repairSkill,
-                  level: item.damage_level,
+                  level: effectiveLevel,
                 })}
               </p>
               {elixirBonus != null && elixirCost != null && (

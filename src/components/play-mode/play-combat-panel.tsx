@@ -23,6 +23,7 @@ import type {
 } from "@/lib/supabase/types";
 import { localized } from "@/lib/utils/localize";
 import { lbsToKg } from "@/lib/utils/units";
+import type { EpicEffects } from "@/lib/rules/epic-items";
 
 interface PlayCombatPanelProps {
   equipment: CharacterEquipmentWithDetails[];
@@ -42,6 +43,7 @@ interface PlayCombatPanelProps {
   ignoreEncumbrance: boolean;
   isMagicalProtection: boolean;
   onEquipmentChange: (equipment: CharacterEquipmentWithDetails[]) => void;
+  epicEffects?: EpicEffects;
 }
 
 export function PlayCombatPanel({
@@ -62,9 +64,14 @@ export function PlayCombatPanel({
   ignoreEncumbrance,
   isMagicalProtection,
   onEquipmentChange,
+  epicEffects,
 }: PlayCombatPanelProps) {
   const t = useTranslations("playMode");
   const locale = useLocale();
+
+  // Shapeshift & special attack client state
+  const [activeShape, setActiveShape] = useState<string | null>(null);
+  const [usedAbilities, setUsedAbilities] = useState<Set<string>>(new Set());
 
   const equippedWeapons = useMemo(
     () => equipment.filter((e) => e.equipped && e.weapon),
@@ -324,6 +331,133 @@ export function PlayCombatPanel({
           </div>
           <div className="space-y-2">
             {unequippedWeapons.map((eq) => renderWeaponCard(eq, false))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Shapeshift Forms ──────────────────────────── */}
+      {epicEffects && epicEffects.shapeshiftForms.length > 0 && (
+        <div className="mt-4 border-t border-border pt-3" data-testid="play-shapeshift">
+          <p className="mb-2 text-sm font-medium text-muted-foreground">{t("shapeshift")}</p>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={activeShape === null ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveShape(null)}
+              data-testid="shapeshift-normal"
+            >
+              {t("normalForm")}
+            </Button>
+            {epicEffects.shapeshiftForms.map((form) => (
+              <Button
+                key={form.key}
+                variant={activeShape === form.key ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActiveShape(activeShape === form.key ? null : form.key)}
+                data-testid={`shapeshift-${form.key}`}
+              >
+                {localized(form.name, form.name_en, locale)}
+                {form.usesPerDay > 0 && (
+                  <span className="ml-1 text-xs opacity-70">
+                    ({form.usesPerDay}×/{t("day")})
+                  </span>
+                )}
+              </Button>
+            ))}
+          </div>
+          {activeShape &&
+            (() => {
+              const form = epicEffects.shapeshiftForms.find((f) => f.key === activeShape);
+              if (!form) return null;
+              const shapeAC = form.baseAC + dexDefenseAdj;
+              return (
+                <div
+                  className="mt-3 rounded-md border border-primary/30 bg-primary/5 p-3"
+                  data-testid="shapeshift-stats"
+                >
+                  <p className="mb-2 text-sm font-bold text-primary">
+                    {localized(form.name, form.name_en, locale)}
+                  </p>
+                  <div className="grid grid-cols-3 gap-2 text-sm">
+                    <div>
+                      <span className="text-xs text-muted-foreground">AC</span>
+                      <div className="font-mono font-bold">{shapeAC}</div>
+                    </div>
+                    <div>
+                      <span className="text-xs text-muted-foreground">Mov</span>
+                      <div className="font-mono font-bold">{form.movement}</div>
+                    </div>
+                    <div>
+                      <span className="text-xs text-muted-foreground">THAC0</span>
+                      <div className="font-mono font-bold">{thac0}</div>
+                    </div>
+                  </div>
+                  <div className="mt-2">
+                    <span className="text-xs text-muted-foreground">{t("attacks")}: </span>
+                    <span className="text-sm font-medium">
+                      {localized(form.attacks, form.attacks_en, locale)}
+                    </span>
+                  </div>
+                  {form.hugRule && (
+                    <p className="mt-1 text-xs text-amber-400">
+                      ⚡ {localized(form.hugRule, form.hugRule_en, locale)}
+                    </p>
+                  )}
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {localized(form.requiresCheck, form.requiresCheck_en, locale)}
+                  </p>
+                </div>
+              );
+            })()}
+        </div>
+      )}
+
+      {/* ── Special Attacks ──────────────────────────── */}
+      {epicEffects && epicEffects.specialAttacks.length > 0 && (
+        <div className="mt-4 border-t border-border pt-3" data-testid="play-special-attacks">
+          <p className="mb-2 text-sm font-medium text-muted-foreground">{t("specialAttacks")}</p>
+          <div className="flex flex-col gap-2">
+            {epicEffects.specialAttacks.map((atk) => {
+              const isUsed = usedAbilities.has(atk.key);
+              return (
+                <div
+                  key={atk.key}
+                  className={`flex items-start justify-between rounded-md border px-3 py-2 ${
+                    isUsed
+                      ? "border-muted bg-muted/30 opacity-50"
+                      : "border-primary/30 bg-primary/5"
+                  }`}
+                  data-testid={`special-attack-${atk.key}`}
+                >
+                  <div>
+                    <span className="text-sm font-bold">
+                      {localized(atk.name, atk.name_en, locale)}
+                    </span>
+                    {atk.usesPerDay > 0 && (
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        ({atk.usesPerDay}×/{t("day")})
+                      </span>
+                    )}
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {localized(atk.effect, atk.effect_en, locale)}
+                    </p>
+                  </div>
+                  <Button
+                    variant={isUsed ? "outline" : "default"}
+                    size="xs"
+                    onClick={() => {
+                      const next = new Set(usedAbilities);
+                      if (isUsed) next.delete(atk.key);
+                      else next.add(atk.key);
+                      setUsedAbilities(next);
+                    }}
+                    data-testid={`special-attack-toggle-${atk.key}`}
+                  >
+                    {isUsed ? t("available") : t("used")}
+                  </Button>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

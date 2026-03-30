@@ -15,9 +15,9 @@ export default async function EpicEquipmentPage({ params }: EpicPageProps) {
 
   const { data: character } = await supabase
     .from("characters")
-    .select("id, name, avatar_url, user_id")
+    .select("id, name, avatar_url, user_id, level")
     .eq("id", id)
-    .single<Pick<CharacterRow, "id" | "name" | "avatar_url" | "user_id">>();
+    .single<Pick<CharacterRow, "id" | "name" | "avatar_url" | "user_id" | "level">>();
 
   if (!character) {
     notFound();
