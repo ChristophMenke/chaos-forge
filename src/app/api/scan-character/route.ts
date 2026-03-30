@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import sharp from "sharp";
 import { createClient } from "@/lib/supabase/server";
 import { validateImportFiles } from "@/app/characters/import/import-validation";
 
@@ -82,10 +83,22 @@ export async function POST(request: NextRequest) {
     > = [];
 
     for (const file of allFiles) {
-      const bytes = await file.arrayBuffer();
-      const base64 = Buffer.from(bytes).toString("base64");
+      const bytes = Buffer.from(await file.arrayBuffer());
       const isPdf = file.type === "application/pdf";
-      contentBlocks.push(buildContentBlock(base64, file.type, isPdf));
+
+      if (isPdf) {
+        const base64 = bytes.toString("base64");
+        contentBlocks.push(buildContentBlock(base64, file.type, true));
+      } else {
+        // Resize images to max 1568px (Anthropic recommended limit)
+        // Reduces token cost and prevents request size issues
+        const resized = await sharp(bytes)
+          .resize(1568, 1568, { fit: "inside", withoutEnlargement: true })
+          .jpeg({ quality: 85 })
+          .toBuffer();
+        const base64 = resized.toString("base64");
+        contentBlocks.push(buildContentBlock(base64, "image/jpeg", false));
+      }
     }
 
     const isMultiFile = allFiles.length > 1;
@@ -207,6 +220,7 @@ Hinweise:
 
     return NextResponse.json({ character: extracted });
   } catch (err) {
+    console.error("Scan error:", err);
     const errorMessage = err instanceof Error ? err.message : "Scan fehlgeschlagen.";
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
