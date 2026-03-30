@@ -132,8 +132,23 @@ export function TabSpells({
     if (!allSpellsLoaded) {
       setLoadingSpells(true);
       const supabase = createClient();
-      const { data } = await supabase.from("spells").select("*").order("level").order("name");
-      setAllSpellsLoaded(data ?? []);
+      // Supabase default limit is 1000 rows — we need ALL 3200+ spells
+      const all: SpellRow[] = [];
+      let from = 0;
+      const PAGE = 1000;
+      while (true) {
+        const { data } = await supabase
+          .from("spells")
+          .select("*")
+          .order("level")
+          .order("name")
+          .range(from, from + PAGE - 1);
+        if (!data || data.length === 0) break;
+        all.push(...(data as SpellRow[]));
+        if (data.length < PAGE) break;
+        from += PAGE;
+      }
+      setAllSpellsLoaded(all);
       setLoadingSpells(false);
     }
   }
