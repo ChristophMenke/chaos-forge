@@ -874,6 +874,10 @@
     "bladesThrown": "{count} blade(s) thrown — don't forget to collect!",
     "mixtureInventory": "Mixture Inventory",
     "mixtureCraft": "Craft",
-    "description": "Description"
+    "description": "Description",
+    "damage": "Damage",
+    "type": "Type",
+    "range": "Range",
+    "weight": "Weight"
   }
 }

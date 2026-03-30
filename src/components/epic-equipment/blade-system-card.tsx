@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/client";
 import { localized } from "@/lib/utils/localize";
+import { feetToMeters } from "@/lib/utils/units";
 import type { EpicItemRow } from "@/lib/supabase/types";
 
 interface Blade {
@@ -28,11 +29,23 @@ interface MixtureInfo {
   duration_en: string;
 }
 
+interface WeaponStats {
+  damage_sm: string;
+  damage_l: string;
+  weapon_type: string;
+  speed: number;
+  weight: number;
+  range_short: number;
+  range_medium: number;
+  range_long: number;
+}
+
 interface BladeSystemData {
   type: "blade_system";
   max_prepared: number;
   blades: Blade[];
   mixtures: Record<string, MixtureInfo>;
+  weapon_stats?: WeaponStats;
 }
 
 interface BladeSystemCardProps {
@@ -133,6 +146,43 @@ export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeS
           </Button>
         )}
       </div>
+
+      {/* Weapon Stats */}
+      {data.weapon_stats && (
+        <>
+          <Separator className="my-4" />
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6" data-testid="blade-weapon-stats">
+            <div>
+              <span className="text-[10px] text-muted-foreground">{t("damage")} (S/M)</span>
+              <div className="font-mono text-sm font-bold">{data.weapon_stats.damage_sm}</div>
+            </div>
+            <div>
+              <span className="text-[10px] text-muted-foreground">{t("damage")} (L)</span>
+              <div className="font-mono text-sm font-bold">{data.weapon_stats.damage_l}</div>
+            </div>
+            <div>
+              <span className="text-[10px] text-muted-foreground">Speed</span>
+              <div className="font-mono text-sm font-bold">{data.weapon_stats.speed}</div>
+            </div>
+            <div>
+              <span className="text-[10px] text-muted-foreground">{t("type")}</span>
+              <div className="text-sm font-medium capitalize">{data.weapon_stats.weapon_type}</div>
+            </div>
+            <div>
+              <span className="text-[10px] text-muted-foreground">{t("range")}</span>
+              <div className="font-mono text-sm font-bold">
+                {feetToMeters(data.weapon_stats.range_short)}/
+                {feetToMeters(data.weapon_stats.range_medium)}/
+                {feetToMeters(data.weapon_stats.range_long)}
+              </div>
+            </div>
+            <div>
+              <span className="text-[10px] text-muted-foreground">{t("weight")}</span>
+              <div className="font-mono text-sm font-bold">{data.weapon_stats.weight} lbs</div>
+            </div>
+          </div>
+        </>
+      )}
 
       <Separator className="my-4" />
 

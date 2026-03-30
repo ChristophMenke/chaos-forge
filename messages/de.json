@@ -874,6 +874,10 @@
     "bladesThrown": "{count} Klinge(n) geworfen — einsammeln nicht vergessen!",
     "mixtureInventory": "Mixtur-Vorrat",
     "mixtureCraft": "Herstellen",
-    "description": "Beschreibung"
+    "description": "Beschreibung",
+    "damage": "Schaden",
+    "type": "Typ",
+    "range": "Reichweite",
+    "weight": "Gewicht"
   }
 }
