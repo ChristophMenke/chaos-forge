@@ -128,10 +128,7 @@ export function RulebookChat() {
   const isEmpty = messages.length === 0 && !streamingContent;
 
   return (
-    <div
-      className="flex h-[calc(100dvh-4rem)] sm:h-dvh flex-col p-3 sm:p-6"
-      data-testid="rulebook-chat"
-    >
+    <div className="flex min-h-0 flex-1 flex-col p-3 sm:p-6" data-testid="rulebook-chat">
       {/* Header */}
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
