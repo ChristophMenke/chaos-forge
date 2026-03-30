@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Datenbank & Auth:** Supabase (PostgreSQL + Row Level Security)
 - **Styling:** Tailwind CSS v4 + shadcn/ui + Glassmorphism Design-System
 - **i18n:** next-intl (Cookie-basiert, DE/EN) + `localized()` Utility für DB-Daten
-- **Unit-/Integrationstests:** Vitest (609+ Tests)
+- **Unit-/Integrationstests:** Vitest (710+ Tests)
 - **E2E-Tests:** Playwright (Chromium, POM-Pattern, getByTestId, axe-core A11y)
 - **Linting/Formatting:** ESLint (next config) + Prettier
 - **Hosting:** Vercel (Free-Tier)
@@ -42,20 +42,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```
 src/
   app/                    # Next.js App Router (Pages, Layouts)
-    characters/[id]/      # Charakterbogen, Druckansicht, Zauberbuch
+    characters/[id]/      # Charakterbogen, Druckansicht, Zauberbuch, Play Mode, Epische Ausrüstung
     characters/new/       # Charakter-Erstellung (Auswahl: Wizard oder Import)
     characters/import/    # OCR/Vision-Import (Claude API)
-    dashboard/            # Dashboard mit Gruppen-Übersicht
+    dashboard/            # Dashboard mit 8 Widgets (Zitat, NPCs, XP, Tags, Party, etc.)
     sessions/             # Chronik des Chaos (Session-Log + Sprachnotizen)
   components/
     character-sheet/      # Tabs: Stats, Combat, Notes, Equipment, Spells, Thief Skills, Proficiencies
-    character-card.tsx    # Glassmorphism Card (Avatar-Breakout, HP-Bar, Level-Badge, Glow)
+    character-card.tsx    # Glassmorphism Card (Avatar-Breakout, HP-Bar, Level-Badge, Alignment, Glow)
+    character-mode-nav.tsx # Mode-Navigation (Verwalten/Spielen/Episch)
     glass-card.tsx        # Wiederverwendbare Glass-Surface-Komponente
     hp-bar.tsx            # Leuchtende HP-Fortschrittsleiste mit Klassen-Gradient
     level-badge.tsx       # Hexagonales Level-Badge (CSS clip-path)
     app-sidebar.tsx       # Desktop Left-Sidebar (Icons, Tooltips, Logout)
     app-nav.tsx           # Mobile Bottom-Nav + More-Menu
     fab-new-character.tsx # Mobile FAB für neuen Charakter
+    epic-equipment/       # Epische Ausrüstung (Schadensstufen-Cards, Simple Items)
+    play-mode/            # Play Mode (Kampf, Zauber, Checks, Wahrnehmung, Inventar, Geldbörse)
     spellbook/            # Standalone Spellbook-Seite (Suche, Filter, Prepare, Learn, Source-Book-Filter)
     print-sheet/          # Druckansicht + Word-Export (.docx)
     session/              # Session-Einträge, Sprachnotizen (MediaRecorder)
@@ -68,8 +71,10 @@ src/
       alignment.ts        # 9 Gesinnungen (DE/EN), Klassen-Restriktionen
       classes.ts          # 16 Klassen-Definitionen, Attribut-Anforderungen, Fähigkeiten
       combat.ts           # THAC0, Angriffswürfe, Rettungswürfe, Angriffe/Runde (inkl. Spezialisierung)
+      epic-items.ts       # Epische Ausrüstung: Stat-Overrides, Thief-Penalties, Spell Failure, Perception
       equipment.ts        # RK-Berechnung, Belastung, Bewegungsrate
       experience.ts       # XP-Tabellen, Stufen-Berechnung
+      hitpoints.ts        # HP-Berechnung, CON-Bonus-Cap (Warrior +4, andere +2)
       kits.ts             # 20 Kit-Definitionen (Fighter, Thief, Wizard, Priest, Ranger, Bard)
       magic.ts            # Magie-Schulen, Priester-Sphären, Spezialisten
       multiclass.ts       # THAC0/Saves-Optimierung, Regeltreue-Check, HP-Divisor
@@ -95,7 +100,7 @@ e2e/                      # Playwright E2E-Tests
   helpers/                # Auth-Helper (Cookie-basierter Test-Login)
 messages/                 # i18n-Dateien (de.json, en.json)
 supabase/
-  migrations/             # 43 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium)
+  migrations/             # 48 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items)
 ressources/
   books/                  # OCR-Texte der AD&D 2e Regelbücher (metrisch konvertiert)
 ```
@@ -144,9 +149,16 @@ Die AD&D-Regeln sind als **reine TypeScript-Funktionen** implementiert (kein DB-
 
 - `getBaseThiefSkills(level)` / `getRacialThiefAdjustments(raceId)` / `getBackstabMultiplier(level)` / `hasThiefSkills(classIds)`
 
+**Epische Ausrüstung:**
+
+- `getEpicEffects(items)` — Kombinierte Effekte aller angelegten Epic Items (Stat-Overrides, Thief-Penalties, Spell Failure, Wild Magic, Perception)
+- `scaleSubStat(baseStat, baseSub, overrideStat)` — Sub-Stats proportional skalieren bei Stat-Override
+- `applyThiefPenalty(baseValue, effects)` — Thief-Skill-Penalty anwenden
+- `getConBonusCap(classGroup)` — CON-HP-Bonus-Cap (+2 Non-Warrior, +4 Warrior)
+
 **Sonstiges:**
 
-- `getAlignmentLabel(id, locale?)` / `getAllowedAlignments(classId)`
+- `getAlignmentLabel(id, locale?)` / `getAllowedAlignments(classId)` / `ALL_ALIGNMENTS`
 - `getXpForNextLevel(classId, level)` / `getXpThreshold(classId, level)`
 
 ### Locale-System für DB-Daten
@@ -225,6 +237,7 @@ Diese Abweichungen vom Standard-PHB gelten für die "Chaos RPG"-Gruppe:
 - **Metrisches System:** Die DB speichert imperiale Werte (lbs, ft), die UI zeigt metrisch (kg, m) via `lbsToKg()`/`feetToMeters()`.
 - **Priester-Zauberpunkte:** Statt des Standard-Slot-Systems nutzen wir das Player's Option Spell Points System.
 - **Keine Restriktionen:** Klassen-/Rassen-Kombinationen, NWP-Gruppen etc. werden nie blockiert — immer nur Warnhinweise.
+- **Wahrnehmungswurf:** `floor((INT + WIS) / 2)` — Hausregel, angezeigt im Play Mode Checks-Panel.
 
 ## Supabase
 
@@ -276,4 +289,6 @@ Finaler explorativer Test mit etablierten Testing-Heuristiken und gezielten "Tes
 3. **Charakter-Management** — Charakterbogen, Erstellungs-Wizard, Avatar-Upload, Print-Layout, Kit-System ✅
 4. **Die Chronik des Chaos (Session Log)** — Timeline, Tagging, Smart Summaries, Sprachnotizen ✅
 5. **Advanced Features** — OCR/Vision-Import, Word-Export, Glassmorphism UI, Source Books ✅
-6. **Nächste Schritte** — DM-Dashboard, Kampagnen-Verwaltung, weitere Kits aus den Complete Handbooks
+6. **Play Mode & Epische Ausrüstung** — Session-optimierte Ansicht, Epic Items mit Effekten, Mode-Navigation ✅
+7. **Dashboard Ausbau** — 8 Widgets (Zitat, NPCs, XP, Tags, Party, Session-Stats, Throwback) ✅
+8. **Nächste Schritte** — DM-Dashboard, Kampagnen-Verwaltung, weitere Kits aus den Complete Handbooks
