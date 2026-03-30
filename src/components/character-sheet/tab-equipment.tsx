@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -103,6 +103,7 @@ export function TabEquipment({
   });
 
   const [showAddInventory, setShowAddInventory] = useState(false);
+  const inventorySearchRef = useRef<HTMLInputElement>(null);
   const [inventorySearch, setInventorySearch] = useState("");
   const [customItemName, setCustomItemName] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState<{
@@ -1363,7 +1364,16 @@ export function TabEquipment({
           {!readOnly && (
             <Button
               size="sm"
-              onClick={() => setShowAddInventory(true)}
+              onClick={() => {
+                setShowAddInventory(true);
+                setTimeout(() => {
+                  inventorySearchRef.current?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                  });
+                  inventorySearchRef.current?.focus();
+                }, 50);
+              }}
               data-testid="add-inventory-btn"
             >
               {t("addItem")}
@@ -1435,6 +1445,7 @@ export function TabEquipment({
         {showAddInventory && !readOnly && (
           <div className="mt-3 rounded-md border border-border p-4">
             <input
+              ref={inventorySearchRef}
               type="text"
               placeholder={t("searchPlaceholder")}
               value={inventorySearch}
