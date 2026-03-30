@@ -30,6 +30,7 @@ export function QuoteSection({
   const [content, setContent] = useState("");
   const [attributedTo, setAttributedTo] = useState("");
   const [saving, setSaving] = useState(false);
+  const [pickerOpenId, setPickerOpenId] = useState<string | null>(null);
 
   async function handleSave() {
     if (!content.trim()) return;
@@ -227,25 +228,31 @@ export function QuoteSection({
                     </button>
                   ))}
                   {/* Add reaction picker */}
-                  <div className="group relative">
+                  <div className="relative">
                     <button
                       className="rounded-full border border-dashed border-border px-2 py-0.5 text-sm text-muted-foreground hover:bg-muted"
+                      onClick={() => setPickerOpenId(pickerOpenId === quote.id ? null : quote.id)}
                       data-testid={`quote-add-reaction-${quote.id}`}
                     >
                       +
                     </button>
-                    <div className="absolute bottom-full left-0 z-10 mb-1 hidden rounded-lg border border-border bg-card p-2 shadow-lg group-hover:flex">
-                      {EMOJI_OPTIONS.map((emoji) => (
-                        <button
-                          key={emoji}
-                          onClick={() => toggleReaction(quote.id, emoji)}
-                          className="rounded p-1 text-lg hover:bg-muted"
-                          data-testid={`quote-emoji-pick-${quote.id}-${emoji}`}
-                        >
-                          {emoji}
-                        </button>
-                      ))}
-                    </div>
+                    {pickerOpenId === quote.id && (
+                      <div className="absolute bottom-full left-0 z-10 mb-1 flex rounded-lg border border-border bg-card p-2 shadow-lg">
+                        {EMOJI_OPTIONS.map((emoji) => (
+                          <button
+                            key={emoji}
+                            onClick={() => {
+                              toggleReaction(quote.id, emoji);
+                              setPickerOpenId(null);
+                            }}
+                            className="rounded p-1 text-lg hover:bg-muted"
+                            data-testid={`quote-emoji-pick-${quote.id}-${emoji}`}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 

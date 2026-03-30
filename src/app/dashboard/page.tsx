@@ -10,6 +10,7 @@ import type {
   CharacterRow,
   CharacterClassRow,
   SessionRow,
+  SessionEntryRow,
   ChronicleQuoteRow,
   QuoteReactionRow,
   ChronicleNpcRow,
@@ -92,22 +93,33 @@ export default async function DashboardPage() {
       : null;
 
   // Dependent queries (need results from above)
-  const [{ data: quoteReactions }, { data: latestSessionTagRows }] = await Promise.all([
-    randomQuote
-      ? supabase
-          .from("chronicle_quote_reactions")
-          .select("*")
-          .eq("quote_id", randomQuote.id)
-          .returns<QuoteReactionRow[]>()
-      : Promise.resolve({ data: [] as QuoteReactionRow[] }),
-    latestSession
-      ? supabase
-          .from("session_tags")
-          .select("tag_id")
-          .eq("session_id", latestSession.id)
-          .returns<{ tag_id: string }[]>()
-      : Promise.resolve({ data: [] as { tag_id: string }[] }),
-  ]);
+  const [{ data: quoteReactions }, { data: latestSessionTagRows }, { data: latestSessionEntries }] =
+    await Promise.all([
+      randomQuote
+        ? supabase
+            .from("chronicle_quote_reactions")
+            .select("*")
+            .eq("quote_id", randomQuote.id)
+            .returns<QuoteReactionRow[]>()
+        : Promise.resolve({ data: [] as QuoteReactionRow[] }),
+      latestSession
+        ? supabase
+            .from("session_tags")
+            .select("tag_id")
+            .eq("session_id", latestSession.id)
+            .returns<{ tag_id: string }[]>()
+        : Promise.resolve({ data: [] as { tag_id: string }[] }),
+      latestSession
+        ? supabase
+            .from("session_entries")
+            .select("id, character_id, content")
+            .eq("session_id", latestSession.id)
+            .order("created_at", { ascending: true })
+            .returns<Pick<SessionEntryRow, "id" | "character_id" | "content">[]>()
+        : Promise.resolve({
+            data: [] as Pick<SessionEntryRow, "id" | "character_id" | "content">[],
+          }),
+    ]);
 
   // ── Calculations ──────────────────────────────────────────
 
@@ -313,6 +325,21 @@ export default async function DashboardPage() {
                       {tag.name}
                     </Badge>
                   ))}
+                </div>
+              )}
+              {latestSessionEntries && latestSessionEntries.length > 0 && (
+                <div className="mt-3 space-y-1.5 border-t border-border/50 pt-2">
+                  {latestSessionEntries.map((entry) => {
+                    const char = characters?.find((c) => c.id === entry.character_id);
+                    return (
+                      <div key={entry.id} className="text-xs text-muted-foreground">
+                        <span className="font-medium text-foreground/80">{char?.name ?? "?"}:</span>{" "}
+                        {entry.content.length > 120
+                          ? entry.content.slice(0, 120) + "…"
+                          : entry.content}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </GlassCard>
