@@ -32,6 +32,8 @@ interface PlaySpellbookPanelProps {
   readOnly: boolean;
   onCast: (spellId: string, pointsCost: number) => void;
   onRest: () => void;
+  epicSpellFailure?: number;
+  epicWildMagic?: number;
 }
 
 export function PlaySpellbookPanel({
@@ -43,8 +45,11 @@ export function PlaySpellbookPanel({
   readOnly,
   onCast,
   onRest,
+  epicSpellFailure = 0,
+  epicWildMagic = 0,
 }: PlaySpellbookPanelProps) {
   const t = useTranslations("playMode");
+  const te = useTranslations("epic");
   const tSpells = useTranslations("spells");
   const locale = useLocale();
   const [expandedSpell, setExpandedSpell] = useState<string | null>(null);
@@ -178,6 +183,24 @@ export function PlaySpellbookPanel({
           </Button>
         )}
       </div>
+
+      {/* Epic Spell Failure Warnings */}
+      {epicWildMagic > 0 && (
+        <div
+          className="mb-3 rounded-lg border border-purple-500/50 bg-purple-500/10 p-2 text-xs text-purple-400"
+          data-testid="play-wild-magic-warning"
+        >
+          {te("wildMagic", { percent: epicWildMagic })}
+        </div>
+      )}
+      {epicSpellFailure > 0 && (
+        <div
+          className="mb-3 rounded-lg border border-amber-500/50 bg-amber-500/10 p-2 text-xs text-amber-400"
+          data-testid="play-spell-failure-warning"
+        >
+          {te("spellFailure", { percent: epicSpellFailure })}
+        </div>
+      )}
 
       {/* Rest confirmation */}
       {showRestConfirm && (

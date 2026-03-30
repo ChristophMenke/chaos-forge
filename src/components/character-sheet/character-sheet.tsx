@@ -39,7 +39,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { AvatarUpload } from "@/components/avatar-upload";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { ShareDialog } from "./share-dialog";
-import { Share2, Swords, Printer, EyeOff, Eye, Trash2 } from "lucide-react";
+import { Share2, Printer, EyeOff, Eye, Trash2 } from "lucide-react";
+import { CharacterModeNav } from "@/components/character-mode-nav";
 import Link from "next/link";
 import type {
   CharacterRow,
@@ -452,7 +453,8 @@ export function CharacterSheet({
             </div>
           </div>
         </div>
-        <div className="flex flex-wrap gap-1.5 sm:gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <CharacterModeNav characterId={character.id} hasEpicItems={epicItems.length > 0} />
           {isOwner && (
             <Button
               variant="outline"
@@ -464,16 +466,6 @@ export function CharacterSheet({
               <span className="hidden sm:inline">{ts("shareButton")}</span>
             </Button>
           )}
-          <Link href={`/characters/${character.id}/play`}>
-            <Button
-              size="sm"
-              className="bg-primary/20 font-heading text-primary hover:bg-primary/30"
-              data-testid="sheet-play-button"
-            >
-              <Swords className="h-4 w-4 sm:mr-1" />
-              <span className="hidden sm:inline">{tc("playMode")}</span>
-            </Button>
-          </Link>
           <Link href={`/characters/${character.id}/print`}>
             <Button variant="outline" size="sm" data-testid="sheet-print-button">
               <Printer className="h-4 w-4 sm:mr-1" />

@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import { CharacterModeNav } from "@/components/character-mode-nav";
 import { createClient } from "@/lib/supabase/client";
 import { localized } from "@/lib/utils/localize";
 import { DamageLevelCard } from "./damage-level-card";
@@ -70,15 +71,8 @@ export function EpicEquipmentView({ character, epicItems, isOwner }: EpicEquipme
       data-testid="epic-equipment-page"
     >
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link
-          href={`/characters/${character.id}`}
-          className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary"
-          data-testid="epic-back-link"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          {t("back")}
-        </Link>
+      <div className="flex items-center justify-between">
+        <CharacterModeNav characterId={character.id} hasEpicItems={true} />
       </div>
 
       <div className="flex items-center gap-4">

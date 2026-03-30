@@ -86,7 +86,10 @@
     "importCharacter": "Aus Bild importieren",
     "importCharacterDesc": "Scanne einen bestehenden Charakterbogen per Foto oder PDF.",
     "epicEquipment": "Epische Ausrüstung",
-    "epicEquipmentDesc": "Verwalte einzigartige Gegenstände und ihre Effekte."
+    "epicEquipmentDesc": "Verwalte einzigartige Gegenstände und ihre Effekte.",
+    "manage": "Verwalten",
+    "play": "Spielen",
+    "epic": "Episch"
   },
   "wizard": {
     "basics": "Grunddaten",
@@ -771,7 +774,10 @@
     "noSpells": "Keine Zauber vorbereitet",
     "noProficiencies": "Keine Fertigkeiten",
     "noItems": "Kein Inventar",
-    "wisMagicalDefense": "WIS Magische Abwehr"
+    "wisMagicalDefense": "WIS Magische Abwehr",
+    "perception": "Wahrnehmung",
+    "perceptionFormula": "(INT + WIS) / 2",
+    "perceptionBonus": "+{bonus} auf sichtbedingte Checks"
   },
   "epic": {
     "title": "Epische Ausrüstung",
