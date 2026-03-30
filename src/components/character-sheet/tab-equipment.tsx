@@ -84,6 +84,7 @@ export function TabEquipment({
   const [weaponCategoryFilter, setWeaponCategoryFilter] = useState<
     "all" | "melee" | "ranged" | "both"
   >("all");
+  const [magicBonus, setMagicBonus] = useState(0);
   const [showCustomWeaponForm, setShowCustomWeaponForm] = useState(false);
   const [showCustomArmorForm, setShowCustomArmorForm] = useState(false);
   const [customWeapon, setCustomWeapon] = useState({
@@ -220,6 +221,8 @@ export function TabEquipment({
         armor_id: type === "armor" ? id : null,
         quantity: 1,
         equipped: false,
+        hit_bonus: magicBonus,
+        damage_bonus: magicBonus,
       })
       .select("*, weapon:weapons(*), armor:armor(*)")
       .single();
@@ -228,6 +231,7 @@ export function TabEquipment({
     }
     setLoading(false);
     setShowAddDialog(false);
+    setMagicBonus(0);
   }
 
   const filteredWeapons = allWeapons.filter((w) => {
@@ -577,6 +581,9 @@ export function TabEquipment({
                   >
                     <td className="py-2 pr-4 font-medium">
                       {getItemName(item)}
+                      {item.hit_bonus > 0 && (
+                        <span className="ml-1 font-bold text-primary">+{item.hit_bonus}</span>
+                      )}
                       {item.weapon?.source_book && (
                         <span className="ml-1 text-[9px] text-muted-foreground">
                           ({getBookAbbreviation(item.weapon.source_book)})
@@ -721,6 +728,25 @@ export function TabEquipment({
                   ))}
                 </div>
               )}
+
+              {/* Magic bonus selector */}
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">{t("magicBonus")}:</span>
+                {[0, 1, 2, 3, 4, 5].map((b) => (
+                  <button
+                    key={b}
+                    className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
+                      magicBonus === b
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:text-foreground"
+                    }`}
+                    onClick={() => setMagicBonus(b)}
+                    data-testid={`magic-bonus-${b}`}
+                  >
+                    {b === 0 ? "—" : `+${b}`}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Item list */}
@@ -1059,6 +1085,11 @@ export function TabEquipment({
                       >
                         <td className="py-2 font-medium" data-testid={`weapon-name-${item.id}`}>
                           {localized(weapon.name, weapon.name_en, locale)}
+                          {item.hit_bonus > 0 && (
+                            <span className="ml-1 text-sm font-bold text-primary">
+                              +{item.hit_bonus}
+                            </span>
+                          )}
                           {weapon.source_book && (
                             <span className="ml-1 rounded bg-muted px-1 py-0.5 text-[9px] text-muted-foreground">
                               {getBookAbbreviation(weapon.source_book)}
@@ -1188,6 +1219,11 @@ export function TabEquipment({
                     <div className="mb-2 flex flex-wrap items-center justify-between gap-1">
                       <span className="font-medium" data-testid={`weapon-card-name-${item.id}`}>
                         {localized(weapon.name, weapon.name_en, locale)}
+                        {item.hit_bonus > 0 && (
+                          <span className="ml-1 text-sm font-bold text-primary">
+                            +{item.hit_bonus}
+                          </span>
+                        )}
                         {weapon.source_book && (
                           <span className="ml-1 rounded bg-muted px-1 py-0.5 text-[9px] text-muted-foreground">
                             {getBookAbbreviation(weapon.source_book)}
