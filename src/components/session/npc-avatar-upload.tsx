@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
@@ -50,6 +50,15 @@ export function NpcAvatarUpload({
     setCroppedAreaPixels(null);
     setError(null);
   }
+
+  // Clean up object URL on unmount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(
+    () => () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    },
+    []
+  );
 
   function handleClose() {
     resetCropState();
@@ -118,7 +127,11 @@ export function NpcAvatarUpload({
       {isOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("uploadTitle")}
           onClick={handleClose}
+          onKeyDown={(e) => e.key === "Escape" && handleClose()}
           data-testid="npc-avatar-modal"
         >
           <div

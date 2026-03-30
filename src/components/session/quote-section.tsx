@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,19 @@ export function QuoteSection({
   const [attributedTo, setAttributedTo] = useState("");
   const [saving, setSaving] = useState(false);
   const [pickerOpenId, setPickerOpenId] = useState<string | null>(null);
+  const pickerRef = useRef<HTMLDivElement>(null);
+
+  // Close emoji picker on outside click
+  useEffect(() => {
+    if (!pickerOpenId) return;
+    function handleClick(e: MouseEvent) {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setPickerOpenId(null);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [pickerOpenId]);
 
   async function handleSave() {
     if (!content.trim()) return;
@@ -228,7 +241,7 @@ export function QuoteSection({
                     </button>
                   ))}
                   {/* Add reaction picker */}
-                  <div className="relative">
+                  <div className="relative" ref={pickerOpenId === quote.id ? pickerRef : null}>
                     <button
                       className="rounded-full border border-dashed border-border px-2 py-0.5 text-sm text-muted-foreground hover:bg-muted"
                       onClick={() => setPickerOpenId(pickerOpenId === quote.id ? null : quote.id)}

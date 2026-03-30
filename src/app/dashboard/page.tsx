@@ -115,6 +115,7 @@ export default async function DashboardPage() {
             .select("id, character_id, content")
             .eq("session_id", latestSession.id)
             .order("created_at", { ascending: true })
+            .limit(10)
             .returns<Pick<SessionEntryRow, "id" | "character_id" | "content">[]>()
         : Promise.resolve({
             data: [] as Pick<SessionEntryRow, "id" | "character_id" | "content">[],
