@@ -1,10 +1,20 @@
-import { Glasses, HeartPulse, Sparkles, Swords, type LucideProps } from "lucide-react";
+import {
+  Glasses,
+  HeartPulse,
+  Sparkles,
+  Swords,
+  PawPrint,
+  Flame,
+  type LucideProps,
+} from "lucide-react";
 
 const ICON_MAP: Record<string, React.FC<LucideProps>> = {
   glasses: Glasses,
   "heart-pulse": HeartPulse,
   sparkles: Sparkles,
   swords: Swords,
+  "paw-print": PawPrint,
+  flame: Flame,
 };
 
 export function EpicIcon({ name, ...props }: { name: string } & LucideProps) {
