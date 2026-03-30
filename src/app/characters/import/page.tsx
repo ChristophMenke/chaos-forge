@@ -60,7 +60,7 @@ interface ScannedCharacter {
   height: string | null;
   weight: number | null;
   weaponProficiencies: { name: string; specialized: boolean }[];
-  equipment: string[];
+  equipment: { name: string; magicBonus: number }[];
   nwps: string[];
   spells: { name: string; level: number }[];
 }
@@ -183,6 +183,18 @@ export default function ImportCharacterPage() {
         };
         if (char.race && raceMap[char.race]) {
           char.race = raceMap[char.race];
+        }
+        // Normalize equipment: support both string[] (legacy) and {name, magicBonus}[]
+        if (Array.isArray(char.equipment)) {
+          char.equipment = char.equipment.map(
+            (item: string | { name: string; magicBonus?: number }) => {
+              if (typeof item === "string") {
+                const bonusMatch = item.match(/\+(\d+)/);
+                return { name: item, magicBonus: bonusMatch ? parseInt(bonusMatch[1]) : 0 };
+              }
+              return { name: item.name, magicBonus: item.magicBonus ?? 0 };
+            }
+          );
         }
         setScanned(char);
       }
@@ -390,26 +402,33 @@ export default function ImportCharacterPage() {
         const { data: allArmor } = await supabase.from("armor").select("id, name, name_en");
 
         for (const item of scanned.equipment) {
-          const itemLower = item
-            .toLowerCase()
+          // Strip magic bonus and quantity from name for matching
+          const baseName = item.name
+            .replace(/\s*\+\d+/, "")
             .replace(/\s*x\d+$/, "")
+            .toLowerCase()
             .trim();
-          const qty = item.match(/x(\d+)$/)?.[1] ? parseInt(item.match(/x(\d+)$/)![1]) : 1;
+          const qty = item.name.match(/x(\d+)$/)?.[1]
+            ? parseInt(item.name.match(/x(\d+)$/)![1])
+            : 1;
+          const bonus = item.magicBonus ?? 0;
 
           // Try to match weapon
           const weapon = allWeapons?.find(
             (w) =>
-              w.name.toLowerCase().includes(itemLower) ||
-              (w.name_en && w.name_en.toLowerCase().includes(itemLower)) ||
-              itemLower.includes(w.name.toLowerCase()) ||
-              (w.name_en && itemLower.includes(w.name_en.toLowerCase()))
+              w.name.toLowerCase().includes(baseName) ||
+              (w.name_en && w.name_en.toLowerCase().includes(baseName)) ||
+              baseName.includes(w.name.toLowerCase()) ||
+              (w.name_en && baseName.includes(w.name_en.toLowerCase()))
           );
           if (weapon) {
             await supabase.from("character_equipment").insert({
               character_id: data.id,
               weapon_id: weapon.id,
               quantity: qty,
-              equipped: itemLower.includes("readied") || itemLower.includes("worn") || true,
+              equipped: true,
+              hit_bonus: bonus,
+              damage_bonus: bonus,
             });
             continue;
           }
@@ -417,10 +436,10 @@ export default function ImportCharacterPage() {
           // Try to match armor
           const armor = allArmor?.find(
             (a) =>
-              a.name.toLowerCase().includes(itemLower) ||
-              (a.name_en && a.name_en.toLowerCase().includes(itemLower)) ||
-              itemLower.includes(a.name.toLowerCase()) ||
-              (a.name_en && itemLower.includes(a.name_en.toLowerCase()))
+              a.name.toLowerCase().includes(baseName) ||
+              (a.name_en && a.name_en.toLowerCase().includes(baseName)) ||
+              baseName.includes(a.name.toLowerCase()) ||
+              (a.name_en && baseName.includes(a.name_en.toLowerCase()))
           );
           if (armor) {
             await supabase.from("character_equipment").insert({
@@ -428,6 +447,8 @@ export default function ImportCharacterPage() {
               armor_id: armor.id,
               quantity: 1,
               equipped: true,
+              hit_bonus: bonus,
+              damage_bonus: bonus,
             });
           }
         }
@@ -954,51 +975,160 @@ export default function ImportCharacterPage() {
             </div>
 
             {/* Weapon Proficiencies */}
-            {scanned.weaponProficiencies?.length > 0 && (
-              <div data-testid="import-weapon-proficiencies">
-                <p className="mb-2 text-sm font-medium text-muted-foreground">Waffenfertigkeiten</p>
-                <ul className="list-inside list-disc text-sm">
-                  {scanned.weaponProficiencies.map((wp, i) => (
-                    <li key={i} data-testid={`import-wp-${i}`}>
-                      {wp.name}
-                      {wp.specialized && (
-                        <span className="ml-1 text-xs text-primary">(Spezialisiert)</span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
+            <div data-testid="import-weapon-proficiencies">
+              <p className="mb-2 text-sm font-medium text-muted-foreground">
+                {t("weaponProficiencies")}
+              </p>
+              <div className="flex flex-col gap-1">
+                {(scanned.weaponProficiencies ?? []).map((wp, i) => (
+                  <div key={i} className="flex items-center gap-2" data-testid={`import-wp-${i}`}>
+                    <Input
+                      value={wp.name}
+                      onChange={(e) => {
+                        const updated = [...(scanned.weaponProficiencies ?? [])];
+                        updated[i] = { ...updated[i], name: e.target.value };
+                        updateField("weaponProficiencies", updated);
+                      }}
+                      className="h-8 text-sm"
+                      data-testid={`import-wp-name-${i}`}
+                    />
+                    <label className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={wp.specialized}
+                        onChange={(e) => {
+                          const updated = [...(scanned.weaponProficiencies ?? [])];
+                          updated[i] = { ...updated[i], specialized: e.target.checked };
+                          updateField("weaponProficiencies", updated);
+                        }}
+                        className="rounded"
+                      />
+                      Spec.
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateField(
+                          "weaponProficiencies",
+                          (scanned.weaponProficiencies ?? []).filter((_, idx) => idx !== i)
+                        )
+                      }
+                      className="text-destructive hover:text-destructive/80"
+                      data-testid={`import-wp-remove-${i}`}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
 
             {/* NWPs */}
-            {scanned.nwps?.length > 0 && (
-              <div data-testid="import-nwps">
-                <p className="mb-2 text-sm font-medium text-muted-foreground">
-                  Allgemeine Fertigkeiten
-                </p>
-                <ul className="list-inside list-disc text-sm">
-                  {scanned.nwps.map((nwp, i) => (
-                    <li key={i} data-testid={`import-nwp-${i}`}>
-                      {nwp}
-                    </li>
-                  ))}
-                </ul>
+            <div data-testid="import-nwps">
+              <p className="mb-2 text-sm font-medium text-muted-foreground">{t("nwps")}</p>
+              <div className="flex flex-col gap-1">
+                {(scanned.nwps ?? []).map((nwp, i) => (
+                  <div key={i} className="flex items-center gap-2" data-testid={`import-nwp-${i}`}>
+                    <Input
+                      value={nwp}
+                      onChange={(e) => {
+                        const updated = [...(scanned.nwps ?? [])];
+                        updated[i] = e.target.value;
+                        updateField("nwps", updated);
+                      }}
+                      className="h-8 text-sm"
+                      data-testid={`import-nwp-name-${i}`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateField(
+                          "nwps",
+                          (scanned.nwps ?? []).filter((_, idx) => idx !== i)
+                        )
+                      }
+                      className="text-destructive hover:text-destructive/80"
+                      data-testid={`import-nwp-remove-${i}`}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
 
             {/* Equipment */}
-            {scanned.equipment?.length > 0 && (
-              <div data-testid="import-equipment">
-                <p className="mb-2 text-sm font-medium text-muted-foreground">Ausruestung</p>
-                <ul className="list-inside list-disc text-sm">
-                  {scanned.equipment.map((item, i) => (
-                    <li key={i} data-testid={`import-equip-${i}`}>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+            <div data-testid="import-equipment">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-sm font-medium text-muted-foreground">{t("equipment")}</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    updateField("equipment", [
+                      ...(scanned.equipment ?? []),
+                      { name: "", magicBonus: 0 },
+                    ])
+                  }
+                  data-testid="import-add-equipment"
+                >
+                  {t("addEquipment")}
+                </Button>
               </div>
-            )}
+              <div className="flex flex-col gap-1">
+                {(scanned.equipment ?? []).map((item, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-2"
+                    data-testid={`import-equip-${i}`}
+                  >
+                    <Input
+                      value={item.name}
+                      onChange={(e) => {
+                        const updated = [...(scanned.equipment ?? [])];
+                        updated[i] = { ...updated[i], name: e.target.value };
+                        updateField("equipment", updated);
+                      }}
+                      className="h-8 text-sm"
+                      data-testid={`import-equip-name-${i}`}
+                    />
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-muted-foreground">+</span>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={5}
+                        value={item.magicBonus}
+                        onChange={(e) => {
+                          const updated = [...(scanned.equipment ?? [])];
+                          updated[i] = {
+                            ...updated[i],
+                            magicBonus: Math.max(0, parseInt(e.target.value) || 0),
+                          };
+                          updateField("equipment", updated);
+                        }}
+                        className="h-8 w-14 text-center text-sm"
+                        data-testid={`import-equip-bonus-${i}`}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateField(
+                          "equipment",
+                          (scanned.equipment ?? []).filter((_, idx) => idx !== i)
+                        )
+                      }
+                      className="text-destructive hover:text-destructive/80"
+                      data-testid={`import-equip-remove-${i}`}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             {/* Spells */}
             <div data-testid="import-spells">
