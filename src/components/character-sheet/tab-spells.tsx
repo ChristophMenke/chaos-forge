@@ -93,6 +93,8 @@ interface TabSpellsProps {
   onSpellsChange: (spells: CharacterSpellWithDetails[]) => void;
   onSpellSlotsAdjChange: (adj: Record<string, number>) => void;
   onSpellSystemChange: (system: string) => void;
+  epicSpellFailure?: number;
+  epicWildMagic?: number;
 }
 
 export function TabSpells({
@@ -111,8 +113,11 @@ export function TabSpells({
   onSpellsChange,
   onSpellSlotsAdjChange,
   onSpellSystemChange,
+  epicSpellFailure = 0,
+  epicWildMagic = 0,
 }: TabSpellsProps) {
   const t = useTranslations("spells");
+  const te = useTranslations("epic");
   const locale = useLocale();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -460,6 +465,24 @@ export function TabSpells({
 
   return (
     <div className="flex flex-col gap-6" data-testid="tab-spells">
+      {/* Epic Spell Failure Warnings */}
+      {epicWildMagic > 0 && (
+        <div
+          className="rounded-lg border border-purple-500/50 bg-purple-500/10 p-3 text-sm text-purple-400"
+          data-testid="wild-magic-warning"
+        >
+          {te("wildMagic", { percent: epicWildMagic })}
+        </div>
+      )}
+      {epicSpellFailure > 0 && (
+        <div
+          className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-3 text-sm text-amber-400"
+          data-testid="spell-failure-warning"
+        >
+          {te("spellFailure", { percent: epicSpellFailure })}
+        </div>
+      )}
+
       {/* Spell System Toggle */}
       {!readOnly && (
         <div className="flex items-center gap-3" data-testid="spell-system-toggle">

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/supabase/auth";
-import { PenLine, Swords } from "lucide-react";
+import { PenLine, Sparkles, Swords } from "lucide-react";
 import type { CharacterRow } from "@/lib/supabase/types";
 
 interface CharacterPageProps {
@@ -31,6 +31,12 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
   if (character.user_id !== user.id) {
     redirect(`/characters/${id}/manage`);
   }
+
+  // Check if character has epic items
+  const { count: epicItemCount } = await supabase
+    .from("epic_items")
+    .select("id", { count: "exact", head: true })
+    .eq("character_id", id);
 
   return (
     <div
@@ -83,6 +89,22 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
           </div>
         </Link>
       </div>
+
+      {(epicItemCount ?? 0) > 0 && (
+        <div className="flex w-full max-w-lg flex-col">
+          <Link
+            href={`/characters/${id}/epic`}
+            className="glass glass-hover glow-neutral rounded-xl p-6"
+            data-testid="character-epic-link"
+          >
+            <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
+              <Sparkles className="h-10 w-10 text-primary" />
+              <h2 className="font-heading text-lg">{t("epicEquipment")}</h2>
+              <p className="text-sm text-muted-foreground">{t("epicEquipmentDesc")}</p>
+            </div>
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

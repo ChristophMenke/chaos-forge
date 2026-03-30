@@ -18,6 +18,7 @@ import type {
   CharacterFightingStyleRow,
   SessionRow,
   XpHistoryRow,
+  EpicItemRow,
 } from "@/lib/supabase/types";
 
 interface CharacterPageProps {
@@ -125,6 +126,13 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
     .limit(20)
     .returns<Pick<SessionRow, "id" | "title" | "session_date">[]>();
 
+  // Fetch epic items
+  const { data: epicItems } = await supabase
+    .from("epic_items")
+    .select("*")
+    .eq("character_id", id)
+    .returns<EpicItemRow[]>();
+
   // Fetch XP history
   const { data: xpHistoryData } = await supabase
     .from("xp_history")
@@ -152,6 +160,7 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
       fightingStyles={fightingStyles ?? []}
       sessions={sessionsData ?? []}
       xpHistory={xpHistoryData ?? []}
+      epicItems={epicItems ?? []}
     />
   );
 }

@@ -53,6 +53,8 @@ import { TabThiefSkills } from "./tab-thief-skills";
 import { TabProficiencies } from "./tab-proficiencies";
 import { XpAddDialog } from "./xp-add-dialog";
 import { PayDialog } from "./pay-dialog";
+import { getEpicEffects, scaleSubStat } from "@/lib/rules/epic-items";
+import type { EpicEffects } from "@/lib/rules/epic-items";
 import type {
   CharacterEquipmentWithDetails,
   CharacterSpellWithDetails,
@@ -66,6 +68,7 @@ import type {
   CharacterInventoryWithDetails,
   GeneralItemRow,
   CharacterFightingStyleRow,
+  EpicItemRow,
 } from "@/lib/supabase/types";
 
 interface CharacterSheetProps {
@@ -86,6 +89,7 @@ interface CharacterSheetProps {
   fightingStyles: CharacterFightingStyleRow[];
   sessions: Pick<SessionRow, "id" | "title" | "session_date">[];
   xpHistory: XpHistoryRow[];
+  epicItems?: EpicItemRow[];
 }
 
 export function CharacterSheet({
@@ -106,6 +110,7 @@ export function CharacterSheet({
   fightingStyles,
   sessions,
   xpHistory,
+  epicItems = [],
 }: CharacterSheetProps) {
   const router = useRouter();
   const locale = useLocale();
@@ -179,32 +184,74 @@ export function CharacterSheet({
     : primaryClassGroup;
   const casterLevel = casterClass?.level ?? primaryLevel;
 
+  // Epic item effects (stat overrides, thief penalties, spell failure warnings)
+  const epicEffects: EpicEffects = getEpicEffects(epicItems);
+  const eo = epicEffects.statOverrides;
+
+  // Apply epic stat overrides (e.g., Kondensator overrides CON)
+  const effectiveStr = eo.str ?? character.str;
+  const effectiveDex = eo.dex ?? character.dex;
+  const effectiveCon = eo.con ?? character.con;
+  const effectiveInt = eo.int ?? character.int;
+  const effectiveWis = eo.wis ?? character.wis;
+  const effectiveCha = eo.cha ?? character.cha;
+
+  // Scale sub-stats proportionally when a main stat is overridden
+  const effectiveConHealth =
+    eo.con != null
+      ? scaleSubStat(character.con, character.con_health, effectiveCon)
+      : character.con_health;
+  const effectiveConFitness =
+    eo.con != null
+      ? scaleSubStat(character.con, character.con_fitness, effectiveCon)
+      : character.con_fitness;
+
   const strMods = getStrengthModifiers(
-    character.str,
+    effectiveStr,
     character.str_exceptional ?? undefined,
-    character.str_muscle,
-    character.str_stamina
+    eo.str != null
+      ? scaleSubStat(character.str, character.str_muscle, effectiveStr)
+      : character.str_muscle,
+    eo.str != null
+      ? scaleSubStat(character.str, character.str_stamina, effectiveStr)
+      : character.str_stamina
   );
-  const dexMods = getDexterityModifiers(character.dex, character.dex_aim, character.dex_balance);
-  const conMods = getConstitutionModifiers(
-    character.con,
-    character.con_health,
-    character.con_fitness
+  const dexMods = getDexterityModifiers(
+    effectiveDex,
+    eo.dex != null
+      ? scaleSubStat(character.dex, character.dex_aim, effectiveDex)
+      : character.dex_aim,
+    eo.dex != null
+      ? scaleSubStat(character.dex, character.dex_balance, effectiveDex)
+      : character.dex_balance
   );
+  const conMods = getConstitutionModifiers(effectiveCon, effectiveConHealth, effectiveConFitness);
   const intMods = getIntelligenceModifiers(
-    character.int,
-    character.int_knowledge,
-    character.int_reason
+    effectiveInt,
+    eo.int != null
+      ? scaleSubStat(character.int, character.int_knowledge, effectiveInt)
+      : character.int_knowledge,
+    eo.int != null
+      ? scaleSubStat(character.int, character.int_reason, effectiveInt)
+      : character.int_reason
   );
   const wisMods = getWisdomModifiers(
-    character.wis,
-    character.wis_intuition,
-    character.wis_willpower
+    effectiveWis,
+    eo.wis != null
+      ? scaleSubStat(character.wis, character.wis_intuition, effectiveWis)
+      : character.wis_intuition,
+    eo.wis != null
+      ? scaleSubStat(character.wis, character.wis_willpower, effectiveWis)
+      : character.wis_willpower
   );
   const chaMods = getCharismaModifiers(
-    character.cha,
-    character.cha_leadership,
-    character.cha_appearance
+    effectiveCha,
+    eo.cha != null
+      ? scaleSubStat(character.cha, character.cha_leadership, effectiveCha)
+      : character.cha_leadership,
+    eo.cha != null
+      ? scaleSubStat(character.cha, character.cha_appearance, effectiveCha)
+      : character.cha_appearance
   );
   // AC calculation using equipped armor + shield + DEX + class bonuses (reactive to equipmentState)
   const equippedArmor = equipmentState.find(
@@ -1392,6 +1439,8 @@ export function CharacterSheet({
               onSpellSystemChange={(sys) =>
                 setCharacter((prev) => ({ ...prev, spell_system: sys as "slots" | "points" }))
               }
+              epicSpellFailure={epicEffects.spellFailure}
+              epicWildMagic={epicEffects.wildMagic}
             />
           </TabsContent>
         )}
@@ -1404,6 +1453,7 @@ export function CharacterSheet({
               level={primaryLevel}
               onUpdate={update}
               readOnly={!isOwner}
+              epicEffects={epicEffects}
             />
           </TabsContent>
         )}

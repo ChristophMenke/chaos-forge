@@ -84,7 +84,9 @@
     "createManually": "Create manually",
     "createManuallyDesc": "Create a new character step by step using the wizard.",
     "importCharacter": "Import from image",
-    "importCharacterDesc": "Scan an existing character sheet from a photo or PDF."
+    "importCharacterDesc": "Scan an existing character sheet from a photo or PDF.",
+    "epicEquipment": "Epic Equipment",
+    "epicEquipmentDesc": "Manage unique items and their effects."
   },
   "wizard": {
     "basics": "Basics",
@@ -770,5 +772,32 @@
     "noProficiencies": "No proficiencies",
     "noItems": "No inventory",
     "wisMagicalDefense": "WIS Magical Defense"
+  },
+  "epic": {
+    "title": "Epic Equipment",
+    "back": "Back to Character",
+    "equipped": "Equipped",
+    "unequipped": "Unequipped",
+    "equip": "Equip",
+    "unequip": "Unequip",
+    "damageLevel": "Damage Level",
+    "damageLevelOf": "Damage Level {current} of {max}",
+    "currentEffects": "Current Effects",
+    "allLevels": "All Levels",
+    "repair": "Repair",
+    "repairInfo": "Skill check: {skill} (Difficulty: Skill value − {level})",
+    "elixirInfo": "Copper Elixir: +{bonus} to roll (Cost: {cost} GP)",
+    "functional": "Fully functional",
+    "totalFailure": "Total failure",
+    "noItems": "No epic items found.",
+    "activeEffects": "Active Effects",
+    "weakness": "Weakness",
+    "spellFailure": "Spell Failure: {percent}%",
+    "wildMagic": "Wild Magic Chance: {percent}%",
+    "thiefPenalty": "Thief Skills: {penalty}%",
+    "thiefDisabled": "Thief skills unusable",
+    "electricDamage": "1 point of electrical damage per round",
+    "saveVsDeath": "Save vs. Death Magic each round",
+    "deviceOffline": "Device non-functional"
   }
 }

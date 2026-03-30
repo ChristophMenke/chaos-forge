@@ -12,6 +12,8 @@ import {
 } from "@/lib/rules/thief";
 import type { RaceId } from "@/lib/rules/types";
 import type { CharacterRow } from "@/lib/supabase/types";
+import type { EpicEffects } from "@/lib/rules/epic-items";
+import { applyThiefPenalty } from "@/lib/rules/epic-items";
 
 interface TabThiefSkillsProps {
   character: CharacterRow;
@@ -19,6 +21,7 @@ interface TabThiefSkillsProps {
   level: number;
   onUpdate: (field: keyof CharacterRow, value: number) => void;
   readOnly?: boolean;
+  epicEffects?: EpicEffects;
 }
 
 const SKILL_FIELDS: {
@@ -41,19 +44,40 @@ export function TabThiefSkills({
   level,
   onUpdate,
   readOnly = false,
+  epicEffects,
 }: TabThiefSkillsProps) {
   const t = useTranslations("sheet");
+  const te = useTranslations("epic");
   const baseSkills = getBaseThiefSkills(level);
   const racialAdj = getRacialThiefAdjustments(raceId);
   const backstab = getBackstabMultiplier(level);
 
+  const hasEpicPenalty = epicEffects && (epicEffects.thiefDisabled || epicEffects.thiefPenalty > 0);
+
   return (
     <div className="flex flex-col gap-6" data-testid="tab-thief-skills">
+      {epicEffects?.thiefDisabled && (
+        <div
+          className="rounded-lg border border-red-500/50 bg-red-500/10 p-3 text-sm text-red-400"
+          data-testid="thief-disabled-warning"
+        >
+          {te("thiefDisabled")}
+        </div>
+      )}
+      {epicEffects && epicEffects.thiefPenalty > 0 && !epicEffects.thiefDisabled && (
+        <div
+          className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-3 text-sm text-amber-400"
+          data-testid="thief-penalty-warning"
+        >
+          {te("thiefPenalty", { penalty: `-${epicEffects.thiefPenalty}` })}
+        </div>
+      )}
       <div className="grid gap-3 sm:grid-cols-2">
         {SKILL_FIELDS.map(({ key, dbField, i18nKey }) => {
           const base = baseSkills[key];
           const racial = racialAdj[key] ?? 0;
-          const currentValue = (character[dbField] as number) ?? 0;
+          const rawValue = (character[dbField] as number) ?? 0;
+          const currentValue = epicEffects ? applyThiefPenalty(rawValue, epicEffects) : rawValue;
 
           return (
             <div
@@ -70,15 +94,20 @@ export function TabThiefSkills({
                   type="number"
                   min={0}
                   max={99}
-                  value={currentValue}
+                  value={rawValue}
                   onChange={(e) =>
                     onUpdate(dbField, Math.max(0, Math.min(99, parseInt(e.target.value) || 0)))
                   }
-                  disabled={readOnly}
-                  className="w-20 text-center font-mono text-lg"
+                  disabled={readOnly || epicEffects?.thiefDisabled}
+                  className={`w-20 text-center font-mono text-lg ${epicEffects?.thiefDisabled ? "opacity-40" : ""}`}
                   data-testid={`thief-input-${key}`}
                 />
                 <span className="text-sm text-muted-foreground">%</span>
+                {hasEpicPenalty && currentValue !== rawValue && (
+                  <Badge variant="secondary" className="text-xs text-red-400">
+                    → {currentValue}%
+                  </Badge>
+                )}
                 <div className="flex gap-1">
                   <Badge variant="outline" className="text-xs">
                     {t("baseValue")}: {base}%

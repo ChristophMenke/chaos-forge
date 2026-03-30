@@ -208,6 +208,36 @@ export interface CharacterFightingStyleRow {
   slots_invested: number;
 }
 
+// ── Epic Items ────────────────────────────────────────────────
+
+export interface DamageLevelEffect {
+  stat_overrides?: Partial<Record<"str" | "dex" | "con" | "int" | "wis" | "cha", number>>;
+  description: string;
+  description_en?: string;
+  effects?: string[];
+}
+
+export interface EpicItemRow {
+  id: string;
+  character_id: string;
+  slug: string;
+  name: string;
+  name_en: string | null;
+  description: string;
+  description_en: string | null;
+  icon: string;
+  equipped: boolean;
+  damage_level: number;
+  max_damage_level: number;
+  damage_levels: Record<string, DamageLevelEffect>;
+  simple_effects: Record<string, unknown>;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// ── Sessions ──────────────────────────────────────────────────
+
 export interface SessionRow {
   id: string;
   title: string;

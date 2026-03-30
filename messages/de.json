@@ -84,7 +84,9 @@
     "createManually": "Manuell erstellen",
     "createManuallyDesc": "Erstelle einen neuen Charakter Schritt für Schritt mit dem Assistenten.",
     "importCharacter": "Aus Bild importieren",
-    "importCharacterDesc": "Scanne einen bestehenden Charakterbogen per Foto oder PDF."
+    "importCharacterDesc": "Scanne einen bestehenden Charakterbogen per Foto oder PDF.",
+    "epicEquipment": "Epische Ausrüstung",
+    "epicEquipmentDesc": "Verwalte einzigartige Gegenstände und ihre Effekte."
   },
   "wizard": {
     "basics": "Grunddaten",
@@ -770,5 +772,32 @@
     "noProficiencies": "Keine Fertigkeiten",
     "noItems": "Kein Inventar",
     "wisMagicalDefense": "WIS Magische Abwehr"
+  },
+  "epic": {
+    "title": "Epische Ausrüstung",
+    "back": "Zurück zum Charakter",
+    "equipped": "Angelegt",
+    "unequipped": "Abgelegt",
+    "equip": "Anlegen",
+    "unequip": "Ablegen",
+    "damageLevel": "Schadensstufe",
+    "damageLevelOf": "Schadensstufe {current} von {max}",
+    "currentEffects": "Aktuelle Auswirkungen",
+    "allLevels": "Alle Stufen",
+    "repair": "Reparatur",
+    "repairInfo": "Fertigkeitswurf: {skill} (Schwierigkeit: Fertigkeitswert − {level})",
+    "elixirInfo": "Kupfer-Elixier: +{bonus} auf den Wurf (Kosten: {cost} GM)",
+    "functional": "Voll funktionsfähig",
+    "totalFailure": "Totalausfall",
+    "noItems": "Keine epischen Gegenstände vorhanden.",
+    "activeEffects": "Aktive Effekte",
+    "weakness": "Schwäche",
+    "spellFailure": "Zauber-Fehlschlag: {percent}%",
+    "wildMagic": "Wild-Magic-Chance: {percent}%",
+    "thiefPenalty": "Diebesfähigkeiten: {penalty}%",
+    "thiefDisabled": "Diebesfähigkeiten nicht nutzbar",
+    "electricDamage": "1 Punkt elektrischer Schaden pro Runde",
+    "saveVsDeath": "Rettungswurf gg. Todesmagie pro Runde",
+    "deviceOffline": "Gerät nicht funktionsfähig"
   }
 }
