@@ -259,9 +259,14 @@ export default function ImportCharacterPage() {
         }))
         .filter((cc) => validClassIds.includes(cc.class));
 
+      console.log("[IMPORT DEBUG] scanned.classes:", JSON.stringify(scanned.classes));
+      console.log("[IMPORT DEBUG] scanned.class (legacy):", scanned.class);
+      console.log("[IMPORT DEBUG] resolvedClasses:", JSON.stringify(resolvedClasses));
+
       const primaryClass = resolvedClasses[0]?.class ?? null;
       const primaryLevel = resolvedClasses[0]?.level ?? 1;
       const primaryXp = resolvedClasses[0]?.xp ?? 0;
+      console.log("[IMPORT DEBUG] primaryClass:", primaryClass, "primaryLevel:", primaryLevel);
 
       // Validate kit: only allow known kits
       const validKits = [
@@ -662,7 +667,7 @@ export default function ImportCharacterPage() {
                 <Label htmlFor="import-name">Name</Label>
                 <Input
                   id="import-name"
-                  value={scanned.name}
+                  value={scanned.name ?? ""}
                   onChange={(e) => updateField("name", e.target.value)}
                   data-testid="import-name"
                 />
@@ -958,7 +963,7 @@ export default function ImportCharacterPage() {
                   id="import-hp"
                   type="number"
                   min={1}
-                  value={scanned.hpMax}
+                  value={scanned.hpMax ?? ""}
                   onChange={(e) => updateField("hpMax", Math.max(1, parseInt(e.target.value) || 1))}
                   className="max-w-[100px]"
                   data-testid="import-hp"
@@ -970,7 +975,7 @@ export default function ImportCharacterPage() {
                   id="import-hpCurrent"
                   type="number"
                   min={0}
-                  value={scanned.hpCurrent ?? scanned.hpMax}
+                  value={scanned.hpCurrent ?? scanned.hpMax ?? ""}
                   onChange={(e) =>
                     updateField("hpCurrent", Math.max(0, parseInt(e.target.value) || 0))
                   }
