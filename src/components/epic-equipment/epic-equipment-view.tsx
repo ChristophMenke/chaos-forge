@@ -14,7 +14,7 @@ import { BladeSystemCard } from "./blade-system-card";
 import type { CharacterRow, EpicItemRow } from "@/lib/supabase/types";
 
 interface EpicEquipmentViewProps {
-  character: Pick<CharacterRow, "id" | "name" | "avatar_url" | "user_id">;
+  character: Pick<CharacterRow, "id" | "name" | "avatar_url" | "user_id" | "level">;
   epicItems: EpicItemRow[];
   isOwner: boolean;
 }
@@ -124,6 +124,7 @@ export function EpicEquipmentView({ character, epicItems, isOwner }: EpicEquipme
                   item={item}
                   locale={locale}
                   isOwner={isOwner}
+                  characterLevel={character.level}
                   onToggleEquip={handleToggleEquip}
                   onDamageLevelChange={handleDamageLevelChange}
                 />

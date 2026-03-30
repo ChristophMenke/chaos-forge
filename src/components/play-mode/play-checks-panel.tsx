@@ -59,6 +59,11 @@ export function PlayChecksPanel({
       spellFailure: 0,
       wildMagic: 0,
       perceptionBonus: 0,
+      acBonus: 0,
+      temporaryStrOverride: null,
+      shapeshiftForms: [],
+      specialAttacks: [],
+      passiveAbilities: [],
     }),
     []
   );
@@ -390,6 +395,33 @@ export function PlayChecksPanel({
 
       {nonweaponProficiencies.length === 0 && !showThiefSkills && (
         <p className="text-sm text-muted-foreground">{t("noProficiencies")}</p>
+      )}
+
+      {/* Passive Epic Abilities */}
+      {epic.passiveAbilities.length > 0 && (
+        <div className="mt-3 border-t border-border pt-3" data-testid="play-passive-abilities">
+          <p className="mb-2 text-sm font-medium text-muted-foreground">{t("passiveAbilities")}</p>
+          <div className="flex flex-wrap gap-2">
+            {epic.passiveAbilities.map((ability) => (
+              <Badge
+                key={ability}
+                variant="outline"
+                className="border-green-500/50 text-green-400"
+                data-testid={`passive-${ability}`}
+              >
+                {t(`passive_${ability}`)}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {epic.acBonus > 0 && (
+        <div className="mt-3 border-t border-border pt-3" data-testid="play-ac-bonus">
+          <Badge variant="outline" className="border-purple-500/50 text-purple-400">
+            AC {t("epicAcBonus", { bonus: epic.acBonus })}
+          </Badge>
+        </div>
       )}
     </GlassCard>
   );

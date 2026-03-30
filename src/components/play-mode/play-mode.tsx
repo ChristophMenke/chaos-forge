@@ -168,8 +168,12 @@ export function PlayMode({
 
   const isOwner = character.user_id === userId;
 
-  // Epic item effects
-  const epicEffects: EpicEffects = useMemo(() => getEpicEffects(epicItems), [epicItems]);
+  // Epic item effects (with auto-unlock based on character level)
+  const characterLevel = character.level;
+  const epicEffects: EpicEffects = useMemo(
+    () => getEpicEffects(epicItems, characterLevel),
+    [epicItems, characterLevel]
+  );
   const eo = epicEffects.statOverrides;
 
   // Effective stats (with epic overrides)
@@ -353,6 +357,7 @@ export function PlayMode({
         encumbrance: encumbranceLevel,
         ignoreEncumbrance: character.ignore_encumbrance,
         isMagicalProtection,
+        epicAcBonus: epicEffects.acBonus,
       }),
     [
       equippedArmor,
@@ -361,6 +366,7 @@ export function PlayMode({
       classGroups,
       encumbranceLevel,
       character.ignore_encumbrance,
+      epicEffects.acBonus,
       isMagicalProtection,
     ]
   );
@@ -544,6 +550,7 @@ export function PlayMode({
             ignoreEncumbrance={character.ignore_encumbrance}
             isMagicalProtection={isMagicalProtection}
             onEquipmentChange={setEquipment}
+            epicEffects={epicEffects}
           />
           {showSpells && (
             <PlaySpellbookPanel
@@ -615,6 +622,7 @@ export function PlayMode({
             ignoreEncumbrance={character.ignore_encumbrance}
             isMagicalProtection={isMagicalProtection}
             onEquipmentChange={setEquipment}
+            epicEffects={epicEffects}
           />
         )}
         {activePanel === "spellbook" && showSpells && (
