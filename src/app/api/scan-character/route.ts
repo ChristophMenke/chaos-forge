@@ -83,21 +83,27 @@ export async function POST(request: NextRequest) {
     > = [];
 
     for (const file of allFiles) {
-      const bytes = Buffer.from(await file.arrayBuffer());
+      const arrayBuf = await file.arrayBuffer();
       const isPdf = file.type === "application/pdf";
 
       if (isPdf) {
-        const base64 = bytes.toString("base64");
+        const base64 = Buffer.from(arrayBuf).toString("base64");
         contentBlocks.push(buildContentBlock(base64, file.type, true));
       } else {
         // Resize images to max 1568px (Anthropic recommended limit)
         // Reduces token cost and prevents request size issues
-        const resized = await sharp(bytes)
-          .resize(1568, 1568, { fit: "inside", withoutEnlargement: true })
-          .jpeg({ quality: 85 })
-          .toBuffer();
-        const base64 = resized.toString("base64");
-        contentBlocks.push(buildContentBlock(base64, "image/jpeg", false));
+        try {
+          const resized = await sharp(Buffer.from(arrayBuf))
+            .resize(1568, 1568, { fit: "inside", withoutEnlargement: true })
+            .jpeg({ quality: 85 })
+            .toBuffer();
+          const base64 = resized.toString("base64");
+          contentBlocks.push(buildContentBlock(base64, "image/jpeg", false));
+        } catch {
+          // Fallback: send original image without resize
+          const base64 = Buffer.from(arrayBuf).toString("base64");
+          contentBlocks.push(buildContentBlock(base64, file.type, false));
+        }
       }
     }
 
