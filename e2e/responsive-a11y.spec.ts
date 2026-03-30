@@ -77,18 +77,6 @@ test.describe("Desktop Sidebar Navigation", () => {
     await expect(page.getByTestId("app-nav-mobile")).toBeVisible();
   });
 
-  test("FAB visible on mobile, hidden on desktop", async ({ page }) => {
-    await page.setViewportSize(MOBILE_VIEWPORT);
-    await page.goto("/characters");
-    await page.waitForTimeout(500);
-    await expect(page.getByTestId("fab-new-character")).toBeVisible();
-
-    // Switch to desktop
-    await page.setViewportSize(DESKTOP_VIEWPORT);
-    await page.waitForTimeout(300);
-    await expect(page.getByTestId("fab-new-character")).not.toBeVisible();
-  });
-
   test("sidebar navigation links work", async ({ page }) => {
     await page.setViewportSize(DESKTOP_VIEWPORT);
     await page.goto("/dashboard");

@@ -1217,6 +1217,9 @@ export function CharacterSheet({
                             max={20}
                             value={cc.level}
                             onChange={(e) =>
+                              updateClassField(cc.class_id, "level", parseInt(e.target.value) || 0)
+                            }
+                            onBlur={(e) =>
                               updateClassField(
                                 cc.class_id,
                                 "level",
