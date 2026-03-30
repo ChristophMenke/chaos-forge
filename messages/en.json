@@ -107,6 +107,7 @@
     "levelLabel": "Level",
     "levelHint": "Characters can be created at any level (1-20).",
     "alignmentLabel": "Alignment",
+    "warning": "Warning",
     "alignmentWarning": "Warning: This alignment violates the official AD&D 2e rules for the chosen class.",
     "abilitiesHint": "Enter your character's ability scores (3-18).",
     "exceptionalStrLabel": "Exceptional Strength (18/xx)",

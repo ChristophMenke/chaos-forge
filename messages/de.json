@@ -107,6 +107,7 @@
     "levelLabel": "Stufe (Level)",
     "levelHint": "Charaktere können auf jeder Stufe erstellt werden (1-20).",
     "alignmentLabel": "Gesinnung (Alignment)",
+    "warning": "Warnung",
     "alignmentWarning": "Warnung: Diese Gesinnung verstößt gegen die offiziellen AD&D 2e Regeln für die gewählte Klasse.",
     "abilitiesHint": "Trage die Attributwerte deines Charakters ein (3-18).",
     "exceptionalStrLabel": "Ausnahmestärke (18/xx)",

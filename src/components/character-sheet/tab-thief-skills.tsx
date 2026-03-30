@@ -95,7 +95,8 @@ export function TabThiefSkills({
                   min={0}
                   max={99}
                   value={rawValue}
-                  onChange={(e) =>
+                  onChange={(e) => onUpdate(dbField, parseInt(e.target.value) || 0)}
+                  onBlur={(e) =>
                     onUpdate(dbField, Math.max(0, Math.min(99, parseInt(e.target.value) || 0)))
                   }
                   disabled={readOnly || epicEffects?.thiefDisabled}
