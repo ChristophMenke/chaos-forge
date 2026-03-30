@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { BookOpen, Sparkles } from "lucide-react";
-import { GlassCard } from "@/components/glass-card";
 import { ChatMessage } from "./chat-message";
 import { ChatInput } from "./chat-input";
 import { BookFilter, ALL_SLUGS } from "./book-filter";
@@ -146,7 +145,7 @@ export function RulebookChat() {
       </div>
 
       {/* Chat area */}
-      <GlassCard hover={false} className="flex min-h-0 flex-1 flex-col overflow-hidden p-0">
+      <div className="glass glow-neutral flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl">
         {/* Book filter (collapsible) */}
         {showFilter && (
           <BookFilter
@@ -185,7 +184,7 @@ export function RulebookChat() {
 
         {/* Input */}
         <ChatInput onSend={handleSend} disabled={isLoading} />
-      </GlassCard>
+      </div>
     </div>
   );
 }
