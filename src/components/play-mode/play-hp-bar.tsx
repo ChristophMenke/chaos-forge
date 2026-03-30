@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import type { ClassGroup } from "@/lib/rules/types";
 import { getClassGroupColors } from "@/lib/utils/class-colors";
 
@@ -17,6 +18,7 @@ interface PlayHpBarProps {
   ac: number;
   thac0: number;
   classGroup: ClassGroup;
+  kitName?: string | null;
   onHpChange: (newHp: number) => void;
 }
 
@@ -29,6 +31,7 @@ export function PlayHpBar({
   ac,
   thac0,
   classGroup,
+  kitName,
   onHpChange,
 }: PlayHpBarProps) {
   const t = useTranslations("playMode");
@@ -105,6 +108,15 @@ export function PlayHpBar({
             >
               {name}
             </span>
+            {kitName && (
+              <Badge
+                variant="outline"
+                className="shrink-0 text-[10px]"
+                data-testid="play-kit-badge"
+              >
+                {kitName}
+              </Badge>
+            )}
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"

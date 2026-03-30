@@ -7,6 +7,7 @@ export interface KitDefinition {
   classId: ClassId;
   hitDieOverride: number | null;
   maxArmorAC: number | null; // minimum AC value allowed (e.g., 5 for chain mail)
+  armorSpellFailure: number | null; // spell failure % when wearing armor (e.g., militant_wizard: 20)
   abilities: { name: string; name_en: string; description: string; description_en: string }[];
 }
 
@@ -19,6 +20,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "fighter",
     hitDieOverride: 12,
     maxArmorAC: 5, // chain mail or lighter
+    armorSpellFailure: null,
     abilities: [
       {
         name: "d12 Trefferwürfel",
@@ -47,6 +49,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "fighter",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Berittener Kampfbonus",
@@ -77,6 +80,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "fighter",
     hitDieOverride: null,
     maxArmorAC: 5, // chain mail or lighter
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Rüstungsklasse-Bonus",
@@ -106,6 +110,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "fighter",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Berserkergang",
@@ -138,6 +143,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "fighter",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Arenakampf",
@@ -168,6 +174,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "fighter",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Militärische Ausbildung",
@@ -202,6 +209,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "thief",
     hitDieOverride: null,
     maxArmorAC: 8, // leather or lighter
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Attentat",
@@ -232,6 +240,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "thief",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Spurenlesen",
@@ -262,6 +271,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "thief",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Akrobatik",
@@ -291,6 +301,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "thief",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Wildnistarnung",
@@ -320,6 +331,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "thief",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Schloss-/Fallenbonus",
@@ -350,6 +362,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "thief",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Verkleidungsfertigkeit",
@@ -382,6 +395,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "mage",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Tränke brauen",
@@ -412,6 +426,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "mage",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: 20,
     abilities: [
       {
         name: "Zusätzliche Waffenfertigkeit",
@@ -443,6 +458,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "mage",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Naturfokus",
@@ -474,6 +490,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "mage",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Forschungsbonus",
@@ -506,6 +523,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "cleric",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Zusätzliche Waffenfertigkeit",
@@ -535,6 +553,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "cleric",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Verbesserte Heilung",
@@ -569,6 +588,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "ranger",
     hitDieOverride: null,
     maxArmorAC: 8, // leather or lighter
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Tiergefährte",
@@ -603,6 +623,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "bard",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Waffenperformance",
@@ -639,6 +660,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "fighter",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Exotisches Reittier",
@@ -670,6 +692,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "fighter",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Adliger Stand",
@@ -701,6 +724,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "fighter",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Volksverbundenheit",
@@ -734,6 +758,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "fighter",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Kiai-Schrei",
@@ -768,6 +793,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "fighter",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Wildnisüberleben",
@@ -801,6 +827,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "thief",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Vielseitigkeit",
@@ -832,6 +859,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "thief",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Spurenanalyse",
@@ -864,6 +892,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "thief",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Verborgene Fracht",
@@ -899,6 +928,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "mage",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Kriegerisches Training",
@@ -931,6 +961,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "mage",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Volksmagie",
@@ -963,6 +994,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "mage",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Wilde Magie",
@@ -997,6 +1029,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "cleric",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Kriegerinnenpriesterin",
@@ -1026,6 +1059,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "cleric",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Stammesritual",
@@ -1056,6 +1090,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "cleric",
     hitDieOverride: null,
     maxArmorAC: 10, // no armor
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Waffenloser Kampf",
@@ -1088,6 +1123,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "cleric",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Adliger Einfluss",
@@ -1121,6 +1157,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "cleric",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Verfolgt",
@@ -1150,6 +1187,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "cleric",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Gemeindepflege",
@@ -1182,6 +1220,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "cleric",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Göttliche Visionen",
@@ -1215,6 +1254,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "cleric",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Naturgottheit",
@@ -1247,6 +1287,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "cleric",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Theologisches Wissen",
@@ -1281,6 +1322,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "ranger",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Erweiterte Priesterzauber",
@@ -1311,6 +1353,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "ranger",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Erzfeind-Bonus",
@@ -1343,6 +1386,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "ranger",
     hitDieOverride: null,
     maxArmorAC: 10, // no armor
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Tierfamilie",
@@ -1376,6 +1420,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "ranger",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Waldgeschwindigkeit",
@@ -1407,6 +1452,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "ranger",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Pflanzenfreund",
@@ -1438,6 +1484,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "ranger",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Schutzgebiet",
@@ -1472,6 +1519,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "ranger",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Gebirgsbewegung",
@@ -1505,6 +1553,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "ranger",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Spurenlesen-Meisterschaft",
@@ -1537,6 +1586,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "ranger",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Seefahrt",
@@ -1568,6 +1618,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "ranger",
     hitDieOverride: null,
     maxArmorAC: 8, // leather or lighter
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Stadtschleicher",
@@ -1602,6 +1653,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "bard",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Täuschungskunst",
@@ -1633,6 +1685,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "bard",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Höfische Manieren",
@@ -1662,6 +1715,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "bard",
     hitDieOverride: null,
     maxArmorAC: 8, // leather or lighter
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Wahrsagerei",
@@ -1695,6 +1749,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "bard",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Wappenkunde",
@@ -1728,6 +1783,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "bard",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Spott",
@@ -1759,6 +1815,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "bard",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Legendenkunde",
@@ -1792,6 +1849,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "bard",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Meistergesang",
@@ -1826,6 +1884,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "bard",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Rätselwettstreit",
@@ -1858,6 +1917,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "bard",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Kriegslied",
@@ -1891,6 +1951,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "bard",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Meisterhafte Verkleidung",
@@ -1922,6 +1983,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "paladin",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Ritterlicher Kampf",
@@ -1952,6 +2014,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "paladin",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Göttliche Einsicht",
@@ -1983,6 +2046,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "paladin",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Diplomatisches Geschick",
@@ -2014,6 +2078,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "paladin",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Untote spüren",
@@ -2045,6 +2110,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "paladin",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Verstärktes Handauflegen",
@@ -2079,6 +2145,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "paladin",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Taktische Führung",
@@ -2110,6 +2177,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "paladin",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Fliegendes Reittier",
@@ -2139,6 +2207,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "paladin",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Erweiterte Priestermagie",
@@ -2171,6 +2240,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "paladin",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Drachenjäger",
@@ -2205,6 +2275,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "druid",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Racheschwur",
@@ -2235,6 +2306,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "druid",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Heiliges Hainland",
@@ -2267,6 +2339,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "druid",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Insektenherrschaft",
@@ -2296,6 +2369,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "druid",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Verlorenes Land",
@@ -2328,6 +2402,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "druid",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Naturwissenschaft",
@@ -2361,6 +2436,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "druid",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Waldgesetz",
@@ -2391,6 +2467,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "druid",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Verstärkte Heilung",
@@ -2422,6 +2499,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "druid",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Primitiver Überlebenskampf",
@@ -2452,6 +2530,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "druid",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Meistergestaltwandlung",
@@ -2484,6 +2563,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "druid",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Totemtier",
@@ -2515,6 +2595,7 @@ export const KITS: Record<string, KitDefinition> = {
     classId: "druid",
     hitDieOverride: null,
     maxArmorAC: null,
+    armorSpellFailure: null,
     abilities: [
       {
         name: "Gemeinschaftshüter",
@@ -2562,4 +2643,32 @@ export function getEffectiveHitDie(baseHitDie: number, kit: string | null): numb
 export function getKit(kitId: string | null): KitDefinition | null {
   if (!kitId) return null;
   return KITS[kitId] ?? null;
+}
+
+/**
+ * Check if equipped armor violates a kit's armor restriction.
+ * Returns the kit's name_en if violated, null otherwise.
+ * AD&D: lower AC = better armor, so equippedAC < maxArmorAC means too heavy.
+ */
+export function getKitArmorWarning(
+  kit: string | null,
+  equippedArmorAC: number | null
+): { kitName: string; kitNameEn: string; maxAC: number } | null {
+  if (!kit || equippedArmorAC == null) return null;
+  const kitDef = KITS[kit];
+  if (!kitDef?.maxArmorAC) return null;
+  if (equippedArmorAC < kitDef.maxArmorAC) {
+    return { kitName: kitDef.name, kitNameEn: kitDef.name_en, maxAC: kitDef.maxArmorAC };
+  }
+  return null;
+}
+
+/**
+ * Get spell failure percentage for a kit when wearing armor.
+ * Returns 0 if no spell failure or no kit.
+ */
+export function getKitSpellFailure(kit: string | null, wearsArmor: boolean): number {
+  if (!kit || !wearsArmor) return 0;
+  const kitDef = KITS[kit];
+  return kitDef?.armorSpellFailure ?? 0;
 }

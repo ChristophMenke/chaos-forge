@@ -18,6 +18,7 @@ import {
 import { getMulticlassThac0 } from "@/lib/rules/multiclass";
 import { getNonproficiencyPenalty } from "@/lib/rules/proficiencies";
 import { CLASSES, getClassGroup } from "@/lib/rules/classes";
+import { getKitArmorWarning } from "@/lib/rules/kits";
 import { getBookAbbreviation } from "@/lib/utils/source-books";
 import type { ClassId } from "@/lib/rules/types";
 import type {
@@ -48,6 +49,7 @@ interface TabEquipmentProps {
   characterClasses: CharacterClassRow[];
   weaponProficiencies: CharacterWeaponProficiencyRow[];
   ignoreEncumbrance?: boolean;
+  characterKit?: string | null;
   onEquipmentChange: (equipment: CharacterEquipmentWithDetails[]) => void;
   onInventoryChange: (inventory: CharacterInventoryWithDetails[]) => void;
   onIgnoreEncumbranceChange: (value: boolean) => void;
@@ -71,11 +73,13 @@ export function TabEquipment({
   characterClasses,
   weaponProficiencies,
   ignoreEncumbrance = true,
+  characterKit,
   onEquipmentChange,
   onInventoryChange,
   onIgnoreEncumbranceChange,
 }: TabEquipmentProps) {
   const t = useTranslations("equipment");
+  const ts = useTranslations("sheet");
   const locale = useLocale();
   const [loading, setLoading] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -466,6 +470,24 @@ export function TabEquipment({
               : t("noArmor")}
             {shieldEquipped ? ` + ${t("shield")}` : ""}
           </div>
+          {(() => {
+            const armorWarning = getKitArmorWarning(
+              characterKit ?? null,
+              equippedArmor?.armor?.ac ?? null
+            );
+            if (!armorWarning) return null;
+            return (
+              <div
+                className="mt-1 text-xs text-yellow-400"
+                data-testid="equipment-kit-armor-warning"
+              >
+                {ts("kitArmorWarning", {
+                  kitName: localized(armorWarning.kitName, armorWarning.kitNameEn, locale),
+                  maxAC: armorWarning.maxAC,
+                })}
+              </div>
+            );
+          })()}
         </div>
         <div className="rounded-md border border-border p-4 text-center">
           <div className="text-xs text-muted-foreground">{t("totalWeight")}</div>

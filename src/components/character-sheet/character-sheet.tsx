@@ -1465,24 +1465,39 @@ export function CharacterSheet({
             {character.kit &&
               (() => {
                 const kitDef = getKit(character.kit);
-                if (!kitDef?.abilities?.length) return null;
+                if (!kitDef) return null;
                 return (
                   <div className="mb-4" data-testid="sheet-kit-abilities">
-                    <h3 className="mb-2 font-heading text-lg">
-                      {t("kitAbilities")} — {localized(kitDef.name, kitDef.name_en, locale)}
-                    </h3>
-                    <div className="flex flex-col gap-1 text-sm text-muted-foreground">
-                      {kitDef.abilities.map((ability, i) => (
-                        <details key={i}>
-                          <summary className="cursor-pointer">
-                            {localized(ability.name, ability.name_en, locale)}
-                          </summary>
-                          <p className="mt-1 text-xs">
-                            {localized(ability.description, ability.description_en, locale)}
-                          </p>
-                        </details>
-                      ))}
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                      <h3 className="font-heading text-lg">{t("kitAbilities")}</h3>
+                      <Badge className="bg-primary/20 text-primary" data-testid="sheet-kit-badge">
+                        {localized(kitDef.name, kitDef.name_en, locale)}
+                      </Badge>
+                      {kitDef.maxArmorAC != null && (
+                        <Badge
+                          variant="outline"
+                          className="border-yellow-500/50 text-yellow-400"
+                          data-testid="sheet-kit-armor-restriction"
+                        >
+                          {kitDef.maxArmorAC === 10
+                            ? t("kitNoArmor")
+                            : t("kitArmorRestriction", { ac: kitDef.maxArmorAC })}
+                        </Badge>
+                      )}
                     </div>
+                    {kitDef.abilities.length > 0 && (
+                      <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
+                        {kitDef.abilities.map((ability, i) => (
+                          <li key={i}>
+                            <span className="font-medium text-foreground">
+                              {localized(ability.name, ability.name_en, locale)}
+                            </span>
+                            {" — "}
+                            {localized(ability.description, ability.description_en, locale)}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 );
               })()}
@@ -1603,6 +1618,7 @@ export function CharacterSheet({
             characterClasses={charClasses}
             weaponProficiencies={weaponProfsState}
             ignoreEncumbrance={character.ignore_encumbrance}
+            characterKit={character.kit}
             onEquipmentChange={setEquipment}
             onInventoryChange={setInventory}
             onIgnoreEncumbranceChange={handleIgnoreEncumbranceChange}

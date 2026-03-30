@@ -28,6 +28,7 @@ import {
 import { getClassGroup } from "@/lib/rules/classes";
 import type { ClassGroup, ClassId } from "@/lib/rules/types";
 import type { CharacterRow, CharacterSpellWithDetails, SpellRow } from "@/lib/supabase/types";
+import { getKit, getKitSpellFailure } from "@/lib/rules/kits";
 
 interface PlaySpellbookPanelProps {
   spells: CharacterSpellWithDetails[];
@@ -40,6 +41,8 @@ interface PlaySpellbookPanelProps {
   onRest: () => void;
   epicSpellFailure?: number;
   epicWildMagic?: number;
+  characterKit?: string | null;
+  hasArmor?: boolean;
 }
 
 export function PlaySpellbookPanel({
@@ -53,6 +56,8 @@ export function PlaySpellbookPanel({
   onRest,
   epicSpellFailure = 0,
   epicWildMagic = 0,
+  characterKit,
+  hasArmor = false,
 }: PlaySpellbookPanelProps) {
   const t = useTranslations("playMode");
   const te = useTranslations("epic");
@@ -207,6 +212,20 @@ export function PlaySpellbookPanel({
           {te("spellFailure", { percent: epicSpellFailure })}
         </div>
       )}
+      {(() => {
+        const kitSpellFail = getKitSpellFailure(characterKit ?? null, hasArmor);
+        if (kitSpellFail <= 0) return null;
+        const kitDef = getKit(characterKit ?? null);
+        const kitName = kitDef ? localized(kitDef.name, kitDef.name_en, locale) : "";
+        return (
+          <div
+            className="mb-3 rounded-lg border border-yellow-500/50 bg-yellow-500/10 p-2 text-xs text-yellow-400"
+            data-testid="play-kit-spell-failure-warning"
+          >
+            {t("kitSpellFailure", { percent: kitSpellFail, kitName })}
+          </div>
+        );
+      })()}
 
       {/* Rest confirmation */}
       {showRestConfirm && (

@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { getEffectiveHitDie, getKit, getKitsForClass, KITS } from "./kits";
+import {
+  getEffectiveHitDie,
+  getKit,
+  getKitsForClass,
+  getKitArmorWarning,
+  getKitSpellFailure,
+  KITS,
+} from "./kits";
 
 describe("Kit System", () => {
   describe("KITS registry", () => {
@@ -303,6 +310,69 @@ describe("Kit System", () => {
 
     it("returns null for null input", () => {
       expect(getKit(null)).toBeNull();
+    });
+  });
+
+  describe("getKitArmorWarning", () => {
+    it("returns warning when barbarian wears plate (AC 1 < maxAC 5)", () => {
+      const warning = getKitArmorWarning("barbarian", 1);
+      expect(warning).not.toBeNull();
+      expect(warning!.maxAC).toBe(5);
+      expect(warning!.kitNameEn).toBe("Barbarian");
+    });
+
+    it("returns null when barbarian wears chain (AC 5 = maxAC 5)", () => {
+      expect(getKitArmorWarning("barbarian", 5)).toBeNull();
+    });
+
+    it("returns null when barbarian wears leather (AC 8 > maxAC 5)", () => {
+      expect(getKitArmorWarning("barbarian", 8)).toBeNull();
+    });
+
+    it("returns warning when feralan wears leather (AC 8 < maxAC 10)", () => {
+      const warning = getKitArmorWarning("feralan", 8);
+      expect(warning).not.toBeNull();
+      expect(warning!.maxAC).toBe(10);
+    });
+
+    it("returns null when feralan has no armor", () => {
+      expect(getKitArmorWarning("feralan", null)).toBeNull();
+    });
+
+    it("returns null for kit without armor restriction", () => {
+      expect(getKitArmorWarning("cavalier", 1)).toBeNull();
+    });
+
+    it("returns null for null kit", () => {
+      expect(getKitArmorWarning(null, 1)).toBeNull();
+    });
+
+    it("returns warning for assassin wearing chain (AC 5 < maxAC 8)", () => {
+      const warning = getKitArmorWarning("assassin", 5);
+      expect(warning).not.toBeNull();
+      expect(warning!.maxAC).toBe(8);
+    });
+
+    it("returns null for assassin wearing leather (AC 8 = maxAC 8)", () => {
+      expect(getKitArmorWarning("assassin", 8)).toBeNull();
+    });
+  });
+
+  describe("getKitSpellFailure", () => {
+    it("returns 20 for militant_wizard wearing armor", () => {
+      expect(getKitSpellFailure("militant_wizard", true)).toBe(20);
+    });
+
+    it("returns 0 for militant_wizard without armor", () => {
+      expect(getKitSpellFailure("militant_wizard", false)).toBe(0);
+    });
+
+    it("returns 0 for kit without spell failure", () => {
+      expect(getKitSpellFailure("barbarian", true)).toBe(0);
+    });
+
+    it("returns 0 for null kit", () => {
+      expect(getKitSpellFailure(null, true)).toBe(0);
     });
   });
 });

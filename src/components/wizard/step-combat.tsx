@@ -9,6 +9,9 @@ import {
   getMulticlassHpDivisor,
 } from "@/lib/rules/multiclass";
 import { getDexterityModifiers } from "@/lib/rules/abilities";
+import { CLASSES } from "@/lib/rules/classes";
+import { getKit, getEffectiveHitDie } from "@/lib/rules/kits";
+import type { ClassId } from "@/lib/rules/types";
 import type { WizardState } from "./wizard-types";
 
 interface StepCombatProps {
@@ -48,7 +51,7 @@ export function StepCombat({ state, onChange }: StepCombatProps) {
         )}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-4">
         <div className="rounded-md border border-border p-3 text-center">
           <div className="text-xs text-muted-foreground">{t("thac0")}</div>
           <div className="font-heading text-2xl text-primary" data-testid="wizard-thac0">
@@ -68,6 +71,35 @@ export function StepCombat({ state, onChange }: StepCombatProps) {
             {state.hpMax}
           </div>
         </div>
+        {state.classIds.length > 0 && (
+          <div className="rounded-md border border-border p-3 text-center">
+            <div className="text-xs text-muted-foreground">Hit Die</div>
+            <div className="font-heading text-2xl text-primary" data-testid="wizard-hit-die">
+              {state.classIds
+                .map((classId) => {
+                  const cls = CLASSES[classId];
+                  if (!cls) return null;
+                  const effectiveDie = getEffectiveHitDie(cls.hitDie, state.kit);
+                  return `d${effectiveDie}`;
+                })
+                .filter(Boolean)
+                .join(" / ")}
+            </div>
+            {state.kit &&
+              (() => {
+                const kitDef = getKit(state.kit);
+                if (!kitDef?.hitDieOverride) return null;
+                return (
+                  <div
+                    className="text-xs text-yellow-400"
+                    data-testid="wizard-kit-hit-die-override"
+                  >
+                    {t("kitHitDieOverride", { die: kitDef.hitDieOverride })}
+                  </div>
+                );
+              })()}
+          </div>
+        )}
       </div>
 
       {saves && (
