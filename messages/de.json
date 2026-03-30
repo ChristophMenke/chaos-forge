@@ -89,7 +89,11 @@
     "epicEquipmentDesc": "Verwalte einzigartige Gegenstände und ihre Effekte.",
     "manage": "Verwalten",
     "play": "Spielen",
-    "epic": "Episch"
+    "epic": "Episch",
+    "duplicate": "Duplizieren",
+    "duplicateTitle": "Charakter duplizieren",
+    "duplicateMessage": "Neuer Name für die Kopie:",
+    "duplicating": "Dupliziere..."
   },
   "wizard": {
     "basics": "Grunddaten",
