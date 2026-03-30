@@ -469,7 +469,22 @@
     "classDistribution": "Class Distribution",
     "latestSession": "Latest Session",
     "allCharacters": "All Characters",
-    "noCharacters": "No characters in the party yet."
+    "noCharacters": "No characters in the party yet.",
+    "totalSessions": "Sessions",
+    "daysSinceLastSession": "Days since last session",
+    "randomQuote": "Quote of the Day",
+    "latestNpcs": "Latest NPCs",
+    "xpOverview": "XP Overview",
+    "totalXp": "Total XP",
+    "tagCloud": "Campaign Tags",
+    "partyComposition": "Party Composition",
+    "throwback": "Throwback",
+    "throwbackPrefix": "{count} sessions ago",
+    "noQuotes": "No quotes yet.",
+    "noNpcs": "No NPCs yet.",
+    "noXp": "No XP awarded yet.",
+    "noTags": "No tags yet.",
+    "viewAll": "View all"
   },
   "import": {
     "title": "Import Character Sheet",

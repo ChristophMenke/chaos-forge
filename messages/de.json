@@ -469,7 +469,22 @@
     "classDistribution": "Klassenverteilung",
     "latestSession": "Letzte Session",
     "allCharacters": "Alle Charaktere",
-    "noCharacters": "Noch keine Charaktere in der Gruppe."
+    "noCharacters": "Noch keine Charaktere in der Gruppe.",
+    "totalSessions": "Sessions",
+    "daysSinceLastSession": "Tage seit letzter Session",
+    "randomQuote": "Zitat des Tages",
+    "latestNpcs": "Neueste NPCs",
+    "xpOverview": "XP-Übersicht",
+    "totalXp": "Gesamt-XP",
+    "tagCloud": "Kampagnen-Tags",
+    "partyComposition": "Party-Zusammensetzung",
+    "throwback": "Rückblick",
+    "throwbackPrefix": "Vor {count} Sessions",
+    "noQuotes": "Noch keine Zitate.",
+    "noNpcs": "Noch keine NPCs.",
+    "noXp": "Noch keine XP vergeben.",
+    "noTags": "Noch keine Tags.",
+    "viewAll": "Alle anzeigen"
   },
   "import": {
     "title": "Charakterbogen importieren",
