@@ -484,7 +484,11 @@
     "noNpcs": "Noch keine NPCs.",
     "noXp": "Noch keine XP vergeben.",
     "noTags": "Noch keine Tags.",
-    "viewAll": "Alle anzeigen"
+    "viewAll": "Alle anzeigen",
+    "groupWarrior": "Krieger",
+    "groupPriest": "Priester",
+    "groupRogue": "Schurke",
+    "groupWizard": "Magier"
   },
   "import": {
     "title": "Charakterbogen importieren",

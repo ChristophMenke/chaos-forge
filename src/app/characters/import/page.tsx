@@ -585,7 +585,7 @@ export default function ImportCharacterPage() {
                   id="import-alignment"
                   className="rounded-md border border-border bg-transparent px-3 py-2 text-sm"
                   value={
-                    ALL_ALIGNMENTS.includes(scanned.alignment as never)
+                    (ALL_ALIGNMENTS as readonly string[]).includes(scanned.alignment)
                       ? scanned.alignment
                       : "true_neutral"
                   }

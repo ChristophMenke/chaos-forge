@@ -15,6 +15,8 @@ import type {
   TagRow,
 } from "@/lib/supabase/types";
 
+type SessionSummary = Pick<SessionRow, "id" | "title" | "session_date" | "summary">;
+
 const TAG_COLORS: Record<string, string> = {
   npc: "bg-red-900/50 text-red-200",
   location: "bg-green-900/50 text-green-200",
@@ -35,18 +37,43 @@ export default async function DashboardPage() {
   const locale = await getLocale();
   const supabase = await createClient();
 
-  // ── Queries ───────────────────────────────────────────────
-  const { data: characters } = await supabase
-    .from("characters")
-    .select("*")
-    .eq("is_active", true)
-    .order("name")
-    .returns<CharacterRow[]>();
-
-  const { data: allCharClasses } = await supabase
-    .from("character_classes")
-    .select("*")
-    .returns<CharacterClassRow[]>();
+  // ── Queries (parallelized) ──────────────────────────────
+  const [
+    { data: characters },
+    { data: allCharClasses },
+    { data: sessions },
+    { data: allQuotes },
+    { data: latestNpcs },
+    { data: xpHistory },
+    { data: tags },
+    { data: sessionTagRows },
+  ] = await Promise.all([
+    supabase
+      .from("characters")
+      .select("*")
+      .eq("is_active", true)
+      .order("name")
+      .returns<CharacterRow[]>(),
+    supabase.from("character_classes").select("*").returns<CharacterClassRow[]>(),
+    supabase
+      .from("sessions")
+      .select("id, title, session_date, summary")
+      .order("session_date", { ascending: false })
+      .returns<Pick<SessionRow, "id" | "title" | "session_date" | "summary">[]>(),
+    supabase.from("chronicle_quotes").select("*").returns<ChronicleQuoteRow[]>(),
+    supabase
+      .from("chronicle_npcs")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(5)
+      .returns<ChronicleNpcRow[]>(),
+    supabase
+      .from("xp_history")
+      .select("character_id, xp_amount")
+      .returns<{ character_id: string; xp_amount: number }[]>(),
+    supabase.from("tags").select("*").returns<TagRow[]>(),
+    supabase.from("session_tags").select("tag_id").returns<{ tag_id: string }[]>(),
+  ]);
 
   const charClassMap = new Map<string, CharacterClassRow[]>();
   for (const cc of allCharClasses ?? []) {
@@ -55,61 +82,31 @@ export default async function DashboardPage() {
     charClassMap.set(cc.character_id, existing);
   }
 
-  const { data: sessions } = await supabase
-    .from("sessions")
-    .select("*")
-    .order("session_date", { ascending: false })
-    .returns<SessionRow[]>();
-
   const latestSession = sessions?.[0] ?? null;
 
-  // Random quote
-  const { data: allQuotes } = await supabase
-    .from("chronicle_quotes")
-    .select("*")
-    .returns<ChronicleQuoteRow[]>();
+  // Random quote (server-side, changes per request)
   const randomQuote =
     allQuotes && allQuotes.length > 0
       ? allQuotes[Math.floor(Math.random() * allQuotes.length)]
       : null;
 
-  const { data: quoteReactions } = randomQuote
-    ? await supabase
-        .from("chronicle_quote_reactions")
-        .select("*")
-        .eq("quote_id", randomQuote.id)
-        .returns<QuoteReactionRow[]>()
-    : { data: [] as QuoteReactionRow[] };
-
-  // Latest NPCs
-  const { data: latestNpcs } = await supabase
-    .from("chronicle_npcs")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(5)
-    .returns<ChronicleNpcRow[]>();
-
-  // XP totals per character
-  const { data: xpHistory } = await supabase
-    .from("xp_history")
-    .select("character_id, xp_amount")
-    .returns<{ character_id: string; xp_amount: number }[]>();
-
-  // Tags + session tag counts
-  const { data: tags } = await supabase.from("tags").select("*").returns<TagRow[]>();
-  const { data: sessionTagRows } = await supabase
-    .from("session_tags")
-    .select("tag_id")
-    .returns<{ tag_id: string }[]>();
-
-  // Latest session tags
-  const { data: latestSessionTagRows } = latestSession
-    ? await supabase
-        .from("session_tags")
-        .select("tag_id")
-        .eq("session_id", latestSession.id)
-        .returns<{ tag_id: string }[]>()
-    : { data: [] as { tag_id: string }[] };
+  // Dependent queries (need results from above)
+  const [{ data: quoteReactions }, { data: latestSessionTagRows }] = await Promise.all([
+    randomQuote
+      ? supabase
+          .from("chronicle_quote_reactions")
+          .select("*")
+          .eq("quote_id", randomQuote.id)
+          .returns<QuoteReactionRow[]>()
+      : Promise.resolve({ data: [] as QuoteReactionRow[] }),
+    latestSession
+      ? supabase
+          .from("session_tags")
+          .select("tag_id")
+          .eq("session_id", latestSession.id)
+          .returns<{ tag_id: string }[]>()
+      : Promise.resolve({ data: [] as { tag_id: string }[] }),
+  ]);
 
   // ── Calculations ──────────────────────────────────────────
 
@@ -276,7 +273,9 @@ export default async function DashboardPage() {
                   className={`rounded-lg border p-3 text-center ${colors} ${count === 0 ? "opacity-30" : ""}`}
                   data-testid={`party-group-${group}`}
                 >
-                  <div className="text-xs capitalize">{group}</div>
+                  <div className="text-xs">
+                    {t(`group${group.charAt(0).toUpperCase()}${group.slice(1)}`)}
+                  </div>
                   <div className="font-heading text-2xl">{count}</div>
                 </div>
               );

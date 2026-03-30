@@ -484,7 +484,11 @@
     "noNpcs": "No NPCs yet.",
     "noXp": "No XP awarded yet.",
     "noTags": "No tags yet.",
-    "viewAll": "View all"
+    "viewAll": "View all",
+    "groupWarrior": "Warrior",
+    "groupPriest": "Priest",
+    "groupRogue": "Rogue",
+    "groupWizard": "Wizard"
   },
   "import": {
     "title": "Import Character Sheet",

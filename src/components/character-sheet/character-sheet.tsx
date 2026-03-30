@@ -440,6 +440,7 @@ export function CharacterSheet({
                   className="rounded-md border border-border bg-transparent px-2 py-0.5 text-xs"
                   value={character.alignment}
                   onChange={(e) => update("alignment", e.target.value)}
+                  aria-label={t("alignment")}
                   data-testid="sheet-alignment-select"
                 >
                   {ALL_ALIGNMENTS.map((a) => (
@@ -449,7 +450,9 @@ export function CharacterSheet({
                   ))}
                 </select>
               ) : (
-                <Badge variant="outline">{getAlignmentLabel(character.alignment, locale)}</Badge>
+                <Badge variant="outline" data-testid="sheet-alignment-badge">
+                  {getAlignmentLabel(character.alignment, locale)}
+                </Badge>
               )}
               {activeClasses.length > 1 && (
                 <Badge variant="secondary" data-testid="sheet-multiclass-badge">
