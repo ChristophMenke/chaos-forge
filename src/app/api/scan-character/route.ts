@@ -162,7 +162,7 @@ Hinweise:
 - "strExceptional" ist nur relevant bei STR 18 und Krieger-Klassen (1-100, wobei 100 = "18/00")
 - Sub-Stats (strStamina, strMuscle, etc.) sind Player's Option Werte. Extrahiere sie wenn vorhanden, sonst null
 - "weaponProficiencies" MUSS ein Array von {"name": "Waffenname", "specialized": true/false} sein. NICHT detaillierte Stats — nur Name und ob Specialist (true) oder nicht (false). Wenn "(Specialist)" hinter dem Namen steht → specialized: true
-- "equipment" ist ein Array von {"name": "Gegenstandsname", "magicBonus": 0}. Magische Gegenstände wie "Dagger +1" oder "Chain Mail +2" haben magicBonus > 0. Der magicBonus gilt für Angriff UND Schaden bei Waffen, und für RK bei Rüstungen. Wenn kein magischer Bonus → magicBonus: 0. Den Bonus aus dem Namen extrahieren (z.B. "+2" → magicBonus: 2)
+- "equipment" ist ein Array von {"name": "Gegenstandsname", "magicBonus": 0}. Extrahiere ALLE Gegenstände aus ALLEN Inventar-Bereichen: "Items Carried", "Items Readied", "Items Worn", "Items Stored" und dem allgemeinen "Inventory"-Bereich. Dazu gehören Waffen, Rüstungen, Schilde, magische Gegenstände, Alltagsgegenstände (Backpack, Spellbook, Wineskin, etc.), Schmuck, Tiere und alles andere. Magische Gegenstände wie "Dagger +1" oder "Chain Mail +2" haben magicBonus > 0. Den Bonus aus dem Namen extrahieren (z.B. "+2" → magicBonus: 2). Wenn kein magischer Bonus → magicBonus: 0
 - "nwps" ist ein Array von Strings mit den Non-Weapon Proficiency Namen
 - "height" und "weight" als Strings/Zahlen wie im Bogen angegeben
 - "xp" in "classes" ist der GEDRUCKTE "XP:"-Wert (NICHT "Next Level:"). Wenn "XP: 78,150" und "Next Level: 90,000" steht, verwende 78150
