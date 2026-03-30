@@ -29,6 +29,7 @@ import { calculateAC, calculateEncumbrance } from "@/lib/rules/equipment";
 import { feetToMeters, lbsToKg } from "@/lib/utils/units";
 import { localized } from "@/lib/utils/localize";
 import { spellRange, spellArea } from "@/lib/utils/spell-display";
+import { getFightingStyle } from "@/lib/rules/fighting-styles";
 import {
   getStrengthModifiers,
   getDexterityModifiers,
@@ -45,7 +46,10 @@ import type {
   CharacterWeaponProficiencyRow,
   CharacterNWPWithDetails,
   CharacterLanguageRow,
+  CharacterFightingStyleRow,
 } from "@/lib/supabase/types";
+import type { PrintPreferences, PrintSectionId } from "@/lib/print-config";
+import { DEFAULT_PRINT_PREFERENCES } from "@/lib/print-config";
 
 export interface PrintSheetProps {
   character: CharacterRow;
@@ -55,7 +59,9 @@ export interface PrintSheetProps {
   weaponProficiencies: CharacterWeaponProficiencyRow[];
   nonweaponProficiencies: CharacterNWPWithDetails[];
   languages: CharacterLanguageRow[];
+  fightingStyles: CharacterFightingStyleRow[];
   locale: string;
+  preferences?: PrintPreferences;
 }
 
 // ─── Helper: bordered table cell ──────────────────────────────────────────────
@@ -194,6 +200,7 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
     weaponProficiencies,
     nonweaponProficiencies,
     languages,
+    fightingStyles,
   } = props;
 
   const dt = getDocxT(props.locale);
@@ -268,24 +275,9 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
           .join(" / ")
       : "1";
 
-  // ─── Build document sections ───────────────────────────────────────────────
-  const children: (Paragraph | Table)[] = [];
+  const kitDef = character.kit ? getKit(character.kit) : null;
 
-  // ── 1. Header ──────────────────────────────────────────────────────────────
-  children.push(
-    new Paragraph({
-      heading: HeadingLevel.HEADING_1,
-      spacing: { after: 120 },
-      children: [
-        new TextRun({
-          text: character.name,
-          bold: true,
-          font: "Calibri",
-          size: 36, // 18pt
-        }),
-      ],
-    })
-  );
+  // ─── Pre-compute shared data ──────────────────────────────────────────────
 
   const xpDisplay =
     activeClasses.length > 0
@@ -308,717 +300,711 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
     .filter(Boolean)
     .join(", ");
 
-  const kitDef = character.kit ? getKit(character.kit) : null;
+  // ─── Section Generators ───────────────────────────────────────────────────
 
-  const headerLines: string[] = [
-    `Race: ${race ? localized(race.name, race.name_en, props.locale) : "—"}  |  Class: ${classNames || "—"}  |  Level: ${levelDisplay || character.level}`,
-    `Hit Die: ${hitDice || "—"}  |  HP: ${character.hp_current}/${character.hp_max}  |  Alignment: ${getAlignmentLabel(character.alignment, props.locale)}`,
-    ...(kitDef ? [`Kit: ${localized(kitDef.name, kitDef.name_en, props.locale)}`] : []),
-    `XP: ${xpDisplay}`,
-    `Treasure: ${treasureDisplay}`,
-  ];
-  if (character.player_name) headerLines.push(`Player: ${character.player_name}`);
-  if (character.age != null) headerLines.push(`Age: ${character.age}`);
-  if (character.height_cm != null) headerLines.push(`Height: ${character.height_cm} cm`);
-  if (character.weight_kg != null) headerLines.push(`Weight: ${character.weight_kg} kg`);
-  if (character.gender) headerLines.push(`Gender: ${character.gender}`);
+  const sectionGenerators: Record<PrintSectionId, () => (Paragraph | Table)[]> = {
+    // ── 1. Personal / Header ──────────────────────────────────────────────────
+    personal: () => {
+      const result: Paragraph[] = [];
 
-  for (const line of headerLines) {
-    children.push(
-      new Paragraph({
-        spacing: { after: 40 },
-        children: [new TextRun({ text: line, font: "Calibri", size: 20 })],
-      })
-    );
-  }
-
-  // ── 2. Abilities Table ─────────────────────────────────────────────────────
-  children.push(sectionHeading(dt.abilities));
-
-  const abilityRows: { name: string; value: string; mods: string }[] = [
-    {
-      name: "Strength (STR)",
-      value: strDisplay,
-      mods: `Hit: ${strMods.hitAdj >= 0 ? "+" : ""}${strMods.hitAdj}, Damage: ${strMods.dmgAdj >= 0 ? "+" : ""}${strMods.dmgAdj}, Weight: ${lbsToKg(strMods.weightAllow)} kg, Doors: ${strMods.openDoors}, Bars: ${strMods.bendBars}%`,
-    },
-    {
-      name: "Dexterity (DEX)",
-      value: String(character.dex),
-      mods: `Reaction: ${dexMods.reactionAdj >= 0 ? "+" : ""}${dexMods.reactionAdj}, Missile: ${dexMods.missileAdj >= 0 ? "+" : ""}${dexMods.missileAdj}, AC: ${dexMods.defensiveAdj >= 0 ? "+" : ""}${dexMods.defensiveAdj}`,
-    },
-    {
-      name: "Constitution (CON)",
-      value: String(character.con),
-      mods: `HP/Level: ${conMods.hpAdj >= 0 ? "+" : ""}${conMods.hpAdj}, System Shock: ${conMods.systemShock}%, Resurrection: ${conMods.resurrectionSurvival}%`,
-    },
-    {
-      name: "Intelligence (INT)",
-      value: String(character.int),
-      mods: `Languages: ${intMods.numberOfLanguages}${intMods.spellLevel ? `, Max Spell Level: ${intMods.spellLevel}` : ""}${intMods.chanceToLearn ? `, Learn Spell: ${intMods.chanceToLearn}%` : ""}`,
-    },
-    {
-      name: "Wisdom (WIS)",
-      value: String(character.wis),
-      mods: `Mag. Defense: ${wisMods.magicalDefenseAdj >= 0 ? "+" : ""}${wisMods.magicalDefenseAdj}, Spell Failure: ${wisMods.spellFailure}%${wisMods.bonusSpells.length > 0 ? `, Bonus Spells: ${wisMods.bonusSpells.join("/")}` : ""}`,
-    },
-    {
-      name: "Charisma (CHA)",
-      value: String(character.cha),
-      mods: `Henchmen: ${chaMods.maxHenchmen}, Loyalty: ${chaMods.loyaltyBase >= 0 ? "+" : ""}${chaMods.loyaltyBase}, Reaction: ${chaMods.reactionAdj >= 0 ? "+" : ""}${chaMods.reactionAdj}`,
-    },
-  ];
-
-  // Sub-stats for each ability (Player's Option)
-  const subStats: { key: string; parts: string[] }[] = [
-    {
-      key: "str",
-      parts: [
-        ...(character.str_stamina != null ? [`Stamina: ${character.str_stamina}`] : []),
-        ...(character.str_muscle != null ? [`Muscle: ${character.str_muscle}`] : []),
-      ],
-    },
-    {
-      key: "dex",
-      parts: [
-        ...(character.dex_aim != null ? [`Aim: ${character.dex_aim}`] : []),
-        ...(character.dex_balance != null ? [`Balance: ${character.dex_balance}`] : []),
-      ],
-    },
-    {
-      key: "con",
-      parts: [
-        ...(character.con_health != null ? [`Health: ${character.con_health}`] : []),
-        ...(character.con_fitness != null ? [`Fitness: ${character.con_fitness}`] : []),
-      ],
-    },
-    {
-      key: "int",
-      parts: [
-        ...(character.int_reason != null ? [`Reason: ${character.int_reason}`] : []),
-        ...(character.int_knowledge != null ? [`Knowledge: ${character.int_knowledge}`] : []),
-      ],
-    },
-    {
-      key: "wis",
-      parts: [
-        ...(character.wis_intuition != null ? [`Intuition: ${character.wis_intuition}`] : []),
-        ...(character.wis_willpower != null ? [`Willpower: ${character.wis_willpower}`] : []),
-      ],
-    },
-    {
-      key: "cha",
-      parts: [
-        ...(character.cha_leadership != null ? [`Leadership: ${character.cha_leadership}`] : []),
-        ...(character.cha_appearance != null ? [`Appearance: ${character.cha_appearance}`] : []),
-      ],
-    },
-  ];
-
-  const abilityTableRows: TableRow[] = [];
-  const abilityKeys = ["str", "dex", "con", "int", "wis", "cha"];
-  for (let i = 0; i < abilityRows.length; i++) {
-    const row = abilityRows[i];
-    abilityTableRows.push(
-      new TableRow({
-        children: [
-          cell(row.name, { width: 25 }),
-          cell(row.value, {
-            width: 10,
-            alignment: AlignmentType.CENTER,
-            bold: true,
-            font: "Courier New",
-          }),
-          cell(row.mods, { width: 65, size: 18 }),
-        ],
-      })
-    );
-    const sub = subStats.find((s) => s.key === abilityKeys[i]);
-    if (sub && sub.parts.length > 0) {
-      abilityTableRows.push(
-        new TableRow({
-          children: [
-            cell(`    ${sub.parts.join(", ")}`, {
-              columnSpan: 3,
-              size: 16,
-            }),
-          ],
-        })
-      );
-    }
-  }
-
-  children.push(
-    new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: [
-        new TableRow({
-          tableHeader: true,
-          children: [
-            headerCell("Ability", { width: 25 }),
-            headerCell("Value", { width: 10, alignment: AlignmentType.CENTER }),
-            headerCell("Modifiers", { width: 65 }),
-          ],
-        }),
-        ...abilityTableRows,
-      ],
-    })
-  );
-
-  // ── 3. Combat Values ───────────────────────────────────────────────────────
-  children.push(sectionHeading(dt.combatValues));
-
-  children.push(
-    new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: [
-        new TableRow({
-          tableHeader: true,
-          children: [
-            headerCell("THAC0", { alignment: AlignmentType.CENTER }),
-            headerCell("Armor Class", { alignment: AlignmentType.CENTER }),
-            headerCell("Hit Mod", { alignment: AlignmentType.CENTER }),
-            headerCell("Damage Mod", { alignment: AlignmentType.CENTER }),
-            headerCell("Attacks/Round", { alignment: AlignmentType.CENTER }),
-            headerCell("Initiative", { alignment: AlignmentType.CENTER }),
-          ],
-        }),
-        new TableRow({
-          children: [
-            cell(String(thac0), {
-              alignment: AlignmentType.CENTER,
-              bold: true,
-              font: "Courier New",
-              size: 24,
-            }),
-            cell(String(effectiveAC), {
-              alignment: AlignmentType.CENTER,
-              bold: true,
-              font: "Courier New",
-              size: 24,
-            }),
-            cell(`${strMods.hitAdj >= 0 ? "+" : ""}${strMods.hitAdj}`, {
-              alignment: AlignmentType.CENTER,
-              bold: true,
-              font: "Courier New",
-              size: 24,
-            }),
-            cell(`${strMods.dmgAdj >= 0 ? "+" : ""}${strMods.dmgAdj}`, {
-              alignment: AlignmentType.CENTER,
-              bold: true,
-              font: "Courier New",
-              size: 24,
-            }),
-            cell(attacksDisplay, {
-              alignment: AlignmentType.CENTER,
-              bold: true,
-              font: "Courier New",
-              size: 24,
-            }),
-            cell(`${dexMods.reactionAdj >= 0 ? "+" : ""}${dexMods.reactionAdj}`, {
-              alignment: AlignmentType.CENTER,
-              bold: true,
-              font: "Courier New",
-              size: 24,
-            }),
-          ],
-        }),
-      ],
-    })
-  );
-
-  // ── 4. Saving Throws ──────────────────────────────────────────────────────
-  if (saves) {
-    children.push(sectionHeading(dt.savingThrows));
-    children.push(
-      new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            tableHeader: true,
-            children: [
-              headerCell("Poison/Para/Death", { alignment: AlignmentType.CENTER }),
-              headerCell("Rod/Staff/Wand", { alignment: AlignmentType.CENTER }),
-              headerCell("Petrification", { alignment: AlignmentType.CENTER }),
-              headerCell("Breath Weapon", { alignment: AlignmentType.CENTER }),
-              headerCell("Spell", { alignment: AlignmentType.CENTER }),
-            ],
-          }),
-          new TableRow({
-            children: [
-              cell(String(saves.paralyzation), {
-                alignment: AlignmentType.CENTER,
-                bold: true,
-                font: "Courier New",
-                size: 24,
-              }),
-              cell(String(saves.rod), {
-                alignment: AlignmentType.CENTER,
-                bold: true,
-                font: "Courier New",
-                size: 24,
-              }),
-              cell(String(saves.petrification), {
-                alignment: AlignmentType.CENTER,
-                bold: true,
-                font: "Courier New",
-                size: 24,
-              }),
-              cell(String(saves.breath), {
-                alignment: AlignmentType.CENTER,
-                bold: true,
-                font: "Courier New",
-                size: 24,
-              }),
-              cell(String(saves.spell), {
-                alignment: AlignmentType.CENTER,
-                bold: true,
-                font: "Courier New",
-                size: 24,
-              }),
-            ],
-          }),
-        ],
-      })
-    );
-  }
-
-  // ── 4b. Racial & Class Abilities ─────────────────────────────────────────
-  const hasRacialAbilities = race?.racialAbilities && race.racialAbilities.length > 0;
-  const classAbilitiesEntries = activeClasses
-    .map((cc) => {
-      const clsDef = CLASSES[cc.class_id as ClassId];
-      return clsDef?.classAbilities?.length ? { clsDef, classId: cc.class_id } : null;
-    })
-    .filter(Boolean) as { clsDef: (typeof CLASSES)[ClassId]; classId: string }[];
-  const kitAbilities = kitDef?.abilities?.length ? kitDef.abilities : [];
-
-  if (hasRacialAbilities || classAbilitiesEntries.length > 0 || kitAbilities.length > 0) {
-    children.push(sectionHeading(dt.racialAbilities));
-
-    if (hasRacialAbilities && race?.racialAbilities) {
-      children.push(
+      result.push(
         new Paragraph({
-          spacing: { after: 60 },
+          heading: HeadingLevel.HEADING_1,
+          spacing: { after: 120 },
           children: [
             new TextRun({
-              text: `Racial Abilities (${localized(race.name, race.name_en, props.locale)})`,
+              text: character.name,
               bold: true,
               font: "Calibri",
-              size: 22,
+              size: 36, // 18pt
             }),
           ],
         })
       );
-      for (const a of race.racialAbilities) {
-        children.push(
+
+      const headerLines: string[] = [
+        `Race: ${race ? localized(race.name, race.name_en, props.locale) : "—"}  |  Class: ${classNames || "—"}  |  Level: ${levelDisplay || character.level}`,
+        `Hit Die: ${hitDice || "—"}  |  HP: ${character.hp_current}/${character.hp_max}  |  Alignment: ${getAlignmentLabel(character.alignment, props.locale)}`,
+        ...(kitDef ? [`Kit: ${localized(kitDef.name, kitDef.name_en, props.locale)}`] : []),
+        `XP: ${xpDisplay}`,
+        `Treasure: ${treasureDisplay}`,
+      ];
+      if (character.player_name) headerLines.push(`Player: ${character.player_name}`);
+      if (character.age != null) headerLines.push(`Age: ${character.age}`);
+      if (character.height_cm != null) headerLines.push(`Height: ${character.height_cm} cm`);
+      if (character.weight_kg != null) headerLines.push(`Weight: ${character.weight_kg} kg`);
+      if (character.gender) headerLines.push(`Gender: ${character.gender}`);
+
+      for (const line of headerLines) {
+        result.push(
           new Paragraph({
-            spacing: { after: 20 },
-            indent: { left: 360 },
-            bullet: { level: 0 },
-            children: [
-              new TextRun({
-                text: localized(a.name, a.name_en, props.locale),
-                bold: true,
-                font: "Calibri",
-                size: 20,
-              }),
-              new TextRun({
-                text: ` — ${localized(a.description, a.description_en, props.locale)}`,
-                font: "Calibri",
-                size: 20,
-              }),
-            ],
+            spacing: { after: 40 },
+            children: [new TextRun({ text: line, font: "Calibri", size: 20 })],
           })
         );
       }
-    }
 
-    for (const entry of classAbilitiesEntries) {
-      children.push(
-        new Paragraph({
-          spacing: { before: 120, after: 60 },
-          children: [
-            new TextRun({
-              text: `Class Abilities (${localized(entry.clsDef.name, entry.clsDef.name_en, props.locale)})`,
-              bold: true,
-              font: "Calibri",
-              size: 22,
-            }),
+      return result;
+    },
+
+    // ── 2. Abilities Table ──────────────────────────────────────────────────
+    abilities: () => {
+      const result: (Paragraph | Table)[] = [];
+      result.push(sectionHeading(dt.abilities));
+
+      const abilityRows: { name: string; value: string; mods: string }[] = [
+        {
+          name: "Strength (STR)",
+          value: strDisplay,
+          mods: `Hit: ${strMods.hitAdj >= 0 ? "+" : ""}${strMods.hitAdj}, Damage: ${strMods.dmgAdj >= 0 ? "+" : ""}${strMods.dmgAdj}, Weight: ${lbsToKg(strMods.weightAllow)} kg, Max. Press: ${lbsToKg(strMods.maxPress)} kg, Doors: ${strMods.openDoors}, Bars: ${strMods.bendBars}%`,
+        },
+        {
+          name: "Dexterity (DEX)",
+          value: String(character.dex),
+          mods: `Reaction: ${dexMods.reactionAdj >= 0 ? "+" : ""}${dexMods.reactionAdj}, Missile: ${dexMods.missileAdj >= 0 ? "+" : ""}${dexMods.missileAdj}, AC: ${dexMods.defensiveAdj >= 0 ? "+" : ""}${dexMods.defensiveAdj}${dexMods.pickPockets !== 0 || dexMods.openLocks !== 0 || dexMods.moveSilently !== 0 ? `, PP: ${dexMods.pickPockets >= 0 ? "+" : ""}${dexMods.pickPockets}%, OL: ${dexMods.openLocks >= 0 ? "+" : ""}${dexMods.openLocks}%, FT: ${dexMods.findTraps >= 0 ? "+" : ""}${dexMods.findTraps}%, MS: ${dexMods.moveSilently >= 0 ? "+" : ""}${dexMods.moveSilently}%, HS: ${dexMods.hideInShadows >= 0 ? "+" : ""}${dexMods.hideInShadows}%, CW: ${dexMods.climbWalls >= 0 ? "+" : ""}${dexMods.climbWalls}%` : ""}`,
+        },
+        {
+          name: "Constitution (CON)",
+          value: String(character.con),
+          mods: `HP/Level: ${conMods.hpAdj >= 0 ? "+" : ""}${conMods.hpAdj}, System Shock: ${conMods.systemShock}%, Poison Save: ${conMods.poisonSave >= 0 ? "+" : ""}${conMods.poisonSave}, Resurrection: ${conMods.resurrectionSurvival}%`,
+        },
+        {
+          name: "Intelligence (INT)",
+          value: String(character.int),
+          mods: `Languages: ${intMods.numberOfLanguages}${intMods.spellLevel ? `, Max Spell Level: ${intMods.spellLevel}` : ""}${intMods.chanceToLearn ? `, Learn Spell: ${intMods.chanceToLearn}%` : ""}${intMods.maxSpellsPerLevel ? `, Max Spells/Level: ${intMods.maxSpellsPerLevel}` : ""}${intMods.spellImmunity != null ? `, Illusion Immunity: Lvl ${intMods.spellImmunity}` : ""}${intMods.bonusProficiencies > 0 ? `, Bonus Prof.: ${intMods.bonusProficiencies}` : ""}`,
+        },
+        {
+          name: "Wisdom (WIS)",
+          value: String(character.wis),
+          mods: `Mag. Defense: ${wisMods.magicalDefenseAdj >= 0 ? "+" : ""}${wisMods.magicalDefenseAdj}, Spell Failure: ${wisMods.spellFailure}%${wisMods.bonusSpells.length > 0 ? `, Bonus Spells: ${wisMods.bonusSpells.join("/")}` : ""}${wisMods.spellImmunity != null ? `, Spell Immunity: ${wisMods.spellImmunity}` : ""}`,
+        },
+        {
+          name: "Charisma (CHA)",
+          value: String(character.cha),
+          mods: `Henchmen: ${chaMods.maxHenchmen}, Loyalty: ${chaMods.loyaltyBase >= 0 ? "+" : ""}${chaMods.loyaltyBase}, Reaction: ${chaMods.reactionAdj >= 0 ? "+" : ""}${chaMods.reactionAdj}`,
+        },
+      ];
+
+      // Sub-stats for each ability (Player's Option)
+      const subStats: { key: string; parts: string[] }[] = [
+        {
+          key: "str",
+          parts: [
+            ...(character.str_stamina != null ? [`Stamina: ${character.str_stamina}`] : []),
+            ...(character.str_muscle != null ? [`Muscle: ${character.str_muscle}`] : []),
           ],
-        })
-      );
-      for (const a of entry.clsDef.classAbilities!) {
-        children.push(
-          new Paragraph({
-            spacing: { after: 20 },
-            indent: { left: 360 },
-            bullet: { level: 0 },
-            children: [
-              new TextRun({
-                text: localized(a.name, a.name_en, props.locale),
-                bold: true,
-                font: "Calibri",
-                size: 20,
-              }),
-              new TextRun({
-                text: ` — ${localized(a.description, a.description_en, props.locale)}`,
-                font: "Calibri",
-                size: 20,
-              }),
-            ],
-          })
-        );
-      }
-    }
-
-    if (kitAbilities.length > 0 && kitDef) {
-      children.push(
-        new Paragraph({
-          spacing: { before: 120, after: 60 },
-          children: [
-            new TextRun({
-              text: `Kit Abilities (${localized(kitDef.name, kitDef.name_en, props.locale)})`,
-              bold: true,
-              font: "Calibri",
-              size: 22,
-            }),
+        },
+        {
+          key: "dex",
+          parts: [
+            ...(character.dex_aim != null ? [`Aim: ${character.dex_aim}`] : []),
+            ...(character.dex_balance != null ? [`Balance: ${character.dex_balance}`] : []),
           ],
-        })
-      );
-      for (const a of kitAbilities) {
-        children.push(
-          new Paragraph({
-            spacing: { after: 20 },
-            indent: { left: 360 },
-            bullet: { level: 0 },
-            children: [
-              new TextRun({
-                text: localized(a.name, a.name_en, props.locale),
-                bold: true,
-                font: "Calibri",
-                size: 20,
-              }),
-              new TextRun({
-                text: ` — ${localized(a.description, a.description_en, props.locale)}`,
-                font: "Calibri",
-                size: 20,
-              }),
-            ],
-          })
-        );
-      }
-    }
-  }
-
-  // ── 5. AC Breakdown ───────────────────────────────────────────────────────
-  children.push(sectionHeading(dt.acBreakdown));
-
-  const armorReduction = equippedArmorForAC ? `${-(10 - equippedArmorForAC.armor!.ac)}` : "—";
-  const armorName = equippedArmorForAC
-    ? ` (${localized(equippedArmorForAC.armor!.name, equippedArmorForAC.armor!.name_en, props.locale)})`
-    : "";
-  const shieldVal = hasShieldForAC ? "-1" : "—";
-  const dexVal =
-    dexMods.defensiveAdj !== 0
-      ? `${dexMods.defensiveAdj >= 0 ? "+" : ""}${dexMods.defensiveAdj}`
-      : "—";
-
-  children.push(
-    new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: [
-        new TableRow({
-          tableHeader: true,
-          children: [
-            headerCell("Base", { alignment: AlignmentType.CENTER }),
-            headerCell("Armor", { alignment: AlignmentType.CENTER }),
-            headerCell("Shield", { alignment: AlignmentType.CENTER }),
-            headerCell("DEX", { alignment: AlignmentType.CENTER }),
-            headerCell("Final", { alignment: AlignmentType.CENTER }),
+        },
+        {
+          key: "con",
+          parts: [
+            ...(character.con_health != null ? [`Health: ${character.con_health}`] : []),
+            ...(character.con_fitness != null ? [`Fitness: ${character.con_fitness}`] : []),
           ],
-        }),
-        new TableRow({
-          children: [
-            cell("10", {
-              alignment: AlignmentType.CENTER,
-              bold: true,
-              font: "Courier New",
-              size: 24,
-            }),
-            cell(`${armorReduction}${armorName}`, {
-              alignment: AlignmentType.CENTER,
-              bold: true,
-              size: 20,
-            }),
-            cell(shieldVal, {
-              alignment: AlignmentType.CENTER,
-              bold: true,
-              font: "Courier New",
-              size: 24,
-            }),
-            cell(dexVal, {
-              alignment: AlignmentType.CENTER,
-              bold: true,
-              font: "Courier New",
-              size: 24,
-            }),
-            cell(String(effectiveAC), {
-              alignment: AlignmentType.CENTER,
-              bold: true,
-              font: "Courier New",
-              size: 24,
-            }),
+        },
+        {
+          key: "int",
+          parts: [
+            ...(character.int_reason != null ? [`Reason: ${character.int_reason}`] : []),
+            ...(character.int_knowledge != null ? [`Knowledge: ${character.int_knowledge}`] : []),
           ],
-        }),
-      ],
-    })
-  );
+        },
+        {
+          key: "wis",
+          parts: [
+            ...(character.wis_intuition != null ? [`Intuition: ${character.wis_intuition}`] : []),
+            ...(character.wis_willpower != null ? [`Willpower: ${character.wis_willpower}`] : []),
+          ],
+        },
+        {
+          key: "cha",
+          parts: [
+            ...(character.cha_leadership != null
+              ? [`Leadership: ${character.cha_leadership}`]
+              : []),
+            ...(character.cha_appearance != null
+              ? [`Appearance: ${character.cha_appearance}`]
+              : []),
+          ],
+        },
+      ];
 
-  // ── 5b. Thief Skills ──────────────────────────────────────────────────────
-  if (hasThiefSkills(activeClasses.map((cc) => cc.class_id as ClassId))) {
-    children.push(sectionHeading(dt.thiefSkills));
-    const backstabLevel =
-      activeClasses.find((cc) => cc.class_id === "thief" || cc.class_id === "bard")?.level ?? 1;
-    const thiefData = [
-      { label: "Pick Locks", value: `${character.thief_pick_locks}%` },
-      { label: "Find Traps", value: `${character.thief_find_traps}%` },
-      { label: "Move Silently", value: `${character.thief_move_silently}%` },
-      { label: "Hide in Shadows", value: `${character.thief_hide_shadows}%` },
-      { label: "Climb Walls", value: `${character.thief_climb_walls}%` },
-      { label: "Detect Noise", value: `${character.thief_detect_noise}%` },
-      { label: "Read Languages", value: `${character.thief_read_languages}%` },
-      { label: "Backstab", value: `x${getBackstabMultiplier(backstabLevel)}` },
-    ];
-    children.push(
-      new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
+      const abilityTableRows: TableRow[] = [];
+      const abilityKeys = ["str", "dex", "con", "int", "wis", "cha"];
+      for (let i = 0; i < abilityRows.length; i++) {
+        const row = abilityRows[i];
+        abilityTableRows.push(
           new TableRow({
-            tableHeader: true,
-            children: thiefData.map((d) =>
-              headerCell(d.label, { alignment: AlignmentType.CENTER })
-            ),
-          }),
-          new TableRow({
-            children: thiefData.map((d) =>
-              cell(d.value, {
+            children: [
+              cell(row.name, { width: 25 }),
+              cell(row.value, {
+                width: 10,
                 alignment: AlignmentType.CENTER,
                 bold: true,
                 font: "Courier New",
-                size: 24,
-              })
-            ),
-          }),
-        ],
-      })
-    );
-  }
-
-  // ── 6. Weapons Table ──────────────────────────────────────────────────────
-  const equippedWeapons = equipment.filter((e) => e.weapon && e.equipped);
-  if (equippedWeapons.length > 0) {
-    children.push(sectionHeading(dt.weapons));
-    children.push(
-      new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            tableHeader: true,
-            children: [
-              headerCell("Name"),
-              headerCell("THAC0 Melee", { alignment: AlignmentType.CENTER }),
-              headerCell("THAC0 Ranged", { alignment: AlignmentType.CENTER }),
-              headerCell("Dmg S/M", { alignment: AlignmentType.CENTER }),
-              headerCell("Dmg L", { alignment: AlignmentType.CENTER }),
-              headerCell("Spd", { alignment: AlignmentType.CENTER }),
-              headerCell("Range", { alignment: AlignmentType.CENTER }),
-              headerCell("Atk/Rnd", { alignment: AlignmentType.CENTER }),
+              }),
+              cell(row.mods, { width: 65, size: 18 }),
             ],
-          }),
-          ...equippedWeapons.map((e) => {
-            const weapon = e.weapon!;
-            const isProficient = weaponProficiencies.some(
-              (wp) => wp.weapon_name.toLowerCase() === weapon.name.toLowerCase()
-            );
-            const penalty = isProficient
-              ? 0
-              : getNonproficiencyPenalty(
-                  activeClasses.length > 0
-                    ? (CLASSES[activeClasses[0].class_id as ClassId]?.group ??
-                        ("warrior" as ClassGroup))
-                    : ("warrior" as ClassGroup)
-                );
-            const hitBonus = e.hit_bonus ?? 0;
-            const dmgBonus = e.damage_bonus ?? 0;
-            const weaponThac0 = getAdjustedWeaponThac0(
-              thac0,
-              strMods.hitAdj,
-              dexMods.missileAdj,
-              weapon.weapon_type,
-              penalty,
-              hitBonus
-            );
-            const rangeStr =
-              weapon.weapon_type !== "melee" &&
-              weapon.range_short != null &&
-              weapon.range_medium != null &&
-              weapon.range_long != null
-                ? `${feetToMeters(weapon.range_short)}/${feetToMeters(weapon.range_medium)}/${feetToMeters(weapon.range_long)}`
-                : "—";
-            const weaponLabel = `${localized(weapon.name, weapon.name_en, props.locale)}${hitBonus > 0 ? ` +${hitBonus}` : ""}${!isProficient ? " *" : ""}`;
-
-            return new TableRow({
+          })
+        );
+        const sub = subStats.find((s) => s.key === abilityKeys[i]);
+        if (sub && sub.parts.length > 0) {
+          abilityTableRows.push(
+            new TableRow({
               children: [
-                cell(weaponLabel),
-                cell(String(weaponThac0.melee), {
-                  alignment: AlignmentType.CENTER,
-                  font: "Courier New",
+                cell(`    ${sub.parts.join(", ")}`, {
+                  columnSpan: 3,
+                  size: 16,
                 }),
-                cell(weaponThac0.ranged !== null ? String(weaponThac0.ranged) : "—", {
-                  alignment: AlignmentType.CENTER,
-                  font: "Courier New",
-                }),
-                cell(formatDamageWithBonus(weapon.damage_sm, strMods.dmgAdj, dmgBonus), {
-                  alignment: AlignmentType.CENTER,
-                  font: "Courier New",
-                }),
-                cell(formatDamageWithBonus(weapon.damage_l, strMods.dmgAdj, dmgBonus), {
-                  alignment: AlignmentType.CENTER,
-                  font: "Courier New",
-                }),
-                cell(String(weapon.speed), {
-                  alignment: AlignmentType.CENTER,
-                  font: "Courier New",
-                }),
-                cell(rangeStr, { alignment: AlignmentType.CENTER, font: "Courier New", size: 18 }),
-                cell(attacksDisplay, { alignment: AlignmentType.CENTER, font: "Courier New" }),
               ],
-            });
-          }),
-        ],
-      })
-    );
-  }
+            })
+          );
+        }
+      }
 
-  // ── 7. Equipment (Armor & Inventory) ──────────────────────────────────────
-  const equipmentItems = equipment.filter((e) => e.armor || (e.weapon && !e.equipped));
-  if (equipmentItems.length > 0) {
-    children.push(sectionHeading(dt.armorInventory));
-    children.push(
-      new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [
-          new TableRow({
-            tableHeader: true,
-            children: [
-              headerCell("Item", { width: 40 }),
-              headerCell("Type", { width: 20, alignment: AlignmentType.CENTER }),
-              headerCell("Weight", { width: 20, alignment: AlignmentType.CENTER }),
-              headerCell("Status", { width: 20, alignment: AlignmentType.CENTER }),
-            ],
-          }),
-          ...equipmentItems.map(
-            (e) =>
-              new TableRow({
-                children: [
-                  cell(
-                    e.weapon
-                      ? localized(e.weapon.name, e.weapon.name_en, props.locale)
-                      : e.armor
-                        ? localized(e.armor.name, e.armor.name_en, props.locale)
-                        : "—",
-                    { width: 40 }
-                  ),
-                  cell(e.weapon ? "Weapon" : "Armor", {
-                    width: 20,
-                    alignment: AlignmentType.CENTER,
-                  }),
-                  cell(`${lbsToKg(e.weapon?.weight ?? e.armor?.weight ?? 0)} kg`, {
-                    width: 20,
-                    alignment: AlignmentType.CENTER,
-                  }),
-                  cell(e.equipped ? "Equipped" : "Inventory", {
-                    width: 20,
-                    alignment: AlignmentType.CENTER,
-                  }),
-                ],
-              })
-          ),
-        ],
-      })
-    );
-  }
-
-  // ── 8. Spells Known (Table by level) ──────────────────────────────────────
-  if (spells.length > 0) {
-    children.push(sectionHeading(dt.spellsKnown));
-
-    // Group spells by level
-    const spellsByLevel: Record<number, typeof spells> = {};
-    for (const cs of spells) {
-      const lvl = cs.spell.level;
-      if (!spellsByLevel[lvl]) spellsByLevel[lvl] = [];
-      spellsByLevel[lvl].push(cs);
-    }
-
-    const spellLevels = Object.keys(spellsByLevel)
-      .map(Number)
-      .sort((a, b) => a - b);
-    for (const lvl of spellLevels) {
-      const levelSpells = spellsByLevel[lvl];
-      // Level header row + spell data table
-      children.push(
+      result.push(
         new Table({
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: [
-            // Header row spanning all columns
             new TableRow({
               tableHeader: true,
               children: [
-                headerCell(props.locale === "de" ? `Stufe ${lvl} Zauber` : `Level ${lvl} Spells`, {
-                  width: 25,
-                }),
-                headerCell(props.locale === "de" ? "Wirkzeit" : "Cast Time", {
-                  width: 15,
+                headerCell("Ability", { width: 25 }),
+                headerCell("Value", { width: 10, alignment: AlignmentType.CENTER }),
+                headerCell("Modifiers", { width: 65 }),
+              ],
+            }),
+            ...abilityTableRows,
+          ],
+        })
+      );
+
+      return result;
+    },
+
+    // ── 3. Combat Values ────────────────────────────────────────────────────
+    combat: () => {
+      const result: (Paragraph | Table)[] = [];
+      result.push(sectionHeading(dt.combatValues));
+
+      result.push(
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              tableHeader: true,
+              children: [
+                headerCell("THAC0", { alignment: AlignmentType.CENTER }),
+                headerCell("Armor Class", { alignment: AlignmentType.CENTER }),
+                headerCell("Hit Mod", { alignment: AlignmentType.CENTER }),
+                headerCell("Damage Mod", { alignment: AlignmentType.CENTER }),
+                headerCell("Attacks/Round", { alignment: AlignmentType.CENTER }),
+                headerCell("Initiative", { alignment: AlignmentType.CENTER }),
+              ],
+            }),
+            new TableRow({
+              children: [
+                cell(String(thac0), {
                   alignment: AlignmentType.CENTER,
+                  bold: true,
+                  font: "Courier New",
+                  size: 24,
                 }),
-                headerCell(props.locale === "de" ? "Reichweite" : "Range", {
-                  width: 15,
+                cell(String(effectiveAC), {
                   alignment: AlignmentType.CENTER,
+                  bold: true,
+                  font: "Courier New",
+                  size: 24,
                 }),
-                headerCell(props.locale === "de" ? "Wirkungsbereich" : "Area of Effect", {
-                  width: 25,
+                cell(`${strMods.hitAdj >= 0 ? "+" : ""}${strMods.hitAdj}`, {
                   alignment: AlignmentType.CENTER,
+                  bold: true,
+                  font: "Courier New",
+                  size: 24,
                 }),
-                headerCell(props.locale === "de" ? "Komp." : "Comp.", {
-                  width: 10,
+                cell(`${strMods.dmgAdj >= 0 ? "+" : ""}${strMods.dmgAdj}`, {
                   alignment: AlignmentType.CENTER,
+                  bold: true,
+                  font: "Courier New",
+                  size: 24,
+                }),
+                cell(attacksDisplay, {
+                  alignment: AlignmentType.CENTER,
+                  bold: true,
+                  font: "Courier New",
+                  size: 24,
+                }),
+                cell(`${dexMods.reactionAdj >= 0 ? "+" : ""}${dexMods.reactionAdj}`, {
+                  alignment: AlignmentType.CENTER,
+                  bold: true,
+                  font: "Courier New",
+                  size: 24,
                 }),
               ],
             }),
-            ...levelSpells.map(
-              (cs) =>
+          ],
+        })
+      );
+
+      return result;
+    },
+
+    // ── 4. Saving Throws ────────────────────────────────────────────────────
+    saves: () => {
+      if (!saves) return [];
+
+      const result: (Paragraph | Table)[] = [];
+      result.push(sectionHeading(dt.savingThrows));
+      result.push(
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              tableHeader: true,
+              children: [
+                headerCell("Poison/Para/Death", { alignment: AlignmentType.CENTER }),
+                headerCell("Rod/Staff/Wand", { alignment: AlignmentType.CENTER }),
+                headerCell("Petrification", { alignment: AlignmentType.CENTER }),
+                headerCell("Breath Weapon", { alignment: AlignmentType.CENTER }),
+                headerCell("Spell", { alignment: AlignmentType.CENTER }),
+              ],
+            }),
+            new TableRow({
+              children: [
+                cell(String(saves.paralyzation), {
+                  alignment: AlignmentType.CENTER,
+                  bold: true,
+                  font: "Courier New",
+                  size: 24,
+                }),
+                cell(String(saves.rod), {
+                  alignment: AlignmentType.CENTER,
+                  bold: true,
+                  font: "Courier New",
+                  size: 24,
+                }),
+                cell(String(saves.petrification), {
+                  alignment: AlignmentType.CENTER,
+                  bold: true,
+                  font: "Courier New",
+                  size: 24,
+                }),
+                cell(String(saves.breath), {
+                  alignment: AlignmentType.CENTER,
+                  bold: true,
+                  font: "Courier New",
+                  size: 24,
+                }),
+                cell(String(saves.spell), {
+                  alignment: AlignmentType.CENTER,
+                  bold: true,
+                  font: "Courier New",
+                  size: 24,
+                }),
+              ],
+            }),
+          ],
+        })
+      );
+
+      return result;
+    },
+
+    // ── 4b. Racial & Class Abilities ────────────────────────────────────────
+    racialClassAbilities: () => {
+      const hasRacialAbilities = race?.racialAbilities && race.racialAbilities.length > 0;
+      const classAbilitiesEntries = activeClasses
+        .map((cc) => {
+          const clsDef = CLASSES[cc.class_id as ClassId];
+          return clsDef?.classAbilities?.length ? { clsDef, classId: cc.class_id } : null;
+        })
+        .filter(Boolean) as { clsDef: (typeof CLASSES)[ClassId]; classId: string }[];
+      const kitAbilities = kitDef?.abilities?.length ? kitDef.abilities : [];
+
+      if (!hasRacialAbilities && classAbilitiesEntries.length === 0 && kitAbilities.length === 0) {
+        return [];
+      }
+
+      const result: (Paragraph | Table)[] = [];
+      result.push(sectionHeading(dt.racialAbilities));
+
+      if (hasRacialAbilities && race?.racialAbilities) {
+        result.push(
+          new Paragraph({
+            spacing: { after: 60 },
+            children: [
+              new TextRun({
+                text: `Racial Abilities (${localized(race.name, race.name_en, props.locale)})`,
+                bold: true,
+                font: "Calibri",
+                size: 22,
+              }),
+            ],
+          })
+        );
+        for (const a of race.racialAbilities) {
+          result.push(
+            new Paragraph({
+              spacing: { after: 20 },
+              indent: { left: 360 },
+              bullet: { level: 0 },
+              children: [
+                new TextRun({
+                  text: localized(a.name, a.name_en, props.locale),
+                  bold: true,
+                  font: "Calibri",
+                  size: 20,
+                }),
+                new TextRun({
+                  text: ` — ${localized(a.description, a.description_en, props.locale)}`,
+                  font: "Calibri",
+                  size: 20,
+                }),
+              ],
+            })
+          );
+        }
+      }
+
+      for (const entry of classAbilitiesEntries) {
+        result.push(
+          new Paragraph({
+            spacing: { before: 120, after: 60 },
+            children: [
+              new TextRun({
+                text: `Class Abilities (${localized(entry.clsDef.name, entry.clsDef.name_en, props.locale)})`,
+                bold: true,
+                font: "Calibri",
+                size: 22,
+              }),
+            ],
+          })
+        );
+        for (const a of entry.clsDef.classAbilities!) {
+          result.push(
+            new Paragraph({
+              spacing: { after: 20 },
+              indent: { left: 360 },
+              bullet: { level: 0 },
+              children: [
+                new TextRun({
+                  text: localized(a.name, a.name_en, props.locale),
+                  bold: true,
+                  font: "Calibri",
+                  size: 20,
+                }),
+                new TextRun({
+                  text: ` — ${localized(a.description, a.description_en, props.locale)}`,
+                  font: "Calibri",
+                  size: 20,
+                }),
+              ],
+            })
+          );
+        }
+      }
+
+      if (kitAbilities.length > 0 && kitDef) {
+        result.push(
+          new Paragraph({
+            spacing: { before: 120, after: 60 },
+            children: [
+              new TextRun({
+                text: `Kit Abilities (${localized(kitDef.name, kitDef.name_en, props.locale)})`,
+                bold: true,
+                font: "Calibri",
+                size: 22,
+              }),
+            ],
+          })
+        );
+        for (const a of kitAbilities) {
+          result.push(
+            new Paragraph({
+              spacing: { after: 20 },
+              indent: { left: 360 },
+              bullet: { level: 0 },
+              children: [
+                new TextRun({
+                  text: localized(a.name, a.name_en, props.locale),
+                  bold: true,
+                  font: "Calibri",
+                  size: 20,
+                }),
+                new TextRun({
+                  text: ` — ${localized(a.description, a.description_en, props.locale)}`,
+                  font: "Calibri",
+                  size: 20,
+                }),
+              ],
+            })
+          );
+        }
+      }
+
+      return result;
+    },
+
+    // ── 5. AC Breakdown ─────────────────────────────────────────────────────
+    acBreakdown: () => {
+      const result: (Paragraph | Table)[] = [];
+      result.push(sectionHeading(dt.acBreakdown));
+
+      const armorReduction = equippedArmorForAC ? `${-(10 - equippedArmorForAC.armor!.ac)}` : "—";
+      const armorName = equippedArmorForAC
+        ? ` (${localized(equippedArmorForAC.armor!.name, equippedArmorForAC.armor!.name_en, props.locale)})`
+        : "";
+      const shieldVal = hasShieldForAC ? "-1" : "—";
+      const dexVal =
+        dexMods.defensiveAdj !== 0
+          ? `${dexMods.defensiveAdj >= 0 ? "+" : ""}${dexMods.defensiveAdj}`
+          : "—";
+
+      result.push(
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              tableHeader: true,
+              children: [
+                headerCell("Base", { alignment: AlignmentType.CENTER }),
+                headerCell("Armor", { alignment: AlignmentType.CENTER }),
+                headerCell("Shield", { alignment: AlignmentType.CENTER }),
+                headerCell("DEX", { alignment: AlignmentType.CENTER }),
+                headerCell("Final", { alignment: AlignmentType.CENTER }),
+              ],
+            }),
+            new TableRow({
+              children: [
+                cell("10", {
+                  alignment: AlignmentType.CENTER,
+                  bold: true,
+                  font: "Courier New",
+                  size: 24,
+                }),
+                cell(`${armorReduction}${armorName}`, {
+                  alignment: AlignmentType.CENTER,
+                  bold: true,
+                  size: 20,
+                }),
+                cell(shieldVal, {
+                  alignment: AlignmentType.CENTER,
+                  bold: true,
+                  font: "Courier New",
+                  size: 24,
+                }),
+                cell(dexVal, {
+                  alignment: AlignmentType.CENTER,
+                  bold: true,
+                  font: "Courier New",
+                  size: 24,
+                }),
+                cell(String(effectiveAC), {
+                  alignment: AlignmentType.CENTER,
+                  bold: true,
+                  font: "Courier New",
+                  size: 24,
+                }),
+              ],
+            }),
+          ],
+        })
+      );
+
+      return result;
+    },
+
+    // ── 5b. Thief Skills ────────────────────────────────────────────────────
+    thiefSkills: () => {
+      if (!hasThiefSkills(activeClasses.map((cc) => cc.class_id as ClassId))) {
+        return [];
+      }
+
+      const result: (Paragraph | Table)[] = [];
+      result.push(sectionHeading(dt.thiefSkills));
+      const backstabLevel =
+        activeClasses.find((cc) => cc.class_id === "thief" || cc.class_id === "bard")?.level ?? 1;
+      const thiefData = [
+        { label: "Pick Locks", value: `${character.thief_pick_locks}%` },
+        { label: "Find Traps", value: `${character.thief_find_traps}%` },
+        { label: "Move Silently", value: `${character.thief_move_silently}%` },
+        { label: "Hide in Shadows", value: `${character.thief_hide_shadows}%` },
+        { label: "Climb Walls", value: `${character.thief_climb_walls}%` },
+        { label: "Detect Noise", value: `${character.thief_detect_noise}%` },
+        { label: "Read Languages", value: `${character.thief_read_languages}%` },
+        { label: "Backstab", value: `x${getBackstabMultiplier(backstabLevel)}` },
+      ];
+      result.push(
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              tableHeader: true,
+              children: thiefData.map((d) =>
+                headerCell(d.label, { alignment: AlignmentType.CENTER })
+              ),
+            }),
+            new TableRow({
+              children: thiefData.map((d) =>
+                cell(d.value, {
+                  alignment: AlignmentType.CENTER,
+                  bold: true,
+                  font: "Courier New",
+                  size: 24,
+                })
+              ),
+            }),
+          ],
+        })
+      );
+
+      return result;
+    },
+
+    // ── 6. Weapons Table ────────────────────────────────────────────────────
+    weapons: () => {
+      const equippedWeapons = equipment.filter((e) => e.weapon && e.equipped);
+      if (equippedWeapons.length === 0) return [];
+
+      const result: (Paragraph | Table)[] = [];
+      result.push(sectionHeading(dt.weapons));
+      result.push(
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              tableHeader: true,
+              children: [
+                headerCell("Name"),
+                headerCell("THAC0 Melee", { alignment: AlignmentType.CENTER }),
+                headerCell("THAC0 Ranged", { alignment: AlignmentType.CENTER }),
+                headerCell("Dmg S/M", { alignment: AlignmentType.CENTER }),
+                headerCell("Dmg L", { alignment: AlignmentType.CENTER }),
+                headerCell("Spd", { alignment: AlignmentType.CENTER }),
+                headerCell("Range", { alignment: AlignmentType.CENTER }),
+                headerCell("Atk/Rnd", { alignment: AlignmentType.CENTER }),
+              ],
+            }),
+            ...equippedWeapons.map((e) => {
+              const weapon = e.weapon!;
+              const isProficient = weaponProficiencies.some(
+                (wp) => wp.weapon_name.toLowerCase() === weapon.name.toLowerCase()
+              );
+              const penalty = isProficient
+                ? 0
+                : getNonproficiencyPenalty(
+                    activeClasses.length > 0
+                      ? (CLASSES[activeClasses[0].class_id as ClassId]?.group ??
+                          ("warrior" as ClassGroup))
+                      : ("warrior" as ClassGroup)
+                  );
+              const hitBonus = e.hit_bonus ?? 0;
+              const dmgBonus = e.damage_bonus ?? 0;
+              const weaponThac0 = getAdjustedWeaponThac0(
+                thac0,
+                strMods.hitAdj,
+                dexMods.missileAdj,
+                weapon.weapon_type,
+                penalty,
+                hitBonus
+              );
+              const rangeStr =
+                weapon.weapon_type !== "melee" &&
+                weapon.range_short != null &&
+                weapon.range_medium != null &&
+                weapon.range_long != null
+                  ? `${feetToMeters(weapon.range_short)}/${feetToMeters(weapon.range_medium)}/${feetToMeters(weapon.range_long)}`
+                  : "—";
+              const weaponLabel = `${localized(weapon.name, weapon.name_en, props.locale)}${hitBonus > 0 ? ` +${hitBonus}` : ""}${!isProficient ? " *" : ""}`;
+
+              return new TableRow({
+                children: [
+                  cell(weaponLabel),
+                  cell(String(weaponThac0.melee), {
+                    alignment: AlignmentType.CENTER,
+                    font: "Courier New",
+                  }),
+                  cell(weaponThac0.ranged !== null ? String(weaponThac0.ranged) : "—", {
+                    alignment: AlignmentType.CENTER,
+                    font: "Courier New",
+                  }),
+                  cell(formatDamageWithBonus(weapon.damage_sm, strMods.dmgAdj, dmgBonus), {
+                    alignment: AlignmentType.CENTER,
+                    font: "Courier New",
+                  }),
+                  cell(formatDamageWithBonus(weapon.damage_l, strMods.dmgAdj, dmgBonus), {
+                    alignment: AlignmentType.CENTER,
+                    font: "Courier New",
+                  }),
+                  cell(String(weapon.speed), {
+                    alignment: AlignmentType.CENTER,
+                    font: "Courier New",
+                  }),
+                  cell(rangeStr, {
+                    alignment: AlignmentType.CENTER,
+                    font: "Courier New",
+                    size: 18,
+                  }),
+                  cell(attacksDisplay, { alignment: AlignmentType.CENTER, font: "Courier New" }),
+                ],
+              });
+            }),
+          ],
+        })
+      );
+
+      return result;
+    },
+
+    // ── 7. Equipment (Armor & Inventory) ────────────────────────────────────
+    equipment: () => {
+      const equipmentItems = equipment.filter((e) => e.armor || (e.weapon && !e.equipped));
+      if (equipmentItems.length === 0) return [];
+
+      const result: (Paragraph | Table)[] = [];
+      result.push(sectionHeading(dt.armorInventory));
+      result.push(
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              tableHeader: true,
+              children: [
+                headerCell("Item", { width: 40 }),
+                headerCell("Type", { width: 20, alignment: AlignmentType.CENTER }),
+                headerCell("Weight", { width: 20, alignment: AlignmentType.CENTER }),
+                headerCell("Status", { width: 20, alignment: AlignmentType.CENTER }),
+              ],
+            }),
+            ...equipmentItems.map(
+              (e) =>
                 new TableRow({
                   children: [
                     cell(
-                      `${localized(cs.spell.name, cs.spell.name_en, props.locale)}${cs.prepared ? " \u2605" : ""}`,
-                      { bold: cs.prepared }
+                      e.weapon
+                        ? localized(e.weapon.name, e.weapon.name_en, props.locale)
+                        : e.armor
+                          ? localized(e.armor.name, e.armor.name_en, props.locale)
+                          : "—",
+                      { width: 40 }
                     ),
-                    cell(cs.spell.casting_time || "—", {
+                    cell(e.weapon ? "Weapon" : "Armor", {
+                      width: 20,
                       alignment: AlignmentType.CENTER,
-                      size: 18,
                     }),
-                    cell(spellRange(cs.spell) || "—", {
+                    cell(`${lbsToKg(e.weapon?.weight ?? e.armor?.weight ?? 0)} kg`, {
+                      width: 20,
                       alignment: AlignmentType.CENTER,
-                      size: 18,
                     }),
-                    cell(spellArea(cs.spell) || "—", {
+                    cell(e.equipped ? "Equipped" : "Inventory", {
+                      width: 20,
                       alignment: AlignmentType.CENTER,
-                      size: 18,
-                    }),
-                    cell((cs.spell.components ?? []).join(", "), {
-                      alignment: AlignmentType.CENTER,
-                      size: 18,
                     }),
                   ],
                 })
@@ -1026,13 +1012,106 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
           ],
         })
       );
-      children.push(emptyParagraph());
-    }
 
-    // Spells Memorized section
-    const preparedSpells = spells.filter((cs) => cs.prepared);
-    if (preparedSpells.length > 0) {
-      children.push(sectionHeading(dt.spellsMemorized));
+      return result;
+    },
+
+    // ── 8. Spells Known (Table by level) ────────────────────────────────────
+    spells: () => {
+      if (spells.length === 0) return [];
+
+      const result: (Paragraph | Table)[] = [];
+      result.push(sectionHeading(dt.spellsKnown));
+
+      // Group spells by level
+      const spellsByLevel: Record<number, typeof spells> = {};
+      for (const cs of spells) {
+        const lvl = cs.spell.level;
+        if (!spellsByLevel[lvl]) spellsByLevel[lvl] = [];
+        spellsByLevel[lvl].push(cs);
+      }
+
+      const spellLevels = Object.keys(spellsByLevel)
+        .map(Number)
+        .sort((a, b) => a - b);
+      for (const lvl of spellLevels) {
+        const levelSpells = spellsByLevel[lvl];
+        // Level header row + spell data table
+        result.push(
+          new Table({
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            rows: [
+              // Header row spanning all columns
+              new TableRow({
+                tableHeader: true,
+                children: [
+                  headerCell(
+                    props.locale === "de" ? `Stufe ${lvl} Zauber` : `Level ${lvl} Spells`,
+                    {
+                      width: 25,
+                    }
+                  ),
+                  headerCell(props.locale === "de" ? "Wirkzeit" : "Cast Time", {
+                    width: 15,
+                    alignment: AlignmentType.CENTER,
+                  }),
+                  headerCell(props.locale === "de" ? "Reichweite" : "Range", {
+                    width: 15,
+                    alignment: AlignmentType.CENTER,
+                  }),
+                  headerCell(props.locale === "de" ? "Wirkungsbereich" : "Area of Effect", {
+                    width: 25,
+                    alignment: AlignmentType.CENTER,
+                  }),
+                  headerCell(props.locale === "de" ? "Komp." : "Comp.", {
+                    width: 10,
+                    alignment: AlignmentType.CENTER,
+                  }),
+                ],
+              }),
+              ...levelSpells.map(
+                (cs) =>
+                  new TableRow({
+                    children: [
+                      cell(
+                        `${localized(cs.spell.name, cs.spell.name_en, props.locale)}${cs.prepared ? " \u2605" : ""}`,
+                        { bold: cs.prepared }
+                      ),
+                      cell(cs.spell.casting_time || "—", {
+                        alignment: AlignmentType.CENTER,
+                        size: 18,
+                      }),
+                      cell(spellRange(cs.spell) || "—", {
+                        alignment: AlignmentType.CENTER,
+                        size: 18,
+                      }),
+                      cell(spellArea(cs.spell) || "—", {
+                        alignment: AlignmentType.CENTER,
+                        size: 18,
+                      }),
+                      cell((cs.spell.components ?? []).join(", "), {
+                        alignment: AlignmentType.CENTER,
+                        size: 18,
+                      }),
+                    ],
+                  })
+              ),
+            ],
+          })
+        );
+        result.push(emptyParagraph());
+      }
+
+      return result;
+    },
+
+    // ── 8b. Spells Memorized ────────────────────────────────────────────────
+    spellsMemorized: () => {
+      const preparedSpells = spells.filter((cs) => cs.prepared);
+      if (preparedSpells.length === 0) return [];
+
+      const result: (Paragraph | Table)[] = [];
+      result.push(sectionHeading(dt.spellsMemorized));
       const preparedByLevel: Record<number, typeof spells> = {};
       for (const cs of preparedSpells) {
         const lvl = cs.spell.level;
@@ -1042,7 +1121,7 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
       for (const lvl of Object.keys(preparedByLevel)
         .map(Number)
         .sort((a, b) => a - b)) {
-        children.push(
+        result.push(
           new Paragraph({
             spacing: { before: 60, after: 40 },
             children: [
@@ -1056,7 +1135,7 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
           })
         );
         for (const cs of preparedByLevel[lvl]) {
-          children.push(
+          result.push(
             new Paragraph({
               spacing: { after: 20 },
               indent: { left: 360 },
@@ -1072,29 +1151,158 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
           );
         }
       }
-    }
-  }
 
-  // ── 9. Proficiencies ──────────────────────────────────────────────────────
-  if (weaponProficiencies.length > 0 || nonweaponProficiencies.length > 0) {
-    children.push(sectionHeading(dt.proficiencies));
+      return result;
+    },
 
-    if (weaponProficiencies.length > 0) {
-      children.push(
-        new Paragraph({
-          spacing: { after: 60 },
-          children: [new TextRun({ text: dt.weaponProf, bold: true, font: "Calibri", size: 22 })],
-        })
-      );
-      for (const wp of weaponProficiencies) {
-        children.push(
+    // ── 9. Proficiencies ────────────────────────────────────────────────────
+    proficiencies: () => {
+      const hasFightingStyles = fightingStyles.length > 0;
+      if (
+        weaponProficiencies.length === 0 &&
+        nonweaponProficiencies.length === 0 &&
+        languages.length === 0 &&
+        !hasFightingStyles
+      ) {
+        return [];
+      }
+
+      const result: (Paragraph | Table)[] = [];
+      result.push(sectionHeading(dt.proficiencies));
+
+      if (weaponProficiencies.length > 0) {
+        result.push(
           new Paragraph({
-            spacing: { after: 20 },
-            indent: { left: 360 },
-            bullet: { level: 0 },
+            spacing: { after: 60 },
+            children: [new TextRun({ text: dt.weaponProf, bold: true, font: "Calibri", size: 22 })],
+          })
+        );
+        for (const wp of weaponProficiencies) {
+          result.push(
+            new Paragraph({
+              spacing: { after: 20 },
+              indent: { left: 360 },
+              bullet: { level: 0 },
+              children: [
+                new TextRun({
+                  text: `${wp.weapon_name}${wp.specialization ? " (Specialization)" : ""}`,
+                  font: "Calibri",
+                  size: 20,
+                }),
+              ],
+            })
+          );
+        }
+      }
+
+      if (nonweaponProficiencies.length > 0) {
+        result.push(
+          new Paragraph({
+            spacing: { before: 120, after: 60 },
             children: [
               new TextRun({
-                text: `${wp.weapon_name}${wp.specialization ? " (Specialization)" : ""}`,
+                text: dt.nwProf,
+                bold: true,
+                font: "Calibri",
+                size: 22,
+              }),
+            ],
+          })
+        );
+        for (const nwp of nonweaponProficiencies) {
+          const modStr =
+            nwp.proficiency.modifier >= 0
+              ? `+${nwp.proficiency.modifier}`
+              : String(nwp.proficiency.modifier);
+          result.push(
+            new Paragraph({
+              spacing: { after: 20 },
+              indent: { left: 360 },
+              bullet: { level: 0 },
+              children: [
+                new TextRun({
+                  text: `${localized(nwp.proficiency.name, nwp.proficiency.name_en, props.locale)} (${nwp.proficiency.ability} ${modStr})`,
+                  font: "Calibri",
+                  size: 20,
+                }),
+              ],
+            })
+          );
+        }
+      }
+
+      if (hasFightingStyles) {
+        result.push(
+          new Paragraph({
+            spacing: { before: 120, after: 60 },
+            children: [
+              new TextRun({
+                text: dt.fightingStyles,
+                bold: true,
+                font: "Calibri",
+                size: 22,
+              }),
+            ],
+          })
+        );
+        for (const fs of fightingStyles) {
+          const styleDef = getFightingStyle(fs.style_id);
+          if (!styleDef) continue;
+          const styleName = localized(styleDef.name, styleDef.name_en, props.locale);
+          const benefit = styleDef.benefits.find((b) => b.slots <= fs.slots_invested);
+          // Find highest applicable benefit
+          const applicableBenefit = styleDef.benefits
+            .filter((b) => b.slots <= fs.slots_invested)
+            .sort((a, b) => b.slots - a.slots)[0];
+          const benefitText = applicableBenefit
+            ? localized(
+                applicableBenefit.description,
+                applicableBenefit.description_en,
+                props.locale
+              )
+            : benefit
+              ? localized(benefit.description, benefit.description_en, props.locale)
+              : "";
+          result.push(
+            new Paragraph({
+              spacing: { after: 20 },
+              indent: { left: 360 },
+              bullet: { level: 0 },
+              children: [
+                new TextRun({
+                  text: `${styleName} (${fs.slots_invested} ${fs.slots_invested === 1 ? "Slot" : "Slots"})`,
+                  bold: true,
+                  font: "Calibri",
+                  size: 20,
+                }),
+                ...(benefitText
+                  ? [
+                      new TextRun({
+                        text: ` — ${benefitText}`,
+                        font: "Calibri",
+                        size: 20,
+                      }),
+                    ]
+                  : []),
+              ],
+            })
+          );
+        }
+      }
+
+      if (languages.length > 0) {
+        result.push(
+          new Paragraph({
+            spacing: { before: 120, after: 60 },
+            children: [new TextRun({ text: dt.languages, bold: true, font: "Calibri", size: 22 })],
+          })
+        );
+        result.push(
+          new Paragraph({
+            spacing: { after: 40 },
+            children: [
+              new TextRun({
+                text: languages.map((l) => l.language_name).join(", "),
                 font: "Calibri",
                 size: 20,
               }),
@@ -1102,35 +1310,24 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
           })
         );
       }
-    }
 
-    if (nonweaponProficiencies.length > 0) {
-      children.push(
-        new Paragraph({
-          spacing: { before: 120, after: 60 },
-          children: [
-            new TextRun({
-              text: dt.nwProf,
-              bold: true,
-              font: "Calibri",
-              size: 22,
-            }),
-          ],
-        })
-      );
-      for (const nwp of nonweaponProficiencies) {
-        const modStr =
-          nwp.proficiency.modifier >= 0
-            ? `+${nwp.proficiency.modifier}`
-            : String(nwp.proficiency.modifier);
-        children.push(
+      return result;
+    },
+
+    // ── 10. Notes ───────────────────────────────────────────────────────────
+    notes: () => {
+      if (!character.notes) return [];
+
+      const result: (Paragraph | Table)[] = [];
+      result.push(sectionHeading(dt.notes));
+      const noteLines = character.notes.split("\n");
+      for (const line of noteLines) {
+        result.push(
           new Paragraph({
-            spacing: { after: 20 },
-            indent: { left: 360 },
-            bullet: { level: 0 },
+            spacing: { after: 40 },
             children: [
               new TextRun({
-                text: `${localized(nwp.proficiency.name, nwp.proficiency.name_en, props.locale)} (${nwp.proficiency.ability} ${modStr})`,
+                text: line || " ",
                 font: "Calibri",
                 size: 20,
               }),
@@ -1138,51 +1335,20 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
           })
         );
       }
-    }
 
-    if (languages.length > 0) {
-      children.push(
-        new Paragraph({
-          spacing: { before: 120, after: 60 },
-          children: [new TextRun({ text: dt.languages, bold: true, font: "Calibri", size: 22 })],
-        })
-      );
-      children.push(
-        new Paragraph({
-          spacing: { after: 40 },
-          children: [
-            new TextRun({
-              text: languages.map((l) => l.language_name).join(", "),
-              font: "Calibri",
-              size: 20,
-            }),
-          ],
-        })
-      );
-    }
+      return result;
+    },
+  };
+
+  // ─── Build document sections using preferences ────────────────────────────
+  const prefs = props.preferences ?? DEFAULT_PRINT_PREFERENCES;
+  const children: (Paragraph | Table)[] = [];
+  for (const section of prefs.sections) {
+    if (!section.visible) continue;
+    children.push(...sectionGenerators[section.id]());
   }
 
-  // ── 10. Notes ─────────────────────────────────────────────────────────────
-  if (character.notes) {
-    children.push(sectionHeading(dt.notes));
-    const noteLines = character.notes.split("\n");
-    for (const line of noteLines) {
-      children.push(
-        new Paragraph({
-          spacing: { after: 40 },
-          children: [
-            new TextRun({
-              text: line || " ",
-              font: "Calibri",
-              size: 20,
-            }),
-          ],
-        })
-      );
-    }
-  }
-
-  // ── Footer ────────────────────────────────────────────────────────────────
+  // ── Footer (always appended) ──────────────────────────────────────────────
   children.push(emptyParagraph());
   children.push(
     new Paragraph({

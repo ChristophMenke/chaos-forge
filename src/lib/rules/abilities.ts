@@ -129,51 +129,281 @@ export function getStrengthModifiers(
 
 const DEX_TABLE: DexterityModifiers[] = [
   // DEX 3
-  { reactionAdj: -3, missileAdj: -3, defensiveAdj: 4 },
+  {
+    reactionAdj: -3,
+    missileAdj: -3,
+    defensiveAdj: 4,
+    pickPockets: -15,
+    openLocks: -10,
+    findTraps: -10,
+    moveSilently: -20,
+    hideInShadows: -10,
+    climbWalls: -15,
+  },
   // DEX 4
-  { reactionAdj: -2, missileAdj: -2, defensiveAdj: 3 },
+  {
+    reactionAdj: -2,
+    missileAdj: -2,
+    defensiveAdj: 3,
+    pickPockets: -10,
+    openLocks: -5,
+    findTraps: -10,
+    moveSilently: -15,
+    hideInShadows: -5,
+    climbWalls: -12,
+  },
   // DEX 5
-  { reactionAdj: -1, missileAdj: -1, defensiveAdj: 2 },
+  {
+    reactionAdj: -1,
+    missileAdj: -1,
+    defensiveAdj: 2,
+    pickPockets: -5,
+    openLocks: 0,
+    findTraps: -5,
+    moveSilently: -10,
+    hideInShadows: 0,
+    climbWalls: -10,
+  },
   // DEX 6
-  { reactionAdj: 0, missileAdj: 0, defensiveAdj: 1 },
+  {
+    reactionAdj: 0,
+    missileAdj: 0,
+    defensiveAdj: 1,
+    pickPockets: 0,
+    openLocks: 0,
+    findTraps: 0,
+    moveSilently: -5,
+    hideInShadows: 0,
+    climbWalls: -8,
+  },
   // DEX 7
-  { reactionAdj: 0, missileAdj: 0, defensiveAdj: 0 },
+  {
+    reactionAdj: 0,
+    missileAdj: 0,
+    defensiveAdj: 0,
+    pickPockets: 0,
+    openLocks: 0,
+    findTraps: 0,
+    moveSilently: 0,
+    hideInShadows: 0,
+    climbWalls: -5,
+  },
   // DEX 8
-  { reactionAdj: 0, missileAdj: 0, defensiveAdj: 0 },
+  {
+    reactionAdj: 0,
+    missileAdj: 0,
+    defensiveAdj: 0,
+    pickPockets: 0,
+    openLocks: 0,
+    findTraps: 0,
+    moveSilently: 0,
+    hideInShadows: 0,
+    climbWalls: -2,
+  },
   // DEX 9
-  { reactionAdj: 0, missileAdj: 0, defensiveAdj: 0 },
+  {
+    reactionAdj: 0,
+    missileAdj: 0,
+    defensiveAdj: 0,
+    pickPockets: 0,
+    openLocks: 0,
+    findTraps: 0,
+    moveSilently: 0,
+    hideInShadows: 0,
+    climbWalls: 0,
+  },
   // DEX 10
-  { reactionAdj: 0, missileAdj: 0, defensiveAdj: 0 },
+  {
+    reactionAdj: 0,
+    missileAdj: 0,
+    defensiveAdj: 0,
+    pickPockets: 0,
+    openLocks: 0,
+    findTraps: 0,
+    moveSilently: 0,
+    hideInShadows: 0,
+    climbWalls: 0,
+  },
   // DEX 11
-  { reactionAdj: 0, missileAdj: 0, defensiveAdj: 0 },
+  {
+    reactionAdj: 0,
+    missileAdj: 0,
+    defensiveAdj: 0,
+    pickPockets: 0,
+    openLocks: 0,
+    findTraps: 0,
+    moveSilently: 0,
+    hideInShadows: 0,
+    climbWalls: 0,
+  },
   // DEX 12
-  { reactionAdj: 0, missileAdj: 0, defensiveAdj: 0 },
+  {
+    reactionAdj: 0,
+    missileAdj: 0,
+    defensiveAdj: 0,
+    pickPockets: 0,
+    openLocks: 0,
+    findTraps: 0,
+    moveSilently: 0,
+    hideInShadows: 0,
+    climbWalls: 0,
+  },
   // DEX 13
-  { reactionAdj: 0, missileAdj: 0, defensiveAdj: 0 },
+  {
+    reactionAdj: 0,
+    missileAdj: 0,
+    defensiveAdj: 0,
+    pickPockets: 0,
+    openLocks: 0,
+    findTraps: 0,
+    moveSilently: 0,
+    hideInShadows: 0,
+    climbWalls: 0,
+  },
   // DEX 14
-  { reactionAdj: 0, missileAdj: 0, defensiveAdj: 0 },
+  {
+    reactionAdj: 0,
+    missileAdj: 0,
+    defensiveAdj: 0,
+    pickPockets: 0,
+    openLocks: 0,
+    findTraps: 0,
+    moveSilently: 0,
+    hideInShadows: 0,
+    climbWalls: 0,
+  },
   // DEX 15
-  { reactionAdj: 0, missileAdj: 0, defensiveAdj: -1 },
+  {
+    reactionAdj: 0,
+    missileAdj: 0,
+    defensiveAdj: -1,
+    pickPockets: 0,
+    openLocks: 0,
+    findTraps: 0,
+    moveSilently: 0,
+    hideInShadows: 0,
+    climbWalls: 0,
+  },
   // DEX 16
-  { reactionAdj: 1, missileAdj: 1, defensiveAdj: -2 },
+  {
+    reactionAdj: 1,
+    missileAdj: 1,
+    defensiveAdj: -2,
+    pickPockets: 0,
+    openLocks: 5,
+    findTraps: 0,
+    moveSilently: 0,
+    hideInShadows: 0,
+    climbWalls: 0,
+  },
   // DEX 17
-  { reactionAdj: 2, missileAdj: 2, defensiveAdj: -3 },
+  {
+    reactionAdj: 2,
+    missileAdj: 2,
+    defensiveAdj: -3,
+    pickPockets: 5,
+    openLocks: 10,
+    findTraps: 0,
+    moveSilently: 5,
+    hideInShadows: 5,
+    climbWalls: 0,
+  },
   // DEX 18
-  { reactionAdj: 2, missileAdj: 2, defensiveAdj: -4 },
+  {
+    reactionAdj: 2,
+    missileAdj: 2,
+    defensiveAdj: -4,
+    pickPockets: 10,
+    openLocks: 15,
+    findTraps: 5,
+    moveSilently: 10,
+    hideInShadows: 10,
+    climbWalls: 0,
+  },
   // DEX 19
-  { reactionAdj: 3, missileAdj: 3, defensiveAdj: -4 },
+  {
+    reactionAdj: 3,
+    missileAdj: 3,
+    defensiveAdj: -4,
+    pickPockets: 15,
+    openLocks: 20,
+    findTraps: 10,
+    moveSilently: 15,
+    hideInShadows: 15,
+    climbWalls: 0,
+  },
   // DEX 20
-  { reactionAdj: 3, missileAdj: 3, defensiveAdj: -4 },
+  {
+    reactionAdj: 3,
+    missileAdj: 3,
+    defensiveAdj: -4,
+    pickPockets: 20,
+    openLocks: 25,
+    findTraps: 15,
+    moveSilently: 18,
+    hideInShadows: 18,
+    climbWalls: 0,
+  },
   // DEX 21
-  { reactionAdj: 4, missileAdj: 4, defensiveAdj: -5 },
+  {
+    reactionAdj: 4,
+    missileAdj: 4,
+    defensiveAdj: -5,
+    pickPockets: 25,
+    openLocks: 30,
+    findTraps: 20,
+    moveSilently: 20,
+    hideInShadows: 20,
+    climbWalls: 0,
+  },
   // DEX 22
-  { reactionAdj: 4, missileAdj: 4, defensiveAdj: -5 },
+  {
+    reactionAdj: 4,
+    missileAdj: 4,
+    defensiveAdj: -5,
+    pickPockets: 30,
+    openLocks: 35,
+    findTraps: 25,
+    moveSilently: 23,
+    hideInShadows: 23,
+    climbWalls: 0,
+  },
   // DEX 23
-  { reactionAdj: 4, missileAdj: 4, defensiveAdj: -5 },
+  {
+    reactionAdj: 4,
+    missileAdj: 4,
+    defensiveAdj: -5,
+    pickPockets: 35,
+    openLocks: 40,
+    findTraps: 30,
+    moveSilently: 25,
+    hideInShadows: 25,
+    climbWalls: 0,
+  },
   // DEX 24
-  { reactionAdj: 5, missileAdj: 5, defensiveAdj: -6 },
+  {
+    reactionAdj: 5,
+    missileAdj: 5,
+    defensiveAdj: -6,
+    pickPockets: 40,
+    openLocks: 45,
+    findTraps: 35,
+    moveSilently: 30,
+    hideInShadows: 30,
+    climbWalls: 5,
+  },
   // DEX 25
-  { reactionAdj: 5, missileAdj: 5, defensiveAdj: -6 },
+  {
+    reactionAdj: 5,
+    missileAdj: 5,
+    defensiveAdj: -6,
+    pickPockets: 45,
+    openLocks: 50,
+    findTraps: 40,
+    moveSilently: 35,
+    hideInShadows: 35,
+    climbWalls: 10,
+  },
 ];
 
 /**
@@ -292,6 +522,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 0,
     maxSpellsPerLevel: 0,
     spellImmunity: null,
+    bonusProficiencies: 0,
   },
   // INT 4
   {
@@ -300,6 +531,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 0,
     maxSpellsPerLevel: 0,
     spellImmunity: null,
+    bonusProficiencies: 0,
   },
   // INT 5
   {
@@ -308,6 +540,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 0,
     maxSpellsPerLevel: 0,
     spellImmunity: null,
+    bonusProficiencies: 0,
   },
   // INT 6
   {
@@ -316,6 +549,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 0,
     maxSpellsPerLevel: 0,
     spellImmunity: null,
+    bonusProficiencies: 0,
   },
   // INT 7
   {
@@ -324,6 +558,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 0,
     maxSpellsPerLevel: 0,
     spellImmunity: null,
+    bonusProficiencies: 0,
   },
   // INT 8
   {
@@ -332,6 +567,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 0,
     maxSpellsPerLevel: 0,
     spellImmunity: null,
+    bonusProficiencies: 0,
   },
   // INT 9
   {
@@ -340,6 +576,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 35,
     maxSpellsPerLevel: 6,
     spellImmunity: null,
+    bonusProficiencies: 0,
   },
   // INT 10
   {
@@ -348,6 +585,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 40,
     maxSpellsPerLevel: 7,
     spellImmunity: null,
+    bonusProficiencies: 0,
   },
   // INT 11
   {
@@ -356,6 +594,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 45,
     maxSpellsPerLevel: 7,
     spellImmunity: null,
+    bonusProficiencies: 0,
   },
   // INT 12
   {
@@ -364,6 +603,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 50,
     maxSpellsPerLevel: 7,
     spellImmunity: null,
+    bonusProficiencies: 0,
   },
   // INT 13
   {
@@ -372,6 +612,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 55,
     maxSpellsPerLevel: 9,
     spellImmunity: null,
+    bonusProficiencies: 0,
   },
   // INT 14
   {
@@ -380,6 +621,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 60,
     maxSpellsPerLevel: 9,
     spellImmunity: null,
+    bonusProficiencies: 0,
   },
   // INT 15
   {
@@ -388,6 +630,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 65,
     maxSpellsPerLevel: 11,
     spellImmunity: null,
+    bonusProficiencies: 0,
   },
   // INT 16
   {
@@ -396,6 +639,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 70,
     maxSpellsPerLevel: 11,
     spellImmunity: null,
+    bonusProficiencies: 0,
   },
   // INT 17
   {
@@ -404,6 +648,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 75,
     maxSpellsPerLevel: 14,
     spellImmunity: null,
+    bonusProficiencies: 0,
   },
   // INT 18
   {
@@ -412,6 +657,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 85,
     maxSpellsPerLevel: 18,
     spellImmunity: null,
+    bonusProficiencies: 0,
   },
   // INT 19
   {
@@ -420,6 +666,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 95,
     maxSpellsPerLevel: "All",
     spellImmunity: 1,
+    bonusProficiencies: 1,
   },
   // INT 20
   {
@@ -428,6 +675,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 96,
     maxSpellsPerLevel: "All",
     spellImmunity: 2,
+    bonusProficiencies: 1,
   },
   // INT 21
   {
@@ -436,6 +684,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 97,
     maxSpellsPerLevel: "All",
     spellImmunity: 3,
+    bonusProficiencies: 2,
   },
   // INT 22
   {
@@ -444,6 +693,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 98,
     maxSpellsPerLevel: "All",
     spellImmunity: 4,
+    bonusProficiencies: 2,
   },
   // INT 23
   {
@@ -452,6 +702,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 99,
     maxSpellsPerLevel: "All",
     spellImmunity: 5,
+    bonusProficiencies: 3,
   },
   // INT 24
   {
@@ -460,6 +711,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 100,
     maxSpellsPerLevel: "All",
     spellImmunity: 6,
+    bonusProficiencies: 3,
   },
   // INT 25
   {
@@ -468,6 +720,7 @@ const INT_TABLE: IntelligenceModifiers[] = [
     chanceToLearn: 100,
     maxSpellsPerLevel: "All",
     spellImmunity: 7,
+    bonusProficiencies: 4,
   },
 ];
 
@@ -503,51 +756,92 @@ export function getIntelligenceModifiers(
 
 const WIS_TABLE: WisdomModifiers[] = [
   // WIS 3
-  { magicalDefenseAdj: -3, bonusSpells: [], spellFailure: 30 },
+  { magicalDefenseAdj: -3, bonusSpells: [], spellFailure: 30, spellImmunity: null },
   // WIS 4
-  { magicalDefenseAdj: -2, bonusSpells: [], spellFailure: 25 },
+  { magicalDefenseAdj: -2, bonusSpells: [], spellFailure: 25, spellImmunity: null },
   // WIS 5
-  { magicalDefenseAdj: -1, bonusSpells: [], spellFailure: 20 },
+  { magicalDefenseAdj: -1, bonusSpells: [], spellFailure: 20, spellImmunity: null },
   // WIS 6
-  { magicalDefenseAdj: -1, bonusSpells: [], spellFailure: 15 },
+  { magicalDefenseAdj: -1, bonusSpells: [], spellFailure: 15, spellImmunity: null },
   // WIS 7
-  { magicalDefenseAdj: -1, bonusSpells: [], spellFailure: 15 },
+  { magicalDefenseAdj: -1, bonusSpells: [], spellFailure: 15, spellImmunity: null },
   // WIS 8
-  { magicalDefenseAdj: 0, bonusSpells: [], spellFailure: 10 },
+  { magicalDefenseAdj: 0, bonusSpells: [], spellFailure: 10, spellImmunity: null },
   // WIS 9
-  { magicalDefenseAdj: 0, bonusSpells: [], spellFailure: 5 },
+  { magicalDefenseAdj: 0, bonusSpells: [], spellFailure: 5, spellImmunity: null },
   // WIS 10
-  { magicalDefenseAdj: 0, bonusSpells: [], spellFailure: 0 },
+  { magicalDefenseAdj: 0, bonusSpells: [], spellFailure: 0, spellImmunity: null },
   // WIS 11
-  { magicalDefenseAdj: 0, bonusSpells: [], spellFailure: 0 },
+  { magicalDefenseAdj: 0, bonusSpells: [], spellFailure: 0, spellImmunity: null },
   // WIS 12
-  { magicalDefenseAdj: 0, bonusSpells: [], spellFailure: 0 },
+  { magicalDefenseAdj: 0, bonusSpells: [], spellFailure: 0, spellImmunity: null },
   // WIS 13
-  { magicalDefenseAdj: 0, bonusSpells: [1], spellFailure: 0 },
+  { magicalDefenseAdj: 0, bonusSpells: [1], spellFailure: 0, spellImmunity: null },
   // WIS 14
-  { magicalDefenseAdj: 0, bonusSpells: [1], spellFailure: 0 },
+  { magicalDefenseAdj: 0, bonusSpells: [1], spellFailure: 0, spellImmunity: null },
   // WIS 15
-  { magicalDefenseAdj: 1, bonusSpells: [2], spellFailure: 0 },
+  { magicalDefenseAdj: 1, bonusSpells: [2], spellFailure: 0, spellImmunity: null },
   // WIS 16
-  { magicalDefenseAdj: 2, bonusSpells: [2, 2], spellFailure: 0 },
+  { magicalDefenseAdj: 2, bonusSpells: [2, 2], spellFailure: 0, spellImmunity: null },
   // WIS 17
-  { magicalDefenseAdj: 3, bonusSpells: [2, 2, 1], spellFailure: 0 },
+  { magicalDefenseAdj: 3, bonusSpells: [2, 2, 1], spellFailure: 0, spellImmunity: null },
   // WIS 18
-  { magicalDefenseAdj: 4, bonusSpells: [2, 2, 1, 1], spellFailure: 0 },
+  { magicalDefenseAdj: 4, bonusSpells: [2, 2, 1, 1], spellFailure: 0, spellImmunity: null },
   // WIS 19
-  { magicalDefenseAdj: 4, bonusSpells: [3, 2, 1, 1], spellFailure: 0 },
+  {
+    magicalDefenseAdj: 4,
+    bonusSpells: [3, 2, 1, 1],
+    spellFailure: 0,
+    spellImmunity: "Cause Fear, Charm Person, Command, Friends, Hypnotism",
+  },
   // WIS 20
-  { magicalDefenseAdj: 4, bonusSpells: [3, 2, 2, 1], spellFailure: 0 },
+  {
+    magicalDefenseAdj: 4,
+    bonusSpells: [3, 2, 2, 1],
+    spellFailure: 0,
+    spellImmunity:
+      "Cause Fear, Charm Person, Command, Friends, Hypnotism, Forget, Hold Person, Ray of Enfeeblement, Scare",
+  },
   // WIS 21
-  { magicalDefenseAdj: 4, bonusSpells: [3, 3, 2, 1, 1], spellFailure: 0 },
+  {
+    magicalDefenseAdj: 4,
+    bonusSpells: [3, 3, 2, 1, 1],
+    spellFailure: 0,
+    spellImmunity:
+      "Cause Fear, Charm Person, Command, Friends, Hypnotism, Forget, Hold Person, Ray of Enfeeblement, Scare, Fear",
+  },
   // WIS 22
-  { magicalDefenseAdj: 4, bonusSpells: [3, 3, 2, 2, 1], spellFailure: 0 },
+  {
+    magicalDefenseAdj: 4,
+    bonusSpells: [3, 3, 2, 2, 1],
+    spellFailure: 0,
+    spellImmunity:
+      "Cause Fear, Charm Person, Command, Friends, Hypnotism, Forget, Hold Person, Ray of Enfeeblement, Scare, Fear, Charm Monster, Confusion, Emotion, Fumble, Suggestion",
+  },
   // WIS 23
-  { magicalDefenseAdj: 4, bonusSpells: [3, 3, 2, 2, 2], spellFailure: 0 },
+  {
+    magicalDefenseAdj: 4,
+    bonusSpells: [3, 3, 2, 2, 2],
+    spellFailure: 0,
+    spellImmunity:
+      "Cause Fear, Charm Person, Command, Friends, Hypnotism, Forget, Hold Person, Ray of Enfeeblement, Scare, Fear, Charm Monster, Confusion, Emotion, Fumble, Suggestion, Chaos, Feeblemind, Hold Monster, Magic Jar, Quest",
+  },
   // WIS 24
-  { magicalDefenseAdj: 4, bonusSpells: [3, 3, 2, 2, 2, 1], spellFailure: 0 },
+  {
+    magicalDefenseAdj: 4,
+    bonusSpells: [3, 3, 2, 2, 2, 1],
+    spellFailure: 0,
+    spellImmunity:
+      "Cause Fear, Charm Person, Command, Friends, Hypnotism, Forget, Hold Person, Ray of Enfeeblement, Scare, Fear, Charm Monster, Confusion, Emotion, Fumble, Suggestion, Chaos, Feeblemind, Hold Monster, Magic Jar, Quest, Geas, Mass Suggestion, Rod of Rulership",
+  },
   // WIS 25
-  { magicalDefenseAdj: 4, bonusSpells: [3, 3, 2, 2, 2, 1, 1], spellFailure: 0 },
+  {
+    magicalDefenseAdj: 4,
+    bonusSpells: [3, 3, 2, 2, 2, 1, 1],
+    spellFailure: 0,
+    spellImmunity:
+      "Cause Fear, Charm Person, Command, Friends, Hypnotism, Forget, Hold Person, Ray of Enfeeblement, Scare, Fear, Charm Monster, Confusion, Emotion, Fumble, Suggestion, Chaos, Feeblemind, Hold Monster, Magic Jar, Quest, Geas, Mass Suggestion, Rod of Rulership, Antipathy/Sympathy, Death Spell, Mass Charm",
+  },
 ];
 
 /**
