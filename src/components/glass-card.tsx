@@ -23,7 +23,7 @@ export function GlassCard({
         glow && `glow-${glow}`,
         className
       )}
-      data-testid={testId}
+      {...(testId ? { "data-testid": testId } : {})}
     >
       {children}
     </div>

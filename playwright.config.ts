@@ -27,7 +27,12 @@ export default defineConfig({
         ...devices["Desktop Chrome"],
         storageState: "e2e/.auth/user.json",
       },
-      testMatch: ["regression.spec.ts", "responsive-a11y.spec.ts", "share-dialog.spec.ts"],
+      testMatch: [
+        "regression.spec.ts",
+        "responsive-a11y.spec.ts",
+        "share-dialog.spec.ts",
+        "rulebook-chat.spec.ts",
+      ],
     },
     // Unauthenticated tests — no storage state
     {
