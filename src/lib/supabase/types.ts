@@ -335,6 +335,7 @@ export interface ChronicleNpcRow {
   name: string;
   location: string;
   description: string;
+  avatar_url: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;

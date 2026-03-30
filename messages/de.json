@@ -714,6 +714,10 @@
     "npcLocation": "Ort",
     "npcDescription": "Beschreibung",
     "noNpcs": "Noch keine NPCs dokumentiert.",
+    "npcAllLocations": "Alle Orte",
+    "npcPage": "Seite {current} von {total}",
+    "npcPrev": "Zurück",
+    "npcNext": "Weiter",
     "quotes": "Zitate",
     "addQuote": "Zitat hinzufügen",
     "quoteContent": "Das Zitat...",
@@ -766,7 +770,8 @@
     "formats": "JPG, PNG oder WebP (max. 10 MB)",
     "uploading": "Lade hoch...",
     "zoom": "Zoom",
-    "pickAnother": "Anderes Bild wählen"
+    "pickAnother": "Anderes Bild wählen",
+    "remove": "Bild entfernen"
   },
   "sharing": {
     "title": "Teilen: {name}",
