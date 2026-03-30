@@ -23,6 +23,12 @@ import {
 } from "@/lib/rules/spellslots";
 import type { ClassId, MagicSchool, PriestSphere } from "@/lib/rules/types";
 import { getBookAbbreviation } from "@/lib/utils/source-books";
+import {
+  spellName as getSpellName,
+  spellRange,
+  spellArea,
+  spellDescription,
+} from "@/lib/utils/spell-display";
 import type { CharacterSpellWithDetails, SpellRow } from "@/lib/supabase/types";
 
 const WIZARD_SCHOOLS = [
@@ -168,15 +174,8 @@ export function TabSpells({
     onSpellSlotsAdjChange(newAdj);
   }
 
-  const spellName = useCallback(
-    (spell: SpellRow) => (locale === "en" && spell.name_en ? spell.name_en : spell.name),
-    [locale]
-  );
-  const spellDesc = useCallback(
-    (spell: SpellRow) =>
-      locale === "en" && spell.description_en ? spell.description_en : spell.description,
-    [locale]
-  );
+  const spellName = useCallback((spell: SpellRow) => getSpellName(spell, locale), [locale]);
+  const spellDesc = useCallback((spell: SpellRow) => spellDescription(spell, locale), [locale]);
   const [learnDialogOpen, setLearnDialogOpen] = useState(false);
   const [expandedSpellId, setExpandedSpellId] = useState<string | null>(null);
   const [learnSearchQuery, setLearnSearchQuery] = useState("");
@@ -711,13 +710,13 @@ export function TabSpells({
                       <CardContent data-testid={`spell-details-${spell.id}`}>
                         <div className="mb-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
                           <span>
-                            {t("range")}: {spell.range}
+                            {t("range")}: {spellRange(spell)}
                           </span>
                           <span>
                             {t("duration")}: {spell.duration}
                           </span>
                           <span>
-                            {t("areaOfEffect")}: {spell.area_of_effect}
+                            {t("areaOfEffect")}: {spellArea(spell)}
                           </span>
                           {spell.casting_time && (
                             <span>

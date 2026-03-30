@@ -139,6 +139,7 @@ export function TabProficiencies({
   const [showCustomNwpForm, setShowCustomNwpForm] = useState(false);
   const [customNwp, setCustomNwp] = useState<CustomNwpForm>(emptyCustomNwpForm);
   const [newLanguage, setNewLanguage] = useState("");
+  const [expandedNwpId, setExpandedNwpId] = useState<string | null>(null);
 
   const group = classGroup as ClassGroup;
   const baseWeaponSlots = getWeaponProficiencySlots(group, level);
@@ -757,39 +758,57 @@ export function TabProficiencies({
           <div className="mb-4 flex flex-col gap-2" data-testid="nwp-list">
             {nonweaponProficiencies.map((nwp) => {
               const abilityTarget = intScore + nwp.proficiency.modifier;
+              const isExpanded = expandedNwpId === nwp.id;
+              const desc = nwp.proficiency.description
+                ? localized(nwp.proficiency.description, nwp.proficiency.description_en, locale)
+                : null;
               return (
                 <div
                   key={nwp.id}
-                  className="flex items-center justify-between rounded-md border border-border p-2"
+                  className={`rounded-md border border-border p-2 ${desc ? "cursor-pointer" : ""}`}
                   data-testid={`nwp-${nwp.id}`}
+                  onClick={desc ? () => setExpandedNwpId(isExpanded ? null : nwp.id) : undefined}
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">
-                      {localized(nwp.proficiency.name, nwp.proficiency.name_en, locale)}
-                    </span>
-                    <Badge variant="outline" data-testid={`nwp-ability-${nwp.id}`}>
-                      {nwp.proficiency.ability}{" "}
-                      {nwp.proficiency.modifier >= 0
-                        ? `+${nwp.proficiency.modifier}`
-                        : nwp.proficiency.modifier}
-                    </Badge>
-                    <span
-                      className="text-xs text-muted-foreground"
-                      data-testid={`nwp-check-${nwp.id}`}
-                    >
-                      {t("abilityCheck")}: {abilityTarget}
-                    </span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">
+                        {localized(nwp.proficiency.name, nwp.proficiency.name_en, locale)}
+                      </span>
+                      <Badge variant="outline" data-testid={`nwp-ability-${nwp.id}`}>
+                        {nwp.proficiency.ability}{" "}
+                        {nwp.proficiency.modifier >= 0
+                          ? `+${nwp.proficiency.modifier}`
+                          : nwp.proficiency.modifier}
+                      </Badge>
+                      <span
+                        className="text-xs text-muted-foreground"
+                        data-testid={`nwp-check-${nwp.id}`}
+                      >
+                        {t("abilityCheck")}: {abilityTarget}
+                      </span>
+                    </div>
+                    {!readOnly && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeNonweaponProficiency(nwp.id);
+                        }}
+                        disabled={loading}
+                        data-testid={`nwp-remove-${nwp.id}`}
+                      >
+                        {tcom("remove")}
+                      </Button>
+                    )}
                   </div>
-                  {!readOnly && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeNonweaponProficiency(nwp.id)}
-                      disabled={loading}
-                      data-testid={`nwp-remove-${nwp.id}`}
+                  {isExpanded && desc && (
+                    <p
+                      className="mt-1.5 text-xs text-muted-foreground"
+                      data-testid={`nwp-description-${nwp.id}`}
                     >
-                      {tcom("remove")}
-                    </Button>
+                      {desc}
+                    </p>
                   )}
                 </div>
               );
@@ -833,33 +852,48 @@ export function TabProficiencies({
                 </div>
               ) : (
                 <div className="flex flex-col gap-0">
-                  {filteredAvailableNwps.map((nwp) => (
-                    <div
-                      key={nwp.id}
-                      className="flex items-center justify-between border-b border-border p-3 last:border-b-0"
-                      data-testid={`nwp-option-${nwp.id}`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">
-                          {localized(nwp.name, nwp.name_en, locale)}
-                        </span>
-                        <Badge variant="outline" className="text-xs">
-                          {nwp.ability} {nwp.modifier >= 0 ? `+${nwp.modifier}` : nwp.modifier}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">
-                          {t("slots")}: {nwp.slots_required}
-                        </span>
-                      </div>
-                      <Button
-                        size="sm"
-                        disabled={loading}
-                        onClick={() => addNonweaponProficiency(nwp.id)}
-                        data-testid={`nwp-add-${nwp.id}`}
+                  {filteredAvailableNwps.map((nwp) => {
+                    const nwpDesc = nwp.description
+                      ? localized(nwp.description, nwp.description_en, locale)
+                      : null;
+                    return (
+                      <div
+                        key={nwp.id}
+                        className="border-b border-border p-3 last:border-b-0"
+                        data-testid={`nwp-option-${nwp.id}`}
                       >
-                        {tcom("add")}
-                      </Button>
-                    </div>
-                  ))}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium">
+                              {localized(nwp.name, nwp.name_en, locale)}
+                            </span>
+                            <Badge variant="outline" className="text-xs">
+                              {nwp.ability} {nwp.modifier >= 0 ? `+${nwp.modifier}` : nwp.modifier}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">
+                              {t("slots")}: {nwp.slots_required}
+                            </span>
+                          </div>
+                          <Button
+                            size="sm"
+                            disabled={loading}
+                            onClick={() => addNonweaponProficiency(nwp.id)}
+                            data-testid={`nwp-add-${nwp.id}`}
+                          >
+                            {tcom("add")}
+                          </Button>
+                        </div>
+                        {nwpDesc && (
+                          <p
+                            className="mt-1 text-xs text-muted-foreground"
+                            data-testid={`nwp-option-desc-${nwp.id}`}
+                          >
+                            {nwpDesc}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

@@ -4,6 +4,12 @@ import { useState, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import ReactMarkdown from "react-markdown";
 import { localized } from "@/lib/utils/localize";
+import {
+  spellName as getSpellName,
+  spellRange,
+  spellArea,
+  spellDescription,
+} from "@/lib/utils/spell-display";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -162,8 +168,8 @@ export function PlaySpellbookPanel({
     onRest();
   }
 
-  const spellName = (s: SpellRow) => localized(s.name, s.name_en, locale);
-  const spellDesc = (s: SpellRow) => localized(s.description, s.description_en, locale);
+  const spellName = (s: SpellRow) => getSpellName(s, locale);
+  const spellDesc = (s: SpellRow) => spellDescription(s, locale);
 
   return (
     <GlassCard hover={false} data-testid="play-spellbook-panel">
@@ -345,13 +351,13 @@ export function PlaySpellbookPanel({
                           <div className="border-t border-border px-2 pb-2 pt-1.5">
                             <div className="mb-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
                               <span>
-                                {tSpells("range")}: {spell.range}
+                                {tSpells("range")}: {spellRange(spell)}
                               </span>
                               <span>
                                 {tSpells("duration")}: {spell.duration}
                               </span>
                               <span>
-                                {tSpells("areaOfEffect")}: {spell.area_of_effect}
+                                {tSpells("areaOfEffect")}: {spellArea(spell)}
                               </span>
                               {spell.saving_throw && spell.saving_throw !== "None" && (
                                 <span>
