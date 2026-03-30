@@ -9,7 +9,7 @@ export default async function RulebookLayout({ children }: { children: React.Rea
     <div className="flex flex-1 flex-col sm:flex-row" data-testid="rulebook-layout">
       <AppSidebar userEmail={user.email ?? ""} />
       <AppNav userEmail={user.email ?? ""} />
-      <div className="flex h-dvh flex-col overflow-hidden sm:ml-16 xl:ml-48">{children}</div>
+      <div className="flex flex-1 flex-col sm:ml-16 xl:ml-48">{children}</div>
     </div>
   );
 }

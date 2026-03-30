@@ -128,7 +128,10 @@ export function RulebookChat() {
   const isEmpty = messages.length === 0 && !streamingContent;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col p-3 sm:p-6" data-testid="rulebook-chat">
+    <div
+      className="flex flex-col p-3 sm:p-6 h-[calc(100dvh-101px-4rem)] sm:h-[calc(100dvh-201px)]"
+      data-testid="rulebook-chat"
+    >
       {/* Header */}
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -146,7 +149,7 @@ export function RulebookChat() {
       </div>
 
       {/* Chat area */}
-      <GlassCard hover={false} className="flex flex-1 flex-col overflow-hidden p-0">
+      <GlassCard hover={false} className="flex min-h-0 flex-1 flex-col overflow-hidden p-0">
         {/* Book filter (collapsible) */}
         {showFilter && (
           <BookFilter
