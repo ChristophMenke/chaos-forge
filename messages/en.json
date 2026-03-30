@@ -86,7 +86,10 @@
     "importCharacter": "Import from image",
     "importCharacterDesc": "Scan an existing character sheet from a photo or PDF.",
     "epicEquipment": "Epic Equipment",
-    "epicEquipmentDesc": "Manage unique items and their effects."
+    "epicEquipmentDesc": "Manage unique items and their effects.",
+    "manage": "Manage",
+    "play": "Play",
+    "epic": "Epic"
   },
   "wizard": {
     "basics": "Basics",
@@ -771,7 +774,10 @@
     "noSpells": "No spells prepared",
     "noProficiencies": "No proficiencies",
     "noItems": "No inventory",
-    "wisMagicalDefense": "WIS Magical Defense"
+    "wisMagicalDefense": "WIS Magical Defense",
+    "perception": "Perception",
+    "perceptionFormula": "(INT + WIS) / 2",
+    "perceptionBonus": "+{bonus} on sight-based checks"
   },
   "epic": {
     "title": "Epic Equipment",

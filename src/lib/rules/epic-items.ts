@@ -22,6 +22,8 @@ export interface EpicEffects {
   spellFailure: number;
   /** Wild magic percentage (e.g., 50 = 50% wild magic chance) */
   wildMagic: number;
+  /** Perception bonus from equipped items (e.g., +2 from goggles) */
+  perceptionBonus: number;
 }
 
 // ── Core Functions ───────────────────────────────────────────
@@ -46,6 +48,7 @@ export function getEpicEffects(items: EpicItemRow[]): EpicEffects {
     thiefDisabled: false,
     spellFailure: 0,
     wildMagic: 0,
+    perceptionBonus: 0,
   };
 
   for (const item of items) {
@@ -67,6 +70,13 @@ export function getEpicEffects(items: EpicItemRow[]): EpicEffects {
         if (effect === "spell_failure_10") result.spellFailure = Math.max(result.spellFailure, 10);
         if (effect === "wild_magic_50") result.wildMagic = Math.max(result.wildMagic, 50);
       }
+    }
+
+    // Simple effects (items without damage levels)
+    const se = item.simple_effects;
+    if (se && typeof se === "object") {
+      const pb = (se as Record<string, unknown>)["perception_bonus"];
+      if (typeof pb === "number") result.perceptionBonus += pb;
     }
   }
 

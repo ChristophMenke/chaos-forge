@@ -13,6 +13,7 @@ import {
   getMulticlassThac0,
   getMulticlassSaves,
   getMulticlassGroups,
+  getMulticlassHpDivisor,
 } from "@/lib/rules/multiclass";
 import type { ClassId } from "@/lib/rules/types";
 import {
@@ -25,7 +26,12 @@ import {
 } from "@/lib/rules/abilities";
 import { calculateAC, calculateEncumbrance, getMovementRate } from "@/lib/rules/equipment";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
+import { getConBonusCap } from "@/lib/rules/hitpoints";
+import { getClassGroup } from "@/lib/rules/classes";
+import { getEpicEffects, scaleSubStat } from "@/lib/rules/epic-items";
+import type { EpicEffects } from "@/lib/rules/epic-items";
 import { getClassGroupColors } from "@/lib/utils/class-colors";
+import { CharacterModeNav } from "@/components/character-mode-nav";
 import type {
   CharacterRow,
   CharacterClassRow,
@@ -34,6 +40,7 @@ import type {
   CharacterWeaponProficiencyRow,
   CharacterNWPWithDetails,
   CharacterInventoryWithDetails,
+  EpicItemRow,
 } from "@/lib/supabase/types";
 import type { CoinPurse } from "@/lib/rules/equipment";
 
@@ -138,6 +145,7 @@ interface PlayModeProps {
   weaponProficiencies: CharacterWeaponProficiencyRow[];
   nonweaponProficiencies: CharacterNWPWithDetails[];
   inventory: CharacterInventoryWithDetails[];
+  epicItems?: EpicItemRow[];
 }
 
 export function PlayMode({
@@ -149,6 +157,7 @@ export function PlayMode({
   weaponProficiencies,
   nonweaponProficiencies,
   inventory: initialInventory,
+  epicItems = [],
 }: PlayModeProps) {
   const t = useTranslations("playMode");
   const [character, setCharacter] = useState(initialCharacter);
@@ -158,6 +167,18 @@ export function PlayMode({
   const [activePanel, setActivePanel] = useState<PanelId>("combat");
 
   const isOwner = character.user_id === userId;
+
+  // Epic item effects
+  const epicEffects: EpicEffects = useMemo(() => getEpicEffects(epicItems), [epicItems]);
+  const eo = epicEffects.statOverrides;
+
+  // Effective stats (with epic overrides)
+  const effectiveStr = eo.str ?? character.str;
+  const effectiveDex = eo.dex ?? character.dex;
+  const effectiveCon = eo.con ?? character.con;
+  const effectiveInt = eo.int ?? character.int;
+  const effectiveWis = eo.wis ?? character.wis;
+  const effectiveCha = eo.cha ?? character.cha;
 
   // Derived rules engine values
   const activeClasses = useMemo(
@@ -181,23 +202,95 @@ export function PlayMode({
   const strMods = useMemo(
     () =>
       getStrengthModifiers(
-        character.str,
+        effectiveStr,
         character.str_exceptional ?? undefined,
-        character.str_muscle ?? undefined,
-        character.str_stamina ?? undefined
+        eo.str != null
+          ? (scaleSubStat(character.str, character.str_muscle, effectiveStr) ?? undefined)
+          : (character.str_muscle ?? undefined),
+        eo.str != null
+          ? (scaleSubStat(character.str, character.str_stamina, effectiveStr) ?? undefined)
+          : (character.str_stamina ?? undefined)
       ),
-    [character.str, character.str_exceptional, character.str_muscle, character.str_stamina]
+    [
+      effectiveStr,
+      character.str,
+      character.str_exceptional,
+      character.str_muscle,
+      character.str_stamina,
+      eo.str,
+    ]
   );
   const dexMods = useMemo(
     () =>
       getDexterityModifiers(
-        character.dex,
-        character.dex_aim ?? undefined,
-        character.dex_balance ?? undefined
+        effectiveDex,
+        eo.dex != null
+          ? (scaleSubStat(character.dex, character.dex_aim, effectiveDex) ?? undefined)
+          : (character.dex_aim ?? undefined),
+        eo.dex != null
+          ? (scaleSubStat(character.dex, character.dex_balance, effectiveDex) ?? undefined)
+          : (character.dex_balance ?? undefined)
       ),
-    [character.dex, character.dex_aim, character.dex_balance]
+    [effectiveDex, character.dex, character.dex_aim, character.dex_balance, eo.dex]
   );
   const conMods = useMemo(
+    () =>
+      getConstitutionModifiers(
+        effectiveCon,
+        eo.con != null
+          ? (scaleSubStat(character.con, character.con_health, effectiveCon) ?? undefined)
+          : (character.con_health ?? undefined),
+        eo.con != null
+          ? (scaleSubStat(character.con, character.con_fitness, effectiveCon) ?? undefined)
+          : (character.con_fitness ?? undefined)
+      ),
+    [effectiveCon, character.con, character.con_health, character.con_fitness, eo.con]
+  );
+  const intMods = useMemo(
+    () =>
+      getIntelligenceModifiers(
+        effectiveInt,
+        eo.int != null
+          ? (scaleSubStat(character.int, character.int_knowledge, effectiveInt) ?? undefined)
+          : (character.int_knowledge ?? undefined),
+        eo.int != null
+          ? (scaleSubStat(character.int, character.int_reason, effectiveInt) ?? undefined)
+          : (character.int_reason ?? undefined)
+      ),
+    [effectiveInt, character.int, character.int_knowledge, character.int_reason, eo.int]
+  );
+  const wisMods = useMemo(
+    () =>
+      getWisdomModifiers(
+        effectiveWis,
+        eo.wis != null
+          ? (scaleSubStat(character.wis, character.wis_intuition, effectiveWis) ?? undefined)
+          : (character.wis_intuition ?? undefined),
+        eo.wis != null
+          ? (scaleSubStat(character.wis, character.wis_willpower, effectiveWis) ?? undefined)
+          : (character.wis_willpower ?? undefined)
+      ),
+    [effectiveWis, character.wis, character.wis_intuition, character.wis_willpower, eo.wis]
+  );
+  const chaMods = useMemo(
+    () =>
+      getCharismaModifiers(
+        effectiveCha,
+        eo.cha != null
+          ? (scaleSubStat(character.cha, character.cha_leadership, effectiveCha) ?? undefined)
+          : (character.cha_leadership ?? undefined),
+        eo.cha != null
+          ? (scaleSubStat(character.cha, character.cha_appearance, effectiveCha) ?? undefined)
+          : (character.cha_appearance ?? undefined)
+      ),
+    [effectiveCha, character.cha, character.cha_leadership, character.cha_appearance, eo.cha]
+  );
+
+  // HP adjustment from epic CON overrides
+  // hp_max in DB is based on base CON. If epic items change CON, adjust HP accordingly.
+  // Non-warriors are capped at +2 HP/level from CON (warriors get up to +4).
+  // For multiclass: each class contributes (cappedAdj × level), sum is divided by class count.
+  const baseConMods = useMemo(
     () =>
       getConstitutionModifiers(
         character.con,
@@ -206,33 +299,21 @@ export function PlayMode({
       ),
     [character.con, character.con_health, character.con_fitness]
   );
-  const intMods = useMemo(
-    () =>
-      getIntelligenceModifiers(
-        character.int,
-        character.int_knowledge ?? undefined,
-        character.int_reason ?? undefined
-      ),
-    [character.int, character.int_knowledge, character.int_reason]
-  );
-  const wisMods = useMemo(
-    () =>
-      getWisdomModifiers(
-        character.wis,
-        character.wis_intuition ?? undefined,
-        character.wis_willpower ?? undefined
-      ),
-    [character.wis, character.wis_intuition, character.wis_willpower]
-  );
-  const chaMods = useMemo(
-    () =>
-      getCharismaModifiers(
-        character.cha,
-        character.cha_leadership ?? undefined,
-        character.cha_appearance ?? undefined
-      ),
-    [character.cha, character.cha_leadership, character.cha_appearance]
-  );
+  const hpDelta = useMemo(() => {
+    if (conMods.hpAdj === baseConMods.hpAdj) return 0;
+    const divisor = getMulticlassHpDivisor(activeClasses.length);
+    let totalDelta = 0;
+    for (const cc of activeClasses) {
+      const group = getClassGroup(cc.class_id as ClassId);
+      const cap = getConBonusCap(group);
+      const cappedNew = Math.min(conMods.hpAdj, cap);
+      const cappedOld = Math.min(baseConMods.hpAdj, cap);
+      totalDelta += (cappedNew - cappedOld) * cc.level;
+    }
+    return Math.round(totalDelta / divisor);
+  }, [activeClasses, conMods.hpAdj, baseConMods.hpAdj]);
+  const effectiveHpMax = Math.max(1, character.hp_max + hpDelta);
+  const effectiveHpCurrent = Math.max(0, Math.min(character.hp_current + hpDelta, effectiveHpMax));
 
   // Equipment calculations
   const equippedArmor = useMemo(() => equipment.find((e) => e.equipped && e.armor), [equipment]);
@@ -322,8 +403,10 @@ export function PlayMode({
     [character.id]
   );
 
-  function handleHpChange(newHp: number) {
-    updateCharacter({ hp_current: newHp });
+  function handleHpChange(newEffectiveHp: number) {
+    // Convert effective HP back to base HP for DB storage
+    const baseHp = newEffectiveHp - hpDelta;
+    updateCharacter({ hp_current: Math.max(0, baseHp) });
   }
 
   function handleCoinChange(newPurse: CoinPurse) {
@@ -402,12 +485,15 @@ export function PlayMode({
 
   return (
     <div className="mx-auto w-full max-w-6xl" data-testid="play-mode">
+      <div className="flex justify-end px-4 pt-3">
+        <CharacterModeNav characterId={character.id} hasEpicItems={epicItems.length > 0} />
+      </div>
       <PlayHpBar
         characterId={character.id}
         name={character.name}
         avatarUrl={character.avatar_url}
-        hpCurrent={character.hp_current}
-        hpMax={character.hp_max}
+        hpCurrent={effectiveHpCurrent}
+        hpMax={effectiveHpMax}
         ac={ac}
         thac0={thac0}
         classGroup={primaryGroup}
@@ -465,10 +551,12 @@ export function PlayMode({
               character={character}
               classGroups={classGroups}
               classEntries={classEntries}
-              wisScore={character.wis}
+              wisScore={effectiveWis}
               readOnly={!isOwner}
               onCast={handleCastSpell}
               onRest={handleRest}
+              epicSpellFailure={epicEffects.spellFailure}
+              epicWildMagic={epicEffects.wildMagic}
             />
           )}
         </div>
@@ -486,6 +574,7 @@ export function PlayMode({
             chaMods={chaMods}
             showThiefSkills={showThiefSkills}
             nonweaponProficiencies={nonweaponProficiencies}
+            epicEffects={epicEffects}
           />
           <PlayCoinPursePanel
             characterId={character.id}
@@ -552,6 +641,7 @@ export function PlayMode({
             chaMods={chaMods}
             showThiefSkills={showThiefSkills}
             nonweaponProficiencies={nonweaponProficiencies}
+            epicEffects={epicEffects}
           />
         )}
         {activePanel === "inventory" && (

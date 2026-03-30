@@ -10,6 +10,7 @@ import type {
   CharacterWeaponProficiencyRow,
   CharacterNWPWithDetails,
   CharacterInventoryWithDetails,
+  EpicItemRow,
 } from "@/lib/supabase/types";
 
 interface PlayPageProps {
@@ -63,6 +64,13 @@ export default async function PlayPage({ params }: PlayPageProps) {
     .select("*, item:general_items(*)")
     .eq("character_id", id);
 
+  // Fetch epic items
+  const { data: epicItems } = await supabase
+    .from("epic_items")
+    .select("*")
+    .eq("character_id", id)
+    .returns<EpicItemRow[]>();
+
   return (
     <PlayMode
       character={character}
@@ -73,6 +81,7 @@ export default async function PlayPage({ params }: PlayPageProps) {
       weaponProficiencies={weaponProfs ?? []}
       nonweaponProficiencies={(nwProfs as CharacterNWPWithDetails[]) ?? []}
       inventory={(inventory as CharacterInventoryWithDetails[]) ?? []}
+      epicItems={epicItems ?? []}
     />
   );
 }

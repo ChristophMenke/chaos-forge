@@ -14,6 +14,8 @@ import type {
   CharismaModifiers,
 } from "@/lib/rules/types";
 import type { CharacterRow, CharacterNWPWithDetails } from "@/lib/supabase/types";
+import { applyThiefPenalty, scaleSubStat } from "@/lib/rules/epic-items";
+import type { EpicEffects } from "@/lib/rules/epic-items";
 import { localized } from "@/lib/utils/localize";
 
 interface PlayChecksPanelProps {
@@ -27,6 +29,7 @@ interface PlayChecksPanelProps {
   chaMods: CharismaModifiers;
   showThiefSkills: boolean;
   nonweaponProficiencies: CharacterNWPWithDetails[];
+  epicEffects?: EpicEffects;
 }
 
 export function PlayChecksPanel({
@@ -40,105 +43,178 @@ export function PlayChecksPanel({
   chaMods,
   showThiefSkills,
   nonweaponProficiencies,
+  epicEffects,
 }: PlayChecksPanelProps) {
   const t = useTranslations("playMode");
+  const te = useTranslations("epic");
   const ts = useTranslations("sheet");
   const locale = useLocale();
 
-  // Ability scores with names (using existing sheet i18n keys)
+  const defaultEpic: EpicEffects = useMemo(
+    () => ({
+      statOverrides: {},
+      miscEffects: [],
+      thiefPenalty: 0,
+      thiefDisabled: false,
+      spellFailure: 0,
+      wildMagic: 0,
+      perceptionBonus: 0,
+    }),
+    []
+  );
+  const epic = epicEffects ?? defaultEpic;
+  const eo = epic.statOverrides;
+
+  // Helper: scale sub-stat if main stat is overridden
+  function sub(base: number, baseSub: number | null, override: number | undefined): number | null {
+    if (baseSub == null) return null;
+    if (override != null) return scaleSubStat(base, baseSub, override);
+    return baseSub;
+  }
+
+  // Ability scores with names (using effective stats from epic overrides)
   const abilities = useMemo(
     () => [
       {
         name: "STR",
-        score: character.str,
+        score: eo.str ?? character.str,
+        modified: eo.str != null,
         subScores: [
-          character.str_muscle != null ? { name: ts("muscle"), score: character.str_muscle } : null,
+          character.str_muscle != null
+            ? { name: ts("muscle"), score: sub(character.str, character.str_muscle, eo.str) }
+            : null,
           character.str_stamina != null
-            ? { name: ts("stamina"), score: character.str_stamina }
+            ? { name: ts("stamina"), score: sub(character.str, character.str_stamina, eo.str) }
             : null,
         ].filter(Boolean),
       },
       {
         name: "DEX",
-        score: character.dex,
+        score: eo.dex ?? character.dex,
+        modified: eo.dex != null,
         subScores: [
-          character.dex_aim != null ? { name: ts("aim"), score: character.dex_aim } : null,
+          character.dex_aim != null
+            ? { name: ts("aim"), score: sub(character.dex, character.dex_aim, eo.dex) }
+            : null,
           character.dex_balance != null
-            ? { name: ts("balance"), score: character.dex_balance }
+            ? { name: ts("balance"), score: sub(character.dex, character.dex_balance, eo.dex) }
             : null,
         ].filter(Boolean),
       },
       {
         name: "CON",
-        score: character.con,
+        score: eo.con ?? character.con,
+        modified: eo.con != null,
         subScores: [
-          character.con_health != null ? { name: ts("health"), score: character.con_health } : null,
+          character.con_health != null
+            ? { name: ts("health"), score: sub(character.con, character.con_health, eo.con) }
+            : null,
           character.con_fitness != null
-            ? { name: ts("fitness"), score: character.con_fitness }
+            ? { name: ts("fitness"), score: sub(character.con, character.con_fitness, eo.con) }
             : null,
         ].filter(Boolean),
       },
       {
         name: "INT",
-        score: character.int,
+        score: eo.int ?? character.int,
+        modified: eo.int != null,
         subScores: [
           character.int_knowledge != null
-            ? { name: ts("knowledge"), score: character.int_knowledge }
+            ? { name: ts("knowledge"), score: sub(character.int, character.int_knowledge, eo.int) }
             : null,
-          character.int_reason != null ? { name: ts("reason"), score: character.int_reason } : null,
+          character.int_reason != null
+            ? { name: ts("reason"), score: sub(character.int, character.int_reason, eo.int) }
+            : null,
         ].filter(Boolean),
       },
       {
         name: "WIS",
-        score: character.wis,
+        score: eo.wis ?? character.wis,
+        modified: eo.wis != null,
         subScores: [
           character.wis_intuition != null
-            ? { name: ts("intuition"), score: character.wis_intuition }
+            ? { name: ts("intuition"), score: sub(character.wis, character.wis_intuition, eo.wis) }
             : null,
           character.wis_willpower != null
-            ? { name: ts("willpower"), score: character.wis_willpower }
+            ? { name: ts("willpower"), score: sub(character.wis, character.wis_willpower, eo.wis) }
             : null,
         ].filter(Boolean),
       },
       {
         name: "CHA",
-        score: character.cha,
+        score: eo.cha ?? character.cha,
+        modified: eo.cha != null,
         subScores: [
           character.cha_leadership != null
-            ? { name: ts("leadership"), score: character.cha_leadership }
+            ? {
+                name: ts("leadership"),
+                score: sub(character.cha, character.cha_leadership, eo.cha),
+              }
             : null,
           character.cha_appearance != null
-            ? { name: ts("appearance"), score: character.cha_appearance }
+            ? {
+                name: ts("appearance"),
+                score: sub(character.cha, character.cha_appearance, eo.cha),
+              }
             : null,
         ].filter(Boolean),
       },
     ],
-    [character, ts]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [character, ts, eo]
   );
 
   // Thief skills (using existing sheet i18n keys)
   const thiefSkills = useMemo(() => {
     if (!showThiefSkills) return [];
     return [
-      { name: ts("pickLocks"), value: character.thief_pick_locks },
-      { name: ts("findTraps"), value: character.thief_find_traps },
-      { name: ts("moveSilently"), value: character.thief_move_silently },
-      { name: ts("hideInShadows"), value: character.thief_hide_shadows },
-      { name: ts("climbWalls"), value: character.thief_climb_walls },
-      { name: ts("detectNoise"), value: character.thief_detect_noise },
-      { name: ts("readLanguages"), value: character.thief_read_languages },
+      {
+        name: ts("pickLocks"),
+        base: character.thief_pick_locks,
+        value: applyThiefPenalty(character.thief_pick_locks, epic),
+      },
+      {
+        name: ts("findTraps"),
+        base: character.thief_find_traps,
+        value: applyThiefPenalty(character.thief_find_traps, epic),
+      },
+      {
+        name: ts("moveSilently"),
+        base: character.thief_move_silently,
+        value: applyThiefPenalty(character.thief_move_silently, epic),
+      },
+      {
+        name: ts("hideInShadows"),
+        base: character.thief_hide_shadows,
+        value: applyThiefPenalty(character.thief_hide_shadows, epic),
+      },
+      {
+        name: ts("climbWalls"),
+        base: character.thief_climb_walls,
+        value: applyThiefPenalty(character.thief_climb_walls, epic),
+      },
+      {
+        name: ts("detectNoise"),
+        base: character.thief_detect_noise,
+        value: applyThiefPenalty(character.thief_detect_noise, epic),
+      },
+      {
+        name: ts("readLanguages"),
+        base: character.thief_read_languages,
+        value: applyThiefPenalty(character.thief_read_languages, epic),
+      },
     ];
-  }, [showThiefSkills, character, ts]);
+  }, [showThiefSkills, character, ts, epic]);
 
-  // NWP checks with target numbers
+  // NWP checks with target numbers (using effective stats from epic overrides)
   const nwpChecks = useMemo(() => {
     const abilityMap: Record<string, number> = {
-      str: character.str,
-      dex: character.dex,
-      con: character.con,
-      int: character.int,
-      wis: character.wis,
-      cha: character.cha,
+      str: eo.str ?? character.str,
+      dex: eo.dex ?? character.dex,
+      con: eo.con ?? character.con,
+      int: eo.int ?? character.int,
+      wis: eo.wis ?? character.wis,
+      cha: eo.cha ?? character.cha,
     };
     return nonweaponProficiencies.map((nwp) => {
       const ability = nwp.proficiency.ability.toLowerCase();
@@ -152,13 +228,41 @@ export function PlayChecksPanel({
         target,
       };
     });
-  }, [nonweaponProficiencies, character, locale]);
+  }, [nonweaponProficiencies, character, locale, eo]);
 
   return (
     <GlassCard hover={false} data-testid="play-checks-panel">
-      <h3 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-        {t("checks")}
-      </h3>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h3 className="font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          {t("checks")}
+        </h3>
+        {epic.perceptionBonus > 0 && (
+          <div
+            className="rounded-md border border-purple-500/50 bg-purple-500/5 px-2 py-1 text-[10px] text-purple-400"
+            data-testid="play-perception-bonus"
+          >
+            {t("perceptionBonus", { bonus: epic.perceptionBonus })}
+          </div>
+        )}
+      </div>
+
+      {/* Epic Thief Warnings */}
+      {epic.thiefDisabled && showThiefSkills && (
+        <div
+          className="mb-3 rounded-lg border border-red-500/50 bg-red-500/10 p-2 text-xs text-red-400"
+          data-testid="play-thief-disabled-warning"
+        >
+          {te("thiefDisabled")}
+        </div>
+      )}
+      {epic.thiefPenalty > 0 && !epic.thiefDisabled && showThiefSkills && (
+        <div
+          className="mb-3 rounded-lg border border-amber-500/50 bg-amber-500/10 p-2 text-xs text-amber-400"
+          data-testid="play-thief-penalty-warning"
+        >
+          {te("thiefPenalty", { penalty: `-${epic.thiefPenalty}` })}
+        </div>
+      )}
 
       {/* Saving Throws */}
       <div className="mb-4" data-testid="play-saving-throws">
@@ -194,9 +298,16 @@ export function PlayChecksPanel({
         <h4 className="mb-1.5 text-xs font-medium text-muted-foreground">{t("abilityChecks")}</h4>
         <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-6">
           {abilities.map((ab) => (
-            <div key={ab.name} className="rounded-md border border-border px-2 py-1.5 text-center">
+            <div
+              key={ab.name}
+              className={`rounded-md border px-2 py-1.5 text-center ${ab.modified ? "border-purple-500/50 bg-purple-500/5" : "border-border"}`}
+            >
               <div className="text-[10px] font-medium text-muted-foreground">{ab.name}</div>
-              <div className="font-mono text-lg font-bold">{ab.score}</div>
+              <div
+                className={`font-mono text-lg font-bold ${ab.modified ? "text-purple-400" : ""}`}
+              >
+                {ab.score}
+              </div>
               {ab.subScores.length > 0 && (
                 <div className="flex flex-col gap-0.5">
                   {ab.subScores.map(
@@ -214,6 +325,20 @@ export function PlayChecksPanel({
         </div>
       </div>
 
+      {/* Perception Check (house rule: (INT + WIS) / 2 rounded down) */}
+      <div className="mb-4" data-testid="play-perception">
+        <h4 className="mb-1.5 text-xs font-medium text-muted-foreground">{t("perception")}</h4>
+        <div
+          className="rounded-md border border-border px-3 py-1.5 text-center"
+          style={{ width: "fit-content" }}
+        >
+          <div className="text-[10px] text-muted-foreground">{t("perceptionFormula")}</div>
+          <div className="font-mono text-lg font-bold">
+            {Math.floor(((eo.int ?? character.int) + (eo.wis ?? character.wis)) / 2)}
+          </div>
+        </div>
+      </div>
+
       {/* Thief Skills */}
       {showThiefSkills && thiefSkills.length > 0 && (
         <div className="mb-4" data-testid="play-thief-skills">
@@ -222,10 +347,14 @@ export function PlayChecksPanel({
             {thiefSkills.map((skill) => (
               <div
                 key={skill.name}
-                className="flex items-center justify-between rounded-md border border-border px-2 py-1"
+                className={`flex items-center justify-between rounded-md border px-2 py-1 ${epic.thiefDisabled ? "border-red-500/30 opacity-50" : skill.value !== skill.base ? "border-amber-500/30" : "border-border"}`}
               >
                 <span className="text-xs">{skill.name}</span>
-                <span className="font-mono text-sm font-bold">{skill.value}%</span>
+                <span
+                  className={`font-mono text-sm font-bold ${epic.thiefDisabled ? "text-red-400 line-through" : skill.value !== skill.base ? "text-amber-400" : ""}`}
+                >
+                  {skill.value}%
+                </span>
               </div>
             ))}
           </div>
