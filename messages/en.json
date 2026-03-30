@@ -854,6 +854,16 @@
     "thiefDisabled": "Thief skills unusable",
     "electricDamage": "1 point of electrical damage per round",
     "saveVsDeath": "Save vs. Death Magic each round",
-    "deviceOffline": "Device non-functional"
+    "deviceOffline": "Device non-functional",
+    "bladesReady": "Prepared Blades",
+    "bladeEmpty": "Empty",
+    "bladeThrown": "Thrown",
+    "bladeLoad": "Load",
+    "bladeThrow": "Throw",
+    "bladeCollect": "Collect",
+    "bladesThrown": "{count} blade(s) thrown — don't forget to collect!",
+    "mixtureInventory": "Mixture Inventory",
+    "mixtureCraft": "Craft",
+    "description": "Description"
   }
 }
