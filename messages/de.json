@@ -141,7 +141,11 @@
     "thac0Short": "ETW0",
     "acShort": "RK",
     "hitDamage": "Treffer/Schaden",
-    "hpModPerLevel": "HP-Mod (CON): {mod}/Stufe"
+    "hpModPerLevel": "HP-Mod (CON): {mod}/Stufe",
+    "kitMaxArmor": "Max. Rüstung: {armorName} (RK {ac})",
+    "kitNoArmor": "Keine Rüstung erlaubt",
+    "kitSpellFailureHint": "Zauber-Fehlschlag in Rüstung: {percent}%",
+    "kitHitDieOverride": "Kit-Trefferwürfel: d{die}"
   },
   "sheet": {
     "alignment": "Gesinnung",
@@ -204,6 +208,10 @@
     "kit": "Kit",
     "noKit": "Kein Kit",
     "kitAbilities": "Kit-Fähigkeiten",
+    "kitArmorWarning": "Kit-Rüstungsbeschränkung: {kitName} erlaubt maximal RK {maxAC}",
+    "kitArmorRestriction": "Max. Rüstung: RK {ac}",
+    "kitNoArmor": "Keine Rüstung erlaubt",
+    "kitSpellFailure": "Zauber-Fehlschlag in Rüstung: {percent}%",
     "thac0": "ETW0 (THAC0)",
     "armorClass": "Rüstungsklasse",
     "acBase": "Basis (ohne Rüstung)",
@@ -867,7 +875,10 @@
     "available": "Zurücksetzen",
     "passiveAbilities": "Passive Fähigkeiten",
     "passive_speak_with_animals": "Mit Tieren reden",
-    "epicAcBonus": "+{bonus} (Episch)"
+    "epicAcBonus": "+{bonus} (Episch)",
+    "kitAbilities": "Kit-Fähigkeiten",
+    "kitArmorWarning": "Kit-Rüstungsbeschränkung: {kitName} erlaubt maximal RK {maxAC}",
+    "kitSpellFailure": "Zauber-Fehlschlag: {percent}% ({kitName})"
   },
   "epic": {
     "title": "Epische Ausrüstung",

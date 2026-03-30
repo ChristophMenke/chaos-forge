@@ -141,7 +141,11 @@
     "thac0Short": "THAC0",
     "acShort": "AC",
     "hitDamage": "Hit/Damage",
-    "hpModPerLevel": "HP Mod (CON): {mod}/Level"
+    "hpModPerLevel": "HP Mod (CON): {mod}/Level",
+    "kitMaxArmor": "Max. Armor: {armorName} (AC {ac})",
+    "kitNoArmor": "No armor allowed",
+    "kitSpellFailureHint": "Spell failure in armor: {percent}%",
+    "kitHitDieOverride": "Kit Hit Die: d{die}"
   },
   "sheet": {
     "alignment": "Alignment",
@@ -204,6 +208,10 @@
     "kit": "Kit",
     "noKit": "No Kit",
     "kitAbilities": "Kit Abilities",
+    "kitArmorWarning": "Kit armor restriction: {kitName} allows max AC {maxAC}",
+    "kitArmorRestriction": "Max. Armor: AC {ac}",
+    "kitNoArmor": "No armor allowed",
+    "kitSpellFailure": "Spell failure in armor: {percent}%",
     "thac0": "THAC0",
     "armorClass": "Armor Class",
     "acBase": "Base (unarmored)",
@@ -867,7 +875,10 @@
     "available": "Reset",
     "passiveAbilities": "Passive Abilities",
     "passive_speak_with_animals": "Speak with Animals",
-    "epicAcBonus": "+{bonus} (Epic)"
+    "epicAcBonus": "+{bonus} (Epic)",
+    "kitAbilities": "Kit Abilities",
+    "kitArmorWarning": "Kit armor restriction: {kitName} allows max AC {maxAC}",
+    "kitSpellFailure": "Spell Failure: {percent}% ({kitName})"
   },
   "epic": {
     "title": "Epic Equipment",

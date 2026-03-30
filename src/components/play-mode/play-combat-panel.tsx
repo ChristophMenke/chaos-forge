@@ -24,6 +24,7 @@ import type {
 import { localized } from "@/lib/utils/localize";
 import { lbsToKg } from "@/lib/utils/units";
 import type { EpicEffects } from "@/lib/rules/epic-items";
+import { getKit, getKitArmorWarning } from "@/lib/rules/kits";
 
 interface PlayCombatPanelProps {
   equipment: CharacterEquipmentWithDetails[];
@@ -44,6 +45,7 @@ interface PlayCombatPanelProps {
   isMagicalProtection: boolean;
   onEquipmentChange: (equipment: CharacterEquipmentWithDetails[]) => void;
   epicEffects?: EpicEffects;
+  characterKit?: string | null;
 }
 
 export function PlayCombatPanel({
@@ -65,6 +67,7 @@ export function PlayCombatPanel({
   isMagicalProtection,
   onEquipmentChange,
   epicEffects,
+  characterKit,
 }: PlayCombatPanelProps) {
   const t = useTranslations("playMode");
   const locale = useLocale();
@@ -291,6 +294,21 @@ export function PlayCombatPanel({
               </span>
             ))}
           </div>
+          {(() => {
+            const armorWarning = getKitArmorWarning(
+              characterKit ?? null,
+              equippedArmor?.armor?.ac ?? null
+            );
+            if (!armorWarning) return null;
+            return (
+              <div className="mt-1 text-xs text-yellow-400" data-testid="play-kit-armor-warning">
+                {t("kitArmorWarning", {
+                  kitName: localized(armorWarning.kitName, armorWarning.kitNameEn, locale),
+                  maxAC: armorWarning.maxAC,
+                })}
+              </div>
+            );
+          })()}
         </div>
       )}
 
@@ -419,6 +437,33 @@ export function PlayCombatPanel({
             })()}
         </div>
       )}
+
+      {/* ── Kit Abilities ──────────────────────────── */}
+      {characterKit &&
+        (() => {
+          const kitDef = getKit(characterKit);
+          if (!kitDef?.abilities?.length) return null;
+          return (
+            <div className="mt-4 border-t border-border pt-3" data-testid="play-kit-abilities">
+              <p className="mb-2 text-sm font-medium text-muted-foreground">
+                {t("kitAbilities")} — {localized(kitDef.name, kitDef.name_en, locale)}
+              </p>
+              <div className="flex flex-col gap-1">
+                {kitDef.abilities.map((ability, i) => (
+                  <div key={i} className="text-xs">
+                    <span className="font-medium">
+                      {localized(ability.name, ability.name_en, locale)}
+                    </span>
+                    <span className="text-muted-foreground">
+                      {" — "}
+                      {localized(ability.description, ability.description_en, locale)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
       {/* ── Special Attacks ──────────────────────────── */}
       {epicEffects && epicEffects.specialAttacks.length > 0 && (

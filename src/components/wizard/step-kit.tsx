@@ -66,6 +66,35 @@ export function StepKit({ state, onChange }: StepKitProps) {
               </li>
             ))}
           </ul>
+          {(kit.maxArmorAC != null || kit.armorSpellFailure != null) && (
+            <div className="mt-2 flex flex-wrap gap-2" data-testid={`kit-restrictions-${kit.id}`}>
+              {kit.maxArmorAC != null && (
+                <span className="inline-block rounded-md bg-yellow-500/10 px-2 py-0.5 text-xs text-yellow-400">
+                  {kit.maxArmorAC === 10
+                    ? t("kitNoArmor")
+                    : kit.maxArmorAC === 8
+                      ? t("kitMaxArmor", {
+                          armorName: locale === "de" ? "Leder" : "Leather",
+                          ac: kit.maxArmorAC,
+                        })
+                      : kit.maxArmorAC === 5
+                        ? t("kitMaxArmor", {
+                            armorName: locale === "de" ? "Kettenhemd" : "Chain Mail",
+                            ac: kit.maxArmorAC,
+                          })
+                        : t("kitMaxArmor", {
+                            armorName: `AC ${kit.maxArmorAC}`,
+                            ac: kit.maxArmorAC,
+                          })}
+                </span>
+              )}
+              {kit.armorSpellFailure != null && (
+                <span className="inline-block rounded-md bg-yellow-500/10 px-2 py-0.5 text-xs text-yellow-400">
+                  {t("kitSpellFailureHint", { percent: kit.armorSpellFailure })}
+                </span>
+              )}
+            </div>
+          )}
         </button>
       ))}
     </div>

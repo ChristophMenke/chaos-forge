@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { PlayHpBar } from "./play-hp-bar";
 import { PlayCombatPanel } from "./play-combat-panel";
@@ -31,6 +31,8 @@ import { getClassGroup } from "@/lib/rules/classes";
 import { getEpicEffects, scaleSubStat } from "@/lib/rules/epic-items";
 import type { EpicEffects } from "@/lib/rules/epic-items";
 import { getClassGroupColors } from "@/lib/utils/class-colors";
+import { getKit } from "@/lib/rules/kits";
+import { localized } from "@/lib/utils/localize";
 import { CharacterModeNav } from "@/components/character-mode-nav";
 import type {
   CharacterRow,
@@ -160,6 +162,7 @@ export function PlayMode({
   epicItems = [],
 }: PlayModeProps) {
   const t = useTranslations("playMode");
+  const locale = useLocale();
   const [character, setCharacter] = useState(initialCharacter);
   const [equipment, setEquipment] = useState(initialEquipment);
   const [spells, setSpells] = useState(initialSpells);
@@ -385,6 +388,8 @@ export function PlayMode({
   }, [showThiefSkills, activeClasses]);
 
   const colors = getClassGroupColors(primaryGroup);
+  const kitDef = useMemo(() => getKit(character.kit), [character.kit]);
+  const kitDisplayName = kitDef ? localized(kitDef.name, kitDef.name_en, locale) : null;
 
   // Coin purse
   const coinPurse: CoinPurse = useMemo(
@@ -503,6 +508,7 @@ export function PlayMode({
         ac={ac}
         thac0={thac0}
         classGroup={primaryGroup}
+        kitName={kitDisplayName}
         onHpChange={handleHpChange}
       />
 
@@ -551,6 +557,7 @@ export function PlayMode({
             isMagicalProtection={isMagicalProtection}
             onEquipmentChange={setEquipment}
             epicEffects={epicEffects}
+            characterKit={character.kit}
           />
           {showSpells && (
             <PlaySpellbookPanel
@@ -564,6 +571,8 @@ export function PlayMode({
               onRest={handleRest}
               epicSpellFailure={epicEffects.spellFailure}
               epicWildMagic={epicEffects.wildMagic}
+              characterKit={character.kit}
+              hasArmor={!!equippedArmor}
             />
           )}
         </div>
@@ -623,6 +632,7 @@ export function PlayMode({
             isMagicalProtection={isMagicalProtection}
             onEquipmentChange={setEquipment}
             epicEffects={epicEffects}
+            characterKit={character.kit}
           />
         )}
         {activePanel === "spellbook" && showSpells && (
@@ -635,6 +645,8 @@ export function PlayMode({
             readOnly={!isOwner}
             onCast={handleCastSpell}
             onRest={handleRest}
+            characterKit={character.kit}
+            hasArmor={!!equippedArmor}
           />
         )}
         {activePanel === "checks" && (
