@@ -54,10 +54,11 @@ export async function uploadAvatar(
       data: { publicUrl },
     } = supabase.storage.from("avatars").getPublicUrl(path);
 
-    // Update character record
-    await supabase.from("characters").update({ avatar_url: publicUrl }).eq("id", characterId);
+    // Update character record with cache-busting URL
+    const avatarUrl = `${publicUrl}?t=${Date.now()}`;
+    await supabase.from("characters").update({ avatar_url: avatarUrl }).eq("id", characterId);
 
-    return { url: publicUrl, error: null };
+    return { url: avatarUrl, error: null };
   } catch (err) {
     return {
       url: null,

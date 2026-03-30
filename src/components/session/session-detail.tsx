@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import ReactMarkdown from "react-markdown";
+import remarkBreaks from "remark-breaks";
 import { Pencil, Check, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -375,14 +376,14 @@ export function SessionDetail({
               <div className="rounded-md border border-border p-4">
                 <p className="mb-2 text-xs text-muted-foreground">{t("preview")}</p>
                 <div className="prose prose-sm prose-invert max-w-none">
-                  <ReactMarkdown>{summary}</ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkBreaks]}>{summary}</ReactMarkdown>
                 </div>
               </div>
             )}
           </div>
         ) : summary ? (
           <div className="prose prose-sm prose-invert max-w-none rounded-md border border-border p-4">
-            <ReactMarkdown>{summary}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkBreaks]}>{summary}</ReactMarkdown>
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">{t("noSummary")}</p>
