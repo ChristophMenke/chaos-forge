@@ -11,7 +11,7 @@ export default async function SessionsLayout({ children }: { children: React.Rea
       <AppSidebar userEmail={user.email ?? ""} />
       <AppNav userEmail={user.email ?? ""} />
       <FabNewCharacter />
-      <div className="flex flex-1 flex-col sm:ml-16">{children}</div>
+      <div className="flex flex-1 flex-col sm:ml-16 xl:ml-48">{children}</div>
     </div>
   );
 }
