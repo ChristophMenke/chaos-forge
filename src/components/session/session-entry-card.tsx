@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import ReactMarkdown from "react-markdown";
+import remarkBreaks from "remark-breaks";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -114,7 +115,7 @@ export function SessionEntryCard({
           ) : (
             <>
               <div className="prose prose-sm prose-invert max-w-none">
-                <ReactMarkdown>{entry.content}</ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkBreaks]}>{entry.content}</ReactMarkdown>
               </div>
               {entry.audio_url && (
                 <div className="mt-2" data-testid="voice-note-player">

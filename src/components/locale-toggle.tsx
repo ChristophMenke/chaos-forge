@@ -32,10 +32,8 @@ export function LocaleToggle() {
   const toggleLocale = useCallback(() => {
     const next = current === "en" ? "de" : "en";
     document.cookie = `NEXT_LOCALE=${next};path=/;max-age=31536000`;
-    startTransition(() => {
-      router.refresh();
-    });
-  }, [current, router, startTransition]);
+    window.location.reload();
+  }, [current]);
 
   return (
     <Button
