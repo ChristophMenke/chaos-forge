@@ -1185,6 +1185,25 @@ export default function ImportCharacterPage() {
                                 placeholder={t("spellName")}
                                 data-testid={`import-spell-name-${idx}`}
                               />
+                              <select
+                                value={(scanned.spells ?? [])[idx]?.level ?? 1}
+                                onChange={(e) => {
+                                  const updated = [...(scanned.spells ?? [])];
+                                  updated[idx] = {
+                                    ...updated[idx],
+                                    level: parseInt(e.target.value),
+                                  };
+                                  updateField("spells", updated);
+                                }}
+                                className="h-8 w-14 rounded-md border border-border bg-transparent text-center text-sm"
+                                data-testid={`import-spell-level-${idx}`}
+                              >
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((l) => (
+                                  <option key={l} value={l}>
+                                    {l}
+                                  </option>
+                                ))}
+                              </select>
                               <button
                                 type="button"
                                 onClick={() => {
