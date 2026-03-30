@@ -511,7 +511,14 @@
     "totalTooLarge": "Gesamtgröße darf 50 MB nicht überschreiten.",
     "noFiles": "Keine Dateien ausgewählt.",
     "preciseMode": "Präziser Scan (genauer bei handschriftlichen Bögen, langsamer)",
-    "alignment": "Gesinnung"
+    "alignment": "Gesinnung",
+    "spellsKnown": "Bekannte Zauber",
+    "addSpell": "Zauber hinzufügen",
+    "spellName": "Zaubername",
+    "spellLevel": "Stufe",
+    "removeSpell": "Zauber entfernen",
+    "noSpells": "Keine Zauber erkannt.",
+    "creating": "Erstelle..."
   },
   "print": {
     "print": "Drucken (Cmd+P)",

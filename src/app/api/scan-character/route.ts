@@ -150,7 +150,8 @@ Erwartetes Format:
   "weight": null,
   "weaponProficiencies": [],
   "equipment": [],
-  "nwps": []
+  "nwps": [],
+  "spells": []
 }
 
 Hinweise:
@@ -166,6 +167,7 @@ Hinweise:
 - "height" und "weight" als Strings/Zahlen wie im Bogen angegeben
 - "xp" in "classes" ist der GEDRUCKTE "XP:"-Wert (NICHT "Next Level:"). Wenn "XP: 78,150" und "Next Level: 90,000" steht, verwende 78150
 - Munition (quarrel, arrow, bolt, bullet) sind KEINE Waffen — nicht in weaponProficiencies aufnehmen
+- "spells" ist ein Array von {"name": "Zaubername", "level": 1}. Extrahiere ALLE Zauber aus "Spells Known" oder ähnlichen Bereichen. Der Level ist die Zauberstufe (1st Level → 1, 2nd Level → 2, etc.). Zaubernamen EXAKT wie gedruckt übernehmen (üblicherweise Englisch)
 - Wenn ein Wert nicht lesbar ist, verwende null
 - Übersetze deutsche Bezeichnungen (z.B. "Mensch" → "human", "Kämpfer" → "fighter")`,
             },

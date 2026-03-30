@@ -511,7 +511,14 @@
     "totalTooLarge": "Total size must not exceed 50 MB.",
     "noFiles": "No files selected.",
     "preciseMode": "Precise scan (more accurate for handwritten sheets, slower)",
-    "alignment": "Alignment"
+    "alignment": "Alignment",
+    "spellsKnown": "Spells Known",
+    "addSpell": "Add Spell",
+    "spellName": "Spell Name",
+    "spellLevel": "Level",
+    "removeSpell": "Remove Spell",
+    "noSpells": "No spells detected.",
+    "creating": "Creating..."
   },
   "print": {
     "print": "Print (Cmd+P)",

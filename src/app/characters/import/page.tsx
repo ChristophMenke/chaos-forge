@@ -62,6 +62,7 @@ interface ScannedCharacter {
   weaponProficiencies: { name: string; specialized: boolean }[];
   equipment: string[];
   nwps: string[];
+  spells: { name: string; level: number }[];
 }
 
 /** Parse imperial height like 5'10" or "5 ft 10 in" to centimeters */
@@ -429,6 +430,63 @@ export default function ImportCharacterPage() {
               equipped: true,
             });
           }
+        }
+      }
+
+      // Try to match and insert spells
+      if (scanned.spells?.length > 0) {
+        // Fetch all spells from DB (paginated for >1000 rows)
+        let allSpells: { id: string; name: string; name_en: string | null; level: number }[] = [];
+        let from = 0;
+        const batchSize = 1000;
+        let hasMore = true;
+        while (hasMore) {
+          const { data: batch } = await supabase
+            .from("spells")
+            .select("id, name, name_en, level")
+            .range(from, from + batchSize - 1);
+          if (batch && batch.length > 0) {
+            allSpells = allSpells.concat(batch);
+            from += batchSize;
+            hasMore = batch.length === batchSize;
+          } else {
+            hasMore = false;
+          }
+        }
+
+        const spellInserts: { character_id: string; spell_id: string; prepared: boolean }[] = [];
+        const matchedIds = new Set<string>();
+
+        for (const scannedSpell of scanned.spells) {
+          if (!scannedSpell.name.trim()) continue;
+          const spellLower = scannedSpell.name.toLowerCase().trim();
+
+          const match = allSpells.find((s) => {
+            if (s.level !== scannedSpell.level) return false;
+            const nameLower = s.name.toLowerCase();
+            const nameEnLower = s.name_en?.toLowerCase() ?? "";
+            return (
+              nameLower === spellLower ||
+              nameEnLower === spellLower ||
+              nameLower.includes(spellLower) ||
+              (nameEnLower && nameEnLower.includes(spellLower)) ||
+              spellLower.includes(nameLower) ||
+              (nameEnLower && spellLower.includes(nameEnLower))
+            );
+          });
+
+          if (match && !matchedIds.has(match.id)) {
+            matchedIds.add(match.id);
+            spellInserts.push({
+              character_id: data.id,
+              spell_id: match.id,
+              prepared: false,
+            });
+          }
+        }
+
+        if (spellInserts.length > 0) {
+          await supabase.from("character_spells").insert(spellInserts);
         }
       }
 
@@ -829,6 +887,97 @@ export default function ImportCharacterPage() {
                 </ul>
               </div>
             )}
+
+            {/* Spells */}
+            <div data-testid="import-spells">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-sm font-medium text-muted-foreground">{t("spellsKnown")}</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    updateField("spells", [...(scanned.spells ?? []), { name: "", level: 1 }])
+                  }
+                  data-testid="import-add-spell"
+                >
+                  {t("addSpell")}
+                </Button>
+              </div>
+              {(scanned.spells ?? []).length > 0 ? (
+                <div className="flex flex-col gap-2">
+                  {Object.entries(
+                    (scanned.spells ?? []).reduce<
+                      Record<number, { name: string; level: number; idx: number }[]>
+                    >((acc, spell, idx) => {
+                      (acc[spell.level] ??= []).push({ ...spell, idx });
+                      return acc;
+                    }, {})
+                  )
+                    .sort(([a], [b]) => Number(a) - Number(b))
+                    .map(([level, spells]) => (
+                      <div key={level}>
+                        <p className="text-xs font-medium text-primary mb-1">
+                          {t("spellLevel")} {level}
+                        </p>
+                        <div className="flex flex-col gap-1">
+                          {spells.map(({ name, idx }) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-2"
+                              data-testid={`import-spell-${idx}`}
+                            >
+                              <Input
+                                value={name}
+                                onChange={(e) => {
+                                  const updated = [...(scanned.spells ?? [])];
+                                  updated[idx] = { ...updated[idx], name: e.target.value };
+                                  updateField("spells", updated);
+                                }}
+                                className="h-8 text-sm"
+                                placeholder={t("spellName")}
+                                data-testid={`import-spell-name-${idx}`}
+                              />
+                              <Input
+                                type="number"
+                                min={1}
+                                max={9}
+                                value={(scanned.spells ?? [])[idx]?.level ?? 1}
+                                onChange={(e) => {
+                                  const updated = [...(scanned.spells ?? [])];
+                                  updated[idx] = {
+                                    ...updated[idx],
+                                    level: Math.max(1, Math.min(9, parseInt(e.target.value) || 1)),
+                                  };
+                                  updateField("spells", updated);
+                                }}
+                                className="h-8 w-16 text-center text-sm"
+                                data-testid={`import-spell-level-${idx}`}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updated = (scanned.spells ?? []).filter(
+                                    (_, i) => i !== idx
+                                  );
+                                  updateField("spells", updated);
+                                }}
+                                className="text-destructive hover:text-destructive/80"
+                                aria-label={t("removeSpell")}
+                                data-testid={`import-spell-remove-${idx}`}
+                              >
+                                &times;
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground/70">{t("noSpells")}</p>
+              )}
+            </div>
 
             <div className="flex justify-between">
               <Button
