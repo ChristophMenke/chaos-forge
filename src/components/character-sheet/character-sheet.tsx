@@ -477,7 +477,7 @@ export function CharacterSheet({
     await Promise.all([
       copyTable("character_classes", classes ?? []),
       copyTable("character_equipment", equip ?? []),
-      copyTable("character_spells", charSpells ?? [], ["character_id"]),
+      copyTable("character_spells", charSpells ?? [], []),
       copyTable("character_weapon_proficiencies", weaponProfs ?? []),
       copyTable("character_nonweapon_proficiencies", nwProfs ?? []),
       copyTable("character_languages", langs ?? []),
@@ -667,8 +667,12 @@ export function CharacterSheet({
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
           data-testid="duplicate-dialog"
+          onClick={() => !duplicating && setShowDuplicateDialog(false)}
         >
-          <div className="glass mx-4 w-full max-w-md rounded-xl p-6">
+          <div
+            className="glass mx-4 w-full max-w-md rounded-xl p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3 className="font-heading text-lg text-primary">{tc("duplicateTitle")}</h3>
             <p className="mt-2 text-sm text-muted-foreground">{tc("duplicateMessage")}</p>
             <Input
@@ -677,6 +681,7 @@ export function CharacterSheet({
               onChange={(e) => setDuplicateName(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleDuplicate();
+                if (e.key === "Escape") setShowDuplicateDialog(false);
               }}
               autoFocus
               data-testid="duplicate-name-input"
@@ -687,6 +692,7 @@ export function CharacterSheet({
                 size="sm"
                 onClick={() => setShowDuplicateDialog(false)}
                 disabled={duplicating}
+                data-testid="duplicate-cancel-button"
               >
                 {tcom("cancel")}
               </Button>
@@ -694,6 +700,7 @@ export function CharacterSheet({
                 size="sm"
                 onClick={handleDuplicate}
                 disabled={duplicating || !duplicateName.trim()}
+                data-testid="duplicate-confirm-button"
               >
                 {duplicating ? (
                   <>
