@@ -66,7 +66,15 @@ export function AppNav({ userEmail }: AppNavProps) {
       {/* Bottom bar */}
       <div className="relative z-40 flex items-center justify-around border-t border-border bg-background px-2 py-1">
         {NAV_ITEMS.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+          const hasMoreSpecificMatch = NAV_ITEMS.some(
+            (other) =>
+              other.href !== item.href &&
+              other.href.startsWith(item.href + "/") &&
+              (pathname === other.href || pathname.startsWith(other.href + "/"))
+          );
+          const isActive =
+            !hasMoreSpecificMatch &&
+            (pathname === item.href || pathname.startsWith(item.href + "/"));
           return (
             <Link
               key={item.href}

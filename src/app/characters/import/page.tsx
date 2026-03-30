@@ -60,8 +60,9 @@ interface ScannedCharacter {
   height: string | null;
   weight: number | null;
   weaponProficiencies: { name: string; specialized: boolean }[];
-  equipment: string[];
+  equipment: { name: string; magicBonus: number }[];
   nwps: string[];
+  spells: { name: string; level: number }[];
 }
 
 /** Parse imperial height like 5'10" or "5 ft 10 in" to centimeters */
@@ -183,6 +184,28 @@ export default function ImportCharacterPage() {
         if (char.race && raceMap[char.race]) {
           char.race = raceMap[char.race];
         }
+        // Normalize equipment: support both string[] (legacy) and {name, magicBonus}[]
+        if (Array.isArray(char.equipment)) {
+          char.equipment = char.equipment.map(
+            (item: string | { name: string; magicBonus?: number }) => {
+              if (typeof item === "string") {
+                const bonusMatch = item.match(/\+(\d+)/);
+                return { name: item, magicBonus: bonusMatch ? parseInt(bonusMatch[1]) : 0 };
+              }
+              return { name: item.name, magicBonus: item.magicBonus ?? 0 };
+            }
+          );
+        }
+        // Normalize classes: ensure level is never null, fallback to legacy level field
+        if (Array.isArray(char.classes)) {
+          char.classes = char.classes.map(
+            (cc: { class: string; level: number | null; xp: number | null }) => ({
+              ...cc,
+              level: cc.level ?? char.level ?? 1,
+              xp: cc.xp ?? char.xp ?? 0,
+            })
+          );
+        }
         setScanned(char);
       }
     } catch {
@@ -215,11 +238,36 @@ export default function ImportCharacterPage() {
       }
 
       // Resolve classes: new multiclass format or legacy single-class
-      const resolvedClasses: ScannedClassEntry[] = scanned.classes?.length
-        ? scanned.classes
-        : scanned.class
-          ? [{ class: scanned.class, level: scanned.level ?? 1, xp: scanned.xp ?? 0 }]
-          : [];
+      const validClassIds = [
+        "fighter",
+        "ranger",
+        "paladin",
+        "mage",
+        "abjurer",
+        "conjurer",
+        "diviner",
+        "enchanter",
+        "illusionist",
+        "invoker",
+        "necromancer",
+        "transmuter",
+        "cleric",
+        "druid",
+        "thief",
+        "bard",
+      ];
+      const resolvedClasses: ScannedClassEntry[] = (
+        scanned.classes?.length
+          ? scanned.classes
+          : scanned.class
+            ? [{ class: scanned.class, level: scanned.level ?? 1, xp: scanned.xp ?? 0 }]
+            : []
+      )
+        .map((cc) => ({
+          ...cc,
+          class: cc.class.toLowerCase().trim() as ClassId,
+        }))
+        .filter((cc) => validClassIds.includes(cc.class));
 
       const primaryClass = resolvedClasses[0]?.class ?? null;
       const primaryLevel = resolvedClasses[0]?.level ?? 1;
@@ -306,10 +354,13 @@ export default function ImportCharacterPage() {
         const classRows = resolvedClasses.map((cc) => ({
           character_id: data.id,
           class_id: cc.class,
-          level: cc.level,
+          level: cc.level ?? 1,
           xp_current: cc.xp || 0,
         }));
-        await supabase.from("character_classes").insert(classRows);
+        const { error: classError } = await supabase.from("character_classes").insert(classRows);
+        if (classError) {
+          console.error("character_classes insert failed:", classError);
+        }
       }
 
       // Separate fighting styles from weapon proficiencies
@@ -359,6 +410,7 @@ export default function ImportCharacterPage() {
           .from("nonweapon_proficiencies")
           .select("id, name, name_en");
         if (allNwps) {
+          const insertedNwpIds = new Set<string>();
           for (const nwpName of scanned.nwps) {
             const nwpLower = nwpName
               .toLowerCase()
@@ -372,7 +424,8 @@ export default function ImportCharacterPage() {
                 n.name.toLowerCase().includes(nwpLower) ||
                 (n.name_en && n.name_en.toLowerCase().includes(nwpLower))
             );
-            if (match) {
+            if (match && !insertedNwpIds.has(match.id)) {
+              insertedNwpIds.add(match.id);
               await supabase.from("character_nonweapon_proficiencies").insert({
                 character_id: data.id,
                 proficiency_id: match.id,
@@ -389,26 +442,34 @@ export default function ImportCharacterPage() {
         const { data: allArmor } = await supabase.from("armor").select("id, name, name_en");
 
         for (const item of scanned.equipment) {
-          const itemLower = item
-            .toLowerCase()
+          // Strip magic bonus and quantity from name for matching
+          const baseName = item.name
+            .replace(/\s*\+\d+/, "")
             .replace(/\s*x\d+$/, "")
+            .toLowerCase()
             .trim();
-          const qty = item.match(/x(\d+)$/)?.[1] ? parseInt(item.match(/x(\d+)$/)![1]) : 1;
+          if (!baseName) continue;
+          const qty = item.name.match(/x(\d+)$/)?.[1]
+            ? parseInt(item.name.match(/x(\d+)$/)![1])
+            : 1;
+          const bonus = item.magicBonus ?? 0;
 
           // Try to match weapon
           const weapon = allWeapons?.find(
             (w) =>
-              w.name.toLowerCase().includes(itemLower) ||
-              (w.name_en && w.name_en.toLowerCase().includes(itemLower)) ||
-              itemLower.includes(w.name.toLowerCase()) ||
-              (w.name_en && itemLower.includes(w.name_en.toLowerCase()))
+              w.name.toLowerCase().includes(baseName) ||
+              (w.name_en && w.name_en.toLowerCase().includes(baseName)) ||
+              baseName.includes(w.name.toLowerCase()) ||
+              (w.name_en && baseName.includes(w.name_en.toLowerCase()))
           );
           if (weapon) {
             await supabase.from("character_equipment").insert({
               character_id: data.id,
               weapon_id: weapon.id,
               quantity: qty,
-              equipped: itemLower.includes("readied") || itemLower.includes("worn") || true,
+              equipped: true,
+              hit_bonus: bonus,
+              damage_bonus: bonus,
             });
             continue;
           }
@@ -416,10 +477,10 @@ export default function ImportCharacterPage() {
           // Try to match armor
           const armor = allArmor?.find(
             (a) =>
-              a.name.toLowerCase().includes(itemLower) ||
-              (a.name_en && a.name_en.toLowerCase().includes(itemLower)) ||
-              itemLower.includes(a.name.toLowerCase()) ||
-              (a.name_en && itemLower.includes(a.name_en.toLowerCase()))
+              a.name.toLowerCase().includes(baseName) ||
+              (a.name_en && a.name_en.toLowerCase().includes(baseName)) ||
+              baseName.includes(a.name.toLowerCase()) ||
+              (a.name_en && baseName.includes(a.name_en.toLowerCase()))
           );
           if (armor) {
             await supabase.from("character_equipment").insert({
@@ -428,7 +489,72 @@ export default function ImportCharacterPage() {
               quantity: 1,
               equipped: true,
             });
+            continue;
           }
+
+          // Unmatched items go to inventory
+          await supabase.from("character_inventory").insert({
+            character_id: data.id,
+            custom_name: item.name,
+            quantity: qty,
+          });
+        }
+      }
+
+      // Try to match and insert spells
+      if (scanned.spells?.length > 0) {
+        // Fetch all spells from DB (paginated for >1000 rows)
+        let allSpells: { id: string; name: string; name_en: string | null; level: number }[] = [];
+        let from = 0;
+        const batchSize = 1000;
+        let hasMore = true;
+        while (hasMore) {
+          const { data: batch } = await supabase
+            .from("spells")
+            .select("id, name, name_en, level")
+            .range(from, from + batchSize - 1);
+          if (batch && batch.length > 0) {
+            allSpells = allSpells.concat(batch);
+            from += batchSize;
+            hasMore = batch.length === batchSize;
+          } else {
+            hasMore = false;
+          }
+        }
+
+        const spellInserts: { character_id: string; spell_id: string; prepared: boolean }[] = [];
+        const matchedIds = new Set<string>();
+
+        for (const scannedSpell of scanned.spells) {
+          if (!scannedSpell.name.trim()) continue;
+          const spellLower = scannedSpell.name.toLowerCase().trim();
+
+          const match = allSpells.find((s) => {
+            if (s.level !== scannedSpell.level) return false;
+            const nameLower = s.name.toLowerCase();
+            const nameEnLower = s.name_en?.toLowerCase() ?? "";
+            return (
+              nameLower === spellLower ||
+              nameEnLower === spellLower ||
+              nameLower.includes(spellLower) ||
+              (nameEnLower && nameEnLower.includes(spellLower)) ||
+              spellLower.includes(nameLower) ||
+              (nameEnLower && spellLower.includes(nameEnLower))
+            );
+          });
+
+          if (match && !matchedIds.has(match.id)) {
+            matchedIds.add(match.id);
+            spellInserts.push({
+              character_id: data.id,
+              spell_id: match.id,
+              prepared: false,
+            });
+          }
+        }
+
+        if (spellInserts.length > 0) {
+          await supabase.from("character_spells").insert(spellInserts);
         }
       }
 
@@ -548,34 +674,157 @@ export default function ImportCharacterPage() {
                 <Label htmlFor="import-name">Name</Label>
                 <Input
                   id="import-name"
-                  value={scanned.name}
+                  value={scanned.name ?? ""}
                   onChange={(e) => updateField("name", e.target.value)}
                   data-testid="import-name"
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor="import-level">Stufe</Label>
-                <Input
-                  id="import-level"
-                  type="number"
-                  min={1}
-                  max={20}
-                  value={scanned.level ?? scanned.classes?.[0]?.level ?? 1}
-                  onChange={(e) => updateField("level", parseInt(e.target.value) || 1)}
-                  data-testid="import-level"
-                />
+                <Label htmlFor="import-race">{t("race")}</Label>
+                <select
+                  id="import-race"
+                  className="rounded-md border border-border bg-transparent px-3 py-2 text-sm"
+                  value={scanned.race ?? "human"}
+                  onChange={(e) => updateField("race", e.target.value as RaceId)}
+                  data-testid="import-race"
+                >
+                  {(
+                    [
+                      "human",
+                      "elf",
+                      "half_elf",
+                      "dwarf",
+                      "gnome",
+                      "halfling",
+                      "half_orc",
+                      "kobold",
+                    ] as const
+                  ).map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
-            {/* Kit, Alignment, XP */}
-            <div className="grid gap-4 sm:grid-cols-3">
+            {/* Classes */}
+            <div data-testid="import-classes">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-sm font-medium text-muted-foreground">{t("classes")}</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const current = scanned.classes ?? [];
+                    updateField("classes", [
+                      ...current,
+                      { class: "fighter" as ClassId, level: 1, xp: 0 },
+                    ]);
+                  }}
+                  data-testid="import-add-class"
+                >
+                  {t("addClass")}
+                </Button>
+              </div>
+              {(scanned.classes ?? []).map((cc, i) => (
+                <div
+                  key={i}
+                  className="mb-2 flex items-center gap-2"
+                  data-testid={`import-class-${i}`}
+                >
+                  <select
+                    className="rounded-md border border-border bg-transparent px-2 py-1.5 text-sm"
+                    value={cc.class}
+                    onChange={(e) => {
+                      const updated = [...(scanned.classes ?? [])];
+                      updated[i] = { ...updated[i], class: e.target.value as ClassId };
+                      updateField("classes", updated);
+                    }}
+                    data-testid={`import-class-select-${i}`}
+                  >
+                    {(
+                      [
+                        "fighter",
+                        "ranger",
+                        "paladin",
+                        "mage",
+                        "abjurer",
+                        "conjurer",
+                        "diviner",
+                        "enchanter",
+                        "illusionist",
+                        "invoker",
+                        "necromancer",
+                        "transmuter",
+                        "cleric",
+                        "druid",
+                        "thief",
+                        "bard",
+                      ] as const
+                    ).map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={30}
+                    value={cc.level}
+                    onChange={(e) => {
+                      const updated = [...(scanned.classes ?? [])];
+                      updated[i] = {
+                        ...updated[i],
+                        level: Math.max(1, parseInt(e.target.value) || 1),
+                      };
+                      updateField("classes", updated);
+                    }}
+                    className="h-8 w-20 text-center text-sm"
+                    data-testid={`import-class-level-${i}`}
+                  />
+                  <Input
+                    type="number"
+                    min={0}
+                    value={cc.xp}
+                    onChange={(e) => {
+                      const updated = [...(scanned.classes ?? [])];
+                      updated[i] = { ...updated[i], xp: parseInt(e.target.value) || 0 };
+                      updateField("classes", updated);
+                    }}
+                    className="h-8 w-28 text-center text-sm"
+                    placeholder="XP"
+                    data-testid={`import-class-xp-${i}`}
+                  />
+                  {(scanned.classes ?? []).length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated = (scanned.classes ?? []).filter((_, idx) => idx !== i);
+                        updateField("classes", updated);
+                      }}
+                      className="text-destructive hover:text-destructive/80"
+                      aria-label={t("removeClass")}
+                      data-testid={`import-class-remove-${i}`}
+                    >
+                      &times;
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Kit, Alignment */}
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1">
                 <Label htmlFor="import-kit">Kit</Label>
                 <Input
                   id="import-kit"
                   value={scanned.kit ?? ""}
                   onChange={(e) => updateField("kit", e.target.value || null)}
-                  placeholder="Kein Kit"
+                  placeholder={t("noKit")}
                   data-testid="import-kit"
                 />
               </div>
@@ -599,23 +848,12 @@ export default function ImportCharacterPage() {
                   ))}
                 </select>
               </div>
-              <div className="flex flex-col gap-1">
-                <Label htmlFor="import-xp">XP</Label>
-                <Input
-                  id="import-xp"
-                  type="number"
-                  min={0}
-                  value={scanned.xp ?? scanned.classes?.[0]?.xp ?? 0}
-                  onChange={(e) => updateField("xp", parseInt(e.target.value) || 0)}
-                  data-testid="import-xp"
-                />
-              </div>
             </div>
 
             {/* Personal Details */}
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="flex flex-col gap-1">
-                <Label htmlFor="import-playerName">Spieler</Label>
+                <Label htmlFor="import-playerName">{t("player")}</Label>
                 <Input
                   id="import-playerName"
                   value={scanned.playerName ?? ""}
@@ -624,7 +862,7 @@ export default function ImportCharacterPage() {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor="import-age">Alter</Label>
+                <Label htmlFor="import-age">{t("age")}</Label>
                 <Input
                   id="import-age"
                   type="number"
@@ -637,7 +875,7 @@ export default function ImportCharacterPage() {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor="import-gender">Geschlecht</Label>
+                <Label htmlFor="import-gender">{t("gender")}</Label>
                 <Input
                   id="import-gender"
                   value={scanned.gender ?? ""}
@@ -684,9 +922,7 @@ export default function ImportCharacterPage() {
               scanned.chaLeadership !== null ||
               scanned.chaAppearance !== null) && (
               <div data-testid="import-substats-section">
-                <p className="mb-2 text-sm font-medium text-muted-foreground">
-                  {"Player's Option Sub-Stats"}
-                </p>
+                <p className="mb-2 text-sm font-medium text-muted-foreground">{t("subStats")}</p>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                   {(
                     [
@@ -729,24 +965,24 @@ export default function ImportCharacterPage() {
             {/* HP */}
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1">
-                <Label htmlFor="import-hp">Max. HP</Label>
+                <Label htmlFor="import-hp">{t("maxHp")}</Label>
                 <Input
                   id="import-hp"
                   type="number"
                   min={1}
-                  value={scanned.hpMax}
+                  value={scanned.hpMax ?? ""}
                   onChange={(e) => updateField("hpMax", Math.max(1, parseInt(e.target.value) || 1))}
                   className="max-w-[100px]"
                   data-testid="import-hp"
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor="import-hpCurrent">Akt. HP</Label>
+                <Label htmlFor="import-hpCurrent">{t("currentHp")}</Label>
                 <Input
                   id="import-hpCurrent"
                   type="number"
                   min={0}
-                  value={scanned.hpCurrent ?? scanned.hpMax}
+                  value={scanned.hpCurrent ?? scanned.hpMax ?? ""}
                   onChange={(e) =>
                     updateField("hpCurrent", Math.max(0, parseInt(e.target.value) || 0))
                   }
@@ -784,51 +1020,235 @@ export default function ImportCharacterPage() {
             </div>
 
             {/* Weapon Proficiencies */}
-            {scanned.weaponProficiencies?.length > 0 && (
-              <div data-testid="import-weapon-proficiencies">
-                <p className="mb-2 text-sm font-medium text-muted-foreground">Waffenfertigkeiten</p>
-                <ul className="list-inside list-disc text-sm">
-                  {scanned.weaponProficiencies.map((wp, i) => (
-                    <li key={i} data-testid={`import-wp-${i}`}>
-                      {wp.name}
-                      {wp.specialized && (
-                        <span className="ml-1 text-xs text-primary">(Spezialisiert)</span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
+            <div data-testid="import-weapon-proficiencies">
+              <p className="mb-2 text-sm font-medium text-muted-foreground">
+                {t("weaponProficiencies")}
+              </p>
+              <div className="flex flex-col gap-1">
+                {(scanned.weaponProficiencies ?? []).map((wp, i) => (
+                  <div key={i} className="flex items-center gap-2" data-testid={`import-wp-${i}`}>
+                    <Input
+                      value={wp.name}
+                      onChange={(e) => {
+                        const updated = [...(scanned.weaponProficiencies ?? [])];
+                        updated[i] = { ...updated[i], name: e.target.value };
+                        updateField("weaponProficiencies", updated);
+                      }}
+                      className="h-8 text-sm"
+                      data-testid={`import-wp-name-${i}`}
+                    />
+                    <label className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={wp.specialized}
+                        onChange={(e) => {
+                          const updated = [...(scanned.weaponProficiencies ?? [])];
+                          updated[i] = { ...updated[i], specialized: e.target.checked };
+                          updateField("weaponProficiencies", updated);
+                        }}
+                        className="rounded"
+                      />
+                      {t("specialized")}
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateField(
+                          "weaponProficiencies",
+                          (scanned.weaponProficiencies ?? []).filter((_, idx) => idx !== i)
+                        )
+                      }
+                      className="text-destructive hover:text-destructive/80"
+                      data-testid={`import-wp-remove-${i}`}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
 
             {/* NWPs */}
-            {scanned.nwps?.length > 0 && (
-              <div data-testid="import-nwps">
-                <p className="mb-2 text-sm font-medium text-muted-foreground">
-                  Allgemeine Fertigkeiten
-                </p>
-                <ul className="list-inside list-disc text-sm">
-                  {scanned.nwps.map((nwp, i) => (
-                    <li key={i} data-testid={`import-nwp-${i}`}>
-                      {nwp}
-                    </li>
-                  ))}
-                </ul>
+            <div data-testid="import-nwps">
+              <p className="mb-2 text-sm font-medium text-muted-foreground">{t("nwps")}</p>
+              <div className="flex flex-col gap-1">
+                {(scanned.nwps ?? []).map((nwp, i) => (
+                  <div key={i} className="flex items-center gap-2" data-testid={`import-nwp-${i}`}>
+                    <Input
+                      value={nwp}
+                      onChange={(e) => {
+                        const updated = [...(scanned.nwps ?? [])];
+                        updated[i] = e.target.value;
+                        updateField("nwps", updated);
+                      }}
+                      className="h-8 text-sm"
+                      data-testid={`import-nwp-name-${i}`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateField(
+                          "nwps",
+                          (scanned.nwps ?? []).filter((_, idx) => idx !== i)
+                        )
+                      }
+                      className="text-destructive hover:text-destructive/80"
+                      data-testid={`import-nwp-remove-${i}`}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
 
             {/* Equipment */}
-            {scanned.equipment?.length > 0 && (
-              <div data-testid="import-equipment">
-                <p className="mb-2 text-sm font-medium text-muted-foreground">Ausruestung</p>
-                <ul className="list-inside list-disc text-sm">
-                  {scanned.equipment.map((item, i) => (
-                    <li key={i} data-testid={`import-equip-${i}`}>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+            <div data-testid="import-equipment">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-sm font-medium text-muted-foreground">{t("equipment")}</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    updateField("equipment", [
+                      ...(scanned.equipment ?? []),
+                      { name: "", magicBonus: 0 },
+                    ])
+                  }
+                  data-testid="import-add-equipment"
+                >
+                  {t("addEquipment")}
+                </Button>
               </div>
-            )}
+              <div className="flex flex-col gap-1">
+                {(scanned.equipment ?? []).map((item, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-2"
+                    data-testid={`import-equip-${i}`}
+                  >
+                    <Input
+                      value={item.name}
+                      onChange={(e) => {
+                        const updated = [...(scanned.equipment ?? [])];
+                        updated[i] = { ...updated[i], name: e.target.value };
+                        updateField("equipment", updated);
+                      }}
+                      className="h-8 text-sm"
+                      data-testid={`import-equip-name-${i}`}
+                    />
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-muted-foreground">+</span>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={5}
+                        value={item.magicBonus}
+                        onChange={(e) => {
+                          const updated = [...(scanned.equipment ?? [])];
+                          updated[i] = {
+                            ...updated[i],
+                            magicBonus: Math.max(0, parseInt(e.target.value) || 0),
+                          };
+                          updateField("equipment", updated);
+                        }}
+                        className="h-8 w-14 text-center text-sm"
+                        data-testid={`import-equip-bonus-${i}`}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateField(
+                          "equipment",
+                          (scanned.equipment ?? []).filter((_, idx) => idx !== i)
+                        )
+                      }
+                      className="text-destructive hover:text-destructive/80"
+                      data-testid={`import-equip-remove-${i}`}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Spells */}
+            <div data-testid="import-spells">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-sm font-medium text-muted-foreground">{t("spellsKnown")}</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    updateField("spells", [...(scanned.spells ?? []), { name: "", level: 1 }])
+                  }
+                  data-testid="import-add-spell"
+                >
+                  {t("addSpell")}
+                </Button>
+              </div>
+              {(scanned.spells ?? []).length > 0 ? (
+                <div className="flex flex-col gap-2">
+                  {Object.entries(
+                    (scanned.spells ?? []).reduce<
+                      Record<number, { name: string; level: number; idx: number }[]>
+                    >((acc, spell, idx) => {
+                      (acc[spell.level] ??= []).push({ ...spell, idx });
+                      return acc;
+                    }, {})
+                  )
+                    .sort(([a], [b]) => Number(a) - Number(b))
+                    .map(([level, spells]) => (
+                      <div key={level}>
+                        <p className="text-xs font-medium text-primary mb-1">
+                          {t("spellLevel")} {level}
+                        </p>
+                        <div className="flex flex-col gap-1">
+                          {spells.map(({ name, idx }) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-2"
+                              data-testid={`import-spell-${idx}`}
+                            >
+                              <Input
+                                value={name}
+                                onChange={(e) => {
+                                  const updated = [...(scanned.spells ?? [])];
+                                  updated[idx] = { ...updated[idx], name: e.target.value };
+                                  updateField("spells", updated);
+                                }}
+                                className="h-8 text-sm"
+                                placeholder={t("spellName")}
+                                data-testid={`import-spell-name-${idx}`}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updated = (scanned.spells ?? []).filter(
+                                    (_, i) => i !== idx
+                                  );
+                                  updateField("spells", updated);
+                                }}
+                                className="text-destructive hover:text-destructive/80"
+                                aria-label={t("removeSpell")}
+                                data-testid={`import-spell-remove-${idx}`}
+                              >
+                                &times;
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground/70">{t("noSpells")}</p>
+              )}
+            </div>
 
             <div className="flex justify-between">
               <Button
