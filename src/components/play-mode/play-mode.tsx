@@ -10,13 +10,16 @@ import { PlayChecksPanel } from "./play-checks-panel";
 import { PlayInventoryPanel } from "./play-inventory-panel";
 import { PlayCoinPursePanel } from "./play-coin-purse-panel";
 import { PlayTurnUndeadPanel } from "./play-turn-undead-panel";
+import { PlayAbilitiesPanel } from "./play-abilities-panel";
+import { RACES } from "@/lib/rules/races";
+import { getActivePowers } from "@/lib/rules/priesthoods";
 import {
   getMulticlassThac0,
   getMulticlassSaves,
   getMulticlassGroups,
   getMulticlassHpDivisor,
 } from "@/lib/rules/multiclass";
-import type { ClassId } from "@/lib/rules/types";
+import type { ClassId, RaceId } from "@/lib/rules/types";
 import {
   getStrengthModifiers,
   getDexterityModifiers,
@@ -143,7 +146,14 @@ function CoinsIcon({ className }: { className?: string }) {
   );
 }
 
-type PanelId = "combat" | "spellbook" | "turnUndead" | "checks" | "inventory" | "coinPurse";
+type PanelId =
+  | "combat"
+  | "spellbook"
+  | "turnUndead"
+  | "abilities"
+  | "checks"
+  | "inventory"
+  | "coinPurse";
 
 interface PlayModeProps {
   character: CharacterRow;
@@ -424,6 +434,25 @@ export function PlayMode({
 
     return { show: false, level: 0, isPaladin: false, isEvil: false };
   }, [classIds, character.priesthood, character.alignment, activeClasses]);
+
+  // Abilities panel: show if race has abilities or priesthood has granted powers
+  const showAbilities = useMemo(() => {
+    const race = RACES[character.race_id as RaceId];
+    const hasRacialAbilities = (race?.racialAbilities?.length ?? 0) > 0;
+    const priestClass = activeClasses.find(
+      (cc) => cc.class_id === "cleric" || cc.class_id === "druid"
+    );
+    const hasGrantedPowers =
+      character.priesthood && priestClass
+        ? getActivePowers(character.priesthood, priestClass.level).length > 0
+        : false;
+    return hasRacialAbilities || hasGrantedPowers;
+  }, [character.race_id, character.priesthood, activeClasses]);
+
+  const priestClassForAbilities = useMemo(() => {
+    return activeClasses.find((cc) => cc.class_id === "cleric" || cc.class_id === "druid");
+  }, [activeClasses]);
+
   const backstabMultiplier = useMemo(() => {
     if (!showThiefSkills) return null;
     const thiefClass = activeClasses.find(
@@ -540,6 +569,12 @@ export function PlayMode({
       icon: <TargetIcon className="h-4 w-4" />,
       show: turnUndeadInfo.show,
     },
+    {
+      id: "abilities",
+      label: t("abilities"),
+      icon: <SparklesIcon className="h-4 w-4" />,
+      show: showAbilities,
+    },
     { id: "checks", label: t("checks"), icon: <TargetIcon className="h-4 w-4" />, show: true },
     {
       id: "inventory",
@@ -643,6 +678,13 @@ export function PlayMode({
               isEvil={turnUndeadInfo.isEvil}
             />
           )}
+          {showAbilities && (
+            <PlayAbilitiesPanel
+              raceId={character.race_id ?? "human"}
+              priesthoodId={character.priesthood}
+              priestLevel={priestClassForAbilities?.level ?? 1}
+            />
+          )}
         </div>
 
         {/* Right column */}
@@ -709,10 +751,12 @@ export function PlayMode({
             character={character}
             classGroups={classGroups}
             classEntries={classEntries}
-            wisScore={character.wis}
+            wisScore={effectiveWis}
             readOnly={!isOwner}
             onCast={handleCastSpell}
             onRest={handleRest}
+            epicSpellFailure={epicEffects.spellFailure}
+            epicWildMagic={epicEffects.wildMagic}
             characterKit={character.kit}
             hasArmor={!!equippedArmor}
             priestAvailableSpells={priestAvailableSpells}
@@ -723,6 +767,13 @@ export function PlayMode({
             clericLevel={turnUndeadInfo.level}
             isPaladin={turnUndeadInfo.isPaladin}
             isEvil={turnUndeadInfo.isEvil}
+          />
+        )}
+        {activePanel === "abilities" && showAbilities && (
+          <PlayAbilitiesPanel
+            raceId={character.race_id ?? "human"}
+            priesthoodId={character.priesthood}
+            priestLevel={priestClassForAbilities?.level ?? 1}
           />
         )}
         {activePanel === "checks" && (

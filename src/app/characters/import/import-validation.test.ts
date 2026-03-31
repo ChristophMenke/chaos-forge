@@ -23,14 +23,14 @@ describe("validateImportFiles", () => {
     expect(result.errorKey).toBeUndefined();
   });
 
-  it("accepts up to 5 files", () => {
-    const files = Array.from({ length: 5 }, (_, i) => makeFile(`page${i + 1}.jpg`, 1024));
+  it("accepts up to 10 files", () => {
+    const files = Array.from({ length: 15 }, (_, i) => makeFile(`page${i + 1}.jpg`, 1024));
     const result = validateImportFiles(files);
     expect(result.valid).toBe(true);
   });
 
-  it("rejects more than 5 files", () => {
-    const files = Array.from({ length: 6 }, (_, i) => makeFile(`page${i + 1}.jpg`, 1024));
+  it("rejects more than 10 files", () => {
+    const files = Array.from({ length: 16 }, (_, i) => makeFile(`page${i + 1}.jpg`, 1024));
     const result = validateImportFiles(files);
     expect(result.valid).toBe(false);
     expect(result.errorKey).toBe("tooManyFiles");
@@ -67,7 +67,7 @@ describe("validateImportFiles", () => {
     // Total check is still useful for future-proofing — test with adjusted sizes
     // We can't trigger total > 50 MB with <= 5 files of <= 10 MB each
     // So total check is a safety net. Verify the constant values are correct:
-    expect(MAX_FILE_COUNT).toBe(5);
+    expect(MAX_FILE_COUNT).toBe(15);
     expect(MAX_FILE_SIZE).toBe(10 * 1024 * 1024);
     expect(MAX_TOTAL_SIZE).toBe(50 * 1024 * 1024);
   });
@@ -85,8 +85,8 @@ describe("validateImportFiles", () => {
   });
 
   it("checks file count before file sizes", () => {
-    // 6 files, some oversized — should report tooManyFiles, not fileTooLarge
-    const files = Array.from({ length: 6 }, (_, i) =>
+    // 11 files, some oversized — should report tooManyFiles, not fileTooLarge
+    const files = Array.from({ length: 16 }, (_, i) =>
       makeFile(`page${i + 1}.jpg`, MAX_FILE_SIZE + 1)
     );
     const result = validateImportFiles(files);

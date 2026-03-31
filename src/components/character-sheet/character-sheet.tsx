@@ -11,7 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RACES } from "@/lib/rules/races";
+import { RACES, getAllRaces } from "@/lib/rules/races";
+import type { AbilityName } from "@/lib/rules/types";
 import { CLASSES } from "@/lib/rules/classes";
 import { getAlignmentLabel, ALL_ALIGNMENTS } from "@/lib/rules/alignment";
 import { getXpForNextLevel, getXpThreshold } from "@/lib/rules/experience";
@@ -137,6 +138,7 @@ export function CharacterSheet({
   const [duplicateName, setDuplicateName] = useState("");
   const [duplicating, setDuplicating] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const [pendingRaceChange, setPendingRaceChange] = useState<RaceId | null>(null);
   const [xpDialogOpen, setXpDialogOpen] = useState(false);
   const [payDialogOpen, setPayDialogOpen] = useState(false);
   const [addClassId, setAddClassId] = useState("");
@@ -310,6 +312,36 @@ export function CharacterSheet({
     setDirty(true);
   }
 
+  function confirmRaceChange() {
+    if (!pendingRaceChange || !isOwner) return;
+    const oldRaceId = character.race_id as RaceId;
+    const newRaceId = pendingRaceChange;
+    const oldAdj = RACES[oldRaceId]?.abilityAdjustments ?? {};
+    const newAdj = RACES[newRaceId]?.abilityAdjustments ?? {};
+
+    // Remove old adjustments, apply new ones
+    const abilityFields: AbilityName[] = ["str", "dex", "con", "int", "wis", "cha"];
+    const updates: Partial<Record<string, string | number | null>> = { race_id: newRaceId };
+    for (const ab of abilityFields) {
+      const oldVal = oldAdj[ab] ?? 0;
+      const newVal = newAdj[ab] ?? 0;
+      if (oldVal !== newVal) {
+        updates[ab] = (character[ab] as number) - oldVal + newVal;
+      }
+    }
+
+    setCharacter((prev) => ({ ...prev, ...updates }));
+    setDirty(true);
+    setPendingRaceChange(null);
+  }
+
+  function formatAdjustments(adj: Partial<Record<AbilityName, number>>): string {
+    const parts = Object.entries(adj)
+      .filter(([, v]) => v !== 0)
+      .map(([k, v]) => `${k.toUpperCase()} ${(v as number) > 0 ? "+" : ""}${v}`);
+    return parts.length > 0 ? parts.join(", ") : t("changeRaceNoAdj");
+  }
+
   async function handleAddClass(classId: string) {
     if (!classId) return;
     const supabase = createClient();
@@ -353,6 +385,7 @@ export function CharacterSheet({
       .from("characters")
       .update({
         name: character.name,
+        race_id: character.race_id,
         str: character.str,
         str_exceptional: character.str_exceptional,
         dex: character.dex,
@@ -536,7 +569,27 @@ export function CharacterSheet({
               </h1>
             )}
             <div className="mt-1 flex flex-wrap gap-2">
-              {race && <Badge>{localized(race.name, race.name_en, locale)}</Badge>}
+              {isOwner ? (
+                <select
+                  className="rounded-md border border-border bg-transparent px-2 py-0.5 text-xs"
+                  value={character.race_id ?? ""}
+                  onChange={(e) => setPendingRaceChange(e.target.value as RaceId)}
+                  aria-label={t("changeRace")}
+                  data-testid="sheet-race-select"
+                >
+                  {getAllRaces().map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {localized(r.name, r.name_en, locale)}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                race && (
+                  <Badge data-testid="sheet-race-badge">
+                    {localized(race.name, race.name_en, locale)}
+                  </Badge>
+                )
+              )}
               {classNames && <Badge data-testid="sheet-class-badge">{classNames}</Badge>}
               <Badge variant="outline" data-testid="sheet-level-badge">
                 {t("levelPerClass")}: {levelDisplay}
@@ -685,6 +738,34 @@ export function CharacterSheet({
         onConfirm={handleDelete}
         onCancel={() => setShowDeleteConfirm(false)}
       />
+
+      {/* Race Change Confirm Dialog */}
+      {pendingRaceChange && (
+        <ConfirmDialog
+          open={true}
+          title={t("changeRaceTitle")}
+          message={`${t("changeRaceWarning")}\n\n${t("changeRaceOldAdj", {
+            race: localized(
+              RACES[character.race_id as RaceId]?.name ?? "",
+              RACES[character.race_id as RaceId]?.name_en ?? "",
+              locale
+            ),
+            adjustments: formatAdjustments(
+              RACES[character.race_id as RaceId]?.abilityAdjustments ?? {}
+            ),
+          })}\n${t("changeRaceNewAdj", {
+            race: localized(
+              RACES[pendingRaceChange]?.name ?? "",
+              RACES[pendingRaceChange]?.name_en ?? "",
+              locale
+            ),
+            adjustments: formatAdjustments(RACES[pendingRaceChange]?.abilityAdjustments ?? {}),
+          })}`}
+          onConfirm={confirmRaceChange}
+          onCancel={() => setPendingRaceChange(null)}
+          confirmLabel={t("changeRaceConfirm")}
+        />
+      )}
 
       {showDuplicateDialog && (
         <div
