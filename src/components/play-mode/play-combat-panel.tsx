@@ -316,7 +316,8 @@ export function PlayCombatPanel({
             const warnings = getMulticlassArmorWarnings(
               classIds,
               !!equippedArmor,
-              equippedArmor?.armor?.ac ?? null
+              equippedArmor?.armor?.ac ?? null,
+              isMagicalProtection
             );
             if (warnings.length === 0) return null;
             return (
@@ -324,6 +325,7 @@ export function PlayCombatPanel({
                 {warnings.map((w) => (
                   <div
                     key={w.type}
+                    role="alert"
                     className="mt-1 text-xs text-yellow-400"
                     data-testid={`play-multiclass-${w.type}-warning`}
                   >

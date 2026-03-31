@@ -228,8 +228,23 @@ describe("getMulticlassArmorWarnings", () => {
   });
 
   it("returns no thief warning for Bard in studded leather (AC 7)", () => {
-    // AC 7 is studded leather — still close to leather, but < 8
+    // AC 7 is studded leather — thieves can wear this per PHB
     const warnings = getMulticlassArmorWarnings(["fighter", "bard"], true, 7);
+    expect(warnings).toHaveLength(0);
+  });
+
+  it("returns thief warning for Fighter/Thief in scale mail (AC 6)", () => {
+    const warnings = getMulticlassArmorWarnings(["fighter", "thief"], true, 6);
     expect(warnings).toEqual([{ type: "thief" }]);
+  });
+
+  it("returns no warnings for magical protection (Bracers of Defense)", () => {
+    const warnings = getMulticlassArmorWarnings(["fighter", "mage"], true, 4, true);
+    expect(warnings).toHaveLength(0);
+  });
+
+  it("returns wizard warning when wearsArmor=true but armorAC=null", () => {
+    const warnings = getMulticlassArmorWarnings(["fighter", "mage"], true, null);
+    expect(warnings).toEqual([{ type: "wizard" }]);
   });
 });

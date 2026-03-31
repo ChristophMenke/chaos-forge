@@ -888,7 +888,7 @@
     "kitArmorWarning": "Kit armor restriction: {kitName} allows max AC {maxAC}",
     "kitSpellFailure": "Spell Failure: {percent}% ({kitName})",
     "multiclassWizardArmor": "Multiclass wizard: Cannot cast spells in armor (PHB)",
-    "multiclassThiefArmor": "Multiclass thief: Thief abilities restricted in heavy armor"
+    "multiclassThiefArmor": "Multiclass thief: Thief abilities restricted in heavy armor (open locks + detect noise only)"
   },
   "epic": {
     "title": "Epic Equipment",

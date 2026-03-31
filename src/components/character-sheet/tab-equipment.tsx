@@ -491,13 +491,12 @@ export function TabEquipment({
           {(() => {
             const activeClasses = characterClasses.filter((cc) => cc.is_active);
             if (activeClasses.length <= 1) return null;
-            const classIds = activeClasses.map(
-              (cc) => cc.class_id as import("@/lib/rules/types").ClassId
-            );
+            const classIds = activeClasses.map((cc) => cc.class_id as ClassId);
             const warnings = getMulticlassArmorWarnings(
               classIds,
               !!equippedArmor,
-              equippedArmor?.armor?.ac ?? null
+              equippedArmor?.armor?.ac ?? null,
+              equippedArmor?.armor?.is_magical_protection ?? false
             );
             if (warnings.length === 0) return null;
             return (
@@ -505,6 +504,7 @@ export function TabEquipment({
                 {warnings.map((w) => (
                   <div
                     key={w.type}
+                    role="alert"
                     className="mt-1 text-xs text-yellow-400"
                     data-testid={`equipment-multiclass-${w.type}-warning`}
                   >

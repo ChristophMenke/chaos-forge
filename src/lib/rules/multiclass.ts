@@ -93,9 +93,11 @@ export interface MulticlassArmorWarning {
 export function getMulticlassArmorWarnings(
   classIds: ClassId[],
   wearsArmor: boolean,
-  armorAC: number | null
+  armorAC: number | null,
+  isMagicalProtection?: boolean
 ): MulticlassArmorWarning[] {
-  if (classIds.length <= 1 || !wearsArmor) return [];
+  // Magical protection (e.g. Bracers of Defense) does not restrict spellcasting or thief skills
+  if (classIds.length <= 1 || !wearsArmor || isMagicalProtection) return [];
 
   const warnings: MulticlassArmorWarning[] = [];
   const groups = new Set(classIds.map((id) => CLASSES[id].group));
@@ -105,9 +107,9 @@ export function getMulticlassArmorWarnings(
     warnings.push({ type: "wizard" });
   }
 
-  // Thief/Bard in armor heavier than leather: loses most thief abilities (PHB p.44)
-  // Leather = AC 8, anything with AC < 8 is heavier
-  if (groups.has("rogue") && armorAC !== null && armorAC < 8) {
+  // Thief/Bard in armor heavier than studded leather: loses most thief abilities (PHB p.44)
+  // Thieves can wear leather (AC 8), studded leather (AC 7), padded (AC 8). AC < 7 = too heavy.
+  if (groups.has("rogue") && armorAC !== null && armorAC < 7) {
     warnings.push({ type: "thief" });
   }
 

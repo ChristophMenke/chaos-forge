@@ -888,7 +888,7 @@
     "kitArmorWarning": "Kit-Rüstungsbeschränkung: {kitName} erlaubt maximal RK {maxAC}",
     "kitSpellFailure": "Zauber-Fehlschlag: {percent}% ({kitName})",
     "multiclassWizardArmor": "Multiclass-Magier: Keine Zauber möglich in Rüstung (PHB)",
-    "multiclassThiefArmor": "Multiclass-Dieb: Diebesfähigkeiten eingeschränkt in schwerer Rüstung"
+    "multiclassThiefArmor": "Multiclass-Dieb: Diebesfähigkeiten eingeschränkt in schwerer Rüstung (nur Schlösser öffnen + Geräusche hören)"
   },
   "epic": {
     "title": "Epische Ausrüstung",
