@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Datenbank & Auth:** Supabase (PostgreSQL + Row Level Security)
 - **Styling:** Tailwind CSS v4 + shadcn/ui + Glassmorphism Design-System
 - **i18n:** next-intl (Cookie-basiert, DE/EN) + `localized()` Utility für DB-Daten
-- **Unit-/Integrationstests:** Vitest (755+ Tests)
+- **Unit-/Integrationstests:** Vitest (960+ Tests)
 - **E2E-Tests:** Playwright (Chromium, POM-Pattern, getByTestId, axe-core A11y)
 - **Linting/Formatting:** ESLint (next config) + Prettier
 - **Hosting:** Vercel (Free-Tier)
@@ -57,11 +57,11 @@ src/
     app-sidebar.tsx       # Desktop Left-Sidebar (Icons, Tooltips, Logout)
     app-nav.tsx           # Mobile Bottom-Nav + More-Menu
     epic-equipment/       # Epische Ausrüstung (Schadensstufen-Cards, Simple Items, Blade System)
-    play-mode/            # Play Mode (Kampf, Zauber, Checks, Wahrnehmung, Inventar, Geldbörse, Gestaltwandlung)
+    play-mode/            # Play Mode (Kampf, Zauber, Fähigkeiten, Checks, Wahrnehmung, Inventar, Geldbörse, Untote vertreiben, Gestaltwandlung)
     spellbook/            # Standalone Spellbook-Seite (Suche, Filter, Prepare, Learn, Source-Book-Filter)
     print-sheet/          # Druckansicht + Word-Export (.docx), Customization Panel
     session/              # Session-Einträge, Sprachnotizen (MediaRecorder)
-    wizard/               # Character Wizard (7 Steps: Basics, Abilities, Race, Class, Kit, Combat, Summary)
+    wizard/               # Character Wizard (8 Steps: Basics, Abilities, Race, Class, Kit, Priesthood, Combat, Summary)
     ui/                   # shadcn/ui Komponenten
   lib/
     rules/                # AD&D 2e Regelwerk-Engine (reine TypeScript-Logik)
@@ -78,12 +78,14 @@ src/
       magic.ts            # Magie-Schulen, Priester-Sphären, Spezialisten
       multiclass.ts       # THAC0/Saves-Optimierung, Regeltreue-Check, HP-Divisor
       proficiencies.ts    # Waffen-/NWP-Slots, Spezialisierung, Abzüge
-      races.ts            # 7 Rassen, Attribut-Adj., Level-Limits, Infravision
+      races.ts            # 9 Rassen (inkl. Tiefling, Kobold), Attribut-Adj., Level-Limits, Infravision
+      priesthoods.ts      # 20+ Priesterschafts-Definitionen, Sphären, Granted Powers, Turn Undead
+      turn-undead.ts      # Untote vertreiben/befehligen, Ergebnistabelle
       spellslots.ts       # Wizard Slots, Priest Slots/Bonus, Spell Points, canLearnSpell
       thief.ts            # Diebesfähigkeiten, Rassen-Adj., Backstab-Multiplikator
       types.ts            # Zentrale Typdefinitionen
       index.ts            # Barrel-Export
-    supabase/             # Supabase Client-Helfer (client.ts, server.ts, middleware.ts)
+    supabase/             # Supabase Client-Helfer (client.ts, server.ts, middleware.ts, priest-spells.ts)
     utils/                # Hilfsfunktionen
       class-colors.ts     # Klassengruppen-Akzentfarben (warrior/priest/rogue/wizard)
       localize.ts         # localized(de, en, locale) — Locale-aware Text-Auswahl
@@ -138,6 +140,13 @@ Die AD&D-Regeln sind als **reine TypeScript-Funktionen** implementiert (kein DB-
 - `getWizardSpellSlots(level)` / `getPriestSpellSlots(level)` / `getPriestBonusSlots(wisScore)`
 - `getPriestSpellPoints(level)` / `getPriestBonusSpellPoints(wis)` / `getPriestSpellCost(spellLevel)`
 - `canLearnSpell(classId, school?, sphere?, level, intScore)` / `getOppositionSchools(classId)` / `hasSphereAccess(classId, sphere, level)`
+- `getAvailablePriestSpells(classId, level, priesthoodId, allSpells)` — Dynamische Sphären-basierte Filterung
+- `isPriestCaster(classId)` / `getPriestSpheres(classId, priesthoodId)` — Priester/Ranger/Paladin Sphärenzugang
+
+**Priester & Turn Undead:**
+
+- `getPriesthood(id)` / `getAllPriesthoods()` / `getActivePowers(priesthoodId, level)`
+- `getTurnTarget(level, undead)` / `resolveTurnAttempt(level, undead, roll)` — Untote vertreiben
 
 **Multiclass:**
 
@@ -248,7 +257,7 @@ Diese Abweichungen vom Standard-PHB gelten für die "Chaos RPG"-Gruppe:
 - **Env-Variablen:** `NEXT_PUBLIC_SUPABASE_URL` und `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local` (siehe `.env.local.example`)
 - **RLS:** Alle Tabellen nutzen Row Level Security — SELECT für alle Authentifizierten, INSERT/UPDATE/DELETE nur für Owner
 - **Storage:** `voice-notes` Bucket für Sprachnotizen, `avatars` für Character-Avatare
-- **Migrationen:** 30 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
+- **Migrationen:** 73 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
 
 ## AD&D 2e Regelwerk-Spezifika
 
@@ -295,4 +304,6 @@ Finaler explorativer Test mit etablierten Testing-Heuristiken und gezielten "Tes
 6. **Play Mode & Epische Ausrüstung** — Session-optimierte Ansicht, Epic Items mit Effekten, Mode-Navigation ✅
 7. **Dashboard Ausbau** — 8 Widgets (Zitat, NPCs, XP, Tags, Party, Session-Stats, Throwback) ✅
 8. **Print/Export Customization** — Abschnitte ein-/ausblendbar, Reihenfolge änderbar, alle PHB-Modifier ✅
-9. **Nächste Schritte** — DM-Dashboard, Kampagnen-Verwaltung, weitere Kits aus den Complete Handbooks
+9. **Priester-System** — Sphären-Zauber, Gottheit/Priesthood, Turn Undead, Quellenbuch-Filter, Spell Points ✅
+10. **Tiefling & Erweiterungen** — 9. Rasse, Rassenwechsel, Fähigkeiten-Panel, Magische Items/Waffen, Import-Verbesserungen ✅
+11. **Nächste Schritte** — DM-Dashboard, Kampagnen-Verwaltung, weitere Kits und Rassen
