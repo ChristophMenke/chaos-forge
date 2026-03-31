@@ -22,9 +22,6 @@ export async function uploadNpcAvatar(
     const supabase = createClient();
     const path = `${npcId}.webp`;
 
-    // Remove old avatar if exists
-    await supabase.storage.from(BUCKET).remove([path]);
-
     const { error: uploadError } = await supabase.storage.from(BUCKET).upload(path, resized, {
       contentType: "image/webp",
       upsert: true,
@@ -39,7 +36,14 @@ export async function uploadNpcAvatar(
     } = supabase.storage.from(BUCKET).getPublicUrl(path);
 
     const avatarUrl = `${publicUrl}?t=${Date.now()}`;
-    await supabase.from("chronicle_npcs").update({ avatar_url: avatarUrl }).eq("id", npcId);
+    const { error: dbError } = await supabase
+      .from("chronicle_npcs")
+      .update({ avatar_url: avatarUrl })
+      .eq("id", npcId);
+
+    if (dbError) {
+      return { url: null, error: dbError.message };
+    }
 
     return { url: avatarUrl, error: null };
   } catch (err) {

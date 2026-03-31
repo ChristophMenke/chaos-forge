@@ -105,9 +105,30 @@ export function NpcManager({ npcs: initialNpcs }: NpcManagerProps) {
 
   async function handleDelete(id: string) {
     const supabase = createClient();
+    // Clean up avatar from storage if exists
+    const npc = npcs.find((n) => n.id === id);
+    if (npc?.avatar_url) {
+      await supabase.storage.from("npc-avatars").remove([`${id}.webp`]);
+    }
     const { error } = await supabase.from("chronicle_npcs").delete().eq("id", id);
     if (!error) {
-      setNpcs((prev) => prev.filter((npc) => npc.id !== id));
+      setNpcs((prev) => {
+        const next = prev.filter((n) => n.id !== id);
+        // Clamp page if current page is now out of bounds
+        const filtered = next.filter((n) => {
+          const matchesLocation = !locationFilter || n.location === locationFilter;
+          const query = searchQuery.toLowerCase();
+          const matchesSearch =
+            !query ||
+            n.name.toLowerCase().includes(query) ||
+            n.location.toLowerCase().includes(query) ||
+            n.description.toLowerCase().includes(query);
+          return matchesLocation && matchesSearch;
+        });
+        const newTotalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+        if (page >= newTotalPages) setPage(Math.max(0, newTotalPages - 1));
+        return next;
+      });
     }
   }
 
@@ -159,6 +180,7 @@ export function NpcManager({ npcs: initialNpcs }: NpcManagerProps) {
             value={locationFilter}
             onChange={(e) => handleFilterChange(searchQuery, e.target.value)}
             className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+            aria-label={t("npcAllLocations")}
             data-testid="npc-location-filter"
           >
             <option value="">{t("npcAllLocations")}</option>
@@ -238,8 +260,16 @@ export function NpcManager({ npcs: initialNpcs }: NpcManagerProps) {
 
                   {/* Content */}
                   <div
+                    role="button"
+                    tabIndex={0}
                     className="flex-1 cursor-pointer"
                     onClick={() => setExpandedId(expandedId === npc.id ? null : npc.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setExpandedId(expandedId === npc.id ? null : npc.id);
+                      }
+                    }}
                   >
                     <span className="font-medium">{npc.name}</span>
                     {npc.location && (

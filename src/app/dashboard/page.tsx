@@ -115,6 +115,7 @@ export default async function DashboardPage() {
             .select("id, character_id, content")
             .eq("session_id", latestSession.id)
             .order("created_at", { ascending: true })
+            .limit(10)
             .returns<Pick<SessionEntryRow, "id" | "character_id" | "content">[]>()
         : Promise.resolve({
             data: [] as Pick<SessionEntryRow, "id" | "character_id" | "content">[],
@@ -332,11 +333,23 @@ export default async function DashboardPage() {
                   {latestSessionEntries.map((entry) => {
                     const char = characters?.find((c) => c.id === entry.character_id);
                     return (
-                      <div key={entry.id} className="text-xs text-muted-foreground">
-                        <span className="font-medium text-foreground/80">{char?.name ?? "?"}:</span>{" "}
-                        {entry.content.length > 120
-                          ? entry.content.slice(0, 120) + "…"
-                          : entry.content}
+                      <div
+                        key={entry.id}
+                        className="flex items-start gap-2 text-xs text-muted-foreground"
+                      >
+                        <AvatarDisplay
+                          name={char?.name ?? "?"}
+                          avatarUrl={char?.avatar_url ?? null}
+                          size={20}
+                        />
+                        <div>
+                          <span className="font-medium text-foreground/80">
+                            {char?.name ?? "?"}:
+                          </span>{" "}
+                          {entry.content.length > 120
+                            ? entry.content.slice(0, 120) + "…"
+                            : entry.content}
+                        </div>
                       </div>
                     );
                   })}
