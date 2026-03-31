@@ -15,7 +15,7 @@ import {
   formatDamageWithBonus,
   getAttacksPerRound,
 } from "@/lib/rules/combat";
-import { getMulticlassThac0 } from "@/lib/rules/multiclass";
+import { getMulticlassThac0, getMulticlassArmorWarnings } from "@/lib/rules/multiclass";
 import { getNonproficiencyPenalty } from "@/lib/rules/proficiencies";
 import { CLASSES, getClassGroup } from "@/lib/rules/classes";
 import { getKitArmorWarning } from "@/lib/rules/kits";
@@ -486,6 +486,32 @@ export function TabEquipment({
                   maxAC: armorWarning.maxAC,
                 })}
               </div>
+            );
+          })()}
+          {(() => {
+            const activeClasses = characterClasses.filter((cc) => cc.is_active);
+            if (activeClasses.length <= 1) return null;
+            const classIds = activeClasses.map(
+              (cc) => cc.class_id as import("@/lib/rules/types").ClassId
+            );
+            const warnings = getMulticlassArmorWarnings(
+              classIds,
+              !!equippedArmor,
+              equippedArmor?.armor?.ac ?? null
+            );
+            if (warnings.length === 0) return null;
+            return (
+              <>
+                {warnings.map((w) => (
+                  <div
+                    key={w.type}
+                    className="mt-1 text-xs text-yellow-400"
+                    data-testid={`equipment-multiclass-${w.type}-warning`}
+                  >
+                    {ts(w.type === "wizard" ? "multiclassWizardArmor" : "multiclassThiefArmor")}
+                  </div>
+                ))}
+              </>
             );
           })()}
         </div>

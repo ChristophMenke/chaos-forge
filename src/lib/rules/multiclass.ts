@@ -76,3 +76,40 @@ export function getMulticlassGroups(classIds: ClassId[]): ClassGroup[] {
   const groups = new Set(classIds.map((id) => CLASSES[id].group));
   return [...groups];
 }
+
+// ─── MULTICLASS ARMOR WARNINGS ──────────────────────────────────────────────
+// PHB: Multiclass wizards cannot cast spells in armor (except elves in elven chain)
+// PHB: Multiclass thieves lose most thief abilities in non-thief armor
+
+export interface MulticlassArmorWarning {
+  type: "wizard" | "thief";
+}
+
+/**
+ * Check if a multiclass character has armor restrictions that should be warned about.
+ * Returns warnings for wizard (no spellcasting in armor) and thief (limited skills in heavy armor).
+ * Only relevant when character is multiclassed AND wears armor.
+ */
+export function getMulticlassArmorWarnings(
+  classIds: ClassId[],
+  wearsArmor: boolean,
+  armorAC: number | null
+): MulticlassArmorWarning[] {
+  if (classIds.length <= 1 || !wearsArmor) return [];
+
+  const warnings: MulticlassArmorWarning[] = [];
+  const groups = new Set(classIds.map((id) => CLASSES[id].group));
+
+  // Wizard in armor: cannot cast spells (PHB p.44)
+  if (groups.has("wizard")) {
+    warnings.push({ type: "wizard" });
+  }
+
+  // Thief/Bard in armor heavier than leather: loses most thief abilities (PHB p.44)
+  // Leather = AC 8, anything with AC < 8 is heavier
+  if (groups.has("rogue") && armorAC !== null && armorAC < 8) {
+    warnings.push({ type: "thief" });
+  }
+
+  return warnings;
+}

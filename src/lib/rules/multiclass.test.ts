@@ -6,6 +6,7 @@ import {
   isRuleCompliantMulticlass,
   multiclassHasExceptionalStr,
   getMulticlassGroups,
+  getMulticlassArmorWarnings,
 } from "./multiclass";
 
 describe("MULTI-001: getMulticlassThac0", () => {
@@ -182,5 +183,53 @@ describe("getMulticlassGroups", () => {
   it("deduplicates groups for Fighter/Ranger", () => {
     // Both are warrior group
     expect(getMulticlassGroups(["fighter", "ranger"])).toEqual(["warrior"]);
+  });
+});
+
+describe("getMulticlassArmorWarnings", () => {
+  it("returns wizard warning for Fighter/Mage in armor", () => {
+    const warnings = getMulticlassArmorWarnings(["fighter", "mage"], true, 5);
+    expect(warnings).toEqual([{ type: "wizard" }]);
+  });
+
+  it("returns thief warning for Fighter/Thief in chain mail (AC 5)", () => {
+    const warnings = getMulticlassArmorWarnings(["fighter", "thief"], true, 5);
+    expect(warnings).toEqual([{ type: "thief" }]);
+  });
+
+  it("returns no thief warning for Fighter/Thief in leather (AC 8)", () => {
+    const warnings = getMulticlassArmorWarnings(["fighter", "thief"], true, 8);
+    expect(warnings).toHaveLength(0);
+  });
+
+  it("returns both warnings for Fighter/Mage/Thief in plate", () => {
+    const warnings = getMulticlassArmorWarnings(["fighter", "mage", "thief"], true, 3);
+    expect(warnings).toHaveLength(2);
+    expect(warnings).toContainEqual({ type: "wizard" });
+    expect(warnings).toContainEqual({ type: "thief" });
+  });
+
+  it("returns no warnings for single class", () => {
+    expect(getMulticlassArmorWarnings(["fighter"], true, 3)).toHaveLength(0);
+  });
+
+  it("returns no warnings without armor", () => {
+    expect(getMulticlassArmorWarnings(["fighter", "mage"], false, null)).toHaveLength(0);
+  });
+
+  it("returns wizard warning for specialist wizard multiclass", () => {
+    const warnings = getMulticlassArmorWarnings(["fighter", "illusionist"], true, 5);
+    expect(warnings).toEqual([{ type: "wizard" }]);
+  });
+
+  it("returns thief warning for Cleric/Bard in heavy armor", () => {
+    const warnings = getMulticlassArmorWarnings(["cleric", "bard"], true, 5);
+    expect(warnings).toEqual([{ type: "thief" }]);
+  });
+
+  it("returns no thief warning for Bard in studded leather (AC 7)", () => {
+    // AC 7 is studded leather — still close to leather, but < 8
+    const warnings = getMulticlassArmorWarnings(["fighter", "bard"], true, 7);
+    expect(warnings).toEqual([{ type: "thief" }]);
   });
 });

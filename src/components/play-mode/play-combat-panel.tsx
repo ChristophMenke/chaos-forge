@@ -25,6 +25,7 @@ import { localized } from "@/lib/utils/localize";
 import { lbsToKg } from "@/lib/utils/units";
 import type { EpicEffects } from "@/lib/rules/epic-items";
 import { getKit, getKitArmorWarning } from "@/lib/rules/kits";
+import { getMulticlassArmorWarnings } from "@/lib/rules/multiclass";
 
 interface PlayCombatPanelProps {
   equipment: CharacterEquipmentWithDetails[];
@@ -307,6 +308,29 @@ export function PlayCombatPanel({
                   maxAC: armorWarning.maxAC,
                 })}
               </div>
+            );
+          })()}
+          {(() => {
+            if (classEntries.length <= 1) return null;
+            const classIds = classEntries.map((c) => c.classId as ClassId);
+            const warnings = getMulticlassArmorWarnings(
+              classIds,
+              !!equippedArmor,
+              equippedArmor?.armor?.ac ?? null
+            );
+            if (warnings.length === 0) return null;
+            return (
+              <>
+                {warnings.map((w) => (
+                  <div
+                    key={w.type}
+                    className="mt-1 text-xs text-yellow-400"
+                    data-testid={`play-multiclass-${w.type}-warning`}
+                  >
+                    {t(w.type === "wizard" ? "multiclassWizardArmor" : "multiclassThiefArmor")}
+                  </div>
+                ))}
+              </>
             );
           })()}
         </div>

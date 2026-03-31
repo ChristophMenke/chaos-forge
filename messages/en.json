@@ -213,6 +213,8 @@
     "kitArmorRestriction": "Max. Armor: AC {ac}",
     "kitNoArmor": "No armor allowed",
     "kitSpellFailure": "Spell failure in armor: {percent}%",
+    "multiclassWizardArmor": "Multiclass wizard: Cannot cast spells in armor (PHB)",
+    "multiclassThiefArmor": "Multiclass thief: Thief abilities restricted in heavy armor (open locks + detect noise only)",
     "thac0": "THAC0",
     "armorClass": "Armor Class",
     "acBase": "Base (unarmored)",
@@ -884,7 +886,9 @@
     "epicAcBonus": "+{bonus} (Epic)",
     "kitAbilities": "Kit Abilities",
     "kitArmorWarning": "Kit armor restriction: {kitName} allows max AC {maxAC}",
-    "kitSpellFailure": "Spell Failure: {percent}% ({kitName})"
+    "kitSpellFailure": "Spell Failure: {percent}% ({kitName})",
+    "multiclassWizardArmor": "Multiclass wizard: Cannot cast spells in armor (PHB)",
+    "multiclassThiefArmor": "Multiclass thief: Thief abilities restricted in heavy armor"
   },
   "epic": {
     "title": "Epic Equipment",

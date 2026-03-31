@@ -213,6 +213,8 @@
     "kitArmorRestriction": "Max. Rüstung: RK {ac}",
     "kitNoArmor": "Keine Rüstung erlaubt",
     "kitSpellFailure": "Zauber-Fehlschlag in Rüstung: {percent}%",
+    "multiclassWizardArmor": "Multiclass-Magier: Keine Zauber möglich in Rüstung (PHB)",
+    "multiclassThiefArmor": "Multiclass-Dieb: Diebesfähigkeiten eingeschränkt in schwerer Rüstung (nur Schlösser öffnen + Geräusche hören)",
     "thac0": "ETW0 (THAC0)",
     "armorClass": "Rüstungsklasse",
     "acBase": "Basis (ohne Rüstung)",
@@ -884,7 +886,9 @@
     "epicAcBonus": "+{bonus} (Episch)",
     "kitAbilities": "Kit-Fähigkeiten",
     "kitArmorWarning": "Kit-Rüstungsbeschränkung: {kitName} erlaubt maximal RK {maxAC}",
-    "kitSpellFailure": "Zauber-Fehlschlag: {percent}% ({kitName})"
+    "kitSpellFailure": "Zauber-Fehlschlag: {percent}% ({kitName})",
+    "multiclassWizardArmor": "Multiclass-Magier: Keine Zauber möglich in Rüstung (PHB)",
+    "multiclassThiefArmor": "Multiclass-Dieb: Diebesfähigkeiten eingeschränkt in schwerer Rüstung"
   },
   "epic": {
     "title": "Epische Ausrüstung",
