@@ -93,6 +93,7 @@ export async function POST(request: NextRequest) {
         // Resize images to max 1568px (Anthropic recommended limit)
         // Reduces token cost and prevents request size issues
         const resized = await sharp(bytes)
+          .rotate() // Auto-rotate based on EXIF orientation
           .resize(1568, 1568, { fit: "inside", withoutEnlargement: true })
           .jpeg({ quality: 85 })
           .toBuffer();

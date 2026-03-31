@@ -440,6 +440,77 @@ export const RACES: Record<RaceId, RaceDefinition> = {
     ],
     defaultLanguages: ["Common", "Koboldisch", "Orkisch", "Untercommon"],
   },
+
+  tiefling: {
+    id: "tiefling",
+    name: "Tiefling",
+    name_en: "Tiefling",
+    abilityAdjustments: { int: 1, cha: -1 },
+    allowedClasses: ALL_CLASSES,
+    levelLimits: {},
+    multiclassOptions: [
+      ["fighter", "mage"],
+      ["fighter", "thief"],
+      ["fighter", "cleric"],
+      ["mage", "thief"],
+      ["cleric", "thief"],
+      ["cleric", "mage"],
+    ],
+    infravision: 60,
+    baseMovement: 12,
+    racialAbilities: [
+      {
+        name: "Infravision (18 m)",
+        name_en: "Infravision (18 m)",
+        description:
+          "Tieflinge können im Dunkeln bis zu 18 m weit sehen, indem sie Wärmestrahlung wahrnehmen. Dieses Erbe stammt von ihren fiendischen Vorfahren.",
+        description_en:
+          "Tieflings can see in the dark up to 18 meters by perceiving heat radiation. This heritage comes from their fiendish ancestors.",
+      },
+      {
+        name: "Kälteresistenz (halber Schaden)",
+        name_en: "Cold Resistance (Half Damage)",
+        description:
+          "Tieflinge erleiden nur halben Schaden durch kältebasierte Angriffe. Diese Resistenz ist angeboren und gilt für alle Kältequellen.",
+        description_en:
+          "Tieflings suffer only half damage from cold-based attacks. This resistance is innate and applies to all cold sources.",
+      },
+      {
+        name: "Feuerresistenz (halber Schaden)",
+        name_en: "Fire Resistance (Half Damage)",
+        description:
+          "Tieflinge erleiden nur halben Schaden durch feuerbasierte Angriffe. Diese Resistenz ist angeboren und gilt für alle Feuerquellen.",
+        description_en:
+          "Tieflings suffer only half damage from fire-based attacks. This resistance is innate and applies to all fire sources.",
+      },
+      {
+        name: "Elektrizitätsresistenz (halber Schaden)",
+        name_en: "Electricity Resistance (Half Damage)",
+        description:
+          "Tieflinge erleiden nur halben Schaden durch elektrische Angriffe. Diese Resistenz ist angeboren und gilt für alle elektrischen Quellen.",
+        description_en:
+          "Tieflings suffer only half damage from electrical attacks. This resistance is innate and applies to all electrical sources.",
+      },
+      {
+        name: "Dunkelheit, 4,5 m Radius (1x pro Tag)",
+        name_en: "Darkness, 15' Radius (1x per Day)",
+        description:
+          "Tieflinge können einmal pro Tag den Zauber Dunkelheit, 4,5 m Radius als angeborene Fähigkeit wirken. Dies erzeugt eine Sphäre magischer Dunkelheit.",
+        description_en:
+          "Tieflings can cast Darkness, 15' Radius once per day as an innate ability. This creates a sphere of magical darkness.",
+        usesPerDay: 1,
+      },
+      {
+        name: "-2 Reaktionsmalus",
+        name_en: "-2 Reaction Penalty",
+        description:
+          "Aufgrund ihres fiendischen Erbes erleiden Tieflinge einen -2 Malus auf Reaktionswürfe bei NPC-Begegnungen. Ihre unheimliche Erscheinung löst Misstrauen aus.",
+        description_en:
+          "Due to their fiendish heritage, tieflings suffer a -2 penalty to reaction rolls during NPC encounters. Their unsettling appearance provokes distrust.",
+      },
+    ],
+    defaultLanguages: ["Common", "Infernal"],
+  },
 };
 
 export function getRace(raceId: RaceId): RaceDefinition {
@@ -517,6 +588,12 @@ const STARTING_AGE: Record<RaceId, Record<ClassGroup, AgeRange>> = {
     priest: { base: 10, diceCount: 1, diceSides: 4 },
     rogue: { base: 10, diceCount: 1, diceSides: 4 },
   },
+  tiefling: {
+    warrior: { base: 15, diceCount: 1, diceSides: 4 },
+    wizard: { base: 20, diceCount: 2, diceSides: 8 },
+    priest: { base: 18, diceCount: 1, diceSides: 4 },
+    rogue: { base: 18, diceCount: 1, diceSides: 6 },
+  },
 };
 
 export function getStartingAge(raceId: RaceId, classId: ClassId): AgeRange {
@@ -573,6 +650,10 @@ const HEIGHT_TABLE: Record<RaceId, Record<Gender, PhysicalRange>> = {
     male: { baseInches: 30, diceCount: 1, diceSides: 6 },
     female: { baseInches: 28, diceCount: 1, diceSides: 6 },
   },
+  tiefling: {
+    male: { baseInches: 60, diceCount: 2, diceSides: 10 },
+    female: { baseInches: 59, diceCount: 2, diceSides: 10 },
+  },
 };
 
 const WEIGHT_TABLE: Record<RaceId, Record<Gender, WeightRange>> = {
@@ -608,6 +689,10 @@ const WEIGHT_TABLE: Record<RaceId, Record<Gender, WeightRange>> = {
     male: { baseLbs: 40, diceCount: 2, diceSides: 4 },
     female: { baseLbs: 35, diceCount: 2, diceSides: 4 },
   },
+  tiefling: {
+    male: { baseLbs: 140, diceCount: 6, diceSides: 10 },
+    female: { baseLbs: 100, diceCount: 6, diceSides: 10 },
+  },
 };
 
 export function getHeightRange(raceId: RaceId, gender: Gender): PhysicalRange {
@@ -622,7 +707,6 @@ export function getWeightRange(raceId: RaceId, gender: Gender): WeightRange {
 
 /** Dwarves and gnomes get +1 save bonus per 3.5 CON points vs poison/magic */
 export function getRacialSavingThrowBonus(raceId: RaceId, con: number): number {
-  if (raceId !== "dwarf" && raceId !== "gnome" && raceId !== "half_orc") return 0;
-  if (raceId === "half_orc") return 0;
+  if (raceId !== "dwarf" && raceId !== "gnome") return 0;
   return Math.floor(con / 3.5);
 }

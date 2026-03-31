@@ -59,6 +59,19 @@ export function StepRace({ state, onChange }: StepRaceProps) {
                     {t("infravision")}: {feetToMeters(race.infravision)} m
                   </span>
                 )}
+                {race.racialAbilities.length > 0 && (
+                  <div className="mt-1 flex flex-col gap-0.5">
+                    {race.racialAbilities.map((ability, idx) => (
+                      <span
+                        key={idx}
+                        className="text-xs text-muted-foreground"
+                        title={localized(ability.description, ability.description_en, locale)}
+                      >
+                        {localized(ability.name, ability.name_en, locale)}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           );

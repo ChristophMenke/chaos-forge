@@ -1,4 +1,4 @@
-export const MAX_FILE_COUNT = 5;
+export const MAX_FILE_COUNT = 15;
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB per file
 export const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50 MB total
 

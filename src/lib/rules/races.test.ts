@@ -11,8 +11,8 @@ import {
 } from "./races";
 
 describe("RACE-003 RACE-004 RACE-009 RACE-010 RACE-011: Races", () => {
-  it("RACE-001: should define all 7 PHB core races + Kobold", () => {
-    expect(getAllRaces()).toHaveLength(8);
+  it("RACE-001: should define all 7 PHB core races + Kobold + Tiefling", () => {
+    expect(getAllRaces()).toHaveLength(9);
   });
 
   it("should allow humans to play all classes", () => {
@@ -137,5 +137,68 @@ describe("RACE-015: getRacialSavingThrowBonus", () => {
 
   it("human gets 0", () => {
     expect(getRacialSavingThrowBonus("human", 16)).toBe(0);
+  });
+
+  it("tiefling gets 0 (no CON-based bonus)", () => {
+    expect(getRacialSavingThrowBonus("tiefling", 16)).toBe(0);
+  });
+});
+
+describe("Tiefling Race", () => {
+  it("should have INT +1, CHA -1 adjustments", () => {
+    const tiefling = getRace("tiefling");
+    expect(tiefling.abilityAdjustments).toEqual({ int: 1, cha: -1 });
+  });
+
+  it("should allow all 16 classes", () => {
+    const tiefling = getRace("tiefling");
+    expect(tiefling.allowedClasses).toHaveLength(16);
+  });
+
+  it("should have no level limits", () => {
+    const tiefling = getRace("tiefling");
+    expect(tiefling.levelLimits).toEqual({});
+  });
+
+  it("should have 60ft infravision", () => {
+    expect(getRace("tiefling").infravision).toBe(60);
+  });
+
+  it("should have base movement 12", () => {
+    expect(getRace("tiefling").baseMovement).toBe(12);
+  });
+
+  it("should have 6 multiclass options", () => {
+    const tiefling = getRace("tiefling");
+    expect(tiefling.multiclassOptions).toHaveLength(6);
+    expect(tiefling.multiclassOptions).toContainEqual(["fighter", "mage"]);
+    expect(tiefling.multiclassOptions).toContainEqual(["cleric", "mage"]);
+  });
+
+  it("should have racial abilities (infravision, resistances, darkness)", () => {
+    const tiefling = getRace("tiefling");
+    expect(tiefling.racialAbilities.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it("Darkness ability should have usesPerDay: 1", () => {
+    const tiefling = getRace("tiefling");
+    const darkness = tiefling.racialAbilities.find((a) => a.name_en.startsWith("Darkness"));
+    expect(darkness).toBeDefined();
+    expect(darkness?.usesPerDay).toBe(1);
+  });
+
+  it("should return starting age for tiefling fighter", () => {
+    const age = getStartingAge("tiefling", "fighter");
+    expect(age.base).toBe(15); // same as human
+  });
+
+  it("should return height range for tiefling", () => {
+    const h = getHeightRange("tiefling", "male");
+    expect(h.baseInches).toBe(60); // same as human
+  });
+
+  it("should return weight range for tiefling", () => {
+    const w = getWeightRange("tiefling", "male");
+    expect(w.baseLbs).toBe(140); // same as human
   });
 });

@@ -90,7 +90,8 @@ export type RaceId =
   | "gnome"
   | "halfling"
   | "half_orc"
-  | "kobold";
+  | "kobold"
+  | "tiefling";
 
 /** Class identifiers */
 export type ClassId =
@@ -196,6 +197,7 @@ export interface ClassAbility {
   name_en: string;
   description: string;
   description_en: string;
+  usesPerDay?: number;
 }
 
 /** Multiclass / Dualclass support */
