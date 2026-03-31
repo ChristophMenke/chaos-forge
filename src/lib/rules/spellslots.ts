@@ -280,7 +280,8 @@ export function canLearnSpell(
   spellSchool: MagicSchool | undefined,
   spellSphere: PriestSphere | undefined,
   spellLevel: number,
-  intScore: number
+  intScore: number,
+  priesthoodId?: string | null
 ): SpellLearnResult {
   const cls = CLASSES[classId];
   if (!cls) return { allowed: false, reason: "Ungültige Klasse." };
@@ -308,14 +309,14 @@ export function canLearnSpell(
     }
   }
 
-  // Priest spell checks
+  // Priest spell checks (priesthood-aware)
   if (cls.group === "priest" && spellSphere) {
-    if (!hasSphereAccess(classId, spellSphere, "minor")) {
+    if (!hasSphereAccess(classId, spellSphere, "minor", priesthoodId)) {
       return { allowed: false, reason: `Kein Zugang zur Sphäre "${spellSphere}".` };
     }
 
     // Minor sphere access: max level 3
-    if (!hasSphereAccess(classId, spellSphere, "major") && spellLevel > 3) {
+    if (!hasSphereAccess(classId, spellSphere, "major", priesthoodId) && spellLevel > 3) {
       return {
         allowed: false,
         reason: `Nebensphäre "${spellSphere}": maximal Zauberstufe 3.`,

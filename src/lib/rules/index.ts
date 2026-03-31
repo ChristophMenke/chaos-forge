@@ -14,3 +14,5 @@ export * from "./thief";
 export * from "./hitpoints";
 export * from "./kits";
 export * from "./fighting-styles";
+export * from "./priesthoods";
+export * from "./turn-undead";

@@ -27,6 +27,7 @@ import {
 } from "@/lib/rules/spellslots";
 import { getClassGroup } from "@/lib/rules/classes";
 import type { ClassGroup, ClassId } from "@/lib/rules/types";
+import { isPriestCaster } from "@/lib/rules/magic";
 import type { CharacterRow, CharacterSpellWithDetails, SpellRow } from "@/lib/supabase/types";
 import { getKit, getKitSpellFailure } from "@/lib/rules/kits";
 
@@ -43,6 +44,7 @@ interface PlaySpellbookPanelProps {
   epicWildMagic?: number;
   characterKit?: string | null;
   hasArmor?: boolean;
+  priestAvailableSpells?: SpellRow[];
 }
 
 export function PlaySpellbookPanel({
@@ -58,6 +60,7 @@ export function PlaySpellbookPanel({
   epicWildMagic = 0,
   characterKit,
   hasArmor = false,
+  priestAvailableSpells = [],
 }: PlaySpellbookPanelProps) {
   const t = useTranslations("playMode");
   const te = useTranslations("epic");
@@ -65,9 +68,11 @@ export function PlaySpellbookPanel({
   const locale = useLocale();
   const [expandedSpell, setExpandedSpell] = useState<string | null>(null);
   const [showRestConfirm, setShowRestConfirm] = useState(false);
+  const [priestSearch, setPriestSearch] = useState("");
 
   const isWizard = classGroups.includes("wizard");
   const isPriest = classGroups.includes("priest");
+  const usesSphereSpells = isPriest && priestAvailableSpells.length > 0;
   const casterClass = useMemo(() => {
     for (const ce of classEntries) {
       const group = getClassGroup(ce.classId as ClassId);
@@ -149,6 +154,51 @@ export function PlaySpellbookPanel({
     return counts;
   }, [preparedSpells]);
 
+  // Priest sphere spells grouped by level (for play mode)
+  const priestSpellsByLevel = useMemo(() => {
+    if (!usesSphereSpells) return {};
+    const filtered = priestSearch.trim()
+      ? priestAvailableSpells.filter((s) => {
+          const q = priestSearch.toLowerCase();
+          return (
+            s.name.toLowerCase().includes(q) || (s.name_en && s.name_en.toLowerCase().includes(q))
+          );
+        })
+      : priestAvailableSpells;
+    const groups: Record<number, SpellRow[]> = {};
+    for (const s of filtered) {
+      if (!groups[s.level]) groups[s.level] = [];
+      groups[s.level].push(s);
+    }
+    return groups;
+  }, [usesSphereSpells, priestAvailableSpells, priestSearch]);
+
+  // Priest slot-mode: track cast count per level (local state, reset on rest)
+  const [priestCastByLevel, setPriestCastByLevel] = useState<Record<number, number>>({});
+
+  function canCastPriestSpell(spellLevel: number): boolean {
+    if (readOnly) return false;
+    if (isPointsMode) {
+      return pointsRemaining >= getPriestSpellCost(spellLevel);
+    }
+    // Slot mode: check if slots remain for this level
+    const available = totalSlots[spellLevel - 1] ?? 0;
+    const used = priestCastByLevel[spellLevel] ?? 0;
+    return used < available;
+  }
+
+  function handleCastPriestSpell(spell: SpellRow) {
+    if (isPointsMode) {
+      onCast(spell.id, getPriestSpellCost(spell.level));
+    } else {
+      // Slot mode: increment local counter
+      setPriestCastByLevel((prev) => ({
+        ...prev,
+        [spell.level]: (prev[spell.level] ?? 0) + 1,
+      }));
+    }
+  }
+
   function getSpellCost(spellLevel: number): number {
     if (isWizard) return getWizardSpellCost(spellLevel);
     if (isPriest) return getPriestSpellCost(spellLevel);
@@ -170,6 +220,7 @@ export function PlaySpellbookPanel({
 
   function handleRest() {
     setShowRestConfirm(false);
+    setPriestCastByLevel({});
     onRest();
   }
 
@@ -272,7 +323,9 @@ export function PlaySpellbookPanel({
         <div className="mb-3 flex flex-wrap gap-1.5" data-testid="play-spell-slots">
           {Array.from({ length: maxSpellLevel }, (_, i) => i + 1).map((lvl) => {
             const available = totalSlots[lvl - 1] ?? 0;
-            const expended = expendedByLevel[lvl] ?? 0;
+            const expended = usesSphereSpells
+              ? (priestCastByLevel[lvl] ?? 0)
+              : (expendedByLevel[lvl] ?? 0);
             if (available === 0) return null;
             return (
               <div
@@ -293,8 +346,123 @@ export function PlaySpellbookPanel({
         </div>
       )}
 
-      {/* Spell list */}
-      {preparedSpells.length === 0 ? (
+      {/* Priest: search field */}
+      {usesSphereSpells && (
+        <div className="mb-3">
+          <input
+            type="text"
+            placeholder={tSpells("searchAvailableSpells")}
+            value={priestSearch}
+            onChange={(e) => setPriestSearch(e.target.value)}
+            className="w-full rounded-md border border-border bg-background/50 px-2 py-1.5 text-sm placeholder:text-muted-foreground"
+            data-testid="play-priest-spell-search"
+          />
+        </div>
+      )}
+
+      {/* Priest spell list (from spheres) */}
+      {usesSphereSpells ? (
+        <div className="space-y-1">
+          {Object.keys(priestSpellsByLevel)
+            .map(Number)
+            .sort((a, b) => a - b)
+            .map((level) => (
+              <div key={level}>
+                <div className="mb-1 text-xs font-medium text-muted-foreground">
+                  Level {level}
+                  {isPointsMode && (
+                    <span className="ml-1 text-[10px]">
+                      ({t("spellPointsCost")}: {getPriestSpellCost(level)})
+                    </span>
+                  )}
+                  <span className="ml-1 text-[10px]">({priestSpellsByLevel[level].length})</span>
+                </div>
+                <div className="space-y-1">
+                  {priestSpellsByLevel[level].map((spell) => {
+                    const isExpanded = expandedSpell === spell.id;
+                    const canCastThis = canCastPriestSpell(spell.level);
+                    return (
+                      <div
+                        key={spell.id}
+                        className="rounded-lg border border-border bg-card/50 transition-colors"
+                        data-testid={`play-spell-${spell.id}`}
+                      >
+                        <div
+                          className="flex min-h-[40px] cursor-pointer items-center gap-2 px-2 py-1.5"
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => setExpandedSpell(isExpanded ? null : spell.id)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              setExpandedSpell(isExpanded ? null : spell.id);
+                            }
+                          }}
+                        >
+                          <span className="min-w-0 flex-1 truncate text-sm">
+                            {spellName(spell)}
+                          </span>
+                          {spell.sphere && (
+                            <Badge
+                              variant="outline"
+                              className="shrink-0 text-[9px] capitalize"
+                              data-testid={`play-spell-sphere-${spell.id}`}
+                            >
+                              {spell.sphere}
+                            </Badge>
+                          )}
+                          {!readOnly && (
+                            <Button
+                              size="sm"
+                              variant="default"
+                              className="h-6 shrink-0 px-2 text-[10px]"
+                              disabled={!canCastThis}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCastPriestSpell(spell);
+                              }}
+                              data-testid={`play-cast-${spell.id}`}
+                            >
+                              {t("castSpell")}
+                            </Button>
+                          )}
+                        </div>
+                        {isExpanded && (
+                          <div className="border-t border-border px-2 pb-2 pt-1.5">
+                            <div className="mb-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                              <span>
+                                {tSpells("range")}: {spellRange(spell)}
+                              </span>
+                              <span>
+                                {tSpells("duration")}: {spell.duration}
+                              </span>
+                              <span>
+                                {tSpells("areaOfEffect")}: {spellArea(spell)}
+                              </span>
+                              {spell.saving_throw && spell.saving_throw !== "None" && (
+                                <span>
+                                  {tSpells("savingThrow")}: {spell.saving_throw}
+                                </span>
+                              )}
+                              {spell.components.length > 0 && (
+                                <span>
+                                  {tSpells("components")}: {spell.components.join(", ")}
+                                </span>
+                              )}
+                            </div>
+                            <div className="prose prose-sm max-w-none text-xs dark:prose-invert">
+                              <ReactMarkdown>{spellDesc(spell)}</ReactMarkdown>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+        </div>
+      ) : preparedSpells.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("noSpells")}</p>
       ) : (
         <div className="space-y-1">
@@ -344,6 +512,15 @@ export function PlaySpellbookPanel({
                           >
                             {spellName(spell)}
                           </span>
+                          {isPriest && spell.sphere && (
+                            <Badge
+                              variant="outline"
+                              className="shrink-0 text-[9px] capitalize"
+                              data-testid={`play-spell-sphere-${spell.id}`}
+                            >
+                              {spell.sphere}
+                            </Badge>
+                          )}
                           {spell.casting_time && (
                             <Badge variant="outline" className="shrink-0 text-[10px]">
                               {spell.casting_time}

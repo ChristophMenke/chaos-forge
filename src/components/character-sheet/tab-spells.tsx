@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { useTranslations, useLocale } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
@@ -22,6 +22,7 @@ import {
   canLearnSpell,
 } from "@/lib/rules/spellslots";
 import type { ClassId, MagicSchool, PriestSphere } from "@/lib/rules/types";
+import { getAvailablePriestSpells, isPriestCaster, getPriestSpheres } from "@/lib/rules/magic";
 import { getBookAbbreviation } from "@/lib/utils/source-books";
 import {
   spellName as getSpellName,
@@ -47,18 +48,34 @@ const PRIEST_SPHERES = [
   "animal",
   "astral",
   "charm",
+  "chaos",
   "combat",
+  "cosmos",
   "creation",
   "divination",
   "elemental",
+  "elemental air",
+  "elemental earth",
+  "elemental fire",
+  "elemental water",
+  "elemental magma",
   "guardian",
   "healing",
+  "law",
+  "learning",
   "necromantic",
+  "numbers",
   "plant",
   "protection",
   "summoning",
   "sun",
+  "thought",
+  "time",
+  "travelers",
+  "war",
+  "wards",
   "weather",
+  "special",
 ] as const;
 
 interface CustomSpellForm {
@@ -101,6 +118,11 @@ interface TabSpellsProps {
   onSpellSystemChange: (system: string) => void;
   epicSpellFailure?: number;
   epicWildMagic?: number;
+  priesthood?: string | null;
+  allowedSpellBooks?: string[];
+  spellWhitelist?: string[];
+  onAllowedSpellBooksChange?: (books: string[]) => void;
+  onSpellWhitelistChange?: (whitelist: string[]) => void;
 }
 
 export function TabSpells({
@@ -121,6 +143,11 @@ export function TabSpells({
   onSpellSystemChange,
   epicSpellFailure = 0,
   epicWildMagic = 0,
+  priesthood,
+  allowedSpellBooks,
+  spellWhitelist,
+  onAllowedSpellBooksChange,
+  onSpellWhitelistChange,
 }: TabSpellsProps) {
   const t = useTranslations("spells");
   const te = useTranslations("epic");
@@ -138,31 +165,48 @@ export function TabSpells({
   // Pagination for learn dialog
   const [displayCount, setDisplayCount] = useState(50);
 
+  // Priest inline search/filter
+  const [priestSearch, setPriestSearch] = useState("");
+  const [priestLevelFilter, setPriestLevelFilter] = useState<number | null>(null);
+  const [priestSphereFilter, setPriestSphereFilter] = useState<string | null>(null);
+  const [priestExpandedLevels, setPriestExpandedLevels] = useState<Set<number>>(new Set());
+  const PRIEST_INITIAL_PER_LEVEL = 10;
+
+  async function loadAllSpells() {
+    if (allSpellsLoaded) return;
+    setLoadingSpells(true);
+    const supabase = createClient();
+    const all: SpellRow[] = [];
+    let from = 0;
+    const PAGE = 1000;
+    while (true) {
+      const { data } = await supabase
+        .from("spells")
+        .select("*")
+        .order("level")
+        .order("name")
+        .range(from, from + PAGE - 1);
+      if (!data || data.length === 0) break;
+      all.push(...(data as SpellRow[]));
+      if (data.length < PAGE) break;
+      from += PAGE;
+    }
+    setAllSpellsLoaded(all);
+    setLoadingSpells(false);
+  }
+
   async function openLearnDialog() {
     setLearnDialogOpen(true);
-    if (!allSpellsLoaded) {
-      setLoadingSpells(true);
-      const supabase = createClient();
-      // Supabase default limit is 1000 rows — we need ALL 3200+ spells
-      const all: SpellRow[] = [];
-      let from = 0;
-      const PAGE = 1000;
-      while (true) {
-        const { data } = await supabase
-          .from("spells")
-          .select("*")
-          .order("level")
-          .order("name")
-          .range(from, from + PAGE - 1);
-        if (!data || data.length === 0) break;
-        all.push(...(data as SpellRow[]));
-        if (data.length < PAGE) break;
-        from += PAGE;
-      }
-      setAllSpellsLoaded(all);
-      setLoadingSpells(false);
-    }
+    await loadAllSpells();
   }
+
+  // Auto-load spells for priests (they need all spells immediately)
+  useEffect(() => {
+    if (isPriestCaster(classId as ClassId) && !allSpellsLoaded && !loadingSpells) {
+      loadAllSpells();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [classId]);
 
   async function updateSlotAdj(spellLevel: number, delta: number) {
     const key = String(spellLevel);
@@ -281,8 +325,43 @@ export function TabSpells({
     return counts;
   }, [spellsByLevel, maxSpellLevel]);
 
-  // Learnable spells — show all, never block (house rule: only warn)
+  // Priest: check if this class uses sphere-based spells (no learn step)
+  const usesSphereSpells = isPriestCaster(classId as ClassId);
+
+  // Priest sphere access map
+  const priestSphereMap = useMemo(() => {
+    if (!usesSphereSpells) return {};
+    return getPriestSpheres(classId as ClassId, priesthood);
+  }, [usesSphereSpells, classId, priesthood]);
+
+  // Priest: available spells from spheres (dynamically computed, no learn step)
+  // All spells accessible by this priest's spheres (before book filter)
+  const sphereFilteredSpells = useMemo(() => {
+    if (!usesSphereSpells) return [];
+    return getAvailablePriestSpells(classId as ClassId, level, priesthood, allSpellsLoaded ?? []);
+  }, [usesSphereSpells, classId, level, priesthood, allSpellsLoaded]);
+
+  // After book filter
+  const availablePriestSpells = useMemo(() => {
+    if (!allowedSpellBooks || allowedSpellBooks.length === 0) return sphereFilteredSpells;
+    const whitelistSet = new Set(spellWhitelist ?? []);
+    return sphereFilteredSpells.filter(
+      (s) => whitelistSet.has(s.id) || (s.source_book && allowedSpellBooks.includes(s.source_book))
+    );
+  }, [sphereFilteredSpells, allowedSpellBooks, spellWhitelist]);
+
+  // Priest: IDs of already-prepared spells (stored in character_spells)
+  const preparedSpellIds = useMemo(() => new Set(spells.map((s) => s.spell_id)), [spells]);
+
+  // Priest: browsable spells (available minus already prepared)
+  const browsablePriestSpells = useMemo(() => {
+    if (!usesSphereSpells) return [];
+    return availablePriestSpells.filter((s) => !preparedSpellIds.has(s.id));
+  }, [usesSphereSpells, availablePriestSpells, preparedSpellIds]);
+
+  // Wizard: Learnable spells — show all, never block (house rule: only warn)
   const learnableSpells = useMemo(() => {
+    if (usesSphereSpells) return []; // Priests don't use learn flow
     const all = allSpellsLoaded ?? [];
     const knownIds = new Set(spells.map((s) => s.spell_id));
     return all.filter((spell) => {
@@ -291,10 +370,12 @@ export function TabSpells({
       if (isPriest && spell.spell_type !== "priest") return false;
       return true;
     });
-  }, [allSpellsLoaded, spells, isWizard, isPriest]);
+  }, [allSpellsLoaded, spells, isWizard, isPriest, usesSphereSpells]);
 
-  // Check which spells have restrictions (for warning display) — both known and learnable
+  // Check which spells have restrictions (for warning display)
+  // Priests use sphere-based filtering — canLearnSpell warnings are only meaningful for wizards/bards
   const spellWarnings = useMemo(() => {
+    if (usesSphereSpells) return new Map<string, string>();
     const warnings = new Map<string, string>();
     const allToCheck = [...learnableSpells, ...spells.map((cs) => cs.spell)];
     for (const spell of allToCheck) {
@@ -303,24 +384,28 @@ export function TabSpells({
         (spell.school as MagicSchool) ?? undefined,
         (spell.sphere as PriestSphere) ?? undefined,
         spell.level,
-        intScore
+        intScore,
+        priesthood
       );
       if (!result.allowed && result.reason) {
         warnings.set(spell.id, result.reason);
       }
     }
     return warnings;
-  }, [learnableSpells, spells, classId, intScore]);
+  }, [usesSphereSpells, learnableSpells, spells, classId, intScore, priesthood]);
+
+  // Source spells: for wizards = learnable, for priests = browsable sphere spells
+  const dialogSourceSpells = usesSphereSpells ? browsablePriestSpells : learnableSpells;
 
   // Available source books for filter
   const availableBooks = useMemo(() => {
-    const books = new Set(learnableSpells.map((s) => s.source_book).filter(Boolean));
+    const books = new Set(dialogSourceSpells.map((s) => s.source_book).filter(Boolean));
     return Array.from(books).sort();
-  }, [learnableSpells]);
+  }, [dialogSourceSpells]);
 
-  // Filtered learnable spells by search, level, school/sphere, and source book
+  // Filtered spells for dialog by search, level, school/sphere, and source book
   const filteredLearnableSpells = useMemo(() => {
-    return learnableSpells.filter((s) => {
+    return dialogSourceSpells.filter((s) => {
       // Level filter
       if (levelFilter !== null && s.level !== levelFilter) return false;
       // School/sphere filter
@@ -343,7 +428,7 @@ export function TabSpells({
       }
       return true;
     });
-  }, [learnableSpells, learnSearchQuery, levelFilter, schoolSphereFilter, bookFilter, isWizard]);
+  }, [dialogSourceSpells, learnSearchQuery, levelFilter, schoolSphereFilter, bookFilter, isWizard]);
 
   // Reset pagination when filters change — use a filter key to track changes
   const filterKey = `${learnSearchQuery}|${levelFilter}|${schoolSphereFilter}|${bookFilter}`;
@@ -351,6 +436,70 @@ export function TabSpells({
   if (filterKey !== prevFilterKey) {
     setPrevFilterKey(filterKey);
     setDisplayCount(50);
+  }
+
+  // Priest inline: filtered available spells for direct display
+  const filteredPriestSpells = useMemo(() => {
+    if (!usesSphereSpells) return [];
+    return availablePriestSpells.filter((s) => {
+      if (priestLevelFilter !== null && s.level !== priestLevelFilter) return false;
+      if (priestSphereFilter !== null && s.sphere !== priestSphereFilter) return false;
+      if (priestSearch.trim()) {
+        const q = priestSearch.toLowerCase();
+        if (
+          !s.name.toLowerCase().includes(q) &&
+          !(s.name_en && s.name_en.toLowerCase().includes(q)) &&
+          !(s.sphere && s.sphere.toLowerCase().includes(q))
+        )
+          return false;
+      }
+      return true;
+    });
+  }, [
+    usesSphereSpells,
+    availablePriestSpells,
+    priestLevelFilter,
+    priestSphereFilter,
+    priestSearch,
+  ]);
+
+  // Priest inline: group by level
+  const priestSpellsByLevel = useMemo(() => {
+    const grouped: Record<number, SpellRow[]> = {};
+    for (let l = 1; l <= maxSpellLevel; l++) grouped[l] = [];
+    for (const s of filteredPriestSpells) {
+      if (grouped[s.level]) grouped[s.level].push(s);
+    }
+    return grouped;
+  }, [filteredPriestSpells, maxSpellLevel]);
+
+  // Priest: distinct spheres from available spells for filter
+  const priestAvailableSpheres = useMemo(() => {
+    if (!usesSphereSpells) return [];
+    const spheres = new Set(availablePriestSpells.map((s) => s.sphere).filter(Boolean));
+    return Array.from(spheres).sort();
+  }, [usesSphereSpells, availablePriestSpells]);
+
+  // Priest: all possible source books (from sphere-filtered spells before book filter)
+  // Source books from sphere-filtered list (before book filter, for the book toggle UI)
+  const allPriestSourceBooks = useMemo(() => {
+    const books = new Set(sphereFilteredSpells.map((s) => s.source_book).filter(Boolean));
+    return Array.from(books).sort();
+  }, [sphereFilteredSpells]);
+
+  // Book filter toggle handler
+  async function handleToggleBook(book: string) {
+    if (!onAllowedSpellBooksChange) return;
+    const current = allowedSpellBooks ?? [];
+    const newBooks = current.includes(book)
+      ? current.filter((b) => b !== book)
+      : [...current, book];
+    onAllowedSpellBooksChange(newBooks);
+    const supabase = createClient();
+    await supabase
+      .from("characters")
+      .update({ allowed_spell_books: newBooks })
+      .eq("id", characterId);
   }
 
   async function handleCreateCustomSpell() {
@@ -431,6 +580,43 @@ export function TabSpells({
       .update({ prepared: !currentlyPrepared })
       .eq("character_id", characterId)
       .eq("spell_id", spellId);
+    setLoading(false);
+  }
+
+  // Priest: prepare spell directly from browse dialog (no learn step)
+  async function handlePriestPrepare(spellId: string) {
+    setLoading(true);
+    setError(null);
+    const supabase = createClient();
+    const { data: charSpell, error: insertError } = await supabase
+      .from("character_spells")
+      .insert({
+        character_id: characterId,
+        spell_id: spellId,
+        prepared: true,
+      })
+      .select("*, spell:spells(*)")
+      .single();
+    if (insertError || !charSpell) {
+      console.error("Failed to prepare spell:", insertError);
+      setError(t("prepareError"));
+      setLoading(false);
+      return;
+    }
+    onSpellsChange([...spells, charSpell as CharacterSpellWithDetails]);
+    setLoading(false);
+  }
+
+  // Priest: unprepare removes the character_spell entry (priests don't "know" spells)
+  async function handlePriestUnprepare(spellId: string) {
+    setLoading(true);
+    const supabase = createClient();
+    await supabase
+      .from("character_spells")
+      .delete()
+      .eq("character_id", characterId)
+      .eq("spell_id", spellId);
+    onSpellsChange(spells.filter((s) => s.spell_id !== spellId));
     setLoading(false);
   }
 
@@ -620,8 +806,31 @@ export function TabSpells({
         </div>
       )}
 
-      {/* Learn Spell Button */}
-      {!readOnly && (
+      {/* Priest: Sphere Access Overview */}
+      {usesSphereSpells && Object.keys(priestSphereMap).length > 0 && (
+        <div data-testid="priest-sphere-access">
+          <h3 className="mb-2 font-heading text-lg">{t("sphereAccess")}</h3>
+          <div className="flex flex-wrap gap-1">
+            {Object.entries(priestSphereMap).map(([sphere, access]) => (
+              <span
+                key={sphere}
+                className={`rounded px-1.5 py-0.5 text-xs capitalize ${
+                  access === "major"
+                    ? "bg-primary/20 text-primary"
+                    : "bg-muted text-muted-foreground"
+                }`}
+                data-testid={`sphere-badge-${sphere}`}
+                title={access === "major" ? t("majorSphere") : t("minorSphere")}
+              >
+                {sphere} {access === "minor" && "(1-3)"}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Wizard: Learn Spell Button (only for non-priest casters) */}
+      {!readOnly && !usesSphereSpells && (
         <div className="flex justify-end">
           <Button onClick={openLearnDialog} disabled={loading} data-testid="learn-spell-button">
             {t("learnSpellTitle")}
@@ -629,125 +838,365 @@ export function TabSpells({
         </div>
       )}
 
-      {/* Spells grouped by level */}
-      {Array.from({ length: maxSpellLevel }, (_, i) => i + 1).map((spellLevel) => {
-        const levelSpells = spellsByLevel[spellLevel] ?? [];
-        if (levelSpells.length === 0) return null;
-        const available = totalSlots[spellLevel - 1] ?? 0;
-        const prepared = preparedCountByLevel[spellLevel] ?? 0;
+      {/* Priest: Inline available spells (no dialog needed) */}
+      {usesSphereSpells && (
+        <div data-testid="priest-available-spells">
+          <h3 className="mb-3 font-heading text-lg">
+            {t("availableSpells")}
+            <span className="ml-2 text-sm font-normal text-muted-foreground">
+              {t("availableSpellsCount", { count: filteredPriestSpells.length })}
+            </span>
+          </h3>
 
-        return (
-          <div key={spellLevel} data-testid={`spell-group-level-${spellLevel}`}>
-            <h3 className="mb-2 font-heading text-lg">
-              {t("spellLevelGroup", { level: spellLevel })}
-              <span className="ml-2 text-sm font-normal text-muted-foreground">
-                {t("preparedCount", { prepared, available })}
-              </span>
-            </h3>
-            <div className="flex flex-col gap-2">
-              {levelSpells.map((charSpell) => {
-                const spell = charSpell.spell;
-                const isExpanded = expandedSpellId === spell.id;
-                const canPrepare = !charSpell.prepared && prepared < available;
-
-                return (
-                  <Card key={spell.id} size="sm" data-testid={`spell-card-${spell.id}`}>
-                    <CardHeader className="flex-row items-center justify-between border-b pb-2">
-                      <div
-                        className="flex cursor-pointer items-center gap-2"
-                        onClick={() => setExpandedSpellId(isExpanded ? null : spell.id)}
-                        data-testid={`spell-toggle-details-${spell.id}`}
-                      >
-                        <CardTitle className="text-sm">{spellName(spell)}</CardTitle>
-                        <Badge variant="outline" className="text-xs">
-                          {spell.school ?? spell.sphere}
-                        </Badge>
-                        {spellWarnings.has(spell.id) && (
-                          <span
-                            className="text-xs text-orange-400"
-                            title={spellWarnings.get(spell.id)}
-                            data-testid={`spell-warning-${spell.id}`}
-                          >
-                            ⚠
-                          </span>
-                        )}
-                        {spell.source_book && (
-                          <span className="rounded bg-muted px-1 py-0.5 text-[9px] text-muted-foreground">
-                            {getBookAbbreviation(spell.source_book)}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {!readOnly && (
-                          <>
-                            <Button
-                              variant={charSpell.prepared ? "default" : "outline"}
-                              size="sm"
-                              disabled={loading || (!charSpell.prepared && !canPrepare)}
-                              onClick={() => handleTogglePrepared(spell.id, charSpell.prepared)}
-                              data-testid={`spell-prepare-toggle-${spell.id}`}
-                            >
-                              {charSpell.prepared ? t("unprepareSpell") : t("prepareSpell")}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              disabled={loading}
-                              onClick={() => handleRemoveSpell(spell.id)}
-                              className="text-destructive hover:text-destructive"
-                              data-testid={`spell-remove-${spell.id}`}
-                            >
-                              {t("removeSpell")}
-                            </Button>
-                          </>
-                        )}
-                        {readOnly && charSpell.prepared && (
-                          <Badge variant="default">{t("prepareSpell")}</Badge>
-                        )}
-                      </div>
-                    </CardHeader>
-                    {isExpanded && (
-                      <CardContent data-testid={`spell-details-${spell.id}`}>
-                        <div className="mb-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                          <span>
-                            {t("range")}: {spellRange(spell)}
-                          </span>
-                          <span>
-                            {t("duration")}: {spell.duration}
-                          </span>
-                          <span>
-                            {t("areaOfEffect")}: {spellArea(spell)}
-                          </span>
-                          {spell.casting_time && (
-                            <span>
-                              {t("castingTime")}: {spell.casting_time}
-                            </span>
-                          )}
-                          {spell.saving_throw && spell.saving_throw !== "None" && (
-                            <span>
-                              {t("savingThrow")}: {spell.saving_throw}
-                            </span>
-                          )}
-                          {spell.components.length > 0 && (
-                            <span>
-                              {t("components")}: {spell.components.join(", ")}
-                            </span>
-                          )}
-                        </div>
-                        <div className="prose prose-sm max-w-none dark:prose-invert">
-                          <ReactMarkdown>{spellDesc(spell)}</ReactMarkdown>
-                        </div>
-                      </CardContent>
-                    )}
-                  </Card>
-                );
-              })}
+          {/* Search + filters */}
+          <div className="mb-4 flex flex-col gap-2">
+            <input
+              type="text"
+              placeholder={t("searchAvailableSpells")}
+              value={priestSearch}
+              onChange={(e) => setPriestSearch(e.target.value)}
+              className="w-full rounded-md border border-input bg-input p-2 text-sm"
+              data-testid="priest-spell-search"
+            />
+            <div className="flex flex-wrap gap-1" data-testid="priest-level-filters">
+              <Badge
+                variant={priestLevelFilter === null ? "default" : "outline"}
+                className="cursor-pointer text-xs"
+                onClick={() => setPriestLevelFilter(null)}
+                data-testid="priest-level-filter-all"
+              >
+                {t("all")}
+              </Badge>
+              {Array.from({ length: maxSpellLevel }, (_, i) => i + 1).map((n) => (
+                <Badge
+                  key={n}
+                  variant={priestLevelFilter === n ? "default" : "outline"}
+                  className="cursor-pointer text-xs"
+                  onClick={() => setPriestLevelFilter(priestLevelFilter === n ? null : n)}
+                  data-testid={`priest-level-filter-${n}`}
+                >
+                  {t("level")} {n}
+                </Badge>
+              ))}
             </div>
+            {priestAvailableSpheres.length > 1 && (
+              <div className="flex flex-wrap gap-1" data-testid="priest-sphere-filters">
+                <Badge
+                  variant={priestSphereFilter === null ? "default" : "outline"}
+                  className="cursor-pointer text-xs"
+                  onClick={() => setPriestSphereFilter(null)}
+                >
+                  {t("all")}
+                </Badge>
+                {priestAvailableSpheres.map((s) => (
+                  <Badge
+                    key={s}
+                    variant={priestSphereFilter === s ? "default" : "outline"}
+                    className="cursor-pointer text-xs capitalize"
+                    onClick={() => setPriestSphereFilter(priestSphereFilter === s ? null : s)}
+                    data-testid={`priest-sphere-filter-${s}`}
+                  >
+                    {s}
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
-        );
-      })}
 
-      {spells.length === 0 && (
+          {/* Source Book Filter */}
+          {!readOnly && allPriestSourceBooks.length > 1 && (
+            <div
+              className="mb-4 rounded-md border border-border p-3"
+              data-testid="priest-book-filter"
+            >
+              <div className="mb-1 text-xs font-medium">{t("allowedBooks")}</div>
+              <div className="mb-2 text-xs text-muted-foreground">{t("allowedBooksHint")}</div>
+              <div className="flex flex-wrap gap-1">
+                {allPriestSourceBooks.map((book) => {
+                  const isActive = (allowedSpellBooks ?? []).includes(book);
+                  return (
+                    <Badge
+                      key={book}
+                      variant={isActive ? "default" : "outline"}
+                      className="cursor-pointer text-xs"
+                      onClick={() => handleToggleBook(book)}
+                      data-testid={`priest-book-toggle-${book}`}
+                    >
+                      {book} ({getBookAbbreviation(book)})
+                    </Badge>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Loading state */}
+          {loadingSpells && (
+            <div className="flex items-center justify-center py-8">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            </div>
+          )}
+
+          {/* Spells grouped by level */}
+          {!loadingSpells &&
+            Array.from({ length: maxSpellLevel }, (_, i) => i + 1).map((spellLevel) => {
+              const levelSpells = priestSpellsByLevel[spellLevel] ?? [];
+              if (levelSpells.length === 0) return null;
+              return (
+                <div
+                  key={spellLevel}
+                  className="mb-4"
+                  data-testid={`priest-spell-group-level-${spellLevel}`}
+                >
+                  <h4 className="mb-1 text-sm font-medium text-muted-foreground">
+                    {t("spellLevelGroup", { level: spellLevel })}
+                    <span className="ml-1 text-xs">({levelSpells.length})</span>
+                  </h4>
+                  <div className="flex flex-col gap-1">
+                    {(priestExpandedLevels.has(spellLevel)
+                      ? levelSpells
+                      : levelSpells.slice(0, PRIEST_INITIAL_PER_LEVEL)
+                    ).map((spell) => {
+                      const isExpanded = expandedSpellId === spell.id;
+                      return (
+                        <Card
+                          key={spell.id}
+                          size="sm"
+                          data-testid={`priest-spell-card-${spell.id}`}
+                        >
+                          <CardHeader className="flex-row items-center justify-between border-b pb-2">
+                            <div
+                              className="flex cursor-pointer items-center gap-2"
+                              onClick={() => setExpandedSpellId(isExpanded ? null : spell.id)}
+                              data-testid={`priest-spell-toggle-${spell.id}`}
+                            >
+                              <CardTitle className="text-sm">{spellName(spell)}</CardTitle>
+                              <Badge variant="outline" className="text-xs capitalize">
+                                {spell.sphere}
+                              </Badge>
+                              {spell.source_book && (
+                                <span className="rounded bg-muted px-1 py-0.5 text-[9px] text-muted-foreground">
+                                  {getBookAbbreviation(spell.source_book)}
+                                </span>
+                              )}
+                            </div>
+                          </CardHeader>
+                          {isExpanded && (
+                            <CardContent data-testid={`priest-spell-details-${spell.id}`}>
+                              <div className="mb-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                                <span>
+                                  {t("range")}: {spellRange(spell)}
+                                </span>
+                                <span>
+                                  {t("duration")}: {spell.duration}
+                                </span>
+                                <span>
+                                  {t("areaOfEffect")}: {spellArea(spell)}
+                                </span>
+                                {spell.casting_time && (
+                                  <span>
+                                    {t("castingTime")}: {spell.casting_time}
+                                  </span>
+                                )}
+                                {spell.saving_throw && spell.saving_throw !== "None" && (
+                                  <span>
+                                    {t("savingThrow")}: {spell.saving_throw}
+                                  </span>
+                                )}
+                                {spell.components.length > 0 && (
+                                  <span>
+                                    {t("components")}: {spell.components.join(", ")}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="prose prose-sm max-w-none dark:prose-invert">
+                                <ReactMarkdown>{spellDesc(spell)}</ReactMarkdown>
+                              </div>
+                            </CardContent>
+                          )}
+                        </Card>
+                      );
+                    })}
+                    {levelSpells.length > PRIEST_INITIAL_PER_LEVEL &&
+                      !priestExpandedLevels.has(spellLevel) && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-full text-xs"
+                          onClick={() =>
+                            setPriestExpandedLevels((s) => new Set([...s, spellLevel]))
+                          }
+                          data-testid={`priest-spell-show-more-${spellLevel}`}
+                        >
+                          {t("showMore")} ({levelSpells.length - PRIEST_INITIAL_PER_LEVEL})
+                        </Button>
+                      )}
+                  </div>
+                </div>
+              );
+            })}
+
+          {filteredPriestSpells.length === 0 && !loadingSpells && (
+            <div className="py-4 text-center text-sm text-muted-foreground">
+              {t("noLearnableSpells")}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Wizard: Spells grouped by level (from character_spells) */}
+      {!usesSphereSpells &&
+        Array.from({ length: maxSpellLevel }, (_, i) => i + 1).map((spellLevel) => {
+          const levelSpells = spellsByLevel[spellLevel] ?? [];
+          if (levelSpells.length === 0) return null;
+          const available = totalSlots[spellLevel - 1] ?? 0;
+          const prepared = preparedCountByLevel[spellLevel] ?? 0;
+
+          return (
+            <div key={spellLevel} data-testid={`spell-group-level-${spellLevel}`}>
+              <h3 className="mb-2 font-heading text-lg">
+                {t("spellLevelGroup", { level: spellLevel })}
+                <span className="ml-2 text-sm font-normal text-muted-foreground">
+                  {t("preparedCount", { prepared, available })}
+                </span>
+              </h3>
+              <div className="flex flex-col gap-2">
+                {levelSpells.map((charSpell) => {
+                  const spell = charSpell.spell;
+                  const isExpanded = expandedSpellId === spell.id;
+                  const canPrepare = !charSpell.prepared && prepared < available;
+
+                  return (
+                    <Card key={spell.id} size="sm" data-testid={`spell-card-${spell.id}`}>
+                      <CardHeader className="flex-row items-center justify-between border-b pb-2">
+                        <div
+                          className="flex cursor-pointer items-center gap-2"
+                          onClick={() => setExpandedSpellId(isExpanded ? null : spell.id)}
+                          data-testid={`spell-toggle-details-${spell.id}`}
+                        >
+                          <CardTitle className="text-sm">{spellName(spell)}</CardTitle>
+                          <Badge variant="outline" className="text-xs capitalize">
+                            {spell.school ?? spell.sphere}
+                          </Badge>
+                          {usesSphereSpells &&
+                            spell.sphere &&
+                            priestSphereMap[spell.sphere as PriestSphere] && (
+                              <span
+                                className={`rounded px-1 py-0.5 text-[9px] ${
+                                  priestSphereMap[spell.sphere as PriestSphere] === "major"
+                                    ? "bg-primary/20 text-primary"
+                                    : "bg-muted text-muted-foreground"
+                                }`}
+                                data-testid={`spell-sphere-access-${spell.id}`}
+                              >
+                                {priestSphereMap[spell.sphere as PriestSphere] === "major"
+                                  ? t("majorSphere")
+                                  : t("minorSphere")}
+                              </span>
+                            )}
+                          {spellWarnings.has(spell.id) && (
+                            <span
+                              className="text-xs text-orange-400"
+                              title={spellWarnings.get(spell.id)}
+                              data-testid={`spell-warning-${spell.id}`}
+                            >
+                              ⚠
+                            </span>
+                          )}
+                          {spell.source_book && (
+                            <span className="rounded bg-muted px-1 py-0.5 text-[9px] text-muted-foreground">
+                              {getBookAbbreviation(spell.source_book)}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {!readOnly && (
+                            <>
+                              {usesSphereSpells ? (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  disabled={loading}
+                                  onClick={() => handlePriestUnprepare(spell.id)}
+                                  className="text-destructive hover:text-destructive"
+                                  data-testid={`spell-unprepare-${spell.id}`}
+                                >
+                                  {t("unprepareSpell")}
+                                </Button>
+                              ) : (
+                                <>
+                                  <Button
+                                    variant={charSpell.prepared ? "default" : "outline"}
+                                    size="sm"
+                                    disabled={loading || (!charSpell.prepared && !canPrepare)}
+                                    onClick={() =>
+                                      handleTogglePrepared(spell.id, charSpell.prepared)
+                                    }
+                                    data-testid={`spell-prepare-toggle-${spell.id}`}
+                                  >
+                                    {charSpell.prepared ? t("unprepareSpell") : t("prepareSpell")}
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    disabled={loading}
+                                    onClick={() => handleRemoveSpell(spell.id)}
+                                    className="text-destructive hover:text-destructive"
+                                    data-testid={`spell-remove-${spell.id}`}
+                                  >
+                                    {t("removeSpell")}
+                                  </Button>
+                                </>
+                              )}
+                            </>
+                          )}
+                          {readOnly && charSpell.prepared && (
+                            <Badge variant="default">{t("prepareSpell")}</Badge>
+                          )}
+                        </div>
+                      </CardHeader>
+                      {isExpanded && (
+                        <CardContent data-testid={`spell-details-${spell.id}`}>
+                          <div className="mb-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                            <span>
+                              {t("range")}: {spellRange(spell)}
+                            </span>
+                            <span>
+                              {t("duration")}: {spell.duration}
+                            </span>
+                            <span>
+                              {t("areaOfEffect")}: {spellArea(spell)}
+                            </span>
+                            {spell.casting_time && (
+                              <span>
+                                {t("castingTime")}: {spell.casting_time}
+                              </span>
+                            )}
+                            {spell.saving_throw && spell.saving_throw !== "None" && (
+                              <span>
+                                {t("savingThrow")}: {spell.saving_throw}
+                              </span>
+                            )}
+                            {spell.components.length > 0 && (
+                              <span>
+                                {t("components")}: {spell.components.join(", ")}
+                              </span>
+                            )}
+                          </div>
+                          <div className="prose prose-sm max-w-none dark:prose-invert">
+                            <ReactMarkdown>{spellDesc(spell)}</ReactMarkdown>
+                          </div>
+                        </CardContent>
+                      )}
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+
+      {!usesSphereSpells && spells.length === 0 && (
         <div className="py-8 text-center text-muted-foreground" data-testid="spells-empty">
           {t("noSpells")}
         </div>
@@ -761,7 +1210,9 @@ export function TabSpells({
         >
           <div className="mx-4 flex max-h-[80vh] w-full max-w-2xl flex-col rounded-xl bg-card ring-1 ring-foreground/10">
             <div className="flex items-center justify-between border-b p-4">
-              <h2 className="font-heading text-lg">{t("learnSpellTitle")}</h2>
+              <h2 className="font-heading text-lg">
+                {usesSphereSpells ? t("browseAndPrepareTitle") : t("learnSpellTitle")}
+              </h2>
               <Button
                 variant="ghost"
                 size="sm"
@@ -916,11 +1367,17 @@ export function TabSpells({
                       <Button
                         size="sm"
                         disabled={loading}
-                        onClick={() => handleLearnSpell(spell.id)}
+                        onClick={() =>
+                          usesSphereSpells
+                            ? handlePriestPrepare(spell.id)
+                            : handleLearnSpell(spell.id)
+                        }
                         className="ml-2 shrink-0"
-                        data-testid={`learn-spell-${spell.id}`}
+                        data-testid={
+                          usesSphereSpells ? `prepare-spell-${spell.id}` : `learn-spell-${spell.id}`
+                        }
                       >
-                        {t("learn")}
+                        {usesSphereSpells ? t("prepareSpell") : t("learn")}
                       </Button>
                     </div>
                   ))}

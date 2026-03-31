@@ -1,4 +1,5 @@
-import type { ClassGroup, SavingThrows } from "./types";
+import type { ClassGroup, ClassId, SavingThrows, GrantedPower } from "./types";
+import { getActivePowers } from "./priesthoods";
 
 // ─── THAC0 ─────────────────────────────────────────────────────────────────────
 // PHB Chapter 9: THAC0 progression by class group
@@ -99,6 +100,62 @@ export function getSavingThrows(classGroup: ClassGroup, level: number): SavingTh
     petrification: saves[2],
     breath: saves[3],
     spell: saves[4],
+  };
+}
+
+// ─── CLASS-SPECIFIC SAVING THROW ADJUSTMENTS ────────────────────────────────
+// PHB: Druids gain +2 to all saving throws vs. fire or electrical attacks.
+// In the save categories, fire/electricity map primarily to "breath" (breath weapon).
+
+/**
+ * Returns class-specific saving throw adjustments.
+ * Negative values = better (lower target needed).
+ */
+export function getClassSaveAdjustments(classId: ClassId): Partial<SavingThrows> {
+  if (classId === "druid") {
+    return { breath: -2 };
+  }
+  return {};
+}
+
+/**
+ * Get saving throw bonuses from priesthood granted powers at the given level.
+ */
+export function getPriesthoodSaveBonus(priesthoodId: string, level: number): Partial<SavingThrows> {
+  const powers = getActivePowers(priesthoodId, level);
+  const result: Partial<SavingThrows> = {};
+  for (const power of powers) {
+    if (power.mechanical?.type === "saving_throw_bonus" && power.mechanical.savingThrowBonus) {
+      for (const [key, value] of Object.entries(power.mechanical.savingThrowBonus)) {
+        const k = key as keyof SavingThrows;
+        result[k] = (result[k] ?? 0) + (value ?? 0);
+      }
+    }
+  }
+  return result;
+}
+
+/**
+ * Enhanced saving throws with class + priesthood modifiers.
+ */
+export function getSavingThrowsForClass(
+  classGroup: ClassGroup,
+  classId: ClassId,
+  level: number,
+  priesthoodId?: string | null
+): SavingThrows {
+  const base = getSavingThrows(classGroup, level);
+  const classAdj = getClassSaveAdjustments(classId);
+  const priesthoodAdj = priesthoodId ? getPriesthoodSaveBonus(priesthoodId, level) : {};
+
+  return {
+    paralyzation:
+      base.paralyzation + (classAdj.paralyzation ?? 0) + (priesthoodAdj.paralyzation ?? 0),
+    rod: base.rod + (classAdj.rod ?? 0) + (priesthoodAdj.rod ?? 0),
+    petrification:
+      base.petrification + (classAdj.petrification ?? 0) + (priesthoodAdj.petrification ?? 0),
+    breath: base.breath + (classAdj.breath ?? 0) + (priesthoodAdj.breath ?? 0),
+    spell: base.spell + (classAdj.spell ?? 0) + (priesthoodAdj.spell ?? 0),
   };
 }
 

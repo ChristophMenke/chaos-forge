@@ -2588,6 +2588,111 @@ export const KITS: Record<string, KitDefinition> = {
       },
     ],
   },
+  adviser_druid: {
+    id: "adviser_druid",
+    name: "Berater-Druide",
+    name_en: "Adviser",
+    classId: "druid",
+    hitDieOverride: null,
+    maxArmorAC: null,
+    armorSpellFailure: null,
+    abilities: [
+      {
+        name: "Berater des Herrschers",
+        name_en: "Counselor to a Ruler",
+        description:
+          "Dient als Berater eines Herrschers (Ritter, König, etc.) und nutzt seinen Einfluss, um die Natur zu schützen. Erhält freie Unterkunft am Hof.",
+        description_en:
+          "Serves as counselor to a ruler (knight, king, etc.) and uses influence to protect nature. Receives free lodging at court.",
+      },
+      {
+        name: "Verkleidungskunst",
+        name_en: "Disguise Skill",
+        description:
+          "Kann die Diebes-Fertigkeit Verkleidung zu normalen Kosten (statt doppelt) erlernen.",
+        description_en:
+          "Can purchase the rogue's disguise proficiency at normal rather than double cost.",
+      },
+      {
+        name: "Augen in der Wildnis",
+        name_en: "Eyes in the Wilderness",
+        description:
+          "Nutzt Tiere und Naturgeister als Informanten, um über Geschehnisse in der Umgebung informiert zu bleiben.",
+        description_en:
+          "Uses animals and nature spirits as informants to stay aware of events in the surrounding area.",
+      },
+    ],
+  },
+  beastfriend: {
+    id: "beastfriend",
+    name: "Tierfreund",
+    name_en: "Beastfriend",
+    classId: "druid",
+    hitDieOverride: null,
+    maxArmorAC: null,
+    armorSpellFailure: null,
+    abilities: [
+      {
+        name: "Tierreaktion beeinflussen",
+        name_en: "Animal Reaction Modification",
+        description:
+          "Kann die Reaktion von Tieren durch furchtloses Auftreten beeinflussen. Tiere erhalten -1 pro 4 Stufen auf ihren Rettungswurf gegen diesen Effekt.",
+        description_en:
+          "Can modify animal reactions through fearless approach. Animals suffer -1 per 4 levels on their saving throw against this effect.",
+      },
+      {
+        name: "Tierkunde-Bonus",
+        name_en: "Animal Lore Bonus",
+        description:
+          "Erhält +4 auf Würfe für Tierkunde, Tiertraining und Tierhandhabung. Kann diese Fertigkeiten auch ohne Slots nutzen (ohne Bonus).",
+        description_en:
+          "Gains +4 on animal lore, animal training, and animal handling checks. Can use these proficiencies even without slots (without bonus).",
+      },
+      {
+        name: "Lykanthropen erkennen",
+        name_en: "Recognize Lycanthropes",
+        description:
+          "Kann Lykanthropen in jeder Form erkennen, wenn ein Tierkunde-Wurf nach einer Runde Präsenz gelingt.",
+        description_en:
+          "Can recognize lycanthropes in any form on a successful animal lore check after one round of presence.",
+      },
+    ],
+  },
+  wanderer_druid: {
+    id: "wanderer_druid",
+    name: "Wanderer",
+    name_en: "Wanderer",
+    classId: "druid",
+    hitDieOverride: null,
+    maxArmorAC: null,
+    armorSpellFailure: null,
+    abilities: [
+      {
+        name: "Schnellreise",
+        name_en: "Fast Travel",
+        description:
+          "Reist ein Drittel schneller als normal über lange Distanzen. Als Führer erhöht er die Reisegeschwindigkeit der Gruppe um ein Sechstel.",
+        description_en:
+          "Travels one-third faster than normal over long distances. As a guide, increases the party's travel speed by one-sixth.",
+      },
+      {
+        name: "Reisende Freundschaft",
+        name_en: "Traveler's Friendship",
+        description:
+          "Erhält +1 Reaktionsbonus von Barden, Waldläufern und fahrendem Volk (Kesselflicker, Wandervolk).",
+        description_en:
+          "Gains +1 reaction adjustment bonus from bards, rangers, and traveling folk (tinkers, Gypsies).",
+      },
+      {
+        name: "Geselliger Naturschützer",
+        name_en: "Gregarious Naturalist",
+        description:
+          "Geselliger als andere Druiden — genießt den Kontakt mit Menschen, besonders der Landbevölkerung. Wird oft als Bote oder Missionar der druidischen Führung eingesetzt.",
+        description_en:
+          "More gregarious than most druids — enjoys meeting people, especially rural folk. Often used as messenger or missionary by druidic leaders.",
+      },
+    ],
+  },
   village_druid: {
     id: "village_druid",
     name: "Dorf-Druide",

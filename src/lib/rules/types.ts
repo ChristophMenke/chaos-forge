@@ -122,7 +122,7 @@ export type MagicSchool =
   | "invocation"
   | "necromancy";
 
-/** Priest sphere identifiers */
+/** Priest sphere identifiers — PHB 16 + Complete Priest's Handbook + Tome of Magic */
 export type PriestSphere =
   | "all"
   | "animal"
@@ -132,6 +132,11 @@ export type PriestSphere =
   | "creation"
   | "divination"
   | "elemental"
+  | "elemental air"
+  | "elemental earth"
+  | "elemental fire"
+  | "elemental water"
+  | "elemental magma"
   | "guardian"
   | "healing"
   | "necromantic"
@@ -139,10 +144,51 @@ export type PriestSphere =
   | "protection"
   | "summoning"
   | "sun"
-  | "weather";
+  | "weather"
+  // Extended spheres (Complete Priest's Handbook, Tome of Magic, Player's Option)
+  | "chaos"
+  | "cosmos"
+  | "law"
+  | "learning"
+  | "numbers"
+  | "thought"
+  | "time"
+  | "travelers"
+  | "war"
+  | "wards"
+  | "special";
 
 /** Sphere access levels */
 export type SphereAccess = "major" | "minor";
+
+/** Combat ability rating for priesthoods */
+export type CombatRating = "good" | "medium" | "poor";
+
+/** Granted Power definition for Priests of Specific Mythoi */
+export interface GrantedPower {
+  id: string;
+  name: string;
+  name_en: string;
+  description: string;
+  description_en: string;
+  level: number; // ab welcher Stufe verfügbar (1 = sofort)
+  mechanical?: {
+    type:
+      | "turn_undead"
+      | "command_undead"
+      | "saving_throw_bonus"
+      | "immunity"
+      | "laying_on_hands"
+      | "berserker_rage"
+      | "soothing_word"
+      | "charm"
+      | "inspire_fear"
+      | "detect"
+      | "other";
+    savingThrowBonus?: Partial<SavingThrows>;
+    usesPerDay?: number;
+  };
+}
 
 /** Ability description for class/race abilities */
 export interface ClassAbility {

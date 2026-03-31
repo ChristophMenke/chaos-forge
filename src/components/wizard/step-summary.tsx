@@ -5,6 +5,8 @@ import { localized } from "@/lib/utils/localize";
 import { RACES } from "@/lib/rules/races";
 import { CLASSES } from "@/lib/rules/classes";
 import { getAlignmentLabel } from "@/lib/rules/alignment";
+import { getPriesthood } from "@/lib/rules/priesthoods";
+import { getKit } from "@/lib/rules/kits";
 import {
   getStrengthModifiers,
   getDexterityModifiers,
@@ -42,6 +44,27 @@ export function StepSummary({ state }: StepSummaryProps) {
         {classNames && <Badge>{classNames}</Badge>}
         <Badge variant="outline">{t("levelBadge", { level: state.level })}</Badge>
         <Badge variant="outline">{getAlignmentLabel(state.alignment, locale)}</Badge>
+        {state.kit &&
+          (() => {
+            const kit = getKit(state.kit);
+            return kit ? (
+              <Badge variant="secondary">{localized(kit.name, kit.name_en, locale)}</Badge>
+            ) : null;
+          })()}
+        {state.deity && (
+          <Badge variant="secondary" data-testid="summary-deity">
+            {state.deity}
+          </Badge>
+        )}
+        {state.priesthood &&
+          (() => {
+            const ph = getPriesthood(state.priesthood);
+            return ph ? (
+              <Badge variant="secondary" data-testid="summary-priesthood">
+                {localized(ph.name, ph.name_en, locale)}
+              </Badge>
+            ) : null;
+          })()}
       </div>
 
       <Separator />

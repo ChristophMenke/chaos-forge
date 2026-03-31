@@ -83,12 +83,13 @@ export function TabEquipment({
   const locale = useLocale();
   const [loading, setLoading] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [addTab, setAddTab] = useState<"weapons" | "armor">("weapons");
+  const [addTab, setAddTab] = useState<"weapons" | "armor" | "magic">("weapons");
   const [searchQuery, setSearchQuery] = useState("");
   const [weaponCategoryFilter, setWeaponCategoryFilter] = useState<
     "all" | "melee" | "ranged" | "both"
   >("all");
   const [magicBonus, setMagicBonus] = useState(0);
+  const [addQuantity, setAddQuantity] = useState(1);
   const [showCustomWeaponForm, setShowCustomWeaponForm] = useState(false);
   const [showCustomArmorForm, setShowCustomArmorForm] = useState(false);
   const [customWeapon, setCustomWeapon] = useState({
@@ -98,6 +99,8 @@ export function TabEquipment({
     speed: "",
     weight: "",
     cost_gp: "",
+    magic_bonus: 0,
+    quantity: 1,
   });
   const [customArmor, setCustomArmor] = useState({
     name: "",
@@ -105,6 +108,12 @@ export function TabEquipment({
     weight: "",
     cost_gp: "",
     is_magical_protection: false,
+  });
+
+  const [magicItem, setMagicItem] = useState({
+    name: "",
+    category: "" as string,
+    effects: {} as Record<string, number>,
   });
 
   const [showAddInventory, setShowAddInventory] = useState(false);
@@ -223,7 +232,7 @@ export function TabEquipment({
         character_id: characterId,
         weapon_id: type === "weapon" ? id : null,
         armor_id: type === "armor" ? id : null,
-        quantity: 1,
+        quantity: addQuantity,
         equipped: false,
         hit_bonus: magicBonus,
         damage_bonus: magicBonus,
@@ -236,6 +245,7 @@ export function TabEquipment({
     setLoading(false);
     setShowAddDialog(false);
     setMagicBonus(0);
+    setAddQuantity(1);
   }
 
   const filteredWeapons = allWeapons.filter((w) => {
@@ -273,7 +283,23 @@ export function TabEquipment({
       .single();
 
     if (!error && data) {
-      await addItem("weapon", data.id);
+      // Add to character equipment with custom weapon's magic bonus and quantity
+      const { data: eqData } = await supabase
+        .from("character_equipment")
+        .insert({
+          character_id: characterId,
+          weapon_id: data.id,
+          armor_id: null,
+          quantity: customWeapon.quantity,
+          equipped: false,
+          hit_bonus: customWeapon.magic_bonus,
+          damage_bonus: customWeapon.magic_bonus,
+        })
+        .select("*, weapon:weapons(*), armor:armor(*)")
+        .single();
+      if (eqData) {
+        onEquipmentChange([...equipment, eqData as CharacterEquipmentWithDetails]);
+      }
       setCustomWeapon({
         name: "",
         damage_sm: "",
@@ -281,6 +307,8 @@ export function TabEquipment({
         speed: "",
         weight: "",
         cost_gp: "",
+        magic_bonus: 0,
+        quantity: 1,
       });
       setShowCustomWeaponForm(false);
     }
@@ -311,6 +339,41 @@ export function TabEquipment({
       setCustomArmor({ name: "", ac: "", weight: "", cost_gp: "", is_magical_protection: false });
       setShowCustomArmorForm(false);
     }
+    setLoading(false);
+  }
+
+  async function createMagicItem() {
+    if (!magicItem.name.trim()) return;
+    setLoading(true);
+    const supabase = createClient();
+    // Magic items are stored as character_equipment without weapon/armor reference
+    const { data, error } = await supabase
+      .from("character_equipment")
+      .insert({
+        character_id: characterId,
+        weapon_id: null,
+        armor_id: null,
+        quantity: 1,
+        equipped: true,
+        hit_bonus: 0,
+        damage_bonus: 0,
+        magic_effects: magicItem.effects,
+        custom_label: magicItem.category
+          ? `${magicItem.name.trim()} (${magicItem.category})`
+          : magicItem.name.trim(),
+      })
+      .select("*, weapon:weapons(*), armor:armor(*)")
+      .single();
+    if (error) {
+      console.error("Failed to create magic item:", error);
+      setLoading(false);
+      return;
+    }
+    if (data) {
+      onEquipmentChange([...equipment, data as CharacterEquipmentWithDetails]);
+    }
+    setMagicItem({ name: "", category: "", effects: {} });
+    setShowAddDialog(false);
     setLoading(false);
   }
 
@@ -387,6 +450,7 @@ export function TabEquipment({
   function getItemName(item: CharacterEquipmentWithDetails): string {
     if (item.weapon) return localized(item.weapon.name, item.weapon.name_en, locale);
     if (item.armor) return localized(item.armor.name, item.armor.name_en, locale);
+    if (item.custom_label) return item.custom_label;
     return "—";
   }
 
@@ -737,6 +801,17 @@ export function TabEquipment({
               >
                 {t("armor")}
               </button>
+              <button
+                className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+                  addTab === "magic"
+                    ? "border-b-2 border-primary text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+                onClick={() => setAddTab("magic")}
+                data-testid="add-dialog-tab-magic"
+              >
+                {t("magicItems")}
+              </button>
             </div>
 
             {/* Search field */}
@@ -794,6 +869,15 @@ export function TabEquipment({
                     {b === 0 ? "—" : `+${b}`}
                   </button>
                 ))}
+                <span className="ml-3 text-xs text-muted-foreground">{t("quantity")}:</span>
+                <input
+                  type="number"
+                  min={1}
+                  value={addQuantity}
+                  onChange={(e) => setAddQuantity(Math.max(1, Number(e.target.value)))}
+                  className="w-14 rounded-md border border-border bg-background px-2 py-1 text-center text-xs"
+                  data-testid="add-item-quantity"
+                />
               </div>
             </div>
 
@@ -915,6 +999,49 @@ export function TabEquipment({
                             data-testid="custom-weapon-cost"
                           />
                         </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <span className="mb-1 block text-xs text-muted-foreground">
+                              {t("magicBonus")}
+                            </span>
+                            <div className="flex gap-1">
+                              {[0, 1, 2, 3, 4, 5].map((b) => (
+                                <button
+                                  key={b}
+                                  className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
+                                    customWeapon.magic_bonus === b
+                                      ? "bg-primary text-primary-foreground"
+                                      : "bg-muted text-muted-foreground hover:text-foreground"
+                                  }`}
+                                  onClick={() =>
+                                    setCustomWeapon({ ...customWeapon, magic_bonus: b })
+                                  }
+                                  data-testid={`custom-weapon-magic-${b}`}
+                                >
+                                  {b === 0 ? "—" : `+${b}`}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <span className="mb-1 block text-xs text-muted-foreground">
+                              {t("quantity")}
+                            </span>
+                            <input
+                              type="number"
+                              min={1}
+                              value={customWeapon.quantity}
+                              onChange={(e) =>
+                                setCustomWeapon({
+                                  ...customWeapon,
+                                  quantity: Math.max(1, Number(e.target.value)),
+                                })
+                              }
+                              className="w-full rounded-md border border-border bg-background px-3 py-1.5 text-sm"
+                              data-testid="custom-weapon-quantity"
+                            />
+                          </div>
+                        </div>
                         <div className="flex gap-2">
                           <Button
                             variant="default"
@@ -937,6 +1064,8 @@ export function TabEquipment({
                                 speed: "",
                                 weight: "",
                                 cost_gp: "",
+                                magic_bonus: 0,
+                                quantity: 1,
                               });
                             }}
                             data-testid="custom-weapon-cancel"
@@ -1083,6 +1212,89 @@ export function TabEquipment({
                       </div>
                     )}
                   </div>
+                </div>
+              )}
+              {addTab === "magic" && (
+                <div className="flex flex-col gap-3 p-2" data-testid="magic-item-form">
+                  <div className="text-sm font-medium">{t("createMagicItem")}</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="text"
+                      placeholder={t("magicItemName")}
+                      value={magicItem.name}
+                      onChange={(e) => setMagicItem({ ...magicItem, name: e.target.value })}
+                      className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                      data-testid="magic-item-name"
+                    />
+                    <select
+                      value={magicItem.category}
+                      onChange={(e) => setMagicItem({ ...magicItem, category: e.target.value })}
+                      className="rounded-md border border-border bg-background px-3 py-1.5 text-sm"
+                      data-testid="magic-item-category"
+                    >
+                      <option value="">{t("magicItemCategoryNone")}</option>
+                      <option value="Ring">{t("magicItemRing")}</option>
+                      <option value="Amulet">{t("magicItemAmulet")}</option>
+                      <option value="Cloak">{t("magicItemCloak")}</option>
+                      <option value="Belt">{t("magicItemBelt")}</option>
+                      <option value="Boots">{t("magicItemBoots")}</option>
+                      <option value="Bracers">{t("magicItemBracers")}</option>
+                      <option value="Gauntlets">{t("magicItemGauntlets")}</option>
+                      <option value="Helm">{t("magicItemHelm")}</option>
+                      <option value="Robe">{t("magicItemRobe")}</option>
+                      <option value="Girdle">{t("magicItemGirdle")}</option>
+                      <option value="Wand/Staff/Rod">{t("magicItemWandStaffRod")}</option>
+                      <option value="Potion">{t("magicItemPotion")}</option>
+                      <option value="Scroll">{t("magicItemScroll")}</option>
+                      <option value="Miscellaneous">{t("magicItemMisc")}</option>
+                    </select>
+                  </div>
+                  <div className="text-xs font-medium text-muted-foreground">
+                    {t("magicItemEffects")}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    {[
+                      "str",
+                      "dex",
+                      "con",
+                      "int",
+                      "wis",
+                      "cha",
+                      "ac_bonus",
+                      "hide_in_shadows",
+                      "move_silently",
+                    ].map((attr) => (
+                      <div key={attr} className="flex items-center gap-2">
+                        <span className="w-28 text-xs uppercase">{attr.replace("_", " ")}</span>
+                        <input
+                          type="number"
+                          value={magicItem.effects[attr] ?? ""}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const effects = { ...magicItem.effects };
+                            if (val === "" || val === "0") {
+                              delete effects[attr];
+                            } else {
+                              effects[attr] = Number(val);
+                            }
+                            setMagicItem({ ...magicItem, effects });
+                          }}
+                          placeholder="—"
+                          className="w-20 rounded-md border border-border bg-background px-2 py-1 text-center text-sm"
+                          data-testid={`magic-item-effect-${attr}`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    disabled={loading || !magicItem.name.trim()}
+                    onClick={createMagicItem}
+                    data-testid="magic-item-submit"
+                  >
+                    {t("createMagicItem")}
+                  </Button>
                 </div>
               )}
             </div>

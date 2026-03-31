@@ -19,6 +19,8 @@ interface PlayHpBarProps {
   thac0: number;
   classGroup: ClassGroup;
   kitName?: string | null;
+  deity?: string | null;
+  priesthoodName?: string | null;
   onHpChange: (newHp: number) => void;
 }
 
@@ -32,6 +34,8 @@ export function PlayHpBar({
   thac0,
   classGroup,
   kitName,
+  deity,
+  priesthoodName,
   onHpChange,
 }: PlayHpBarProps) {
   const t = useTranslations("playMode");
@@ -115,6 +119,24 @@ export function PlayHpBar({
                 data-testid="play-kit-badge"
               >
                 {kitName}
+              </Badge>
+            )}
+            {deity && (
+              <Badge
+                variant="secondary"
+                className="shrink-0 text-[10px]"
+                data-testid="play-deity-badge"
+              >
+                {t("priestOfDeity", { deity })}
+              </Badge>
+            )}
+            {priesthoodName && (
+              <Badge
+                variant="secondary"
+                className="shrink-0 text-[10px]"
+                data-testid="play-priesthood-badge"
+              >
+                {priesthoodName}
               </Badge>
             )}
             <div className="flex items-center gap-1">

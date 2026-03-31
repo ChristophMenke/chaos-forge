@@ -9,6 +9,7 @@ import { PlaySpellbookPanel } from "./play-spellbook-panel";
 import { PlayChecksPanel } from "./play-checks-panel";
 import { PlayInventoryPanel } from "./play-inventory-panel";
 import { PlayCoinPursePanel } from "./play-coin-purse-panel";
+import { PlayTurnUndeadPanel } from "./play-turn-undead-panel";
 import {
   getMulticlassThac0,
   getMulticlassSaves,
@@ -32,6 +33,11 @@ import { getEpicEffects, scaleSubStat } from "@/lib/rules/epic-items";
 import type { EpicEffects } from "@/lib/rules/epic-items";
 import { getClassGroupColors } from "@/lib/utils/class-colors";
 import { getKit } from "@/lib/rules/kits";
+import {
+  priesthoodHasTurnUndead,
+  priesthoodHasCommandUndead,
+  getPriesthood,
+} from "@/lib/rules/priesthoods";
 import { localized } from "@/lib/utils/localize";
 import { CharacterModeNav } from "@/components/character-mode-nav";
 import type {
@@ -43,6 +49,7 @@ import type {
   CharacterNWPWithDetails,
   CharacterInventoryWithDetails,
   EpicItemRow,
+  SpellRow,
 } from "@/lib/supabase/types";
 import type { CoinPurse } from "@/lib/rules/equipment";
 
@@ -136,7 +143,7 @@ function CoinsIcon({ className }: { className?: string }) {
   );
 }
 
-type PanelId = "combat" | "spellbook" | "checks" | "inventory" | "coinPurse";
+type PanelId = "combat" | "spellbook" | "turnUndead" | "checks" | "inventory" | "coinPurse";
 
 interface PlayModeProps {
   character: CharacterRow;
@@ -148,6 +155,7 @@ interface PlayModeProps {
   nonweaponProficiencies: CharacterNWPWithDetails[];
   inventory: CharacterInventoryWithDetails[];
   epicItems?: EpicItemRow[];
+  priestAvailableSpells?: SpellRow[];
 }
 
 export function PlayMode({
@@ -160,6 +168,7 @@ export function PlayMode({
   nonweaponProficiencies,
   inventory: initialInventory,
   epicItems = [],
+  priestAvailableSpells = [],
 }: PlayModeProps) {
   const t = useTranslations("playMode");
   const locale = useLocale();
@@ -379,6 +388,42 @@ export function PlayMode({
     [classGroups, classIds]
   );
   const showThiefSkills = useMemo(() => hasThiefSkills(classIds), [classIds]);
+
+  // Turn Undead: show for generic clerics, priesthoods with Turn/Command Undead, or paladins (L3+)
+  const turnUndeadInfo = useMemo(() => {
+    const isCleric = classIds.includes("cleric");
+    const isPaladinClass = classIds.includes("paladin");
+    const priesthoodId = character.priesthood;
+    const evilAlignments = ["chaotic_evil", "neutral_evil", "lawful_evil"];
+    const charIsEvil = evilAlignments.includes(character.alignment ?? "");
+
+    if (isCleric) {
+      const clericEntry = activeClasses.find((c) => c.class_id === "cleric");
+      const level = clericEntry?.level ?? 1;
+
+      // Check for Command Undead (e.g. Death priesthood — always command, regardless of alignment)
+      if (priesthoodId && priesthoodHasCommandUndead(priesthoodId)) {
+        return { show: true, level, isPaladin: false, isEvil: true };
+      }
+
+      // Generic cleric (no priesthood) always has Turn Undead
+      // Priesthood cleric: check if priesthood grants Turn Undead
+      const hasTurn = !priesthoodId || priesthoodHasTurnUndead(priesthoodId);
+      if (hasTurn) {
+        return { show: true, level, isPaladin: false, isEvil: charIsEvil };
+      }
+    }
+
+    if (isPaladinClass) {
+      const paladinEntry = activeClasses.find((c) => c.class_id === "paladin");
+      const pLevel = paladinEntry?.level ?? 1;
+      if (pLevel >= 3) {
+        return { show: true, level: pLevel, isPaladin: true, isEvil: false };
+      }
+    }
+
+    return { show: false, level: 0, isPaladin: false, isEvil: false };
+  }, [classIds, character.priesthood, character.alignment, activeClasses]);
   const backstabMultiplier = useMemo(() => {
     if (!showThiefSkills) return null;
     const thiefClass = activeClasses.find(
@@ -390,6 +435,13 @@ export function PlayMode({
   const colors = getClassGroupColors(primaryGroup);
   const kitDef = useMemo(() => getKit(character.kit), [character.kit]);
   const kitDisplayName = kitDef ? localized(kitDef.name, kitDef.name_en, locale) : null;
+  const priesthoodDef = useMemo(
+    () => (character.priesthood ? getPriesthood(character.priesthood) : null),
+    [character.priesthood]
+  );
+  const priesthoodDisplayName = priesthoodDef
+    ? localized(priesthoodDef.name, priesthoodDef.name_en, locale)
+    : null;
 
   // Coin purse
   const coinPurse: CoinPurse = useMemo(
@@ -482,6 +534,12 @@ export function PlayMode({
       icon: <SparklesIcon className="h-4 w-4" />,
       show: showSpells,
     },
+    {
+      id: "turnUndead",
+      label: locale === "de" ? "Untote" : "Undead",
+      icon: <TargetIcon className="h-4 w-4" />,
+      show: turnUndeadInfo.show,
+    },
     { id: "checks", label: t("checks"), icon: <TargetIcon className="h-4 w-4" />, show: true },
     {
       id: "inventory",
@@ -509,6 +567,8 @@ export function PlayMode({
         thac0={thac0}
         classGroup={primaryGroup}
         kitName={kitDisplayName}
+        deity={character.deity}
+        priesthoodName={priesthoodDisplayName}
         onHpChange={handleHpChange}
       />
 
@@ -573,6 +633,14 @@ export function PlayMode({
               epicWildMagic={epicEffects.wildMagic}
               characterKit={character.kit}
               hasArmor={!!equippedArmor}
+              priestAvailableSpells={priestAvailableSpells}
+            />
+          )}
+          {turnUndeadInfo.show && (
+            <PlayTurnUndeadPanel
+              clericLevel={turnUndeadInfo.level}
+              isPaladin={turnUndeadInfo.isPaladin}
+              isEvil={turnUndeadInfo.isEvil}
             />
           )}
         </div>
@@ -647,6 +715,14 @@ export function PlayMode({
             onRest={handleRest}
             characterKit={character.kit}
             hasArmor={!!equippedArmor}
+            priestAvailableSpells={priestAvailableSpells}
+          />
+        )}
+        {activePanel === "turnUndead" && turnUndeadInfo.show && (
+          <PlayTurnUndeadPanel
+            clericLevel={turnUndeadInfo.level}
+            isPaladin={turnUndeadInfo.isPaladin}
+            isEvil={turnUndeadInfo.isEvil}
           />
         )}
         {activePanel === "checks" && (

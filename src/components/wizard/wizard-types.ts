@@ -20,7 +20,10 @@ export interface WizardState {
   classIds: ClassId[];
   // Step 5: Kit (optional)
   kit: string | null;
-  // Step 6: Combat (calculated + HP input)
+  // Step 6: Deity & Priesthood (optional, for priest classes)
+  deity: string;
+  priesthood: string | null;
+  // Step 7: Combat (calculated + HP input)
   hpMax: number;
 }
 
@@ -38,6 +41,8 @@ export const INITIAL_WIZARD_STATE: WizardState = {
   raceId: null,
   classIds: [],
   kit: null,
+  deity: "",
+  priesthood: null,
   hpMax: 1,
 };
 
@@ -47,6 +52,7 @@ export const WIZARD_STEPS = [
   { id: "race", label: "Rasse" },
   { id: "class", label: "Klasse" },
   { id: "kit", label: "Kit" },
+  { id: "priesthood", label: "Glaubensrichtung" },
   { id: "combat", label: "Kampfwerte" },
   { id: "summary", label: "Zusammenfassung" },
 ] as const;

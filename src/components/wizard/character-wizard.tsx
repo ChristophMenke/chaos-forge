@@ -12,6 +12,7 @@ import { StepAbilities } from "./step-abilities";
 import { StepRace } from "./step-race";
 import { StepClass } from "./step-class";
 import { StepKit } from "./step-kit";
+import { StepPriesthood } from "./step-priesthood";
 import { StepCombat } from "./step-combat";
 import { StepSummary } from "./step-summary";
 import { WIZARD_STEPS, INITIAL_WIZARD_STATE, type WizardState } from "./wizard-types";
@@ -22,6 +23,7 @@ const STEP_LABEL_KEYS = [
   "race",
   "class",
   "kit",
+  "priesthood",
   "combat",
   "summary",
 ] as const;
@@ -51,6 +53,8 @@ export function CharacterWizard() {
         return state.classIds.length > 0;
       case "kit":
         return true;
+      case "priesthood":
+        return true;
       case "combat":
         return state.hpMax >= 1;
       case "summary":
@@ -61,6 +65,25 @@ export function CharacterWizard() {
   }
 
   const isWarriorClass = multiclassHasExceptionalStr(state.classIds);
+  const isPriest = state.classIds.includes("cleric") || state.classIds.includes("druid");
+
+  function shouldSkipStep(stepIndex: number): boolean {
+    const stepId = WIZARD_STEPS[stepIndex]?.id;
+    if (stepId === "priesthood" && !isPriest) return true;
+    return false;
+  }
+
+  function goToNextStep() {
+    let next = currentStep + 1;
+    while (next < WIZARD_STEPS.length && shouldSkipStep(next)) next++;
+    setCurrentStep(next);
+  }
+
+  function goToPrevStep() {
+    let prev = currentStep - 1;
+    while (prev >= 0 && shouldSkipStep(prev)) prev--;
+    setCurrentStep(Math.max(0, prev));
+  }
 
   async function handleCreate() {
     setSaving(true);
@@ -97,6 +120,8 @@ export function CharacterWizard() {
         hp_current: state.hpMax,
         hp_max: state.hpMax,
         kit: state.kit,
+        deity: state.deity.trim() || null,
+        priesthood: state.priesthood,
       })
       .select("id")
       .single();
@@ -161,6 +186,9 @@ export function CharacterWizard() {
         <StepClass state={state} onChange={updateState} />
       )}
       {WIZARD_STEPS[currentStep].id === "kit" && <StepKit state={state} onChange={updateState} />}
+      {WIZARD_STEPS[currentStep].id === "priesthood" && (
+        <StepPriesthood state={state} onChange={updateState} />
+      )}
       {WIZARD_STEPS[currentStep].id === "combat" && (
         <StepCombat state={state} onChange={updateState} />
       )}
@@ -170,7 +198,7 @@ export function CharacterWizard() {
       <div className="flex justify-between">
         <Button
           variant="outline"
-          onClick={() => setCurrentStep((s) => s - 1)}
+          onClick={goToPrevStep}
           disabled={currentStep === 0}
           data-testid="wizard-prev-button"
         >
@@ -193,11 +221,7 @@ export function CharacterWizard() {
             )}
           </Button>
         ) : (
-          <Button
-            onClick={() => setCurrentStep((s) => s + 1)}
-            disabled={!canProceed()}
-            data-testid="wizard-next-button"
-          >
+          <Button onClick={goToNextStep} disabled={!canProceed()} data-testid="wizard-next-button">
             {tc("next")}
           </Button>
         )}

@@ -10,8 +10,8 @@ import {
 
 describe("Kit System", () => {
   describe("KITS registry", () => {
-    it("contains exactly 80 kits", () => {
-      expect(Object.keys(KITS)).toHaveLength(80);
+    it("contains exactly 83 kits", () => {
+      expect(Object.keys(KITS)).toHaveLength(83);
     });
 
     const expectedKits = [
@@ -91,8 +91,10 @@ describe("Kit System", () => {
       "skyrider",
       "votary",
       "wyrmslayer",
-      // Druid (11)
+      // Druid (14)
+      "adviser_druid",
       "avenger_druid",
+      "beastfriend",
       "guardian_druid",
       "hivemaster",
       "lost_druid",
@@ -103,6 +105,7 @@ describe("Kit System", () => {
       "shapeshifter_druid",
       "totemic_druid",
       "village_druid",
+      "wanderer_druid",
     ];
 
     it.each(expectedKits)("kit '%s' exists", (kitId) => {
@@ -253,12 +256,14 @@ describe("Kit System", () => {
       );
     });
 
-    it("returns 11 druid kits", () => {
+    it("returns 14 druid kits", () => {
       const kits = getKitsForClass("druid");
-      expect(kits).toHaveLength(11);
+      expect(kits).toHaveLength(14);
       expect(kits.map((k) => k.id)).toEqual(
         expect.arrayContaining([
+          "adviser_druid",
           "avenger_druid",
+          "beastfriend",
           "guardian_druid",
           "hivemaster",
           "lost_druid",
@@ -269,6 +274,7 @@ describe("Kit System", () => {
           "shapeshifter_druid",
           "totemic_druid",
           "village_druid",
+          "wanderer_druid",
         ])
       );
     });

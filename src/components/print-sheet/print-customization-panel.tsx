@@ -29,7 +29,7 @@ export function PrintCustomizationPanel({
       <div className="flex justify-center">
         <button
           onClick={() => setOpen(!open)}
-          className="flex items-center gap-1.5 rounded px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100"
+          className="flex items-center gap-1.5 rounded px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
           data-testid="print-customize-toggle"
         >
           <Settings className="h-4 w-4" />

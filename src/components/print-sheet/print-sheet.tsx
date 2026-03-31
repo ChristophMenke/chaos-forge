@@ -43,7 +43,9 @@ import type {
   CharacterNWPWithDetails,
   CharacterLanguageRow,
   CharacterFightingStyleRow,
+  SpellRow,
 } from "@/lib/supabase/types";
+import { isPriestCaster } from "@/lib/rules/magic";
 import { getFightingStyle } from "@/lib/rules/fighting-styles";
 
 export interface PrintSheetProps {
@@ -55,6 +57,7 @@ export interface PrintSheetProps {
   nonweaponProficiencies: CharacterNWPWithDetails[];
   languages: CharacterLanguageRow[];
   fightingStyles: CharacterFightingStyleRow[];
+  priestAvailableSpells?: SpellRow[];
 }
 
 interface PrintSheetInternalProps extends PrintSheetProps {
@@ -71,6 +74,7 @@ export function PrintSheet({
   nonweaponProficiencies,
   languages,
   fightingStyles,
+  priestAvailableSpells = [],
   preferences = DEFAULT_PRINT_PREFERENCES,
   toolbar,
 }: PrintSheetInternalProps) {
@@ -857,6 +861,60 @@ export function PrintSheet({
     },
 
     spells: () => {
+      const isPriest = isPriestCaster(character.class_id as ClassId);
+      const priestSpells = priestAvailableSpells;
+
+      // Priests: show all available sphere spells
+      if (isPriest && priestSpells.length > 0) {
+        const byLevel: Record<number, SpellRow[]> = {};
+        for (const s of priestSpells) {
+          if (!byLevel[s.level]) byLevel[s.level] = [];
+          byLevel[s.level].push(s);
+        }
+        const levels = Object.keys(byLevel)
+          .map(Number)
+          .sort((a, b) => a - b);
+        return (
+          <section className="mb-4" data-testid="print-section-spells">
+            <h2 className="mb-2 border-b border-gray-400 font-serif text-lg font-bold">
+              {t("spellsKnown")}
+            </h2>
+            {levels.map((lvl) => (
+              <div key={lvl} className="mb-3">
+                <h3 className="mb-1 text-sm font-bold">
+                  {t("spellLevel", { level: lvl })} ({byLevel[lvl].length})
+                </h3>
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-gray-300 text-left">
+                      <th className="py-0.5">{t("spellName")}</th>
+                      <th className="py-0.5 text-center">{t("castTime")}</th>
+                      <th className="py-0.5 text-center">{t("range")}</th>
+                      <th className="py-0.5 text-center">{t("areaOfEffect")}</th>
+                      <th className="py-0.5 text-center">{t("components")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {byLevel[lvl].map((spell) => (
+                      <tr key={spell.id} className="border-b border-gray-200">
+                        <td className="py-0.5">{localized(spell.name, spell.name_en, locale)}</td>
+                        <td className="py-0.5 text-center">{spell.casting_time || "—"}</td>
+                        <td className="py-0.5 text-center">{spellRange(spell) || "—"}</td>
+                        <td className="py-0.5 text-center">{spellArea(spell) || "—"}</td>
+                        <td className="py-0.5 text-center">
+                          {(spell.components ?? []).join(", ")}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+          </section>
+        );
+      }
+
+      // Wizard: show learned spells (from character_spells)
       if (spells.length === 0) return null;
       return (
         <section className="mb-4" data-testid="print-section-spells">
@@ -1056,6 +1114,7 @@ export function PrintSheetContainer({
   nonweaponProficiencies,
   languages,
   fightingStyles,
+  priestAvailableSpells = [],
 }: PrintSheetProps) {
   const t = useTranslations("print");
   const locale = useLocale();
@@ -1106,6 +1165,7 @@ export function PrintSheetContainer({
               nonweaponProficiencies,
               languages,
               fightingStyles,
+              priestAvailableSpells,
               locale,
               preferences,
             });
@@ -1143,6 +1203,7 @@ export function PrintSheetContainer({
       nonweaponProficiencies={nonweaponProficiencies}
       languages={languages}
       fightingStyles={fightingStyles}
+      priestAvailableSpells={priestAvailableSpells}
       preferences={preferences}
       toolbar={toolbar}
     />

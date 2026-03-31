@@ -39,6 +39,42 @@ describe("XP-001 XP-002 XP-003: Experience Points", () => {
   });
 });
 
+describe("Druid XP Table (PHB Table 23)", () => {
+  it("should return correct XP for druid level 2", () => {
+    expect(getXpForNextLevel("druid", 1)).toBe(2000);
+  });
+
+  it("should return correct XP for druid level 10", () => {
+    expect(getXpForNextLevel("druid", 9)).toBe(125000);
+  });
+
+  it("should return 4,000,000 XP for druid level 17 (was corrupted)", () => {
+    expect(getXpForNextLevel("druid", 16)).toBe(4000000);
+  });
+
+  it("should return 4,500,000 XP for druid level 18 (was corrupted)", () => {
+    expect(getXpForNextLevel("druid", 17)).toBe(4500000);
+  });
+
+  it("should return 5,000,000 XP for druid level 19 (was corrupted)", () => {
+    expect(getXpForNextLevel("druid", 18)).toBe(5000000);
+  });
+
+  it("should return 5,500,000 XP for druid level 20 (was corrupted)", () => {
+    expect(getXpForNextLevel("druid", 19)).toBe(5500000);
+  });
+
+  it("should have monotonically increasing XP requirements", () => {
+    for (let level = 1; level < 19; level++) {
+      const current = getXpForNextLevel("druid", level);
+      const next = getXpForNextLevel("druid", level + 1);
+      if (current !== null && next !== null) {
+        expect(next).toBeGreaterThan(current);
+      }
+    }
+  });
+});
+
 describe("previewXpGain", () => {
   it("should level up fighter from 1 to 2 with 2000 XP", () => {
     const preview = previewXpGain("fighter", 1, 0, 2000);
