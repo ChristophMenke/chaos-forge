@@ -30,6 +30,7 @@ import { feetToMeters, lbsToKg } from "@/lib/utils/units";
 import { localized } from "@/lib/utils/localize";
 import { spellRange, spellArea } from "@/lib/utils/spell-display";
 import { getFightingStyle } from "@/lib/rules/fighting-styles";
+import { isPriestCaster } from "@/lib/rules/magic";
 import {
   getStrengthModifiers,
   getDexterityModifiers,
@@ -47,6 +48,7 @@ import type {
   CharacterNWPWithDetails,
   CharacterLanguageRow,
   CharacterFightingStyleRow,
+  SpellRow,
 } from "@/lib/supabase/types";
 import type { PrintPreferences, PrintSectionId } from "@/lib/print-config";
 import { DEFAULT_PRINT_PREFERENCES } from "@/lib/print-config";
@@ -60,6 +62,7 @@ export interface PrintSheetProps {
   nonweaponProficiencies: CharacterNWPWithDetails[];
   languages: CharacterLanguageRow[];
   fightingStyles: CharacterFightingStyleRow[];
+  priestAvailableSpells?: SpellRow[];
   locale: string;
   preferences?: PrintPreferences;
 }
@@ -201,6 +204,7 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
     nonweaponProficiencies,
     languages,
     fightingStyles,
+    priestAvailableSpells = [],
   } = props;
 
   const dt = getDocxT(props.locale);
@@ -1018,6 +1022,85 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
 
     // ── 8. Spells Known (Table by level) ────────────────────────────────────
     spells: () => {
+      const hasPriest = isPriestCaster(character.class_id as ClassId);
+
+      // Priest: use available sphere spells
+      if (hasPriest && priestAvailableSpells.length > 0) {
+        const result: (Paragraph | Table)[] = [];
+        result.push(sectionHeading(dt.spellsKnown));
+        const byLevel: Record<number, SpellRow[]> = {};
+        for (const s of priestAvailableSpells) {
+          if (!byLevel[s.level]) byLevel[s.level] = [];
+          byLevel[s.level].push(s);
+        }
+        const levels = Object.keys(byLevel)
+          .map(Number)
+          .sort((a, b) => a - b);
+        for (const lvl of levels) {
+          result.push(
+            new Table({
+              width: { size: 100, type: WidthType.PERCENTAGE },
+              rows: [
+                new TableRow({
+                  tableHeader: true,
+                  children: [
+                    headerCell(
+                      props.locale === "de"
+                        ? `Stufe ${lvl} Zauber (${byLevel[lvl].length})`
+                        : `Level ${lvl} Spells (${byLevel[lvl].length})`,
+                      { width: 25 }
+                    ),
+                    headerCell(props.locale === "de" ? "Wirkzeit" : "Cast Time", {
+                      width: 15,
+                      alignment: AlignmentType.CENTER,
+                    }),
+                    headerCell(props.locale === "de" ? "Reichweite" : "Range", {
+                      width: 15,
+                      alignment: AlignmentType.CENTER,
+                    }),
+                    headerCell(props.locale === "de" ? "Wirkungsbereich" : "Area of Effect", {
+                      width: 25,
+                      alignment: AlignmentType.CENTER,
+                    }),
+                    headerCell(props.locale === "de" ? "Komp." : "Comp.", {
+                      width: 10,
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                }),
+                ...byLevel[lvl].map(
+                  (spell) =>
+                    new TableRow({
+                      children: [
+                        cell(localized(spell.name, spell.name_en, props.locale)),
+                        cell(spell.casting_time || "—", {
+                          alignment: AlignmentType.CENTER,
+                          size: 18,
+                        }),
+                        cell(spellRange(spell) || "—", {
+                          alignment: AlignmentType.CENTER,
+                          size: 18,
+                        }),
+                        cell(spellArea(spell) || "—", {
+                          alignment: AlignmentType.CENTER,
+                          size: 18,
+                        }),
+                        cell((spell.components ?? []).join(", "), {
+                          alignment: AlignmentType.CENTER,
+                          size: 18,
+                        }),
+                      ],
+                    })
+                ),
+              ],
+            })
+          );
+          result.push(emptyParagraph());
+        }
+        return result;
+      }
+
+      // Wizard: show learned spells from character_spells
       if (spells.length === 0) return [];
 
       const result: (Paragraph | Table)[] = [];
@@ -1036,20 +1119,16 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
         .sort((a, b) => a - b);
       for (const lvl of spellLevels) {
         const levelSpells = spellsByLevel[lvl];
-        // Level header row + spell data table
         result.push(
           new Table({
             width: { size: 100, type: WidthType.PERCENTAGE },
             rows: [
-              // Header row spanning all columns
               new TableRow({
                 tableHeader: true,
                 children: [
                   headerCell(
                     props.locale === "de" ? `Stufe ${lvl} Zauber` : `Level ${lvl} Spells`,
-                    {
-                      width: 25,
-                    }
+                    { width: 25 }
                   ),
                   headerCell(props.locale === "de" ? "Wirkzeit" : "Cast Time", {
                     width: 15,

@@ -2,7 +2,11 @@
 
 import { useTranslations, useLocale } from "next-intl";
 import { localized } from "@/lib/utils/localize";
-import { getAllClasses, meetsAbilityRequirements } from "@/lib/rules/classes";
+import {
+  getAllClasses,
+  meetsAbilityRequirements,
+  getAbilityRequirementFailures,
+} from "@/lib/rules/classes";
 import { canPlayClass, getLevelLimit } from "@/lib/rules/races";
 import { isRuleCompliantMulticlass } from "@/lib/rules/multiclass";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,8 +47,12 @@ export function StepClass({ state, onChange }: StepClassProps) {
     if (state.raceId && !canPlayClass(state.raceId, classId)) {
       warnings.push(t("notRuleConformRace"));
     }
-    if (!meetsAbilityRequirements(classId, abilities)) {
-      warnings.push(t("abilityReqNotMet"));
+    const failures = getAbilityRequirementFailures(classId, abilities);
+    if (failures.length > 0) {
+      const details = failures
+        .map((f) => `${f.ability.toUpperCase()} ${f.actual} < ${f.required}`)
+        .join(", ");
+      warnings.push(`${t("abilityReqNotMet")}: ${details}`);
     }
     return warnings;
   }

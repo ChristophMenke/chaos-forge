@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { getClass, getAllClasses, getClassGroup, meetsAbilityRequirements } from "./classes";
+import {
+  getClass,
+  getAllClasses,
+  getClassGroup,
+  meetsAbilityRequirements,
+  getAbilityRequirementFailures,
+} from "./classes";
 
 describe("CLASS-005 CLASS-006: Classes", () => {
   it("CLASS-001: should define 16 classes total", () => {
@@ -49,5 +55,33 @@ describe("CLASS-005 CLASS-006: Classes", () => {
     const abilities = { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
     expect(meetsAbilityRequirements("paladin", abilities)).toBe(false);
     expect(meetsAbilityRequirements("fighter", abilities)).toBe(true);
+  });
+});
+
+describe("getAbilityRequirementFailures", () => {
+  it("returns empty array when all requirements met", () => {
+    const abilities = { str: 13, dex: 13, con: 14, wis: 14, int: 10, cha: 10 };
+    expect(getAbilityRequirementFailures("ranger", abilities)).toEqual([]);
+  });
+
+  it("returns all failures with correct fields", () => {
+    const abilities = { str: 10, dex: 10, con: 10, wis: 10, int: 10, cha: 10 };
+    const failures = getAbilityRequirementFailures("ranger", abilities);
+    expect(failures.length).toBeGreaterThanOrEqual(3);
+    expect(failures).toContainEqual({ ability: "str", required: 13, actual: 10 });
+    expect(failures).toContainEqual({ ability: "dex", required: 13, actual: 10 });
+    expect(failures).toContainEqual({ ability: "con", required: 14, actual: 10 });
+  });
+
+  it("returns only the failing abilities, not the passing ones", () => {
+    const abilities = { str: 10, dex: 16, con: 14, wis: 14, int: 10, cha: 10 };
+    const failures = getAbilityRequirementFailures("ranger", abilities);
+    expect(failures).toHaveLength(1);
+    expect(failures[0].ability).toBe("str");
+  });
+
+  it("exact minimum value passes (not a failure)", () => {
+    const abilities = { str: 13, dex: 13, con: 14, wis: 14, int: 10, cha: 10 };
+    expect(getAbilityRequirementFailures("ranger", abilities)).toHaveLength(0);
   });
 });

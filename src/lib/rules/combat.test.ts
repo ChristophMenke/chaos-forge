@@ -6,6 +6,7 @@ import {
   getAttacksPerRound,
   getAdjustedWeaponThac0,
   formatDamageWithBonus,
+  getClassSaveAdjustments,
 } from "./combat";
 
 describe("COMBAT-001: THAC0", () => {
@@ -156,6 +157,28 @@ describe("COMBAT-004: Attacks Per Round", () => {
   it("specialist non-warrior still gets 1 attack", () => {
     expect(getAttacksPerRound("priest", 10, true)).toBe("1");
     expect(getAttacksPerRound("rogue", 15, true)).toBe("1");
+  });
+});
+
+describe("getClassSaveAdjustments (PHB: Druid +2 vs Fire/Electricity)", () => {
+  it("druid should get -2 breath save adjustment", () => {
+    const adj = getClassSaveAdjustments("druid");
+    expect(adj.breath).toBe(-2);
+  });
+
+  it("cleric should get no adjustments", () => {
+    const adj = getClassSaveAdjustments("cleric");
+    expect(adj).toEqual({});
+  });
+
+  it("fighter should get no adjustments", () => {
+    const adj = getClassSaveAdjustments("fighter");
+    expect(adj).toEqual({});
+  });
+
+  it("mage should get no adjustments", () => {
+    const adj = getClassSaveAdjustments("mage");
+    expect(adj).toEqual({});
   });
 });
 

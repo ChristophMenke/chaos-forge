@@ -55,6 +55,8 @@ export interface CharacterRow {
   thief_detect_noise: number;
   thief_read_languages: number;
   kit: string | null;
+  deity: string | null;
+  priesthood: string | null;
   is_public: boolean;
   is_active: boolean;
   // Manual slot adjustments
@@ -65,6 +67,8 @@ export interface CharacterRow {
   spell_system: "slots" | "points";
   spell_points_used: number;
   ignore_encumbrance: boolean;
+  allowed_spell_books: string[];
+  spell_whitelist: string[];
   created_at: string;
   updated_at: string;
 }
@@ -86,6 +90,18 @@ export interface CharacterInsert {
   notes?: string;
 }
 
+export interface MagicEffects {
+  str?: number;
+  dex?: number;
+  con?: number;
+  int?: number;
+  wis?: number;
+  cha?: number;
+  ac_bonus?: number;
+  hide_in_shadows?: number;
+  move_silently?: number;
+}
+
 export interface CharacterEquipmentRow {
   id: string;
   character_id: string;
@@ -95,6 +111,8 @@ export interface CharacterEquipmentRow {
   equipped: boolean;
   hit_bonus: number;
   damage_bonus: number;
+  magic_effects: MagicEffects;
+  custom_label: string | null;
 }
 
 export interface CharacterSpellRow {

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/supabase/auth";
 import { PrintSheetContainer } from "@/components/print-sheet/print-sheet";
+import { fetchAvailablePriestSpells } from "@/lib/supabase/priest-spells";
 import type {
   CharacterRow,
   CharacterClassRow,
@@ -71,6 +72,12 @@ export default async function PrintPage({ params }: PrintPageProps) {
     .eq("character_id", id)
     .returns<CharacterFightingStyleRow[]>();
 
+  const priestAvailableSpells = await fetchAvailablePriestSpells(
+    supabase,
+    character,
+    characterClasses ?? []
+  );
+
   return (
     <PrintSheetContainer
       character={character}
@@ -81,6 +88,7 @@ export default async function PrintPage({ params }: PrintPageProps) {
       nonweaponProficiencies={(nwProfs as CharacterNWPWithDetails[]) ?? []}
       languages={languages ?? []}
       fightingStyles={fightingStyles ?? []}
+      priestAvailableSpells={priestAvailableSpells}
     />
   );
 }

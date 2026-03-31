@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/supabase/auth";
 import { PlayMode } from "@/components/play-mode/play-mode";
+import { fetchAvailablePriestSpells } from "@/lib/supabase/priest-spells";
 import type {
   CharacterRow,
   CharacterClassRow,
@@ -64,12 +65,17 @@ export default async function PlayPage({ params }: PlayPageProps) {
     .select("*, item:general_items(*)")
     .eq("character_id", id);
 
-  // Fetch epic items
   const { data: epicItems } = await supabase
     .from("epic_items")
     .select("*")
     .eq("character_id", id)
     .returns<EpicItemRow[]>();
+
+  const priestAvailableSpells = await fetchAvailablePriestSpells(
+    supabase,
+    character,
+    characterClasses ?? []
+  );
 
   return (
     <PlayMode
@@ -82,6 +88,7 @@ export default async function PlayPage({ params }: PlayPageProps) {
       nonweaponProficiencies={(nwProfs as CharacterNWPWithDetails[]) ?? []}
       inventory={(inventory as CharacterInventoryWithDetails[]) ?? []}
       epicItems={epicItems ?? []}
+      priestAvailableSpells={priestAvailableSpells}
     />
   );
 }

@@ -34,6 +34,8 @@ import { getAttacksPerRound } from "@/lib/rules/combat";
 import { calculateAC, calculateEncumbrance } from "@/lib/rules/equipment";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
 import { getKit, getEffectiveHitDie, getKitsForClass } from "@/lib/rules/kits";
+import { getPriesthood } from "@/lib/rules/priesthoods";
+import { getPriestSpheres, isPriestCaster } from "@/lib/rules/magic";
 import { getAllClasses } from "@/lib/rules/classes";
 import { Spinner } from "@/components/ui/spinner";
 import { AvatarUpload } from "@/components/avatar-upload";
@@ -150,6 +152,17 @@ export function CharacterSheet({
   }));
 
   const race = character.race_id ? RACES[character.race_id as keyof typeof RACES] : null;
+  const priesthoodDef = character.priesthood ? getPriesthood(character.priesthood) : null;
+  const hasPriestClass = classIds.some((id) => isPriestCaster(id as ClassId));
+  const priestSphereMap = hasPriestClass
+    ? getPriestSpheres(
+        classIds.find((id) => isPriestCaster(id as ClassId)) as ClassId,
+        character.priesthood
+      )
+    : {};
+  const priestSphereNames = Object.entries(priestSphereMap)
+    .map(([sphere, access]) => `${sphere}${access === "minor" ? " (1-3)" : ""}`)
+    .join(", ");
   const classNames = classIds
     .map((id) => {
       const cls = CLASSES[id];
@@ -561,6 +574,16 @@ export function CharacterSheet({
                     </Badge>
                   ) : null;
                 })()}
+              {character.deity && (
+                <Badge variant="secondary" data-testid="badge-deity">
+                  {t("priestOfDeity", { deity: character.deity })}
+                </Badge>
+              )}
+              {priesthoodDef && (
+                <Badge variant="secondary" data-testid="badge-priesthood">
+                  {localized(priesthoodDef.name, priesthoodDef.name_en, locale)}
+                </Badge>
+              )}
             </div>
           </div>
         </div>
@@ -1649,6 +1672,17 @@ export function CharacterSheet({
               }
               epicSpellFailure={epicEffects.spellFailure}
               epicWildMagic={epicEffects.wildMagic}
+              priesthood={character.priesthood}
+              allowedSpellBooks={character.allowed_spell_books}
+              spellWhitelist={character.spell_whitelist}
+              onAllowedSpellBooksChange={(books) => {
+                setCharacter((prev) => ({ ...prev, allowed_spell_books: books }));
+                setDirty(true);
+              }}
+              onSpellWhitelistChange={(wl) => {
+                setCharacter((prev) => ({ ...prev, spell_whitelist: wl }));
+                setDirty(true);
+              }}
             />
           </TabsContent>
         )}

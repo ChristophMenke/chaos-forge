@@ -612,3 +612,18 @@ export function meetsAbilityRequirements(
     ([ability, min]) => abilities[ability as AbilityName] >= (min as number)
   );
 }
+
+/** Returns specific ability requirement failures for a class */
+export function getAbilityRequirementFailures(
+  classId: ClassId,
+  abilities: Record<AbilityName, number>
+): { ability: AbilityName; required: number; actual: number }[] {
+  const reqs = CLASSES[classId].abilityRequirements;
+  return Object.entries(reqs)
+    .filter(([ability, min]) => abilities[ability as AbilityName] < (min as number))
+    .map(([ability, min]) => ({
+      ability: ability as AbilityName,
+      required: min as number,
+      actual: abilities[ability as AbilityName],
+    }));
+}
