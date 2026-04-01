@@ -108,6 +108,7 @@ export type ClassId =
   | "necromancer"
   | "transmuter"
   | "cleric"
+  | "crusader"
   | "druid"
   | "thief"
   | "bard";

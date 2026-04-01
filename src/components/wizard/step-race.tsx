@@ -6,6 +6,7 @@ import { feetToMeters } from "@/lib/utils/units";
 import { getAllRaces, canPlayClass } from "@/lib/rules/races";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { CheckCircle2Icon } from "lucide-react";
 import type { WizardState } from "./wizard-types";
 import type { RaceId } from "@/lib/rules/types";
 
@@ -35,13 +36,14 @@ export function StepRace({ state, onChange }: StepRaceProps) {
           return (
             <Card
               key={race.id}
-              className={`cursor-pointer transition-colors ${isSelected ? "border-primary bg-primary/5" : "hover:border-primary/30"}`}
+              className={`cursor-pointer transition-all ${isSelected ? "border-primary bg-primary/10 ring-2 ring-primary/40 shadow-[0_0_15px_rgba(var(--primary-rgb,234,179,8),0.15)]" : "hover:border-primary/30"}`}
               onClick={() => handleSelect(race.id)}
               data-testid={`wizard-race-${race.id}`}
             >
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg">
+                <CardTitle className="flex items-center gap-2 text-lg">
                   {localized(race.name, race.name_en, locale)}
+                  {isSelected && <CheckCircle2Icon className="h-5 w-5 shrink-0 text-primary" />}
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col gap-1">

@@ -119,6 +119,7 @@ interface TabSpellsProps {
   epicSpellFailure?: number;
   epicWildMagic?: number;
   priesthood?: string | null;
+  alignment?: string | null;
   allowedSpellBooks?: string[];
   spellWhitelist?: string[];
   onAllowedSpellBooksChange?: (books: string[]) => void;
@@ -144,6 +145,7 @@ export function TabSpells({
   epicSpellFailure = 0,
   epicWildMagic = 0,
   priesthood,
+  alignment,
   allowedSpellBooks,
   spellWhitelist,
   onAllowedSpellBooksChange,
@@ -331,15 +333,21 @@ export function TabSpells({
   // Priest sphere access map
   const priestSphereMap = useMemo(() => {
     if (!usesSphereSpells) return {};
-    return getPriestSpheres(classId as ClassId, priesthood);
-  }, [usesSphereSpells, classId, priesthood]);
+    return getPriestSpheres(classId as ClassId, priesthood, alignment);
+  }, [usesSphereSpells, classId, priesthood, alignment]);
 
   // Priest: available spells from spheres (dynamically computed, no learn step)
   // All spells accessible by this priest's spheres (before book filter)
   const sphereFilteredSpells = useMemo(() => {
     if (!usesSphereSpells) return [];
-    return getAvailablePriestSpells(classId as ClassId, level, priesthood, allSpellsLoaded ?? []);
-  }, [usesSphereSpells, classId, level, priesthood, allSpellsLoaded]);
+    return getAvailablePriestSpells(
+      classId as ClassId,
+      level,
+      priesthood,
+      allSpellsLoaded ?? [],
+      alignment
+    );
+  }, [usesSphereSpells, classId, level, priesthood, allSpellsLoaded, alignment]);
 
   // After book filter
   const availablePriestSpells = useMemo(() => {

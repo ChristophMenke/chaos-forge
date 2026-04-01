@@ -9,10 +9,15 @@ import { getActivePowers } from "./priesthoods";
 // Rogues:    improve by 1 every 2 levels (20 at L1-2, 19 at L3-4, ...)
 // Wizards:   improve by 1 every 3 levels (20 at L1-3, 19 at L4-6, ...)
 
-export function getThac0(classGroup: ClassGroup, level: number): number {
+// PO:S&M: Crusaders use warrior THAC0 despite being priest group
+const WARRIOR_THAC0_CLASSES: ClassId[] = ["crusader"];
+
+export function getThac0(classGroup: ClassGroup, level: number, classId?: ClassId): number {
+  const effectiveGroup =
+    classId && WARRIOR_THAC0_CLASSES.includes(classId) ? "warrior" : classGroup;
   let thac0: number;
 
-  switch (classGroup) {
+  switch (effectiveGroup) {
     case "warrior":
       thac0 = 21 - level;
       break;

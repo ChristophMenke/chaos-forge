@@ -41,7 +41,8 @@ export async function fetchAvailablePriestSpells(
     priestClass.class_id as ClassId,
     priestClass.level,
     character.priesthood,
-    all
+    all,
+    character.alignment
   );
 
   // Apply source book filter

@@ -76,6 +76,17 @@ export const CLERIC_SPHERES: SphereMap = {
   weather: "minor",
 };
 
+export const CRUSADER_SPHERES: SphereMap = {
+  all: "major",
+  combat: "major",
+  guardian: "major",
+  healing: "major",
+  war: "major",
+  wards: "major",
+  necromantic: "minor",
+  protection: "minor",
+};
+
 export const DRUID_SPHERES: SphereMap = {
   all: "major",
   animal: "major",
@@ -87,13 +98,17 @@ export const DRUID_SPHERES: SphereMap = {
 };
 
 /** Classes that cast priest spells (full or partial) */
-const PRIEST_CASTER_IDS: ClassId[] = ["cleric", "druid", "ranger", "paladin"];
+const PRIEST_CASTER_IDS: ClassId[] = ["cleric", "crusader", "druid", "ranger", "paladin"];
 
 export function isPriestCaster(classId: ClassId): boolean {
   return PRIEST_CASTER_IDS.includes(classId);
 }
 
-export function getPriestSpheres(classId: ClassId, priesthoodId?: string | null): SphereMap {
+export function getPriestSpheres(
+  classId: ClassId,
+  priesthoodId?: string | null,
+  alignment?: string | null
+): SphereMap {
   // Druid always uses own spheres (no priesthood)
   if (classId === "druid") return { ...DRUID_SPHERES };
 
@@ -102,6 +117,19 @@ export function getPriestSpheres(classId: ClassId, priesthoodId?: string | null)
 
   // Paladin uses standard cleric spheres (PHB Ch3: Paladin)
   if (classId === "paladin") return { ...CLERIC_SPHERES };
+
+  // Crusader: own spheres + alignment-based law/chaos (PO:S&M)
+  // Priesthood fully replaces Crusader defaults including alignment spheres
+  if (classId === "crusader") {
+    if (priesthoodId) {
+      const priesthood = getPriesthood(priesthoodId);
+      if (priesthood) return { ...priesthood.spheres };
+    }
+    const spheres: SphereMap = { ...CRUSADER_SPHERES };
+    if (alignment?.startsWith("lawful")) spheres.law = "major";
+    else if (alignment?.startsWith("chaotic")) spheres.chaos = "major";
+    return spheres;
+  }
 
   // If priesthood specified, use its spheres
   if (priesthoodId) {
@@ -119,9 +147,10 @@ export function hasSphereAccess(
   classId: ClassId,
   sphere: PriestSphere,
   accessLevel: SphereAccess,
-  priesthoodId?: string | null
+  priesthoodId?: string | null,
+  alignment?: string | null
 ): boolean {
-  const spheres = getPriestSpheres(classId, priesthoodId);
+  const spheres = getPriestSpheres(classId, priesthoodId, alignment);
   const access = spheres[sphere];
   if (!access) return false;
   if (accessLevel === "minor") return true; // major includes minor access
@@ -165,11 +194,12 @@ export function getAvailablePriestSpells<T extends SpellLike>(
   classId: ClassId,
   characterLevel: number,
   priesthoodId: string | null | undefined,
-  allSpells: T[]
+  allSpells: T[],
+  alignment?: string | null
 ): T[] {
   if (!isPriestCaster(classId)) return [];
 
-  const spheres = getPriestSpheres(classId, priesthoodId);
+  const spheres = getPriestSpheres(classId, priesthoodId, alignment);
   if (Object.keys(spheres).length === 0) return [];
 
   // Determine max castable spell level based on the priest spell slot table

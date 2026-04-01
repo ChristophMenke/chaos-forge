@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { AvatarDisplay } from "@/components/avatar-display";
 import { NpcAvatarUpload } from "./npc-avatar-upload";
+import { ImageLightbox } from "@/components/image-lightbox";
 import type { ChronicleNpcRow } from "@/lib/supabase/types";
 
 const PAGE_SIZE = 10;
@@ -29,6 +30,7 @@ export function NpcManager({ npcs: initialNpcs }: NpcManagerProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [lightboxNpc, setLightboxNpc] = useState<{ name: string; url: string } | null>(null);
   const [page, setPage] = useState(0);
 
   // Unique locations for filter dropdown
@@ -250,13 +252,39 @@ export function NpcManager({ npcs: initialNpcs }: NpcManagerProps) {
                 data-testid={`npc-card-${npc.id}`}
               >
                 <div className="flex items-start gap-3">
-                  {/* Avatar */}
-                  <NpcAvatarUpload
-                    npcId={npc.id}
-                    npcName={npc.name}
-                    currentAvatarUrl={npc.avatar_url}
-                    onUploaded={(url) => handleAvatarUploaded(npc.id, url)}
-                  />
+                  {/* Avatar — click to enlarge, long-press/right-click to upload */}
+                  <div className="relative shrink-0">
+                    <NpcAvatarUpload
+                      npcId={npc.id}
+                      npcName={npc.name}
+                      currentAvatarUrl={npc.avatar_url}
+                      onUploaded={(url) => handleAvatarUploaded(npc.id, url)}
+                    />
+                    {npc.avatar_url && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLightboxNpc({ name: npc.name, url: npc.avatar_url! });
+                        }}
+                        className="absolute -bottom-1 -right-1 rounded-full bg-card/80 p-0.5 text-muted-foreground transition-colors hover:text-primary"
+                        aria-label="Vollbild"
+                        data-testid={`npc-avatar-fullscreen-${npc.id}`}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-3 w-3"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
 
                   {/* Content */}
                   <div
@@ -337,6 +365,13 @@ export function NpcManager({ npcs: initialNpcs }: NpcManagerProps) {
             </div>
           )}
         </>
+      )}
+      {lightboxNpc && (
+        <ImageLightbox
+          src={lightboxNpc.url}
+          alt={`Avatar von ${lightboxNpc.name}`}
+          onClose={() => setLightboxNpc(null)}
+        />
       )}
     </div>
   );

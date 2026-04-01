@@ -40,6 +40,8 @@ import { getPriestSpheres, isPriestCaster } from "@/lib/rules/magic";
 import { getAllClasses } from "@/lib/rules/classes";
 import { Spinner } from "@/components/ui/spinner";
 import { AvatarUpload } from "@/components/avatar-upload";
+import { AvatarDisplay } from "@/components/avatar-display";
+import { ImageLightbox } from "@/components/image-lightbox";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { ShareDialog } from "./share-dialog";
 import { Share2, Printer, EyeOff, Eye, Trash2, Copy } from "lucide-react";
@@ -138,6 +140,7 @@ export function CharacterSheet({
   const [duplicateName, setDuplicateName] = useState("");
   const [duplicating, setDuplicating] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const [showAvatarLightbox, setShowAvatarLightbox] = useState(false);
   const [pendingRaceChange, setPendingRaceChange] = useState<RaceId | null>(null);
   const [xpDialogOpen, setXpDialogOpen] = useState(false);
   const [payDialogOpen, setPayDialogOpen] = useState(false);
@@ -159,7 +162,8 @@ export function CharacterSheet({
   const priestSphereMap = hasPriestClass
     ? getPriestSpheres(
         classIds.find((id) => isPriestCaster(id as ClassId)) as ClassId,
-        character.priesthood
+        character.priesthood,
+        character.alignment
       )
     : {};
   const priestSphereNames = Object.entries(priestSphereMap)
@@ -543,14 +547,53 @@ export function CharacterSheet({
       {/* Header */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-3 sm:gap-4">
-          <AvatarUpload
-            characterId={character.id}
-            userId={userId}
-            characterName={character.name}
-            currentAvatarUrl={character.avatar_url}
-            size={80}
-            variant="square"
-          />
+          {isOwner ? (
+            <div className="relative">
+              <AvatarUpload
+                characterId={character.id}
+                userId={userId}
+                characterName={character.name}
+                currentAvatarUrl={character.avatar_url}
+                size={80}
+                variant="square"
+              />
+              {character.avatar_url && (
+                <button
+                  onClick={() => setShowAvatarLightbox(true)}
+                  className="absolute -bottom-1 -right-1 rounded-full bg-card/80 p-1 text-muted-foreground transition-colors hover:text-primary"
+                  aria-label="Vollbild"
+                  data-testid="avatar-fullscreen-button"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-3.5 w-3.5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          ) : character.avatar_url ? (
+            <button
+              onClick={() => setShowAvatarLightbox(true)}
+              className="cursor-pointer"
+              data-testid="avatar-readonly"
+            >
+              <img
+                src={character.avatar_url}
+                alt={`Avatar von ${character.name}`}
+                className="h-24 w-24 rounded-lg object-contain sm:h-32 sm:w-32"
+              />
+            </button>
+          ) : (
+            <AvatarDisplay name={character.name} avatarUrl={null} size={80} variant="square" />
+          )}
           <div className="min-w-0 flex-1">
             {isOwner ? (
               <input
@@ -1754,6 +1797,7 @@ export function CharacterSheet({
               epicSpellFailure={epicEffects.spellFailure}
               epicWildMagic={epicEffects.wildMagic}
               priesthood={character.priesthood}
+              alignment={character.alignment}
               allowedSpellBooks={character.allowed_spell_books}
               spellWhitelist={character.spell_whitelist}
               onAllowedSpellBooksChange={(books) => {
@@ -1807,6 +1851,14 @@ export function CharacterSheet({
           />
         </TabsContent>
       </Tabs>
+
+      {showAvatarLightbox && character.avatar_url && (
+        <ImageLightbox
+          src={character.avatar_url}
+          alt={`Avatar von ${character.name}`}
+          onClose={() => setShowAvatarLightbox(false)}
+        />
+      )}
     </div>
   );
 }

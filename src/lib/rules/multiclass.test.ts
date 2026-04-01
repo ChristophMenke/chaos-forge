@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import type { ClassId } from "./types";
 import {
   getMulticlassThac0,
   getMulticlassSaves,
@@ -51,6 +52,32 @@ describe("MULTI-001: getMulticlassThac0", () => {
         { classId: "thief", level: 10 },
       ])
     ).toBe(16);
+  });
+});
+
+describe("Multiclass THAC0 with Crusader (PO:S&M)", () => {
+  it("Crusader/Thief L5: Crusader warrior-rate beats rogue THAC0", () => {
+    // Crusader L5 warrior override = 21-5 = 16, Thief L5 rogue = 20 - floor(4/2) = 18
+    expect(
+      getMulticlassThac0([
+        { classId: "crusader", level: 5 },
+        { classId: "thief", level: 5 },
+      ])
+    ).toBe(16);
+  });
+
+  it("solo Crusader L10 uses warrior THAC0", () => {
+    expect(getMulticlassThac0([{ classId: "crusader", level: 10 }])).toBe(11);
+  });
+
+  it("unknown classId does not crash (null-safety)", () => {
+    expect(getMulticlassThac0([{ classId: "nonexistent" as ClassId, level: 5 }])).toBe(20);
+  });
+});
+
+describe("getMulticlassGroups null-safety", () => {
+  it("unknown classId does not crash", () => {
+    expect(getMulticlassGroups(["nonexistent" as ClassId])).toEqual([]);
   });
 });
 

@@ -69,6 +69,8 @@ export function PlaySpellbookPanel({
   const [expandedSpell, setExpandedSpell] = useState<string | null>(null);
   const [showRestConfirm, setShowRestConfirm] = useState(false);
   const [priestSearch, setPriestSearch] = useState("");
+  const [expandedLevels, setExpandedLevels] = useState<Set<number>>(new Set([1]));
+  const [showAllPerLevel, setShowAllPerLevel] = useState<Set<number>>(new Set());
 
   const isWizard = classGroups.includes("wizard");
   const isPriest = classGroups.includes("priest");
@@ -360,107 +362,144 @@ export function PlaySpellbookPanel({
         </div>
       )}
 
-      {/* Priest spell list (from spheres) */}
+      {/* Priest spell list (from spheres) — collapsible per level, paginated */}
       {usesSphereSpells ? (
-        <div className="space-y-1">
+        <div className="space-y-2">
           {Object.keys(priestSpellsByLevel)
             .map(Number)
             .sort((a, b) => a - b)
-            .map((level) => (
-              <div key={level}>
-                <div className="mb-1 text-xs font-medium text-muted-foreground">
-                  Level {level}
-                  {isPointsMode && (
-                    <span className="ml-1 text-[10px]">
-                      ({t("spellPointsCost")}: {getPriestSpellCost(level)})
+            .map((level) => {
+              const spells = priestSpellsByLevel[level];
+              const isLevelOpen = expandedLevels.has(level);
+              const INITIAL_COUNT = 10;
+              const showAll = showAllPerLevel.has(level);
+              const visibleSpells = showAll ? spells : spells.slice(0, INITIAL_COUNT);
+              const hasMore = spells.length > INITIAL_COUNT && !showAll;
+
+              return (
+                <div key={level} className="rounded-lg border border-border">
+                  <button
+                    type="button"
+                    className="flex w-full items-center justify-between px-3 py-2 text-left"
+                    onClick={() =>
+                      setExpandedLevels((prev) => {
+                        const next = new Set(prev);
+                        if (next.has(level)) next.delete(level);
+                        else next.add(level);
+                        return next;
+                      })
+                    }
+                    aria-expanded={isLevelOpen}
+                    data-testid={`play-priest-level-${level}`}
+                  >
+                    <span className="text-xs font-medium text-muted-foreground">
+                      Level {level}
+                      {isPointsMode && (
+                        <span className="ml-1 text-[10px]">
+                          ({t("spellPointsCost")}: {getPriestSpellCost(level)})
+                        </span>
+                      )}
+                      <span className="ml-1 text-[10px]">({spells.length})</span>
                     </span>
-                  )}
-                  <span className="ml-1 text-[10px]">({priestSpellsByLevel[level].length})</span>
-                </div>
-                <div className="space-y-1">
-                  {priestSpellsByLevel[level].map((spell) => {
-                    const isExpanded = expandedSpell === spell.id;
-                    const canCastThis = canCastPriestSpell(spell.level);
-                    return (
-                      <div
-                        key={spell.id}
-                        className="rounded-lg border border-border bg-card/50 transition-colors"
-                        data-testid={`play-spell-${spell.id}`}
-                      >
-                        <div
-                          className="flex min-h-[40px] cursor-pointer items-center gap-2 px-2 py-1.5"
-                          role="button"
-                          tabIndex={0}
-                          onClick={() => setExpandedSpell(isExpanded ? null : spell.id)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === " ") {
-                              e.preventDefault();
-                              setExpandedSpell(isExpanded ? null : spell.id);
-                            }
-                          }}
-                        >
-                          <span className="min-w-0 flex-1 truncate text-sm">
-                            {spellName(spell)}
-                          </span>
-                          {spell.sphere && (
-                            <Badge
-                              variant="outline"
-                              className="shrink-0 text-[9px] capitalize"
-                              data-testid={`play-spell-sphere-${spell.id}`}
-                            >
-                              {spell.sphere}
-                            </Badge>
-                          )}
-                          {!readOnly && (
-                            <Button
-                              size="sm"
-                              variant="default"
-                              className="h-6 shrink-0 px-2 text-[10px]"
-                              disabled={!canCastThis}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleCastPriestSpell(spell);
+                    <span className="text-xs text-muted-foreground">{isLevelOpen ? "▾" : "▸"}</span>
+                  </button>
+                  {isLevelOpen && (
+                    <div className="space-y-1 px-2 pb-2">
+                      {visibleSpells.map((spell) => {
+                        const isExpanded = expandedSpell === spell.id;
+                        const canCastThis = canCastPriestSpell(spell.level);
+                        return (
+                          <div
+                            key={spell.id}
+                            className="rounded-lg border border-border bg-card/50 transition-colors"
+                            data-testid={`play-spell-${spell.id}`}
+                          >
+                            <div
+                              className="flex min-h-[40px] cursor-pointer items-center gap-2 px-2 py-1.5"
+                              role="button"
+                              tabIndex={0}
+                              onClick={() => setExpandedSpell(isExpanded ? null : spell.id)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault();
+                                  setExpandedSpell(isExpanded ? null : spell.id);
+                                }
                               }}
-                              data-testid={`play-cast-${spell.id}`}
                             >
-                              {t("castSpell")}
-                            </Button>
-                          )}
-                        </div>
-                        {isExpanded && (
-                          <div className="border-t border-border px-2 pb-2 pt-1.5">
-                            <div className="mb-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-                              <span>
-                                {tSpells("range")}: {spellRange(spell)}
+                              <span className="min-w-0 flex-1 truncate text-sm">
+                                {spellName(spell)}
                               </span>
-                              <span>
-                                {tSpells("duration")}: {spell.duration}
-                              </span>
-                              <span>
-                                {tSpells("areaOfEffect")}: {spellArea(spell)}
-                              </span>
-                              {spell.saving_throw && spell.saving_throw !== "None" && (
-                                <span>
-                                  {tSpells("savingThrow")}: {spell.saving_throw}
-                                </span>
+                              {spell.sphere && (
+                                <Badge
+                                  variant="outline"
+                                  className="shrink-0 text-[9px] capitalize"
+                                  data-testid={`play-spell-sphere-${spell.id}`}
+                                >
+                                  {spell.sphere}
+                                </Badge>
                               )}
-                              {spell.components.length > 0 && (
-                                <span>
-                                  {tSpells("components")}: {spell.components.join(", ")}
-                                </span>
+                              {!readOnly && (
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  className="h-6 shrink-0 px-2 text-[10px]"
+                                  disabled={!canCastThis}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCastPriestSpell(spell);
+                                  }}
+                                  data-testid={`play-cast-${spell.id}`}
+                                >
+                                  {t("castSpell")}
+                                </Button>
                               )}
                             </div>
-                            <div className="prose prose-sm max-w-none text-xs dark:prose-invert">
-                              <ReactMarkdown>{spellDesc(spell)}</ReactMarkdown>
-                            </div>
+                            {isExpanded && (
+                              <div className="border-t border-border px-2 pb-2 pt-1.5">
+                                <div className="mb-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                                  <span>
+                                    {tSpells("range")}: {spellRange(spell)}
+                                  </span>
+                                  <span>
+                                    {tSpells("duration")}: {spell.duration}
+                                  </span>
+                                  <span>
+                                    {tSpells("areaOfEffect")}: {spellArea(spell)}
+                                  </span>
+                                  {spell.saving_throw && spell.saving_throw !== "None" && (
+                                    <span>
+                                      {tSpells("savingThrow")}: {spell.saving_throw}
+                                    </span>
+                                  )}
+                                  {spell.components.length > 0 && (
+                                    <span>
+                                      {tSpells("components")}: {spell.components.join(", ")}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="prose prose-sm max-w-none text-xs dark:prose-invert">
+                                  <ReactMarkdown>{spellDesc(spell)}</ReactMarkdown>
+                                </div>
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                        );
+                      })}
+                      {hasMore && (
+                        <button
+                          type="button"
+                          className="w-full rounded-md border border-dashed border-border py-1.5 text-xs text-muted-foreground hover:border-primary/50 hover:text-primary"
+                          onClick={() => setShowAllPerLevel((prev) => new Set([...prev, level]))}
+                          data-testid={`play-priest-show-all-${level}`}
+                        >
+                          {spells.length - INITIAL_COUNT} {tSpells("moreSpells")}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
         </div>
       ) : preparedSpells.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("noSpells")}</p>

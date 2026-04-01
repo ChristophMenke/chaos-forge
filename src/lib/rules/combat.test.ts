@@ -47,6 +47,36 @@ describe("COMBAT-001: THAC0", () => {
   });
 });
 
+describe("Crusader THAC0 (Warrior rate, PO:S&M)", () => {
+  it("L1 Crusader has THAC0 20 (warrior rate, not priest)", () => {
+    expect(getThac0("priest", 1, "crusader")).toBe(20);
+  });
+
+  it("L5 Crusader has THAC0 16 (warrior: 21-5)", () => {
+    expect(getThac0("priest", 5, "crusader")).toBe(16);
+  });
+
+  it("L10 Crusader has THAC0 11", () => {
+    expect(getThac0("priest", 10, "crusader")).toBe(11);
+  });
+
+  it("L20 Crusader has THAC0 1 (minimum)", () => {
+    expect(getThac0("priest", 20, "crusader")).toBe(1);
+  });
+
+  it("regular priest still uses priest progression (regression)", () => {
+    expect(getThac0("priest", 5)).toBe(18);
+  });
+
+  it("without classId, priest group uses priest progression", () => {
+    expect(getThac0("priest", 4)).toBe(18);
+  });
+
+  it("non-crusader classId does not override", () => {
+    expect(getThac0("priest", 5, "cleric")).toBe(18);
+  });
+});
+
 describe("COMBAT-002: Attack Roll Calculation", () => {
   it("should need 20 to hit AC 0 with THAC0 20", () => {
     expect(getAttackRoll(20, 0)).toBe(20);

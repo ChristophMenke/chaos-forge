@@ -681,6 +681,7 @@ export function PlayMode({
           {showAbilities && (
             <PlayAbilitiesPanel
               raceId={character.race_id ?? "human"}
+              classIds={classIds}
               priesthoodId={character.priesthood}
               priestLevel={priestClassForAbilities?.level ?? 1}
             />

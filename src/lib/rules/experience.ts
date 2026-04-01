@@ -46,6 +46,9 @@ function getXpTable(classId: ClassId): number[] {
   // All wizard specialists use the mage table
   if (cls.group === "wizard") return XP_TABLES.mage;
 
+  // Crusader uses cleric XP table (PO:S&M)
+  if (classId === "crusader") return XP_TABLES.cleric;
+
   return XP_TABLES[classId] ?? XP_TABLES.fighter;
 }
 

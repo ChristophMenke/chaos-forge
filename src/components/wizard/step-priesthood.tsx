@@ -64,8 +64,14 @@ export function StepPriesthood({ state, onChange }: StepPriesthoodProps) {
   const locale = useLocale();
   const [search, setSearch] = useState("");
 
-  const isCleric = state.classIds.includes("cleric");
-  const isPriest = isCleric || state.classIds.includes("druid");
+  // Clerics and Crusaders can choose a priesthood; Druids only get deity
+  const showPriesthoodSelection =
+    state.classIds.includes("cleric") || state.classIds.includes("crusader");
+  const isPriest =
+    showPriesthoodSelection ||
+    state.classIds.includes("druid") ||
+    state.classIds.includes("ranger") ||
+    state.classIds.includes("paladin");
 
   const allPriesthoods = useMemo(() => getAllPriesthoods(), []);
 
@@ -98,8 +104,8 @@ export function StepPriesthood({ state, onChange }: StepPriesthoodProps) {
         <p className="text-xs text-muted-foreground">{t("deityHint")}</p>
       </div>
 
-      {/* Priesthood selection — only for clerics */}
-      {isCleric ? (
+      {/* Priesthood selection — for clerics and crusaders */}
+      {showPriesthoodSelection ? (
         <>
           <div className="border-t border-border pt-4">
             <p className="text-sm text-muted-foreground">{t("priesthoodDescription")}</p>
@@ -127,6 +133,22 @@ export function StepPriesthood({ state, onChange }: StepPriesthoodProps) {
             <div className="font-heading text-lg">{t("genericCleric")}</div>
             <div className="text-sm text-muted-foreground">{t("genericClericDesc")}</div>
           </button>
+
+          {/* Sticky selection banner */}
+          {state.priesthood && (
+            <div className="sticky top-0 z-10 flex items-center justify-between rounded-lg border border-primary/30 bg-card/95 px-4 py-2 backdrop-blur-sm">
+              <span className="text-sm">
+                <span className="text-muted-foreground">{t("selectedPriesthood")}:</span>{" "}
+                <span className="font-medium text-primary">
+                  {localized(
+                    allPriesthoods.find((p) => p.id === state.priesthood)?.name ?? "",
+                    allPriesthoods.find((p) => p.id === state.priesthood)?.name_en ?? "",
+                    locale
+                  )}
+                </span>
+              </span>
+            </div>
+          )}
 
           {/* Priesthood cards */}
           {filtered.map((p) => {

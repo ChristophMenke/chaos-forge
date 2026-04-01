@@ -17,7 +17,7 @@ describe("RACE-003 RACE-004 RACE-009 RACE-010 RACE-011: Races", () => {
 
   it("should allow humans to play all classes", () => {
     const human = getRace("human");
-    expect(human.allowedClasses).toHaveLength(16);
+    expect(human.allowedClasses).toHaveLength(17);
     expect(human.levelLimits).toEqual({});
   });
 
@@ -150,9 +150,9 @@ describe("Tiefling Race", () => {
     expect(tiefling.abilityAdjustments).toEqual({ int: 1, cha: -1 });
   });
 
-  it("should allow all 16 classes", () => {
+  it("should allow all 17 classes", () => {
     const tiefling = getRace("tiefling");
-    expect(tiefling.allowedClasses).toHaveLength(16);
+    expect(tiefling.allowedClasses).toHaveLength(17);
   });
 
   it("should have no level limits", () => {
@@ -200,5 +200,35 @@ describe("Tiefling Race", () => {
   it("should return weight range for tiefling", () => {
     const w = getWeightRange("tiefling", "male");
     expect(w.baseLbs).toBe(140); // same as human
+  });
+});
+
+describe("Crusader Class Race Access (PO:S&M)", () => {
+  it("human can play crusader", () => {
+    expect(canPlayClass("human", "crusader")).toBe(true);
+  });
+
+  it("dwarf can play crusader", () => {
+    expect(canPlayClass("dwarf", "crusader")).toBe(true);
+  });
+
+  it("elf can play crusader", () => {
+    expect(canPlayClass("elf", "crusader")).toBe(true);
+  });
+
+  it("halfling cannot play crusader (warning only)", () => {
+    expect(canPlayClass("halfling", "crusader")).toBe(false);
+  });
+
+  it("gnome cannot play crusader (warning only)", () => {
+    expect(canPlayClass("gnome", "crusader")).toBe(false);
+  });
+
+  it("half_elf can play crusader (via ALL_CLASSES)", () => {
+    expect(canPlayClass("half_elf", "crusader")).toBe(true);
+  });
+
+  it("dwarf crusader has level limit 12", () => {
+    expect(getLevelLimit("dwarf", "crusader")).toBe(12);
   });
 });

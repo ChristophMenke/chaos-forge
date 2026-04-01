@@ -75,6 +75,22 @@ describe("Druid XP Table (PHB Table 23)", () => {
   });
 });
 
+describe("Crusader XP (uses cleric table, PO:S&M)", () => {
+  it("should use cleric XP table for level 2", () => {
+    expect(getXpForNextLevel("crusader", 1)).toBe(1500);
+  });
+
+  it("should use cleric XP table for level 3", () => {
+    expect(getXpForNextLevel("crusader", 2)).toBe(3000);
+  });
+
+  it("should level up correctly with previewXpGain", () => {
+    const preview = previewXpGain("crusader", 1, 0, 1500);
+    expect(preview.newLevel).toBe(2);
+    expect(preview.levelsGained).toBe(1);
+  });
+});
+
 describe("previewXpGain", () => {
   it("should level up fighter from 1 to 2 with 2000 XP", () => {
     const preview = previewXpGain("fighter", 1, 0, 2000);
