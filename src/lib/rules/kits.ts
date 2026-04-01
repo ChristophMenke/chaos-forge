@@ -560,39 +560,6 @@ export const KITS: Record<string, KitDefinition> = {
   },
 
   // ── Priest Kits ───────────────────────────────────────────────────────
-  fighting_priest: {
-    id: "fighting_priest",
-    name: "Kampfmönch",
-    name_en: "Fighting Monk",
-    classId: "cleric",
-    hitDieOverride: null,
-    maxArmorAC: 10, // no armor allowed
-    armorSpellFailure: null,
-    abilities: [
-      {
-        name: "Waffenlose Kampfspezialisierung",
-        name_en: "Unarmed Combat Specialization",
-        description:
-          "2 freie Waffenslots für Spezialisierung in einem waffenlosen Kampfstil (Faustkampf, Ringen oder Kampfkunst). Zugang zu allen 5 Fertigkeitsgruppen (keine doppelten Slot-Kosten). Erfordert DEX 12+.",
-        description_en:
-          "2 free weapon slots for specialization in one unarmed combat style (Punching, Wrestling, or Martial Arts). Crossover with all 5 proficiency groups (no double-slot cost). Requires DEX 12+.",
-      },
-      {
-        name: "Keine Rüstung erlaubt",
-        name_en: "No Armor Allowed",
-        description:
-          "Darf niemals Rüstung tragen. Mittlere Kampffähigkeit: max 3 Haupt-Sphärenzugänge (eine muss All sein) und 2 Neben-Zugänge.",
-        description_en:
-          "May never wear armor. Medium combat ability: max 3 major sphere accesses (one must be All) and 2 minor accesses.",
-      },
-      {
-        name: "Minimaler Besitz",
-        name_en: "Minimal Possessions",
-        description: "Darf nie mehr besitzen, als auf dem Rücken getragen werden kann.",
-        description_en: "May never own more than can be carried on one's back.",
-      },
-    ],
-  },
   pacifist_priest: {
     id: "pacifist_priest",
     name: "Friedenspriester",
@@ -1535,7 +1502,7 @@ export const KITS: Record<string, KitDefinition> = {
         description:
           "Füße 1–4 Std. vergraben → 3W4 TP heilen. Ab Stufe 10: Gliedmaßenwachstum (1×/Monat, 24 Std. Starre, 3. Arm für 1–4 Tage). Photosynthese statt Essen (1 Std. Sonne/Tag nötig).",
         description_en:
-          "Bury feet 1–4 hrs → heal 3d4 HP. From level 10: Limbing (1/month, 24 hr suspended animation, 3rd arm for 1–4 days). Photosynthesis instead of eating (1 hr sunlight/day needed).",
+          "Root feet into earth 1–4 hrs → heal 3d4 HP. From level 10: Limbing (1/month, 24 hr suspended animation, 3rd arm for 1–4 days). Photosynthesis instead of eating (1 hr sunlight/day needed).",
       },
       {
         name: "Feuer-Verwundbarkeit & Steifheit",

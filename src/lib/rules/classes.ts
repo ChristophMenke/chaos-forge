@@ -43,7 +43,7 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
         name: "Ausnahmestärke",
         name_en: "Exceptional Strength",
         description:
-          "Krieger mit STR 18 würfeln Ausnahmestärke (18/01–18/00). Dies gewährt bis zu +3 Treffer, +6 Schaden und 335 lbs Tragkraft (18/00). Nur für Krieger-Klassen verfügbar.",
+          "Krieger mit STR 18 würfeln Ausnahmestärke (18/01–18/00). Dies gewährt bis zu +3 Treffer, +6 Schaden und 152 kg Tragkraft (18/00). Nur für Krieger-Klassen verfügbar.",
         description_en:
           "Warriors with STR 18 roll exceptional strength (18/01–18/00), granting up to +3 to hit, +6 to damage, and 152 kg weight allowance (at 18/00). Only available to warrior classes.",
       },

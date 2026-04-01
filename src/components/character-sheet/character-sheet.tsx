@@ -42,6 +42,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { AvatarUpload } from "@/components/avatar-upload";
 import { AvatarDisplay } from "@/components/avatar-display";
 import { ImageLightbox } from "@/components/image-lightbox";
+import { WebresearchBadge } from "@/components/webresearch-badge";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { ShareDialog } from "./share-dialog";
 import { Share2, Printer, EyeOff, Eye, Trash2, Copy } from "lucide-react";
@@ -1596,8 +1597,9 @@ export function CharacterSheet({
                   <div className="flex flex-col gap-1 text-sm text-muted-foreground">
                     {clsDef.classAbilities.map((ability, i) => (
                       <details key={i}>
-                        <summary className="cursor-pointer">
+                        <summary className="flex cursor-pointer items-center gap-1">
                           {localized(ability.name, ability.name_en, locale)}
+                          {ability.webResearched && <WebresearchBadge />}
                         </summary>
                         <p className="mt-1 text-xs">
                           {localized(ability.description, ability.description_en, locale)}
@@ -1636,8 +1638,9 @@ export function CharacterSheet({
                       <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
                         {kitDef.abilities.map((ability, i) => (
                           <li key={i}>
-                            <span className="font-medium text-foreground">
+                            <span className="inline-flex items-center gap-1 font-medium text-foreground">
                               {localized(ability.name, ability.name_en, locale)}
+                              {ability.webResearched && <WebresearchBadge />}
                             </span>
                             {" — "}
                             {localized(ability.description, ability.description_en, locale)}

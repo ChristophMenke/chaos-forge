@@ -12,6 +12,8 @@ export function WebresearchBadge() {
       <TooltipTrigger
         className="inline-flex shrink-0 items-center gap-0.5 rounded-sm bg-amber-800/40 px-1 py-0.5 text-[9px] text-amber-300"
         data-testid="webresearch-badge"
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
       >
         <GlobeIcon className="h-2.5 w-2.5" />
         Web
