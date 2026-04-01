@@ -300,6 +300,8 @@
     "newProfSlots": "Neue Waffenfertigkeits-Slots",
     "newNwpSlots": "Neue Fertigkeits-Slots",
     "addClass": "Klasse hinzufügen...",
+    "dualclassDormant": "Dormant (Stufe {level})",
+    "dualclassActive": "Aktiv (Stufe {level})",
     "xpHistory": "XP-Verlauf",
     "xpHistoryEmpty": "Noch keine XP vergeben.",
     "xpEarned": "Erfahrungspunkte"

@@ -157,6 +157,16 @@ export function CharacterSheet({
     level: cc.level,
   }));
 
+  // Dual-class detection
+  const dualclassOriginal = charClasses.find((cc) => cc.switch_level != null);
+  const dualclassNew = dualclassOriginal
+    ? activeClasses.find((cc) => cc.class_id !== dualclassOriginal.class_id)
+    : null;
+  const isDualclassed = !!dualclassOriginal && !!dualclassNew;
+  const dualclassDormant = isDualclassed
+    ? dualclassNew!.level <= dualclassOriginal!.switch_level!
+    : false;
+
   const race = character.race_id ? RACES[character.race_id as keyof typeof RACES] : null;
   const priesthoodDef = character.priesthood ? getPriesthood(character.priesthood) : null;
   const hasPriestClass = classIds.some((id) => isPriestCaster(id as ClassId));
@@ -181,9 +191,20 @@ export function CharacterSheet({
       ? activeClasses.map((cc) => cc.level).join("/")
       : String(activeClasses[0]?.level ?? character.level);
 
-  // Use multiclass-aware calculations
-  const thac0 = classEntries.length > 0 ? getMulticlassThac0(classEntries) : 20;
-  const saves = classEntries.length > 0 ? getMulticlassSaves(classEntries) : null;
+  // Use multiclass-aware calculations (dual-class: include original class if not dormant)
+  const effectiveClassEntries = isDualclassed
+    ? dualclassDormant
+      ? [{ classId: dualclassNew!.class_id as ClassId, level: dualclassNew!.level }]
+      : [
+          {
+            classId: dualclassOriginal!.class_id as ClassId,
+            level: dualclassOriginal!.switch_level!,
+          },
+          { classId: dualclassNew!.class_id as ClassId, level: dualclassNew!.level },
+        ]
+    : classEntries;
+  const thac0 = effectiveClassEntries.length > 0 ? getMulticlassThac0(effectiveClassEntries) : 20;
+  const saves = effectiveClassEntries.length > 0 ? getMulticlassSaves(effectiveClassEntries) : null;
   const classGroups = getMulticlassGroups(classIds);
   const hasExceptionalStr = multiclassHasExceptionalStr(classIds);
 
@@ -1357,6 +1378,21 @@ export function CharacterSheet({
                         <span className="font-heading text-sm">
                           {clsDef ? localized(clsDef.name, clsDef.name_en, locale) : cc.class_id}
                         </span>
+                        {cc.switch_level != null && (
+                          <Badge
+                            variant="outline"
+                            className={
+                              dualclassDormant
+                                ? "border-yellow-500/50 text-yellow-400"
+                                : "border-green-500/50 text-green-400"
+                            }
+                            data-testid={`sheet-dualclass-badge-${cc.class_id}`}
+                          >
+                            {dualclassDormant
+                              ? t("dualclassDormant", { level: cc.switch_level })
+                              : t("dualclassActive", { level: cc.switch_level })}
+                          </Badge>
+                        )}
                         <div className="flex items-center gap-1">
                           <Label className="text-xs text-muted-foreground">{tc("level")}</Label>
                           <Input

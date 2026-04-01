@@ -222,8 +222,22 @@ export function PlayMode({
   const classGroups = useMemo(() => getMulticlassGroups(classIds), [classIds]);
   const primaryGroup = classGroups[0] ?? "warrior";
 
-  const thac0 = useMemo(() => getMulticlassThac0(classEntries), [classEntries]);
-  const saves = useMemo(() => getMulticlassSaves(classEntries), [classEntries]);
+  // Dual-class: use effective entries (dormant = only new class, active = best of both)
+  const effectiveClassEntries = useMemo(() => {
+    const dualOrig = characterClasses.find((cc) => cc.switch_level != null);
+    if (!dualOrig) return classEntries;
+    const dualNew = activeClasses.find((cc) => cc.class_id !== dualOrig.class_id);
+    if (!dualNew) return classEntries;
+    const dormant = dualNew.level <= dualOrig.switch_level!;
+    if (dormant) return [{ classId: dualNew.class_id as ClassId, level: dualNew.level }];
+    return [
+      { classId: dualOrig.class_id as ClassId, level: dualOrig.switch_level! },
+      { classId: dualNew.class_id as ClassId, level: dualNew.level },
+    ];
+  }, [characterClasses, activeClasses, classEntries]);
+
+  const thac0 = useMemo(() => getMulticlassThac0(effectiveClassEntries), [effectiveClassEntries]);
+  const saves = useMemo(() => getMulticlassSaves(effectiveClassEntries), [effectiveClassEntries]);
 
   const strMods = useMemo(
     () =>
