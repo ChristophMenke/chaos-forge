@@ -63,6 +63,15 @@ export function calculateAC(input: ACCalculationInput): number {
 }
 
 /**
+ * Detect whether an armor item is a shield (bilingual check).
+ * Used to separate armor from shield in AC calculations.
+ */
+export function isShieldItem(name: string): boolean {
+  const lower = name.toLowerCase();
+  return lower === "schild" || lower === "shield" || lower.includes("shield");
+}
+
+/**
  * Calculate encumbrance level based on carried weight vs STR weight allowance.
  * PHB Table 47 thresholds (simplified).
  */

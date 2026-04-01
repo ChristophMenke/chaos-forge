@@ -991,3 +991,49 @@ export function rollAbilityScoresMethodIV(): number[] {
 export function rollAbilityScoresMethodV(): number[] {
   return Array.from({ length: 6 }, () => roll4d6DropLowest());
 }
+
+// ─── CONVENIENCE HELPERS ────────────────────────────────────────────────────
+
+/**
+ * Compute all six ability modifier sets from a character's stats.
+ * Handles exceptional strength and optional sub-stats in one call.
+ */
+export function getAllAbilityModifiers(character: {
+  str: number;
+  str_exceptional?: number | null;
+  str_muscle?: number | null;
+  str_stamina?: number | null;
+  dex: number;
+  dex_aim?: number | null;
+  dex_balance?: number | null;
+  con: number;
+  con_health?: number | null;
+  con_fitness?: number | null;
+  int: number;
+  int_knowledge?: number | null;
+  int_reason?: number | null;
+  wis: number;
+  wis_intuition?: number | null;
+  wis_willpower?: number | null;
+  cha: number;
+  cha_leadership?: number | null;
+  cha_appearance?: number | null;
+}) {
+  return {
+    strMods: getStrengthModifiers(
+      character.str,
+      character.str_exceptional ?? undefined,
+      character.str_muscle,
+      character.str_stamina
+    ),
+    dexMods: getDexterityModifiers(character.dex, character.dex_aim, character.dex_balance),
+    conMods: getConstitutionModifiers(character.con, character.con_health, character.con_fitness),
+    intMods: getIntelligenceModifiers(character.int, character.int_knowledge, character.int_reason),
+    wisMods: getWisdomModifiers(character.wis, character.wis_intuition, character.wis_willpower),
+    chaMods: getCharismaModifiers(
+      character.cha,
+      character.cha_leadership,
+      character.cha_appearance
+    ),
+  };
+}
