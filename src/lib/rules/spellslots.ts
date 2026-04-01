@@ -92,6 +92,55 @@ const PRIEST_SLOTS: number[][] = [
   [9, 9, 9, 8, 7, 5, 2],
 ];
 
+// PHB Table 32: Bard Spell Progression (6 spell levels max, starts at level 2)
+const BARD_SLOTS: number[][] = [
+  // L1: no spells
+  [0, 0, 0, 0, 0, 0],
+  // L2
+  [1, 0, 0, 0, 0, 0],
+  // L3
+  [2, 0, 0, 0, 0, 0],
+  // L4
+  [2, 1, 0, 0, 0, 0],
+  // L5
+  [3, 1, 0, 0, 0, 0],
+  // L6
+  [3, 2, 0, 0, 0, 0],
+  // L7
+  [3, 2, 1, 0, 0, 0],
+  // L8
+  [3, 3, 1, 0, 0, 0],
+  // L9
+  [3, 3, 2, 0, 0, 0],
+  // L10
+  [3, 3, 2, 1, 0, 0],
+  // L11
+  [3, 3, 3, 1, 0, 0],
+  // L12
+  [3, 3, 3, 2, 0, 0],
+  // L13
+  [3, 3, 3, 2, 1, 0],
+  // L14
+  [3, 3, 3, 3, 1, 0],
+  // L15
+  [3, 3, 3, 3, 2, 0],
+  // L16
+  [3, 3, 3, 3, 2, 1],
+  // L17
+  [4, 3, 3, 3, 3, 1],
+  // L18
+  [4, 4, 3, 3, 3, 2],
+  // L19
+  [4, 4, 4, 4, 3, 2],
+  // L20
+  [4, 4, 4, 4, 4, 3],
+];
+
+export function getBardSpellSlots(level: number): number[] {
+  const idx = Math.min(level, BARD_SLOTS.length) - 1;
+  return [...BARD_SLOTS[Math.max(0, idx)]];
+}
+
 export function getWizardSpellSlots(level: number): number[] {
   const idx = Math.min(level, WIZARD_SLOTS.length) - 1;
   return [...WIZARD_SLOTS[Math.max(0, idx)]];

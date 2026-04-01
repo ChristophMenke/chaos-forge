@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import {
+  getBardSpellSlots,
   getWizardSpellSlots,
   getPriestSpellSlots,
   getPriestBonusSlots,
@@ -15,6 +16,7 @@ import type { CharacterSpellWithDetails } from "@/lib/supabase/types";
 interface ResourceTrackerProps {
   isWizard: boolean;
   isPriest: boolean;
+  isBard?: boolean;
   level: number;
   wisScore: number;
   spells: CharacterSpellWithDetails[];
@@ -24,6 +26,7 @@ interface ResourceTrackerProps {
 export function ResourceTracker({
   isWizard,
   isPriest,
+  isBard,
   level,
   wisScore,
   spells,
@@ -32,10 +35,11 @@ export function ResourceTracker({
   const t = useTranslations("spellbook");
 
   const baseSlots = useMemo(() => {
+    if (isBard) return getBardSpellSlots(level);
     if (isWizard) return getWizardSpellSlots(level);
     if (isPriest) return getPriestSpellSlots(level);
     return [];
-  }, [isWizard, isPriest, level]);
+  }, [isBard, isWizard, isPriest, level]);
 
   const bonusSlots = useMemo(() => {
     if (isPriest) return getPriestBonusSlots(wisScore);

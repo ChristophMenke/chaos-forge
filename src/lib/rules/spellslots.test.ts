@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  getBardSpellSlots,
   getWizardSpellSlots,
   getPriestSpellSlots,
   getPriestBonusSlots,
@@ -15,6 +16,49 @@ import {
   getWizardBonusSpellPoints,
   getWizardSpellCost,
 } from "./spellslots";
+
+describe("CLASS-009: Bard Spell Slots", () => {
+  it("bard level 1 has no spells", () => {
+    const slots = getBardSpellSlots(1);
+    expect(slots.every((s) => s === 0)).toBe(true);
+  });
+
+  it("bard level 2 has 1 first-level slot", () => {
+    const slots = getBardSpellSlots(2);
+    expect(slots[0]).toBe(1);
+    expect(slots[1]).toBe(0);
+  });
+
+  it("bard level 4 has 2 first-level and 1 second-level slot", () => {
+    const slots = getBardSpellSlots(4);
+    expect(slots[0]).toBe(2);
+    expect(slots[1]).toBe(1);
+  });
+
+  it("bard level 10 gets 4th level spells", () => {
+    const slots = getBardSpellSlots(10);
+    expect(slots[3]).toBe(1);
+    expect(slots[4]).toBe(0);
+  });
+
+  it("bard level 16 gets 6th level spells", () => {
+    const slots = getBardSpellSlots(16);
+    expect(slots[5]).toBe(1);
+  });
+
+  it("bard level 20 maxes at 6 spell levels", () => {
+    const slots = getBardSpellSlots(20);
+    expect(slots).toHaveLength(6);
+    expect(slots[0]).toBe(4);
+    expect(slots[5]).toBe(3);
+  });
+
+  it("bard has fewer slots than wizard at same level", () => {
+    const bardSlots = getBardSpellSlots(10);
+    const wizSlots = getWizardSpellSlots(10);
+    expect(bardSlots[0]).toBeLessThan(wizSlots[0]);
+  });
+});
 
 describe("MAGIC-007: Wizard Spell Slots", () => {
   it("should give a level 1 wizard 1 first-level slot", () => {
