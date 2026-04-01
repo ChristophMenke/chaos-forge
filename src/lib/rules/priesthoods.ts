@@ -115,7 +115,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Der Priester kann Gräber und Untote innerhalb von 18 m erkennen und zwischen wahren Toten und Untoten unterscheiden. Durch Holz oder dünne Steinwände nur bis 9 m, durch dicken Stein oder Erde nur bis 3 m.",
         description_en:
-          "The priest can detect graves and the presence of undead within 60', and can tell the difference between the truly dead and the undead. Through wooden or thin stone walls detection range is 30', through thick stone or earth only 10'.",
+          "The priest can detect graves and the presence of undead within 18 m, and can tell the difference between the truly dead and the undead. Through wooden or thin stone walls detection range is 9 m, through thick stone or earth only 3 m.",
         level: 1,
         mechanical: { type: "detect" },
       },
@@ -397,7 +397,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Der Priester kann innerhalb von 18 m Regelverstöße bei Wettkämpfen erkennen und feststellen, ob sie absichtlich oder versehentlich waren. Er ist 100% genau bei Grenzentscheidungen.",
         description_en:
-          "The priest can detect rule-breaking in competitions within 60', and tell whether it was deliberate or accidental. They are 100% accurate in boundary and finish-line decisions.",
+          "The priest can detect rule-breaking in competitions within 18 m, and tell whether it was deliberate or accidental. They are 100% accurate in boundary and finish-line decisions.",
         level: 1,
         mechanical: { type: "detect" },
       },
@@ -467,7 +467,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit: Erfolg bei 1 auf 1W6 im Vorbeigehen, 1-2 auf 1W6 für Geheimtüren und 1-3 auf 1W6 für verborgene Durchgänge bei aktiver Suche.",
         description_en:
-          "Same as the Elf ability: Success on 1 on 1d6 when passing within 10', 1-2 on 1d6 for secret doors and 1-3 on 1d6 for concealed portals when actively searching.",
+          "Same as the Elf ability: Success on 1 on 1d6 when passing within 3 m, 1-2 on 1d6 for secret doors and 1-3 on 1d6 for concealed portals when actively searching.",
         level: 1,
         mechanical: { type: "detect" },
       },
@@ -545,7 +545,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit (18 m Reichweite). Elfische oder halelfische Priester dieses Glaubens haben doppelte Reichweite (36 m).",
         description_en:
-          "Same as the Elf ability (60' range). Elven or half-elven priests of this faith have doubled range (120').",
+          "Same as the Elf ability (18 m range). Elven or half-elven priests of this faith have doubled range (36 m).",
         level: 1,
         mechanical: { type: "other" },
       },
@@ -1304,7 +1304,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit (18 m). Elfische oder halbelfische Priester dieses Glaubens haben doppelte Reichweite (36 m).",
         description_en:
-          "Same as the Elf ability (60'). Elven or half-elven priests of this faith have doubled range (120').",
+          "Same as the Elf ability (18 m). Elven or half-elven priests of this faith have doubled range (36 m).",
         level: 1,
         mechanical: { type: "other" },
       },
@@ -1594,7 +1594,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit. Elfische oder halbelfische Priester haben doppelte Reichweite (36 m).",
         description_en:
-          "Same as the Elf ability. Elven or half-elven priests have doubled range (120').",
+          "Same as the Elf ability (18 m). Elven or half-elven priests have doubled range (36 m).",
         level: 1,
         mechanical: { type: "other" },
       },
@@ -1895,7 +1895,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit. Elfische oder halbelfische Priester haben doppelte Reichweite (36 m).",
         description_en:
-          "Same as the Elf ability. Elven or half-elven priests have doubled range (120').",
+          "Same as the Elf ability (18 m). Elven or half-elven priests have doubled range (36 m).",
         level: 3,
         mechanical: { type: "other" },
       },
@@ -2135,7 +2135,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit: Erfolg bei 1 auf 1W6 im Vorbeigehen, 1-2 auf 1W6 für Geheimtüren und 1-3 auf 1W6 für verborgene Durchgänge.",
         description_en:
-          "Same as the Elf ability: Success on 1 on 1d6 when passing within 10', 1-2 on 1d6 for secret doors and 1-3 on 1d6 for concealed portals.",
+          "Same as the Elf ability: Success on 1 on 1d6 when passing within 3 m, 1-2 on 1d6 for secret doors and 1-3 on 1d6 for concealed portals.",
         level: 1,
         mechanical: { type: "detect" },
       },
@@ -2209,7 +2209,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit. Elfische oder halbelfische Priester haben doppelte Reichweite (36 m).",
         description_en:
-          "Same as the Elf ability. Elven or half-elven priests have doubled range (120').",
+          "Same as the Elf ability (18 m). Elven or half-elven priests have doubled range (36 m).",
         level: 1,
         mechanical: { type: "other" },
       },
@@ -2420,7 +2420,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit, funktioniert aber nur unter Wasser. Elfische oder halbelfische Priester haben doppelte Reichweite (36 m).",
         description_en:
-          "Same as the Elf ability, but only works underwater. Elven or half-elven priests have doubled range (120').",
+          "Same as the Elf ability (18 m), but only works underwater. Elven or half-elven priests have doubled range (36 m).",
         level: 1,
         mechanical: { type: "other" },
       },
@@ -2597,7 +2597,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Der Priester kann Schätze und wertvolle Gegenstände innerhalb von 3 m erkennen, auch wenn sie verborgen sind (1,5 m hinter dünner Wand, 60 cm hinter dicker Wand). Er muss allein sein, da Geldbeutel der Verbündeten den Sinn auslösen.",
         description_en:
-          "The priest can detect treasure and objects of value within 10', even when concealed (5' behind thin wall, 2' behind heavy wall). He must walk alone as allies' coin-pouches will trigger the sense.",
+          "The priest can detect treasure and objects of value within 3 m, even when concealed (1.5 m behind thin wall, 60 cm behind heavy wall). He must walk alone as allies' coin-pouches will trigger the sense.",
         level: 1,
         mechanical: { type: "detect" },
       },
@@ -3365,7 +3365,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit: Erfolg bei 1 auf 1W6 im Vorbeigehen, 1-2 auf 1W6 für Geheimtüren und 1-3 auf 1W6 für verborgene Durchgänge.",
         description_en:
-          "Same as the Elf ability: Success on 1 on 1d6 when passing within 10', 1-2 on 1d6 for secret doors and 1-3 on 1d6 for concealed portals.",
+          "Same as the Elf ability: Success on 1 on 1d6 when passing within 3 m, 1-2 on 1d6 for secret doors and 1-3 on 1d6 for concealed portals.",
         level: 1,
         mechanical: { type: "detect" },
       },
@@ -3376,7 +3376,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit. Elfische oder halbelfische Priester haben doppelte Reichweite (36 m).",
         description_en:
-          "Same as the Elf ability. Elven or half-elven priests have doubled range (120').",
+          "Same as the Elf ability (18 m). Elven or half-elven priests have doubled range (36 m).",
         level: 1,
         mechanical: { type: "other" },
       },
