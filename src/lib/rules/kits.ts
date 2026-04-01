@@ -1078,17 +1078,19 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Kriegerinnenpriesterin",
-        name_en: "Warrior Priestess",
+        name: "+3 Treffer/+3 Schaden (Erstangriff)",
+        name_en: "+3 to Hit/+3 Damage (First Strike)",
         description:
-          "Darf Klingenwaffen und Bögen verwenden, die normalen Priestern verwehrt sind.",
-        description_en: "May use bladed weapons and bows normally forbidden to priests.",
+          "+3 Treffer und +3 Schaden auf den ersten Schlag gegen männliche Gegner aus Kulturen ohne Kriegerinnen. Nicht gegen Krieger ab Stufe 5 oder andere Klassen ab Stufe 8.",
+        description_en:
+          "+3 to hit and +3 damage on first blow vs. male opponents from cultures with rare female fighters. Not vs. warriors level 5+ or other classes level 8+.",
       },
       {
-        name: "Göttinnensegen",
-        name_en: "Goddess's Blessing",
-        description: "Erhält einen Bonus auf Rettungswürfe gegen Bezauberung und Beherrschung.",
-        description_en: "Gains a bonus to saving throws against charm and domination effects.",
+        name: "Keine Krankheits-/Friedensgottheiten",
+        name_en: "No Disease/Peace Deities",
+        description:
+          "Darf keiner Gottheit der Krankheit oder des Friedens dienen. Speer und Langbogen empfohlen.",
+        description_en: "Cannot serve gods of Disease or Peace. Spear and long bow recommended.",
       },
       {
         name: "Stammesführung",
@@ -1108,24 +1110,26 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Stammesritual",
-        name_en: "Tribal Ritual",
+        name: "+1/+3 Reaktion",
+        name_en: "+1/+3 Reaction",
+        description:
+          "+1 Reaktion von allen NSCs; +3 von Angehörigen der eigenen Kultur. Wenn Kultur Berserker hat: Berserkergang in Anwesenheit des Priesters in 5 Runden statt 10 erreichbar.",
+        description_en:
+          "+1 reaction from all NPCs; +3 from own culture members. If culture has berserkers: rage achievable in 5 rounds instead of 10 in priest's presence.",
+      },
+      {
+        name: "Max. Schienen-/Bandpanzer zu Beginn",
+        name_en: "Max Splint/Banded at Start",
+        description:
+          "Darf bei Erstellung keine Rüstung schwerer als Schienen-/Band-/Bronzeplattenpanzer tragen.",
+        description_en: "Cannot start with armor heavier than splint/banded/bronze plate mail.",
+      },
+      {
+        name: "Stammesrituale",
+        name_en: "Tribal Rituals",
         description:
           "Kann schamanistische Rituale durchführen, die besondere göttliche Effekte hervorrufen.",
         description_en: "Can perform shamanistic rituals that invoke special divine effects.",
-      },
-      {
-        name: "Wildnisüberleben",
-        name_en: "Wilderness Survival",
-        description:
-          "Beherrscht das Überleben in der Wildnis und kann Nahrung und Heilkräuter finden.",
-        description_en: "Skilled at wilderness survival and can find food and healing herbs.",
-      },
-      {
-        name: "Geisterbeschwörung",
-        name_en: "Spirit Summoning",
-        description: "Kann Ahnengeister und Naturgeister um Rat und Hilfe anrufen.",
-        description_en: "Can call upon ancestral spirits and nature spirits for guidance and aid.",
       },
     ],
   },
@@ -1139,26 +1143,26 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Waffenloser Kampf",
-        name_en: "Unarmed Combat",
+        name: "Waffenlose Kampfspezialisierung",
+        name_en: "Unarmed Combat Specialization",
         description:
-          "Beherrscht waffenlosen Kampf mit spezialisierten Kampfkünsten, die mehr Schaden verursachen.",
+          "2 freie Waffenslots für Spezialisierung in einem waffenlosen Kampfstil (Faustkampf, Ringen oder Kampfkunst). Zugang zu allen 5 Fertigkeitsgruppen. Erfordert DEX 12+.",
         description_en:
-          "Masters unarmed combat with specialized martial arts that deal increased damage.",
+          "2 free weapon slots for specialization in one unarmed style (Punching, Wrestling, or Martial Arts). Crossover with all 5 proficiency groups. Requires DEX 12+.",
       },
       {
-        name: "Keine Rüstung",
-        name_en: "No Armor",
-        description: "Darf keine Rüstung tragen, erhält aber einen stufenbasierten RK-Bonus.",
-        description_en: "May not wear armor but gains a level-based AC bonus.",
+        name: "Keine Rüstung, eingeschränkte Sphären",
+        name_en: "No Armor, Limited Spheres",
+        description:
+          "Darf niemals Rüstung tragen. Mittlere Kampffähigkeit: max 3 Haupt-Sphärenzugänge (eine muss All sein) und 2 Neben-Zugänge.",
+        description_en:
+          "May never wear armor. Medium combat: max 3 major sphere accesses (one must be All) and 2 minor accesses.",
       },
       {
-        name: "Klösterliche Disziplin",
-        name_en: "Monastic Discipline",
-        description:
-          "Strenge geistige Schulung verleiht Boni auf Rettungswürfe gegen Geistesmagie.",
-        description_en:
-          "Strict mental training grants bonuses to saving throws against mind-affecting magic.",
+        name: "Minimaler Besitz",
+        name_en: "Minimal Possessions",
+        description: "Darf nie mehr besitzen, als auf dem Rücken getragen werden kann.",
+        description_en: "May never own more than can be carried on one's back.",
       },
     ],
   },
@@ -1172,27 +1176,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Adliger Einfluss",
-        name_en: "Noble Influence",
+        name: "+3/+2 Reaktion von Adligen",
+        name_en: "+3/+2 Reaction from Nobles",
         description:
-          "Politische Verbindungen und Adelstitel verschaffen Zugang zu Mächtigen und Ressourcen.",
+          "+3 Reaktion von Adligen der eigenen Kultur; +2 von Adligen anderer Kulturen. Kann Unterkunft für 2 × Stufe Personen im eigenen Land fordern. Startgold: 225 GM + Standard.",
         description_en:
-          "Political connections and noble titles grant access to the powerful and to resources.",
+          "+3 reaction from nobles of own culture; +2 from nobles of other cultures. Can demand shelter for 2 × level people in own land. Starting gold: 225 gp + standard.",
       },
       {
-        name: "Kirchliche Autorität",
-        name_en: "Ecclesiastical Authority",
+        name: "Standesgemäße Ausgaben (2× Mindestpreis)",
+        name_en: "Noble Expenses (2× Minimum Price)",
         description:
-          "Kombiniert weltliche und geistliche Macht, um anderen Geistlichen Anweisungen zu erteilen.",
-        description_en: "Combines secular and spiritual power to issue commands to other clergy.",
+          "Muss mindestens den doppelten Mindestpreis für alle Einkäufe zahlen. Andere Adelspriester können Unterkunft von ihm fordern.",
+        description_en:
+          "Must spend at least 2× minimum price on all purchases. Other nobleman priests can demand shelter from him.",
       },
       {
-        name: "Standesgemäße Pflichten",
-        name_en: "Noblesse Oblige",
+        name: "Kirchliche & Adlige Doppelpflicht",
+        name_en: "Church & Noble Dual Duty",
         description:
-          "Muss sowohl den Pflichten des Adels als auch der Kirche nachkommen, was zu Konflikten führen kann.",
+          "Muss sowohl den Pflichten des Adels als auch der Kirche nachkommen — Konflikte vorprogrammiert.",
         description_en:
-          "Must fulfill duties to both nobility and church, which can cause conflicts.",
+          "Must fulfill duties to both nobility and church — conflicts are inevitable.",
       },
     ],
   },
@@ -1206,23 +1211,25 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Verfolgt",
-        name_en: "Hunted",
+        name: "Keine übergeordnete Autorität",
+        name_en: "No Superior Authority",
         description:
-          "Wird von den Autoritäten verfolgt, genießt aber den Schutz der Unterdrückten.",
-        description_en: "Hunted by authorities but enjoys the protection of the oppressed.",
+          "Nimmt keine Befehle von der Priesterhierarchie entgegen. Vollständig unabhängig.",
+        description_en: "Takes no orders from the priestly hierarchy. Completely independent.",
       },
       {
-        name: "Verbotene Praktiken",
-        name_en: "Forbidden Practices",
-        description: "Praktiziert eine verbotene Religion oder ketzerische Lehre im Verborgenen.",
-        description_en: "Practices a forbidden religion or heretical doctrine in secret.",
+        name: "Von Priestern & Behörden verfolgt",
+        name_en: "Hunted by Priests & Authorities",
+        description:
+          "Wird von der normalen Priesterschaft bekämpft. Tempelbau immer zum vollen Preis (nie halber Preis). Gesucht von lokalen Autoritäten.",
+        description_en:
+          "Opposed by the normal priesthood. Temple construction always at full price (never half). Sought by local authorities.",
       },
       {
-        name: "Untergrundnetzwerk",
-        name_en: "Underground Network",
-        description: "Verfügt über ein Netzwerk von Anhängern und sicheren Häusern.",
-        description_en: "Commands a network of followers and safe houses.",
+        name: "Schutz der Unterdrückten",
+        name_en: "Protection of the Oppressed",
+        description: "Genießt den Schutz und die Loyalität von Gesetzlosen und Unterdrückten.",
+        description_en: "Enjoys the protection and loyalty of outlaws and the oppressed.",
       },
     ],
   },
@@ -1236,26 +1243,26 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Gemeindepflege",
-        name_en: "Community Care",
+        name: "Freie Unterkunft + +2 Reaktion",
+        name_en: "Free Shelter + +2 Reaction",
         description:
-          "Ist das geistliche Zentrum einer Dorfgemeinschaft und genießt großes Vertrauen der Landbevölkerung.",
+          "Freie Unterkunft in der Heimatgemeinde (auch vor Behörden geschützt). +2 Reaktion von allen Bauern.",
         description_en:
-          "Serves as the spiritual center of a village community, enjoying great trust from rural folk.",
+          "Free shelter in home community (even protected from authorities). +2 reaction from all peasants.",
       },
       {
-        name: "Kräuterheilkunde",
-        name_en: "Herbal Healing",
+        name: "Besitzbeschränkung (max 75 GM)",
+        name_en: "Possession Limit (Max 75 gp)",
+        description:
+          "Nur 1 Gegenstand bis 15 GM; alle anderen max 10 GM; Gesamtbesitz nie über 75 GM.",
+        description_en:
+          "Only one item up to 15 gp; all others max 10 gp; total possessions never exceed 75 gp.",
+      },
+      {
+        name: "Kräuterkunde & Volksmedizin",
+        name_en: "Herbalism & Folk Medicine",
         description: "Kennt Heilkräuter und einfache Hausmittel, die Heilzauber ergänzen.",
         description_en: "Knows healing herbs and simple remedies that complement healing spells.",
-      },
-      {
-        name: "Bescheidene Mittel",
-        name_en: "Humble Means",
-        description:
-          "Verfügt über wenig Geld und Ausrüstung, kann aber auf die Gastfreundschaft der Landbevölkerung zählen.",
-        description_en:
-          "Has little money and equipment but can count on the hospitality of rural communities.",
       },
     ],
   },
@@ -1269,12 +1276,18 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Göttliche Visionen",
-        name_en: "Divine Visions",
+        name: "Prophezeiung (1×/Tag Trance)",
+        name_en: "Prophecy (1/Day Trance)",
         description:
-          "Empfängt regelmäßig prophetische Visionen von der Gottheit, die Hinweise auf die Zukunft geben.",
+          "Erhält die Granted Power 'Prophezeiung' — SL kann jederzeit Visionen auslösen; Spieler kann 1×/Tag in Trance gehen. Erfordert WIS 15+. Kit kann nicht aufgegeben werden.",
         description_en:
-          "Regularly receives prophetic visions from the deity that hint at the future.",
+          "Gains the Granted Power 'Prophecy' — DM may trigger visions at any time; player may enter trance 1/day. Requires WIS 15+. Kit cannot be abandoned.",
+      },
+      {
+        name: "−2 Reaktion von normalen Leuten",
+        name_en: "−2 Reaction from Normal People",
+        description: "−2 Reaktionsanpassung von gewöhnlichen Menschen (Minimum: Vorsichtig).",
+        description_en: "−2 reaction adjustment from normal people (minimum result: Cautious).",
       },
       {
         name: "Charismatische Predigt",
@@ -1282,14 +1295,6 @@ export const KITS: Record<string, KitDefinition> = {
         description:
           "Kann durch leidenschaftliche Predigten Massen begeistern und Anhänger gewinnen.",
         description_en: "Can inspire masses and gain followers through passionate preaching.",
-      },
-      {
-        name: "Fanatischer Glaube",
-        name_en: "Fanatical Faith",
-        description:
-          "Der unerschütterliche Glaube verleiht Immunität gegen Furcht, kann aber zu Engstirnigkeit führen.",
-        description_en:
-          "Unwavering faith grants immunity to fear but can lead to narrow-mindedness.",
       },
     ],
   },
@@ -1303,26 +1308,29 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Naturgottheit",
-        name_en: "Nature Deity",
+        name: "Magie entdecken (1×/Tag pro Stufe)",
+        name_en: "Detect Magic (1/Day per Level)",
         description:
-          "Dient einer primitiven Naturgottheit und hat Zugang zu speziellen Naturzaubern.",
-        description_en: "Serves a primitive nature deity and has access to special nature spells.",
+          "Magie entdecken 1× pro Tag pro Stufe nutzbar (Stufe 5 = 5×/Tag). 10% Chance pro Stufe, die Sphäre der Magie zu identifizieren. Erfordert STR 11+, KON 13+.",
+        description_en:
+          "Detect magic usable once per day per level (level 5 = 5/day). 10% chance per level to identify the sphere of the magic. Requires STR 11+, CON 13+.",
       },
       {
-        name: "Totemtier",
-        name_en: "Totem Animal",
-        description: "Besitzt ein heiliges Totemtier, das als göttlicher Bote und Berater dient.",
+        name: "−2 Reaktion von Zivilisierten",
+        name_en: "−2 Reaction from Civilized NPCs",
+        description:
+          "−2 Reaktion von allen zivilisierten NSCs. Startgeld: 3W6 × 5 GM. Nur Lederrüstung + Schild zu Beginn.",
         description_en:
-          "Possesses a sacred totem animal that serves as a divine messenger and advisor.",
+          "−2 reaction from all civilized NPCs. Starting gold: 3d6 × 5 gp. Only leather armor + shield at start.",
       },
       {
-        name: "Ritualmagie",
-        name_en: "Ritual Magic",
+        name: "Tätowierungen als Heiliges Symbol",
+        name_en: "Tattoos as Holy Symbol",
         description:
-          "Kann durch aufwendige Stammesrituale mächtigere Versionen seiner Zauber wirken.",
+          "Tätowierungen/Narben dienen als heiliges Symbol für alle Zauber (kein physisches Symbol nötig).",
         description_en:
-          "Can cast more powerful versions of spells through elaborate tribal rituals.",
+          "Tattoos/scars function as holy symbol for all spells (no physical symbol needed).",
+        webResearched: true,
       },
     ],
   },
@@ -1336,26 +1344,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
+        name: "Waffen → Fertigkeitsslots + +3 Reaktion",
+        name_en: "Weapons → Proficiency Slots + +3 Reaction",
+        description:
+          "Kann Waffenfertigkeitsslots in allgemeine Fertigkeitsslots umwandeln. +3 Reaktion von Gelehrten, Schriftstellern und Bewunderern der Bildung. Erfordert INT 13+.",
+        description_en:
+          "Can convert weapon proficiency slots into nonweapon proficiency slots. +3 reaction from scholars, writers, and admirers of learning. Requires INT 13+.",
+      },
+      {
+        name: "1-auf-6 akademische Rivalität",
+        name_en: "1-in-6 Academic Rivalry",
+        description:
+          "1-auf-6 Chance, dass ein Gelehrter statt +3 eine −6 Reaktion zeigt (alte akademische Rivalität).",
+        description_en:
+          "1-in-6 chance that a scholar shows −6 reaction instead of +3 (old academic rivalry).",
+      },
+      {
         name: "Theologisches Wissen",
         name_en: "Theological Knowledge",
-        description: "Umfassendes Wissen über Religion, Geschichte und Mythologie aller Kulturen.",
-        description_en:
-          "Comprehensive knowledge of religion, history, and mythology across all cultures.",
-      },
-      {
-        name: "Sprachkenntnisse",
-        name_en: "Linguistic Skills",
-        description: "Beherrscht mehrere alte und moderne Sprachen, einschließlich toter Sprachen.",
-        description_en:
-          "Fluent in multiple ancient and modern languages, including dead languages.",
-      },
-      {
-        name: "Forschungsbonus",
-        name_en: "Research Bonus",
         description:
-          "Erhält Boni beim Identifizieren magischer Gegenstände und beim Entziffern alter Texte.",
+          "Umfassendes Wissen über Religion, Geschichte und Mythologie aller Kulturen. Beherrscht alte und moderne Sprachen.",
         description_en:
-          "Gains bonuses when identifying magical items and deciphering ancient texts.",
+          "Comprehensive knowledge of religion, history, and mythology. Fluent in ancient and modern languages.",
       },
     ],
   },
@@ -1375,12 +1385,14 @@ export const KITS: Record<string, KitDefinition> = {
         name_en: "Enhanced Priest Spells",
         description: "Erhält Zugang zu Priesterzaubern eine Stufe früher als normale Waldläufer.",
         description_en: "Gains access to priest spells one level earlier than standard rangers.",
+        webResearched: true,
       },
       {
-        name: "Untote vertreiben",
-        name_en: "Turn Undead",
+        name: "Untote vertreiben (halbe Stufe)",
+        name_en: "Turn Undead (Half Level)",
         description: "Kann Untote vertreiben wie ein Priester, allerdings auf halber Stufe.",
         description_en: "Can turn undead like a priest, but at half level.",
+        webResearched: true,
       },
       {
         name: "Göttlicher Auftrag",
@@ -1389,6 +1401,7 @@ export const KITS: Record<string, KitDefinition> = {
           "Dient einer Naturgottheit und erhält spezielle Aufgaben zum Schutz heiliger Orte.",
         description_en:
           "Serves a nature deity and receives special missions to protect sacred sites.",
+        webResearched: true,
       },
     ],
   },
@@ -1402,10 +1415,12 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Erzfeind-Bonus",
-        name_en: "Species Enemy Bonus",
-        description: "Erhält einen erhöhten Angriffsbonus gegen seinen Erzfeind (+4 statt +4).",
-        description_en: "Gains an enhanced attack bonus against his species enemy.",
+        name: "Erzfeind-Fokus",
+        name_en: "Species Enemy Focus",
+        description:
+          "Konzentriert sich auf die Jagd und Vernichtung seines Erzfeindes als heilige Mission.",
+        description_en: "Focuses on hunting and destroying his species enemy as a sacred mission.",
+        webResearched: true,
       },
       {
         name: "Unerbittliche Jagd",
@@ -1414,6 +1429,7 @@ export const KITS: Record<string, KitDefinition> = {
           "Kann seinen Erzfeind über große Entfernungen verfolgen, ohne Erschöpfung zu erleiden.",
         description_en:
           "Can pursue his species enemy over great distances without suffering exhaustion.",
+        webResearched: true,
       },
       {
         name: "Eingeschränkte Empathie",
@@ -1421,7 +1437,8 @@ export const KITS: Record<string, KitDefinition> = {
         description:
           "Der Hass auf den Erzfeind ist so stark, dass Tierempathie gegenüber verwandten Arten versagt.",
         description_en:
-          "Hatred of the species enemy is so intense that animal empathy fails against related species.",
+          "Hatred of species enemy is so intense that animal empathy fails against related species.",
+        webResearched: true,
       },
     ],
   },
@@ -1435,27 +1452,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Tierfamilie",
-        name_en: "Familial Species",
+        name: "Raserei (+2/+2, RK 8 ungerüstet)",
+        name_en: "Feral Rage (+2/+2, AC 8 Unarmored)",
         description:
-          "Wurde von wilden Tieren aufgezogen und kann deren Sprache sprechen und ihre Gesellschaft genießen.",
+          "Nach Schadensverursachung: Rettungswurf gegen Tod → Raserei für 2W6 Runden: +2 Treffer/Schaden, ungerüstet RK 8. Muss jeden Runde den Gegner angreifen. Erfordert KON 15+, STR 14+; nicht-rechtschaffen.",
         description_en:
-          "Raised by wild animals, can speak their language and enjoys their company.",
+          "After dealing damage: save vs. death magic → rage for 2d6 rounds: +2 attack/damage, unarmored AC 8. Must attack designated opponent every round. Requires CON 15+, STR 14+; non-lawful.",
       },
       {
-        name: "Naturinstinkt",
-        name_en: "Natural Instinct",
+        name: "+10% Schleichen/Verbergen, Klettern 60%",
+        name_en: "+10% Stealth, Climbing 60%",
         description:
-          "Überlegene Sinne und Instinkte gewähren Boni auf Überraschungswürfe und Wahrnehmung.",
+          "+10% Im Schatten verbergen, +10% Lautlos bewegen in natürlicher Umgebung. 60% Klettern (Bäume bei normaler Geschwindigkeit). Ruf der Wildnis: WIS + Stufe = % Chance, 1–4 Tiere rufen (1×/Tag).",
         description_en:
-          "Superior senses and instincts grant bonuses to surprise rolls and perception.",
+          "+10% hide in shadows, +10% move silently in natural surroundings. 60% climbing (trees at normal speed). Call of the Wild: WIS + level = % chance, 1–4 animals arrive (1/day).",
       },
       {
-        name: "Keine Rüstung",
-        name_en: "No Armor",
+        name: "Eingeschränkte Magie & −3 Reaktion",
+        name_en: "Limited Magic & −3 Reaction",
         description:
-          "Kann keine Rüstung und keinen Schild tragen; kämpft nur mit primitiven Waffen.",
-        description_en: "Cannot wear armor or carry a shield; fights only with primitive weapons.",
+          "Nur Tier-Sphäre, max Stufe-2-Zauber. Gefolgsleute ab Stufe 5 (nicht 10). Max 1 humanoider Gefolgsmann. −3 Reaktion von NSCs.",
+        description_en:
+          "Animal sphere only, max level 2 spells. Followers from level 5 (not 10). Max 1 humanoid follower. −3 reaction from NPCs.",
       },
     ],
   },
@@ -1469,25 +1487,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Waldgeschwindigkeit",
-        name_en: "Forest Speed",
+        name: "Inspirieren (+2 Moral, +1 Erstangriff)",
+        name_en: "Inspire (+2 Morale, +1 First Attack)",
         description:
-          "Kann sich im Wald ohne Geschwindigkeitsabzug bewegen, auch durch dichtes Unterholz.",
+          "1×/Tag nach 1W4+1 Runden Ansprache: CHA-Wurf → Begleiter (= Stufe Personen) erhalten +2 Moral für 3W4 Runden + +1 auf ersten Angriffswurf. Erfordert CHA 12+.",
         description_en:
-          "Can move through forest terrain at full speed, even through dense undergrowth.",
+          "1/day after 1d4+1 rounds speaking: CHA check → companions (= level persons) gain +2 morale for 3d4 rounds + +1 to first attack roll. Requires CHA 12+.",
       },
       {
-        name: "Baumklettern",
-        name_en: "Tree Climbing",
+        name: "+5% Schleichen/Verbergen",
+        name_en: "+5% Stealth/Hide",
         description:
-          "Klettert auf Bäume mit der Geschicklichkeit einer Diebesfertigkeit (85% Basis).",
-        description_en: "Climbs trees with the skill of a thief ability (85% base).",
+          "+5% Im Schatten verbergen, +5% Lautlos bewegen. Bonus-Waffenslot (Langbogen, Kampfstab, Langschwert oder Dolch). Persönlicher Erzfeind-NSC ab Stufe 4.",
+        description_en:
+          "+5% hide in shadows, +5% move silently. Bonus weapon slot (long bow, quarterstaff, long sword, or dagger). Personal nemesis NPC after level 4.",
       },
       {
-        name: "Waldbotschafter",
-        name_en: "Forest Ambassador",
-        description: "Dient als Vermittler zwischen Waldvölkern und der Zivilisation.",
-        description_en: "Serves as a mediator between forest peoples and civilization.",
+        name: "+1 Reaktion von Bauern (Heimat)",
+        name_en: "+1 Reaction from Peasants (Homeland)",
+        description:
+          "+1 Reaktion von Bauern (gut/neutral) im Heimatgebiet. Freie Unterkunft von Gemeinen. Risiko der Verhaftung; keine engen NSC-Beziehungen zu Politikern.",
+        description_en:
+          "+1 reaction from peasants (good/neutral) in homeland. Free shelter from commoners. Risk of arrest; no close NPC relationships with political figures.",
       },
     ],
   },
@@ -1497,29 +1518,32 @@ export const KITS: Record<string, KitDefinition> = {
     name_en: "Greenwood Ranger",
     classId: "ranger",
     hitDieOverride: null,
-    maxArmorAC: null,
+    maxArmorAC: 10, // bark skin, no worn armor
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Pflanzenfreund",
-        name_en: "Plant Ally",
+        name: "Rindenhaut (RK 5 → −6)",
+        name_en: "Bark Skin (AC 5 → −6)",
         description:
-          "Kann mit Pflanzen kommunizieren und deren Hilfe erbitten, um Feinde zu behindern.",
-        description_en: "Can communicate with plants and request their aid to hinder enemies.",
-      },
-      {
-        name: "Waldtarnung",
-        name_en: "Forest Camouflage",
-        description: "Wird im Wald praktisch unsichtbar und erhält +20% auf Verbergen im Schatten.",
-        description_en: "Becomes virtually invisible in forests with +20% to Hide in Shadows.",
-      },
-      {
-        name: "Naturheilung",
-        name_en: "Natural Healing",
-        description:
-          "Kennt die heilenden Eigenschaften von Waldpflanzen und kann damit Wunden behandeln.",
+          "Transformation ab Stufe 4 (göttliche Aufgabe). Rindenhaut ersetzt Rüstung: RK 5 ab Stufe 4, verbessert sich um 1 pro Stufe bis max RK −6 (Stufe 15). Nur Mensch. +2 auf Rettungswürfe gegen Pflanzenzauber.",
         description_en:
-          "Knows the healing properties of forest plants and can use them to treat wounds.",
+          "Transformation from level 4 (divine task). Bark skin replaces armor: AC 5 at level 4, improves by 1 per level to max AC −6 (level 15). Human only. +2 to saves vs. plant spells.",
+      },
+      {
+        name: "Verwurzelung (Stufe 8, 1×/Woche)",
+        name_en: "Rooting (Level 8, 1/Week)",
+        description:
+          "Füße 1–4 Std. vergraben → 3W4 TP heilen. Ab Stufe 10: Gliedmaßenwachstum (1×/Monat, 24 Std. Starre, 3. Arm für 1–4 Tage). Photosynthese statt Essen (1 Std. Sonne/Tag nötig).",
+        description_en:
+          "Bury feet 1–4 hrs → heal 3d4 HP. From level 10: Limbing (1/month, 24 hr suspended animation, 3rd arm for 1–4 days). Photosynthesis instead of eating (1 hr sunlight/day needed).",
+      },
+      {
+        name: "Feuer-Verwundbarkeit & Steifheit",
+        name_en: "Fire Vulnerability & Stiffness",
+        description:
+          "Feuer: Angreifer +4 Treffer, +1 pro Würfel Schaden; Waldläufer −4 auf Rettungswürfe gegen Feuer. −5% Lautlos bewegen; kein DEX-Bonus auf RK. Nur Pflanzensphäre. −3 Reaktion von NSCs.",
+        description_en:
+          "Fire: attackers +4 to hit, +1/die damage; ranger −4 to fire saves. −5% move silently; no DEX bonus to AC. Plant sphere only. −3 reaction from NPCs.",
       },
     ],
   },
@@ -1533,28 +1557,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Schutzgebiet",
-        name_en: "Protected Area",
+        name: "Schutzgebiet + Bonus-Sphäre",
+        name_en: "Domain + Bonus Sphere",
         description:
-          "Bewacht ein bestimmtes Gebiet und kennt jeden Pfad, jede Höhle und jeden Bewohner darin.",
+          "Schutzgebiet wächst mit Stufe (Stufe 1: wenige km²; Stufe 5: ~20–40 km; Stufe 15: kleines Land). Neben-Zugang zur Schutz-Sphäre.",
         description_en:
-          "Guards a specific area and knows every path, cave, and inhabitant within it.",
+          "Domain grows with level (level 1: few km²; level 5: ~20–40 km; level 15: small country). Minor access to Protection sphere.",
       },
       {
-        name: "Alarmbereitschaft",
-        name_en: "Vigilance",
+        name: "Domain-Zauber",
+        name_en: "Domain Spells",
         description:
-          "Kann in seinem Schutzgebiet nicht überrascht werden und bemerkt Eindringlinge sofort.",
+          "Im Schutzgebiet: Böses entdecken 3×/Tag, Segnen und Naturverbindung je 1×/Woche. Pflanzen beleben: 9 m × Stufe pro Seite, 1×/Monat.",
         description_en:
-          "Cannot be surprised in his protected area and detects intruders immediately.",
+          "In domain: detect evil 3/day, bless and commune with nature 1/week each. Revive plants: 9 m × level per side, 1/month.",
       },
       {
-        name: "Ortsbindung",
-        name_en: "Area Bond",
+        name: "Abwesenheitsstrafe",
+        name_en: "Absence Penalty",
         description:
-          "Erhält Kampfboni in seinem Schutzgebiet, ist aber ungern weit davon entfernt.",
+          "Muss Stellvertreter arrangieren. Abwesenheit in Tagen = Verlust der Sonderfähigkeiten; in Wochen = Verlust aller Zauber. Rückkehr stellt alles wieder her.",
         description_en:
-          "Gains combat bonuses in his protected area but is reluctant to stray far from it.",
+          "Must arrange caretaker. Absence of days = loss of special abilities; of weeks = loss of all spells. Returns restore everything.",
       },
     ],
   },
@@ -1564,31 +1588,32 @@ export const KITS: Record<string, KitDefinition> = {
     name_en: "Mountain Man",
     classId: "ranger",
     hitDieOverride: null,
-    maxArmorAC: null,
+    maxArmorAC: 8, // handmade leather/fur
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Gebirgsbewegung",
-        name_en: "Mountain Movement",
+        name: "Überlebenswille (+2 Todesrettung)",
+        name_en: "Will to Live (+2 Death Save)",
         description:
-          "Kann sich in bergigem Gelände ohne Abzüge bewegen und steile Felswände erklimmen.",
+          "+2 auf Rettungswürfe gegen Tod wenn tödlich. KON-Wurf bei 0 TP → auf 1 TP stabilisiert. Systemschock bei Tod → kämpft 1–4 weitere Runden. Erfordert STR 14+, KON 15+.",
         description_en:
-          "Can move through mountainous terrain without penalties and scale steep cliff faces.",
+          "+2 to death saves if fatal. CON check at 0 HP → stabilize at 1 HP. System shock on death → fight 1–4 more rounds. Requires STR 14+, CON 15+.",
       },
       {
-        name: "Kälteresistenz",
-        name_en: "Cold Resistance",
-        description: "Abgehärtet gegen Kälte und erhält Boni auf Rettungswürfe gegen Kälteeffekte.",
+        name: "Heilelixier brauen (ab Stufe 7)",
+        name_en: "Brew Healing Elixir (from Level 7)",
+        description:
+          "1–4 Std. Kräuter sammeln + 1 Std. brauen = Heiltrank. Haltbar 24 Std. 1×/Tag. Handgemachte Lederrüstung (RK 8); −2 Angriff in Metallrüstung.",
         description_en:
-          "Hardened against cold and gains bonuses to saving throws against cold effects.",
+          "1–4 hrs gathering herbs + 1 hr brewing = healing potion. Potent 24 hrs. 1/day. Handmade leather armor (AC 8); −2 attack in metal armor.",
       },
       {
-        name: "Einsiedler",
-        name_en: "Loner",
+        name: "Eingeschränkte Magie & Besitz",
+        name_en: "Limited Magic & Possessions",
         description:
-          "Bevorzugt die Einsamkeit der Berge; erhält Mali in sozialen Situationen in Städten.",
+          "Zauber erst ab Stufe 10 (nicht 8); keine Stufe-3-Zauber. Max 1 Gegenstand über 15 GM; Gesamtbesitz max 100 GM. −1/−2 Reaktion von NSCs/Adligen.",
         description_en:
-          "Prefers the solitude of the mountains; suffers penalties in social situations in cities.",
+          "Spells from level 10 (not 8); no level 3 spells. Max 1 item over 15 gp; total possessions max 100 gp. −1/−2 reaction from NPCs/nobles.",
       },
     ],
   },
@@ -1602,26 +1627,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Spurenlesen-Meisterschaft",
-        name_en: "Tracking Mastery",
+        name: "Wegesinn (−10% Verirrungschance)",
+        name_en: "Trail Sense (−10% Lost Chance)",
         description:
-          "Erhält +3 auf alle Spurenlesen-Würfe und kann selbst auf Stein Spuren verfolgen.",
-        description_en: "Gains +3 to all tracking checks and can follow tracks even on stone.",
-      },
-      {
-        name: "Kartographie",
-        name_en: "Cartography",
-        description:
-          "Kann präzise Karten erstellen und verliert sich selbst in unbekanntem Terrain nie.",
-        description_en: "Can create precise maps and never gets lost, even in unfamiliar terrain.",
-      },
-      {
-        name: "Reiseführer",
-        name_en: "Trail Guide",
-        description:
-          "Gruppen unter seiner Führung reisen schneller und sicherer durch die Wildnis.",
+          "−10% Verirrungschance; im Heimatgelände max 20% Basis. Muss mind. 6 m von der Gruppe entfernt sein. +1 Treffer mit gewählter Fernwaffe.",
         description_en:
-          "Groups under his guidance travel faster and more safely through the wilderness.",
+          "−10% chance of getting lost; base in home terrain capped at 20%. Must be at least 6 m from party. +1 to hit with one chosen missile weapon.",
+      },
+      {
+        name: "Gefahrenerkennung (10%/Stufe)",
+        name_en: "Recognize Trail Hazard (10%/Level)",
+        description:
+          "10% pro Stufe (max 90% auf Stufe 9), natürliche Gefahren zu erkennen (Treibsand, Erdfälle, dünnes Eis, rutschige Hänge).",
+        description_en:
+          "10% per level (max 90% at level 9) to recognize natural hazards (quicksand, sinkholes, thin ice, slippery slopes).",
+      },
+      {
+        name: "Überlandführung (reduzierte Reisekosten)",
+        name_en: "Overland Guiding (Reduced Travel Cost)",
+        description:
+          "Nutzt reduzierte Geländekosten-Tabelle für Gruppenreisen. Nachteil: Getrennt von der Gruppe → höheres Hinterhaltrisiko.",
+        description_en:
+          "Uses reduced terrain cost table for group travel. Downside: separated from party → higher ambush risk.",
       },
     ],
   },
@@ -1635,25 +1662,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Seefahrt",
-        name_en: "Seamanship",
+        name: "Seegang & Wasserkampf",
+        name_en: "Sea Legs & Aquatic Combat",
         description:
-          "Meisterhafte Seefahrtskenntnisse und die Fähigkeit, Schiffe in stürmischer See zu navigieren.",
+          "Keine Angriffsabzüge auf schwankenden Decks/engen Balken; +2 auf Balance-Rettungswürfe. Keine Abzüge im Unterwasserkampf. Erfordert INT 12+. Heimatgelände: Aquatisch.",
         description_en:
-          "Masterful seamanship and the ability to navigate ships through stormy seas.",
+          "No attack penalties on pitching decks/narrow beams; +2 to balance saves. No penalties in aquatic combat. Requires INT 12+. Home terrain: Aquatic.",
       },
       {
-        name: "Meeresempathie",
-        name_en: "Marine Empathy",
-        description: "Kann mit Meerestieren kommunizieren und ihre Hilfe erbitten.",
-        description_en: "Can communicate with sea creatures and request their assistance.",
-      },
-      {
-        name: "Unterwasserkampf",
-        name_en: "Underwater Combat",
+        name: "Landwitterung (80 km)",
+        name_en: "Land Scent (80 km)",
         description:
-          "Erleidet keine Abzüge beim Kampf unter Wasser und kann länger die Luft anhalten.",
-        description_en: "Suffers no penalties when fighting underwater and can hold breath longer.",
+          "Kann Land (inkl. Inseln) in bis zu 80 km Entfernung riechen. 10% pro Stufe, zuvor besuchtes Land zu identifizieren.",
+        description_en:
+          "Can smell land (including islands) within 80 km. 10% per level chance to identify previously visited land.",
+      },
+      {
+        name: "Fischparlament (ab Stufe 12)",
+        name_en: "Parliament of Fishes (from Level 12)",
+        description:
+          "1×/Woche: Am Wasser zwischen Sonnenuntergang und -aufgang 10 Runden konzentrieren. 10W10 Fische erscheinen; bei W10-Wurf 8–10 gewährt das Parlament eine Gunst (≈ Naturverbindung). 1×/Monat.",
+        description_en:
+          "1/week: At water between sunset and dawn, concentrate 10 rounds. 10d10 fish surface; on d10 roll 8–10, parliament grants a boon (≈ commune with nature). 1/month.",
       },
     ],
   },
@@ -1663,30 +1693,32 @@ export const KITS: Record<string, KitDefinition> = {
     name_en: "Stalker",
     classId: "ranger",
     hitDieOverride: null,
-    maxArmorAC: 8, // leather or lighter
+    maxArmorAC: 6, // can use stealth in armor AC 6+
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Stadtschleicher",
-        name_en: "Urban Stealth",
+        name: "+10% Schleichen/Verbergen, volle Stadttarnung",
+        name_en: "+10% Stealth/Hide, Full Urban Stealth",
         description:
-          "Kann sich in städtischer Umgebung genauso geschickt verbergen wie in der Wildnis.",
+          "+10% Im Schatten verbergen, +10% Lautlos bewegen. Volle (nicht halbe) Tarnung in Stadt/unnatürlicher Umgebung. Kann Tarnung in Rüstung RK 6+ nutzen. −3 auf Überraschungswürfe von Gegnern (mind. 27 m von nicht-leisen Gruppenmitgliedern). Erfordert INT 14+; nur Mensch.",
         description_en:
-          "Can hide and move silently in urban environments as effectively as in the wilderness.",
+          "+10% hide in shadows, +10% move silently. Full (not half) stealth in urban/non-natural settings. Can use stealth in armor AC 6+. −3 to opponent's surprise (must be 27 m+ from non-silent party). Requires INT 14+; human only.",
       },
       {
-        name: "Diebesfähigkeiten",
-        name_en: "Thief Skills",
+        name: "Verhör & Fotografisches Gedächtnis",
+        name_en: "Interrogation & Photographic Memory",
         description:
-          "Erhält eingeschränkte Diebesfähigkeiten wie Schleichen und Verbergen im Schatten.",
-        description_en: "Gains limited thief skills such as Move Silently and Hide in Shadows.",
+          "INT-Wurf (halber Wert): Gut/Böse-Ausrichtung erkennen ODER NSC-Ehrlichkeit prüfen. Ab Stufe 10: 1×/Tag fotografisches Gedächtnis (INT-Wurf −2).",
+        description_en:
+          "INT check (half score): detect good/evil alignment OR verify NPC honesty. From level 10: 1/day photographic memory (INT check −2).",
       },
       {
-        name: "Leichte Rüstung",
-        name_en: "Light Armor Only",
+        name: "Nur verdeckte Waffen, wenige Gefolgsleute",
+        name_en: "Concealed Weapons Only, Few Followers",
         description:
-          "Darf nur Lederrüstung oder leichtere Rüstungen tragen, um beweglich zu bleiben.",
-        description_en: "May only wear leather armor or lighter to maintain mobility.",
+          "Waffen beschränkt auf leicht verbergbare: Blasrohr, Dolch, Wurfpfeil, Messer, Kurzschwert, Stab, Schleuder. Max 1 Gefolgsmann gleichzeitig (Karriere: 2W6), keine humanoiden, nur kleine Tiere.",
+        description_en:
+          "Weapons limited to easily concealed: blowgun, dagger, dart, knife, short sword, staff, sling. Max 1 follower at a time (career total 2d6), no humanoids, only small animals.",
       },
     ],
   },
