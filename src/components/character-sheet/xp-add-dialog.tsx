@@ -10,7 +10,11 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { previewXpGain, getXpForNextLevel, getXpThreshold } from "@/lib/rules/experience";
 import { getThac0, getSavingThrows, getAttacksPerRound } from "@/lib/rules/combat";
-import { getWizardSpellSlots, getPriestSpellSlots } from "@/lib/rules/spellslots";
+import {
+  getBardSpellSlots,
+  getWizardSpellSlots,
+  getPriestSpellSlots,
+} from "@/lib/rules/spellslots";
 import { getWeaponProficiencySlots, getNonweaponProficiencySlots } from "@/lib/rules/proficiencies";
 import { CLASSES } from "@/lib/rules/classes";
 import type { CharacterClassRow, SessionRow } from "@/lib/supabase/types";
@@ -107,8 +111,22 @@ export function XpAddDialog({
         });
       }
 
+      // Spell Slots (bard — own table, max 6 spell levels)
+      if (preview.classId === "bard") {
+        const oldSlots = getBardSpellSlots(preview.currentLevel);
+        const newSlots = getBardSpellSlots(preview.newLevel);
+        if (JSON.stringify(oldSlots) !== JSON.stringify(newSlots)) {
+          changes.push({
+            label: t("newSpellSlots"),
+            before: formatSpellSlots(oldSlots),
+            after: formatSpellSlots(newSlots),
+            changed: true,
+          });
+        }
+      }
+
       // Spell Slots (wizard)
-      if (group === "wizard") {
+      if (group === "wizard" && preview.classId !== "bard") {
         const oldSlots = getWizardSpellSlots(preview.currentLevel);
         const newSlots = getWizardSpellSlots(preview.newLevel);
         if (JSON.stringify(oldSlots) !== JSON.stringify(newSlots)) {

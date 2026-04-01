@@ -14,6 +14,7 @@ import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
+  getBardSpellSlots,
   getWizardSpellSlots,
   getPriestSpellSlots,
   getPriestBonusSlots,
@@ -72,11 +73,13 @@ export function PlaySpellbookPanel({
   const [expandedLevels, setExpandedLevels] = useState<Set<number>>(new Set([1]));
   const [showAllPerLevel, setShowAllPerLevel] = useState<Set<number>>(new Set());
 
-  const isWizard = classGroups.includes("wizard");
+  const isBard = classEntries.some((ce) => ce.classId === "bard");
+  const isWizard = classGroups.includes("wizard") || isBard;
   const isPriest = classGroups.includes("priest");
   const usesSphereSpells = isPriest && priestAvailableSpells.length > 0;
   const casterClass = useMemo(() => {
     for (const ce of classEntries) {
+      if (ce.classId === "bard") return ce;
       const group = getClassGroup(ce.classId as ClassId);
       if (group === "wizard" || group === "priest") return ce;
     }
@@ -100,7 +103,7 @@ export function PlaySpellbookPanel({
     return groups;
   }, [preparedSpells]);
 
-  const maxSpellLevel = isWizard ? 9 : 7;
+  const maxSpellLevel = isBard ? 6 : isWizard ? 9 : 7;
 
   // Resource tracking
   const totalPoints = useMemo(() => {
@@ -119,10 +122,11 @@ export function PlaySpellbookPanel({
   // Slot tracking
   const baseSlots = useMemo(() => {
     if (isPointsMode) return [];
+    if (isBard) return getBardSpellSlots(casterLevel);
     if (isWizard) return getWizardSpellSlots(casterLevel);
     if (isPriest) return getPriestSpellSlots(casterLevel);
     return [];
-  }, [isPointsMode, isWizard, isPriest, casterLevel]);
+  }, [isPointsMode, isBard, isWizard, isPriest, casterLevel]);
 
   const bonusSlots = useMemo(() => {
     if (isPointsMode || !isPriest) return new Array(maxSpellLevel).fill(0);

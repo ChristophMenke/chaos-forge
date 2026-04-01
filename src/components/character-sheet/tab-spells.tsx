@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  getBardSpellSlots,
   getWizardSpellSlots,
   getSpecialistBonusSlots,
   getPriestSpellSlots,
@@ -232,9 +233,10 @@ export function TabSpells({
   const [customSpell, setCustomSpell] = useState<CustomSpellForm>(emptyCustomSpellForm);
 
   const [spellSystem, setSpellSystem] = useState(initialSpellSystem);
-  const isWizard = classGroup === "wizard";
+  const isBard = classId === "bard";
+  const isWizard = classGroup === "wizard" || isBard;
   const isPriest = classGroup === "priest";
-  const maxSpellLevel = isWizard ? 9 : 7;
+  const maxSpellLevel = isBard ? 6 : isWizard ? 9 : 7;
   const usePoints = spellSystem === "points";
 
   // Spell Points calculation
@@ -279,10 +281,11 @@ export function TabSpells({
 
   // Calculate spell slots
   const baseSlots = useMemo(() => {
+    if (isBard) return getBardSpellSlots(level);
     if (isWizard) return getWizardSpellSlots(level);
     if (isPriest) return getPriestSpellSlots(level);
     return [];
-  }, [isWizard, isPriest, level]);
+  }, [isBard, isWizard, isPriest, level]);
 
   const bonusSlots = useMemo(() => {
     if (isPriest) return getPriestBonusSlots(wisScore);
