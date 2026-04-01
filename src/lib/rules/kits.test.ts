@@ -282,6 +282,10 @@ describe("Kit System", () => {
     it("returns empty array for class with no kits", () => {
       expect(getKitsForClass("abjurer")).toHaveLength(0);
     });
+
+    it("crusader has no kits", () => {
+      expect(getKitsForClass("crusader")).toHaveLength(0);
+    });
   });
 
   describe("getEffectiveHitDie", () => {

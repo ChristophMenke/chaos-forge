@@ -6,6 +6,8 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { multiclassHasExceptionalStr } from "@/lib/rules/multiclass";
+import { isPriestCaster } from "@/lib/rules/magic";
+import type { ClassId } from "@/lib/rules/types";
 import { Spinner } from "@/components/ui/spinner";
 import { StepBasics } from "./step-basics";
 import { StepAbilities } from "./step-abilities";
@@ -65,7 +67,7 @@ export function CharacterWizard() {
   }
 
   const isWarriorClass = multiclassHasExceptionalStr(state.classIds);
-  const isPriest = state.classIds.includes("cleric") || state.classIds.includes("druid");
+  const isPriest = state.classIds.some((id) => isPriestCaster(id as ClassId));
 
   function shouldSkipStep(stepIndex: number): boolean {
     const stepId = WIZARD_STEPS[stepIndex]?.id;

@@ -14,7 +14,13 @@ export interface ClassEntry {
 
 export function getMulticlassThac0(classes: ClassEntry[]): number {
   if (classes.length === 0) return 20;
-  return Math.min(...classes.map((c) => getThac0(CLASSES[c.classId].group, c.level)));
+  return Math.min(
+    ...classes.map((c) => {
+      const cls = CLASSES[c.classId];
+      if (!cls) return 20;
+      return getThac0(cls.group, c.level, c.classId);
+    })
+  );
 }
 
 // ─── SAVING THROWS ───────────────────────────────────────────────────────────
@@ -25,7 +31,12 @@ export function getMulticlassSaves(classes: ClassEntry[]): SavingThrows {
     return { paralyzation: 20, rod: 20, petrification: 20, breath: 20, spell: 20 };
   }
 
-  const allSaves = classes.map((c) => getSavingThrows(CLASSES[c.classId].group, c.level));
+  // Saves use class group (no warrior override) — Crusader saves as priest per PO:S&M
+  const allSaves = classes.map((c) => {
+    const cls = CLASSES[c.classId];
+    if (!cls) return getSavingThrows("warrior", 1);
+    return getSavingThrows(cls.group, c.level);
+  });
 
   return {
     paralyzation: Math.min(...allSaves.map((s) => s.paralyzation)),
@@ -73,7 +84,7 @@ export function multiclassHasExceptionalStr(classIds: ClassId[]): boolean {
 // Get unique class groups for the multiclass combination
 
 export function getMulticlassGroups(classIds: ClassId[]): ClassGroup[] {
-  const groups = new Set(classIds.map((id) => CLASSES[id].group));
+  const groups = new Set(classIds.map((id) => CLASSES[id]?.group).filter(Boolean) as ClassGroup[]);
   return [...groups];
 }
 

@@ -8,8 +8,8 @@ import {
 } from "./classes";
 
 describe("CLASS-005 CLASS-006: Classes", () => {
-  it("CLASS-001: should define 16 classes total", () => {
-    expect(getAllClasses()).toHaveLength(16);
+  it("CLASS-001: should define 17 classes total", () => {
+    expect(getAllClasses()).toHaveLength(17);
   });
 
   it("CLASS-004: should categorize fighter as warrior group", () => {

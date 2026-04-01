@@ -433,6 +433,61 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
       },
     ],
   },
+  crusader: {
+    id: "crusader",
+    name: "Kreuzritter",
+    name_en: "Crusader",
+    group: "priest", // PO:S&M: priest group — saves, APR, spell slots as priest; only THAC0 uses warrior rate
+    hitDie: 8,
+    abilityRequirements: { wis: 9, str: 12, cha: 12 },
+    primeRequisites: ["wis", "str"],
+    // PO:S&M: Crusader is priest group — no exceptional strength despite warrior-like THAC0
+    exceptionalStrength: false,
+    classAbilities: [
+      {
+        name: "Krieger-ETW0-Progression",
+        name_en: "Warrior THAC0 Progression",
+        description:
+          "Der ETW0 des Kreuzritters verbessert sich mit der Rate eines Kriegers (1 pro Stufe) statt der eines Priesters.",
+        description_en:
+          "The crusader's THAC0 improves at the warrior's rate of 1 per level instead of the priest's rate.",
+      },
+      {
+        name: "Alle Waffen und Rüstungen",
+        name_en: "All Weapons and Armor",
+        description:
+          "Kreuzritter dürfen jede Art von Waffe, Rüstung und Schild verwenden — anders als normale Priester, die auf stumpfe Waffen beschränkt sind.",
+        description_en:
+          "Crusaders may use any weapon, armor, and shield — unlike regular priests who are restricted to blunt weapons.",
+      },
+      {
+        name: "Last erleichtern (ab Stufe 3)",
+        name_en: "Lighten Load (from Level 3)",
+        description:
+          "Einmal pro Tag kann der Kreuzritter das Gewicht der Ausrüstung einer Gruppe für einen Tag halbieren.",
+        description_en:
+          "Once per day, the crusader can halve the weight of a party's equipment for one day.",
+        usesPerDay: 1,
+      },
+      {
+        name: "Eilmarsch (ab Stufe 7)",
+        name_en: "Easy March (from Level 7)",
+        description:
+          "Einmal pro Woche kann der Kreuzritter einer kleinen Gruppe einen Gewaltmarsch ohne Erschöpfung ermöglichen.",
+        description_en:
+          "Once per week, the crusader can allow a small party to force march without accumulating fatigue.",
+        usesPerDay: 1,
+      },
+      {
+        name: "Kein Untote vertreiben",
+        name_en: "No Turn Undead",
+        description:
+          "Kreuzritter können keine Untoten vertreiben oder befehligen. Stattdessen erhalten sie ihre Granted Powers.",
+        description_en:
+          "Crusaders cannot turn or command undead. Instead, they receive their granted powers.",
+      },
+    ],
+  },
   druid: {
     id: "druid",
     name: "Druide",

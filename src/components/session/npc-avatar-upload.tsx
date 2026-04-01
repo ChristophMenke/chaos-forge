@@ -118,7 +118,7 @@ export function NpcAvatarUpload({
         className="group relative cursor-pointer"
         data-testid="npc-avatar-trigger"
       >
-        <AvatarDisplay name={npcName} avatarUrl={currentAvatarUrl} size={40} />
+        <AvatarDisplay name={npcName} avatarUrl={currentAvatarUrl} size={64} />
         <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
           <span className="text-[10px] text-white">{t("change")}</span>
         </div>

@@ -284,3 +284,80 @@ describe("getAvailablePriestSpells", () => {
     expect(ids).not.toContain("2"); // healing L5 — paladin max is 4
   });
 });
+
+describe("Crusader spheres (PO:S&M)", () => {
+  it("has base crusader spheres", () => {
+    const spheres = getPriestSpheres("crusader");
+    expect(spheres.all).toBe("major");
+    expect(spheres.combat).toBe("major");
+    expect(spheres.guardian).toBe("major");
+    expect(spheres.healing).toBe("major");
+    expect(spheres.war).toBe("major");
+    expect(spheres.wards).toBe("major");
+    expect(spheres.necromantic).toBe("minor");
+    expect(spheres.protection).toBe("minor");
+    expect(spheres.charm).toBeUndefined();
+    expect(spheres.divination).toBeUndefined();
+  });
+
+  it("lawful crusader gets law sphere", () => {
+    const spheres = getPriestSpheres("crusader", null, "lawful_good");
+    expect(spheres.law).toBe("major");
+    expect(spheres.chaos).toBeUndefined();
+  });
+
+  it("chaotic crusader gets chaos sphere", () => {
+    const spheres = getPriestSpheres("crusader", null, "chaotic_good");
+    expect(spheres.chaos).toBe("major");
+    expect(spheres.law).toBeUndefined();
+  });
+
+  it("neutral alignment gets neither law nor chaos", () => {
+    const spheres = getPriestSpheres("crusader", null, "neutral_evil");
+    expect(spheres.law).toBeUndefined();
+    expect(spheres.chaos).toBeUndefined();
+  });
+
+  it("priesthood overrides crusader default spheres", () => {
+    const spheres = getPriestSpheres("crusader", "war");
+    // War priesthood has combat:major but NOT war sphere — priesthood replaces defaults
+    expect(spheres.combat).toBe("major");
+    expect(spheres.healing).toBe("major");
+    // Crusader defaults like wards/guardian should be gone (priesthood replaces all)
+    expect(spheres.wards).toBeUndefined();
+    expect(spheres.guardian).toBeUndefined();
+  });
+
+  it("isPriestCaster includes crusader", () => {
+    expect(isPriestCaster("crusader")).toBe(true);
+  });
+
+  it("getAvailablePriestSpells works for crusader", () => {
+    const spells = [
+      { id: "1", sphere: "combat" as PriestSphere, level: 1, spell_type: "priest" as const },
+      { id: "2", sphere: "charm" as PriestSphere, level: 1, spell_type: "priest" as const },
+      { id: "3", sphere: "all" as PriestSphere, level: 1, spell_type: "priest" as const },
+      { id: "4", sphere: "war" as PriestSphere, level: 2, spell_type: "priest" as const },
+    ];
+    const result = getAvailablePriestSpells("crusader", 5, null, spells);
+    const ids = result.map((s) => s.id);
+    expect(ids).toContain("1"); // combat — major
+    expect(ids).toContain("3"); // all — major
+    expect(ids).toContain("4"); // war — major
+    expect(ids).not.toContain("2"); // charm — no access
+  });
+
+  it("crusader with alignment gets law/chaos spells", () => {
+    const spells = [
+      { id: "1", sphere: "law" as PriestSphere, level: 1, spell_type: "priest" as const },
+      { id: "2", sphere: "chaos" as PriestSphere, level: 1, spell_type: "priest" as const },
+    ];
+    const lawful = getAvailablePriestSpells("crusader", 5, null, spells, "lawful_good");
+    expect(lawful.map((s) => s.id)).toContain("1");
+    expect(lawful.map((s) => s.id)).not.toContain("2");
+
+    const chaotic = getAvailablePriestSpells("crusader", 5, null, spells, "chaotic_neutral");
+    expect(chaotic.map((s) => s.id)).toContain("2");
+    expect(chaotic.map((s) => s.id)).not.toContain("1");
+  });
+});
