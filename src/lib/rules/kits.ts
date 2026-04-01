@@ -31,20 +31,24 @@ export const KITS: Record<string, KitDefinition> = {
       {
         name: "d12 Trefferwürfel",
         name_en: "d12 Hit Die",
-        description: "Der Barbar nutzt einen d12 statt d10 als Trefferwürfel.",
-        description_en: "The barbarian uses a d12 instead of d10 as hit die.",
+        description: "Der Barbar nutzt einen d12 statt d10 als Trefferwürfel. Erfordert STR 15+.",
+        description_en: "The barbarian uses a d12 instead of d10 as hit die. Requires STR 15+.",
       },
       {
-        name: "Mehrfache Spezialisierung",
-        name_en: "Multiple Specialization",
-        description: "Der Barbar kann sich auf mehrere Waffen spezialisieren.",
-        description_en: "The barbarian can specialize in multiple weapons.",
+        name: "+3/−3 Reaktionsmodifikator",
+        name_en: "+3/−3 Reaction Modifier",
+        description:
+          "Bei Begegnungswurf 8 oder weniger: +3 Reaktionsbonus. Bei 14+: −3 Reaktionsmalus. Stammeskultur wird als bedrohlich oder respekteinflößend wahrgenommen.",
+        description_en:
+          "On encounter roll 8 or less: +3 reaction bonus. On 14+: −3 reaction penalty. Tribal culture is perceived as threatening or awe-inspiring.",
       },
       {
-        name: "Eingeschränkte Rüstung",
-        name_en: "Limited Armor",
-        description: "Der Barbar darf keine Rüstung schwerer als Kettenpanzer tragen.",
-        description_en: "The barbarian may not wear armor heavier than chain mail.",
+        name: "Max. Kettenrüstung",
+        name_en: "Chain Mail Maximum",
+        description:
+          "Darf zu Beginn keine Rüstung schwerer als Schienen-/Band-/Bronzeplattenpanzer tragen. Muss alles Startgold bis auf 3 GM ausgeben.",
+        description_en:
+          "Cannot wear armor heavier than splint/banded/bronze plate at start. Must spend all starting gold except 3 gp.",
       },
     ],
   },
@@ -58,24 +62,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Berittener Kampfbonus",
-        name_en: "Mounted Combat Bonus",
-        description: "Der Kavalier erhält +1 auf Angriff und Schaden, wenn er beritten kämpft.",
-        description_en: "The cavalier gains +1 to hit and damage while fighting mounted.",
-      },
-      {
-        name: "Reitkunst",
-        name_en: "Horsemanship",
-        description: "Meisterhafte Reitfähigkeiten erlauben besondere Manöver im Sattel.",
-        description_en: "Masterful riding skills allow special maneuvers while mounted.",
-      },
-      {
-        name: "Ehrenkodex",
-        name_en: "Code of Honor",
+        name: "Berittene Waffenboni (steigend)",
+        name_en: "Mounted Weapon Bonuses (Scaling)",
         description:
-          "Der Kavalier folgt einem strengen Ehrenkodex, der sein Verhalten im Kampf und Alltag bestimmt.",
+          "Stufe 1: +1 Treffer mit Lanze (beritten), +1 pro 6 Stufen. Stufe 3: +1 mit gewähltem Schwerttyp. Stufe 5: +1 mit Reiterwaffe (Streitkolben/Flegel/Picke). Erfordert STR 15, DEX 15, KON 15, INT 10, WIS 10; gute Gesinnung.",
         description_en:
-          "The cavalier follows a strict code of honor that governs conduct in battle and daily life.",
+          "Level 1: +1 to hit with lance (mounted), +1 per 6 levels. Level 3: +1 with chosen sword type. Level 5: +1 with horseman's weapon (mace/flail/pick). Requires STR 15, DEX 15, CON 15, INT 10, WIS 10; good alignment.",
+      },
+      {
+        name: "Furchtimmunität & Mut-Aura (3 m)",
+        name_en: "Fear Immunity & Courage Aura (3 m)",
+        description:
+          "Immun gegen Furcht-Zauber. Strahlt Mut-Aura im 3-m-Radius aus (negiert Furcht bei Verbündeten). +4 auf Rettungswürfe gegen geistbeeinflussende Magie (Charm, Schlaf, etc.).",
+        description_en:
+          "Immune to fear spells. Radiates courage aura in 3 m radius (negates fear in allies). +4 to saves vs. mind-affecting magic (charm, sleep, etc.).",
+      },
+      {
+        name: "Ritterlicher Ehrenkodex",
+        name_en: "Code of Chivalry",
+        description:
+          "Muss stärksten Gegner angreifen; keine Fernwaffen wenn Nahkampf möglich; muss stets beste verfügbare Rüstung tragen. 3-Stufen-Regel bei Verstößen: Warnung → Verlust der Vorteile → permanenter Verlust.",
+        description_en:
+          "Must attack strongest foe; no ranged weapons if melee is possible; must always wear best available armor. 3-strike rule for violations: warning → loss of benefits → permanent loss.",
       },
     ],
   },
@@ -89,23 +97,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Rüstungsklasse-Bonus",
-        name_en: "AC Bonus",
-        description: "Erhält +1 auf die Rüstungsklasse, wenn nur leichte Rüstung getragen wird.",
-        description_en: "Gains +1 AC bonus when wearing light armor only.",
-      },
-      {
-        name: "Akrobatik",
-        name_en: "Tumbling",
-        description: "Kann akrobatische Manöver im Kampf einsetzen, um Angriffen auszuweichen.",
-        description_en: "Can use acrobatic maneuvers in combat to dodge attacks.",
-      },
-      {
-        name: "Charme und Auftreten",
-        name_en: "Charm/Panache",
+        name: "−2 RK-Bonus (leichte Rüstung)",
+        name_en: "−2 AC Bonus (Light Armor)",
         description:
-          "Natürliches Charisma und elegantes Auftreten beeindrucken Verbündete und Gegner.",
-        description_en: "Natural charisma and elegant demeanor impress allies and foes alike.",
+          "Erhält −2 RK-Bonus (besser) wenn keine Rüstung, Leder oder Wattierung getragen wird. Erfordert INT 13+, DEX 13+.",
+        description_en:
+          "Gains −2 AC bonus (better) when wearing no armor, leather, or padded armor. Requires INT 13+, DEX 13+.",
+      },
+      {
+        name: "+2 Reaktion (anderes Geschlecht)",
+        name_en: "+2 Reaction (Opposite Sex)",
+        description:
+          "+2 Reaktionsbonus von NSCs des anderen Geschlechts. Schurken-Fertigkeiten kosten normale Slots (nicht doppelt).",
+        description_en:
+          "+2 reaction bonus from NPCs of the opposite sex. Rogue proficiencies cost normal slots (not double).",
+      },
+      {
+        name: "Akrobatik & Fechtwaffen",
+        name_en: "Tumbling & Fencing Weapons",
+        description:
+          "Freie Fertigkeiten: Etikette, Akrobatik. 2 extra Waffen-Slots für Stilett, Parierdolch, Rapier oder Säbel; muss diese spezialisieren bevor andere Waffen gewählt werden.",
+        description_en:
+          "Free proficiencies: Etiquette, Tumbling. 2 extra weapon slots for stiletto, main-gauche, rapier, or sabre; must specialize these before choosing other weapons.",
       },
     ],
   },
@@ -119,26 +132,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Berserkergang",
-        name_en: "Berserker Rage",
+        name: "Berserkergang (+1/+3/+5 TP)",
+        name_en: "Berserker Rage (+1/+3/+5 HP)",
         description:
-          "Im Kampfrausch erhält der Berserker +2 auf Angriff und Schaden, erleidet aber -2 auf die Rüstungsklasse.",
+          "Nach 10 Runden Aufbau: +1 Treffer, +3 Schaden, +5 TP. Immun gegen Charm, Schlaf, Furcht, Hold Person und ähnliche Zauber. +4 auf Rettungswürfe gegen Blindheit, Hold Person, Charm Monster, Verwirrung. Erfordert STR 15+.",
         description_en:
-          "While raging, the berserker gains +2 to hit and damage but suffers -2 AC penalty.",
+          "After 10 rounds build-up: +1 to hit, +3 damage, +5 HP. Immune to charm, sleep, fear, hold person, and similar spells. +4 to saves vs. blindness, hold person, charm monster, confusion. Requires STR 15+.",
       },
       {
-        name: "Furchtimmunität",
-        name_en: "Immune to Fear in Rage",
-        description: "Während des Berserkergangs ist der Berserker immun gegen Furcht-Effekte.",
-        description_en: "While raging, the berserker is immune to all fear effects.",
+        name: "Raserei-Einschränkungen",
+        name_en: "Rage Restrictions",
+        description:
+          "Im Berserkergang: keine Fernwaffen, muss nächsten Feind angreifen, keine Deckung, Heilzauber verzögert bis nach Raserei.",
+        description_en:
+          "While raging: no ranged weapons, must attack nearest foe, cannot take cover, healing spells delayed until after rage.",
       },
       {
         name: "Erschöpfung nach Raserei",
-        name_en: "Rage Exhaustion",
+        name_en: "Post-Rage Exhaustion",
         description:
-          "Nach dem Berserkergang erleidet der Berserker Erschöpfung und Abzüge auf Angriffswürfe.",
+          "Die +5 TP gehen nach Raserei verloren (kann unter 0 fallen). Kollabiert 1 Runde pro Runde Raserei (entspricht Schwächestrahl, kein Rettungswurf). −3 Reaktion von allen NSCs.",
         description_en:
-          "After the rage ends, the berserker suffers exhaustion and attack roll penalties.",
+          "The +5 HP are lost after rage (can drop below 0). Collapses 1 round per round of rage (equivalent to ray of enfeeblement, no save). −3 reaction from all NPCs.",
       },
     ],
   },
@@ -152,24 +167,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Arenakampf",
-        name_en: "Arena Combat",
-        description: "Der Gladiator erhält +1 auf Angriffswürfe im Einzelkampf.",
-        description_en: "The gladiator gains +1 to attack rolls in one-on-one combat.",
+        name: "Freie Waffenspezialisierung",
+        name_en: "Free Weapon Specialization",
+        description:
+          "Kostenlose Spezialisierung in einer Arena-Waffe (Bogen, Cestus, Dolch, Lasso, Netz, Krummsäbel, Kurzschwert, Speer, Dreizack, Peitsche). Kostet keinen Fertigkeitsslot.",
+        description_en:
+          "Free specialization in one arena weapon (bow, cestus, dagger, lasso, net, scimitar, short sword, spear, trident, whip). Costs no proficiency slot.",
       },
       {
-        name: "Waffenvorführung",
-        name_en: "Weapon Display",
+        name: "Akrobatik & Streitwagen",
+        name_en: "Tumbling & Charioteering",
         description:
-          "Kann eine einschüchternde Waffenvorführung durchführen, um Gegner zu demoralisieren.",
-        description_en: "Can perform an intimidating weapon display to demoralize opponents.",
+          "Kostenlose Fertigkeiten: Akrobatik und Streitwagenfahren. Pflichtwaffen: Kurzschwert (Gladius), Dreizack, Netz.",
+        description_en:
+          "Free proficiencies: Tumbling and Charioteering. Required weapons: short sword (gladius), trident, net.",
       },
       {
-        name: "Publikumswirkung",
-        name_en: "Crowd Appeal",
+        name: "Leicht erkennbar",
+        name_en: "Easily Recognized",
         description:
-          "Beherrscht die Kunst, ein Publikum zu begeistern und deren Gunst zu gewinnen.",
-        description_en: "Masters the art of thrilling an audience and winning their favor.",
+          "Gladiatoren sind leicht identifizierbar. Promoter und Manager mischen sich ständig ein und versuchen, Auftritte und Kämpfe zu arrangieren.",
+        description_en:
+          "Gladiators are easily identifiable. Promoters and managers constantly interfere, trying to arrange appearances and fights.",
       },
     ],
   },
@@ -183,26 +202,26 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Militärische Ausbildung",
-        name_en: "Military Training",
+        name: "Freie Waffenspezialisierung (Militär)",
+        name_en: "Free Weapon Specialization (Military)",
         description:
-          "Professionelle militärische Ausbildung verleiht Vorteile in Formation und Disziplin.",
+          "Kostenlose Spezialisierung in einer Militärwaffe (Streitaxt, Bogen, Armbrust, Lanze, Stangenwaffe, Speer, Schwert). Unterstützung durch mächtigen Militärpatron.",
         description_en:
-          "Professional military training provides advantages in formation fighting and discipline.",
+          "Free specialization in one military weapon (battle axe, bow, crossbow, lance, polearm, spear, sword). Support from a powerful military patron.",
       },
       {
-        name: "Gefolgsleute-Bonus",
-        name_en: "Follower Bonus",
-        description: "Zieht mehr Gefolgsleute an und kann diese effektiver befehligen.",
-        description_en: "Attracts more followers and can command them more effectively.",
+        name: "Militärisches Auftreten",
+        name_en: "Military Bearing",
+        description:
+          "Sofort erkennbares militärisches Auftreten — macht Myrmidon leicht identifizier- und verfolgbar.",
+        description_en:
+          "Instantly recognizable military bearing — makes the myrmidon easy to identify and track.",
       },
       {
-        name: "Taktische Disziplin",
-        name_en: "Tactical Discipline",
-        description:
-          "Kann taktische Manöver koordinieren, die der gesamten Gruppe im Kampf zugutekommen.",
-        description_en:
-          "Can coordinate tactical maneuvers that benefit the entire party in combat.",
+        name: "Militärgeschichte & Feuerkunst",
+        name_en: "Military History & Fire-Building",
+        description: "Kostenlose Fertigkeiten: Alte Geschichte (Militär) und Feuermachen.",
+        description_en: "Free proficiencies: Ancient History (Military) and Fire-Building.",
       },
     ],
   },
@@ -218,24 +237,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Attentat",
-        name_en: "Assassination Attempt",
+        name: "Gift identifizieren (Stufe × 5%)",
+        name_en: "Identify Poison (Level × 5%)",
         description:
-          "Kann einen tödlichen Überraschungsangriff durchführen, der sofortigen Tod verursachen kann.",
-        description_en: "Can perform a deadly surprise attack that may cause instant death.",
-      },
-      {
-        name: "Giftgebrauch",
-        name_en: "Poison Use",
-        description: "Beherrscht den sicheren Umgang mit Giften, ohne sich selbst zu gefährden.",
+          "Basiswert = Stufe × 5%. INT 13–15: +5%, INT 16–17: +10%, INT 18: +15%. Methode beeinflusst Genauigkeit: Sicht −20%, Geruch −15% (10% Kontaktrisiko), Geschmack −5% (25–100% Kontaktrisiko). Erfordert STR 12, DEX 12, INT 11.",
         description_en:
-          "Skilled in the safe handling and application of poisons without risk to self.",
+          "Base chance = level × 5%. INT 13–15: +5%, INT 16–17: +10%, INT 18: +15%. Method affects accuracy: sight −20%, smell −15% (10% contact risk), taste −5% (25–100% contact risk). Requires STR 12, DEX 12, INT 11.",
       },
       {
-        name: "Meisterhafte Verkleidung",
-        name_en: "Disguise Mastery",
-        description: "Kann überzeugende Verkleidungen anlegen, um unerkannt zu bleiben.",
-        description_en: "Can create convincing disguises to remain undetected.",
+        name: "Alle Waffen erlaubt",
+        name_en: "All Weapons Allowed",
+        description:
+          "Darf im Gegensatz zu normalen Dieben alle Waffen verwenden (nicht auf Diebeswaffen beschränkt).",
+        description_en:
+          "Unlike standard thieves, may use any weapon (not restricted to thief weapons).",
+      },
+      {
+        name: "Reduzierte Fertigkeitspunkte",
+        name_en: "Reduced Skill Points",
+        description:
+          "Nur 40 frei verteilbare Fertigkeitspunkte auf Stufe 1 (statt 60) und nur 20 pro Stufe (statt 30). −4 Reaktion von nicht-bösen NSCs, die den Beruf kennen.",
+        description_en:
+          "Only 40 discretionary skill points at level 1 (instead of 60) and only 20 per level (instead of 30). −4 reaction from non-evil NPCs who know the profession.",
       },
     ],
   },
@@ -249,24 +272,26 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Spurenlesen",
-        name_en: "Tracking Proficiency",
+        name: "Fährtensuche (Pflichtfertigkeit)",
+        name_en: "Tracking (Required Proficiency)",
         description:
-          "Beherrscht das Spurenlesen und kann Zielpersonen über weite Strecken verfolgen.",
-        description_en: "Proficient in tracking and can follow targets over long distances.",
+          "Muss die Fertigkeit Fährtensuche erwerben. Erfordert alle Attribute 11+ außer CHA; nicht-rechtschaffen.",
+        description_en:
+          "Must acquire the Tracking proficiency. Requires all abilities 11+ except CHA; non-lawful alignment.",
       },
       {
-        name: "Fangbonus",
-        name_en: "Capture Bonus",
-        description: "Erhält Boni beim Versuch, Ziele lebend zu fangen statt zu töten.",
-        description_en: "Gains bonuses when attempting to capture targets alive rather than kill.",
+        name: "Bonus-Waffenslot + alle Waffen",
+        name_en: "Bonus Weapon Slot + All Weapons",
+        description:
+          "1 zusätzlicher Waffenfertigkeitsslot auf Stufe 1 (3 gesamt). Darf alle Waffen verwenden (Nicht-Diebeswaffen kosten 2 Slots).",
+        description_en:
+          "1 bonus weapon proficiency slot at level 1 (3 total). May use all weapons (non-thief weapons cost 2 slots).",
       },
       {
-        name: "Informantennetzwerk",
-        name_en: "Information Network",
-        description:
-          "Unterhält ein Netzwerk von Informanten, das bei der Suche nach Zielpersonen hilft.",
-        description_en: "Maintains a network of informants that aids in locating targets.",
+        name: "Fertigkeitsfokus: +5% Fallen",
+        name_en: "Skill Focus: +5% Traps",
+        description: "+5% auf Fallen finden/entschärfen als Kit-Bonus.",
+        description_en: "+5% to Find/Remove Traps as kit bonus.",
       },
     ],
   },
@@ -280,23 +305,26 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Akrobatik",
-        name_en: "Tumbling",
-        description: "Akrobatische Fähigkeiten reduzieren Fallschaden um 1W6 Punkte.",
-        description_en: "Acrobatic skills reduce falling damage by 1d6 points.",
-      },
-      {
-        name: "Seiltanz",
-        name_en: "Tightrope Walking",
-        description: "Kann sicher über Seile, Simse und schmale Oberflächen balancieren.",
-        description_en: "Can safely balance across ropes, ledges, and narrow surfaces.",
-      },
-      {
-        name: "Ausweichbonus",
-        name_en: "Evasion Bonus",
+        name: "Springen, Akrobatik, Seiltanz",
+        name_en: "Jumping, Tumbling, Tightrope Walking",
         description:
-          "Erhält einen Bonus auf Rettungswürfe gegen Flächenangriffe durch geschicktes Ausweichen.",
-        description_en: "Gains a saving throw bonus against area attacks through skillful evasion.",
+          "Diese Fähigkeiten gelten als angeborene Talente (auch ohne NWP-System). +1 Bonus auf Fertigkeitswürfe, +2 ohne Rüstung. Erfordert STR 12+, DEX 14+. Keine Zwerge.",
+        description_en:
+          "These abilities are treated as innate talents (even without NWP system). +1 bonus to proficiency checks, +2 when unarmored. Requires STR 12+, DEX 14+. No dwarves.",
+      },
+      {
+        name: "Fertigkeitsboni: +5% Mauern, +5% Taschen",
+        name_en: "Skill Bonuses: +5% Walls, +5% Pockets",
+        description:
+          "+5% auf Mauern erklimmen und +5% auf Taschen leeren. −5% auf Schlösser öffnen, −5% auf Fallen, −5% auf Sprachen lesen.",
+        description_en:
+          "+5% to Climb Walls and +5% to Pick Pockets. −5% to Open Locks, −5% to Traps, −5% to Read Languages.",
+      },
+      {
+        name: "Nur leichte Belastung",
+        name_en: "Light Encumbrance Only",
+        description: "Nur leichte Belastung erlaubt für volle Akrobatik-Vorteile.",
+        description_en: "Light encumbrance only to gain full acrobatics benefits.",
       },
     ],
   },
@@ -310,23 +338,26 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Wildnistarnung",
-        name_en: "Wilderness Stealth",
-        description: "Kann sich in natürlicher Umgebung nahezu unsichtbar machen.",
-        description_en: "Can become nearly invisible in natural environments.",
-      },
-      {
-        name: "Überraschungsbonus",
-        name_en: "Surprise Bonus",
-        description: "Gegner erleiden -1 auf ihre Überraschungswürfe gegen den Kundschafter.",
-        description_en: "Enemies suffer -1 on their surprise rolls against the scout.",
-      },
-      {
-        name: "Wegzeichen",
-        name_en: "Trail Signs",
+        name: "+10% Schleichen/Verbergen (Wildnis)",
+        name_en: "+10% Move Silently/Hide (Wilderness)",
         description:
-          "Kann geheime Wegzeichen hinterlassen und lesen, um Verbündeten den Weg zu weisen.",
-        description_en: "Can leave and read secret trail signs to guide allies.",
+          "+10% auf Lautlos bewegen und Im Schatten verbergen in der Wildnis. Elfenvariante: +15% im Wald, +5% in anderer Wildnis.",
+        description_en:
+          "+10% to Move Silently and Hide in Shadows in wilderness. Elven variant: +15% in forest, +5% in other wilderness.",
+      },
+      {
+        name: "Bessere Überraschungschance (Wildnis)",
+        name_en: "Better Surprise Chance (Wilderness)",
+        description: "1-auf-6 bessere Überraschungschance in der Wildnis.",
+        description_en: "1-in-6 better surprise chance in wilderness.",
+      },
+      {
+        name: "−5% in Städten",
+        name_en: "−5% in Urban Settings",
+        description:
+          "−5% auf alle Diebesfähigkeiten in städtischer Umgebung. Pflichtfertigkeiten: Richtungssinn, Fährtensuche.",
+        description_en:
+          "−5% to all thief skills in urban settings. Required proficiencies: Direction Sense, Tracking.",
       },
     ],
   },
@@ -340,24 +371,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Schloss-/Fallenbonus",
-        name_en: "Lock/Trap Bonus",
-        description: "Erhält +10% auf Schlösser öffnen und Fallen finden/entschärfen.",
-        description_en: "Gains +10% bonus to Open Locks and Find/Remove Traps.",
-      },
-      {
-        name: "Wertschätzung",
-        name_en: "Appraise Value",
-        description: "Kann den Wert von Schätzen und Gegenständen zuverlässig einschätzen.",
-        description_en: "Can reliably appraise the value of treasures and items.",
-      },
-      {
-        name: "Fluchtwege",
-        name_en: "Escape Routes",
+        name: "Fertigkeitsfokus: +5% Schlösser",
+        name_en: "Skill Focus: +5% Open Locks",
         description:
-          "Plant stets Fluchtwege und kann sich schnell aus gefährlichen Situationen zurückziehen.",
+          "+5% auf Schlösser öffnen als Kit-Bonus. −5% auf Taschen leeren. Erfordert STR 10+, DEX 13+.",
         description_en:
-          "Always plans escape routes and can quickly withdraw from dangerous situations.",
+          "+5% to Open Locks as kit bonus. −5% to Pick Pockets. Requires STR 10+, DEX 13+.",
+      },
+      {
+        name: "Pflichtfertigkeiten: Wachsamkeit, Plündern",
+        name_en: "Required: Alertness, Looting",
+        description:
+          "Pflichtfertigkeiten: Wachsamkeit und Plündern. Fokus auf Schlösser, Fallen, Schleichen, Verbergen, Geräusche hören, Mauern erklimmen.",
+        description_en:
+          "Required proficiencies: Alertness and Looting. Focus on locks, traps, stealth, hiding, detect noise, climb walls.",
+      },
+      {
+        name: "Einbruchs-Spezialist",
+        name_en: "Burglary Specialist",
+        description:
+          "Spezialisiert auf das Eindringen in Gebäude. Wertschätzung von Schätzen ist eine Kernkompetenz.",
+        description_en:
+          "Specialized in breaking into buildings. Appraising treasure is a core competency.",
       },
     ],
   },
@@ -371,11 +406,12 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Verkleidungsfertigkeit",
-        name_en: "Disguise Proficiency",
+        name: "Verkleidung, Informationsbeschaffung, Beobachtung",
+        name_en: "Disguise, Information Gathering, Observation",
         description:
-          "Beherrscht die Kunst der Verkleidung und kann verschiedene Identitäten annehmen.",
-        description_en: "Masters the art of disguise and can assume various identities.",
+          "Pflichtfertigkeiten: Verkleidung, Informationsbeschaffung, Beobachtung. Erfordert INT 11+. Nichtmenschliche Spione haben Schwierigkeiten, sich als andere Rassen zu verkleiden.",
+        description_en:
+          "Required proficiencies: Disguise, Information Gathering, Observation. Requires INT 11+. Demihuman spies face difficulty disguising as other races.",
       },
       {
         name: "Lippenlesen",
@@ -384,11 +420,12 @@ export const KITS: Record<string, KitDefinition> = {
         description_en: "Can follow conversations at a distance by reading lips.",
       },
       {
-        name: "Informationsbeschaffung",
-        name_en: "Information Gathering",
+        name: "Rollenspiel-Fokus",
+        name_en: "Roleplay Focus",
         description:
-          "Besonders geschickt darin, Informationen und Gerüchte in besiedelten Gebieten zu sammeln.",
-        description_en: "Especially adept at gathering information and rumors in settled areas.",
+          "Keine besonderen mechanischen Boni — Stärke des Kits liegt in sozialer Infiltration und Informationsgewinnung.",
+        description_en:
+          "No special mechanical bonuses — the kit's strength lies in social infiltration and intelligence gathering.",
       },
     ],
   },
@@ -404,24 +441,26 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Tränke brauen",
-        name_en: "Brew Potions",
-        description: "Kann magische Tränke und Salben aus natürlichen Zutaten herstellen.",
-        description_en: "Can brew magical potions and salves from natural ingredients.",
+        name: "Stufenbasierte Fähigkeiten (1×/Woche)",
+        name_en: "Level-Based Abilities (1/Week)",
+        description:
+          "Stufe 3: Vertrauten rufen (1,6 km pro Stufe). Stufe 5: Beruhigungsmittel brauen (Schlaf-Gift, kein Effekt ab 8+ TW). Stufe 7: Gift brauen (Klasse L Kontaktgift). Stufe 9: Bezaubern (Charm ohne Rettungswurf, bis Stufe 8). Stufe 11: Flugsalbe. Stufe 13: Hexenfluch (kein Rettungswurf, 24 Std.).",
+        description_en:
+          "Level 3: Secure Familiar (1.6 km per level). Level 5: Brew Calmative (sleep-poison, no effect on 8+ HD). Level 7: Brew Poison (Class L contact). Level 9: Beguile (charm, no save, up to level 8). Level 11: Brew Flying Ointment. Level 13: Witch's Curse (no save, 24 hrs).",
       },
       {
-        name: "Verbesserter Vertrauter",
-        name_en: "Familiar Enhancement",
+        name: "Startzauber + magische Gegenstände",
+        name_en: "Starting Spells + Magic Items",
         description:
-          "Der Vertraute der Hexe erhält zusätzliche Fähigkeiten und ist widerstandsfähiger.",
-        description_en: "The witch's familiar gains additional abilities and is more resilient.",
+          "Magie entdecken und Magie lesen kostenlos (zählen nicht gegen Slots). Bis zu 1.500 GM in magischen Gegenständen bei Start. Erfordert INT 13+, WIS 13+, KON 13+.",
+        description_en:
+          "Detect magic and read magic free (don't count against slots). Up to 1,500 gp of magic items at start. Requires INT 13+, WIS 13+, CON 13+.",
       },
       {
-        name: "Verfluchung",
-        name_en: "Curse Ability",
-        description:
-          "Kann mächtige Flüche aussprechen, die Feinde auf verschiedene Weise schwächen.",
-        description_en: "Can bestow powerful curses that weaken enemies in various ways.",
+        name: "Keine Waffenfertigkeiten",
+        name_en: "No Weapon Proficiencies",
+        description: "Hexen dürfen niemals Waffenfertigkeiten erlernen.",
+        description_en: "Witches may never learn weapon proficiencies.",
       },
     ],
   },
@@ -435,25 +474,26 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: 20,
     abilities: [
       {
-        name: "Zusätzliche Waffenfertigkeit",
-        name_en: "Weapon Proficiency",
+        name: "Bonus-Waffenslot + Krieger-Fertigkeiten",
+        name_en: "Bonus Weapon Slot + Warrior Proficiencies",
         description:
-          "Erhält einen zusätzlichen Waffenfertigkeits-Slot bei der Charaktererstellung.",
-        description_en: "Gains one additional weapon proficiency slot at character creation.",
-      },
-      {
-        name: "Leichte Rüstung",
-        name_en: "Light Armor Use",
-        description:
-          "Kann leichte Rüstung tragen und dabei weiterhin Zauber wirken, allerdings mit erhöhter Fehlschlagchance.",
+          "1 kostenloser Waffenfertigkeitsslot. Krieger-Fertigkeiten kosten normale Slots (nicht doppelt). Erfordert STR 13+.",
         description_en:
-          "Can wear light armor while still casting spells, albeit with an increased failure chance.",
+          "1 free weapon proficiency slot. Warrior proficiencies cost normal slots (not double). Requires STR 13+.",
       },
       {
-        name: "Kampfzauberei",
-        name_en: "Combat Casting",
-        description: "Kann Zauber unter Beschuss wirken, ohne den Konzentrationswurf zu verlieren.",
-        description_en: "Can cast spells under fire without losing the concentration check.",
+        name: "Zusätzliche verbotene Schulen",
+        name_en: "Extra Opposition Schools",
+        description:
+          "Muss zusätzliche Magieschulen über normale Spezialist-Beschränkungen hinaus aufgeben. Magier-Variante: Wahl zwischen keine Stufe-8/9-Zauber, INT −2 behandelt, oder auf 5 Schulen beschränkt.",
+        description_en:
+          "Must give up additional magic schools beyond normal specialist restrictions. Mage variant: choose between no level 8/9 spells, treat INT as 2 lower, or limited to 5 schools.",
+      },
+      {
+        name: "Zauberfehlschlag in Rüstung (20%)",
+        name_en: "Spell Failure in Armor (20%)",
+        description: "20% Zauberfehlschlag-Chance wenn Rüstung getragen wird.",
+        description_en: "20% spell failure chance when wearing armor.",
       },
     ],
   },
@@ -467,25 +507,24 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Naturfokus",
-        name_en: "Nature Focus",
-        description: "Spezialisiert auf naturbasierte Magie mit Boni auf entsprechende Zauber.",
-        description_en: "Specializes in nature-based magic with bonuses to related spells.",
-      },
-      {
-        name: "Eingeschränkte Zauberschulen",
-        name_en: "Limited Spell Schools",
+        name: "Wahl-Fähigkeit (1×/Woche)",
+        name_en: "Chosen Ability (1/Week)",
         description:
-          "Hat nur Zugang zu bestimmten Zauberschulen, die mit der Natur verbunden sind.",
-        description_en: "Has access only to certain spell schools connected to nature.",
-      },
-      {
-        name: "Kräuterkunde",
-        name_en: "Herbal Knowledge",
-        description:
-          "Besitzt umfangreiches Wissen über Kräuter und deren magische sowie heilende Eigenschaften.",
+          "Bei Erstellung wählen: (1) Schutztalisman brauen (1 Std., wie Schutz vor Bösem, 1 Tag). (2) Tonpuppe (15 cm, 1W4 Schaden unabhängig von Entfernung, gleiche Ebene). (3) Omen lesen (günstig: +50% Bewegung, Gegner −1 Treffer; ungünstig: −1 Treffer/Rettungswürfe). Erfordert STR 11+, KON 13+.",
         description_en:
-          "Possesses extensive knowledge of herbs and their magical and healing properties.",
+          "Choose at creation: (1) Brew protective talisman (1 hr, as Protection from Evil, 1 day). (2) Clay replicant (15 cm, 1d4 damage regardless of distance, same plane). (3) Read omen (favorable: +50% movement, opponents −1 to hit; unfavorable: −1 to hit/saves). Requires STR 11+, CON 13+.",
+      },
+      {
+        name: "−2 Reaktion von Nichtstammesangehörigen",
+        name_en: "−2 Reaction from Non-Tribal NPCs",
+        description: "−2 Reaktionsmalus von allen NSCs, die nicht dem eigenen Stamm angehören.",
+        description_en: "−2 reaction penalty from all NPCs not of own tribe.",
+      },
+      {
+        name: "Reduziertes Startgold",
+        name_en: "Reduced Starting Gold",
+        description: "Startgeld: (1W4+1) × 5 GM.",
+        description_en: "Starting money: (1d4+1) × 5 gp.",
       },
     ],
   },
@@ -499,24 +538,23 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Forschungsbonus",
-        name_en: "Research Bonus",
-        description: "Erhält +15% auf die Chance, neue Zauber zu erlernen.",
-        description_en: "Gains +15% bonus to Learn Spell chance.",
-      },
-      {
-        name: "Gelehrtenwissen",
-        name_en: "Sage Knowledge",
-        description: "Verfügt über breites Wissen in einem gewählten Fachgebiet wie ein Weiser.",
-        description_en: "Possesses broad knowledge in a chosen field of study, similar to a sage.",
-      },
-      {
-        name: "Bibliothekszugang",
-        name_en: "Library Access",
-        description:
-          "Hat Zugang zu akademischen Bibliotheken, die das Erlernen und Erforschen von Zaubern erleichtern.",
+        name: "+3 Reaktion von Gelehrten",
+        name_en: "+3 Reaction from Scholars",
+        description: "+3 Reaktionsbonus von Gelehrten, Forschern, Lehrern und Korrespondenten.",
         description_en:
-          "Has access to academic libraries that facilitate learning and researching spells.",
+          "+3 reaction bonus from scholars, researchers, teachers, and correspondents.",
+      },
+      {
+        name: "+1 auf INT- und WIS-Würfe",
+        name_en: "+1 to INT and WIS Checks",
+        description: "+1 Bonus auf alle Intelligenz- und Weisheitswürfe (pauschale Option).",
+        description_en: "+1 bonus to all Intelligence and Wisdom checks (flat option).",
+      },
+      {
+        name: "−1 Treffer im ersten Nahkampf",
+        name_en: "−1 to Hit on First Melee Blow",
+        description: "−1 auf den ersten Nahkampf-Angriffswurf gegen jeden neuen Gegner.",
+        description_en: "−1 to the first melee attack roll against each new opponent.",
       },
     ],
   },
@@ -524,31 +562,34 @@ export const KITS: Record<string, KitDefinition> = {
   // ── Priest Kits ───────────────────────────────────────────────────────
   fighting_priest: {
     id: "fighting_priest",
-    name: "Kriegspriester",
-    name_en: "Fighting Priest",
+    name: "Kampfmönch",
+    name_en: "Fighting Monk",
     classId: "cleric",
     hitDieOverride: null,
-    maxArmorAC: null,
+    maxArmorAC: 10, // no armor allowed
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Zusätzliche Waffenfertigkeit",
-        name_en: "Extra Weapon Proficiency",
+        name: "Waffenlose Kampfspezialisierung",
+        name_en: "Unarmed Combat Specialization",
         description:
-          "Erhält einen zusätzlichen Waffenfertigkeits-Slot und darf Klingenwaffen führen.",
-        description_en: "Gains an extra weapon proficiency slot and may wield bladed weapons.",
+          "2 freie Waffenslots für Spezialisierung in einem waffenlosen Kampfstil (Faustkampf, Ringen oder Kampfkunst). Zugang zu allen 5 Fertigkeitsgruppen (keine doppelten Slot-Kosten). Erfordert DEX 12+.",
+        description_en:
+          "2 free weapon slots for specialization in one unarmed combat style (Punching, Wrestling, or Martial Arts). Crossover with all 5 proficiency groups (no double-slot cost). Requires DEX 12+.",
       },
       {
-        name: "Kampfsegen",
-        name_en: "Combat Blessing",
-        description: "Kann Verbündete vor dem Kampf segnen und ihnen kurzzeitige Boni verleihen.",
-        description_en: "Can bless allies before combat, granting them short-term bonuses.",
+        name: "Keine Rüstung erlaubt",
+        name_en: "No Armor Allowed",
+        description:
+          "Darf niemals Rüstung tragen. Mittlere Kampffähigkeit: max 3 Haupt-Sphärenzugänge (eine muss All sein) und 2 Neben-Zugänge.",
+        description_en:
+          "May never wear armor. Medium combat ability: max 3 major sphere accesses (one must be All) and 2 minor accesses.",
       },
       {
-        name: "Taktische Führung",
-        name_en: "Tactical Leadership",
-        description: "Kann Verbündete im Kampf koordinieren und taktische Anweisungen erteilen.",
-        description_en: "Can coordinate allies in combat and issue tactical commands.",
+        name: "Minimaler Besitz",
+        name_en: "Minimal Possessions",
+        description: "Darf nie mehr besitzen, als auf dem Rücken getragen werden kann.",
+        description_en: "May never own more than can be carried on one's back.",
       },
     ],
   },
@@ -558,30 +599,32 @@ export const KITS: Record<string, KitDefinition> = {
     name_en: "Pacifist Priest",
     classId: "cleric",
     hitDieOverride: null,
-    maxArmorAC: null,
+    maxArmorAC: 10, // no armor
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Verbesserte Heilung",
-        name_en: "Enhanced Healing",
-        description: "Heilzauber heilen +1 Trefferpunkt pro Würfel zusätzlich.",
-        description_en: "Healing spells restore +1 hit point per die rolled.",
+        name: "+2 CHA (max 18) & +2 Reaktion",
+        name_en: "+2 CHA (Max 18) & +2 Reaction",
+        description:
+          "+2 auf Charisma (max 18). +2 Reaktion von allen, die der pazifistischen Philosophie nicht feindlich gegenüberstehen.",
+        description_en:
+          "+2 to Charisma (max 18). +2 reaction from anyone not opposed to pacifist philosophy.",
       },
       {
-        name: "Schutzaura",
-        name_en: "Sanctuary Aura",
+        name: "Absolutes Gewaltverbot",
+        name_en: "Absolute Non-Violence",
         description:
-          "Strahlt eine Aura des Friedens aus, die Gegner von Angriffen abhält, solange der Priester nicht angreift.",
+          "Darf niemals Rüstung tragen, niemals Waffen/Zauber/Taktik einsetzen, um Kreaturen zu verletzen. Verstoß: Verlust aller Zauber für 1 Monat. Nur Bogen und Wurfpfeil (für Wettkampf).",
         description_en:
-          "Radiates an aura of peace that deters enemies from attacking as long as the priest does not attack.",
+          "May never wear armor, never use weapons/spells/tactics to harm any creature. Violation: lose all spells for 1 month. Only bow and dart (for competition only).",
       },
       {
-        name: "Keine Klingenwaffen",
-        name_en: "No Edged Weapons",
+        name: "Friedensstiftung",
+        name_en: "Peacemaking",
         description:
-          "Darf keine Klingenwaffen verwenden, erhält dafür aber verstärkte göttliche Heilkräfte.",
+          "Natürliche Aura des Friedens hält Angreifer ab, solange der Priester nicht angreift.",
         description_en:
-          "May not use edged weapons but receives enhanced divine healing powers in return.",
+          "Natural aura of peace deters attackers as long as the priest does not attack.",
       },
     ],
   },
@@ -597,26 +640,26 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Tiergefährte",
-        name_en: "Animal Companion",
+        name: "Tierempathie-Bonus",
+        name_en: "Animal Empathy Bonus",
         description:
-          "Erhält einen loyalen Tiergefährten, der im Kampf und bei der Erkundung hilft.",
-        description_en: "Gains a loyal animal companion that aids in combat and exploration.",
+          "Verbesserte Tierempathie — wilde Tiere reagieren freundlicher. Tiergefährte unterstützt in Kampf und Erkundung.",
+        description_en:
+          "Enhanced animal empathy — wild animals react more favorably. Animal companion aids in combat and exploration.",
       },
       {
-        name: "Mit Tieren sprechen",
-        name_en: "Speak with Animals",
+        name: "Mit Tieren sprechen (1×/Tag)",
+        name_en: "Speak with Animals (1/Day)",
         description:
           "Kann einmal pro Tag mit Tieren sprechen, als wäre der gleichnamige Zauber gewirkt worden.",
         description_en:
           "Can speak with animals once per day as if the spell of the same name were cast.",
       },
       {
-        name: "Tierempathie-Bonus",
-        name_en: "Animal Empathy Bonus",
-        description:
-          "Erhält einen Bonus auf Tierempathie-Würfe, um wilde Tiere zu beruhigen oder zu beeinflussen.",
-        description_en: "Gains a bonus to animal empathy checks to calm or influence wild animals.",
+        name: "Nur Lederrüstung",
+        name_en: "Leather Armor Only",
+        description: "Darf nur Lederrüstung oder leichtere Rüstung tragen.",
+        description_en: "May only wear leather armor or lighter.",
       },
     ],
   },
@@ -635,25 +678,22 @@ export const KITS: Record<string, KitDefinition> = {
         name: "Waffenperformance",
         name_en: "Weapon Performance",
         description:
-          "Erhält +1 auf Angriffswürfe mit einer gewählten Waffe durch kunstvolles Kampftraining.",
-        description_en:
-          "Gains +1 to attack rolls with a chosen weapon through artistic combat training.",
+          "+1 auf Angriffswürfe mit einer gewählten Waffe durch kunstvolles Kampftraining.",
+        description_en: "+1 to attack rolls with a chosen weapon through artistic combat training.",
       },
       {
         name: "Kampftanz",
         name_en: "Combat Dance",
-        description:
-          "Kann einen hypnotisierenden Kampftanz aufführen, der Gegner ablenkt und Verbündete inspiriert.",
-        description_en:
-          "Can perform a mesmerizing combat dance that distracts enemies and inspires allies.",
+        description: "Hypnotisierender Kampftanz der Gegner ablenkt und Verbündete inspiriert.",
+        description_en: "Mesmerizing combat dance that distracts enemies and inspires allies.",
       },
       {
         name: "Klingenlied",
         name_en: "Blade Song",
         description:
-          "Ein magisches Lied, das die Klinge mit Energie erfüllt und zusätzlichen Schaden verursacht.",
+          "Magisches Lied, das die Klinge mit Energie erfüllt und zusätzlichen Schaden verursacht.",
         description_en:
-          "A magical song that infuses the blade with energy, dealing additional damage.",
+          "Magical song that infuses the blade with energy, dealing additional damage.",
       },
     ],
   },
@@ -669,25 +709,26 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Exotisches Reittier",
-        name_en: "Exotic Mount",
+        name: "Totem-Reittier & telepathische Bindung",
+        name_en: "Totem Mount & Telepathic Bond",
         description:
-          "Der Reittiermeister kann ein exotisches Reittier wie einen Riesenwolf oder Hippogryph zähmen und reiten.",
+          "Wählt eine Totem-Tierart als Reittier. Telepathische Bindung (emotionale Wahrnehmung und Richtungsgefühl auf jede Entfernung). Freie Fertigkeiten: Tiertraining + Reiten. Erfordert CHA 13+.",
         description_en:
-          "The beast rider can tame and ride an exotic mount such as a dire wolf or hippogriff.",
+          "Chooses a totem species as mount. Telepathic bond (emotional sense and directional awareness at any range). Free proficiencies: Animal Training + Riding. Requires CHA 13+.",
       },
       {
-        name: "Berittener Kampfbonus",
-        name_en: "Mounted Combat Bonus",
-        description: "Erhält +2 auf Angriffswürfe, wenn er sein besonderes Reittier reitet.",
-        description_en: "Gains +2 to attack rolls when riding his special mount.",
+        name: "+5 Reaktion von Totem-Tierart",
+        name_en: "+5 Reaction from Totem Species",
+        description:
+          "+5 Reaktionsbonus von Totem-Tierart. −3 Reaktion von NSCs anderer Kulturen. Tod des Reittiers: 2W6 Schaden + Rettungswurf gegen Zauber oder Schwachsinn für 2W6 Stunden.",
+        description_en:
+          "+5 reaction from totem species. −3 reaction from NPCs of other cultures. Mount death: 2d6 damage + save vs. spells or feeblemind for 2d6 hours.",
       },
       {
-        name: "Tierbindung",
-        name_en: "Animal Bond",
-        description: "Die enge Bindung zum Reittier ermöglicht instinktive Kommunikation im Kampf.",
-        description_en:
-          "The close bond with the mount allows instinctive communication during combat.",
+        name: "Startgold auf 3 GM beschränkt",
+        name_en: "Starting Gold Limited to 3 gp",
+        description: "Muss alles Startgold bis auf 3 GM ausgeben.",
+        description_en: "Must spend all starting gold except 3 gp.",
       },
     ],
   },
@@ -701,25 +742,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Adliger Stand",
-        name_en: "Noble Birth",
+        name: "+3 Reaktion & 225 GM extra",
+        name_en: "+3 Reaction & 225 gp Extra",
         description:
-          "Entstammt dem Adel und verfügt über politische Kontakte, Land und Ressourcen.",
-        description_en: "Born into nobility with political contacts, land holdings, and resources.",
-      },
-      {
-        name: "Führungsautorität",
-        name_en: "Leadership Authority",
-        description:
-          "Kann Gefolgsleute und Soldaten leichter anwerben und befehligen als andere Kämpfer.",
+          "+3 Reaktion von NSCs der eigenen Kultur. Startet mit 225 GM + Standard-Startgold. Kann Unterkunft für bis zu 2 × Stufe Begleiter fordern. Erfordert STR 13+, KON 13+.",
         description_en:
-          "Can recruit and command followers and soldiers more easily than other fighters.",
+          "+3 reaction from own-culture NPCs. Starts with 225 gp + standard starting gold. Can demand shelter for up to 2 × level companions. Requires STR 13+, CON 13+.",
       },
       {
-        name: "Noblesse Oblige",
-        name_en: "Noblesse Oblige",
-        description: "Muss einen standesgemäßen Lebensstil pflegen, was hohe Ausgaben verursacht.",
-        description_en: "Must maintain a lifestyle befitting nobility, incurring high expenses.",
+        name: "Niedere Gerichtsbarkeit",
+        name_en: "Low Justice",
+        description:
+          "Niedere Gerichtsbarkeit über Gemeine im eigenen Land. Freie Fertigkeiten: Etikette, Heraldik, Reiten.",
+        description_en:
+          "Low justice over commoners in own land. Free proficiencies: Etiquette, Heraldry, Riding.",
+      },
+      {
+        name: "Standesgemäße Ausgaben (+10%/Stufe)",
+        name_en: "Noble Expenses (+10%/Level)",
+        description:
+          "Muss beste verfügbare Qualität kaufen — +10% pro Erfahrungsstufe über Basiskosten. Eid an einen Lehnsherrn (Pflicht zur Begleitung in den Kampf). Rufverlust: +3 wird zu −6.",
+        description_en:
+          "Must buy best available quality — +10% per experience level above base cost. Oath to a lord (duty to accompany into combat). Reputation loss: +3 becomes −6.",
       },
     ],
   },
@@ -733,27 +777,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Volksverbundenheit",
-        name_en: "Common Touch",
+        name: "Zuflucht in Heimatgemeinde",
+        name_en: "Shelter in Home Community",
         description:
-          "Das einfache Volk vertraut dem Bauernhelden und gewährt bereitwillig Unterschlupf und Hilfe.",
+          "Erhält immer Unterkunft, Nahrung und Basishilfe (Dolche, 0-Stufe-Helfer) in der Heimatgemeinde. Muss alles Startgold bis auf 3 GM ausgeben.",
         description_en:
-          "Common folk trust the peasant hero and readily provide shelter and assistance.",
+          "Always has shelter, food, and basic help (daggers, 0-level helpers) in home community. Must spend all starting gold except 3 gp.",
       },
       {
-        name: "Improvisation",
-        name_en: "Improvised Weapons",
+        name: "Pflicht gegenüber der Gemeinde",
+        name_en: "Community Obligations",
         description:
-          "Kann Alltagsgegenstände wie Dreschflegel, Sensen und Knüppel effektiv als Waffen einsetzen.",
+          "Gemeinde ruft den Helden ständig um Hilfe. Verweigerung: −2 Reaktion von allen Bauern bis zur Versöhnung.",
         description_en:
-          "Can effectively wield everyday objects like flails, scythes, and clubs as weapons.",
+          "Community constantly calls on the hero for help. Refusal: −2 reaction from all peasants until reconciled.",
       },
       {
-        name: "Zähigkeit",
-        name_en: "Hardy Constitution",
+        name: "Landwirtschaft & Wetterkunde",
+        name_en: "Agriculture & Weather Sense",
         description:
-          "Jahre harter Arbeit verleihen einen Bonus auf Ausdauer- und Konstitutionswürfe.",
-        description_en: "Years of hard labor grant a bonus to endurance and constitution checks.",
+          "Freie Fertigkeiten: Landwirtschaft oder Fischerei + Wetterkunde oder Tierkunde.",
+        description_en:
+          "Free proficiencies: Agriculture or Fishing + Weather Sense or Animal Lore.",
       },
     ],
   },
@@ -767,28 +812,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Kiai-Schrei",
-        name_en: "Kiai Shout",
+        name: "Kiai-Schrei (STR 19/00, 1×/Tag/Stufe)",
+        name_en: "Kiai Shout (STR 19/00, 1/Day/Level)",
         description:
-          "Kann einen übernatürlichen Kampfschrei ausstoßen, der Gegner für eine Runde lähmt.",
+          "Einmal pro Tag pro Stufe: STR auf 19/00 für 1 Runde erhöhen (lauter Kiai-Schrei erforderlich). 2 extra Waffen-Slots bei Start (6 gesamt). Erfordert STR 13, WIS 13, KON 13, INT 14; rechtschaffen.",
         description_en:
-          "Can unleash a supernatural battle shout that paralyzes opponents for one round.",
+          "Once per day per level: raise STR to 19/00 for 1 round (loud kiai shout required). 2 extra weapon slots at start (6 total). Requires STR 13, WIS 13, CON 13, INT 14; lawful alignment.",
       },
       {
-        name: "Ehre des Bushido",
-        name_en: "Bushido Honor",
+        name: "Katana-Spezialisierung (Pflicht)",
+        name_en: "Katana Specialization (Required)",
         description:
-          "Folgt dem Bushido-Kodex — Verlust der Ehre bedeutet schwerwiegende soziale Konsequenzen.",
+          "Muss spezialisieren: Katana (2 Slots) + Daikyu (3 Slots). 1 Restslot nur aus Samurai-Waffen. Freies Katana bei Start.",
         description_en:
-          "Follows the Bushido code — loss of honor carries severe social consequences.",
+          "Must specialize: katana (2 slots) + daikyu (3 slots). 1 remaining slot from samurai weapons only. Free katana at start.",
       },
       {
-        name: "Katana-Meisterschaft",
-        name_en: "Katana Mastery",
+        name: "Bushido-Gehorsam / Ronin",
+        name_en: "Bushido Obedience / Ronin",
         description:
-          "Kann sich auf das Katana spezialisieren und erhält erweiterte Kampftechniken damit.",
+          "Absoluter Gehorsam gegenüber Lehnsherrn (inkl. Selbstaufopferung). Ungehorsam: Seppuku erwartet. Verweigert: Ronin — verdient nur halbe EP bis neuer Eid.",
         description_en:
-          "Can specialize in the katana and gains advanced combat techniques with it.",
+          "Absolute obedience to lord (including self-sacrifice). Disobeying: expected to commit seppuku. If refused: becomes ronin — earns half XP until sworn to a new lord.",
       },
     ],
   },
@@ -802,25 +847,24 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Wildnisüberleben",
-        name_en: "Wilderness Survival",
-        description: "Kann in der Wildnis mühelos überleben und Nahrung sowie Unterschlupf finden.",
+        name: "+5 Überlebenswurf (Heimat)",
+        name_en: "+5 Survival Check (Home Terrain)",
+        description: "+5 Bonus auf Überlebenswürfe im Heimatgelände. Erfordert KON 13+.",
         description_en:
-          "Can survive effortlessly in the wilderness, finding food and shelter with ease.",
+          "+5 bonus to Survival proficiency checks in native terrain. Requires CON 13+.",
       },
       {
-        name: "Tiersinn",
-        name_en: "Animal Sense",
-        description:
-          "Kann die Anwesenheit von Tieren in der Umgebung spüren und deren Verhalten deuten.",
-        description_en: "Can sense the presence of animals nearby and interpret their behavior.",
+        name: "Ausdauer & Überleben (frei)",
+        name_en: "Endurance & Survival (Free)",
+        description: "Freie Fertigkeiten: Überleben (Heimatgelände) und Ausdauer.",
+        description_en: "Free proficiencies: Survival (native environment) and Endurance.",
       },
       {
-        name: "Primitiver Kampfstil",
-        name_en: "Primitive Combat Style",
+        name: "Kulturelle Fremdheit",
+        name_en: "Cultural Unfamiliarity",
         description:
-          "Bevorzugt primitive Waffen und erhält Boni im Umgang mit selbstgefertigten Waffen.",
-        description_en: "Prefers primitive weapons and gains bonuses when using self-crafted arms.",
+          "Unvertrautheit mit anderen Kulturen auf niedrigen Stufen (Rollenspiel-Einschränkung).",
+        description_en: "Unfamiliarity with other cultures at early levels (roleplay restriction).",
       },
     ],
   },
@@ -836,25 +880,25 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Vielseitigkeit",
-        name_en: "Versatility",
+        name: "Generalist (keine Einschränkungen)",
+        name_en: "Generalist (No Restrictions)",
         description:
-          "Der Abenteurer ist ein Allrounder, der keine Diebesfähigkeit besonders bevorzugt, aber alle solide beherrscht.",
+          "Keine besonderen Vorteile, aber auch keine Einschränkungen. Standard-Diebesfähigkeiten und -Progression.",
         description_en:
-          "The adventurer is a generalist who favors no single thief skill but is competent in all.",
+          "No special benefits, but also no restrictions. Standard thief skills and progression.",
       },
       {
-        name: "Gerüchteküche",
-        name_en: "Streetwise",
+        name: "Keine Kit-Boni oder -Mali",
+        name_en: "No Kit Bonuses or Penalties",
         description:
-          "Findet in jeder Stadt schnell Kontakte und erfährt lokale Gerüchte und Geheimnisse.",
-        description_en: "Quickly finds contacts in any city and learns local rumors and secrets.",
+          "Das reinste Dieb-Kit — maximale Flexibilität bei der Verteilung der Fertigkeitspunkte.",
+        description_en: "The purest thief kit — maximum flexibility in distributing skill points.",
       },
       {
-        name: "Schatzjäger-Instinkt",
-        name_en: "Treasure Hunter's Instinct",
-        description: "Hat ein untrügliches Gespür für verborgene Schätze und geheime Durchgänge.",
-        description_en: "Has an unerring sense for hidden treasures and secret passages.",
+        name: "Standard-Ausrüstung",
+        name_en: "Standard Equipment",
+        description: "Keine Ausrüstungs- oder Startgeld-Einschränkungen.",
+        description_en: "No equipment or starting gold restrictions.",
       },
     ],
   },
@@ -868,26 +912,26 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Spurenanalyse",
-        name_en: "Clue Analysis",
-        description:
-          "Kann Tatorte untersuchen und aus Hinweisen Rückschlüsse auf Täter und Hergang ziehen.",
-        description_en: "Can examine crime scenes and deduce perpetrators and events from clues.",
+        name: "Pflichtfertigkeiten: Informationsbeschaffung, Beobachtung",
+        name_en: "Required: Information Gathering, Observation",
+        description: "Muss die Fertigkeiten Informationsbeschaffung und Beobachtung erwerben.",
+        description_en: "Must acquire the Information Gathering and Observation proficiencies.",
       },
       {
-        name: "Verhörtechnik",
-        name_en: "Interrogation",
+        name: "Fertigkeitsfokus: −5% Taschen leeren",
+        name_en: "Skill Focus: −5% Pick Pockets",
         description:
-          "Beherrscht verschiedene Verhörtechniken, um Verdächtigen Informationen zu entlocken.",
+          "−5% auf Taschen leeren als Kit-Anpassung. Fokus liegt auf Ermittlung statt Diebstahl.",
         description_en:
-          "Masters various interrogation techniques to extract information from suspects.",
+          "−5% to Pick Pockets as kit adjustment. Focus is on investigation rather than theft.",
       },
       {
-        name: "Kontaktnetzwerk",
-        name_en: "Contact Network",
-        description: "Unterhält ein Netzwerk aus Informanten in Behörden und der Unterwelt.",
+        name: "Ermittlungs-Spezialist",
+        name_en: "Investigation Specialist",
+        description:
+          "Spezialisiert auf Tatort-Untersuchung, Verhörtechniken und das Zusammensetzen von Hinweisen.",
         description_en:
-          "Maintains a network of informants in both official circles and the underworld.",
+          "Specialized in crime scene examination, interrogation techniques, and piecing together clues.",
       },
     ],
   },
@@ -901,27 +945,22 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Verborgene Fracht",
-        name_en: "Concealed Cargo",
-        description:
-          "Kann Gegenstände so geschickt verstecken, dass sie bei Durchsuchungen kaum gefunden werden.",
-        description_en:
-          "Can conceal objects so skillfully that they are nearly undetectable during searches.",
+        name: "+1 Überraschungswurf",
+        name_en: "+1 Surprise Roll",
+        description: "+1 Bonus auf den Überraschungswurf.",
+        description_en: "+1 bonus to surprise roll.",
       },
       {
-        name: "Geheime Routen",
-        name_en: "Secret Routes",
-        description:
-          "Kennt geheime Handelsrouten und Schmugglerpfade, die anderen verborgen bleiben.",
-        description_en: "Knows secret trade routes and smuggling paths hidden from others.",
+        name: "Fertigkeitsfokus: −5% Taschen, −5% Schlösser",
+        name_en: "Skill Focus: −5% Pockets, −5% Locks",
+        description: "−5% auf Taschen leeren und −5% auf Schlösser öffnen als Kit-Anpassung.",
+        description_en: "−5% to Pick Pockets and −5% to Open Locks as kit adjustment.",
       },
       {
-        name: "Bestechungskunst",
-        name_en: "Bribery Expertise",
-        description:
-          "Weiß genau, wem man wie viel anbieten muss, um Wachen und Beamte zu bestechen.",
-        description_en:
-          "Knows exactly how much to offer to bribe guards and officials effectively.",
+        name: "Schmuggel-Spezialist",
+        name_en: "Smuggling Specialist",
+        description: "Spezialisiert auf das Verstecken von Fracht, geheime Routen und Bestechung.",
+        description_en: "Specialized in concealing cargo, secret routes, and bribery.",
       },
     ],
   },
@@ -937,26 +976,26 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Kriegerisches Training",
-        name_en: "Warrior Training",
+        name: "+3 Treffer/+3 Schaden (Erstangriff)",
+        name_en: "+3 to Hit/+3 Damage (First Strike)",
         description:
-          "Erhält einen zusätzlichen Waffenfertigkeits-Slot und darf nicht-standardmäßige Magierwaffen führen.",
+          "Beim ersten Nahkampf gegen einen männlichen Gegner unter Stufe 5 (aus Kultur ohne Kriegerinnen): +3 Treffer und +3 Schaden auf den ersten Schlag. Nur weiblich.",
         description_en:
-          "Gains an extra weapon proficiency slot and may wield non-standard wizard weapons.",
+          "On first melee against a male opponent under level 5 (from culture with rare female warriors): +3 to hit and +3 damage on first blow. Female only.",
       },
       {
-        name: "Kampfzauberei",
-        name_en: "Battle Magic",
-        description: "Kann Kampfzauber unter Druck wirken, ohne Konzentrationswürfe zu verlieren.",
+        name: "Amazonen-Kampftraining",
+        name_en: "Amazon Combat Training",
+        description:
+          "Kriegerisches Training aus der Stammestradition. Komfortabel mit Waffen und Nahkampf.",
         description_en:
-          "Can cast combat spells under pressure without losing concentration checks.",
+          "Warrior training from tribal tradition. Comfortable with weapons and melee combat.",
       },
       {
         name: "Stammesmagie",
         name_en: "Tribal Magic",
-        description: "Spezialisiert auf naturnahe und elementare Zauber ihrer Stammestradition.",
-        description_en:
-          "Specializes in nature-based and elemental spells from her tribal tradition.",
+        description: "Spezialisiert auf naturnahe und elementare Zauber der Stammestradition.",
+        description_en: "Specializes in nature-based and elemental spells from tribal tradition.",
       },
     ],
   },
@@ -970,19 +1009,20 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Volksmagie",
-        name_en: "Folk Magic",
+        name: "Freie Unterkunft + +2 Reaktion",
+        name_en: "Free Shelter + +2 Reaction",
         description:
-          "Beherrscht einfache, praktische Zauber, die im Alltag des Landlebens nützlich sind.",
-        description_en: "Masters simple, practical spells useful in everyday rural life.",
+          "Freie Nahrung und Unterkunft in der Heimat von Gemeinen (auch für Begleiter). +2 Reaktion von Bauern überall.",
+        description_en:
+          "Free food and shelter in homeland from commoners (extends to companions). +2 reaction from peasants anywhere.",
       },
       {
-        name: "Bescheidene Herkunft",
-        name_en: "Humble Origins",
+        name: "Besitzbeschränkung (max 75 GM)",
+        name_en: "Possession Limit (Max 75 gp)",
         description:
-          "Wird von der magischen Gemeinschaft nicht anerkannt, genießt aber das Vertrauen des einfachen Volkes.",
+          "Darf nur 1 Gegenstand bis 15 GM besitzen; alle anderen max 10 GM; Gesamtbesitz nie über 75 GM. Startgeld: (1W4+1) × 5 GM.",
         description_en:
-          "Not recognized by the magical community but enjoys the trust of common folk.",
+          "May own only one item up to 15 gp; all others max 10 gp; total possessions never exceed 75 gp. Starting money: (1d4+1) × 5 gp.",
       },
       {
         name: "Zähigkeit des Landvolks",
