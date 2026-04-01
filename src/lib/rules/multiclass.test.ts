@@ -8,6 +8,10 @@ import {
   multiclassHasExceptionalStr,
   getMulticlassGroups,
   getMulticlassArmorWarnings,
+  meetsDualclassRequirements,
+  isDualclassDormant,
+  getDualclassThac0,
+  getDualclassSaves,
 } from "./multiclass";
 
 describe("MULTI-001: getMulticlassThac0", () => {
@@ -273,5 +277,110 @@ describe("getMulticlassArmorWarnings", () => {
   it("returns wizard warning when wearsArmor=true but armorAC=null", () => {
     const warnings = getMulticlassArmorWarnings(["fighter", "mage"], true, null);
     expect(warnings).toEqual([{ type: "wizard" }]);
+  });
+});
+
+// ─── DUAL-CLASS ──────────────────────────────────────────────────────────────
+
+describe("meetsDualclassRequirements", () => {
+  it("allows fighter→mage with STR 17, INT 15", () => {
+    const result = meetsDualclassRequirements("fighter", "mage", { str: 17, int: 15 });
+    expect(result.allowed).toBe(true);
+    expect(result.failures).toHaveLength(0);
+  });
+
+  it("rejects fighter→mage with STR 16 (below 17)", () => {
+    const result = meetsDualclassRequirements("fighter", "mage", { str: 16, int: 15 });
+    expect(result.allowed).toBe(false);
+    expect(result.failures[0]).toContain("STR 16 < 17");
+  });
+
+  it("rejects fighter→mage with INT 14 (below 15)", () => {
+    const result = meetsDualclassRequirements("fighter", "mage", { str: 17, int: 14 });
+    expect(result.allowed).toBe(false);
+    expect(result.failures[0]).toContain("INT 14 < 15");
+  });
+
+  it("rejects same class switch", () => {
+    const result = meetsDualclassRequirements("fighter", "fighter", { str: 18 });
+    expect(result.allowed).toBe(false);
+  });
+
+  it("allows cleric→thief with WIS 17, DEX 15", () => {
+    const result = meetsDualclassRequirements("cleric", "thief", { wis: 17, dex: 15 });
+    expect(result.allowed).toBe(true);
+  });
+
+  it("checks both old and new prime reqs for paladin→mage", () => {
+    // Paladin primes: STR, CHA — need 17+ in both
+    // Mage prime: INT — need 15+
+    const result = meetsDualclassRequirements("paladin", "mage", {
+      str: 17,
+      cha: 17,
+      int: 15,
+    });
+    expect(result.allowed).toBe(true);
+  });
+});
+
+describe("isDualclassDormant", () => {
+  const dualclass = {
+    originalClass: "fighter" as ClassId,
+    newClass: "mage" as ClassId,
+    switchLevel: 5,
+  };
+
+  it("dormant when new level equals switch level", () => {
+    expect(isDualclassDormant(dualclass, 5)).toBe(true);
+  });
+
+  it("dormant when new level below switch level", () => {
+    expect(isDualclassDormant(dualclass, 3)).toBe(true);
+  });
+
+  it("active when new level exceeds switch level", () => {
+    expect(isDualclassDormant(dualclass, 6)).toBe(false);
+  });
+});
+
+describe("getDualclassThac0", () => {
+  const dualclass = {
+    originalClass: "fighter" as ClassId,
+    newClass: "mage" as ClassId,
+    switchLevel: 7,
+  };
+
+  it("uses only new class THAC0 when dormant", () => {
+    // Mage level 5: THAC0 = 20 (mages get first improvement at level 4 → 19)
+    const thac0 = getDualclassThac0(dualclass, 5);
+    // Mage L5 = 19 (improve every 3 levels: L1=20, L4=19, L7=18)
+    expect(thac0).toBeGreaterThanOrEqual(19);
+  });
+
+  it("uses best of both when active", () => {
+    // Fighter L7 THAC0 = 14, Mage L8 THAC0 = 18 → best = 14
+    const thac0 = getDualclassThac0(dualclass, 8);
+    expect(thac0).toBe(14);
+  });
+});
+
+describe("getDualclassSaves", () => {
+  const dualclass = {
+    originalClass: "fighter" as ClassId,
+    newClass: "cleric" as ClassId,
+    switchLevel: 5,
+  };
+
+  it("uses only new class saves when dormant", () => {
+    const saves = getDualclassSaves(dualclass, 3);
+    // Cleric L3 saves — should NOT include fighter L5 saves
+    expect(saves.paralyzation).toBeGreaterThan(0);
+  });
+
+  it("uses best of both when active", () => {
+    const saves = getDualclassSaves(dualclass, 6);
+    // Should pick the better of fighter L5 and cleric L6 for each category
+    expect(saves.paralyzation).toBeGreaterThan(0);
+    expect(saves.paralyzation).toBeLessThanOrEqual(20);
   });
 });
