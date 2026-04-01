@@ -24,28 +24,36 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     exceptionalStrength: true,
     classAbilities: [
       {
-        name: "Waffenspezialisierung möglich",
+        name: "Waffenspezialisierung",
         name_en: "Weapon Specialization",
         description:
-          "Kämpfer können sich auf eine Waffe spezialisieren und erhalten +1 auf Treffer und +2 auf Schaden. Dies kostet einen zusätzlichen Waffenfertigkeits-Slot.",
+          "Nur Kämpfer können sich auf eine Waffe spezialisieren: +1 Treffer, +2 Schaden im Nahkampf. Kostet 2 Fertigkeitsslots (Nahkampf/Armbrust) bzw. 3 Slots (Bögen). Spezialisierte Nahkämpfer erhalten 3/2 Angriffe ab Stufe 1, 2/1 ab Stufe 7, 5/2 ab Stufe 13.",
         description_en:
-          "Fighters can specialize in a weapon, gaining +1 to hit and +2 to damage. This costs an additional weapon proficiency slot.",
+          "Only fighters can specialize in a weapon: +1 to hit, +2 to damage in melee. Costs 2 proficiency slots (melee/crossbow) or 3 slots (bows). Specialized melee fighters gain 3/2 attacks from level 1, 2/1 from level 7, 5/2 from level 13.",
       },
       {
-        name: "Mehrfachangriffe ab Stufe 7",
-        name_en: "Multiple Attacks from Level 7",
+        name: "Mehrfachangriffe",
+        name_en: "Multiple Attacks",
         description:
-          "Ab Stufe 7 erhält der Kämpfer 3/2 Angriffe pro Runde, ab Stufe 13 zwei Angriffe pro Runde mit Nahkampfwaffen.",
+          "Alle Krieger erhalten Mehrfachangriffe mit Nahkampfwaffen: 1/Runde (Stufe 1–6), 3/2 (Stufe 7–12), 2/Runde (Stufe 13+). Fernkampfwaffen sind ausgenommen.",
         description_en:
-          "From level 7, the fighter gains 3/2 attacks per round, and from level 13, two attacks per round with melee weapons.",
+          "All warriors gain extra melee attacks: 1/round (levels 1–6), 3/2 (levels 7–12), 2/round (levels 13+). Ranged weapons are excluded.",
       },
       {
-        name: "Ausnahmestärke bei STR 18",
-        name_en: "Exceptional Strength at STR 18",
+        name: "Ausnahmestärke",
+        name_en: "Exceptional Strength",
         description:
-          "Kämpfer mit Stärke 18 würfeln prozentuale Ausnahmestärke (18/01-18/00), die zusätzliche Boni auf Treffer, Schaden und Tragkraft gewährt.",
+          "Krieger mit STR 18 würfeln Ausnahmestärke (18/01–18/00). Dies gewährt bis zu +3 Treffer, +6 Schaden und 335 lbs Tragkraft (18/00). Nur für Krieger-Klassen verfügbar.",
         description_en:
-          "Fighters with Strength 18 roll percentile exceptional strength (18/01-18/00), granting additional bonuses to hit, damage, and carrying capacity.",
+          "Warriors with STR 18 roll exceptional strength (18/01–18/00), granting up to +3 to hit, +6 to damage, and 152 kg weight allowance (at 18/00). Only available to warrior classes.",
+      },
+      {
+        name: "Gefolgsleute ab Stufe 9",
+        name_en: "Followers from Level 9",
+        description:
+          "Ab Stufe 9 zieht der Kämpfer automatisch Soldaten und einen Leutnant an, sofern er eine Burg oder ein Anwesen besitzt.",
+        description_en:
+          "At 9th level, the fighter automatically attracts soldiers and a lieutenant, provided he owns a castle or freehold.",
       },
     ],
   },
@@ -60,36 +68,52 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     exceptionalStrength: true,
     classAbilities: [
       {
-        name: "Spezialisierter Feind (+4 Treffer/Schaden)",
-        name_en: "Favored Enemy (+4 Hit/Damage)",
+        name: "Erzfeind (+4 Angriff)",
+        name_en: "Species Enemy (+4 Attack)",
         description:
-          "Der Waldläufer wählt bei der Erstellung eine Kreaturenart als Erzfeind. Gegen diese erhält er +4 auf Treffer und Schaden.",
+          "Der Waldläufer wählt eine Kreaturenart als Erzfeind und erhält +4 auf Angriffswürfe gegen diese. Allerdings erleidet er −4 auf Reaktionswürfe bei Begegnungen mit dieser Art und bevorzugt sie im Kampf.",
         description_en:
-          "The ranger chooses a creature type as a favored enemy at creation. Against these, the ranger gains +4 to hit and damage.",
+          "The ranger selects a species enemy and gains +4 to attack rolls against it. However, he suffers −4 to encounter reaction rolls with that species and will pursue it in combat above other foes.",
       },
       {
         name: "Fährtensuche",
         name_en: "Tracking",
         description:
-          "Waldläufer können Spuren in der Wildnis verfolgen. Die Erfolgschance steigt mit der Stufe und wird durch Gelände und Wetter modifiziert.",
+          "Waldläufer erhalten die Fertigkeit Fährtensuche kostenlos und verbessern sich um +1 pro 3 Stufen. Die Chance wird durch Gelände, Wetter und Alter der Spur modifiziert.",
         description_en:
-          "Rangers can track creatures in the wilderness. The success chance increases with level and is modified by terrain and weather.",
+          "Rangers receive the Tracking proficiency for free and improve by +1 per 3 levels. The chance is modified by terrain, weather, and age of the trail.",
       },
       {
-        name: "Zwei-Waffen-Kampf ohne Malus",
-        name_en: "Two-Weapon Fighting without Penalty",
+        name: "Zwei-Waffen-Kampf",
+        name_en: "Two-Weapon Fighting",
         description:
-          "Waldläufer können mit zwei Waffen gleichzeitig kämpfen, ohne den üblichen Malus auf Trefferwürfe zu erleiden, solange sie keine schwere Rüstung tragen.",
+          "Waldläufer können mit zwei Waffen gleichzeitig kämpfen, ohne den üblichen Angriffsmalus zu erleiden. Gilt nur in Lederrüstung oder leichterer Rüstung.",
         description_en:
-          "Rangers can fight with two weapons simultaneously without the usual penalty to attack rolls, as long as they do not wear heavy armor.",
+          "Rangers can fight with two weapons without the usual attack penalties. Only applies when wearing studded leather or lighter armor.",
       },
       {
-        name: "Begrenzte Druidenzauber ab Stufe 8",
-        name_en: "Limited Druid Spells from Level 8",
+        name: "Verstecken & Schleichen",
+        name_en: "Hide in Shadows & Move Silently",
         description:
-          "Ab Stufe 8 erhält der Waldläufer Zugang zu einer begrenzten Anzahl von Priester-Zaubern aus den Sphären Pflanze, Tier und Elementar.",
+          "In natürlicher Umgebung können Waldläufer sich verbergen und lautlos bewegen (wie ein Dieb). In unnatürlicher Umgebung (Krypta, Stadt) halbiert sich die Chance.",
         description_en:
-          "From level 8, the ranger gains access to a limited number of priest spells from the Plant, Animal, and Elemental spheres.",
+          "In natural surroundings, rangers can hide in shadows and move silently (as a thief). In non-natural settings (crypt, city), the chance is halved.",
+      },
+      {
+        name: "Druidenzauber ab Stufe 8",
+        name_en: "Druid Spells from Level 8",
+        description:
+          "Ab Stufe 8 erhält der Waldläufer Priester-Zauber aus den Sphären Pflanze, Tier und Elementar. Kein Weisheitsbonus auf Zauberplätze; keine Schriftrollen nutzbar.",
+        description_en:
+          "From level 8, the ranger gains priest spells from the Plant, Animal, and Elemental spheres. No Wisdom bonus slots; cannot use clerical scrolls.",
+      },
+      {
+        name: "Tierempathie",
+        name_en: "Animal Empathy",
+        description:
+          "Domestizierte Tiere werden automatisch beruhigt. Wilde Tiere müssen einen Rettungswurf gegen Stäbe bestehen (−1 pro 3 Waldläufer-Stufen), sonst wird ihre Reaktion um eine Kategorie verschoben.",
+        description_en:
+          "Domestic animals are calmed automatically. Wild animals must save vs. rods at −1 per 3 ranger levels, or their reaction shifts one category.",
       },
     ],
   },
@@ -104,44 +128,67 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     exceptionalStrength: true,
     classAbilities: [
       {
-        name: "Böses erkennen (18 m)",
-        name_en: "Detect Evil (18 m)",
+        name: "Böses erkennen (18 m Radius)",
+        name_en: "Detect Evil (18 m Radius)",
         description:
-          "Der Paladin kann durch Konzentration die Anwesenheit und Richtung von Bösem im Umkreis von 18 m erspüren. Diese Fähigkeit funktioniert ähnlich wie der Zauber 'Böses erkennen'.",
+          "Durch Konzentration kann der Paladin die Anwesenheit und Richtung von Bösem im Umkreis von 18 m erspüren. Jeder Versuch kostet 1 Runde; beliebig oft einsetzbar.",
         description_en:
-          "By concentrating, the paladin can sense the presence and direction of evil within 18 meters. This ability functions similarly to the Detect Evil spell.",
+          "By concentrating, the paladin can detect the presence and direction of evil within 18 m. Each attempt takes 1 round; may be used as often as desired.",
       },
       {
-        name: "Handauflegen (2 HP/Stufe pro Tag)",
-        name_en: "Lay on Hands (2 HP/Level per Day)",
+        name: "Handauflegen (2 TP/Stufe, 1×/Tag)",
+        name_en: "Lay on Hands (2 HP/Level, 1/Day)",
         description:
-          "Einmal pro Tag kann der Paladin durch Handauflegen 2 Trefferpunkte pro Stufe heilen. Die gesamte Heilung muss an einer Person auf einmal erfolgen.",
+          "Einmal pro Tag kann der Paladin durch Handauflegen 2 Trefferpunkte pro Erfahrungsstufe heilen. Die gesamte Heilung muss an einer Person auf einmal angewandt werden.",
         description_en:
-          "Once per day, the paladin can heal 2 hit points per level by laying on hands. The entire healing must be applied to one person at once.",
+          "Once per day, the paladin can heal 2 hit points per experience level by laying on hands. All healing must be applied to one person at once.",
+        usesPerDay: 1,
       },
       {
         name: "Immun gegen Krankheiten",
-        name_en: "Immune to Diseases",
+        name_en: "Immune to Disease",
         description:
-          "Paladine sind vollständig immun gegen alle Formen von Krankheit, einschließlich magisch verursachter Seuchen. Sie können jedoch Krankheiten trotzdem als Überträger weitergeben.",
+          "Paladine sind immun gegen alle Formen von Krankheit. Hinweis: Lykanthropie und Mumienfäule gelten als Flüche, nicht als Krankheiten.",
         description_en:
-          "Paladins are completely immune to all forms of disease, including magically caused plagues. However, they can still carry and transmit diseases.",
+          "Paladins are immune to all forms of disease. Note: Lycanthropy and mummy rot are curses, not diseases.",
+      },
+      {
+        name: "+2 auf alle Rettungswürfe",
+        name_en: "+2 to All Saving Throws",
+        description: "Der Paladin erhält einen Bonus von +2 auf alle Rettungswürfe.",
+        description_en: "The paladin receives a +2 bonus to all saving throws.",
+      },
+      {
+        name: "Schutzaura (3 m Radius)",
+        name_en: "Protection Aura (3 m Radius)",
+        description:
+          "Beschworene und spezifisch böse Kreaturen erleiden −1 auf Angriffswürfe innerhalb eines 3-m-Radius um den Paladin.",
+        description_en:
+          "Summoned and specifically evil creatures suffer −1 to attack rolls within a 3 m radius of the paladin.",
       },
       {
         name: "Untote vertreiben ab Stufe 3",
         name_en: "Turn Undead from Level 3",
         description:
-          "Ab Stufe 3 kann der Paladin Untote vertreiben wie ein Kleriker zwei Stufen niedriger. Diese Fähigkeit wirkt über die heilige Ausstrahlung des Paladins.",
+          "Ab Stufe 3 kann der Paladin Untote vertreiben wie ein Kleriker zwei Stufen niedriger (z.B. Stufe 3 = Kleriker Stufe 1). Wirkt auch gegen Teufel und Dämonen.",
         description_en:
-          "From level 3, the paladin can turn undead as a cleric two levels lower. This ability works through the paladin's holy aura.",
+          "From level 3, the paladin turns undead as a cleric two levels lower (e.g., level 3 = cleric level 1). Also affects devils and demons.",
       },
       {
-        name: "Begrenzte Klerikerzauber ab Stufe 9",
-        name_en: "Limited Cleric Spells from Level 9",
+        name: "Krankheit heilen (1×/Woche pro 5 Stufen)",
+        name_en: "Cure Disease (1/Week per 5 Levels)",
         description:
-          "Ab Stufe 9 erhält der Paladin Zugang zu einer begrenzten Anzahl von Priester-Zaubern aus der Kampf-, Erkenntnis-, Heil- und Schutzsphäre.",
+          "Einmal pro Woche pro 5 Stufen kann der Paladin Krankheit heilen (1×/Woche auf Stufe 1–5, 2×/Woche auf Stufe 6–10 usw.).",
         description_en:
-          "From level 9, the paladin gains access to a limited number of priest spells from the Combat, Divination, Healing, and Protection spheres.",
+          "Once per week per 5 levels, the paladin can cure disease (1/week at levels 1–5, 2/week at levels 6–10, etc.).",
+      },
+      {
+        name: "Klerikerzauber ab Stufe 9",
+        name_en: "Cleric Spells from Level 9",
+        description:
+          "Ab Stufe 9 erhält der Paladin Priester-Zauber aus den Sphären Kampf, Erkenntnis, Heilung und Schutz. Kein Weisheitsbonus; keine Schriftrollen. Zauberstufe = Paladinenstufe − 8.",
+        description_en:
+          "From level 9, the paladin gains priest spells from the Combat, Divination, Healing, and Protective spheres. No Wisdom bonus; cannot use scrolls. Casting level = paladin level − 8.",
       },
     ],
   },
@@ -159,17 +206,17 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
         name: "Zauber aus allen 8 Schulen",
         name_en: "Spells from All 8 Schools",
         description:
-          "Als Generalist kann der Magier Zauber aus allen acht Magieschulen erlernen und wirken. Er erhält jedoch keinen Bonus-Zauberplatz wie Spezialisten.",
+          "Als Generalist kann der Magier Zauber aus allen acht Magieschulen erlernen und wirken. Er erhält keinen Bonus-Zauberplatz wie Spezialisten. Lernchance hängt von INT ab (INT 9 = 35%, INT 18 = 85%).",
         description_en:
-          "As a generalist, the mage can learn and cast spells from all eight schools of magic. However, the mage does not receive a bonus spell slot like specialists.",
+          "As a generalist, the mage can learn and cast spells from all eight schools of magic. No bonus spell slot like specialists. Learn chance depends on INT (INT 9 = 35%, INT 18 = 85%).",
       },
       {
-        name: "Zauber ins Zauberbuch schreiben",
-        name_en: "Scribe Spells into Spellbook",
+        name: "Zauberbuch & Schriftrollenherstellung",
+        name_en: "Spellbook & Scroll Creation",
         description:
-          "Magier notieren ihre Zauber in einem Zauberbuch und müssen neue Zauber aktiv erforschen oder von Schriftrollen kopieren. Die Chance auf Erfolg hängt von der Intelligenz ab.",
+          "Magier notieren ihre Zauber in einem Zauberbuch und müssen neue Zauber erforschen oder von Schriftrollen kopieren. Ab Stufe 9 können sie Schriftrollen und magische Gegenstände herstellen.",
         description_en:
-          "Mages record their spells in a spellbook and must actively research new spells or copy them from scrolls. The chance of success depends on Intelligence.",
+          "Mages record spells in a spellbook and must research new spells or copy them from scrolls. From level 9, they can create scrolls and magical items.",
       },
     ],
   },
@@ -187,17 +234,17 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
         name: "+1 Zauberplatz pro Stufe (Bannzauber)",
         name_en: "+1 Spell Slot per Level (Abjuration)",
         description:
-          "Der Bannzauberer erhält einen zusätzlichen Zauberplatz pro Zauberstufe, der ausschließlich für Bannzauber verwendet werden muss. Sein Rettungswurf-Bonus gegen Bannzauber beträgt +1.",
+          "Ein zusätzlicher Zauberplatz pro Zauberstufe, nur für Bannzauber. +15% Lernchance für Bannzauber, −15% für andere Schulen. +1 auf eigene Rettungswürfe gegen Bannzauber, Gegner erleiden −1.",
         description_en:
-          "The abjurer gains an additional spell slot per spell level that must be used exclusively for abjuration spells. The saving throw bonus against abjuration spells is +1.",
+          "One extra spell slot per spell level, abjuration only. +15% learn chance for abjuration, −15% for other schools. +1 to own saves vs. abjuration, enemies suffer −1.",
       },
       {
         name: "Verbotene Schulen: Verwandlung, Illusion",
         name_en: "Forbidden Schools: Alteration, Illusion",
         description:
-          "Bannzauberer können keine Zauber aus den Schulen der Verwandlung und Illusion erlernen oder wirken. Dies ist der Preis für ihre Spezialisierung.",
+          "Bannzauberer können keine Zauber aus Verwandlung und Illusion erlernen oder wirken. Benötigt WIS 15 zusätzlich zu INT 9.",
         description_en:
-          "Abjurers cannot learn or cast spells from the schools of Alteration and Illusion. This is the price of their specialization.",
+          "Abjurers cannot learn or cast spells from Alteration and Illusion. Requires WIS 15 in addition to INT 9.",
       },
     ],
   },
@@ -215,17 +262,17 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
         name: "+1 Zauberplatz pro Stufe (Beschwörung)",
         name_en: "+1 Spell Slot per Level (Conjuration)",
         description:
-          "Der Beschwörer erhält einen zusätzlichen Zauberplatz pro Zauberstufe, der ausschließlich für Beschwörungszauber verwendet werden muss.",
+          "Ein zusätzlicher Zauberplatz pro Zauberstufe, nur für Beschwörungszauber. +15% Lernchance für Beschwörung, −15% für andere Schulen. +1 auf Rettungswürfe gegen Beschwörung, Gegner −1.",
         description_en:
-          "The conjurer gains an additional spell slot per spell level that must be used exclusively for conjuration spells.",
+          "One extra spell slot per spell level, conjuration only. +15% learn chance for conjuration, −15% for other schools. +1 to saves vs. conjuration, enemies −1.",
       },
       {
         name: "Verbotene Schulen: Erkenntnis, Anrufung",
-        name_en: "Forbidden Schools: Divination, Invocation",
+        name_en: "Forbidden Schools: Greater Divination, Invocation",
         description:
-          "Beschwörer können keine Zauber aus den Schulen der Erkenntnis und Anrufung erlernen oder wirken. Dies ist der Preis für ihre Spezialisierung.",
+          "Beschwörer können keine Zauber aus Erkenntnis (höhere) und Anrufung erlernen oder wirken. Benötigt KON 15 zusätzlich zu INT 9.",
         description_en:
-          "Conjurers cannot learn or cast spells from the schools of Divination and Invocation. This is the price of their specialization.",
+          "Conjurers cannot learn or cast spells from Greater Divination and Invocation. Requires CON 15 in addition to INT 9.",
       },
     ],
   },
@@ -243,17 +290,17 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
         name: "+1 Zauberplatz pro Stufe (Erkenntnis)",
         name_en: "+1 Spell Slot per Level (Divination)",
         description:
-          "Der Seher erhält einen zusätzlichen Zauberplatz pro Zauberstufe, der ausschließlich für Erkenntniszauber verwendet werden muss.",
+          "Ein zusätzlicher Zauberplatz pro Zauberstufe, nur für Erkenntniszauber. +15% Lernchance für Erkenntnis, −15% für andere Schulen. +1 auf Rettungswürfe gegen Erkenntnis, Gegner −1.",
         description_en:
-          "The diviner gains an additional spell slot per spell level that must be used exclusively for divination spells.",
+          "One extra spell slot per spell level, divination only. +15% learn chance for divination, −15% for other schools. +1 to saves vs. divination, enemies −1.",
       },
       {
         name: "Verbotene Schule: Beschwörung",
         name_en: "Forbidden School: Conjuration",
         description:
-          "Seher können keine Zauber aus der Schule der Beschwörung erlernen oder wirken. Der Seher hat nur eine verbotene Schule statt zwei.",
+          "Seher haben nur eine verbotene Schule (Beschwörung) statt zwei. Benötigt WIS 16 zusätzlich zu INT 9.",
         description_en:
-          "Diviners cannot learn or cast spells from the school of Conjuration. The diviner has only one forbidden school instead of two.",
+          "Diviners have only one forbidden school (Conjuration) instead of two. Requires WIS 16 in addition to INT 9.",
       },
     ],
   },
@@ -271,17 +318,17 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
         name: "+1 Zauberplatz pro Stufe (Verzauberung)",
         name_en: "+1 Spell Slot per Level (Enchantment)",
         description:
-          "Der Verzauberer erhält einen zusätzlichen Zauberplatz pro Zauberstufe, der ausschließlich für Verzauberungszauber verwendet werden muss.",
+          "Ein zusätzlicher Zauberplatz pro Zauberstufe, nur für Verzauberungszauber. +15% Lernchance für Verzauberung, −15% für andere Schulen. +1 auf Rettungswürfe gegen Verzauberung, Gegner −1.",
         description_en:
-          "The enchanter gains an additional spell slot per spell level that must be used exclusively for enchantment spells.",
+          "One extra spell slot per spell level, enchantment only. +15% learn chance for enchantment, −15% for other schools. +1 to saves vs. enchantment, enemies −1.",
       },
       {
         name: "Verbotene Schulen: Anrufung, Nekromantie",
         name_en: "Forbidden Schools: Invocation, Necromancy",
         description:
-          "Verzauberer können keine Zauber aus den Schulen der Anrufung und Nekromantie erlernen oder wirken. Dies ist der Preis für ihre Spezialisierung.",
+          "Verzauberer können keine Zauber aus Anrufung und Nekromantie erlernen oder wirken. Benötigt CHA 16 zusätzlich zu INT 9.",
         description_en:
-          "Enchanters cannot learn or cast spells from the schools of Invocation and Necromancy. This is the price of their specialization.",
+          "Enchanters cannot learn or cast spells from Invocation and Necromancy. Requires CHA 16 in addition to INT 9.",
       },
     ],
   },
@@ -299,17 +346,17 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
         name: "+1 Zauberplatz pro Stufe (Illusion)",
         name_en: "+1 Spell Slot per Level (Illusion)",
         description:
-          "Der Illusionist erhält einen zusätzlichen Zauberplatz pro Zauberstufe, der ausschließlich für Illusionszauber verwendet werden muss.",
+          "Ein zusätzlicher Zauberplatz pro Zauberstufe, nur für Illusionszauber. +15% Lernchance für Illusionen, −15% für andere Schulen. +1 auf Rettungswürfe gegen Illusionen, Gegner −1.",
         description_en:
-          "The illusionist gains an additional spell slot per spell level that must be used exclusively for illusion spells.",
+          "One extra spell slot per spell level, illusion only. +15% learn chance for illusion, −15% for other schools. +1 to saves vs. illusion, enemies −1.",
       },
       {
         name: "Verbotene Schulen: Nekromantie, Anrufung, Bannzauber",
         name_en: "Forbidden Schools: Necromancy, Invocation, Abjuration",
         description:
-          "Illusionisten können keine Zauber aus den Schulen der Nekromantie, Anrufung und Bannzauber erlernen oder wirken. Der Illusionist hat drei verbotene Schulen.",
+          "Illusionisten haben drei verbotene Schulen — mehr als jeder andere Spezialist. Benötigt DEX 16 zusätzlich zu INT 9.",
         description_en:
-          "Illusionists cannot learn or cast spells from the schools of Necromancy, Invocation, and Abjuration. The illusionist has three forbidden schools.",
+          "Illusionists have three forbidden schools — more than any other specialist. Requires DEX 16 in addition to INT 9.",
       },
     ],
   },
@@ -327,17 +374,17 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
         name: "+1 Zauberplatz pro Stufe (Anrufung)",
         name_en: "+1 Spell Slot per Level (Invocation)",
         description:
-          "Der Anrufer erhält einen zusätzlichen Zauberplatz pro Zauberstufe, der ausschließlich für Anrufungszauber verwendet werden muss.",
+          "Ein zusätzlicher Zauberplatz pro Zauberstufe, nur für Anrufungszauber. +15% Lernchance für Anrufung, −15% für andere Schulen. +1 auf Rettungswürfe gegen Anrufung, Gegner −1.",
         description_en:
-          "The invoker gains an additional spell slot per spell level that must be used exclusively for invocation spells.",
+          "One extra spell slot per spell level, invocation only. +15% learn chance for invocation, −15% for other schools. +1 to saves vs. invocation, enemies −1.",
       },
       {
         name: "Verbotene Schulen: Verzauberung, Beschwörung",
         name_en: "Forbidden Schools: Enchantment, Conjuration",
         description:
-          "Anrufer können keine Zauber aus den Schulen der Verzauberung und Beschwörung erlernen oder wirken. Dies ist der Preis für ihre Spezialisierung.",
+          "Anrufer können keine Zauber aus Verzauberung und Beschwörung erlernen oder wirken. Benötigt KON 16 zusätzlich zu INT 9.",
         description_en:
-          "Invokers cannot learn or cast spells from the schools of Enchantment and Conjuration. This is the price of their specialization.",
+          "Invokers cannot learn or cast spells from Enchantment and Conjuration. Requires CON 16 in addition to INT 9.",
       },
     ],
   },
@@ -355,17 +402,17 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
         name: "+1 Zauberplatz pro Stufe (Nekromantie)",
         name_en: "+1 Spell Slot per Level (Necromancy)",
         description:
-          "Der Nekromant erhält einen zusätzlichen Zauberplatz pro Zauberstufe, der ausschließlich für Nekromantie-Zauber verwendet werden muss.",
+          "Ein zusätzlicher Zauberplatz pro Zauberstufe, nur für Nekromantie-Zauber. +15% Lernchance für Nekromantie, −15% für andere Schulen. +1 auf Rettungswürfe gegen Nekromantie, Gegner −1.",
         description_en:
-          "The necromancer gains an additional spell slot per spell level that must be used exclusively for necromancy spells.",
+          "One extra spell slot per spell level, necromancy only. +15% learn chance for necromancy, −15% for other schools. +1 to saves vs. necromancy, enemies −1.",
       },
       {
         name: "Verbotene Schulen: Illusion, Verzauberung",
         name_en: "Forbidden Schools: Illusion, Enchantment",
         description:
-          "Nekromanten können keine Zauber aus den Schulen der Illusion und Verzauberung erlernen oder wirken. Dies ist der Preis für ihre Spezialisierung.",
+          "Nekromanten können keine Zauber aus Illusion und Verzauberung erlernen oder wirken. Benötigt WIS 16 zusätzlich zu INT 9.",
         description_en:
-          "Necromancers cannot learn or cast spells from the schools of Illusion and Enchantment. This is the price of their specialization.",
+          "Necromancers cannot learn or cast spells from Illusion and Enchantment. Requires WIS 16 in addition to INT 9.",
       },
     ],
   },
@@ -383,17 +430,17 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
         name: "+1 Zauberplatz pro Stufe (Verwandlung)",
         name_en: "+1 Spell Slot per Level (Alteration)",
         description:
-          "Der Verwandler erhält einen zusätzlichen Zauberplatz pro Zauberstufe, der ausschließlich für Verwandlungszauber verwendet werden muss.",
+          "Ein zusätzlicher Zauberplatz pro Zauberstufe, nur für Verwandlungszauber. +15% Lernchance für Verwandlung, −15% für andere Schulen. +1 auf Rettungswürfe gegen Verwandlung, Gegner −1.",
         description_en:
-          "The transmuter gains an additional spell slot per spell level that must be used exclusively for alteration spells.",
+          "One extra spell slot per spell level, alteration only. +15% learn chance for alteration, −15% for other schools. +1 to saves vs. alteration, enemies −1.",
       },
       {
         name: "Verbotene Schulen: Bannzauber, Nekromantie",
         name_en: "Forbidden Schools: Abjuration, Necromancy",
         description:
-          "Verwandler können keine Zauber aus den Schulen der Bannzauber und Nekromantie erlernen oder wirken. Dies ist der Preis für ihre Spezialisierung.",
+          "Verwandler können keine Zauber aus Bannzauber und Nekromantie erlernen oder wirken. Benötigt DEX 15 zusätzlich zu INT 9.",
         description_en:
-          "Transmuters cannot learn or cast spells from the schools of Abjuration and Necromancy. This is the price of their specialization.",
+          "Transmuters cannot learn or cast spells from Abjuration and Necromancy. Requires DEX 15 in addition to INT 9.",
       },
     ],
   },
@@ -411,25 +458,25 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
         name: "Untote vertreiben",
         name_en: "Turn Undead",
         description:
-          "Kleriker können Untote durch die Macht ihres Glaubens vertreiben oder vernichten. Die Erfolgschance und die betroffenen Untoten-Typen hängen von der Stufe des Klerikers ab.",
+          "Kleriker können Untote vertreiben oder vernichten. Stufe 1 vertreibt Skelette (10+), Stufe 3 vertreibt Ghule, Stufe 5 vertreibt Schatten. Ab Stufe 9 werden schwache Untote automatisch vernichtet (D).",
         description_en:
-          "Clerics can turn or destroy undead through the power of their faith. The success chance and affected undead types depend on the cleric's level.",
+          "Clerics can turn or destroy undead. Level 1 turns Skeletons (10+), level 3 turns Ghouls, level 5 turns Shadows. From level 9, weak undead are automatically destroyed (D).",
       },
       {
-        name: "Alle Rüstungen und Schilde erlaubt",
-        name_en: "All Armor and Shields Allowed",
+        name: "Alle Rüstungen, nur stumpfe Waffen",
+        name_en: "All Armor, Blunt Weapons Only",
         description:
-          "Kleriker dürfen jede Art von Rüstung und Schild tragen. Sie sind jedoch auf stumpfe Waffen beschränkt (Streitkolben, Flegel, etc.).",
+          "Kleriker dürfen jede Art von Rüstung und Schild tragen. Als Waffen sind nur stumpfe erlaubt: Streitkolben, Flegel, Kriegshammer, Kampfstab und Schleuder.",
         description_en:
-          "Clerics may wear any type of armor and shield. However, they are restricted to blunt weapons (maces, flails, etc.).",
+          "Clerics may wear any armor and shield. Weapons are restricted to blunt types: mace, flail, war hammer, quarterstaff, and sling.",
       },
       {
-        name: "Zauber durch Gebet (keine Zauberbücher)",
-        name_en: "Spells through Prayer (No Spellbooks)",
+        name: "Göttliche Zauber ab Stufe 1",
+        name_en: "Divine Spells from Level 1",
         description:
-          "Kleriker erhalten ihre Zauber durch Gebet und göttliche Gunst. Sie benötigen kein Zauberbuch und haben Zugang zu allen Zaubern ihrer Stufe aus den erlaubten Sphären.",
+          "Kleriker erhalten Zauber durch Gebet — kein Zauberbuch nötig. Zugang zu allen Zaubern ihrer Stufe aus den Sphären All, Astral, Charm, Combat, Creation, Divination, Guardian, Healing, Necromantic, Protection, Summoning, Sun.",
         description_en:
-          "Clerics receive their spells through prayer and divine favor. They do not need a spellbook and have access to all spells of their level from the allowed spheres.",
+          "Clerics receive spells through prayer — no spellbook needed. Access to all spells of their level from the spheres All, Astral, Charm, Combat, Creation, Divination, Guardian, Healing, Necromantic, Protection, Summoning, Sun.",
       },
     ],
   },
@@ -499,36 +546,36 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     exceptionalStrength: false,
     classAbilities: [
       {
-        name: "Gestaltwandel ab Stufe 7",
-        name_en: "Shapechange from Level 7",
+        name: "Gestaltwandel ab Stufe 7 (3×/Tag)",
+        name_en: "Shapechange from Level 7 (3/Day)",
         description:
-          "Ab Stufe 7 kann der Druide sich dreimal täglich in ein natürliches Tier verwandeln (Reptil, Vogel, Säugetier). Dabei heilt er 10-60% seines Schadens.",
+          "Ab Stufe 7 kann der Druide sich 3× täglich in ein natürliches Tier verwandeln — je einmal Reptil, Vogel, Säugetier. Jede Verwandlung heilt 1W6×10% des erlittenen Schadens. Ausrüstung verschmilzt mit der Tierform.",
         description_en:
-          "From level 7, the druid can transform into a natural animal three times daily (reptile, bird, mammal). This heals 10-60% of the druid's damage.",
+          "From level 7, the druid can shapechange 3 times daily — once each into a reptile, bird, and mammal. Each transformation heals 1d6×10% of damage taken. Equipment melds into the animal form.",
       },
       {
-        name: "Immunität gegen Feenverzauberung",
-        name_en: "Immunity to Fey Enchantment",
+        name: "Immunität gegen Feenverzauberung (ab Stufe 7)",
+        name_en: "Immunity to Fey Charm (from Level 7)",
         description:
           "Ab Stufe 7 ist der Druide vollständig immun gegen Verzauberungszauber von Waldwesen wie Dryaden, Nixen und Sylphen.",
         description_en:
-          "From level 7, the druid is completely immune to enchantment spells from woodland creatures such as dryads, nixies, and sylphs.",
+          "From level 7, the druid is completely immune to charm spells from woodland creatures such as dryads, nixies, and sylphs.",
       },
       {
-        name: "Druidensprache",
-        name_en: "Druidic Language",
+        name: "Nur Lederrüstung & Holzschild",
+        name_en: "Leather Armor & Wooden Shield Only",
         description:
-          "Alle Druiden lernen eine geheime Sprache, die nur unter Druiden weitergegeben wird. Es ist verboten, diese Sprache Nicht-Druiden beizubringen.",
+          "Druiden dürfen nur Lederrüstung und Holzschilde tragen. Erlaubte Waffen: Keule, Sichel, Wurfpfeil, Speer, Dolch, Krummsäbel, Schleuder, Kampfstab.",
         description_en:
-          "All druids learn a secret language that is only passed on among druids. It is forbidden to teach this language to non-druids.",
+          "Druids may only wear leather armor and wooden shields. Allowed weapons: club, sickle, dart, spear, dagger, scimitar, sling, quarterstaff.",
       },
       {
-        name: "Waldläufer-Fähigkeiten in der Wildnis",
-        name_en: "Woodland Abilities",
+        name: "Druidensprache & Waldwissen",
+        name_en: "Druidic Language & Woodland Lore",
         description:
-          "Druiden können sich ungehindert durch natürliches Dickicht bewegen und hinterlassen keine Spuren. Sie können Tierarten, Pflanzen und reines Wasser sicher identifizieren.",
+          "Druiden lernen eine geheime Sprache (darf Nicht-Druiden nicht beigebracht werden). Ab Stufe 3 können sie sich ungehindert durch natürliches Dickicht bewegen, hinterlassen keine Spuren und identifizieren Tiere, Pflanzen und reines Wasser fehlerfrei.",
         description_en:
-          "Druids can move unhindered through natural undergrowth and leave no tracks. They can safely identify animal species, plants, and pure water.",
+          "Druids learn a secret language (forbidden to teach to non-druids). From level 3, they can move unhindered through natural undergrowth, leave no tracks, and identify animals, plants, and pure water without fail.",
       },
     ],
   },
@@ -543,60 +590,44 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     exceptionalStrength: false,
     classAbilities: [
       {
-        name: "Schlösser öffnen",
-        name_en: "Pick Locks",
+        name: "Diebesfähigkeiten (7 Fertigkeiten)",
+        name_en: "Thief Skills (7 Abilities)",
         description:
-          "Diebe können mechanische Schlösser mit Dietrichen knacken. Die Erfolgschance steigt mit der Stufe und wird durch DEX-Boni und Rassenboni modifiziert.",
+          "Sieben Grundfertigkeiten ab Stufe 1: Taschen leeren (15%), Schlösser öffnen (10%), Fallen finden/entschärfen (5%), Lautlos bewegen (10%), Im Schatten verbergen (5%), Geräusche hören (15%), Mauern erklimmen (60%). Basiswerte steigen pro Stufe; modifiziert durch DEX und Rasse.",
         description_en:
-          "Thieves can pick mechanical locks with lockpicks. The success chance increases with level and is modified by DEX bonuses and racial bonuses.",
-      },
-      {
-        name: "Fallen finden/entschärfen",
-        name_en: "Find/Remove Traps",
-        description:
-          "Diebe können kleine mechanische Fallen (Giftnadeln, Klingen) an Schlössern und Truhen aufspüren und entschärfen. Magische Fallen sind ausgenommen.",
-        description_en:
-          "Thieves can detect and disarm small mechanical traps (poison needles, blades) on locks and chests. Magical traps are excluded.",
-      },
-      {
-        name: "Taschen leeren",
-        name_en: "Pick Pockets",
-        description:
-          "Der Dieb kann versuchen, einem Ziel unbemerkt kleine Gegenstände aus Taschen oder Gürteln zu entwenden. Ein Fehlschlag bedeutet, dass der Diebstahl bemerkt wird.",
-        description_en:
-          "The thief can attempt to steal small items from a target's pockets or belt unnoticed. A failure means the theft is noticed.",
-      },
-      {
-        name: "Lautlos bewegen",
-        name_en: "Move Silently",
-        description:
-          "Der Dieb kann sich geräuschlos fortbewegen und so Wachen umgehen oder sich unbemerkt nähern. Die Erfolgschance wird durch Rüstung und Untergrund beeinflusst.",
-        description_en:
-          "The thief can move silently to bypass guards or approach unnoticed. The success chance is affected by armor and terrain.",
-      },
-      {
-        name: "Im Schatten verbergen",
-        name_en: "Hide in Shadows",
-        description:
-          "In Bereichen mit Schatten oder Dunkelheit kann sich der Dieb nahezu unsichtbar verbergen. Bewegung oder direkte Beobachtung beendet die Verbergung.",
-        description_en:
-          "In areas with shadows or darkness, the thief can hide almost invisibly. Movement or direct observation ends the concealment.",
-      },
-      {
-        name: "Mauern erklimmen",
-        name_en: "Climb Walls",
-        description:
-          "Diebe können glatte vertikale Oberflächen und Mauern erklettern, die für andere Klassen unüberwindbar wären. Keine Ausrüstung notwendig.",
-        description_en:
-          "Thieves can climb smooth vertical surfaces and walls that are impassable for other classes. No equipment needed.",
+          "Seven base skills from level 1: Pick Pockets (15%), Open Locks (10%), Find/Remove Traps (5%), Move Silently (10%), Hide in Shadows (5%), Detect Noise (15%), Climb Walls (60%). Base values increase per level; modified by DEX and race.",
       },
       {
         name: "Hinterhältiger Angriff (Backstab)",
         name_en: "Backstab",
         description:
-          "Wenn der Dieb ein Ziel von hinten angreift und unentdeckt ist, vervielfacht sich der Schaden: x2 auf Stufe 1-4, x3 auf Stufe 5-8, x4 auf Stufe 9-12, x5 ab Stufe 13.",
+          "Bei einem Angriff von hinten auf ein ahnungsloses Ziel wird der Schaden vervielfacht: ×2 (Stufe 1–4), ×3 (Stufe 5–8), ×4 (Stufe 9–12), ×5 (Stufe 13+). Zusätzlich +4 auf den Angriffswurf. Gilt nur für den ersten Angriff.",
         description_en:
-          "When the thief attacks a target from behind while undetected, damage is multiplied: x2 at levels 1-4, x3 at levels 5-8, x4 at levels 9-12, x5 from level 13.",
+          "When attacking an unaware target from behind, damage is multiplied: ×2 (levels 1–4), ×3 (levels 5–8), ×4 (levels 9–12), ×5 (level 13+). Also +4 to the attack roll. Applies only to the first attack.",
+      },
+      {
+        name: "Sprachen lesen ab Stufe 4",
+        name_en: "Read Languages from Level 4",
+        description:
+          "Ab Stufe 4 kann der Dieb Texte in unbekannten Sprachen entziffern (Basiswert 20%). Gilt für geschriebene Texte, nicht für gesprochene Sprache oder magische Schriften.",
+        description_en:
+          "From level 4, the thief can decipher texts in unknown languages (base 20%). Applies to written texts, not spoken language or magical writings.",
+      },
+      {
+        name: "Schriftrollen benutzen ab Stufe 10",
+        name_en: "Use Scrolls from Level 10",
+        description:
+          "Ab Stufe 10 kann der Dieb Magier- und Priester-Schriftrollen verwenden. Bei einem Fehlschlag (25% Chance) wird der Zaubereffekt verdreht oder umgekehrt.",
+        description_en:
+          "From level 10, the thief can use wizard and priest scrolls. On failure (25% chance), the spell effect is twisted or reversed.",
+      },
+      {
+        name: "Nur Lederrüstung",
+        name_en: "Leather Armor Only",
+        description:
+          "Diebe sind auf Lederrüstung beschränkt (kein Schild). Schwerere Rüstung verhindert die Nutzung aller Diebesfähigkeiten. Elfische Kettenhemden sind eine Ausnahme.",
+        description_en:
+          "Thieves are restricted to leather armor (no shield). Heavier armor prevents use of all thief skills. Elven chain mail is an exception.",
       },
     ],
   },
@@ -611,36 +642,36 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     exceptionalStrength: false,
     classAbilities: [
       {
-        name: "Bardenwissen",
-        name_en: "Bard Lore",
+        name: "Bardenwissen (5%/Stufe)",
+        name_en: "Bard Lore (5%/Level)",
         description:
-          "Der Barde hat eine prozentuale Chance, Informationen über magische Gegenstände, legendäre Orte und berühmte Persönlichkeiten zu kennen. Die Chance steigt mit der Stufe.",
+          "5% Chance pro Stufe, Informationen über magische Gegenstände, legendäre Orte und berühmte Persönlichkeiten zu kennen. Stufe 10 = 50%, Stufe 20 = 100%.",
         description_en:
-          "The bard has a percentage chance to know information about magical items, legendary places, and famous personalities. The chance increases with level.",
+          "5% chance per level to know information about magical items, legendary places, and famous personalities. Level 10 = 50%, level 20 = 100%.",
       },
       {
-        name: "Bezaubernde Musik",
-        name_en: "Charming Music",
+        name: "Verbündete inspirieren / Gegengesang",
+        name_en: "Inspire Allies / Counter Song",
         description:
-          "Durch Musik und Gesang kann der Barde Zuhörer verzaubern, die Moral von Verbündeten stärken oder Gegner ablenken. Die Effekte variieren je nach Situation.",
+          "Nach 3+ Runden Gesang erhalten Verbündete +1 auf Angriffswürfe, +1 auf Rettungswürfe oder +2 Moral. Reichweite: 3 m pro Stufe. Gegengesang: Im Umkreis von 9 m schützt das Lied gegen magische Lieder und Gedichte.",
         description_en:
-          "Through music and song, the bard can charm listeners, boost allies' morale, or distract enemies. Effects vary depending on the situation.",
+          "After 3+ rounds of singing, allies gain +1 to attack rolls, +1 to saving throws, or +2 morale. Range: 3 m per level. Counter Song: within 9 m, protects against magical songs and verse-based attacks.",
       },
       {
-        name: "Begrenzte Diebes-Fähigkeiten",
-        name_en: "Limited Thief Skills",
+        name: "Diebesfähigkeiten (reduziert)",
+        name_en: "Thief Skills (Reduced)",
         description:
-          "Barden beherrschen einige Diebes-Fähigkeiten auf reduziertem Niveau: Schlösser öffnen, Taschen leeren, Lautlos bewegen, Im Schatten verbergen, Mauern erklimmen und Geräusche hören.",
+          "Barden beherrschen Diebesfähigkeiten auf reduziertem Niveau: Mauern erklimmen (50%), Geräusche hören (20%), Taschen leeren (10%), Sprachen lesen (5%). Basis + 20 frei verteilbare Punkte auf Stufe 1.",
         description_en:
-          "Bards have some thief skills at reduced levels: Pick Locks, Pick Pockets, Move Silently, Hide in Shadows, Climb Walls, and Detect Noise.",
+          "Bards have thief skills at reduced levels: Climb Walls (50%), Detect Noise (20%), Pick Pockets (10%), Read Languages (5%). Base + 20 discretionary points at level 1.",
       },
       {
-        name: "Begrenzte Magierfähigkeiten ab Stufe 2",
-        name_en: "Limited Wizard Spells from Level 2",
+        name: "Magierzauber ab Stufe 2",
+        name_en: "Wizard Spells from Level 2",
         description:
-          "Ab Stufe 2 kann der Barde Magierzauber aus einem Zauberbuch wirken. Die verfügbaren Zauberstufen und -plätze sind jedoch deutlich geringer als bei einem echten Magier.",
+          "Ab Stufe 2 erhält der Barde Magierzauber aus einem Zauberbuch. Max. Zauberstufe 6. Schriftrollen nutzbar ab Stufe 10 (15% Fehlerchance). Rüstungsbeschränkung: Kettenhemd oder leichter, kein Schild.",
         description_en:
-          "From level 2, the bard can cast wizard spells from a spellbook. Available spell levels and slots are significantly fewer than those of an actual wizard.",
+          "From level 2, the bard gains wizard spells from a spellbook. Max spell level 6. Scrolls usable from level 10 (15% failure chance). Armor restriction: chain mail or lighter, no shield.",
       },
     ],
   },

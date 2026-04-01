@@ -64,17 +64,17 @@ export const RACES: Record<RaceId, RaceDefinition> = {
         name: "Keine Klassen- oder Level-Beschränkungen",
         name_en: "No Class or Level Restrictions",
         description:
-          "Menschen können jede Klasse wählen und haben keine Stufenbegrenzung. Sie sind die vielseitigste Rasse in AD&D 2e.",
+          "Menschen können jede Klasse wählen und haben keine Stufenbegrenzung. Keine Attribut-Minima oder -Maxima durch die Rasse. Einzige Rasse ohne Multiclass-Option.",
         description_en:
-          "Humans can choose any class and have no level restrictions. They are the most versatile race in AD&D 2e.",
+          "Humans can choose any class and have no level limits. No racial ability minimums or maximums. The only race without multiclass options.",
       },
       {
         name: "Dualclass möglich (einzige Rasse)",
         name_en: "Dual-class Possible (Only Race)",
         description:
-          "Nur Menschen können Dualclass werden: Sie geben ihre alte Klasse auf und beginnen in einer neuen bei Stufe 1. Die Fähigkeiten der alten Klasse werden erst wieder verfügbar, wenn die neue Klasse eine höhere Stufe erreicht.",
+          "Nur Menschen können Dualclass werden: Sie geben ihre alte Klasse auf und beginnen in einer neuen bei Stufe 1. Fähigkeiten der alten Klasse werden nutzbar, sobald die neue Klasse eine höhere Stufe erreicht. Erfordert 15+ in den Prime Requisites der neuen Klasse und 17+ in den Prime Requisites der alten.",
         description_en:
-          "Only humans can dual-class: They abandon their old class and start a new one at level 1. The abilities of the old class become available again only when the new class reaches a higher level.",
+          "Only humans can dual-class: abandon the old class and start a new one at level 1. Old class abilities become usable once the new class surpasses the old class level. Requires 15+ in the new class prime requisites and 17+ in the old.",
       },
     ],
     defaultLanguages: ["Common"],
@@ -124,33 +124,33 @@ export const RACES: Record<RaceId, RaceDefinition> = {
         name: "Infravision (18 m)",
         name_en: "Infravision (18 m)",
         description:
-          "Elfen können im Dunkeln bis zu 18 m weit sehen, indem sie Wärmestrahlung wahrnehmen. Infravision funktioniert nicht bei Tageslicht oder in der Nähe starker Lichtquellen.",
+          "Elfen können im Dunkeln bis zu 18 m weit Wärmestrahlung wahrnehmen. Funktioniert nicht bei Tageslicht oder starken Lichtquellen.",
         description_en:
-          "Elves can see in the dark up to 18 meters by perceiving heat radiation. Infravision does not work in daylight or near strong light sources.",
+          "Elves can perceive heat radiation in the dark up to 18 m. Does not function in daylight or near strong light sources.",
       },
       {
-        name: "Resistenz gegen Schlaf- und Bezauberungszauber (90%)",
-        name_en: "Resistance to Sleep and Charm Spells (90%)",
+        name: "Resistenz gegen Schlaf & Bezauberung (90%)",
+        name_en: "Resistance to Sleep & Charm (90%)",
         description:
-          "Elfen sind zu 90% resistent gegen Schlaf- und Bezauberungszauber (charm). Dies gilt für alle magischen Schlafeffekte und geistbeeinflussende Verzauberungen.",
+          "Elfen sind zu 90% resistent gegen Schlaf- und Bezauberungszauber. Gilt für alle magischen Schlafeffekte und geistbeeinflussende Verzauberungen.",
         description_en:
-          "Elves are 90% resistant to sleep and charm spells. This applies to all magical sleep effects and mind-affecting enchantments.",
+          "Elves are 90% resistant to sleep and charm spells. Applies to all magical sleep effects and mind-affecting enchantments.",
       },
       {
-        name: "Geheimtüren entdecken (1-auf-6 passiv, 2-auf-6 aktiv)",
-        name_en: "Detect Secret Doors (1-in-6 passive, 2-in-6 active)",
+        name: "Geheimtüren entdecken",
+        name_en: "Detect Secret Doors",
         description:
-          "Elfen entdecken versteckte und geheime Türen mit erhöhter Wahrscheinlichkeit. Beim bloßen Vorbeigehen spüren sie Verborgenes mit 1-auf-6, bei aktiver Suche mit 2-auf-6.",
+          "Verborgene Türen: 1-auf-6 beim Vorbeigehen (passiv), 2-auf-6 bei aktiver Suche, 3-auf-6 bei verborgenen (nicht geheimen) Türen.",
         description_en:
-          "Elves detect hidden and secret doors with increased probability. When merely passing by, they sense hidden things on 1-in-6; when actively searching, on 2-in-6.",
+          "Hidden doors: 1-in-6 when passing by (passive), 2-in-6 when actively searching, 3-in-6 for concealed (not secret) doors.",
       },
       {
-        name: "+1 Treffer mit Langschwertern und Bögen",
-        name_en: "+1 Hit with Long Swords and Bows",
+        name: "+1 Treffer mit Schwertern & Bögen",
+        name_en: "+1 to Hit with Swords & Bows",
         description:
-          "Elfen erhalten aufgrund ihrer langen Übungstradition +1 auf Trefferwürfe mit Langschwertern, Kurzschwertern und allen Bogentypen (außer Armbrüsten).",
+          "Elfen erhalten +1 auf Trefferwürfe mit Langschwertern, Kurzschwertern und allen Bogentypen (nicht Armbrüsten).",
         description_en:
-          "Elves receive +1 to attack rolls with long swords, short swords, and all bow types (except crossbows) due to their long tradition of practice.",
+          "Elves gain +1 to attack rolls with long swords, short swords, and all bow types (not crossbows).",
       },
     ],
     defaultLanguages: ["Common", "Elfisch"],
@@ -199,33 +199,33 @@ export const RACES: Record<RaceId, RaceDefinition> = {
       ["fighter", "mage", "cleric"],
       ["fighter", "mage", "thief"],
     ],
-    infravision: 30,
+    infravision: 60,
     baseMovement: 12,
     abilityMinimums: { int: 4, con: 4 },
     racialAbilities: [
       {
-        name: "Infravision (9 m)",
-        name_en: "Infravision (9 m)",
+        name: "Infravision (18 m)",
+        name_en: "Infravision (18 m)",
         description:
-          "Halbelfen können im Dunkeln bis zu 9 m weit sehen, indem sie Wärmestrahlung wahrnehmen. Die Reichweite ist geringer als bei reinen Elfen.",
+          "Halbelfen können im Dunkeln bis zu 18 m weit sehen, indem sie Wärmestrahlung wahrnehmen. Gleiche Reichweite wie bei reinen Elfen.",
         description_en:
-          "Half-elves can see in the dark up to 9 meters by perceiving heat radiation. The range is shorter than that of pure elves.",
+          "Half-elves can see in the dark up to 18 m by perceiving heat radiation. Same range as full elves.",
       },
       {
         name: "Resistenz gegen Schlaf- und Bezauberungszauber (30%)",
         name_en: "Resistance to Sleep and Charm Spells (30%)",
         description:
-          "Halbelfen sind zu 30% resistent gegen Schlaf- und Bezauberungszauber. Diese geringere Resistenz spiegelt ihr gemischtes Erbe wider.",
+          "Halbelfen sind zu 30% resistent gegen Schlaf- und Bezauberungszauber (charm). Geringer als die 90% der Elfen, aber besser als nichts.",
         description_en:
-          "Half-elves are 30% resistant to sleep and charm spells. This lower resistance reflects their mixed heritage.",
+          "Half-elves are 30% resistant to sleep and charm spells. Lower than the elven 90%, but still significant.",
       },
       {
         name: "Geheimtüren entdecken (1-auf-6 passiv, 2-auf-6 aktiv)",
         name_en: "Detect Secret Doors (1-in-6 passive, 2-in-6 active)",
         description:
-          "Halbelfen haben die elfische Fähigkeit, verborgene Türen zu entdecken. Beim Vorbeigehen mit 1-auf-6, bei aktiver Suche mit 2-auf-6.",
+          "Halbelfen können verborgene Türen mit elfischer Sensibilität aufspüren: 1-auf-6 beim bloßen Vorbeigehen, 2-auf-6 bei aktiver Suche.",
         description_en:
-          "Half-elves have the elven ability to detect hidden doors. When passing by on 1-in-6, when actively searching on 2-in-6.",
+          "Half-elves can detect hidden doors with elven sensitivity: 1-in-6 when merely passing by, 2-in-6 when actively searching.",
       },
     ],
     defaultLanguages: ["Common", "Elfisch"],
@@ -250,26 +250,40 @@ export const RACES: Record<RaceId, RaceDefinition> = {
       {
         name: "Infravision (18 m)",
         name_en: "Infravision (18 m)",
-        description:
-          "Zwerge können im Dunkeln bis zu 18 m weit sehen, indem sie Wärmestrahlung wahrnehmen. Diese Fähigkeit stammt von ihrem Leben unter der Erde.",
-        description_en:
-          "Dwarves can see in the dark up to 18 meters by perceiving heat radiation. This ability stems from their life underground.",
+        description: "Zwerge können im Dunkeln bis zu 18 m weit Wärmestrahlung wahrnehmen.",
+        description_en: "Dwarves can perceive heat radiation in the dark up to 18 m.",
       },
       {
-        name: "Rettungswurf-Bonus gegen Gift und Magie (+1 pro 3,5 CON)",
-        name_en: "Saving Throw Bonus vs. Poison and Magic (+1 per 3.5 CON)",
+        name: "Rettungswurf-Bonus gegen Gift & Magie",
+        name_en: "Saving Throw Bonus vs. Poison & Magic",
         description:
-          "Zwerge erhalten einen Bonus auf Rettungswürfe gegen Gift, Stäbe, Ruten, Zepter, Zauberstäbe und Zauber. Der Bonus beträgt +1 pro 3,5 Punkte Konstitution.",
+          "Zwerge erhalten +1 auf Rettungswürfe gegen Gift, Stäbe, Ruten, Zauberstäbe und Zauber pro 3,5 Punkte KON. Bei KON 14 = +4, bei KON 17 = +4, bei KON 18 = +5.",
         description_en:
-          "Dwarves receive a bonus to saving throws against poison, rods, staves, wands, and spells. The bonus is +1 per 3.5 points of Constitution.",
+          "Dwarves gain +1 to saves vs. poison, rods, staves, wands, and spells per 3.5 points of CON. At CON 14 = +4, CON 17 = +4, CON 18 = +5.",
       },
       {
-        name: "Steinbearbeitung erkennen (Neigung, neue Tunnel, Fallen)",
-        name_en: "Detect Stonework (Slopes, New Tunnels, Traps)",
+        name: "Steinbearbeitung erkennen",
+        name_en: "Detect Stonework",
         description:
-          "Zwerge können unterirdisch Neigungen, neue Tunnel, gleitende Wände und Steinmechanismen auf einer 1-5 auf W6 erkennen. Diese Fähigkeit erfordert Konzentration.",
+          "Unterirdisch: Neigungen erkennen (1–5 auf W6), neue Tunnel/Bauten (1–5 auf W6), gleitende/verschobene Wände (1–4 auf W6), Steinmechanismen und Fallen (1–3 auf W6). Erfordert Konzentration.",
         description_en:
-          "Dwarves can detect underground slopes, new tunnels, sliding walls, and stone mechanisms on a 1-5 on d6. This ability requires concentration.",
+          "Underground: detect slopes (1–5 on d6), new tunnels/construction (1–5 on d6), sliding/shifting walls (1–4 on d6), stone mechanisms and traps (1–3 on d6). Requires concentration.",
+      },
+      {
+        name: "+1 Treffer gegen Orks, Halb-Orks, Goblins, Hobgoblins",
+        name_en: "+1 to Hit vs. Orcs, Half-Orcs, Goblins, Hobgoblins",
+        description:
+          "Zwerge erhalten +1 auf Trefferwürfe gegen Orks, Halb-Orks, Goblins und Hobgoblins durch spezielle Kampfausbildung.",
+        description_en:
+          "Dwarves gain +1 to attack rolls vs. orcs, half-orcs, goblins, and hobgoblins due to special combat training.",
+      },
+      {
+        name: "Große Gegner: −4 auf deren Angriffe",
+        name_en: "Large Opponents: −4 to Their Attacks",
+        description:
+          "Oger, Trolle, Oger-Magier, Riesen und Titanen erleiden −4 auf ihre Trefferwürfe gegen Zwerge (kleine, gedrungene Ziele).",
+        description_en:
+          "Ogres, trolls, ogre magi, giants, and titans suffer −4 to attack rolls against dwarves (small, compact targets).",
       },
     ],
     defaultLanguages: ["Common", "Zwergisch"],
@@ -297,34 +311,32 @@ export const RACES: Record<RaceId, RaceDefinition> = {
       {
         name: "Infravision (18 m)",
         name_en: "Infravision (18 m)",
-        description:
-          "Gnome können im Dunkeln bis zu 18 m weit sehen, indem sie Wärmestrahlung wahrnehmen. Diese Fähigkeit stammt von ihrem unterirdischen Erbe.",
-        description_en:
-          "Gnomes can see in the dark up to 18 meters by perceiving heat radiation. This ability stems from their subterranean heritage.",
+        description: "Gnome können im Dunkeln bis zu 18 m weit Wärmestrahlung wahrnehmen.",
+        description_en: "Gnomes can perceive heat radiation in the dark up to 18 m.",
       },
       {
-        name: "Rettungswurf-Bonus gegen Magie (+1 pro 3,5 CON)",
-        name_en: "Saving Throw Bonus vs. Magic (+1 per 3.5 CON)",
+        name: "Rettungswurf-Bonus gegen Magie",
+        name_en: "Saving Throw Bonus vs. Magic",
         description:
-          "Gnome erhalten einen Bonus auf Rettungswürfe gegen Stäbe, Ruten, Zepter, Zauberstäbe und Zauber. Der Bonus beträgt +1 pro 3,5 Punkte Konstitution.",
+          "Gnome erhalten +1 auf Rettungswürfe gegen Stäbe, Ruten, Zauberstäbe und Zauber pro 3,5 Punkte KON. Gilt nicht gegen Gift (im Gegensatz zu Zwergen).",
         description_en:
-          "Gnomes receive a bonus to saving throws vs. rods, staves, wands, and spells. The bonus is +1 per 3.5 points of Constitution.",
+          "Gnomes gain +1 to saves vs. rods, staves, wands, and spells per 3.5 points of CON. Does not apply to poison (unlike dwarves).",
       },
       {
-        name: "+1 Treffer gegen Kobolde und Goblins",
-        name_en: "+1 Hit vs. Kobolds and Goblins",
+        name: "+1 Treffer gegen Kobolde & Goblins",
+        name_en: "+1 to Hit vs. Kobolds & Goblins",
         description:
-          "Gnome erhalten +1 auf Trefferwürfe gegen Kobolde und Goblins aufgrund ihrer langen Feindschaft und speziellen Kampfausbildung gegen diese Kreaturen.",
+          "Gnome erhalten +1 auf Trefferwürfe gegen Kobolde und Goblins durch spezielle Kampfausbildung.",
         description_en:
-          "Gnomes gain +1 to attack rolls against kobolds and goblins due to their long enmity and special combat training against these creatures.",
+          "Gnomes gain +1 to attack rolls vs. kobolds and goblins due to special combat training.",
       },
       {
-        name: "Große Gegner (Oger, Trolle) haben -4 auf Angriffe",
-        name_en: "Large Opponents (Ogres, Trolls) Suffer -4 to Attack",
+        name: "Große Gegner: −4 auf deren Angriffe",
+        name_en: "Large Opponents: −4 to Their Attacks",
         description:
-          "Gnome sind kleine Ziele. Große humanoide Gegner wie Oger, Trolle, Oger-Magier und Riesen erleiden -4 auf ihre Trefferwürfe gegen Gnome.",
+          "Oger, Trolle, Oger-Magier, Riesen und Titanen erleiden −4 auf ihre Trefferwürfe gegen Gnome.",
         description_en:
-          "Gnomes are small targets. Large humanoid opponents such as ogres, trolls, ogre magi, and giants suffer -4 to their attack rolls against gnomes.",
+          "Ogres, trolls, ogre magi, giants, and titans suffer −4 to attack rolls against gnomes.",
       },
     ],
     defaultLanguages: ["Common", "Gnomisch"],
@@ -346,34 +358,32 @@ export const RACES: Record<RaceId, RaceDefinition> = {
       {
         name: "Infravision (9 m)",
         name_en: "Infravision (9 m)",
-        description:
-          "Halblinge können im Dunkeln bis zu 9 m weit sehen, indem sie Wärmestrahlung wahrnehmen.",
-        description_en:
-          "Halflings can see in the dark up to 9 meters by perceiving heat radiation.",
+        description: "Halblinge können im Dunkeln bis zu 9 m weit Wärmestrahlung wahrnehmen.",
+        description_en: "Halflings can perceive heat radiation in the dark up to 9 m.",
       },
       {
-        name: "Rettungswurf-Bonus gegen Gift und Magie (+1 pro 3,5 CON)",
-        name_en: "Saving Throw Bonus vs. Poison and Magic (+1 per 3.5 CON)",
+        name: "Rettungswurf-Bonus gegen Gift & Magie",
+        name_en: "Saving Throw Bonus vs. Poison & Magic",
         description:
-          "Halblinge erhalten einen Bonus auf Rettungswürfe gegen Gift, Stäbe, Ruten, Zepter, Zauberstäbe und Zauber. Der Bonus beträgt +1 pro 3,5 Punkte Konstitution.",
+          "Halblinge erhalten +1 auf Rettungswürfe gegen Gift, Stäbe, Ruten, Zauberstäbe und Zauber pro 3,5 Punkte KON. Identisch mit Zwergen (inkl. Gift).",
         description_en:
-          "Halflings receive a bonus to saving throws vs. poison, rods, staves, wands, and spells. The bonus is +1 per 3.5 points of Constitution.",
+          "Halflings gain +1 to saves vs. poison, rods, staves, wands, and spells per 3.5 points of CON. Identical to dwarves (including poison).",
       },
       {
-        name: "+1 Treffer mit Schleudern und Wurfwaffen",
-        name_en: "+1 Hit with Slings and Thrown Weapons",
+        name: "+1 Treffer mit Schleudern & Wurfwaffen",
+        name_en: "+1 to Hit with Slings & Thrown Weapons",
         description:
-          "Halblinge sind natürliche Schützen und erhalten +1 auf Trefferwürfe mit Schleudern und allen Wurfwaffen. Diese Fähigkeit ist angeboren und stapelt mit anderen Boni.",
+          "Halblinge erhalten +1 auf Trefferwürfe mit Schleudern und allen Wurfwaffen. Angeboren, stapelt mit anderen Boni.",
         description_en:
-          "Halflings are natural marksmen and gain +1 to attack rolls with slings and all thrown weapons. This innate ability stacks with other bonuses.",
+          "Halflings gain +1 to attack rolls with slings and all thrown weapons. Innate, stacks with other bonuses.",
       },
       {
-        name: "Überraschungsbonus: -4 auf feindliche Überraschungswürfe",
-        name_en: "Surprise Bonus: -4 to Enemy Surprise Rolls",
+        name: "Überraschungsbonus (−4 für Gegner)",
+        name_en: "Surprise Bonus (−4 for Enemies)",
         description:
-          "Halblinge sind so leise und unauffällig, dass Gegner -4 auf ihre Überraschungswürfe erleiden, wenn der Halbling allein oder nur mit anderen Halblingen/Elfen unterwegs ist.",
+          "Gegner erleiden −4 auf Überraschungswürfe, wenn der Halbling allein oder nur mit Halblingen/Elfen unterwegs ist. Ohne schwere Rüstung: selbst +1 auf eigene Überraschungswürfe.",
         description_en:
-          "Halflings are so quiet and inconspicuous that enemies suffer -4 to their surprise rolls when the halfling is alone or accompanied only by other halflings or elves.",
+          "Enemies suffer −4 to surprise rolls when the halfling is alone or with only halflings/elves. Without heavy armor: the halfling also gains +1 to own surprise rolls.",
       },
     ],
     defaultLanguages: ["Common", "Halblingisch"],
@@ -399,10 +409,8 @@ export const RACES: Record<RaceId, RaceDefinition> = {
       {
         name: "Infravision (18 m)",
         name_en: "Infravision (18 m)",
-        description:
-          "Halb-Orks können im Dunkeln bis zu 18 m weit sehen, indem sie Wärmestrahlung wahrnehmen. Dieses Erbe stammt von ihrem orkischen Elternteil.",
-        description_en:
-          "Half-orcs can see in the dark up to 18 meters by perceiving heat radiation. This heritage comes from their orcish parent.",
+        description: "Halb-Orks können im Dunkeln bis zu 18 m weit Wärmestrahlung wahrnehmen.",
+        description_en: "Half-orcs can perceive heat radiation in the dark up to 18 m.",
       },
     ],
     defaultLanguages: ["Common", "Orkisch"],
@@ -426,16 +434,13 @@ export const RACES: Record<RaceId, RaceDefinition> = {
       {
         name: "Infravision (18 m)",
         name_en: "Infravision (18 m)",
-        description:
-          "Kobolde können im Dunkeln bis zu 18 m weit sehen, indem sie Wärmestrahlung wahrnehmen. Diese Fähigkeit stammt von ihrem unterirdischen Lebensraum.",
-        description_en:
-          "Kobolds can see in the dark up to 18 meters by perceiving heat radiation. This ability stems from their subterranean habitat.",
+        description: "Kobolde können im Dunkeln bis zu 18 m weit Wärmestrahlung wahrnehmen.",
+        description_en: "Kobolds can perceive heat radiation in the dark up to 18 m.",
       },
       {
         name: "Zuletzt angegriffen",
         name_en: "Attacked Last",
-        description:
-          "Feinde unterschätzen Kobolde und betrachten sie als vernachlässigbare Bedrohung. Dadurch werden Kobolde im Kampf zuletzt angegriffen.",
+        description: "Feinde unterschätzen Kobolde und greifen sie im Kampf zuletzt an.",
         description_en:
           "Enemies dismiss kobolds as negligible threats, attacking them last in combat.",
       },
@@ -443,9 +448,9 @@ export const RACES: Record<RaceId, RaceDefinition> = {
         name: "Unterirdische Erkennung",
         name_en: "Mining Detection",
         description:
-          "Kobolde können unterirdisch gleitende Wände, Neigungen und neue Konstruktionen erkennen, ähnlich wie Zwerge. Diese Fähigkeit erfordert Konzentration.",
+          "Kobolde können unterirdisch gleitende Wände, Neigungen und neue Konstruktionen erkennen, ähnlich wie Zwerge. Erfordert Konzentration.",
         description_en:
-          "Kobolds can detect underground features such as sliding walls, slopes, and new construction, similar to dwarves. This ability requires concentration.",
+          "Kobolds can detect underground features such as sliding walls, slopes, and new construction, similar to dwarves. Requires concentration.",
       },
     ],
     defaultLanguages: ["Common", "Koboldisch", "Orkisch", "Untercommon"],
@@ -472,51 +477,49 @@ export const RACES: Record<RaceId, RaceDefinition> = {
       {
         name: "Infravision (18 m)",
         name_en: "Infravision (18 m)",
-        description:
-          "Tieflinge können im Dunkeln bis zu 18 m weit sehen, indem sie Wärmestrahlung wahrnehmen. Dieses Erbe stammt von ihren fiendischen Vorfahren.",
-        description_en:
-          "Tieflings can see in the dark up to 18 meters by perceiving heat radiation. This heritage comes from their fiendish ancestors.",
+        description: "Tieflinge können im Dunkeln bis zu 18 m weit Wärmestrahlung wahrnehmen.",
+        description_en: "Tieflings can perceive heat radiation in the dark up to 18 m.",
       },
       {
         name: "Kälteresistenz (halber Schaden)",
         name_en: "Cold Resistance (Half Damage)",
         description:
-          "Tieflinge erleiden nur halben Schaden durch kältebasierte Angriffe. Diese Resistenz ist angeboren und gilt für alle Kältequellen.",
+          "Tieflinge erleiden nur halben Schaden durch kältebasierte Angriffe. Angeboren, gilt für alle Kältequellen.",
         description_en:
-          "Tieflings suffer only half damage from cold-based attacks. This resistance is innate and applies to all cold sources.",
+          "Tieflings suffer only half damage from cold-based attacks. Innate, applies to all cold sources.",
       },
       {
         name: "Feuerresistenz (halber Schaden)",
         name_en: "Fire Resistance (Half Damage)",
         description:
-          "Tieflinge erleiden nur halben Schaden durch feuerbasierte Angriffe. Diese Resistenz ist angeboren und gilt für alle Feuerquellen.",
+          "Tieflinge erleiden nur halben Schaden durch feuerbasierte Angriffe. Angeboren, gilt für alle Feuerquellen.",
         description_en:
-          "Tieflings suffer only half damage from fire-based attacks. This resistance is innate and applies to all fire sources.",
+          "Tieflings suffer only half damage from fire-based attacks. Innate, applies to all fire sources.",
       },
       {
         name: "Elektrizitätsresistenz (halber Schaden)",
         name_en: "Electricity Resistance (Half Damage)",
         description:
-          "Tieflinge erleiden nur halben Schaden durch elektrische Angriffe. Diese Resistenz ist angeboren und gilt für alle elektrischen Quellen.",
+          "Tieflinge erleiden nur halben Schaden durch elektrische Angriffe. Angeboren, gilt für alle elektrischen Quellen.",
         description_en:
-          "Tieflings suffer only half damage from electrical attacks. This resistance is innate and applies to all electrical sources.",
+          "Tieflings suffer only half damage from electrical attacks. Innate, applies to all electrical sources.",
       },
       {
         name: "Dunkelheit, 4,5 m Radius (1x pro Tag)",
-        name_en: "Darkness, 15' Radius (1x per Day)",
+        name_en: "Darkness, 4.5 m Radius (1/Day)",
         description:
           "Tieflinge können einmal pro Tag den Zauber Dunkelheit, 4,5 m Radius als angeborene Fähigkeit wirken. Dies erzeugt eine Sphäre magischer Dunkelheit.",
         description_en:
-          "Tieflings can cast Darkness, 15' Radius once per day as an innate ability. This creates a sphere of magical darkness.",
+          "Tieflings can cast Darkness, 4.5 m Radius once per day as an innate ability. This creates a sphere of magical darkness.",
         usesPerDay: 1,
       },
       {
-        name: "-2 Reaktionsmalus",
-        name_en: "-2 Reaction Penalty",
+        name: "−2 Reaktionsmalus",
+        name_en: "−2 Reaction Penalty",
         description:
-          "Aufgrund ihres fiendischen Erbes erleiden Tieflinge einen -2 Malus auf Reaktionswürfe bei NPC-Begegnungen. Ihre unheimliche Erscheinung löst Misstrauen aus.",
+          "Tieflinge erleiden −2 auf Reaktionswürfe bei NPC-Begegnungen durch ihre fiendische Erscheinung.",
         description_en:
-          "Due to their fiendish heritage, tieflings suffer a -2 penalty to reaction rolls during NPC encounters. Their unsettling appearance provokes distrust.",
+          "Tieflings suffer −2 to reaction rolls during NPC encounters due to their fiendish appearance.",
       },
     ],
     defaultLanguages: ["Common", "Infernal"],
