@@ -5,7 +5,12 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { calculateEncumbrance, calculateAC, getMovementRate } from "@/lib/rules/equipment";
+import {
+  calculateEncumbrance,
+  calculateAC,
+  getMovementRate,
+  isShieldItem,
+} from "@/lib/rules/equipment";
 import { useTranslations, useLocale } from "next-intl";
 import { localized } from "@/lib/utils/localize";
 import { lbsToKg, feetToMeters } from "@/lib/utils/units";
@@ -148,19 +153,8 @@ export function TabEquipment({
   };
   const encumbranceLabel = encumbranceLabelMap[encumbranceLevel];
 
-  const equippedArmor = equipment.find(
-    (e) =>
-      e.armor &&
-      e.equipped &&
-      e.armor.name.toLowerCase() !== "schild" &&
-      e.armor.name.toLowerCase() !== "shield"
-  );
-  const shieldEquipped = equipment.some(
-    (e) =>
-      e.armor &&
-      e.equipped &&
-      (e.armor.name.toLowerCase() === "schild" || e.armor.name.toLowerCase() === "shield")
-  );
+  const equippedArmor = equipment.find((e) => e.armor && e.equipped && !isShieldItem(e.armor.name));
+  const shieldEquipped = equipment.some((e) => e.armor && e.equipped && isShieldItem(e.armor.name));
   const classGroups = characterClasses
     .filter((cc) => cc.is_active)
     .map((cc) => getClassGroup(cc.class_id as ClassId));
@@ -184,19 +178,9 @@ export function TabEquipment({
 
     // If equipping armor (non-shield), unequip any currently equipped armor first
     const armorsToUnequip: string[] = [];
-    if (
-      newEquipped &&
-      item.armor &&
-      item.armor.name.toLowerCase() !== "schild" &&
-      item.armor.name.toLowerCase() !== "shield"
-    ) {
+    if (newEquipped && item.armor && !isShieldItem(item.armor.name)) {
       const currentArmors = equipment.filter(
-        (e) =>
-          e.armor &&
-          e.equipped &&
-          e.id !== item.id &&
-          e.armor.name.toLowerCase() !== "schild" &&
-          e.armor.name.toLowerCase() !== "shield"
+        (e) => e.armor && e.equipped && e.id !== item.id && !isShieldItem(e.armor.name)
       );
       for (const a of currentArmors) {
         await supabase.from("character_equipment").update({ equipped: false }).eq("id", a.id);

@@ -25,20 +25,13 @@ import {
 import { getNonproficiencyPenalty } from "@/lib/rules/proficiencies";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
 import { getKit, getEffectiveHitDie } from "@/lib/rules/kits";
-import { calculateAC, calculateEncumbrance } from "@/lib/rules/equipment";
+import { calculateAC, calculateEncumbrance, isShieldItem } from "@/lib/rules/equipment";
 import { feetToMeters, lbsToKg } from "@/lib/utils/units";
 import { localized } from "@/lib/utils/localize";
 import { spellRange, spellArea } from "@/lib/utils/spell-display";
 import { getFightingStyle } from "@/lib/rules/fighting-styles";
 import { isPriestCaster } from "@/lib/rules/magic";
-import {
-  getStrengthModifiers,
-  getDexterityModifiers,
-  getConstitutionModifiers,
-  getIntelligenceModifiers,
-  getWisdomModifiers,
-  getCharismaModifiers,
-} from "@/lib/rules/abilities";
+import { getAllAbilityModifiers } from "@/lib/rules/abilities";
 import type {
   CharacterRow,
   CharacterClassRow,
@@ -230,26 +223,13 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
 
   const thac0 = classEntries.length > 0 ? getMulticlassThac0(classEntries) : 20;
   const saves = classEntries.length > 0 ? getMulticlassSaves(classEntries) : null;
-  const strMods = getStrengthModifiers(character.str, character.str_exceptional ?? undefined);
-  const dexMods = getDexterityModifiers(character.dex);
-  const conMods = getConstitutionModifiers(character.con);
-  const intMods = getIntelligenceModifiers(character.int);
-  const wisMods = getWisdomModifiers(character.wis);
-  const chaMods = getCharismaModifiers(character.cha);
+  const { strMods, dexMods, conMods, intMods, wisMods, chaMods } =
+    getAllAbilityModifiers(character);
 
   const equippedArmorForAC = equipment.find(
-    (e) =>
-      e.armor &&
-      e.equipped &&
-      e.armor.name.toLowerCase() !== "schild" &&
-      e.armor.name.toLowerCase() !== "shield"
+    (e) => e.armor && e.equipped && !isShieldItem(e.armor.name)
   );
-  const hasShieldForAC = equipment.some(
-    (e) =>
-      e.armor &&
-      e.equipped &&
-      (e.armor.name.toLowerCase() === "schild" || e.armor.name.toLowerCase() === "shield")
-  );
+  const hasShieldForAC = equipment.some((e) => e.armor && e.equipped && isShieldItem(e.armor.name));
   const classGroups = activeClasses.map((cc) => getClassGroup(cc.class_id as ClassId));
   const totalWeight = equipment.reduce(
     (sum, e) => sum + (e.weapon?.weight ?? e.armor?.weight ?? 0),

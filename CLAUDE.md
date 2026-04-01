@@ -306,4 +306,4 @@ Finaler explorativer Test mit etablierten Testing-Heuristiken und gezielten "Tes
 8. **Print/Export Customization** — Abschnitte ein-/ausblendbar, Reihenfolge änderbar, alle PHB-Modifier ✅
 9. **Priester-System** — Sphären-Zauber, Gottheit/Priesthood, Turn Undead, Quellenbuch-Filter, Spell Points ✅
 10. **Tiefling & Erweiterungen** — 9. Rasse, Rassenwechsel, Fähigkeiten-Panel, Magische Items/Waffen, Import-Verbesserungen ✅
-11. **Nächste Schritte** — DM-Dashboard, Kampagnen-Verwaltung, weitere Kits und Rassen
+11. **Regelwerk-Vollständigkeit** — Crusader, Monk, Shaman, Bard Slots, Dual-Class Engine, Beschreibungstext-Audit ✅

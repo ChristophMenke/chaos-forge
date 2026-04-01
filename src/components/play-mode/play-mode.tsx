@@ -28,7 +28,12 @@ import {
   getWisdomModifiers,
   getCharismaModifiers,
 } from "@/lib/rules/abilities";
-import { calculateAC, calculateEncumbrance, getMovementRate } from "@/lib/rules/equipment";
+import {
+  calculateAC,
+  calculateEncumbrance,
+  getMovementRate,
+  isShieldItem,
+} from "@/lib/rules/equipment";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
 import { getConBonusCap } from "@/lib/rules/hitpoints";
 import { getClassGroup } from "@/lib/rules/classes";
@@ -342,9 +347,12 @@ export function PlayMode({
   const effectiveHpCurrent = Math.max(0, Math.min(character.hp_current + hpDelta, effectiveHpMax));
 
   // Equipment calculations
-  const equippedArmor = useMemo(() => equipment.find((e) => e.equipped && e.armor), [equipment]);
+  const equippedArmor = useMemo(
+    () => equipment.find((e) => e.equipped && e.armor && !isShieldItem(e.armor.name)),
+    [equipment]
+  );
   const equippedShield = useMemo(
-    () => equipment.some((e) => e.equipped && e.armor && e.armor.ac >= 8),
+    () => equipment.some((e) => e.equipped && e.armor && isShieldItem(e.armor.name)),
     [equipment]
   );
   const totalWeight = useMemo(() => {

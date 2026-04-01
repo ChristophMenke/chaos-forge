@@ -32,7 +32,7 @@ import {
   getCharismaModifiers,
 } from "@/lib/rules/abilities";
 import { getAttacksPerRound } from "@/lib/rules/combat";
-import { calculateAC, calculateEncumbrance } from "@/lib/rules/equipment";
+import { calculateAC, calculateEncumbrance, isShieldItem } from "@/lib/rules/equipment";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
 import { getKit, getEffectiveHitDie, getKitsForClass } from "@/lib/rules/kits";
 import { getPriesthood } from "@/lib/rules/priesthoods";
@@ -279,11 +279,9 @@ export function CharacterSheet({
   );
   // AC calculation using equipped armor + shield + DEX + class bonuses (reactive to equipmentState)
   const equippedArmor = equipmentState.find(
-    (e) => e.equipped && e.armor && e.armor.name !== "Shield"
+    (e) => e.equipped && e.armor && !isShieldItem(e.armor.name)
   );
-  const hasShield = equipmentState.some(
-    (e) => e.equipped && e.armor && e.armor.name.toLowerCase().includes("shield")
-  );
+  const hasShield = equipmentState.some((e) => e.equipped && e.armor && isShieldItem(e.armor.name));
   const totalWeight = equipmentState.reduce(
     (sum, e) => sum + (e.weapon?.weight ?? e.armor?.weight ?? 0),
     0
