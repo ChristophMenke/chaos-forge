@@ -33,6 +33,8 @@ const ALL_CLASSES: ClassId[] = [
   "cleric",
   "crusader",
   "druid",
+  "monk",
+  "shaman",
   "thief",
   "bard",
 ];

@@ -579,6 +579,100 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
       },
     ],
   },
+  monk: {
+    id: "monk",
+    name: "Mönch",
+    name_en: "Monk",
+    group: "priest", // PO:S&M: priest group — saves, spell slots as priest
+    hitDie: 8,
+    abilityRequirements: { wis: 15, int: 14, con: 13 },
+    primeRequisites: ["wis", "int"],
+    exceptionalStrength: false,
+    classAbilities: [
+      {
+        name: "Natürliche Rüstungsklasse",
+        name_en: "Natural Armor Class",
+        description:
+          "Darf keine Rüstung tragen. Natürliche RK verbessert sich um +1 alle zwei Stufen: RK 9 (Stufe 2), RK 8 (Stufe 4), ... RK 2 (Stufe 16). Gilt nur gegen sichtbare Angriffe.",
+        description_en:
+          "May not wear armor. Natural AC improves by +1 every two levels: AC 9 (level 2), AC 8 (level 4), ... AC 2 (level 16). Only applies against visible attacks.",
+      },
+      {
+        name: "Waffenloser Kampfspezialist",
+        name_en: "Unarmed Combat Specialist",
+        description:
+          "Freier Waffenslot für waffenlosen Kampf bei Stufe 1. Weitere freie Slots bei Stufe 5, 9, 13, 17. Stumpfe Waffen (Typ B) wie Kleriker. NWP-Zugang zu allen 5 Fertigkeitsgruppen.",
+        description_en:
+          "Free weapon proficiency slot for unarmed combat at level 1. Additional free slots at levels 5, 9, 13, 17. Type B (blunt) weapons like clerics. NWP crossover with all 5 proficiency groups.",
+      },
+      {
+        name: "Nichtentdeckung (ab Stufe 5)",
+        name_en: "Nondetection (from Level 5)",
+        description:
+          "Ab Stufe 5: Rettungswurf gegen Zauber, um Entdeckungs-, Hellsicht- und Gedankenlesungs-Versuche zu blockieren (wie der Magier-Zauber Nichtentdeckung, 3. Stufe).",
+        description_en:
+          "From level 5: saving throw vs. spell to block detection, scrying, and mind-reading attempts (as the 3rd-level wizard spell Nondetection).",
+      },
+      {
+        name: "Freie Aktion (ab Stufe 7)",
+        name_en: "Free Action (from Level 7)",
+        description:
+          "Ab Stufe 7: Permanente Gewährte Kraft — der Mönch agiert wie unter dem Einfluss des Priesterzaubers Freie Aktion (4. Stufe). Kann nicht verlangsamt, gelähmt oder festgehalten werden.",
+        description_en:
+          "From level 7: permanent granted power — the monk acts as if under the priest spell Free Action (4th-level). Cannot be slowed, paralyzed, or held.",
+      },
+      {
+        name: "Kein Untote vertreiben",
+        name_en: "No Turn Undead",
+        description: "Mönche können keine Untoten vertreiben oder befehligen.",
+        description_en: "Monks cannot turn or command undead.",
+      },
+    ],
+  },
+  shaman: {
+    id: "shaman",
+    name: "Schamane",
+    name_en: "Shaman",
+    group: "priest", // PO:S&M: priest group
+    hitDie: 8, // PO:S&M: "advance as clerics do"
+    abilityRequirements: { wis: 12, con: 12 },
+    primeRequisites: ["wis"],
+    exceptionalStrength: false,
+    classAbilities: [
+      {
+        name: "Geisterverbündete",
+        name_en: "Spirit Allies",
+        description:
+          "Der Schamane beginnt mit 1 niederen Geisterverbündeten und erhält mehr mit steigender Stufe (Stufe 5: 1 großer, Stufe 9: 1 mächtiger). Drei Geistertypen: Totengeister, Tiergeister, Naturgeister — jeder mit eigenen Zauberkräften.",
+        description_en:
+          "The shaman starts with 1 minor spirit ally and gains more with level (level 5: 1 major, level 9: 1 great). Three spirit types: Dead (ancestor), Animal, Nature — each with unique spell-like favors.",
+      },
+      {
+        name: "Stammeswaffen & Rüstung",
+        name_en: "Tribal Weapons & Armor",
+        description:
+          "Erlaubte Waffen: Kurzbogen, Keule, Dolch, Wurfpfeil, Handaxt, Harpune, Wurfspeer, Messer, Kampfstab, Schleuder, Speer. Rüstung: Leder, Fell, beschlagenes Leder + Holzschild.",
+        description_en:
+          "Allowed weapons: short bow, club, dagger, dart, hand axe, harpoon, javelin, knife, quarterstaff, sling, spear. Armor: leather, hide, studded leather + wooden/wicker shield.",
+      },
+      {
+        name: "Untote vertreiben/befehligen",
+        name_en: "Turn/Command Undead",
+        description:
+          "Gute Schamanen vertreiben Untote wie Kleriker. Neutrale und böse Schamanen befehligen Untote stattdessen.",
+        description_en:
+          "Good-aligned shamans turn undead as clerics. Neutral and evil shamans command undead instead.",
+      },
+      {
+        name: "Keine Gefolgsleute oder Festung",
+        name_en: "No Followers or Stronghold",
+        description:
+          "Der Schamane zieht keine Gefolgsleute an und errichtet keine Festung. Er dient dem Stamm als geistlicher Berater und Heiler.",
+        description_en:
+          "The shaman does not attract followers or build a stronghold. He serves the tribe as spiritual advisor and healer.",
+      },
+    ],
+  },
   thief: {
     id: "thief",
     name: "Dieb",

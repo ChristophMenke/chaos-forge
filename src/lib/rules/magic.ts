@@ -87,6 +87,29 @@ export const CRUSADER_SPHERES: SphereMap = {
   protection: "minor",
 };
 
+export const MONK_SPHERES: SphereMap = {
+  all: "major",
+  divination: "major",
+  guardian: "major",
+  numbers: "major",
+  thought: "major",
+  combat: "minor",
+  healing: "minor",
+  necromantic: "minor",
+  time: "minor",
+};
+
+export const SHAMAN_SPHERES: SphereMap = {
+  all: "major",
+  animal: "major",
+  protection: "major",
+  summoning: "major",
+  travelers: "major",
+  wards: "major",
+  healing: "minor",
+  plant: "minor",
+};
+
 export const DRUID_SPHERES: SphereMap = {
   all: "major",
   animal: "major",
@@ -98,7 +121,15 @@ export const DRUID_SPHERES: SphereMap = {
 };
 
 /** Classes that cast priest spells (full or partial) */
-const PRIEST_CASTER_IDS: ClassId[] = ["cleric", "crusader", "druid", "ranger", "paladin"];
+const PRIEST_CASTER_IDS: ClassId[] = [
+  "cleric",
+  "crusader",
+  "druid",
+  "monk",
+  "shaman",
+  "ranger",
+  "paladin",
+];
 
 export function isPriestCaster(classId: ClassId): boolean {
   return PRIEST_CASTER_IDS.includes(classId);
@@ -109,6 +140,24 @@ export function getPriestSpheres(
   priesthoodId?: string | null,
   alignment?: string | null
 ): SphereMap {
+  // Monk: own spheres, can choose a priesthood (PO:S&M)
+  if (classId === "monk") {
+    if (priesthoodId) {
+      const priesthood = getPriesthood(priesthoodId);
+      if (priesthood) return { ...priesthood.spheres };
+    }
+    return { ...MONK_SPHERES };
+  }
+
+  // Shaman: own spheres, can choose a priesthood (PO:S&M)
+  if (classId === "shaman") {
+    if (priesthoodId) {
+      const priesthood = getPriesthood(priesthoodId);
+      if (priesthood) return { ...priesthood.spheres };
+    }
+    return { ...SHAMAN_SPHERES };
+  }
+
   // Druid always uses own spheres (no priesthood)
   if (classId === "druid") return { ...DRUID_SPHERES };
 

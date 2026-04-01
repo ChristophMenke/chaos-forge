@@ -284,6 +284,14 @@ describe("Kit System", () => {
     it("crusader has no kits", () => {
       expect(getKitsForClass("crusader")).toHaveLength(0);
     });
+
+    it("monk has no kits", () => {
+      expect(getKitsForClass("monk")).toHaveLength(0);
+    });
+
+    it("shaman has no kits", () => {
+      expect(getKitsForClass("shaman")).toHaveLength(0);
+    });
   });
 
   describe("getEffectiveHitDie", () => {

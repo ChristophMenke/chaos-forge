@@ -17,7 +17,7 @@ describe("RACE-003 RACE-004 RACE-009 RACE-010 RACE-011: Races", () => {
 
   it("should allow humans to play all classes", () => {
     const human = getRace("human");
-    expect(human.allowedClasses).toHaveLength(17);
+    expect(human.allowedClasses).toHaveLength(19);
     expect(human.levelLimits).toEqual({});
   });
 
@@ -152,7 +152,7 @@ describe("Tiefling Race", () => {
 
   it("should allow all 17 classes", () => {
     const tiefling = getRace("tiefling");
-    expect(tiefling.allowedClasses).toHaveLength(17);
+    expect(tiefling.allowedClasses).toHaveLength(19);
   });
 
   it("should have no level limits", () => {
@@ -230,5 +230,21 @@ describe("Crusader Class Race Access (PO:S&M)", () => {
 
   it("dwarf crusader has level limit 12", () => {
     expect(getLevelLimit("dwarf", "crusader")).toBe(12);
+  });
+
+  it("human can play monk", () => {
+    expect(canPlayClass("human", "monk")).toBe(true);
+  });
+
+  it("dwarf cannot play monk (human only)", () => {
+    expect(canPlayClass("dwarf", "monk")).toBe(false);
+  });
+
+  it("human can play shaman", () => {
+    expect(canPlayClass("human", "shaman")).toBe(true);
+  });
+
+  it("elf cannot play shaman (human only)", () => {
+    expect(canPlayClass("elf", "shaman")).toBe(false);
   });
 });
