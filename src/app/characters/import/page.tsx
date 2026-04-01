@@ -291,7 +291,7 @@ export default function ImportCharacterPage() {
         "militant_wizard",
         "savage_wizard",
         "academician",
-        "fighting_priest",
+        "fighting_monk",
         "pacifist_priest",
         "beastmaster",
         "blade",

@@ -171,7 +171,7 @@ Erwartetes Format:
 Hinweise:
 - "race" muss einer dieser IDs sein: human, elf, half_elf, dwarf, gnome, halfling, half_orc, kobold. "Stout Halfling" → "halfling", "Standard half-elf" → "half_elf". Subrassen werden auf die Hauptrasse gemappt
 - "classes" ist ein ARRAY — Multiclass-Charaktere haben MEHRERE Einträge! Z.B. "Fighter/Thief" → [{"class":"fighter","level":4,"xp":8000},{"class":"thief","level":5,"xp":10330}]. "class" muss einer dieser IDs sein: fighter, ranger, paladin, mage, illusionist, abjurer, conjurer, diviner, enchanter, invoker, necromancer, transmuter, cleric, druid, thief, bard
-- "kit" NUR verwenden wenn im Bogen explizit "Kit:" steht. Gültige Kits: barbarian, cavalier, swashbuckler, berserker, gladiator, myrmidon, assassin, bounty_hunter, acrobat, scout, burglar, spy, witch, militant_wizard, savage_wizard, academician, fighting_priest, pacifist_priest, beastmaster, blade. Wenn das Kit nicht in dieser Liste ist → null
+- "kit" NUR verwenden wenn im Bogen explizit "Kit:" steht. Gültige Kits: barbarian, cavalier, swashbuckler, berserker, gladiator, myrmidon, assassin, bounty_hunter, acrobat, scout, burglar, spy, witch, militant_wizard, savage_wizard, academician, fighting_monk, pacifist_priest, beastmaster, blade. Wenn das Kit nicht in dieser Liste ist → null
 - "alignment" muss eine ID sein: lawful_good, neutral_good, chaotic_good, lawful_neutral, true_neutral, chaotic_neutral, lawful_evil, neutral_evil, chaotic_evil
 - "strExceptional" ist nur relevant bei STR 18 und Krieger-Klassen (1-100, wobei 100 = "18/00")
 - Sub-Stats (strStamina, strMuscle, etc.) sind Player's Option Werte. Extrahiere sie wenn vorhanden, sonst null

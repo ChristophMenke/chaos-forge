@@ -115,7 +115,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Der Priester kann Gräber und Untote innerhalb von 18 m erkennen und zwischen wahren Toten und Untoten unterscheiden. Durch Holz oder dünne Steinwände nur bis 9 m, durch dicken Stein oder Erde nur bis 3 m.",
         description_en:
-          "The priest can detect graves and the presence of undead within 60', and can tell the difference between the truly dead and the undead. Through wooden or thin stone walls detection range is 30', through thick stone or earth only 10'.",
+          "The priest can detect graves and the presence of undead within 18 m, and can tell the difference between the truly dead and the undead. Through wooden or thin stone walls detection range is 9 m, through thick stone or earth only 3 m.",
         level: 1,
         mechanical: { type: "detect" },
       },
@@ -201,8 +201,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "animals-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Nur bei natürlichen Monstern oder Tieren anwendbar.",
-        description_en: "Usable only on natural monsters or animals.",
+        description:
+          "3×/Tag: Nur bei natürlichen Monstern oder Tieren anwendbar. Beendet Furcht, Raserei oder beruhigt bis zu 2× Stufe TW.",
+        description_en:
+          "3×/day: Usable only on natural monsters or animals. Dispels fear, ends rage, or calms up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -344,8 +346,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "community-berserker-rage",
         name: "Berserkerraserei auslösen",
         name_en: "Incite Berserker Rage",
-        description: "Der Priester kann die Berserkerraserei bei Verbündeten auslösen.",
-        description_en: "The priest can incite berserker rage in allies.",
+        description:
+          "1 Runde pro Krieger, +2 auf Angriff und Schaden, Dauer 6 Runden. Beliebig viele Krieger/Tag, aber nur 1×/Krieger/Tag.",
+        description_en:
+          "1 round per warrior, +2 to hit and damage, lasts 6 turns. Any number of warriors/day, but only 1×/warrior/day.",
         level: 1,
         mechanical: { type: "berserker_rage" },
       },
@@ -353,8 +357,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "community-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -397,7 +403,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Der Priester kann innerhalb von 18 m Regelverstöße bei Wettkämpfen erkennen und feststellen, ob sie absichtlich oder versehentlich waren. Er ist 100% genau bei Grenzentscheidungen.",
         description_en:
-          "The priest can detect rule-breaking in competitions within 60', and tell whether it was deliberate or accidental. They are 100% accurate in boundary and finish-line decisions.",
+          "The priest can detect rule-breaking in competitions within 18 m, and tell whether it was deliberate or accidental. They are 100% accurate in boundary and finish-line decisions.",
         level: 1,
         mechanical: { type: "detect" },
       },
@@ -467,7 +473,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit: Erfolg bei 1 auf 1W6 im Vorbeigehen, 1-2 auf 1W6 für Geheimtüren und 1-3 auf 1W6 für verborgene Durchgänge bei aktiver Suche.",
         description_en:
-          "Same as the Elf ability: Success on 1 on 1d6 when passing within 10', 1-2 on 1d6 for secret doors and 1-3 on 1d6 for concealed portals when actively searching.",
+          "Same as the Elf ability: Success on 1 on 1d6 when passing within 3 m, 1-2 on 1d6 for secret doors and 1-3 on 1d6 for concealed portals when actively searching.",
         level: 1,
         mechanical: { type: "detect" },
       },
@@ -497,8 +503,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "culture-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 1,
         mechanical: { type: "inspire_fear" },
       },
@@ -506,8 +514,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "culture-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -545,7 +555,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit (18 m Reichweite). Elfische oder halelfische Priester dieses Glaubens haben doppelte Reichweite (36 m).",
         description_en:
-          "Same as the Elf ability (60' range). Elven or half-elven priests of this faith have doubled range (120').",
+          "Same as the Elf ability (18 m range). Elven or half-elven priests of this faith have doubled range (36 m).",
         level: 1,
         mechanical: { type: "other" },
       },
@@ -603,8 +613,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "dawn-charm",
         name: "Bezauberung/Faszination",
         name_en: "Charm/Fascination",
-        description: "Nicht im Kampf einsetzbar.",
-        description_en: "Cannot be used in combat.",
+        description:
+          "3×/Tag: Wie Suggestion, ohne Materialkomponenten — aber nicht im Kampf einsetzbar. Bis zu 2× Stufe TW außerhalb des Kampfes.",
+        description_en:
+          "3×/day: Like Suggestion, no material components — but cannot be used in combat. Up to 2× level in HD out of combat.",
         level: 1,
         mechanical: { type: "charm" },
       },
@@ -677,8 +689,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "death-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 1,
         mechanical: { type: "inspire_fear" },
       },
@@ -743,9 +757,9 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         name: "Handauflegen (umgekehrt)",
         name_en: "Laying On of Hands (Reversed)",
         description:
-          "Wie die Paladin-Fähigkeit, aber umgekehrt — sie verursacht Schaden statt ihn zu heilen.",
+          "1×/Tag: Wie die Paladin-Fähigkeit, aber umgekehrt — verursacht 2 TP Schaden pro Stufe statt zu heilen.",
         description_en:
-          "Same as the Paladin ability, but reversed — it does damage rather than curing damage.",
+          "1×/day: Same as the Paladin ability, but reversed — deals 2 HP damage per level instead of healing.",
         level: 1,
         mechanical: { type: "laying_on_hands" },
       },
@@ -777,8 +791,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "divinity-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -927,8 +943,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "everything-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -990,8 +1008,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "evil-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 1,
         mechanical: { type: "inspire_fear" },
       },
@@ -1063,8 +1083,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "fate-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -1100,8 +1122,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "fertility-charm",
         name: "Bezauberung/Faszination",
         name_en: "Charm/Fascination",
-        description: "Nie im Kampf und nur einmal pro Tag einsetzbar.",
-        description_en: "Never in combat, and only once per day.",
+        description:
+          "1×/Tag: Wie Suggestion, ohne Materialkomponenten — nur außerhalb des Kampfes. Bis zu 2× Stufe TW.",
+        description_en:
+          "1×/day: Like Suggestion, no material components — only out of combat. Up to 2× level in HD.",
         level: 1,
         mechanical: { type: "charm", usesPerDay: 1 },
       },
@@ -1109,8 +1133,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "fertility-berserker-rage",
         name: "Berserkerraserei auslösen",
         name_en: "Incite Berserker Rage",
-        description: "Der Priester kann die Berserkerraserei bei Verbündeten auslösen.",
-        description_en: "The priest can incite berserker rage in allies.",
+        description:
+          "1 Runde pro Krieger, +2 auf Angriff und Schaden, Dauer 6 Runden. Beliebig viele Krieger/Tag, aber nur 1×/Krieger/Tag.",
+        description_en:
+          "1 round per warrior, +2 to hit and damage, lasts 6 turns. Any number of warriors/day, but only 1×/warrior/day.",
         level: 1,
         mechanical: { type: "berserker_rage" },
       },
@@ -1205,8 +1231,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "fortune-charm",
         name: "Bezauberung/Faszination",
         name_en: "Charm/Fascination",
-        description: "Der Priester kann Wesen bezaubern und faszinieren.",
-        description_en: "The priest can charm and fascinate beings.",
+        description:
+          "3×/Tag: Wie der Magier-Zauber Suggestion, ohne Materialkomponenten. Im Kampf: 1 Ziel. Außerhalb: bis zu 2× Stufe TW.",
+        description_en:
+          "3×/day: Like the wizard's Suggestion spell, no material components. In combat: 1 target. Out of combat: up to 2× level in HD.",
         level: 1,
         mechanical: { type: "charm" },
       },
@@ -1304,7 +1332,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit (18 m). Elfische oder halbelfische Priester dieses Glaubens haben doppelte Reichweite (36 m).",
         description_en:
-          "Same as the Elf ability (60'). Elven or half-elven priests of this faith have doubled range (120').",
+          "Same as the Elf ability (18 m). Elven or half-elven priests of this faith have doubled range (36 m).",
         level: 1,
         mechanical: { type: "other" },
       },
@@ -1312,8 +1340,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "guardianship-laying-on-hands",
         name: "Handauflegen",
         name_en: "Laying On of Hands",
-        description: "Wie die Paladin-Fähigkeit.",
-        description_en: "Same as the Paladin ability.",
+        description:
+          "1×/Tag: Heilt 2 TP pro Erfahrungsstufe durch Handauflegen (wie die Paladin-Fähigkeit).",
+        description_en:
+          "1×/day: Heals 2 HP per experience level by laying on hands (same as the Paladin ability).",
         level: 1,
         mechanical: { type: "laying_on_hands" },
       },
@@ -1368,8 +1398,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "healing-laying-on-hands",
         name: "Handauflegen",
         name_en: "Laying On of Hands",
-        description: "Wie die Paladin-Fähigkeit.",
-        description_en: "Same as the Paladin ability.",
+        description:
+          "1×/Tag: Heilt 2 TP pro Erfahrungsstufe durch Handauflegen (wie die Paladin-Fähigkeit).",
+        description_en:
+          "1×/day: Heals 2 HP per experience level by laying on hands (same as the Paladin ability).",
         level: 1,
         mechanical: { type: "laying_on_hands" },
       },
@@ -1377,8 +1409,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "healing-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -1494,8 +1528,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "justice-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 3,
         mechanical: { type: "inspire_fear" },
       },
@@ -1547,8 +1583,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "life-death-berserker-rage",
         name: "Berserkerraserei auslösen",
         name_en: "Incite Berserker Rage",
-        description: "Der Priester kann die Berserkerraserei bei Verbündeten auslösen.",
-        description_en: "The priest can incite berserker rage in allies.",
+        description:
+          "1 Runde pro Krieger, +2 auf Angriff und Schaden, Dauer 6 Runden. Beliebig viele Krieger/Tag, aber nur 1×/Krieger/Tag.",
+        description_en:
+          "1 round per warrior, +2 to hit and damage, lasts 6 turns. Any number of warriors/day, but only 1×/warrior/day.",
         level: 1,
         mechanical: { type: "berserker_rage" },
       },
@@ -1594,7 +1632,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit. Elfische oder halbelfische Priester haben doppelte Reichweite (36 m).",
         description_en:
-          "Same as the Elf ability. Elven or half-elven priests have doubled range (120').",
+          "Same as the Elf ability (18 m). Elven or half-elven priests have doubled range (36 m).",
         level: 1,
         mechanical: { type: "other" },
       },
@@ -1611,8 +1649,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "light-laying-on-hands",
         name: "Handauflegen",
         name_en: "Laying On of Hands",
-        description: "Wie die Paladin-Fähigkeit.",
-        description_en: "Same as the Paladin ability.",
+        description:
+          "1×/Tag: Heilt 2 TP pro Erfahrungsstufe durch Handauflegen (wie die Paladin-Fähigkeit).",
+        description_en:
+          "1×/day: Heals 2 HP per experience level by laying on hands (same as the Paladin ability).",
         level: 3,
         mechanical: { type: "laying_on_hands" },
       },
@@ -1620,8 +1660,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "light-charm",
         name: "Bezauberung/Faszination",
         name_en: "Charm/Fascination",
-        description: "Der Priester kann Wesen bezaubern und faszinieren.",
-        description_en: "The priest can charm and fascinate beings.",
+        description:
+          "3×/Tag: Wie der Magier-Zauber Suggestion, ohne Materialkomponenten. Im Kampf: 1 Ziel. Außerhalb: bis zu 2× Stufe TW.",
+        description_en:
+          "3×/day: Like the wizard's Suggestion spell, no material components. In combat: 1 target. Out of combat: up to 2× level in HD.",
         level: 5,
         mechanical: { type: "charm" },
       },
@@ -1680,8 +1722,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "lightning-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 1,
         mechanical: { type: "inspire_fear" },
       },
@@ -1728,8 +1772,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "literature-charm",
         name: "Bezauberung/Faszination",
         name_en: "Charm/Fascination",
-        description: "Der Priester kann Wesen bezaubern und faszinieren.",
-        description_en: "The priest can charm and fascinate beings.",
+        description:
+          "3×/Tag: Wie der Magier-Zauber Suggestion, ohne Materialkomponenten. Im Kampf: 1 Ziel. Außerhalb: bis zu 2× Stufe TW.",
+        description_en:
+          "3×/day: Like the wizard's Suggestion spell, no material components. In combat: 1 target. Out of combat: up to 2× level in HD.",
         level: 1,
         mechanical: { type: "charm" },
       },
@@ -1748,8 +1794,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "literature-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -1787,8 +1835,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "love-charm",
         name: "Bezauberung/Faszination",
         name_en: "Charm/Fascination",
-        description: "Der Priester kann Wesen bezaubern und faszinieren.",
-        description_en: "The priest can charm and fascinate beings.",
+        description:
+          "3×/Tag: Wie der Magier-Zauber Suggestion, ohne Materialkomponenten. Im Kampf: 1 Ziel. Außerhalb: bis zu 2× Stufe TW.",
+        description_en:
+          "3×/day: Like the wizard's Suggestion spell, no material components. In combat: 1 target. Out of combat: up to 2× level in HD.",
         level: 1,
         mechanical: { type: "charm" },
       },
@@ -1796,8 +1846,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "love-berserker-rage",
         name: "Berserkerraserei auslösen",
         name_en: "Incite Berserker Rage",
-        description: "Der Priester kann die Berserkerraserei bei Verbündeten auslösen.",
-        description_en: "The priest can incite berserker rage in allies.",
+        description:
+          "1 Runde pro Krieger, +2 auf Angriff und Schaden, Dauer 6 Runden. Beliebig viele Krieger/Tag, aber nur 1×/Krieger/Tag.",
+        description_en:
+          "1 round per warrior, +2 to hit and damage, lasts 6 turns. Any number of warriors/day, but only 1×/warrior/day.",
         level: 1,
         mechanical: { type: "berserker_rage" },
       },
@@ -1805,8 +1857,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "love-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 1,
         mechanical: { type: "inspire_fear" },
       },
@@ -1814,8 +1868,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "love-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -1863,8 +1919,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "magic-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 1,
         mechanical: { type: "inspire_fear" },
       },
@@ -1895,7 +1953,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit. Elfische oder halbelfische Priester haben doppelte Reichweite (36 m).",
         description_en:
-          "Same as the Elf ability. Elven or half-elven priests have doubled range (120').",
+          "Same as the Elf ability (18 m). Elven or half-elven priests have doubled range (36 m).",
         level: 3,
         mechanical: { type: "other" },
       },
@@ -1938,8 +1996,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "marriage-laying-on-hands",
         name: "Handauflegen",
         name_en: "Laying On of Hands",
-        description: "Wie die Paladin-Fähigkeit.",
-        description_en: "Same as the Paladin ability.",
+        description:
+          "1×/Tag: Heilt 2 TP pro Erfahrungsstufe durch Handauflegen (wie die Paladin-Fähigkeit).",
+        description_en:
+          "1×/day: Heals 2 HP per experience level by laying on hands (same as the Paladin ability).",
         level: 1,
         mechanical: { type: "laying_on_hands" },
       },
@@ -1947,8 +2007,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "marriage-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -2002,8 +2064,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "messenger-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -2011,8 +2075,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "messenger-charm",
         name: "Bezauberung/Faszination",
         name_en: "Charm/Fascination",
-        description: "Der Priester kann Wesen bezaubern und faszinieren.",
-        description_en: "The priest can charm and fascinate beings.",
+        description:
+          "3×/Tag: Wie der Magier-Zauber Suggestion, ohne Materialkomponenten. Im Kampf: 1 Ziel. Außerhalb: bis zu 2× Stufe TW.",
+        description_en:
+          "3×/day: Like the wizard's Suggestion spell, no material components. In combat: 1 target. Out of combat: up to 2× level in HD.",
         level: 8,
         mechanical: { type: "charm" },
       },
@@ -2071,8 +2137,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "metalwork-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 1,
         mechanical: { type: "inspire_fear" },
       },
@@ -2123,8 +2191,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "mischief-charm",
         name: "Bezauberung/Faszination",
         name_en: "Charm/Fascination",
-        description: "Der Priester kann Wesen bezaubern und faszinieren.",
-        description_en: "The priest can charm and fascinate beings.",
+        description:
+          "3×/Tag: Wie der Magier-Zauber Suggestion, ohne Materialkomponenten. Im Kampf: 1 Ziel. Außerhalb: bis zu 2× Stufe TW.",
+        description_en:
+          "3×/day: Like the wizard's Suggestion spell, no material components. In combat: 1 target. Out of combat: up to 2× level in HD.",
         level: 1,
         mechanical: { type: "charm" },
       },
@@ -2135,7 +2205,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit: Erfolg bei 1 auf 1W6 im Vorbeigehen, 1-2 auf 1W6 für Geheimtüren und 1-3 auf 1W6 für verborgene Durchgänge.",
         description_en:
-          "Same as the Elf ability: Success on 1 on 1d6 when passing within 10', 1-2 on 1d6 for secret doors and 1-3 on 1d6 for concealed portals.",
+          "Same as the Elf ability: Success on 1 on 1d6 when passing within 3 m, 1-2 on 1d6 for secret doors and 1-3 on 1d6 for concealed portals.",
         level: 1,
         mechanical: { type: "detect" },
       },
@@ -2197,8 +2267,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "moon-charm",
         name: "Bezauberung/Faszination",
         name_en: "Charm/Fascination",
-        description: "Der Priester kann Wesen bezaubern und faszinieren.",
-        description_en: "The priest can charm and fascinate beings.",
+        description:
+          "3×/Tag: Wie der Magier-Zauber Suggestion, ohne Materialkomponenten. Im Kampf: 1 Ziel. Außerhalb: bis zu 2× Stufe TW.",
+        description_en:
+          "3×/day: Like the wizard's Suggestion spell, no material components. In combat: 1 target. Out of combat: up to 2× level in HD.",
         level: 1,
         mechanical: { type: "charm" },
       },
@@ -2209,7 +2281,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit. Elfische oder halbelfische Priester haben doppelte Reichweite (36 m).",
         description_en:
-          "Same as the Elf ability. Elven or half-elven priests have doubled range (120').",
+          "Same as the Elf ability (18 m). Elven or half-elven priests have doubled range (36 m).",
         level: 1,
         mechanical: { type: "other" },
       },
@@ -2217,8 +2289,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "moon-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 5,
         mechanical: { type: "inspire_fear" },
       },
@@ -2263,8 +2337,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "music-charm",
         name: "Bezauberung/Faszination",
         name_en: "Charm/Fascination",
-        description: "Der Priester kann Wesen bezaubern und faszinieren.",
-        description_en: "The priest can charm and fascinate beings.",
+        description:
+          "3×/Tag: Wie der Magier-Zauber Suggestion, ohne Materialkomponenten. Im Kampf: 1 Ziel. Außerhalb: bis zu 2× Stufe TW.",
+        description_en:
+          "3×/day: Like the wizard's Suggestion spell, no material components. In combat: 1 target. Out of combat: up to 2× level in HD.",
         level: 1,
         mechanical: { type: "charm" },
       },
@@ -2273,9 +2349,9 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
         description:
-          "Der Priester kann aufgebrachte Wesen beruhigen. Ab Stufe 5 sechsmal pro Tag statt dreimal.",
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen. Ab Stufe 5: 6×/Tag.",
         description_en:
-          "The priest can calm agitated beings. At 5th level can use the power six times per day instead of three.",
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD. At 5th level: 6×/day.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -2349,8 +2425,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "nature-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 5,
         mechanical: { type: "inspire_fear" },
       },
@@ -2420,7 +2498,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit, funktioniert aber nur unter Wasser. Elfische oder halbelfische Priester haben doppelte Reichweite (36 m).",
         description_en:
-          "Same as the Elf ability, but only works underwater. Elven or half-elven priests have doubled range (120').",
+          "Same as the Elf ability (18 m), but only works underwater. Elven or half-elven priests have doubled range (36 m).",
         level: 1,
         mechanical: { type: "other" },
       },
@@ -2530,8 +2608,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "peace-charm",
         name: "Bezauberung/Faszination",
         name_en: "Charm/Fascination",
-        description: "Der Priester kann Wesen bezaubern und faszinieren.",
-        description_en: "The priest can charm and fascinate beings.",
+        description:
+          "3×/Tag: Wie der Magier-Zauber Suggestion, ohne Materialkomponenten. Im Kampf: 1 Ziel. Außerhalb: bis zu 2× Stufe TW.",
+        description_en:
+          "3×/day: Like the wizard's Suggestion spell, no material components. In combat: 1 target. Out of combat: up to 2× level in HD.",
         level: 1,
         mechanical: { type: "charm" },
       },
@@ -2550,8 +2630,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "peace-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -2559,8 +2641,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "peace-laying-on-hands",
         name: "Handauflegen",
         name_en: "Laying On of Hands",
-        description: "Wie die Paladin-Fähigkeit.",
-        description_en: "Same as the Paladin ability.",
+        description:
+          "1×/Tag: Heilt 2 TP pro Erfahrungsstufe durch Handauflegen (wie die Paladin-Fähigkeit).",
+        description_en:
+          "1×/day: Heals 2 HP per experience level by laying on hands (same as the Paladin ability).",
         level: 5,
         mechanical: { type: "laying_on_hands" },
       },
@@ -2597,7 +2681,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Der Priester kann Schätze und wertvolle Gegenstände innerhalb von 3 m erkennen, auch wenn sie verborgen sind (1,5 m hinter dünner Wand, 60 cm hinter dicker Wand). Er muss allein sein, da Geldbeutel der Verbündeten den Sinn auslösen.",
         description_en:
-          "The priest can detect treasure and objects of value within 10', even when concealed (5' behind thin wall, 2' behind heavy wall). He must walk alone as allies' coin-pouches will trigger the sense.",
+          "The priest can detect treasure and objects of value within 3 m, even when concealed (1.5 m behind thin wall, 60 cm behind heavy wall). He must walk alone as allies' coin-pouches will trigger the sense.",
         level: 1,
         mechanical: { type: "detect" },
       },
@@ -2648,8 +2732,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-dwarf-berserker-rage",
         name: "Berserkerraserei auslösen",
         name_en: "Incite Berserker Rage",
-        description: "Der Priester kann die Berserkerraserei bei Verbündeten auslösen.",
-        description_en: "The priest can incite berserker rage in allies.",
+        description:
+          "1 Runde pro Krieger, +2 auf Angriff und Schaden, Dauer 6 Runden. Beliebig viele Krieger/Tag, aber nur 1×/Krieger/Tag.",
+        description_en:
+          "1 round per warrior, +2 to hit and damage, lasts 6 turns. Any number of warriors/day, but only 1×/warrior/day.",
         level: 1,
         mechanical: { type: "berserker_rage" },
       },
@@ -2657,8 +2743,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-dwarf-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 1,
         mechanical: { type: "inspire_fear" },
       },
@@ -2666,8 +2754,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-dwarf-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -2675,8 +2765,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-dwarf-laying-on-hands",
         name: "Handauflegen",
         name_en: "Laying On of Hands",
-        description: "Wie die Paladin-Fähigkeit.",
-        description_en: "Same as the Paladin ability.",
+        description:
+          "1×/Tag: Heilt 2 TP pro Erfahrungsstufe durch Handauflegen (wie die Paladin-Fähigkeit).",
+        description_en:
+          "1×/day: Heals 2 HP per experience level by laying on hands (same as the Paladin ability).",
         level: 5,
         mechanical: { type: "laying_on_hands" },
       },
@@ -2726,8 +2818,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-elf-berserker-rage",
         name: "Berserkerraserei auslösen",
         name_en: "Incite Berserker Rage",
-        description: "Der Priester kann die Berserkerraserei bei Verbündeten auslösen.",
-        description_en: "The priest can incite berserker rage in allies.",
+        description:
+          "1 Runde pro Krieger, +2 auf Angriff und Schaden, Dauer 6 Runden. Beliebig viele Krieger/Tag, aber nur 1×/Krieger/Tag.",
+        description_en:
+          "1 round per warrior, +2 to hit and damage, lasts 6 turns. Any number of warriors/day, but only 1×/warrior/day.",
         level: 1,
         mechanical: { type: "berserker_rage" },
       },
@@ -2735,8 +2829,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-elf-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 1,
         mechanical: { type: "inspire_fear" },
       },
@@ -2744,8 +2840,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-elf-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -2753,8 +2851,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-elf-laying-on-hands",
         name: "Handauflegen",
         name_en: "Laying On of Hands",
-        description: "Wie die Paladin-Fähigkeit.",
-        description_en: "Same as the Paladin ability.",
+        description:
+          "1×/Tag: Heilt 2 TP pro Erfahrungsstufe durch Handauflegen (wie die Paladin-Fähigkeit).",
+        description_en:
+          "1×/day: Heals 2 HP per experience level by laying on hands (same as the Paladin ability).",
         level: 5,
         mechanical: { type: "laying_on_hands" },
       },
@@ -2803,8 +2903,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-gnome-berserker-rage",
         name: "Berserkerraserei auslösen",
         name_en: "Incite Berserker Rage",
-        description: "Der Priester kann die Berserkerraserei bei Verbündeten auslösen.",
-        description_en: "The priest can incite berserker rage in allies.",
+        description:
+          "1 Runde pro Krieger, +2 auf Angriff und Schaden, Dauer 6 Runden. Beliebig viele Krieger/Tag, aber nur 1×/Krieger/Tag.",
+        description_en:
+          "1 round per warrior, +2 to hit and damage, lasts 6 turns. Any number of warriors/day, but only 1×/warrior/day.",
         level: 1,
         mechanical: { type: "berserker_rage" },
       },
@@ -2812,8 +2914,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-gnome-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 1,
         mechanical: { type: "inspire_fear" },
       },
@@ -2821,8 +2925,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-gnome-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -2830,8 +2936,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-gnome-laying-on-hands",
         name: "Handauflegen",
         name_en: "Laying On of Hands",
-        description: "Wie die Paladin-Fähigkeit.",
-        description_en: "Same as the Paladin ability.",
+        description:
+          "1×/Tag: Heilt 2 TP pro Erfahrungsstufe durch Handauflegen (wie die Paladin-Fähigkeit).",
+        description_en:
+          "1×/day: Heals 2 HP per experience level by laying on hands (same as the Paladin ability).",
         level: 5,
         mechanical: { type: "laying_on_hands" },
       },
@@ -2869,8 +2977,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-halfelf-berserker-rage",
         name: "Berserkerraserei auslösen",
         name_en: "Incite Berserker Rage",
-        description: "Der Priester kann die Berserkerraserei bei Verbündeten auslösen.",
-        description_en: "The priest can incite berserker rage in allies.",
+        description:
+          "1 Runde pro Krieger, +2 auf Angriff und Schaden, Dauer 6 Runden. Beliebig viele Krieger/Tag, aber nur 1×/Krieger/Tag.",
+        description_en:
+          "1 round per warrior, +2 to hit and damage, lasts 6 turns. Any number of warriors/day, but only 1×/warrior/day.",
         level: 1,
         mechanical: { type: "berserker_rage" },
       },
@@ -2878,8 +2988,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-halfelf-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 1,
         mechanical: { type: "inspire_fear" },
       },
@@ -2887,8 +2999,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-halfelf-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -2896,8 +3010,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-halfelf-laying-on-hands",
         name: "Handauflegen",
         name_en: "Laying On of Hands",
-        description: "Wie die Paladin-Fähigkeit.",
-        description_en: "Same as the Paladin ability.",
+        description:
+          "1×/Tag: Heilt 2 TP pro Erfahrungsstufe durch Handauflegen (wie die Paladin-Fähigkeit).",
+        description_en:
+          "1×/day: Heals 2 HP per experience level by laying on hands (same as the Paladin ability).",
         level: 5,
         mechanical: { type: "laying_on_hands" },
       },
@@ -2940,8 +3056,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-halfling-berserker-rage",
         name: "Berserkerraserei auslösen",
         name_en: "Incite Berserker Rage",
-        description: "Der Priester kann die Berserkerraserei bei Verbündeten auslösen.",
-        description_en: "The priest can incite berserker rage in allies.",
+        description:
+          "1 Runde pro Krieger, +2 auf Angriff und Schaden, Dauer 6 Runden. Beliebig viele Krieger/Tag, aber nur 1×/Krieger/Tag.",
+        description_en:
+          "1 round per warrior, +2 to hit and damage, lasts 6 turns. Any number of warriors/day, but only 1×/warrior/day.",
         level: 1,
         mechanical: { type: "berserker_rage" },
       },
@@ -2949,8 +3067,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-halfling-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 1,
         mechanical: { type: "inspire_fear" },
       },
@@ -2958,8 +3078,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-halfling-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -2967,8 +3089,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-halfling-laying-on-hands",
         name: "Handauflegen",
         name_en: "Laying On of Hands",
-        description: "Wie die Paladin-Fähigkeit.",
-        description_en: "Same as the Paladin ability.",
+        description:
+          "1×/Tag: Heilt 2 TP pro Erfahrungsstufe durch Handauflegen (wie die Paladin-Fähigkeit).",
+        description_en:
+          "1×/day: Heals 2 HP per experience level by laying on hands (same as the Paladin ability).",
         level: 5,
         mechanical: { type: "laying_on_hands" },
       },
@@ -3016,8 +3140,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-human-berserker-rage",
         name: "Berserkerraserei auslösen",
         name_en: "Incite Berserker Rage",
-        description: "Der Priester kann die Berserkerraserei bei Verbündeten auslösen.",
-        description_en: "The priest can incite berserker rage in allies.",
+        description:
+          "1 Runde pro Krieger, +2 auf Angriff und Schaden, Dauer 6 Runden. Beliebig viele Krieger/Tag, aber nur 1×/Krieger/Tag.",
+        description_en:
+          "1 round per warrior, +2 to hit and damage, lasts 6 turns. Any number of warriors/day, but only 1×/warrior/day.",
         level: 1,
         mechanical: { type: "berserker_rage" },
       },
@@ -3025,8 +3151,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-human-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 1,
         mechanical: { type: "inspire_fear" },
       },
@@ -3034,8 +3162,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-human-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -3043,8 +3173,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "race-human-laying-on-hands",
         name: "Handauflegen",
         name_en: "Laying On of Hands",
-        description: "Wie die Paladin-Fähigkeit.",
-        description_en: "Same as the Paladin ability.",
+        description:
+          "1×/Tag: Heilt 2 TP pro Erfahrungsstufe durch Handauflegen (wie die Paladin-Fähigkeit).",
+        description_en:
+          "1×/day: Heals 2 HP per experience level by laying on hands (same as the Paladin ability).",
         level: 5,
         mechanical: { type: "laying_on_hands" },
       },
@@ -3083,8 +3215,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "redemption-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 1,
         mechanical: { type: "inspire_fear" },
       },
@@ -3123,8 +3257,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "rulership-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -3132,8 +3268,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "rulership-berserker-rage",
         name: "Berserkerraserei auslösen",
         name_en: "Incite Berserker Rage",
-        description: "Der Priester kann die Berserkerraserei bei Verbündeten auslösen.",
-        description_en: "The priest can incite berserker rage in allies.",
+        description:
+          "1 Runde pro Krieger, +2 auf Angriff und Schaden, Dauer 6 Runden. Beliebig viele Krieger/Tag, aber nur 1×/Krieger/Tag.",
+        description_en:
+          "1 round per warrior, +2 to hit and damage, lasts 6 turns. Any number of warriors/day, but only 1×/warrior/day.",
         level: 1,
         mechanical: { type: "berserker_rage" },
       },
@@ -3141,8 +3279,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "rulership-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 8,
         mechanical: { type: "inspire_fear" },
       },
@@ -3209,9 +3349,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "sites-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Vom Gott gewährt, um die Stätte frei von Schädlingen zu halten.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht, ohne Materialkomponenten. Vom Gott gewährt, um die Stätte frei von Schädlingen zu halten.",
         description_en:
-          "Granted by the god to help keep the site clear of those who would harm or despoil it.",
+          "2×/day: Like the wizard's Fear spell, no material components. Granted by the god to help keep the site clear of those who would harm or despoil it.",
         level: 1,
         mechanical: { type: "inspire_fear" },
       },
@@ -3248,8 +3389,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "sky-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 1,
         mechanical: { type: "inspire_fear" },
       },
@@ -3307,8 +3450,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "strength-berserker-rage",
         name: "Berserkerraserei auslösen",
         name_en: "Incite Berserker Rage",
-        description: "Der Priester kann die Berserkerraserei bei Verbündeten auslösen.",
-        description_en: "The priest can incite berserker rage in allies.",
+        description:
+          "1 Runde pro Krieger, +2 auf Angriff und Schaden, Dauer 6 Runden. Beliebig viele Krieger/Tag, aber nur 1×/Krieger/Tag.",
+        description_en:
+          "1 round per warrior, +2 to hit and damage, lasts 6 turns. Any number of warriors/day, but only 1×/warrior/day.",
         level: 5,
         mechanical: { type: "berserker_rage" },
       },
@@ -3316,8 +3461,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "strength-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 8,
         mechanical: { type: "inspire_fear" },
       },
@@ -3365,7 +3512,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit: Erfolg bei 1 auf 1W6 im Vorbeigehen, 1-2 auf 1W6 für Geheimtüren und 1-3 auf 1W6 für verborgene Durchgänge.",
         description_en:
-          "Same as the Elf ability: Success on 1 on 1d6 when passing within 10', 1-2 on 1d6 for secret doors and 1-3 on 1d6 for concealed portals.",
+          "Same as the Elf ability: Success on 1 on 1d6 when passing within 3 m, 1-2 on 1d6 for secret doors and 1-3 on 1d6 for concealed portals.",
         level: 1,
         mechanical: { type: "detect" },
       },
@@ -3376,7 +3523,7 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         description:
           "Wie die Elfenfähigkeit. Elfische oder halbelfische Priester haben doppelte Reichweite (36 m).",
         description_en:
-          "Same as the Elf ability. Elven or half-elven priests have doubled range (120').",
+          "Same as the Elf ability (18 m). Elven or half-elven priests have doubled range (36 m).",
         level: 1,
         mechanical: { type: "other" },
       },
@@ -3393,8 +3540,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "sun-laying-on-hands",
         name: "Handauflegen",
         name_en: "Laying On of Hands",
-        description: "Wie die Paladin-Fähigkeit.",
-        description_en: "Same as the Paladin ability.",
+        description:
+          "1×/Tag: Heilt 2 TP pro Erfahrungsstufe durch Handauflegen (wie die Paladin-Fähigkeit).",
+        description_en:
+          "1×/day: Heals 2 HP per experience level by laying on hands (same as the Paladin ability).",
         level: 5,
         mechanical: { type: "laying_on_hands" },
       },
@@ -3444,8 +3593,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "thunder-berserker-rage",
         name: "Berserkerraserei auslösen",
         name_en: "Incite Berserker Rage",
-        description: "Der Priester kann die Berserkerraserei bei Verbündeten auslösen.",
-        description_en: "The priest can incite berserker rage in allies.",
+        description:
+          "1 Runde pro Krieger, +2 auf Angriff und Schaden, Dauer 6 Runden. Beliebig viele Krieger/Tag, aber nur 1×/Krieger/Tag.",
+        description_en:
+          "1 round per warrior, +2 to hit and damage, lasts 6 turns. Any number of warriors/day, but only 1×/warrior/day.",
         level: 1,
         mechanical: { type: "berserker_rage" },
       },
@@ -3453,8 +3604,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "thunder-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 5,
         mechanical: { type: "inspire_fear" },
       },
@@ -3499,8 +3652,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "time-laying-on-hands",
         name: "Handauflegen",
         name_en: "Laying On of Hands",
-        description: "Wie die Paladin-Fähigkeit.",
-        description_en: "Same as the Paladin ability.",
+        description:
+          "1×/Tag: Heilt 2 TP pro Erfahrungsstufe durch Handauflegen (wie die Paladin-Fähigkeit).",
+        description_en:
+          "1×/day: Heals 2 HP per experience level by laying on hands (same as the Paladin ability).",
         level: 3,
         mechanical: { type: "laying_on_hands" },
       },
@@ -3565,8 +3720,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "trade-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -3617,8 +3774,9 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         name: "Pflanzen erkennen",
         name_en: "Identify Plants",
         description:
-          "Der Priester kann Pflanzen jeder Art mit perfekter Genauigkeit identifizieren.",
-        description_en: "The priest can identify plants of any sort with perfect accuracy.",
+          "Der Priester kann Pflanzen jeder Art innerhalb von 3 m mit perfekter Genauigkeit identifizieren.",
+        description_en:
+          "The priest can identify plants of any sort within 3 m with perfect accuracy.",
         level: 1,
         mechanical: { type: "detect" },
       },
@@ -3658,8 +3816,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "war-berserker-rage",
         name: "Berserkerraserei auslösen",
         name_en: "Incite Berserker Rage",
-        description: "Der Priester kann die Berserkerraserei bei Verbündeten auslösen.",
-        description_en: "The priest can incite berserker rage in allies.",
+        description:
+          "1 Runde pro Krieger, +2 auf Angriff und Schaden, Dauer 6 Runden. Beliebig viele Krieger/Tag, aber nur 1×/Krieger/Tag.",
+        description_en:
+          "1 round per warrior, +2 to hit and damage, lasts 6 turns. Any number of warriors/day, but only 1×/warrior/day.",
         level: 1,
         mechanical: { type: "berserker_rage" },
       },
@@ -3667,8 +3827,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "war-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 5,
         mechanical: { type: "inspire_fear" },
       },
@@ -3779,8 +3941,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "wisdom-soothing-word",
         name: "Beruhigendes Wort",
         name_en: "Soothing Word",
-        description: "Der Priester kann aufgebrachte Wesen beruhigen.",
-        description_en: "The priest can calm agitated beings.",
+        description:
+          "3×/Tag: Beendet eine Furcht, eine Berserkerraserei oder beruhigt bis zu 2× Stufe TW an aufgebrachten Wesen.",
+        description_en:
+          "3×/day: Dispels one fear, ends one berserker rage, or calms a mob of up to 2× level in HD.",
         level: 1,
         mechanical: { type: "soothing_word" },
       },
@@ -3788,8 +3952,10 @@ export const PRIESTHOODS: Record<string, PriesthoodDefinition> = {
         id: "wisdom-inspire-fear",
         name: "Furcht einflößen",
         name_en: "Inspire Fear",
-        description: "Der Priester kann Furcht in Feinden auslösen.",
-        description_en: "The priest can inspire fear in enemies.",
+        description:
+          "2×/Tag: Wie der Magier-Zauber Furcht (4. Stufe), ohne Materialkomponenten. Betroffene fliehen für 1 Runde pro Stufe.",
+        description_en:
+          "2×/day: Like the wizard's Fear spell (4th-level), no material components. Affected creatures flee for 1 round per level.",
         level: 5,
         mechanical: { type: "inspire_fear" },
       },

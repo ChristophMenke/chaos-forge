@@ -11,7 +11,7 @@ import {
 describe("Kit System", () => {
   describe("KITS registry", () => {
     it("contains exactly 83 kits", () => {
-      expect(Object.keys(KITS)).toHaveLength(83);
+      expect(Object.keys(KITS)).toHaveLength(82);
     });
 
     const expectedKits = [
@@ -45,8 +45,7 @@ describe("Kit System", () => {
       "amazon_sorceress",
       "peasant_wizard",
       "wild_mage",
-      // Cleric (11)
-      "fighting_priest",
+      // Cleric (10)
       "pacifist_priest",
       "amazon_priestess",
       "barbarian_priest",
@@ -178,12 +177,11 @@ describe("Kit System", () => {
       );
     });
 
-    it("returns 11 cleric kits", () => {
+    it("returns 10 cleric kits", () => {
       const kits = getKitsForClass("cleric");
-      expect(kits).toHaveLength(11);
+      expect(kits).toHaveLength(10);
       expect(kits.map((k) => k.id)).toEqual(
         expect.arrayContaining([
-          "fighting_priest",
           "pacifist_priest",
           "amazon_priestess",
           "barbarian_priest",
