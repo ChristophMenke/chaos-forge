@@ -146,3 +146,15 @@ describe("previewXpGain", () => {
     expect(preview.currentXp).toBe(3000);
   });
 });
+
+describe("Monk/Shaman XP (PO:S&M)", () => {
+  it("monk uses cleric XP table", () => {
+    expect(getXpForNextLevel("monk", 1)).toBe(1500);
+    expect(getXpForNextLevel("monk", 2)).toBe(3000);
+  });
+
+  it("shaman uses cleric XP table", () => {
+    expect(getXpForNextLevel("shaman", 1)).toBe(1500);
+    expect(getXpForNextLevel("shaman", 2)).toBe(3000);
+  });
+});

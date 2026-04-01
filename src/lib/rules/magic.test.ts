@@ -361,3 +361,52 @@ describe("Crusader spheres (PO:S&M)", () => {
     expect(chaotic.map((s) => s.id)).not.toContain("1");
   });
 });
+
+describe("Monk spheres (PO:S&M)", () => {
+  it("has base monk spheres", () => {
+    const spheres = getPriestSpheres("monk");
+    expect(spheres.all).toBe("major");
+    expect(spheres.divination).toBe("major");
+    expect(spheres.guardian).toBe("major");
+    expect(spheres.numbers).toBe("major");
+    expect(spheres.thought).toBe("major");
+    expect(spheres.combat).toBe("minor");
+    expect(spheres.healing).toBe("minor");
+    expect(spheres.necromantic).toBe("minor");
+    expect(spheres.time).toBe("minor");
+    expect(spheres.charm).toBeUndefined();
+  });
+
+  it("isPriestCaster includes monk", () => {
+    expect(isPriestCaster("monk")).toBe(true);
+  });
+
+  it("priesthood overrides monk default spheres", () => {
+    const spheres = getPriestSpheres("monk", "healing");
+    expect(spheres.healing).toBe("major"); // from healing priesthood, not monk's minor
+  });
+});
+
+describe("Shaman spheres (PO:S&M)", () => {
+  it("has base shaman spheres", () => {
+    const spheres = getPriestSpheres("shaman");
+    expect(spheres.all).toBe("major");
+    expect(spheres.animal).toBe("major");
+    expect(spheres.protection).toBe("major");
+    expect(spheres.summoning).toBe("major");
+    expect(spheres.travelers).toBe("major");
+    expect(spheres.wards).toBe("major");
+    expect(spheres.healing).toBe("minor");
+    expect(spheres.plant).toBe("minor");
+    expect(spheres.combat).toBeUndefined();
+  });
+
+  it("isPriestCaster includes shaman", () => {
+    expect(isPriestCaster("shaman")).toBe(true);
+  });
+
+  it("priesthood overrides shaman default spheres", () => {
+    const spheres = getPriestSpheres("shaman", "healing");
+    expect(spheres.healing).toBe("major");
+  });
+});

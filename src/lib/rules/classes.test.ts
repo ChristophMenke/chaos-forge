@@ -8,8 +8,24 @@ import {
 } from "./classes";
 
 describe("CLASS-005 CLASS-006: Classes", () => {
-  it("CLASS-001: should define 17 classes total", () => {
-    expect(getAllClasses()).toHaveLength(17);
+  it("CLASS-001: should define 19 classes total", () => {
+    expect(getAllClasses()).toHaveLength(19);
+  });
+
+  it("monk is priest group with correct ability requirements", () => {
+    const monk = getClass("monk");
+    expect(monk).toBeDefined();
+    expect(monk!.group).toBe("priest");
+    expect(monk!.hitDie).toBe(8);
+    expect(monk!.abilityRequirements).toEqual({ wis: 15, int: 14, con: 13 });
+  });
+
+  it("shaman is priest group with correct ability requirements", () => {
+    const shaman = getClass("shaman");
+    expect(shaman).toBeDefined();
+    expect(shaman!.group).toBe("priest");
+    expect(shaman!.hitDie).toBe(8);
+    expect(shaman!.abilityRequirements).toEqual({ wis: 12, con: 12 });
   });
 
   it("CLASS-004: should categorize fighter as warrior group", () => {
