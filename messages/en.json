@@ -300,6 +300,8 @@
     "newProfSlots": "New Weapon Proficiency Slots",
     "newNwpSlots": "New Non-Weapon Proficiency Slots",
     "addClass": "Add class...",
+    "dualclassDormant": "Dormant (Level {level})",
+    "dualclassActive": "Active (Level {level})",
     "xpHistory": "XP History",
     "xpHistoryEmpty": "No XP awarded yet.",
     "xpEarned": "Experience Points"
