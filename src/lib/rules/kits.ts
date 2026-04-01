@@ -1734,19 +1734,20 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Täuschungskunst",
-        name_en: "Deception",
+        name: "Bezaubern & Schwindeln",
+        name_en: "Charm & Swindle",
         description:
-          "Meister der Täuschung — kann andere von fast allem überzeugen, egal wie unwahrscheinlich.",
+          "Bezaubern: Gruppe bis Stufe Personen, 1W10 Runden Plauderei, Rettungswurf gegen Lähmung −1/3 Stufen. Schwindeln: Taschendiebstahl-Wurf → zahlt nur den %-Anteil des Preises. Max 10 GM/Stufe ohne Rollenspiel.",
         description_en:
-          "Master of deception — can convince others of almost anything, no matter how unlikely.",
+          "Charm: group up to level persons, 1d10 rounds mingling, save vs. paralyzation −1/3 levels. Swindle: pick pockets roll → pay only that % of cost. Max 10 gp/level without roleplay.",
       },
       {
-        name: "Falsche Identitäten",
-        name_en: "False Identities",
+        name: "Verkleidung vortäuschen & Fälschung erkennen",
+        name_en: "Masquerade & Detect Fakery",
         description:
-          "Unterhält mehrere falsche Identitäten mit überzeugenden Hintergrundgeschichten.",
-        description_en: "Maintains multiple false identities with convincing background stories.",
+          "Kann jede NWP/Sekundärfertigkeit vortäuschen (Rettungswurf gegen Lähmung −1/3 Stufen bei Verdacht; INT−10: funktioniert sogar echt). CHA-Wurf erkennt Lügen; CHA−10 erkennt Gesinnung (1W10 Runden Beobachtung).",
+        description_en:
+          "Can fake any NWP/secondary skill (save vs. paralyzation −1/3 levels if suspicious; INT−10: actually functions). CHA check detects lies; CHA−10 detects alignment (1d10 rounds observation).",
       },
       {
         name: "Ablenkungsmanöver",
@@ -1766,23 +1767,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Höfische Manieren",
-        name_en: "Courtly Manners",
-        description: "Perfektes Benehmen bei Hofe verleiht Boni auf Reaktionswürfe bei Adligen.",
-        description_en: "Perfect courtly behavior grants reaction bonuses with nobility.",
-      },
-      {
-        name: "Romantische Inspiration",
-        name_en: "Romantic Inspiration",
+        name: "Essenz der Reinheit (+1 TP/Stufe)",
+        name_en: "Essence of Purity (+1 HP/Level)",
         description:
-          "Kann Verbündete durch leidenschaftliche Reden und romantische Gesten inspirieren.",
-        description_en: "Can inspire allies through passionate speeches and romantic gestures.",
+          "+1 TP pro Stufe (über KON-Bonus hinaus). Bei tödlichem Rettungswurf: erneuter Wurf. Wenn bei Verteidigung von Liebe/Unschuld getötet: kämpft 1W4 weitere Runden. Nicht neutral böse.",
+        description_en:
+          "+1 HP per level (beyond CON bonus). On fatal save: reroll for second chance. If slain while defending love/innocence: fights 1d4 more rounds. Not neutral evil.",
       },
       {
-        name: "Duellkunst",
-        name_en: "Dueling Expertise",
-        description: "Erhält +1 auf Angriffswürfe im ehrenhaften Einzelkampf.",
-        description_en: "Gains +1 to attack rolls in honorable one-on-one combat.",
+        name: "Kodex des Galanten (+2 Bonus)",
+        name_en: "Code of the Gallant (+2 Bonus)",
+        description:
+          "Bei Kodex-Einhaltung: +2 einmal pro Runde auf Treffer, Schaden, RK oder Rettungswurf (vor dem Wurf gewählt). Kodex-Bruch: Verlust bis Sühne.",
+        description_en:
+          "When following code: +2 once per round to attack, damage, AC, or save (chosen before roll). Code violation: lose bonus until atonement.",
+      },
+      {
+        name: "Romantische Anziehung & Poetischer Charme",
+        name_en: "Romantic Appeal & Poetic Charm",
+        description:
+          "Nicht-feindliche Begegnungen: Reaktion eine Stufe freundlicher (Rettungswurf −1/3 Stufen). Poetischer Charme: min. 1W10 Runden + 1 Gedicht → Charm-Effekt (nicht-magisch, kein Zeitablauf). Keine Festung; Knappe ab Stufe 5.",
+        description_en:
+          "Non-hostile encounters: reaction one level friendlier (save −1/3 levels). Poetic Charm: min. 1d10 turns + 1 poem → charm effect (non-magical, doesn't expire). No stronghold; squire from level 5.",
       },
     ],
   },
@@ -1796,27 +1802,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Wahrsagerei",
-        name_en: "Fortune Telling",
+        name: "Tierverbundenheit & Zauber",
+        name_en: "Animal Rapport & Spells",
         description:
-          "Kann die Zukunft aus Karten, Handlinien oder Sternen lesen — manchmal sogar korrekt.",
+          "Freie Fertigkeiten: Tierumgang, Tierkunde, Tiertraining, Reiten. Stufe 5: Tierfreundschaft 1×/Tag. Stufe 10: Tiere/Pflanzen finden 1×/Tag. Stufe 15: Mit Tieren sprechen 1×/Tag.",
         description_en:
-          "Can read the future from cards, palm lines, or stars — sometimes even accurately.",
+          "Free proficiencies: Animal Handling, Animal Lore, Animal Training, Riding. Level 5: animal friendship 1/day. Level 10: locate animals/plants 1/day. Level 15: speak with animals 1/day.",
       },
       {
-        name: "Wandervolk",
-        name_en: "Traveling People",
+        name: "Verlockung (Gruppenverzauberung)",
+        name_en: "Allure (Group Enchantment)",
         description:
-          "Kennt Wanderrouten und hat Kontakte in fahrenden Völkern über das ganze Land.",
+          "3+ Gypsy-Barden oder williges Publikum nötig; 1W10 Runden; Effekt = jeder Verzauberung/Charme-Schulzauber (Hauptsänger muss Stufe+Zauberbuch haben). +10% Taschen leeren, +5% Lautlos, −10% Mauern, −5% Verbergen.",
         description_en:
-          "Knows travel routes and has contacts among traveling peoples across the land.",
+          "3+ Gypsy-bards or willing audience needed; 1d10 turns; effect = any enchantment/charm school spell (main performer must have level+spellbook). +10% pick pockets, +5% move silently, −10% climb walls, −5% hide.",
       },
       {
-        name: "Böser Blick",
-        name_en: "Evil Eye",
+        name: "Wahrsagerei (1 Frage/5 Stufen/Tag)",
+        name_en: "Fortune Telling (1 Question/5 Levels/Day)",
         description:
-          "Kann einen Fluch durch intensiven Blickkontakt wirken, der das Opfer verunsichert.",
-        description_en: "Can cast a curse through intense eye contact that unnerves the victim.",
+          "1 Augury-Frage pro 5 Stufen pro Tag mit jedem Wahrsage-Gegenstand. Deck of Many Things schadet dem Gypsy-Barden nie beim Wahrsagen.",
+        description_en:
+          "1 augury-style question per 5 levels per day using any divination item. Deck of Many Things never harms the Gypsy-bard during fortune telling.",
       },
     ],
   },
@@ -1830,27 +1837,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Wappenkunde",
-        name_en: "Heraldry",
+        name: "Linguist (jede Sprache verstehen)",
+        name_en: "Linguist (Understand Any Language)",
         description:
-          "Kennt alle Wappen, Siegel und Flaggen und kann Adelshäuser, Orden und Gilden identifizieren.",
+          "Kann mit jeder Kreatur ab niedriger INT mit gesprochener Sprache kommunizieren, auch in unbekannten Sprachen (3 m Entfernung, kein Kampf). Sprachen lesen separat für Senden und Empfangen.",
         description_en:
-          "Knows all coats of arms, seals, and flags, and can identify noble houses, orders, and guilds.",
+          "Can attempt to communicate with any creature of low INT+ with spoken language, even unknown languages (3 m distance, no combat). Read languages rolled separately for sending and receiving.",
       },
       {
-        name: "Diplomatische Immunität",
-        name_en: "Diplomatic Immunity",
+        name: "Menge überzeugen",
+        name_en: "Persuade Crowd",
         description:
-          "Als offizieller Bote genießt der Herold Schutz vor Angriffen, selbst in Kriegszeiten.",
+          "Muss Sprache der Menge sprechen; 1W10 Minuten; Rettungswurf gegen Lähmung −1/3 Stufen; Versagen = Reaktion eine Stufe Richtung Herold-Meinung verschoben. Nichtmenschen max Stufe 6.",
         description_en:
-          "As an official messenger, the herald enjoys protection from attacks, even in wartime.",
+          "Must speak crowd's language; 1d10 minutes; save vs. paralyzation −1/3 levels; failure = reaction shifted one level toward Herald's opinion. Demihumans max level 6.",
       },
       {
-        name: "Proklamation",
-        name_en: "Proclamation",
+        name: "Wappenkunde & Diplomatie",
+        name_en: "Heraldry & Diplomacy",
         description:
-          "Kann offizielle Ankündigungen machen, die von allen als autoritativ anerkannt werden.",
-        description_en: "Can make official announcements recognized as authoritative by all.",
+          "Kennt alle Wappen, Siegel und Flaggen. Als offizieller Bote genießt der Herold Schutz vor Angriffen.",
+        description_en:
+          "Knows all coats of arms, seals, and flags. As official messenger, the herald enjoys protection from attacks.",
       },
     ],
   },
@@ -1864,25 +1872,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Spott",
-        name_en: "Mockery",
+        name: "Narrenglück (+1 auf fast alles)",
+        name_en: "Fool's Luck (+1 to Almost Everything)",
         description:
-          "Kann durch beißenden Spott Gegner so provozieren, dass sie Abzüge auf Angriffswürfe erleiden.",
+          "+1 (+5%) auf Rettungswürfe, Initiative, Überraschung, Fertigkeiten, Diebesfähigkeiten, Attributswürfe. +1 auf RK. Gilt NICHT für Angriffs-/Schadenswürfe, Charaktererstellung, Trefferwürfel.",
         description_en:
-          "Can provoke enemies through biting mockery, inflicting penalties to their attack rolls.",
+          "+1 (+5%) to saves, initiative, surprise, proficiency checks, thief skills, ability checks. +1 to AC. Does NOT apply to attack/damage rolls, character generation, hit dice.",
       },
       {
-        name: "Akrobatik und Jonglage",
-        name_en: "Tumbling and Juggling",
+        name: "Spott & Provokation (9 m)",
+        name_en: "Taunting & Provocation (9 m)",
         description:
-          "Beherrscht akrobatische Kunststücke und Jonglage, die auch im Kampf nützlich sein können.",
-        description_en: "Masters acrobatic feats and juggling that can also be useful in combat.",
+          "Im 9-m-Radius: Rettungswurf gegen Lähmung −1/3 Stufen; Versagen = Ziel muss den Narren sofort angreifen (ignoriert Kampfstrategie). Witze: 1W10 Runden → Reaktion ±1 Stufe.",
+        description_en:
+          "Within 9 m: save vs. paralyzation −1/3 levels; failure = target must immediately try to strike Jester (ignores combat strategy). Jokes: 1d10 rounds → reaction ±1 level.",
       },
       {
-        name: "Narrenfreiheit",
-        name_en: "Fool's Privilege",
-        description: "Kann ungestraft Wahrheiten aussprechen, die anderen den Kopf kosten würden.",
-        description_en: "Can speak truths without punishment that would cost others their heads.",
+        name: "Narrenverstand (Charme-Immunität)",
+        name_en: "Jester's Mind (Charm Immunity)",
+        description:
+          "Immun gegen Wahnsinn. Rettungswurf-Bonus = Stufe gegen Verzauberungs-/Charme-Zauber. Gedankenleser: %-Chance = Stufe, Verwirrung im Leser auszulösen.",
+        description_en:
+          "Immune to insanity. Save bonus = level vs. enchantment/charm spells. Mind readers: % chance = level to cause confusion in the reader.",
       },
     ],
   },
@@ -1892,31 +1903,32 @@ export const KITS: Record<string, KitDefinition> = {
     name_en: "Loremaster",
     classId: "bard",
     hitDieOverride: null,
-    maxArmorAC: null,
+    maxArmorAC: 8, // leather only
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Legendenkunde",
-        name_en: "Legend Lore",
+        name: "Arkanes Wissen (jedes Magie-Item nutzen)",
+        name_en: "Arcane Lore (Use Any Magic Item)",
         description:
-          "Erhält einen erhöhten Bonus auf Sagenkunde-Würfe, um Gegenstände und Orte zu identifizieren.",
+          "WIS-Wurf → kann jedes magische Item verwenden. Zaubert als eine Stufe höher (Stufe 1 = Stufe 2 für Zauber). Erfordert INT 14+, WIS 14+. Elfen max Stufe 12. Nur Lederrüstung.",
         description_en:
-          "Gains an enhanced bonus to legend lore checks to identify items and places.",
+          "WIS check → can use any magical item. Casts spells as one level higher (level 1 = level 2 for spells). Requires INT 14+, WIS 14+. Elves max level 12. Leather armor only.",
       },
       {
-        name: "Alte Sprachen",
-        name_en: "Ancient Languages",
+        name: "Etymologie (alte Sprachen, Runen)",
+        name_en: "Etymology (Ancient Languages, Runes)",
         description:
-          "Beherrscht zahlreiche alte und tote Sprachen und kann vergessene Schriften entziffern.",
+          "Sprachen lesen 2× für alte Sprachen. Liest Runen, Glyphen, Piktogramme. Alte-Sprachen-Fertigkeit: rudimentäres Verständnis (1/10 Normalrate).",
         description_en:
-          "Fluent in numerous ancient and dead languages and can decipher forgotten scripts.",
+          "Read languages rolled twice for ancient languages. Reads runes, glyphs, pictograms. Ancient Languages proficiency: elementary understanding (1/10 normal rate).",
       },
       {
-        name: "Magische Analyse",
-        name_en: "Magical Analysis",
+        name: "Überzeugung (Reaktion ±1)",
+        name_en: "Persuasion (Reaction ±1)",
         description:
-          "Kann magische Gegenstände durch Untersuchung identifizieren, ohne Zauber dafür zu benötigen.",
-        description_en: "Can identify magical items through examination without needing spells.",
+          "1W10 Runden; Rettungswurf gegen Lähmung −1/3 Stufen; Versagen = Reaktion eine Stufe verschoben. Natürliche 20 = starke Ablehnung, Reaktion eine Stufe in Gegenrichtung.",
+        description_en:
+          "1d10 rounds; save vs. paralyzation −1/3 levels; failure = reaction shifted one level. Natural 20 = strong disagreement, reaction shifted one level opposite.",
       },
     ],
   },
@@ -1930,28 +1942,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Meistergesang",
-        name_en: "Master Song",
+        name: "Tierbegleiter-Lieder (Stufe 1/5/10)",
+        name_en: "Animal Companion Songs (Level 1/5/10)",
         description:
-          "Die Bardenlieder haben verstärkte Wirkung — Inspiration und Faszination dauern länger an.",
+          "Stufe 1: Kleines Tier (Sensorik-Übertragung). Stufe 5: Mittleres Tier (Gliedmaßen-Verwandlung für waffenlosen Kampf). Stufe 10: Großes Tier (Gestaltwandel 1×/Tag). Begleiter-Tod: Systemschock oder Tod. Elfen max Stufe 15.",
         description_en:
-          "Bardic songs have enhanced effects — inspiration and fascination last longer.",
+          "Level 1: Tiny/small animal (sensory transfer). Level 5: Small/medium (limb transformation for unarmed combat). Level 10: Medium/large (shapechange 1/day). Companion death: system shock or death. Elves max level 15.",
       },
       {
-        name: "Naturverbundenheit",
-        name_en: "Nature Affinity",
+        name: "Lied des Schutzes (Tiere meiden)",
+        name_en: "Song of Sanction (Animals Avoid)",
         description:
-          "Kann durch Gesang Tiere anlocken und beruhigen wie mit einem Tierempathie-Zauber.",
+          "Angreifende Tiere/Monster: Rettungswurf gegen Lähmung −1/3 Stufen oder ignorieren den Meistersänger und alle im Umkreis von 0,3 m/Stufe. Endet bei Bewegung oder Angriff.",
         description_en:
-          "Can attract and calm animals through song as if using an animal empathy spell.",
+          "Attacking animals/monsters: save vs. paralyzation −1/3 levels or ignore Meistersinger and those within 0.3 m/level. Ends on movement or attack.",
       },
       {
-        name: "Wandermusikant",
-        name_en: "Wandering Musician",
+        name: "Tierverzauberung",
+        name_en: "Animal Charm",
         description:
-          "Überall willkommen als Unterhalter; erhält kostenlose Unterkunft und Verpflegung in Gasthäusern.",
+          "1W10 Runden Gesang → Rettungswurf gegen Lähmung −1/3 Stufen; Versagen = Charm. Nur Tiere mit TW <= Stufe. Gesamt-TW Verzauberter max 2× Stufe. Keine Festung; keine Standard-Gefolgsleute.",
         description_en:
-          "Welcome everywhere as an entertainer; receives free room and board at inns.",
+          "1d10 rounds singing → save vs. paralyzation −1/3 levels; failure = charm. Only animals with HD <= level. Total charmed HD max 2× level. No stronghold; no standard followers.",
       },
     ],
   },
@@ -1965,26 +1977,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Rätselwettstreit",
-        name_en: "Riddle Contest",
+        name: "Gesunder Menschenverstand (+1 auf alles)",
+        name_en: "Common Sense (+1 to Everything)",
         description:
-          "Kann Gegner in einen Rätselwettstreit verwickeln und bei Sieg einen Bonus oder Zugeständnis erlangen.",
+          "+1 auf RK, Rettungswürfe, Initiative, Angriff, Schaden, Fertigkeiten, Diebesfähigkeiten, Attributswürfe. Gilt NICHT für Überraschung, Charaktererstellung, TW, Monsterchaden. Erfordert INT 15+.",
         description_en:
-          "Can engage opponents in a riddle contest and gain a bonus or concession upon winning.",
+          "+1 to AC, saves, initiative, attack, damage, proficiency checks, thief skills, ability checks. Does NOT apply to surprise, character generation, HD, monster damage. Requires INT 15+.",
       },
       {
-        name: "Logisches Denken",
-        name_en: "Logical Reasoning",
+        name: "Wahrscheinlicher Pfad (INT-Wurf)",
+        name_en: "Probable Path (INT Check)",
         description:
-          "Überlegenes logisches Denken hilft beim Lösen von Rätseln, Fallen und Puzzles.",
-        description_en: "Superior logical reasoning helps solve riddles, traps, and puzzles.",
+          "INT-Wurf (kumulativ −1 pro Nutzung/Tag); Erfolg = SL enthüllt alle relevanten Hinweise. Natürliche 20 = irreführende Information. Rätsel: doppelte Versuche, 1 freier Fehler.",
+        description_en:
+          "INT check (cumulative −1 per use/day); success = DM reveals all relevant clues. Natural 20 = misleading info. Puzzles: twice as many attempts, 1 free mistake.",
       },
       {
-        name: "Verwirrende Rede",
-        name_en: "Confounding Speech",
-        description: "Kann durch verwirrende Wortspiele und Rätsel Gegner ablenken und verwirren.",
+        name: "+10% Zauber lernen, Items ab Stufe 8",
+        name_en: "+10% Spell Learning, Items from Level 8",
+        description:
+          "+10% auf Zauber lernen (max 95%). Magische Schriftrollen nutzbar ab Stufe 8 (statt 10). Gnome max Stufe 8; Halblinge max Stufe 9.",
         description_en:
-          "Can distract and confuse opponents through bewildering wordplay and riddles.",
+          "+10% to learn spells (max 95%). Written magic items usable at level 8 (instead of 10). Gnomes max level 8; halflings max level 9.",
       },
     ],
   },
@@ -1994,31 +2008,32 @@ export const KITS: Record<string, KitDefinition> = {
     name_en: "Skald",
     classId: "bard",
     hitDieOverride: null,
-    maxArmorAC: null,
+    maxArmorAC: 4, // up to bronze plate + shields
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Kriegslied",
-        name_en: "War Chant",
+        name: "Kriegsgesang (6 Effekte, 3 m/Stufe)",
+        name_en: "War Chant (6 Effects, 3 m/Level)",
         description:
-          "Kann ein nordisches Kriegslied anstimmen, das Verbündeten +1 auf Angriff und Moral verleiht.",
-        description_en: "Can intone a Norse war chant that grants allies +1 to attack and morale.",
+          "3 Runden vor Kampf beginnen; Reichweite 3 m/Stufe; endet bei erster Verwundung. Stufe 1: 1 Effekt, Stufe 3: 2, Stufe 6: 3 etc. 6 Optionen: +Bonus-TP = TW des Skalden; Moral +1/6 Stufen; +1 Angriff; +1 Schaden; +1 Rettungswürfe; −1 RK aller.",
+        description_en:
+          "Begin 3 rounds before combat; range 3 m/level; ends on first wound. Level 1: 1 effect, level 3: 2, level 6: 3 etc. 6 options: +bonus HP = Skald's HD; morale +1/6 levels; +1 attack; +1 damage; +1 saves; −1 everyone's AC.",
       },
       {
-        name: "Runenmagie",
-        name_en: "Rune Magic",
+        name: "Kampfgesang (+1 Angriff/+1 Schaden)",
+        name_en: "Battle Chant (+1 Attack/+1 Damage)",
         description:
-          "Kennt die Geheimnisse der alten Runen und kann magische Runen in Gegenstände ritzen.",
+          "+1 Angriff beim Singen/Chanten im Kampf. +1 Schaden mit Breitschwert, Axt oder Speer (wenn geübt). Bis Bronzeplatte + Schild erlaubt. Zwerge max Stufe 12.",
         description_en:
-          "Knows the secrets of ancient runes and can inscribe magical runes into objects.",
+          "+1 attack when singing/chanting in combat. +1 damage with broadsword, axe, or spear (if proficient). Up to bronze plate + shield allowed. Dwarves max level 12.",
       },
       {
-        name: "Sagenwächter",
-        name_en: "Saga Keeper",
+        name: "Eingeschränkte Magie & Schriftlichkeit",
+        name_en: "Limited Magic & Literacy",
         description:
-          "Bewahrt die mündliche Geschichte seines Volkes und kann Heldentaten in epische Erzählungen fassen.",
+          "Keine Schriftsprache zu Beginn; kein Sprachen lesen auf Stufe 3; keine magischen Schriftgegenstände auf Stufe 10. Keine Zauber bis Kontakt mit Magiekultur (dann ab nächster Stufe als Stufe-2-Zauberer).",
         description_en:
-          "Preserves the oral history of his people and can weave heroic deeds into epic tales.",
+          "No written language initially; no read languages at level 3; no written magic items at level 10. No spells until contact with spellcasting culture (then begins as level 2 caster at next level gained).",
       },
     ],
   },
@@ -2028,27 +2043,32 @@ export const KITS: Record<string, KitDefinition> = {
     name_en: "Thespian",
     classId: "bard",
     hitDieOverride: null,
-    maxArmorAC: null,
+    maxArmorAC: null, // any armor, but +1 AC penalty for non-standard
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Meisterhafte Verkleidung",
-        name_en: "Master of Disguise",
-        description: "Kann jede Rolle perfekt spielen und erhält +30% auf Verkleidungswürfe.",
-        description_en: "Can play any role perfectly and gains +30% to disguise checks.",
-      },
-      {
-        name: "Emotionale Manipulation",
-        name_en: "Emotional Manipulation",
-        description: "Kann durch Schauspielkunst die Emotionen des Publikums gezielt steuern.",
-        description_en: "Can deliberately control audience emotions through acting skill.",
-      },
-      {
-        name: "Dramatische Inspiration",
-        name_en: "Dramatic Inspiration",
+        name: "Schauspielerei & Zauber-Schauspiel",
+        name_en: "Acting & Spell Acting",
         description:
-          "Inspirierende Aufführungen verleihen Verbündeten Boni auf Moral und Rettungswürfe.",
-        description_en: "Inspiring performances grant allies bonuses to morale and saving throws.",
+          "Publikum glaubt Darstellung sofern nicht skeptisch (Rettungswurf gegen Zauber −1/3 Stufen). Zauber-Schauspiel (mit Zauberkunst-Fertigkeit): 1 Runde Gesten → Moralwurf oder Flucht; gleichzeitiger Blitzzauber: Malus = Zauberstufe.",
+        description_en:
+          "Audience believes performance unless skeptical (save vs. spell −1/3 levels). Spell Acting (requires Spellcraft): 1 round gestures → morale check or flee; simultaneous flashy spell: penalty = spell level.",
+      },
+      {
+        name: "Bewegungen beobachten (+2 RK/Rettung)",
+        name_en: "Observe Motions (+2 AC/Save)",
+        description:
+          "In Runden mit gewonnener Initiative: +2 auf RK und Rettungswürfe, +1 auf Angriff (nur diese Runde). Waffen: Dolch (Stufe 1), Messer (Stufe 2), Kurzschwert (Stufe 5); alle anderen nur −2 statt normal.",
+        description_en:
+          "In rounds with won initiative: +2 to AC and saves, +1 to attack (that round only). Weapons: dagger (level 1), knife (level 2), short sword (level 5); all others at only −2 instead of standard.",
+      },
+      {
+        name: "Alle Rüstungen (mit +1 RK-Malus)",
+        name_en: "All Armor (with +1 AC Penalty)",
+        description:
+          "Jede Rüstung und Schild erlaubt, aber +1 RK-Malus für nicht-standard Barden-Rüstung. Schilde gewähren keinen RK-Bonus.",
+        description_en:
+          "Any armor and shield allowed, but +1 AC penalty for non-standard bard armor. Shields grant no AC bonus.",
       },
     ],
   },
