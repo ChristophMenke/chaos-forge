@@ -2073,7 +2073,7 @@ export const KITS: Record<string, KitDefinition> = {
     ],
   },
 
-  // ── Paladin Kits ─────────────────────────────────────────────────────
+  // ── Paladin Kits (PHBR12) ──────────────────────────────────────────────
   chevalier: {
     id: "chevalier",
     name: "Chevalier",
@@ -2084,24 +2084,26 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Ritterlicher Kampf",
-        name_en: "Chivalric Combat",
-        description: "Erhält +1 auf Angriff und Schaden bei berittenen Lanzenstößen und Turnieren.",
-        description_en: "Gains +1 to hit and damage on mounted lance charges and in tournaments.",
-      },
-      {
-        name: "Edler Ruf",
-        name_en: "Noble Reputation",
+        name: "Befehlskette",
+        name_en: "Chain of Command",
         description:
-          "Sein Ruf als ehrenhafter Ritter eilt ihm voraus und verbessert Reaktionswürfe bei Verbündeten.",
+          "Gehorcht/kommandiert andere Chevaliere nach Stufe im selben Königreich. Unterkunft in verbündeten Festungen für bis zu 3 Tage, für sich + Begleiter = Stufe.",
         description_en:
-          "His reputation as an honorable knight precedes him, improving reaction rolls with allies.",
+          "Obeys/commands other Chevaliers by level in same kingdom. Sanctuary in allied strongholds for up to 3 days, for self + companions = level.",
       },
       {
-        name: "Turnier-Erfahrung",
-        name_en: "Tournament Experience",
-        description: "Meisterhaft im ritterlichen Turnierkampf mit Boni auf Jousting-Würfe.",
-        description_en: "Masterful in chivalric tournament combat with bonuses to jousting rolls.",
+        name: "Ritterlicher Kampfbonus",
+        name_en: "Chivalric Combat Bonus",
+        description:
+          "Boni auf berittene Lanzenstöße und Turnierkampf. Bürokratische Pflichten gegenüber dem Lehnsherrn.",
+        description_en:
+          "Bonuses to mounted lance charges and tournament combat. Bureaucratic duties toward the liege.",
+      },
+      {
+        name: "Feinde des Lehnsherrn",
+        name_en: "Enemies of the Liege",
+        description: "Muss höherstufigen Chevalieren gehorchen. Ziel für Feinde des Lehnsherrn.",
+        description_en: "Must obey higher-level Chevaliers. Target for enemies of the liege.",
       },
     ],
   },
@@ -2115,19 +2117,20 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Göttliche Einsicht",
-        name_en: "Divine Insight",
+        name: "Extra Sphäre (Charme/Wächter/Sonne)",
+        name_en: "Extra Sphere (Charm/Guardian/Sun)",
         description:
-          "Erhält regelmäßig göttliche Eingebungen, die auf verborgene Gefahren oder Böses hinweisen.",
+          "Ab Stufe 1: Zugang zu einer zusätzlichen Zaubersphäre (Charme, Wächter oder Sonne) über Standard-Paladin-Sphären hinaus. Kirchenbau zum halben Preis (ca. Stufe 12).",
         description_en:
-          "Regularly receives divine inspirations that point to hidden dangers or evil.",
+          "From level 1: access to one additional spell sphere (Charm, Guardian, or Sun) beyond standard paladin spheres. Church construction at half price (~level 12).",
       },
       {
-        name: "Verstärkte Bösesdetektion",
-        name_en: "Enhanced Detect Evil",
+        name: "20% Einkommen spenden + 1 Std. Meditation/Tag",
+        name_en: "Donate 20% Income + 1 Hr Meditation/Day",
         description:
-          "Die Fähigkeit, Böses zu erkennen, hat eine erhöhte Reichweite und liefert mehr Details.",
-        description_en: "The ability to detect evil has increased range and provides more detail.",
+          "Muss 20% aller Einnahmen (min. 1–10 GM/Monat) an die Kirche spenden. 1 Std. Meditation täglich (bei Unterbrechung von 2+ Runden: Neustart). Ohne Meditation: keine Zauber am nächsten Tag.",
+        description_en:
+          "Must donate 20% of all income (min. 1–10 gp/month) to the church. 1 hr meditation daily (interrupted by 2+ rounds: restart). No meditation = no spells next day.",
       },
       {
         name: "Prophetische Träume",
@@ -2147,25 +2150,26 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Diplomatisches Geschick",
-        name_en: "Diplomatic Skill",
+        name: "+2 Reaktion + diplomatische Privilegien",
+        name_en: "+2 Reaction + Diplomatic Privileges",
         description:
-          "Meister der Verhandlung — kann selbst verfeindete Parteien an einen Tisch bringen.",
-        description_en: "Master negotiator — can bring even hostile parties to the table.",
-      },
-      {
-        name: "Sichere Passage",
-        name_en: "Safe Passage",
-        description:
-          "Als göttlicher Gesandter genießt er Schutz und freies Geleit, selbst in feindlichem Gebiet.",
+          "+2 Reaktion von allen NSCs. Volle diplomatische Privilegien (Unterkunft, Sicherheit, Verhaftungsimmunität, Religionsfreiheit, geschützte Korrespondenz). Erfordert INT 12+.",
         description_en:
-          "As a divine envoy, enjoys protection and safe conduct, even in hostile territory.",
+          "+2 reaction from all NPCs. Full diplomatic privileges (shelter, safety, arrest immunity, religious freedom, protected correspondence). Requires INT 12+.",
       },
       {
-        name: "Sprachbegabung",
-        name_en: "Language Gift",
-        description: "Beherrscht viele Sprachen und kann sich mit fast jedem verständigen.",
-        description_en: "Fluent in many languages and can communicate with almost anyone.",
+        name: "Nur 2 Waffenfertigkeiten (Karriere)",
+        name_en: "Only 2 Weapon Proficiencies (Career)",
+        description:
+          "Nur 2 Waffenfertigkeiten für die gesamte Karriere. Muss feindliches Gebiet unbewaffnet betreten als Geste des guten Willens. Muss böse NSCs verhaften statt töten.",
+        description_en:
+          "Only 2 weapon proficiencies for entire career. Must enter hostile areas unarmed as gesture of good faith. Must arrest evil NPCs rather than kill.",
+      },
+      {
+        name: "Ziel für Attentäter & Entführer",
+        name_en: "Target for Assassins & Kidnappers",
+        description: "Als Diplomat ein bevorzugtes Ziel für Attentäter und Entführer.",
+        description_en: "As a diplomat, a preferred target for assassins and kidnappers.",
       },
     ],
   },
@@ -2179,25 +2183,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Untote spüren",
-        name_en: "Sense Undead",
+        name: "Böses bannen & Lähmung aufheben",
+        name_en: "Dispel Evil & Remove Paralysis",
         description:
-          "Kann Untote in einem Radius von 60 Fuß spüren, selbst wenn sie unsichtbar oder versteckt sind.",
-        description_en: "Can sense undead within a 60-foot radius, even when invisible or hidden.",
-      },
-      {
-        name: "Verstärktes Vertreiben",
-        name_en: "Enhanced Turning",
-        description: "Erhält +2 auf Würfe zum Vertreiben von Untoten.",
-        description_en: "Gains +2 to turning undead rolls.",
-      },
-      {
-        name: "Geisterklinge",
-        name_en: "Ghost Blade",
-        description:
-          "Die Waffe des Geisterjägers kann ätherische und körperlose Untote wie normale Feinde treffen.",
+          "Böses bannen (angeboren, ohne Komponenten): Stufe 5–9=1×/Tag, 10–14=2×, 15–19=3×, 20+=4×. Lähmung aufheben: Stufe 1–4=3×/Tag, 5–9=4×, 10–14=5×. 95% Immunität gegen Untoten-Lähmung.",
         description_en:
-          "The ghosthunter's weapon can strike ethereal and incorporeal undead as if they were corporeal.",
+          "Dispel Evil (innate, no components): levels 5–9=1/day, 10–14=2, 15–19=3, 20+=4. Remove Paralysis: levels 1–4=3/day, 5–9=4, 10–14=5. 95% immunity to undead paralysis.",
+      },
+      {
+        name: "Volle Kleriker-Vertreibung",
+        name_en: "Full Cleric Turning",
+        description:
+          "Vertreibt Untote als Kleriker gleicher Stufe (nicht 2 Stufen niedriger wie normal). Gottheit kann Zugang zu Schwert +3 Reiniger vor Stufe 6 arrangieren.",
+        description_en:
+          "Turns undead as cleric of same level (not 2 levels lower as normal). Deity may arrange access to Sword +3 Purifier before level 6.",
+      },
+      {
+        name: "Kein Handauflegen, keine Zauber",
+        name_en: "No Lay on Hands, No Spells",
+        description:
+          "Kann nicht Handauflegen, keine Priesterzauber, keine Krankheitsimmunität, keine Krankheitsheilung.",
+        description_en:
+          "Cannot lay on hands, no priest spells, no disease immunity, cannot cure diseases.",
       },
     ],
   },
@@ -2211,28 +2218,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Verstärktes Handauflegen",
-        name_en: "Enhanced Lay on Hands",
+        name: "Verbesserte Heilkunst",
+        name_en: "Enhanced Healing",
         description:
-          "Kann doppelt so viele Trefferpunkte durch Handauflegen heilen wie ein normaler Paladin.",
+          "+1 auf Diagnostik (+4 mit Kräuterkunde). +1 auf Heilkunde; erfolgreicher Wurf heilt 1W4 TP innerhalb 3 Runden (statt 1–3 in 1 Runde). Patient erholt +1 TP/Tag extra. Erfordert INT 10+.",
         description_en:
-          "Can heal twice as many hit points through laying on hands as a standard paladin.",
+          "+1 to Diagnostics (+4 with Herbalism). +1 to Healing; successful check restores 1d4 HP within 3 rounds (instead of 1–3 in 1 round). Patient recovers +1 HP/day extra. Requires INT 10+.",
       },
       {
-        name: "Krankenheilung",
-        name_en: "Cure Disease",
+        name: "Gegengift (+4 Rettungswurf)",
+        name_en: "Antidote (+4 Poison Save)",
         description:
-          "Kann Krankheiten häufiger heilen als andere Paladine — einmal pro Stufe pro Woche.",
+          "5 aufeinanderfolgende Runden Behandlung eines Vergifteten: +4 Bonus auf Giftrettungswurf des Patienten (Wurf am Ende der 5 Runden).",
         description_en:
-          "Can cure diseases more often than other paladins — once per level per week.",
+          "5 consecutive rounds treating a poisoned patient: +4 bonus to patient's poison save (rolled at end of 5 rounds).",
       },
       {
-        name: "Chirurgisches Geschick",
-        name_en: "Surgical Skill",
+        name: "Jährliche Fortbildung (1W4+1 Wochen)",
+        name_en: "Annual Training (1d4+1 Weeks)",
         description:
-          "Beherrscht mundane Heilkunst und kann Wunden versorgen, auch ohne göttliche Magie.",
+          "1× pro Jahr 1W4+1 Wochen in einer rechtschaffen guten Institution für religiöse/medizinische Fortbildung. Ohne: Verlust aller Fertigkeitsboni, Krankheitsimmunität, Handauflegen.",
         description_en:
-          "Masters mundane healing arts and can treat wounds even without divine magic.",
+          "Once/year 1d4+1 weeks at a lawful good institution for training. Without: loss of all proficiency bonuses, disease immunity, laying on hands.",
       },
     ],
   },
@@ -2246,25 +2253,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Taktische Führung",
-        name_en: "Tactical Command",
+        name: "Berittener Kampfbonus (+1/+2 Stufe)",
+        name_en: "Mounted Combat Bonus (+1/+2 Level)",
         description:
-          "Meisterhafte Kriegstaktik — kann Truppen und Verbündete effektiv im Großkampf koordinieren.",
+          "Beritten: Angriff als 1 Stufe höher; auf gebundenem Reittier als 2 Stufen höher. Ab Stufe 19: +1 unabhängig vom Reittier. +1 Schaden mit Lieblingswaffe. Erfordert DEX 12+, KON 12+.",
         description_en:
-          "Masterful war tactics — can effectively coordinate troops and allies in large-scale combat.",
+          "Mounted: attack as 1 level higher; on bonded mount as 2 levels higher. At level 19: +1 regardless of mount. +1 damage with preferred weapon. Requires DEX 12+, CON 12+.",
       },
       {
-        name: "Festungsbaumeister",
-        name_en: "Fortification Expert",
+        name: "+2 Reaktion + Stufenbasierte Ehren",
+        name_en: "+2 Reaction + Level-Based Honors",
         description:
-          "Versteht Befestigungsanlagen und kann Verteidigungsstellungen errichten und angreifen.",
-        description_en: "Understands fortifications and can build and assault defensive positions.",
+          "+2 Reaktion von guten/neutralen NSCs der eigenen Kultur. Stufe 2: Bankett, Stufe 3: Helmzier, Stufe 5: Halskette, Stufe 7: zinslose Darlehen bis 500 GM, Stufe 9: Landzuweisung, Stufe 10: geprüfte Söldner.",
+        description_en:
+          "+2 reaction from good/neutral own-culture NPCs. Level 2: banquet, level 3: helmet crest, level 5: coif, level 7: interest-free loans up to 500 gp, level 9: land grant, level 10: pre-screened hirelings.",
       },
       {
-        name: "Truppengeist",
-        name_en: "Troop Morale",
-        description: "Truppen unter seinem Befehl erhalten einen Moralbonus und fliehen seltener.",
-        description_en: "Troops under his command gain a morale bonus and are less likely to flee.",
+        name: "1 Std. Training/Tag Pflicht",
+        name_en: "1 Hr Training/Day Required",
+        description:
+          "Muss täglich 1 Std. Kampf- und Reittraining absolvieren (Ausfall: Verlust der berittenen Boni am nächsten Tag). Muss alle 6 Monate zum Heimatstützpunkt zurückkehren.",
+        description_en:
+          "Must practice combat and riding 1 hr/day (miss: lose mounted bonuses next day). Must report to home base at least once every 6 months.",
       },
     ],
   },
@@ -2278,23 +2288,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Fliegendes Reittier",
-        name_en: "Flying Mount",
+        name: "Luftkampf (+1 Nahkampf fliegend)",
+        name_en: "Aerial Combat (+1 Melee Flying)",
         description:
-          "Erhält ein fliegendes Reittier wie einen Pegasus oder Hippogryph als göttliches Geschenk.",
-        description_en: "Receives a flying mount such as a pegasus or hippogriff as a divine gift.",
+          "+1 Treffer für alle Nahkampfangriffe von Reiter und Reittier. +2 auf Flugreiten-Fertigkeitswürfe mit gebundenem Reittier. Bindung hält 15 Jahre (statt 10). Trick-Training in 1W4+1 Tagen.",
+        description_en:
+          "+1 to hit for all melee attacks by rider and mount. +2 to airborne riding checks with bonded mount. Bond lasts 15 years (vs. 10). Trick training in 1d4+1 days.",
       },
       {
-        name: "Luftkampf",
-        name_en: "Aerial Combat",
-        description: "Erhält Kampfboni im Luftkampf und kann Sturzflug-Angriffe durchführen.",
-        description_en: "Gains combat bonuses in aerial combat and can perform diving attacks.",
+        name: "Telepathie mit Reittier (ab Stufe 12)",
+        name_en: "Mount Telepathy (from Level 12)",
+        description:
+          "Ab Stufe 12: telepathische Kommunikation mit gebundenem Reittier; Reichweite = 3 m × Stufe.",
+        description_en:
+          "From level 12: telepathic communication with bonded mount; range = 3 m × level.",
       },
       {
-        name: "Himmelsblick",
-        name_en: "Sky Sense",
-        description: "Kann Wetter vorhersagen und Luftgefahren frühzeitig erkennen.",
-        description_en: "Can predict weather and detect aerial dangers ahead of time.",
+        name: "Trauer bei Reittierverlust",
+        name_en: "Mourning on Mount Loss",
+        description:
+          "Bei Verlust durch eigenes Verschulden: 1W4+1 Monate Trauer mit −2 auf alle Würfe. Bei natürlichem Abschied: 2W4 Wochen Trauer.",
+        description_en:
+          "If mount lost through own actions: 1d4+1 months mourning with −2 to all rolls. On natural departure: 2d4 weeks mourning.",
       },
     ],
   },
@@ -2308,26 +2323,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Erweiterte Priestermagie",
-        name_en: "Enhanced Priest Magic",
+        name: "Frühere Zauber (ab Stufe 6 statt 9)",
+        name_en: "Earlier Spells (from Level 6 vs. 9)",
         description:
-          "Erhält Zugang zu Priesterzaubern früher als andere Paladine und mehr Zauberplätze.",
+          "Beginnt ab Stufe 6 mit Priesterzaubern (2 Stufen früher als normal). Progressiv mehr Zauberplätze als Standard-Paladin durch alle Stufen.",
         description_en:
-          "Gains access to priest spells earlier than other paladins and more spell slots.",
+          "Starts casting priest spells at level 6 (2 levels earlier than standard). Progressively more spell slots than standard paladin through all levels.",
       },
       {
-        name: "Heiliges Symbol",
-        name_en: "Holy Symbol",
-        description: "Sein heiliges Symbol verstärkt die Wirkung seiner göttlichen Zauber.",
-        description_en: "His holy symbol amplifies the effect of his divine spells.",
+        name: "Verhasster Glaube (+4 Angriff)",
+        name_en: "Hated Faith (+4 Attack)",
+        description:
+          "+4 auf Angriffswürfe gegen Priester und Anhänger eines gewählten bösen Glaubens (bei Erstellung festgelegt, nie änderbar).",
+        description_en:
+          "+4 to attack rolls when fighting priests or followers of one designated evil faith (chosen at level 1, never changes).",
       },
       {
-        name: "Gottesdienst",
-        name_en: "Divine Service",
+        name: "50% Einkommen spenden, Zölibat",
+        name_en: "50% Income Donation, Celibacy",
         description:
-          "Muss regelmäßig Gottesdienste abhalten und kann durch Gebet besondere Segen empfangen.",
+          "−2 Reaktion von RG-Priestern anderer Glaubensrichtungen; −4 von neutralen Priestern. Muss 50% aller Einnahmen spenden. Zölibat. Keine Festung, keine Söldner.",
         description_en:
-          "Must regularly conduct worship services and can receive special blessings through prayer.",
+          "−2 reaction from LG priests of other faiths; −4 from neutral priests. Must donate 50% of all income. Vow of celibacy. No stronghold, no hirelings.",
       },
     ],
   },
@@ -2341,31 +2358,33 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Drachenjäger",
-        name_en: "Dragon Hunter",
-        description: "Erhält +2 auf Angriff und Schaden gegen alle Drachenarten.",
-        description_en: "Gains +2 to hit and damage against all types of dragons.",
+        name: "Schadensbonus = Stufe vs. Hauptfeind",
+        name_en: "Damage Bonus = Level vs. Principal Foe",
+        description:
+          "Schadensbonus gegen Hauptfeind-Drachenart = eigene Stufe (Stufe 6 = +6 Schaden). +1 Schaden gegen andere böse Drachen. Gebundenes Reittier: doppelter Schaden vs. Hauptfeind. Min. Plattenrüstung + mittlerer Schild (Schild: bei Rettungswurf Erfolg = 0 Schaden von Odemwaffe).",
+        description_en:
+          "Damage bonus vs. principal dragon foe = own level (level 6 = +6 damage). +1 damage vs. other evil dragons. Bonded mount: double damage vs. principal foe. Min. plate mail + medium shield (shield: successful breath save = 0 damage).",
       },
       {
-        name: "Drachenwissen",
-        name_en: "Dragon Lore",
+        name: "Drachensprache + Furchtimmunität",
+        name_en: "Dragon Language + Fear Immunity",
         description:
-          "Umfassendes Wissen über Drachenarten, ihre Schwächen, Schätze und Verhaltensweisen.",
+          "Spricht alle bösen Drachensprachen. Immun gegen Furchtaura des Hauptfeindes; +4 Rettungswurf gegen Furcht aller anderen bösen Drachen. Gebundenes Reittier teilt Immunität.",
         description_en:
-          "Comprehensive knowledge of dragon types, weaknesses, treasures, and behaviors.",
+          "Speaks all evil dragon languages. Immune to fear aura of principal foe; +4 save vs. fear from all other evil dragons. Bonded mount shares immunity.",
       },
       {
-        name: "Furchtresistenz",
-        name_en: "Fear Resistance",
+        name: "−4 Reaktion vom Hauptfeind",
+        name_en: "−4 Reaction from Principal Foe",
         description:
-          "Immun gegen den übernatürlichen Schrecken von Drachen und gewährt Verbündeten in der Nähe +2 auf Rettungswürfe.",
+          "−4 Reaktion vom Hauptfeind; muss diesen im Kampf über alle anderen Ziele bevorzugen. Kann keine Untoten vertreiben.",
         description_en:
-          "Immune to the supernatural dread of dragons and grants nearby allies +2 to saving throws.",
+          "−4 reaction from principal foe; must target it above all others in combat. Cannot turn undead.",
       },
     ],
   },
 
-  // ── Druid Kits ───────────────────────────────────────────────────────
+  // ── Druid Kits (PHBR13) ────────────────────────────────────────────────
   avenger_druid: {
     id: "avenger_druid",
     name: "Rächer-Druide",
@@ -2376,24 +2395,26 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Racheschwur",
-        name_en: "Vow of Vengeance",
+        name: "1 freier Waffen-Slot",
+        name_en: "1 Free Weapon Slot",
         description:
-          "Schwört Rache gegen Zerstörer der Natur und erhält Kampfboni gegen solche Feinde.",
+          "1 zusätzlicher freier Waffenfertigkeitsslot (jede erlaubte Druiden-Waffe des Zweigs).",
         description_en:
-          "Swears vengeance against destroyers of nature and gains combat bonuses against such foes.",
+          "1 additional free weapon proficiency slot (any allowed druid weapon of the branch).",
       },
       {
-        name: "Erweiterte Kampffähigkeit",
-        name_en: "Enhanced Combat",
-        description: "Kann Schwerter und andere normalerweise für Druiden verbotene Waffen führen.",
-        description_en: "Can wield swords and other weapons normally forbidden to druids.",
+        name: "−1 Reaktion, keine Gefolgsleute bis 13",
+        name_en: "−1 Reaction, No Followers Until 13",
+        description:
+          "−1 Reaktion in allen Begegnungen (grimmiges Auftreten). Keine Gefolgsleute, Söldner oder Diener bis Stufe 13. Überschüssiger Besitz muss gespendet werden.",
+        description_en:
+          "−1 reaction in all encounters (grim demeanor). No henchmen, hirelings, or servants until level 13. Excess possessions must go to a worthy cause.",
       },
       {
-        name: "Einzelgänger",
-        name_en: "Loner",
-        description: "Handelt allein und wird von druidischen Zirkeln als Außenseiter betrachtet.",
-        description_en: "Operates alone and is considered an outsider by druidic circles.",
+        name: "Einzelgänger-Rächer",
+        name_en: "Lone Avenger",
+        description: "Handelt allein als Beschützer der Natur gegen deren Zerstörer.",
+        description_en: "Operates alone as protector of nature against its destroyers.",
       },
     ],
   },
@@ -2407,26 +2428,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Heiliges Hainland",
-        name_en: "Sacred Grove",
+        name: "+1 Rettungswürfe/Angriff im Schutzgebiet",
+        name_en: "+1 Saves/Attack in Guardianship",
         description:
-          "Beschützt einen heiligen Hain und erhält dort Boni auf alle Zauber und Fähigkeiten.",
+          "+1 auf Rettungswürfe und Angriffswürfe beim Kampf zum Schutz des Gebiets. Feinde −2 auf Rettungswürfe im Protektorat. +1 Reaktion von Druiden im eigenen Zirkel.",
         description_en:
-          "Protects a sacred grove and gains bonuses to all spells and abilities within it.",
+          "+1 to saves and attack rolls when fighting to protect guardianship. Enemies −2 to saves in protectorate. +1 reaction from druids in own circle.",
       },
       {
-        name: "Natürliche Warnung",
-        name_en: "Nature's Warning",
-        description: "Pflanzen und Tiere im Hain warnen den Druiden vor Eindringlingen.",
-        description_en: "Plants and animals in the grove warn the druid of intruders.",
+        name: "Versagen = −1 auf alles bis Sühne",
+        name_en: "Failure = −1 to Everything Until Atonement",
+        description:
+          "Bei Versagen das Gebiet zu schützen: −1 auf Angriff, Rettungswürfe, Fertigkeiten bis Sühne. −2 Reaktion von anderen Druiden. Depression 1W4+1 Jahre.",
+        description_en:
+          "Failing to protect guardianship: −1 to attack, saves, proficiency checks until atonement. −2 reaction from other druids. Depression 1d4+1 years.",
       },
       {
-        name: "Haingebunden",
-        name_en: "Grove Bound",
+        name: "Gebietspflicht",
+        name_en: "Area Duty",
         description:
-          "Verlässt nur ungern seinen Hain und erleidet Abzüge auf Zauber, je weiter er sich entfernt.",
+          "Muss ein Schutzgebiet verteidigen. Pflanzen und Tiere im Gebiet warnen vor Eindringlingen.",
         description_en:
-          "Reluctant to leave the grove and suffers spell penalties the farther away he travels.",
+          "Must defend a guardianship area. Plants and animals in the area warn of intruders.",
       },
     ],
   },
@@ -2440,23 +2463,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Insektenherrschaft",
-        name_en: "Insect Mastery",
-        description: "Kann Insektenschwärme herbeirufen und kontrollieren, um Feinde zu plagen.",
-        description_en: "Can summon and control insect swarms to plague enemies.",
-      },
-      {
-        name: "Giftimmunität",
-        name_en: "Poison Immunity",
-        description: "Immun gegen natürliche Insekten- und Spinnentiergifte.",
-        description_en: "Immune to natural insect and arachnid poisons.",
-      },
-      {
-        name: "Schwarmgestalt",
-        name_en: "Swarm Shape",
+        name: "+4 Rettungswurf vs. Gift & Insektenzauber +3",
+        name_en: "+4 Save vs. Poison & Insect Spells +3",
         description:
-          "Kann sich in einen Schwarm von Insekten verwandeln statt in größere Tierformen.",
-        description_en: "Can transform into a swarm of insects instead of larger animal forms.",
+          "+4 auf Rettungswürfe gegen Insekten-/Spinnentiergift (inkl. Riesenversionen). Effektive Zauberstufe +3 bei Insekten rufen, Rieseninsekt, Krabbelndes Unheil, Insektenplage. Passiert alle Spinnweben frei (inkl. Netzzauber).",
+        description_en:
+          "+4 to saves vs. insect/arachnid poison (including giant versions). Effective caster level +3 for summon insects, giant insect, creeping doom, insect plague. Passes through all spider webs freely (including web spell).",
+      },
+      {
+        name: "Rieseninsekt-Gestaltwandel (ab Stufe 7)",
+        name_en: "Giant Insect Shapechange (from Level 7)",
+        description:
+          "Ab Stufe 7: 1×/Tag Gestaltwandel in Rieseninsekt/-spinnentier (Ameise, Tausendfüßler, Spinne, Wespe). Ersetzt eine der 3 normalen täglichen Verwandlungen.",
+        description_en:
+          "From level 7: 1/day shapechange into giant insect/arachnid (ant, centipede, spider, wasp). Replaces one of the 3 normal daily transformations.",
+      },
+      {
+        name: "−3 auf Tier-Fertigkeiten (Nicht-Insekten)",
+        name_en: "−3 to Animal Skills (Non-Insects)",
+        description:
+          "+4 auf Tierfertigkeiten für Insekten/Spinnentiere; −3 für alle anderen Tiere. Tierfreundschaft, Mit Tieren sprechen, Tiere rufen nur auf Insekten/Spinnentiere beschränkt.",
+        description_en:
+          "+4 to animal skills for insects/arachnids; −3 for all other creatures. Animal friendship, speak with animals, summon animals limited to insects/arachnids only.",
       },
     ],
   },
@@ -2470,26 +2498,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Verlorenes Land",
-        name_en: "Lost Land",
+        name: "Neben-Zugang Nekromantie-Sphäre",
+        name_en: "Minor Necromancy Sphere Access",
         description:
-          "Stammt aus einem zerstörten Ökosystem und sucht nach einem Weg, es wiederherzustellen.",
-        description_en: "Comes from a destroyed ecosystem and seeks a way to restore it.",
-      },
-      {
-        name: "Ödlandmagie",
-        name_en: "Wasteland Magic",
-        description:
-          "Kann druidische Zauber in verwüsteten Gebieten wirken, wo andere Druiden versagen würden.",
+          "Neben-Zugang zur Nekromantie-Sphäre. Ab Stufe 6: Tote Tiere beleben 1×/Tag (1 TW normale Tiere pro Druidenstufe).",
         description_en:
-          "Can cast druidic spells in devastated areas where other druids would fail.",
+          "Minor access to Necromancy sphere. From level 6: animate dead animals 1/day (1 HD of normal animals per druid level).",
       },
       {
-        name: "Heimatlose Wanderung",
-        name_en: "Homeless Wandering",
+        name: "Nur umgekehrte Heil-/Heilungszauber",
+        name_en: "Only Reversed Heal/Cure Spells",
         description:
-          "Wandert ruhelos auf der Suche nach einem neuen Hain und hat kein festes Territorium.",
-        description_en: "Wanders restlessly in search of a new grove with no fixed territory.",
+          "Kann nur umgekehrte Versionen von Heil-/Heilungszaubern wirken. Kann nie Großdruide werden oder zum Hierophanten aufsteigen.",
+        description_en:
+          "Can only cast reversed versions of heal/cure spells. Can never attain Grand Druid status or advance to hierophant.",
+      },
+      {
+        name: "−4 Reaktion von Waldläufern & Druiden",
+        name_en: "−4 Reaction from Rangers & Druids",
+        description:
+          "−4 Reaktion von Waldläufern und anderen Druiden-Kits (−2 von anderen Verlorenen Druiden). Die meisten Druiden betrachten sie als Feinde.",
+        description_en:
+          "−4 reaction from rangers and other druid kits (−2 from other Lost Druids). Most druids consider them enemies.",
       },
     ],
   },
@@ -2503,27 +2533,26 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Naturwissenschaft",
-        name_en: "Natural Science",
+        name: "Waffen → Fertigkeitsslots",
+        name_en: "Weapons → Proficiency Slots",
         description:
-          "Studiert die Natur systematisch und kann Pflanzen, Tiere und Mineralien präzise bestimmen.",
+          "Kann Waffenfertigkeitsslots nutzen, um allgemeine Fertigkeiten zu kaufen (erlaubt Mehrfach-Slots in einer Fertigkeit für Spezialisierung). Erfordert INT 15+.",
         description_en:
-          "Studies nature systematically and can precisely identify plants, animals, and minerals.",
+          "Can use weapon proficiency slots to purchase nonweapon proficiencies (allows multiple slots in a single proficiency for specialization). Requires INT 15+.",
       },
       {
-        name: "Alchemie",
-        name_en: "Alchemy",
+        name: "Neugier-Zwang",
+        name_en: "Curiosity Compulsion",
         description:
-          "Beherrscht grundlegende Alchemie und kann Heiltränke und Naturgifte herstellen.",
-        description_en: "Masters basic alchemy and can brew healing potions and natural poisons.",
+          "Muss neue Kreaturen studieren statt zu fliehen oder zu kämpfen. Rätsel sind unwiderstehlich und können zu Risiken führen (Rollenspiel-Pflicht).",
+        description_en:
+          "Must study new creatures rather than flee or fight. Puzzles are irresistible and may lead to risks (roleplay requirement).",
       },
       {
-        name: "Gelehrter Rat",
-        name_en: "Scholarly Counsel",
-        description:
-          "Kann als Berater fungieren und erhält Boni auf Wissenswürfe zu natürlichen Phänomenen.",
-        description_en:
-          "Can serve as an advisor and gains bonuses to knowledge checks about natural phenomena.",
+        name: "Keine Arktis-/Dschungel-Druiden",
+        name_en: "No Arctic/Jungle Druids",
+        description: "Arktis- und Dschungel-Druiden können dieses Kit nicht wählen.",
+        description_en: "Arctic and jungle druids cannot take this kit.",
       },
     ],
   },
@@ -2537,24 +2566,25 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Waldgesetz",
-        name_en: "Forest Law",
+        name: "Keine besonderen Vorteile",
+        name_en: "No Special Benefits",
         description:
-          "Lebt nach dem Gesetz des Waldes und widersetzt sich aktiv den Gesetzen der Zivilisation.",
-        description_en:
-          "Lives by the law of the forest and actively defies the laws of civilization.",
+          "Keine mechanischen Boni. Stärke liegt in der Freiheit von druidischer Hierarchie.",
+        description_en: "No mechanical bonuses. Strength lies in freedom from druidic hierarchy.",
       },
       {
-        name: "Guerillataktik",
-        name_en: "Guerrilla Tactics",
-        description: "Meister des Hinterhalts und der Guerillakriegsführung im Wald.",
-        description_en: "Master of ambush and guerrilla warfare in the forest.",
+        name: "Ständig verfolgt",
+        name_en: "Constantly Hunted",
+        description:
+          "Wird ständig von lokalen Behörden gejagt. Gefangennahme = Gefängnis oder Tod. Muss alles Startgold für Ausrüstung ausgeben (über 1 GM geht verloren).",
+        description_en:
+          "Constantly hunted by local authorities. Capture = imprisonment or death. Must spend all starting gold on equipment (unspent above 1 gp is lost).",
       },
       {
         name: "Waldvolk-Anführer",
         name_en: "Woodland Band Leader",
-        description: "Kann eine Gruppe von Waldläufern und Gesetzlosen anführen und koordinieren.",
-        description_en: "Can lead and coordinate a band of woodsmen and outlaws.",
+        description: "Kann eine Gruppe von Waldläufern und Gesetzlosen anführen.",
+        description_en: "Can lead a band of woodsmen and outlaws.",
       },
     ],
   },
@@ -2568,25 +2598,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Verstärkte Heilung",
-        name_en: "Enhanced Healing",
-        description: "Heilzauber heilen +2 Trefferpunkte pro Würfel zusätzlich.",
-        description_en: "Healing spells restore +2 extra hit points per die rolled.",
-      },
-      {
-        name: "Friedensaura",
-        name_en: "Peace Aura",
-        description: "Strahlt eine beruhigende Aura aus, die Kampflust bei Mensch und Tier dämpft.",
-        description_en:
-          "Radiates a calming aura that dampens aggression in both humans and animals.",
-      },
-      {
-        name: "Gewaltlosigkeit",
-        name_en: "Non-Violence",
+        name: "Beruhigende Worte (Stufe ×/Tag)",
+        name_en: "Soothing Words (Level/Day)",
         description:
-          "Darf keine Waffen tragen und keinen Schaden direkt zufügen; verstößt er dagegen, verliert er Zauberkraft.",
+          "Nutzbar = Stufe pro Tag. Jede Nutzung: 1 Furcht-Zauber negieren; 1 Berserkergang beenden; oder Gruppe beruhigen (max 2× Stufe kombinierte TW) für 1W4+1 Runden. Waffen → Fertigkeitsslots möglich.",
         description_en:
-          "May not carry weapons or deal damage directly; violating this causes loss of spell power.",
+          "Usable = level per day. Each use: negate 1 fear spell; halt 1 berserker rage; or calm a group (max 2× level combined HD) for 1d4+1 rounds. Weapons → proficiency slots allowed.",
+      },
+      {
+        name: "Absolutes Gewaltverbot",
+        name_en: "Absolute Non-Violence",
+        description:
+          "Darf nie eine Person oder ein Tier verletzen (Untote zerstören erlaubt). Muss Begleiter zu minimalem Gewalteinsatz ermutigen. Nur vegetarische Ernährung. Startwaffen: nur Wurfpfeil oder Stab.",
+        description_en:
+          "May never harm a person or animal (destroying undead allowed). Must encourage companions to use minimum force. Vegetarian only. Starting weapons: only dart or staff.",
+      },
+      {
+        name: "Friedens-Einschränkungen",
+        name_en: "Peace Restrictions",
+        description:
+          "Keine Waffenschmied-, Jäger-, Fallensteller- oder Rüstungsschmied-Fertigkeiten. Muss alles Startgold für Ausrüstung ausgeben.",
+        description_en:
+          "No weaponsmith, hunter, trapper, or armorer proficiencies. Must spend all starting gold on equipment.",
       },
     ],
   },
@@ -2600,24 +2633,26 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Primitiver Überlebenskampf",
-        name_en: "Primitive Survival",
+        name: "Tätowierungen als Heiliges Symbol",
+        name_en: "Tattoos as Holy Symbol",
         description:
-          "Lebt wie die wildesten Tiere und überlebt in den härtesten Umgebungen ohne Ausrüstung.",
+          "Tätowierungen und zeremonielle Narben dienen als heiliges Symbol für alle Zauber (kein physisches Symbol nötig).",
         description_en:
-          "Lives like the wildest animals and survives in the harshest environments without equipment.",
+          "Tattoos and ceremonial scars function as holy symbol for all spells (no physical symbol needed).",
       },
       {
-        name: "Verstärkte Tiergestalt",
-        name_en: "Enhanced Wild Shape",
-        description: "Kann sich früher und öfter in Tierformen verwandeln als andere Druiden.",
-        description_en: "Can assume animal forms earlier and more often than other druids.",
+        name: "−2 Reaktion von Zivilisierten",
+        name_en: "−2 Reaction from Civilized NPCs",
+        description:
+          "−2 Reaktion von allen zivilisierten NSCs (seltsamer Akzent, Tätowierungen, Narben markieren ihn als Fremden).",
+        description_en:
+          "−2 reaction from all civilized NPCs (strange accent, tattoos, scars mark them as foreigners).",
       },
       {
-        name: "Stammesrituale",
-        name_en: "Tribal Rituals",
-        description: "Kennt uralte Stammesrituale, die besondere druidische Effekte hervorrufen.",
-        description_en: "Knows ancient tribal rituals that invoke special druidic effects.",
+        name: "Primitiver Überlebenskämpfer",
+        name_en: "Primitive Survivalist",
+        description: "Lebt in den härtesten Umgebungen. Kennt uralte Stammesrituale.",
+        description_en: "Lives in the harshest environments. Knows ancient tribal rituals.",
       },
     ],
   },
@@ -2631,26 +2666,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Meistergestaltwandlung",
-        name_en: "Master Shapeshifting",
+        name: "Gestaltwandel ab Stufe 1 (halbe TW)",
+        name_en: "Shapechange from Level 1 (Half HD)",
         description:
-          "Kann sich bereits auf niedriger Stufe in Tierformen verwandeln und behält mehr Kontrolle.",
-        description_en: "Can assume animal forms at lower levels and retains more control.",
-      },
-      {
-        name: "Erweiterte Formen",
-        name_en: "Extended Forms",
-        description:
-          "Kann sich in exotischere Tierformen verwandeln, einschließlich magischer Tierwesen.",
-        description_en: "Can transform into more exotic animal forms, including magical beasts.",
-      },
-      {
-        name: "Formgedächtnis",
-        name_en: "Form Memory",
-        description:
-          "Behält Erinnerungen und volle Intelligenz in Tiergestalt ohne Einschränkungen.",
+          "Gestaltwandel ab Stufe 1 (nicht 7). Bis Stufe 7: nur Formen mit TW <= halbe Stufe. Doppelte Anzahl Verwandlungen pro Tag vs. Standard. Nur Wald-, Ebenen- und Gebirgsdruiden.",
         description_en:
-          "Retains memories and full intelligence in animal form without restrictions.",
+          "Shapechange from level 1 (not 7). Until level 7: only forms with HD <= half level. Double the number of daily transformations vs. standard. Forest, plains, and mountain druids only.",
+      },
+      {
+        name: "Teilverwandlung (ab Stufe 7)",
+        name_en: "Partial Transformation (from Level 7)",
+        description:
+          "Ab Stufe 7: Schlangenzähne (1W2 Biss + Gift), Vogelflügel (BW 21), oder Bärentatzen (2 Angriffe, 1W3 + STR-Bonus). Jede zählt als eine tägliche Verwandlung.",
+        description_en:
+          "From level 7: snake fangs (1d2 bite + poison), bird wings (MV 21), or bear claws (2 attacks, 1d3 + STR bonus). Each counts as one daily transformation.",
+      },
+      {
+        name: "Risiko der permanenten Verwandlung",
+        name_en: "Risk of Permanent Transformation",
+        description:
+          "Über 3 Verwandlungen/Tag: Rettungswurf gegen Zauber nach jeder Extra-Nutzung; Versagen = aktuelle Form bis nächsten Tag gesperrt (−1 pro aufeinanderfolgendem Versagen). 3 aufeinanderfolgende Versagen = permanente Tierform.",
+        description_en:
+          "Over 3 transformations/day: save vs. spell after each extra use; failure = locked in current form until next day (−1 per consecutive failure). 3 consecutive failures = permanent animal form.",
       },
     ],
   },
@@ -2664,25 +2701,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Totemtier",
-        name_en: "Totem Animal",
-        description: "Wählt ein Totemtier, das besondere Kräfte und Einschränkungen verleiht.",
-        description_en: "Chooses a totem animal that grants special powers and restrictions.",
-      },
-      {
-        name: "Totemgestalt",
-        name_en: "Totem Shape",
+        name: "Totem-Gestaltwandel (Stufe÷3 +1 ×/Tag)",
+        name_en: "Totem Shapechange (Level÷3 +1/Day)",
         description:
-          "Kann sich ausschließlich in sein Totemtier verwandeln, erhält dabei aber Boni.",
-        description_en: "Can only transform into the totem animal but gains bonuses when doing so.",
-      },
-      {
-        name: "Totemgeist",
-        name_en: "Totem Spirit",
-        description:
-          "Kann den Geist seines Totemtiers anrufen, um Rat und übernatürliche Hilfe zu erhalten.",
+          "Verwandlung in Totemtier (Stufe÷3, abgerundet, +1) mal pro Tag. Stufe 1–2: 1×, Stufe 3–5: 2×, Stufe 6–8: 3× etc. TP werden NICHT beim Wechsel geheilt. Zusätzlich zu normalen Gestaltwandel-Powers.",
         description_en:
-          "Can call upon the spirit of the totem animal for guidance and supernatural aid.",
+          "Transform into totem animal (level÷3, rounded down, +1) times per day. Levels 1–2: 1×, 3–5: 2×, 6–8: 3× etc. HP NOT regained when shifting. In addition to normal shapechange powers.",
+      },
+      {
+        name: "Totem-Kommunikation & +4 Tierkunde",
+        name_en: "Totem Communication & +4 Animal Lore",
+        description:
+          "Freie Kommunikation mit allen normalen und Riesen-Exemplaren der Totem-Art (wie Mit Tieren sprechen, immer aktiv). +4 auf Heilkunde, Tiertraining, Tierkunde, Tierhandhabung bezüglich Totem.",
+        description_en:
+          "Free communication with all normal and giant examples of totem species (as speak with animals, always active). +4 to healing, animal training, animal lore, animal handling regarding totem.",
+      },
+      {
+        name: "1 weniger Fertigkeitsslot, Totem-Tabu",
+        name_en: "1 Fewer Proficiency Slot, Totem Taboo",
+        description:
+          "Startet mit 1 weniger allgemeinem Fertigkeitsslot. Darf die Totemtierart nie jagen oder essen.",
+        description_en:
+          "Starts with 1 fewer nonweapon proficiency slot. May never hunt or eat the totem species.",
       },
     ],
   },
@@ -2766,12 +2806,12 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Schnellreise",
-        name_en: "Fast Travel",
+        name: "Schnellreise (+33%/+17% Gruppe)",
+        name_en: "Fast Travel (+33%/+17% Group)",
         description:
-          "Reist ein Drittel schneller als normal über lange Distanzen. Als Führer erhöht er die Reisegeschwindigkeit der Gruppe um ein Sechstel.",
+          "Reist ein Drittel schneller als normal (z.B. 51,5 km/Tag statt 38,6 km). Als Führer erhöht er die Reisegeschwindigkeit der Gruppe um ein Sechstel. Keine Gefolgsleute bis Stufe 12 (Tierbegleiter erlaubt).",
         description_en:
-          "Travels one-third faster than normal over long distances. As a guide, increases the party's travel speed by one-sixth.",
+          "Travels one-third faster than normal (e.g. 51.5 km/day instead of 38.6 km). As guide, increases party travel speed by one-sixth. No followers until level 12 (animal companions allowed).",
       },
       {
         name: "Reisende Freundschaft",
@@ -2801,23 +2841,28 @@ export const KITS: Record<string, KitDefinition> = {
     armorSpellFailure: null,
     abilities: [
       {
-        name: "Gemeinschaftshüter",
-        name_en: "Community Guardian",
-        description: "Dient als geistlicher Berater und Heiler einer Dorfgemeinschaft.",
-        description_en: "Serves as a spiritual advisor and healer for a village community.",
-      },
-      {
-        name: "Erntesegen",
-        name_en: "Harvest Blessing",
-        description: "Kann Felder segnen, um bessere Ernten zu erzielen, und Viehseuchen heilen.",
-        description_en: "Can bless fields for better harvests and cure livestock diseases.",
-      },
-      {
-        name: "Volksvertrauen",
-        name_en: "Folk Trust",
+        name: "+2 Reaktion + kostenloser Lebensunterhalt",
+        name_en: "+2 Reaction + Free Living",
         description:
-          "Genießt das Vertrauen der Landbevölkerung und erhält bereitwillig Hilfe und Unterschlupf.",
-        description_en: "Enjoys the trust of rural folk and readily receives help and shelter.",
+          "+2 Reaktion von Dorfbewohnern und Haustieren. Mittelklasse-Lebensstandard kostenlos vom Dorf. Dorfbewohner liefern lokale Informationen.",
+        description_en:
+          "+2 reaction from villagers and domestic animals. Middle-class lifestyle provided free by village. Villagers provide local information.",
+      },
+      {
+        name: "1 Tag/Woche Dorfpflichten",
+        name_en: "1 Day/Week Village Duties",
+        description:
+          "Muss 1 Tag/Woche für Dorfpflichten aufwenden. Verpasste Woche: Reaktionsbonus sinkt um 1 (min 0), Lebensstandard sinkt eine Stufe. Stellvertreter (anderer Druide/Waldläufer) möglich.",
+        description_en:
+          "Must spend 1 day/week on village duties. Missed week: reaction bonus drops by 1 (min 0), living standard drops one step. Substitute (another druid/ranger) possible.",
+      },
+      {
+        name: "Dorfschutz-Pflicht",
+        name_en: "Village Protection Duty",
+        description:
+          "Versagen beim Schutz des Dorfes kann Reaktionsbonus und Lebensstil weiter reduzieren oder eliminieren.",
+        description_en:
+          "Failing to protect the village may further reduce or eliminate reaction bonus and living standard.",
       },
     ],
   },
