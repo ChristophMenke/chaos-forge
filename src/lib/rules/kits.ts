@@ -8,7 +8,13 @@ export interface KitDefinition {
   hitDieOverride: number | null;
   maxArmorAC: number | null; // minimum AC value allowed (e.g., 5 for chain mail)
   armorSpellFailure: number | null; // spell failure % when wearing armor (e.g., militant_wizard: 20)
-  abilities: { name: string; name_en: string; description: string; description_en: string }[];
+  abilities: {
+    name: string;
+    name_en: string;
+    description: string;
+    description_en: string;
+    webResearched?: boolean;
+  }[];
 }
 
 export const KITS: Record<string, KitDefinition> = {

@@ -6,6 +6,7 @@ import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { localized } from "@/lib/utils/localize";
+import { WebresearchBadge } from "@/components/webresearch-badge";
 import { RACES } from "@/lib/rules/races";
 import { CLASSES } from "@/lib/rules/classes";
 import { getActivePowers } from "@/lib/rules/priesthoods";
@@ -95,8 +96,9 @@ export function PlayAbilitiesPanel({
                       }
                     }}
                   >
-                    <span className="min-w-0 flex-1 truncate text-sm">
+                    <span className="flex min-w-0 flex-1 items-center gap-1 truncate text-sm">
                       {localized(ability.name, ability.name_en, locale)}
+                      {ability.webResearched && <WebresearchBadge />}
                     </span>
                     {hasUses && (
                       <Badge
@@ -170,8 +172,9 @@ export function PlayAbilitiesPanel({
                       }
                     }}
                   >
-                    <span className="min-w-0 flex-1 truncate text-sm">
+                    <span className="flex min-w-0 flex-1 items-center gap-1 truncate text-sm">
                       {localized(ability.name, ability.name_en, locale)}
+                      {ability.webResearched && <WebresearchBadge />}
                     </span>
                     {hasUses && (
                       <Badge
@@ -244,8 +247,9 @@ export function PlayAbilitiesPanel({
                       }
                     }}
                   >
-                    <span className="min-w-0 flex-1 truncate text-sm">
+                    <span className="flex min-w-0 flex-1 items-center gap-1 truncate text-sm">
                       {localized(power.name, power.name_en, locale)}
+                      {power.webResearched && <WebresearchBadge />}
                     </span>
                     {power.level > 1 && (
                       <Badge variant="outline" className="shrink-0 text-[9px]">

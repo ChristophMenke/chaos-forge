@@ -14,6 +14,7 @@
     "close": "Close",
     "warning": "Warning",
     "loading": "Loading...",
+    "webresearchTooltip": "This description was supplemented with web research as the official sourcebooks did not provide sufficient information. Details may be inaccurate.",
     "all": "All",
     "yes": "Yes",
     "no": "No",

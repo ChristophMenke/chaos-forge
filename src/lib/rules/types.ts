@@ -174,6 +174,8 @@ export interface GrantedPower {
   description: string;
   description_en: string;
   level: number; // ab welcher Stufe verfügbar (1 = sofort)
+  /** True if description was supplemented with web research (not from official books) */
+  webResearched?: boolean;
   mechanical?: {
     type:
       | "turn_undead"
@@ -199,6 +201,8 @@ export interface ClassAbility {
   description: string;
   description_en: string;
   usesPerDay?: number;
+  /** True if description was supplemented with web research (not from official books) */
+  webResearched?: boolean;
 }
 
 /** Multiclass / Dualclass support */
