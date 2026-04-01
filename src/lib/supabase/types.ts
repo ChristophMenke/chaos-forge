@@ -299,6 +299,8 @@ export interface CharacterClassRow {
   level: number;
   xp_current: number;
   is_active: boolean;
+  /** Dual-class: level at which the character switched away. NULL = active class. */
+  switch_level: number | null;
 }
 
 export interface GeneralItemRow {

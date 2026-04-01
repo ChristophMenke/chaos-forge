@@ -1,4 +1,4 @@
-import type { ClassId, ClassGroup, SavingThrows, RaceId } from "./types";
+import type { ClassId, ClassGroup, SavingThrows, RaceId, DualclassInfo } from "./types";
 import { CLASSES } from "./classes";
 import { RACES } from "./races";
 import { getThac0, getSavingThrows } from "./combat";
@@ -125,4 +125,101 @@ export function getMulticlassArmorWarnings(
   }
 
   return warnings;
+}
+
+// ─── DUAL-CLASS ──────────────────────────────────────────────────────────────
+// PHB Ch3: A character abandons one class and begins advancing in another.
+// The old class abilities are dormant until the new class level exceeds the old.
+
+export interface DualclassRequirementResult {
+  allowed: boolean;
+  failures: string[];
+}
+
+/**
+ * Check if a character meets dual-class requirements.
+ * PHB: 17+ in ALL prime requisites of the OLD class, 15+ in ALL prime requisites of the NEW class.
+ */
+export function meetsDualclassRequirements(
+  originalClassId: ClassId,
+  newClassId: ClassId,
+  abilities: Partial<Record<string, number>>
+): DualclassRequirementResult {
+  const failures: string[] = [];
+  const origClass = CLASSES[originalClassId];
+  const newClass = CLASSES[newClassId];
+
+  if (!origClass || !newClass) return { allowed: false, failures: ["Ungültige Klasse."] };
+  if (originalClassId === newClassId)
+    return { allowed: false, failures: ["Kann nicht in die gleiche Klasse wechseln."] };
+
+  // 17+ in all prime requisites of the OLD class
+  for (const req of origClass.primeRequisites) {
+    const score = abilities[req] ?? 0;
+    if (score < 17) {
+      failures.push(`${req.toUpperCase()} ${score} < 17 (alte Klasse ${origClass.name})`);
+    }
+  }
+
+  // 15+ in all prime requisites of the NEW class
+  for (const req of newClass.primeRequisites) {
+    const score = abilities[req] ?? 0;
+    if (score < 15) {
+      failures.push(`${req.toUpperCase()} ${score} < 15 (neue Klasse ${newClass.name})`);
+    }
+  }
+
+  return { allowed: failures.length === 0, failures };
+}
+
+/**
+ * Check if the original class abilities are still dormant.
+ * PHB: Dormant until new class level EXCEEDS old class level.
+ */
+export function isDualclassDormant(dualclass: DualclassInfo, newClassLevel: number): boolean {
+  return newClassLevel <= dualclass.switchLevel;
+}
+
+/**
+ * Get the best THAC0 for a dual-class character.
+ * If dormant: only new class THAC0. If active: best of both.
+ */
+export function getDualclassThac0(dualclass: DualclassInfo, newClassLevel: number): number {
+  const newCls = CLASSES[dualclass.newClass];
+  const newThac0 = newCls ? getThac0(newCls.group, newClassLevel, dualclass.newClass) : 20;
+
+  if (isDualclassDormant(dualclass, newClassLevel)) return newThac0;
+
+  const origCls = CLASSES[dualclass.originalClass];
+  const origThac0 = origCls
+    ? getThac0(origCls.group, dualclass.switchLevel, dualclass.originalClass)
+    : 20;
+
+  return Math.min(newThac0, origThac0);
+}
+
+/**
+ * Get the best saving throws for a dual-class character.
+ * If dormant: only new class saves. If active: best of both.
+ */
+export function getDualclassSaves(dualclass: DualclassInfo, newClassLevel: number): SavingThrows {
+  const newCls = CLASSES[dualclass.newClass];
+  const newSaves = newCls
+    ? getSavingThrows(newCls.group, newClassLevel)
+    : getSavingThrows("warrior", 1);
+
+  if (isDualclassDormant(dualclass, newClassLevel)) return newSaves;
+
+  const origCls = CLASSES[dualclass.originalClass];
+  const origSaves = origCls
+    ? getSavingThrows(origCls.group, dualclass.switchLevel)
+    : getSavingThrows("warrior", 1);
+
+  return {
+    paralyzation: Math.min(newSaves.paralyzation, origSaves.paralyzation),
+    rod: Math.min(newSaves.rod, origSaves.rod),
+    petrification: Math.min(newSaves.petrification, origSaves.petrification),
+    breath: Math.min(newSaves.breath, origSaves.breath),
+    spell: Math.min(newSaves.spell, origSaves.spell),
+  };
 }
