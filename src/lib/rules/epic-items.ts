@@ -35,6 +35,19 @@ export interface SpecialAttack {
   effect_en: string;
 }
 
+export interface OverclockAbility {
+  name: string;
+  name_en: string;
+  durationHours: number;
+  requiresCheck: string;
+  requiresCheck_en: string;
+  conOverride: number;
+  poisonSavePenalty: number;
+  healsPerHour: number;
+  description: string;
+  description_en: string;
+}
+
 export interface EpicEffects {
   statOverrides: EpicStatOverrides;
   miscEffects: string[];
@@ -58,6 +71,8 @@ export interface EpicEffects {
   specialAttacks: SpecialAttack[];
   /** Passive abilities (e.g., "speak_with_animals") */
   passiveAbilities: string[];
+  /** Overclock ability (e.g., Kondensator boost) */
+  overclockAbility: OverclockAbility | null;
 }
 
 // ── Core Functions ───────────────────────────────────────────
@@ -144,7 +159,10 @@ export function getEpicEffects(items: EpicItemRow[], characterLevel?: number): E
     shapeshiftForms: [],
     specialAttacks: [],
     passiveAbilities: [],
+    overclockAbility: null,
   };
+
+  let overclockCandidate: OverclockAbility | null = null;
 
   for (const item of items) {
     if (!item.equipped) continue;
@@ -201,6 +219,23 @@ export function getEpicEffects(items: EpicItemRow[], characterLevel?: number): E
           }
         }
       }
+
+      // Collect overclock candidate (resolved after loop to ensure device_offline is fully known)
+      if (se?.overclock && typeof se.overclock === "object" && !overclockCandidate) {
+        const oc = se.overclock as Record<string, unknown>;
+        overclockCandidate = {
+          name: (oc.name as string) ?? "",
+          name_en: (oc.name_en as string) ?? "",
+          durationHours: (oc.duration_hours as number) ?? 1,
+          requiresCheck: (oc.requires_check as string) ?? "",
+          requiresCheck_en: (oc.requires_check_en as string) ?? "",
+          conOverride: (oc.con_override as number) ?? 20,
+          poisonSavePenalty: (oc.poison_save_penalty as number) ?? 0,
+          healsPerHour: (oc.heals_per_hour as number) ?? 0,
+          description: (oc.description as string) ?? "",
+          description_en: (oc.description_en as string) ?? "",
+        };
+      }
     }
 
     // Simple effects (items without damage levels)
@@ -208,6 +243,11 @@ export function getEpicEffects(items: EpicItemRow[], characterLevel?: number): E
       const pb = se.perception_bonus;
       if (typeof pb === "number") result.perceptionBonus += pb;
     }
+  }
+
+  // Resolve overclock after loop — disabled when any item causes device_offline
+  if (overclockCandidate && !result.miscEffects.includes("device_offline")) {
+    result.overclockAbility = overclockCandidate;
   }
 
   return result;

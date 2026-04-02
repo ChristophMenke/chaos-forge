@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronDown, ChevronUp, Minus, Plus, Wrench } from "lucide-react";
+import { ChevronDown, ChevronUp, Minus, Plus, Wrench, Zap } from "lucide-react";
 import { EpicIcon } from "./epic-icon";
 import { GlassCard } from "@/components/glass-card";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,7 @@ interface DamageLevelCardProps {
   characterLevel?: number;
   onToggleEquip: (itemId: string) => void;
   onDamageLevelChange: (itemId: string, newLevel: number) => void;
+  onOverclockToggle?: (itemId: string, active: boolean, endTime: number | null) => void;
 }
 
 function getGlowForDamage(level: number, max: number): "neutral" | "warrior" {
@@ -58,6 +59,7 @@ export function DamageLevelCard({
   characterLevel,
   onToggleEquip,
   onDamageLevelChange,
+  onOverclockToggle,
 }: DamageLevelCardProps) {
   const t = useTranslations("epic");
   const [expanded, setExpanded] = useState(false);
@@ -279,6 +281,18 @@ export function DamageLevelCard({
         )}
       </div>
 
+      {/* Overclock */}
+      {!!se.overclock && !effectsList.includes("device_offline") && (
+        <OverclockPanel
+          overclock={se.overclock as Record<string, unknown>}
+          isActive={!!(se.overclock_active as boolean)}
+          endTime={(se.overclock_end_time as number | null) ?? null}
+          locale={locale}
+          isOwner={isOwner}
+          onToggle={(active, endTime) => onOverclockToggle?.(item.id, active, endTime)}
+        />
+      )}
+
       {/* Repair info */}
       {repairSkill && (
         <>
@@ -309,5 +323,122 @@ export function DamageLevelCard({
         </>
       )}
     </GlassCard>
+  );
+}
+
+function OverclockPanel({
+  overclock,
+  isActive,
+  endTime,
+  locale,
+  isOwner,
+  onToggle,
+}: {
+  overclock: Record<string, unknown>;
+  isActive: boolean;
+  endTime: number | null;
+  locale: string;
+  isOwner: boolean;
+  onToggle: (active: boolean, endTime: number | null) => void;
+}) {
+  const t = useTranslations("epic");
+  const name = locale === "en" && overclock.name_en ? overclock.name_en : overclock.name;
+  const description =
+    locale === "en" && overclock.description_en ? overclock.description_en : overclock.description;
+  const requiresCheck =
+    locale === "en" && overclock.requires_check_en
+      ? overclock.requires_check_en
+      : overclock.requires_check;
+  const durationHours = (overclock.duration_hours as number) ?? 1;
+
+  // Timer
+  const [minutesLeft, setMinutesLeft] = useState<number | null>(() => {
+    if (!isActive || !endTime) return null;
+    return Math.max(0, Math.ceil((endTime - Date.now()) / 60000));
+  });
+
+  useEffect(() => {
+    if (!isActive || !endTime) {
+      setMinutesLeft(() => null);
+      return;
+    }
+    setMinutesLeft(() => Math.max(0, Math.ceil((endTime - Date.now()) / 60000)));
+    const interval = setInterval(() => {
+      const remaining = endTime - Date.now();
+      if (remaining <= 0) {
+        clearInterval(interval);
+        onToggle(false, null);
+      } else {
+        setMinutesLeft(Math.ceil(remaining / 60000));
+      }
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [isActive, endTime, onToggle]);
+
+  function handleToggle() {
+    if (isActive) {
+      onToggle(false, null);
+    } else {
+      onToggle(true, Date.now() + durationHours * 60 * 60 * 1000);
+    }
+  }
+
+  return (
+    <>
+      <Separator className="my-3" />
+      <div
+        className={`rounded-lg border p-3 ${
+          isActive ? "border-amber-500/50 bg-amber-500/10" : "border-amber-500/20 bg-amber-500/5"
+        }`}
+        data-testid="epic-overclock-panel"
+      >
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Zap className="h-4 w-4 shrink-0 text-amber-400" />
+            <span className="font-medium text-amber-400">{name as string}</span>
+            {isActive && minutesLeft != null && (
+              <Badge
+                variant="outline"
+                className="border-amber-500/50 text-amber-400"
+                data-testid="overclock-timer"
+              >
+                {t("overclockTimer", { minutes: minutesLeft })}
+              </Badge>
+            )}
+          </div>
+          {isOwner && (
+            <Button
+              variant={isActive ? "destructive" : "default"}
+              size="sm"
+              onClick={handleToggle}
+              data-testid="overclock-toggle"
+            >
+              {isActive ? t("overclockDeactivate") : t("overclockActivate")}
+            </Button>
+          )}
+        </div>
+
+        {isActive ? (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            <Badge variant="outline" className="border-amber-500/50 text-amber-400">
+              CON → {overclock.con_override as number}
+            </Badge>
+            <Badge variant="outline" className="border-red-500/50 text-red-400">
+              {t("overclockPoisonPenalty", { penalty: overclock.poison_save_penalty as number })}
+            </Badge>
+            <Badge variant="outline" className="border-green-500/50 text-green-400">
+              {t("overclockHealing", { hp: overclock.heals_per_hour as number })}
+            </Badge>
+          </div>
+        ) : (
+          <div className="mt-1.5">
+            <p className="text-sm text-muted-foreground">{description as string}</p>
+            <p className="mt-1 text-xs text-amber-400/70">
+              {t("overclockRequiresCheck", { skill: requiresCheck as string })}
+            </p>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

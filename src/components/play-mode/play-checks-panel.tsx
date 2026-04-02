@@ -30,6 +30,7 @@ interface PlayChecksPanelProps {
   showThiefSkills: boolean;
   nonweaponProficiencies: CharacterNWPWithDetails[];
   epicEffects?: EpicEffects;
+  poisonSavePenalty?: number;
 }
 
 export function PlayChecksPanel({
@@ -44,6 +45,7 @@ export function PlayChecksPanel({
   showThiefSkills,
   nonweaponProficiencies,
   epicEffects,
+  poisonSavePenalty = 0,
 }: PlayChecksPanelProps) {
   const t = useTranslations("playMode");
   const te = useTranslations("epic");
@@ -64,6 +66,7 @@ export function PlayChecksPanel({
       shapeshiftForms: [],
       specialAttacks: [],
       passiveAbilities: [],
+      overclockAbility: null,
     }),
     []
   );
@@ -279,21 +282,40 @@ export function PlayChecksPanel({
         <h4 className="mb-1.5 text-xs font-medium text-muted-foreground">{t("savingThrows")}</h4>
         <div className="grid grid-cols-5 gap-1 text-center">
           {[
-            { key: "paralyzation", label: t("paralyzation"), value: saves.paralyzation },
-            { key: "rod", label: t("rod"), value: saves.rod },
-            { key: "petrification", label: t("petrification"), value: saves.petrification },
-            { key: "breath", label: t("breath"), value: saves.breath },
-            { key: "spell", label: t("spell"), value: saves.spell },
-          ].map((save) => (
-            <div
-              key={save.key}
-              className="rounded-md border border-border px-1 py-1.5"
-              data-testid={`play-save-${save.key}`}
-            >
-              <div className="truncate text-[9px] text-muted-foreground">{save.label}</div>
-              <div className="font-mono text-lg font-bold">{save.value}</div>
-            </div>
-          ))}
+            {
+              key: "paralyzation",
+              label: t("paralyzation"),
+              value: saves.paralyzation,
+              penalty: poisonSavePenalty,
+            },
+            { key: "rod", label: t("rod"), value: saves.rod, penalty: 0 },
+            {
+              key: "petrification",
+              label: t("petrification"),
+              value: saves.petrification,
+              penalty: 0,
+            },
+            { key: "breath", label: t("breath"), value: saves.breath, penalty: 0 },
+            { key: "spell", label: t("spell"), value: saves.spell, penalty: 0 },
+          ].map((save) => {
+            const effective = save.value + save.penalty;
+            const hasPenalty = save.penalty > 0;
+            return (
+              <div
+                key={save.key}
+                className={`rounded-md border px-1 py-1.5 ${hasPenalty ? "border-amber-500/50 bg-amber-500/5" : "border-border"}`}
+                data-testid={`play-save-${save.key}`}
+              >
+                <div className="truncate text-[9px] text-muted-foreground">{save.label}</div>
+                <div
+                  className={`font-mono text-lg font-bold ${hasPenalty ? "text-amber-400" : ""}`}
+                >
+                  {effective}
+                </div>
+                {hasPenalty && <div className="text-[8px] text-amber-400/80">+{save.penalty}</div>}
+              </div>
+            );
+          })}
         </div>
         {wisMods.magicalDefenseAdj !== 0 && (
           <div className="mt-1 text-[10px] text-muted-foreground">
