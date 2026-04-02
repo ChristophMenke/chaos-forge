@@ -13,7 +13,7 @@ import {
 } from "@/lib/rules/equipment";
 import { useTranslations, useLocale } from "next-intl";
 import { localized } from "@/lib/utils/localize";
-import { matchesWeaponProf } from "@/lib/utils/proficiency-match";
+import { matchesWeaponProf, findWeaponProf } from "@/lib/utils/proficiency-match";
 import { lbsToKg, feetToMeters } from "@/lib/utils/units";
 import { getStrengthModifiers, getDexterityModifiers } from "@/lib/rules/abilities";
 import {
@@ -472,16 +472,24 @@ export function TabEquipment({
   const dexMissileAdj = dexMods.missileAdj;
 
   // Determine primary class group for attacks per round
+  // House rule: Crusader gets warrior APR progression
   const primaryClassGroup =
     activeClasses.length > 0
       ? (CLASSES[activeClasses[0].class_id as ClassId]?.group ?? "warrior")
       : "warrior";
   const primaryLevel = activeClasses[0]?.level ?? 1;
-  function getWeaponAttacksPerRound(weaponName: string, weaponNameEn: string | null): string {
-    const isSpecialized = weaponProficiencies.some(
+  const isCrusader = activeClasses.some((cc) => cc.class_id === "crusader");
+  const aprClassGroup = isCrusader ? "warrior" : primaryClassGroup;
+
+  function getWeaponSpecialized(weaponName: string, weaponNameEn: string | null): boolean {
+    return weaponProficiencies.some(
       (wp) => matchesWeaponProf(wp, weaponName, weaponNameEn) && wp.specialization
     );
-    return getAttacksPerRound(primaryClassGroup, primaryLevel, isSpecialized);
+  }
+
+  function getWeaponAttacksPerRound(weaponName: string, weaponNameEn: string | null): string {
+    const isSpecialized = getWeaponSpecialized(weaponName, weaponNameEn);
+    return getAttacksPerRound(aprClassGroup, primaryLevel, isSpecialized);
   }
 
   function getWeaponProficiencyPenalty(weaponName: string, weaponNameEn: string | null): number {
@@ -494,10 +502,12 @@ export function TabEquipment({
 
   function getWeaponThac0(weapon: WeaponRow, hitBonus = 0) {
     const penalty = getWeaponProficiencyPenalty(weapon.name, weapon.name_en);
+    const isSpec = getWeaponSpecialized(weapon.name, weapon.name_en);
+    const specHitBonus = isSpec ? 1 : 0;
     return getAdjustedWeaponThac0(
       baseThac0,
-      strHitAdj,
-      dexMissileAdj,
+      strHitAdj + specHitBonus,
+      dexMissileAdj + specHitBonus,
       weapon.weapon_type,
       penalty,
       hitBonus
@@ -1318,9 +1328,13 @@ export function TabEquipment({
                     const weapon = item.weapon!;
                     const hitBonus = item.hit_bonus ?? 0;
                     const dmgBonus = item.damage_bonus ?? 0;
+                    const isSpec = getWeaponSpecialized(weapon.name, weapon.name_en);
+                    const specDmgBonus = isSpec ? 2 : 0;
                     const thac0s = getWeaponThac0(weapon, hitBonus);
-                    const isProficient = weaponProficiencies.some(
-                      (wp) => wp.weapon_name.toLowerCase() === weapon.name.toLowerCase()
+                    const isProficient = !!findWeaponProf(
+                      weaponProficiencies,
+                      weapon.name,
+                      weapon.name_en
                     );
                     return (
                       <tr
@@ -1399,13 +1413,13 @@ export function TabEquipment({
                           className="py-2 text-center font-mono"
                           data-testid={`weapon-damage-sm-${item.id}`}
                         >
-                          {formatDamageWithBonus(weapon.damage_sm, strDmgAdj + dmgBonus)}
+                          {formatDamageWithBonus(weapon.damage_sm, strDmgAdj + dmgBonus + specDmgBonus)}
                         </td>
                         <td
                           className="py-2 text-center font-mono"
                           data-testid={`weapon-damage-l-${item.id}`}
                         >
-                          {formatDamageWithBonus(weapon.damage_l, strDmgAdj + dmgBonus)}
+                          {formatDamageWithBonus(weapon.damage_l, strDmgAdj + dmgBonus + specDmgBonus)}
                         </td>
                         <td
                           className="py-2 text-center font-mono"
@@ -1451,9 +1465,13 @@ export function TabEquipment({
                 const weapon = item.weapon!;
                 const hitBonus = item.hit_bonus ?? 0;
                 const dmgBonus = item.damage_bonus ?? 0;
+                const isSpec = getWeaponSpecialized(weapon.name, weapon.name_en);
+                const specDmgBonus = isSpec ? 2 : 0;
                 const thac0s = getWeaponThac0(weapon, hitBonus);
-                const isProficient = weaponProficiencies.some(
-                  (wp) => wp.weapon_name.toLowerCase() === weapon.name.toLowerCase()
+                const isProficient = !!findWeaponProf(
+                  weaponProficiencies,
+                  weapon.name,
+                  weapon.name_en
                 );
                 return (
                   <div
@@ -1537,7 +1555,7 @@ export function TabEquipment({
                           {t("damageSMWithStr")}:
                         </span>{" "}
                         <span className="font-mono">
-                          {formatDamageWithBonus(weapon.damage_sm, strDmgAdj + dmgBonus)}
+                          {formatDamageWithBonus(weapon.damage_sm, strDmgAdj + dmgBonus + specDmgBonus)}
                         </span>
                       </div>
                       <div data-testid={`weapon-card-damage-l-${item.id}`}>
@@ -1545,7 +1563,7 @@ export function TabEquipment({
                           {t("damageLWithStr")}:
                         </span>{" "}
                         <span className="font-mono">
-                          {formatDamageWithBonus(weapon.damage_l, strDmgAdj + dmgBonus)}
+                          {formatDamageWithBonus(weapon.damage_l, strDmgAdj + dmgBonus + specDmgBonus)}
                         </span>
                       </div>
                       <div data-testid={`weapon-card-speed-${item.id}`}>

@@ -151,9 +151,10 @@ export function PlayCombatPanel({
 
   const [showAcBreakdown, setShowAcBreakdown] = useState(false);
 
-  // Attacks per round from first warrior class
+  // Attacks per round from first warrior class (house rule: crusader gets warrior APR)
   const warriorEntry = classEntries.find(
-    (ce) => getClassGroup(ce.classId as ClassId) === "warrior"
+    (ce) =>
+      getClassGroup(ce.classId as ClassId) === "warrior" || ce.classId === "crusader"
   );
 
   function renderWeaponCard(eq: CharacterEquipmentWithDetails, isEquipped: boolean) {
@@ -165,17 +166,28 @@ export function PlayCombatPanel({
     const firstGroup = classGroups[0] ?? "warrior";
     const profPenalty = isProficient ? 0 : getNonproficiencyPenalty(firstGroup);
 
+    const specHitBonus = isSpecialized ? 1 : 0;
+    const specDmgBonus = isSpecialized ? 2 : 0;
+
     const adjusted = getAdjustedWeaponThac0(
       thac0,
-      strMods.hitAdj,
-      dexMods.missileAdj,
+      strMods.hitAdj + specHitBonus,
+      dexMods.missileAdj + specHitBonus,
       weapon.weapon_type,
       profPenalty,
       eq.hit_bonus
     );
 
-    const damageSM = formatDamageWithBonus(weapon.damage_sm, strMods.dmgAdj, eq.damage_bonus);
-    const damageL = formatDamageWithBonus(weapon.damage_l, strMods.dmgAdj, eq.damage_bonus);
+    const damageSM = formatDamageWithBonus(
+      weapon.damage_sm,
+      strMods.dmgAdj + specDmgBonus,
+      eq.damage_bonus
+    );
+    const damageL = formatDamageWithBonus(
+      weapon.damage_l,
+      strMods.dmgAdj + specDmgBonus,
+      eq.damage_bonus
+    );
 
     const apr = warriorEntry
       ? getAttacksPerRound("warrior", warriorEntry.level, isSpecialized)
