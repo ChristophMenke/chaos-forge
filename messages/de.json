@@ -903,6 +903,7 @@
     "shield": "Schild",
     "dexBonus": "DEX-Bonus",
     "magicBonus": "Magischer Bonus",
+    "specBonus": "Spezialisierung: +1 Treffer, +2 Schaden",
     "unarmoredBonus": "Ungerüstet-Bonus",
     "movementRate": "Bewegungsrate",
     "backstabMultiplier": "Hinterhalt-Multiplikator",

@@ -193,9 +193,14 @@ export function PlayCombatPanel({
     const isWarriorClass = warriorEntry
       ? getClassGroup(warriorEntry.classId as ClassId) === "warrior"
       : false;
+    const specGivesApr = isWarriorClass && isSpecialized;
     const apr = warriorEntry
-      ? getAttacksPerRound("warrior", warriorEntry.level, isWarriorClass && isSpecialized)
+      ? getAttacksPerRound("warrior", warriorEntry.level, specGivesApr)
       : "1";
+    const baseApr = warriorEntry
+      ? getAttacksPerRound("warrior", warriorEntry.level, false)
+      : "1";
+    const hasSpecAprBonus = specGivesApr && apr !== baseApr;
 
     return (
       <div
@@ -237,12 +242,20 @@ export function PlayCombatPanel({
           <div>
             <span className="text-xs text-muted-foreground">{t("attacksPerRound")}: </span>
             <span className="font-mono">{apr}</span>
+            {hasSpecAprBonus && (
+              <span className="ml-1 text-[10px] text-amber-400">({baseApr} +★)</span>
+            )}
           </div>
         </div>
-        <div className="mt-1.5 flex items-center gap-2">
+        <div className="mt-1.5 flex flex-wrap items-center gap-2">
           {eq.hit_bonus > 0 && (
             <span className="text-xs text-muted-foreground">
               +{eq.hit_bonus} {t("magicBonus")}
+            </span>
+          )}
+          {isSpecialized && (
+            <span className="text-xs text-amber-400" data-testid={`play-weapon-spec-bonus-${eq.id}`}>
+              ★ {t("specBonus")}
             </span>
           )}
           <Button
