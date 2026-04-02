@@ -295,3 +295,113 @@ describe("formatDamageWithBonus", () => {
     expect(formatDamageWithBonus("1d8", -2, 2)).toBe("1d8");
   });
 });
+
+// ── Lady Catrina Scenario Tests ──────────────────────────────────────────
+// Level 11 Crusader, STR hitAdj +3, STR dmgAdj +5
+// Zweihänder +3 (specialized), Dolch +2 (not specialized)
+// House rules: Crusader gets warrior APR by level, spec gives +1 hit/+2 dmg,
+// but spec does NOT give extra APR for non-fighter classes.
+
+describe("Lady Catrina: Crusader L11 combat calculations", () => {
+  const baseThac0 = 10; // getThac0("priest", 11, "crusader") = 21-11 = 10
+  const strHitAdj = 3;
+  const strDmgAdj = 5;
+  const dexMissileAdj = 0;
+
+  it("Crusader L11 base THAC0 is 10 (warrior rate)", () => {
+    expect(getThac0("priest", 11, "crusader")).toBe(10);
+  });
+
+  describe("Two-Handed Sword +3 (specialized)", () => {
+    const specHitBonus = 1;
+    const specDmgBonus = 2;
+    const weaponHitBonus = 3;
+    const weaponDmgBonus = 3;
+
+    it("THAC0 = 10 - 3(STR) - 1(spec) - 3(magic) = 3", () => {
+      const result = getAdjustedWeaponThac0(
+        baseThac0,
+        strHitAdj + specHitBonus,
+        dexMissileAdj + specHitBonus,
+        "melee",
+        0, // proficient
+        weaponHitBonus
+      );
+      expect(result.melee).toBe(3);
+      expect(result.ranged).toBeNull();
+    });
+
+    it("Damage S/M = 1d10 + 5(STR) + 2(spec) + 3(magic) = 1d10+10", () => {
+      expect(formatDamageWithBonus("1d10", strDmgAdj + specDmgBonus, weaponDmgBonus)).toBe(
+        "1d10+10"
+      );
+    });
+
+    it("Damage L = 3d6 + 5(STR) + 2(spec) + 3(magic) = 3d6+10", () => {
+      expect(formatDamageWithBonus("3d6", strDmgAdj + specDmgBonus, weaponDmgBonus)).toBe(
+        "3d6+10"
+      );
+    });
+
+    it("APR = 3/2 (Crusader L11 warrior rate, NO spec APR bonus)", () => {
+      // Crusader is NOT a warrior class, so spec APR bonus does not apply
+      // But Crusader gets base warrior APR progression (house rule)
+      expect(getAttacksPerRound("warrior", 11, false)).toBe("3/2");
+    });
+  });
+
+  describe("Dagger +2 (NOT specialized)", () => {
+    const specHitBonus = 0;
+    const specDmgBonus = 0;
+    const weaponHitBonus = 2;
+    const weaponDmgBonus = 2;
+
+    it("THAC0 = 10 - 3(STR) - 0(no spec) - 2(magic) = 5", () => {
+      const result = getAdjustedWeaponThac0(
+        baseThac0,
+        strHitAdj + specHitBonus,
+        dexMissileAdj + specHitBonus,
+        "both", // dagger is melee/ranged
+        0, // proficient
+        weaponHitBonus
+      );
+      expect(result.melee).toBe(5);
+    });
+
+    it("Damage S/M = 1d4 + 5(STR) + 0(no spec) + 2(magic) = 1d4+7", () => {
+      expect(formatDamageWithBonus("1d4", strDmgAdj + specDmgBonus, weaponDmgBonus)).toBe(
+        "1d4+7"
+      );
+    });
+
+    it("Damage L = 1d3 + 5(STR) + 0(no spec) + 2(magic) = 1d3+7", () => {
+      expect(formatDamageWithBonus("1d3", strDmgAdj + specDmgBonus, weaponDmgBonus)).toBe(
+        "1d3+7"
+      );
+    });
+
+    it("APR = 3/2 (Crusader L11 warrior rate, no spec)", () => {
+      expect(getAttacksPerRound("warrior", 11, false)).toBe("3/2");
+    });
+  });
+});
+
+describe("Fighter vs Crusader spec APR comparison", () => {
+  it("Fighter L11 with spec gets 2 APR", () => {
+    expect(getAttacksPerRound("warrior", 11, true)).toBe("2");
+  });
+
+  it("Fighter L11 without spec gets 3/2 APR", () => {
+    expect(getAttacksPerRound("warrior", 11, false)).toBe("3/2");
+  });
+
+  it("Crusader L11 should be called with isSpecialized=false for APR", () => {
+    // House rule: Crusader gets base warrior APR (3/2 at L11), never spec APR
+    // The caller passes isSpecialized=false for non-fighter classes
+    expect(getAttacksPerRound("warrior", 11, false)).toBe("3/2");
+  });
+
+  it("Priest L11 without crusader override gets 1 APR", () => {
+    expect(getAttacksPerRound("priest", 11, false)).toBe("1");
+  });
+});
