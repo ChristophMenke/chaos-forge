@@ -161,6 +161,20 @@ export function TabProficiencies({
   const showSpecialization = canSpecialize(classId as ClassId);
   const showSpecWarning = group !== "warrior";
 
+  // Lookup weapon name → localized display name
+  const weaponNameMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const w of allWeapons) {
+      map.set(w.name.toLowerCase(), localized(w.name, w.name_en, locale));
+      if (w.name_en) map.set(w.name_en.toLowerCase(), localized(w.name, w.name_en, locale));
+    }
+    return map;
+  }, [allWeapons, locale]);
+
+  function localizeWeaponName(weaponName: string): string {
+    return weaponNameMap.get(weaponName.toLowerCase()) ?? weaponName;
+  }
+
   const fightingStyleSlots = fightingStyles.reduce((sum, fs) => sum + fs.slots_invested, 0);
 
   const usedWeaponSlots =
@@ -502,7 +516,7 @@ export function TabProficiencies({
                 data-testid={`weapon-proficiency-${wp.id}`}
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">{wp.weapon_name}</span>
+                  <span className="text-sm font-medium">{localizeWeaponName(wp.weapon_name)}</span>
                   {wp.specialization && (
                     <Badge data-testid={`weapon-specialized-${wp.id}`}>{t("specialization")}</Badge>
                   )}
