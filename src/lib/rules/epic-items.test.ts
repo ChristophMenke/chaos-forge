@@ -161,6 +161,85 @@ describe("scaleSubStat", () => {
   });
 });
 
+describe("overclock ability", () => {
+  const overclockData = {
+    name: "Übertakten",
+    name_en: "Overclock",
+    duration_hours: 1,
+    requires_check: "Ingenieurskunst",
+    requires_check_en: "Engineering",
+    con_override: 20,
+    poison_save_penalty: 1,
+    heals_per_hour: 1,
+    description: "Übertaktet den Kondensator",
+    description_en: "Overclocks the Condenser",
+  };
+
+  it("parses overclock from simple_effects", () => {
+    const item = makeCondenser({ simple_effects: { overclock: overclockData } });
+    const effects = getEpicEffects([item]);
+    expect(effects.overclockAbility).not.toBeNull();
+    expect(effects.overclockAbility!.name).toBe("Übertakten");
+    expect(effects.overclockAbility!.conOverride).toBe(20);
+    expect(effects.overclockAbility!.poisonSavePenalty).toBe(1);
+    expect(effects.overclockAbility!.healsPerHour).toBe(1);
+    expect(effects.overclockAbility!.requiresCheck).toBe("Ingenieurskunst");
+    expect(effects.overclockAbility!.durationHours).toBe(1);
+  });
+
+  it("returns null when item is not equipped", () => {
+    const item = makeCondenser({
+      equipped: false,
+      simple_effects: { overclock: overclockData },
+    });
+    const effects = getEpicEffects([item]);
+    expect(effects.overclockAbility).toBeNull();
+  });
+
+  it("returns null when device_offline (damage level 8)", () => {
+    const item = makeCondenser({
+      damage_level: 8,
+      simple_effects: { overclock: overclockData },
+    });
+    const effects = getEpicEffects([item]);
+    expect(effects.overclockAbility).toBeNull();
+  });
+
+  it("returns overclock even at high damage levels without device_offline", () => {
+    const item = makeCondenser({
+      damage_level: 6,
+      simple_effects: { overclock: overclockData },
+    });
+    const effects = getEpicEffects([item]);
+    expect(effects.overclockAbility).not.toBeNull();
+    expect(effects.overclockAbility!.conOverride).toBe(20);
+  });
+
+  it("returns null when no overclock in simple_effects", () => {
+    const effects = getEpicEffects([makeCondenser()]);
+    expect(effects.overclockAbility).toBeNull();
+  });
+
+  it("returns null when device_offline comes from a separate item (any order)", () => {
+    const offlineItem = makeCondenser({ id: "offline", damage_level: 8 });
+    const overclockItem = makeCondenser({
+      id: "condenser-2",
+      damage_level: 0,
+      simple_effects: { overclock: overclockData },
+    });
+    // Both orderings must suppress overclock
+    expect(getEpicEffects([overclockItem, offlineItem]).overclockAbility).toBeNull();
+    expect(getEpicEffects([offlineItem, overclockItem]).overclockAbility).toBeNull();
+  });
+
+  it("does not merge conOverride into statOverrides automatically", () => {
+    const item = makeCondenser({ simple_effects: { overclock: overclockData } });
+    const effects = getEpicEffects([item]);
+    expect(effects.statOverrides.con).toBe(18);
+    expect(effects.overclockAbility?.conOverride).toBe(20);
+  });
+});
+
 describe("applyThiefPenalty", () => {
   it("returns base value when no penalty", () => {
     const effects = getEpicEffects([makeCondenser()]);

@@ -66,6 +66,46 @@ export function EpicEquipmentView({ character, epicItems, isOwner }: EpicEquipme
     }
   }
 
+  async function handleOverclockToggle(itemId: string, active: boolean, endTime: number | null) {
+    const item = items.find((i) => i.id === itemId);
+    if (!item || !isOwner) return;
+
+    const oldEffects = { ...item.simple_effects } as Record<string, unknown>;
+
+    // Optimistic update
+    setItems((prev) =>
+      prev.map((i) =>
+        i.id === itemId
+          ? {
+              ...i,
+              simple_effects: {
+                ...i.simple_effects,
+                overclock_active: active,
+                overclock_end_time: endTime,
+              },
+            }
+          : i
+      )
+    );
+
+    const supabase = createClient();
+    const newEffects = {
+      ...item.simple_effects,
+      overclock_active: active,
+      overclock_end_time: endTime,
+    };
+    const { error } = await supabase
+      .from("epic_items")
+      .update({ simple_effects: newEffects })
+      .eq("id", itemId);
+
+    if (error) {
+      setItems((prev) =>
+        prev.map((i) => (i.id === itemId ? { ...i, simple_effects: oldEffects } : i))
+      );
+    }
+  }
+
   return (
     <div
       className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 sm:p-6"
@@ -127,6 +167,7 @@ export function EpicEquipmentView({ character, epicItems, isOwner }: EpicEquipme
                   characterLevel={character.level}
                   onToggleEquip={handleToggleEquip}
                   onDamageLevelChange={handleDamageLevelChange}
+                  onOverclockToggle={handleOverclockToggle}
                 />
               );
             }

@@ -11,6 +11,7 @@ import { PlayInventoryPanel } from "./play-inventory-panel";
 import { PlayCoinPursePanel } from "./play-coin-purse-panel";
 import { PlayTurnUndeadPanel } from "./play-turn-undead-panel";
 import { PlayAbilitiesPanel } from "./play-abilities-panel";
+import { PlayOverclockBanner } from "./play-overclock-banner";
 import { RACES } from "@/lib/rules/races";
 import { getActivePowers } from "@/lib/rules/priesthoods";
 import {
@@ -201,12 +202,33 @@ export function PlayMode({
     () => getEpicEffects(epicItems, characterLevel),
     [epicItems, characterLevel]
   );
+  // Overclock state — read from epicItems simple_effects (persisted in DB via Epic Equipment page)
+  const overclockState = useMemo(() => {
+    for (const item of epicItems) {
+      if (!item.equipped) continue;
+      const se = item.simple_effects as Record<string, unknown> | null;
+      if (se?.overclock_active) {
+        const endTime = (se.overclock_end_time as number | null) ?? null;
+        // Check if timer has expired
+        if (endTime && endTime <= Date.now()) return { active: false, endTime: null };
+        return { active: true, endTime };
+      }
+    }
+    return { active: false, endTime: null };
+  }, [epicItems]);
+  const overclockActive = overclockState.active;
+
   const eo = epicEffects.statOverrides;
 
-  // Effective stats (with epic overrides)
+  // Overclock is only effective when the ability exists and is active
+  const overclockEffective = overclockActive && epicEffects.overclockAbility != null;
+
+  // Effective stats (with epic overrides + overclock)
   const effectiveStr = eo.str ?? character.str;
   const effectiveDex = eo.dex ?? character.dex;
-  const effectiveCon = eo.con ?? character.con;
+  const effectiveCon = overclockEffective
+    ? epicEffects.overclockAbility!.conOverride
+    : (eo.con ?? character.con);
   const effectiveInt = eo.int ?? character.int;
   const effectiveWis = eo.wis ?? character.wis;
   const effectiveCha = eo.cha ?? character.cha;
@@ -278,18 +300,19 @@ export function PlayMode({
       ),
     [effectiveDex, character.dex, character.dex_aim, character.dex_balance, eo.dex]
   );
+  const conIsOverridden = overclockEffective || eo.con != null;
   const conMods = useMemo(
     () =>
       getConstitutionModifiers(
         effectiveCon,
-        eo.con != null
+        conIsOverridden
           ? (scaleSubStat(character.con, character.con_health, effectiveCon) ?? undefined)
           : (character.con_health ?? undefined),
-        eo.con != null
+        conIsOverridden
           ? (scaleSubStat(character.con, character.con_fitness, effectiveCon) ?? undefined)
           : (character.con_fitness ?? undefined)
       ),
-    [effectiveCon, character.con, character.con_health, character.con_fitness, eo.con]
+    [effectiveCon, character.con, character.con_health, character.con_fitness, conIsOverridden]
   );
   const intMods = useMemo(
     () =>
@@ -483,6 +506,11 @@ export function PlayMode({
     return thiefClass ? getBackstabMultiplier(thiefClass.level) : null;
   }, [showThiefSkills, activeClasses]);
 
+  // Poison save penalty from overclock
+  const poisonSavePenalty = overclockEffective
+    ? epicEffects.overclockAbility!.poisonSavePenalty
+    : 0;
+
   const colors = getClassGroupColors(primaryGroup);
   const kitDef = useMemo(() => getKit(character.kit), [character.kit]);
   const kitDisplayName = kitDef ? localized(kitDef.name, kitDef.name_en, locale) : null;
@@ -629,6 +657,16 @@ export function PlayMode({
         onHpChange={handleHpChange}
       />
 
+      {/* Overclock banner (Kondensator) — read-only display of active overclock */}
+      {overclockEffective && epicEffects.overclockAbility && (
+        <div className="mt-2">
+          <PlayOverclockBanner
+            ability={epicEffects.overclockAbility}
+            endTime={overclockState.endTime}
+          />
+        </div>
+      )}
+
       {/* Mobile: Pill navigation */}
       <div
         className="sticky top-[72px] z-20 flex flex-wrap justify-center gap-1 bg-background/80 px-2 py-2 backdrop-blur-sm sm:hidden"
@@ -724,6 +762,7 @@ export function PlayMode({
             showThiefSkills={showThiefSkills}
             nonweaponProficiencies={nonweaponProficiencies}
             epicEffects={epicEffects}
+            poisonSavePenalty={poisonSavePenalty}
           />
           <PlayCoinPursePanel
             characterId={character.id}
@@ -812,6 +851,7 @@ export function PlayMode({
             showThiefSkills={showThiefSkills}
             nonweaponProficiencies={nonweaponProficiencies}
             epicEffects={epicEffects}
+            poisonSavePenalty={poisonSavePenalty}
           />
         )}
         {activePanel === "inventory" && (
