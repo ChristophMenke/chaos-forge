@@ -23,6 +23,7 @@ import {
   formatDamageWithBonus,
 } from "@/lib/rules/combat";
 import { getNonproficiencyPenalty } from "@/lib/rules/proficiencies";
+import { findWeaponProf } from "@/lib/utils/proficiency-match";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
 import { getKit, getEffectiveHitDie } from "@/lib/rules/kits";
 import { calculateAC, calculateEncumbrance, isShieldItem } from "@/lib/rules/equipment";
@@ -877,8 +878,10 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
             }),
             ...equippedWeapons.map((e) => {
               const weapon = e.weapon!;
-              const isProficient = weaponProficiencies.some(
-                (wp) => wp.weapon_name.toLowerCase() === weapon.name.toLowerCase()
+              const isProficient = !!findWeaponProf(
+                weaponProficiencies,
+                weapon.name,
+                weapon.name_en
               );
               const penalty = isProficient
                 ? 0

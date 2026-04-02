@@ -13,7 +13,7 @@ import {
 } from "@/lib/rules/equipment";
 import { useTranslations, useLocale } from "next-intl";
 import { localized } from "@/lib/utils/localize";
-import { matchesWeaponProf } from "@/lib/utils/proficiency-match";
+import { matchesWeaponProf, findWeaponProf } from "@/lib/utils/proficiency-match";
 import { lbsToKg, feetToMeters } from "@/lib/utils/units";
 import { getStrengthModifiers, getDexterityModifiers } from "@/lib/rules/abilities";
 import {
@@ -1319,8 +1319,10 @@ export function TabEquipment({
                     const hitBonus = item.hit_bonus ?? 0;
                     const dmgBonus = item.damage_bonus ?? 0;
                     const thac0s = getWeaponThac0(weapon, hitBonus);
-                    const isProficient = weaponProficiencies.some(
-                      (wp) => wp.weapon_name.toLowerCase() === weapon.name.toLowerCase()
+                    const isProficient = !!findWeaponProf(
+                      weaponProficiencies,
+                      weapon.name,
+                      weapon.name_en
                     );
                     return (
                       <tr
@@ -1452,8 +1454,10 @@ export function TabEquipment({
                 const hitBonus = item.hit_bonus ?? 0;
                 const dmgBonus = item.damage_bonus ?? 0;
                 const thac0s = getWeaponThac0(weapon, hitBonus);
-                const isProficient = weaponProficiencies.some(
-                  (wp) => wp.weapon_name.toLowerCase() === weapon.name.toLowerCase()
+                const isProficient = !!findWeaponProf(
+                  weaponProficiencies,
+                  weapon.name,
+                  weapon.name_en
                 );
                 return (
                   <div
