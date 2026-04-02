@@ -48,11 +48,19 @@ export function getNonproficiencyPenalty(classGroup: ClassGroup): number {
 }
 
 /**
- * Only single-class fighters can specialize (not rangers, not paladins).
- * PHB Chapter 5.
+ * Whether a class can specialize in weapons.
+ * House rule: all classes can specialize (via Skills & Powers Character Points).
  */
-export function canSpecialize(classId: ClassId): boolean {
-  return classId === "fighter";
+export function canSpecialize(_classId: ClassId): boolean {
+  return true;
+}
+
+/**
+ * Standard PHB specialization is only for Fighters.
+ * Returns true if specialization is non-standard (for warning display).
+ */
+export function isNonStandardSpecialization(classId: ClassId): boolean {
+  return classId !== "fighter";
 }
 
 // ─── WEAPON SPEED FACTORS (PHB Chapter 9) ───────────────────────────────────

@@ -472,6 +472,7 @@
     "addWeaponProf": "Waffenfertigkeit hinzufügen",
     "weaponName": "Waffenname",
     "specialization": "Spezialisierung",
+    "specNonFighterWarning": "Nur für Kämpfer (S&P)",
     "nonProfPenalty": "Malus bei Nichtbeherrschung",
     "addNWP": "Fertigkeit hinzufügen",
     "createCustomNWP": "Eigene Fertigkeit erstellen",

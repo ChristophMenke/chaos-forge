@@ -23,6 +23,7 @@ import type {
 } from "@/lib/supabase/types";
 import { localized } from "@/lib/utils/localize";
 import { lbsToKg } from "@/lib/utils/units";
+import { findWeaponProf } from "@/lib/utils/proficiency-match";
 import type { EpicEffects } from "@/lib/rules/epic-items";
 import { getKit, getKitArmorWarning } from "@/lib/rules/kits";
 import { getMulticlassArmorWarnings } from "@/lib/rules/multiclass";
@@ -87,16 +88,7 @@ export function PlayCombatPanel({
     [equipment]
   );
 
-  const profMap = useMemo(() => {
-    const map = new Map<string, { proficient: boolean; specialized: boolean }>();
-    for (const wp of weaponProficiencies) {
-      map.set(wp.weapon_name.toLowerCase(), {
-        proficient: true,
-        specialized: wp.specialization,
-      });
-    }
-    return map;
-  }, [weaponProficiencies]);
+  // Proficiency matching is handled by findWeaponProf (bilingual DE/EN lookup)
 
   // AC Breakdown — always starts from Base AC 10, armor shown as modifier
   const acBreakdown = useMemo(() => {
@@ -167,9 +159,9 @@ export function PlayCombatPanel({
   function renderWeaponCard(eq: CharacterEquipmentWithDetails, isEquipped: boolean) {
     const weapon = eq.weapon!;
     const weaponName = localized(weapon.name, weapon.name_en, locale);
-    const prof = profMap.get(weapon.name.toLowerCase());
-    const isProficient = prof?.proficient ?? false;
-    const isSpecialized = prof?.specialized ?? false;
+    const matchingProf = findWeaponProf(weaponProficiencies, weapon.name, weapon.name_en);
+    const isProficient = !!matchingProf;
+    const isSpecialized = matchingProf?.specialization ?? false;
     const firstGroup = classGroups[0] ?? "warrior";
     const profPenalty = isProficient ? 0 : getNonproficiencyPenalty(firstGroup);
 

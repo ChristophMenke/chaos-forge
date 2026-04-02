@@ -4,6 +4,7 @@ import {
   getNonweaponProficiencySlots,
   getNonproficiencyPenalty,
   canSpecialize,
+  isNonStandardSpecialization,
   getWeaponSpeedFactor,
 } from "./proficiencies";
 
@@ -75,16 +76,21 @@ describe("PROF-004: Weapon Specialization", () => {
     expect(canSpecialize("fighter")).toBe(true);
   });
 
-  it("should not allow ranger to specialize", () => {
-    expect(canSpecialize("ranger")).toBe(false);
+  it("should allow all classes to specialize (house rule / S&P)", () => {
+    expect(canSpecialize("ranger")).toBe(true);
+    expect(canSpecialize("paladin")).toBe(true);
+    expect(canSpecialize("mage")).toBe(true);
+    expect(canSpecialize("thief")).toBe(true);
+    expect(canSpecialize("cleric")).toBe(true);
   });
 
-  it("should not allow paladin to specialize", () => {
-    expect(canSpecialize("paladin")).toBe(false);
-  });
-
-  it("should not allow mage to specialize", () => {
-    expect(canSpecialize("mage")).toBe(false);
+  it("should flag non-fighter specialization as non-standard", () => {
+    expect(isNonStandardSpecialization("fighter")).toBe(false);
+    expect(isNonStandardSpecialization("ranger")).toBe(true);
+    expect(isNonStandardSpecialization("paladin")).toBe(true);
+    expect(isNonStandardSpecialization("mage")).toBe(true);
+    expect(isNonStandardSpecialization("thief")).toBe(true);
+    expect(isNonStandardSpecialization("cleric")).toBe(true);
   });
 });
 
