@@ -257,8 +257,7 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
       ? classEntries
           .map((ce) => {
             const group = CLASSES[ce.classId]?.group ?? "warrior";
-            const aprGroup = ce.classId === "crusader" ? "warrior" : group;
-            return getAttacksPerRound(aprGroup, ce.level);
+            return getAttacksPerRound(group, ce.level);
           })
           .filter((v, i, a) => a.indexOf(v) === i)
           .join(" / ")

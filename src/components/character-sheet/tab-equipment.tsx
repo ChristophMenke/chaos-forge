@@ -472,14 +472,11 @@ export function TabEquipment({
   const dexMissileAdj = dexMods.missileAdj;
 
   // Determine primary class group for attacks per round
-  // House rule: Crusader gets warrior APR progression
   const primaryClassGroup =
     activeClasses.length > 0
       ? (CLASSES[activeClasses[0].class_id as ClassId]?.group ?? "warrior")
       : "warrior";
   const primaryLevel = activeClasses[0]?.level ?? 1;
-  const isCrusader = activeClasses.some((cc) => cc.class_id === "crusader");
-  const aprClassGroup = isCrusader ? "warrior" : primaryClassGroup;
 
   function getWeaponSpecialized(weaponName: string, weaponNameEn: string | null): boolean {
     return weaponProficiencies.some(
@@ -488,9 +485,12 @@ export function TabEquipment({
   }
 
   function getWeaponAttacksPerRound(weaponName: string, weaponNameEn: string | null): string {
-    // Spec APR bonus only for true warriors, not crusader (house rule)
-    const specForApr = primaryClassGroup === "warrior" && getWeaponSpecialized(weaponName, weaponNameEn);
-    return getAttacksPerRound(aprClassGroup, primaryLevel, specForApr);
+    const isSpec = getWeaponSpecialized(weaponName, weaponNameEn);
+    if (primaryClassGroup === "warrior") {
+      return getAttacksPerRound("warrior", primaryLevel, isSpec);
+    }
+    // S&P: non-warrior specialization grants +1/2 APR (1 → 3/2)
+    return isSpec ? "3/2" : "1";
   }
 
   function getWeaponProficiencyPenalty(weaponName: string, weaponNameEn: string | null): number {

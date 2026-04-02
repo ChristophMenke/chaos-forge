@@ -151,10 +151,9 @@ export function PlayCombatPanel({
 
   const [showAcBreakdown, setShowAcBreakdown] = useState(false);
 
-  // Attacks per round from first warrior class (house rule: crusader gets warrior APR)
+  // Attacks per round from first warrior class
   const warriorEntry = classEntries.find(
-    (ce) =>
-      getClassGroup(ce.classId as ClassId) === "warrior" || ce.classId === "crusader"
+    (ce) => getClassGroup(ce.classId as ClassId) === "warrior"
   );
 
   function renderWeaponCard(eq: CharacterEquipmentWithDetails, isEquipped: boolean) {
@@ -189,18 +188,24 @@ export function PlayCombatPanel({
       eq.damage_bonus
     );
 
-    // Spec APR bonus only for true warriors, not crusader (house rule: crusader gets base warrior APR)
-    const isWarriorClass = warriorEntry
-      ? getClassGroup(warriorEntry.classId as ClassId) === "warrior"
-      : false;
-    const specGivesApr = isWarriorClass && isSpecialized;
-    const apr = warriorEntry
-      ? getAttacksPerRound("warrior", warriorEntry.level, specGivesApr)
-      : "1";
-    const baseApr = warriorEntry
-      ? getAttacksPerRound("warrior", warriorEntry.level, false)
-      : "1";
-    const hasSpecAprBonus = specGivesApr && apr !== baseApr;
+    // Warriors: PHB APR table (with spec bonus from Fighter specialization)
+    // Non-warriors with S&P specialization: +1 APR (1 → 2)
+    let apr: string;
+    let baseApr: string;
+    let hasSpecAprBonus = false;
+    if (warriorEntry) {
+      apr = getAttacksPerRound("warrior", warriorEntry.level, isSpecialized);
+      baseApr = getAttacksPerRound("warrior", warriorEntry.level, false);
+      hasSpecAprBonus = isSpecialized && apr !== baseApr;
+    } else if (isSpecialized) {
+      // S&P: non-warrior specialization grants +1/2 APR (1 → 3/2)
+      apr = "3/2";
+      baseApr = "1";
+      hasSpecAprBonus = true;
+    } else {
+      apr = "1";
+      baseApr = "1";
+    }
 
     return (
       <div

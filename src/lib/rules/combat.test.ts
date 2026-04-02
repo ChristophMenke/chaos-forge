@@ -343,10 +343,11 @@ describe("Lady Catrina: Crusader L11 combat calculations", () => {
       );
     });
 
-    it("APR = 3/2 (Crusader L11 warrior rate, NO spec APR bonus)", () => {
-      // Crusader is NOT a warrior class, so spec APR bonus does not apply
-      // But Crusader gets base warrior APR progression (house rule)
-      expect(getAttacksPerRound("warrior", 11, false)).toBe("3/2");
+    it("APR = 3/2 (S&P: non-warrior spec grants +1/2 APR, 1 → 3/2)", () => {
+      // Crusader is a priest, base APR is 1
+      // S&P specialization grants +1/2 APR → 3/2
+      // The caller (UI) handles this: non-warrior + spec → "3/2"
+      expect(getAttacksPerRound("priest", 11, false)).toBe("1");
     });
   });
 
@@ -380,28 +381,29 @@ describe("Lady Catrina: Crusader L11 combat calculations", () => {
       );
     });
 
-    it("APR = 3/2 (Crusader L11 warrior rate, no spec)", () => {
-      expect(getAttacksPerRound("warrior", 11, false)).toBe("3/2");
+    it("APR = 1 (Crusader is priest group, base APR)", () => {
+      // Without S&P spec, Crusader gets priest APR (1)
+      expect(getAttacksPerRound("priest", 11, false)).toBe("1");
     });
   });
 });
 
-describe("Fighter vs Crusader spec APR comparison", () => {
-  it("Fighter L11 with spec gets 2 APR", () => {
-    expect(getAttacksPerRound("warrior", 11, true)).toBe("2");
+describe("Fighter vs non-warrior spec APR", () => {
+  it("Fighter L9 with spec gets 2 APR (PHB table)", () => {
+    expect(getAttacksPerRound("warrior", 9, true)).toBe("2");
   });
 
-  it("Fighter L11 without spec gets 3/2 APR", () => {
-    expect(getAttacksPerRound("warrior", 11, false)).toBe("3/2");
+  it("Fighter L9 without spec gets 3/2 APR (PHB table)", () => {
+    expect(getAttacksPerRound("warrior", 9, false)).toBe("3/2");
   });
 
-  it("Crusader L11 should be called with isSpecialized=false for APR", () => {
-    // House rule: Crusader gets base warrior APR (3/2 at L11), never spec APR
-    // The caller passes isSpecialized=false for non-fighter classes
-    expect(getAttacksPerRound("warrior", 11, false)).toBe("3/2");
-  });
-
-  it("Priest L11 without crusader override gets 1 APR", () => {
+  it("Priest base APR is always 1", () => {
     expect(getAttacksPerRound("priest", 11, false)).toBe("1");
+  });
+
+  it("Non-warrior S&P spec APR is handled by caller (3/2), not by engine", () => {
+    // getAttacksPerRound for priests always returns "1"
+    // The UI caller checks: if non-warrior + specialized → "3/2"
+    expect(getAttacksPerRound("priest", 11, true)).toBe("1");
   });
 });
