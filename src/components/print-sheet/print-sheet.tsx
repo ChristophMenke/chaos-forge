@@ -695,29 +695,29 @@ export function PrintSheet({
                   );
                   const isProficient = !!matchingProf;
                   const isSpecialized = matchingProf?.specialization ?? false;
+                  const specHitBonus = isSpecialized ? 1 : 0;
+                  const specDmgBonus = isSpecialized ? 2 : 0;
                   const weaponClassGroup =
                     activeClasses.length > 0
                       ? (CLASSES[activeClasses[0].class_id as ClassId]?.group ?? "warrior")
                       : "warrior";
+                  const isCrusader = activeClasses.some((cc) => cc.class_id === "crusader");
+                  const aprGroup = isCrusader ? "warrior" : weaponClassGroup;
                   const weaponLevel = activeClasses[0]?.level ?? 1;
                   const weaponApr = getAttacksPerRound(
-                    weaponClassGroup,
+                    aprGroup,
                     weaponLevel,
                     isSpecialized
                   );
                   const penalty = isProficient
                     ? 0
-                    : getNonproficiencyPenalty(
-                        activeClasses.length > 0
-                          ? (CLASSES[activeClasses[0].class_id as ClassId]?.group ?? "warrior")
-                          : "warrior"
-                      );
+                    : getNonproficiencyPenalty(weaponClassGroup);
                   const hitBonus = e.hit_bonus ?? 0;
                   const dmgBonus = e.damage_bonus ?? 0;
                   const weaponThac0 = getAdjustedWeaponThac0(
                     thac0,
-                    strMods.hitAdj,
-                    dexMods.missileAdj,
+                    strMods.hitAdj + specHitBonus,
+                    dexMods.missileAdj + specHitBonus,
                     weapon.weapon_type,
                     penalty,
                     hitBonus
@@ -751,13 +751,13 @@ export function PrintSheet({
                         className="py-1 text-center font-mono"
                         data-testid={`print-weapon-damage-sm-${e.id}`}
                       >
-                        {formatDamageWithBonus(weapon.damage_sm, strMods.dmgAdj, dmgBonus)}
+                        {formatDamageWithBonus(weapon.damage_sm, strMods.dmgAdj + specDmgBonus, dmgBonus)}
                       </td>
                       <td
                         className="py-1 text-center font-mono"
                         data-testid={`print-weapon-damage-l-${e.id}`}
                       >
-                        {formatDamageWithBonus(weapon.damage_l, strMods.dmgAdj, dmgBonus)}
+                        {formatDamageWithBonus(weapon.damage_l, strMods.dmgAdj + specDmgBonus, dmgBonus)}
                       </td>
                       <td
                         className="py-1 text-center font-mono"
