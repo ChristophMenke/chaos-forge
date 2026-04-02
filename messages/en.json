@@ -472,6 +472,7 @@
     "addWeaponProf": "Add Weapon Proficiency",
     "weaponName": "Weapon Name",
     "specialization": "Specialization",
+    "specNonFighterWarning": "Fighters only (S&P)",
     "nonProfPenalty": "Non-proficiency Penalty",
     "addNWP": "Add Proficiency",
     "createCustomNWP": "Create Custom Proficiency",

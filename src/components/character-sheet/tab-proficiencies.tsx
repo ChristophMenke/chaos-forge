@@ -159,6 +159,7 @@ export function TabProficiencies({
   }
   const penalty = getNonproficiencyPenalty(group);
   const showSpecialization = canSpecialize(classId as ClassId);
+  const showSpecWarning = group !== "warrior";
 
   const fightingStyleSlots = fightingStyles.reduce((sum, fs) => sum + fs.slots_invested, 0);
 
@@ -504,6 +505,11 @@ export function TabProficiencies({
                   <span className="text-sm font-medium">{wp.weapon_name}</span>
                   {wp.specialization && (
                     <Badge data-testid={`weapon-specialized-${wp.id}`}>{t("specialization")}</Badge>
+                  )}
+                  {showSpecWarning && wp.specialization && (
+                    <span className="text-xs text-amber-400" data-testid={`weapon-spec-warning-${wp.id}`}>
+                      {t("specNonFighterWarning")}
+                    </span>
                   )}
                 </div>
                 {!readOnly && (

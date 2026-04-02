@@ -27,6 +27,7 @@ import { calculateAC, calculateEncumbrance, isShieldItem } from "@/lib/rules/equ
 import { feetToMeters } from "@/lib/utils/units";
 import { getAllAbilityModifiers } from "@/lib/rules/abilities";
 import { lbsToKg } from "@/lib/utils/units";
+import { findWeaponProf } from "@/lib/utils/proficiency-match";
 import type {
   CharacterRow,
   CharacterClassRow,
@@ -687,8 +688,10 @@ export function PrintSheet({
                 .filter((e) => e.weapon && e.equipped)
                 .map((e) => {
                   const weapon = e.weapon!;
-                  const matchingProf = weaponProficiencies.find(
-                    (wp) => wp.weapon_name.toLowerCase() === weapon.name.toLowerCase()
+                  const matchingProf = findWeaponProf(
+                    weaponProficiencies,
+                    weapon.name,
+                    weapon.name_en
                   );
                   const isProficient = !!matchingProf;
                   const isSpecialized = matchingProf?.specialization ?? false;

@@ -13,6 +13,7 @@ import {
 } from "@/lib/rules/equipment";
 import { useTranslations, useLocale } from "next-intl";
 import { localized } from "@/lib/utils/localize";
+import { matchesWeaponProf } from "@/lib/utils/proficiency-match";
 import { lbsToKg, feetToMeters } from "@/lib/utils/units";
 import { getStrengthModifiers, getDexterityModifiers } from "@/lib/rules/abilities";
 import {
@@ -476,23 +477,23 @@ export function TabEquipment({
       ? (CLASSES[activeClasses[0].class_id as ClassId]?.group ?? "warrior")
       : "warrior";
   const primaryLevel = activeClasses[0]?.level ?? 1;
-  function getWeaponAttacksPerRound(weaponName: string): string {
+  function getWeaponAttacksPerRound(weaponName: string, weaponNameEn: string | null): string {
     const isSpecialized = weaponProficiencies.some(
-      (wp) => wp.weapon_name.toLowerCase() === weaponName.toLowerCase() && wp.specialization
+      (wp) => matchesWeaponProf(wp, weaponName, weaponNameEn) && wp.specialization
     );
     return getAttacksPerRound(primaryClassGroup, primaryLevel, isSpecialized);
   }
 
-  function getWeaponProficiencyPenalty(weaponName: string): number {
-    const isProficient = weaponProficiencies.some(
-      (wp) => wp.weapon_name.toLowerCase() === weaponName.toLowerCase()
+  function getWeaponProficiencyPenalty(weaponName: string, weaponNameEn: string | null): number {
+    const isProficient = weaponProficiencies.some((wp) =>
+      matchesWeaponProf(wp, weaponName, weaponNameEn)
     );
     if (isProficient) return 0;
     return getNonproficiencyPenalty(primaryClassGroup);
   }
 
   function getWeaponThac0(weapon: WeaponRow, hitBonus = 0) {
-    const penalty = getWeaponProficiencyPenalty(weapon.name);
+    const penalty = getWeaponProficiencyPenalty(weapon.name, weapon.name_en);
     return getAdjustedWeaponThac0(
       baseThac0,
       strHitAdj,
@@ -1427,7 +1428,7 @@ export function TabEquipment({
                           className="py-2 text-center font-mono"
                           data-testid={`weapon-apr-${item.id}`}
                         >
-                          {getWeaponAttacksPerRound(weapon.name)}
+                          {getWeaponAttacksPerRound(weapon.name, weapon.name_en)}
                         </td>
                         <td
                           className="py-2 text-center font-mono"
@@ -1555,7 +1556,7 @@ export function TabEquipment({
                         <span className="text-xs text-muted-foreground">
                           {t("attacksPerRound")}:
                         </span>{" "}
-                        <span className="font-mono">{getWeaponAttacksPerRound(weapon.name)}</span>
+                        <span className="font-mono">{getWeaponAttacksPerRound(weapon.name, weapon.name_en)}</span>
                       </div>
                       <div data-testid={`weapon-card-weight-${item.id}`}>
                         <span className="text-xs text-muted-foreground">{t("weight")}:</span>{" "}
