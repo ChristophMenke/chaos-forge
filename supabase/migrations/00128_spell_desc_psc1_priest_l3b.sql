@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════════════════════
--- PSC1 Priest Spells Level 3 (Batch 2: 18 Spells — Charm of Isis to Detect Spirits)
+-- PSC1 Priest Spells Level 3 (Batch 2: 25 Spells — Charm of Isis to Detect Spirits)
 -- Metrisch, eng an Originaltexten orientiert
 -- ═══════════════════════════════════════════════════════════════════════════════
 
