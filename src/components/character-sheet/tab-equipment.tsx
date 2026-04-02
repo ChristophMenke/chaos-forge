@@ -488,8 +488,9 @@ export function TabEquipment({
   }
 
   function getWeaponAttacksPerRound(weaponName: string, weaponNameEn: string | null): string {
-    const isSpecialized = getWeaponSpecialized(weaponName, weaponNameEn);
-    return getAttacksPerRound(aprClassGroup, primaryLevel, isSpecialized);
+    // Spec APR bonus only for true warriors, not crusader (house rule)
+    const specForApr = primaryClassGroup === "warrior" && getWeaponSpecialized(weaponName, weaponNameEn);
+    return getAttacksPerRound(aprClassGroup, primaryLevel, specForApr);
   }
 
   function getWeaponProficiencyPenalty(weaponName: string, weaponNameEn: string | null): number {

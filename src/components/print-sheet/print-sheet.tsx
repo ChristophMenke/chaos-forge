@@ -704,10 +704,11 @@ export function PrintSheet({
                   const isCrusader = activeClasses.some((cc) => cc.class_id === "crusader");
                   const aprGroup = isCrusader ? "warrior" : weaponClassGroup;
                   const weaponLevel = activeClasses[0]?.level ?? 1;
+                  const specForApr = weaponClassGroup === "warrior" && isSpecialized;
                   const weaponApr = getAttacksPerRound(
                     aprGroup,
                     weaponLevel,
-                    isSpecialized
+                    specForApr
                   );
                   const penalty = isProficient
                     ? 0

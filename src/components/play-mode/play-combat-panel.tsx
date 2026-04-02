@@ -189,8 +189,12 @@ export function PlayCombatPanel({
       eq.damage_bonus
     );
 
+    // Spec APR bonus only for true warriors, not crusader (house rule: crusader gets base warrior APR)
+    const isWarriorClass = warriorEntry
+      ? getClassGroup(warriorEntry.classId as ClassId) === "warrior"
+      : false;
     const apr = warriorEntry
-      ? getAttacksPerRound("warrior", warriorEntry.level, isSpecialized)
+      ? getAttacksPerRound("warrior", warriorEntry.level, isWarriorClass && isSpecialized)
       : "1";
 
     return (
