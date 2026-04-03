@@ -140,9 +140,9 @@ export function PlayCombatPanel({
 
   const [showAcBreakdown, setShowAcBreakdown] = useState(false);
 
-  // Attacks per round from first warrior class (house rule: crusader gets warrior APR)
+  // Attacks per round from first warrior class
   const warriorEntry = classEntries.find(
-    (ce) => getClassGroup(ce.classId as ClassId) === "warrior" || ce.classId === "crusader"
+    (ce) => getClassGroup(ce.classId as ClassId) === "warrior"
   );
 
   function renderWeaponCard(eq: CharacterEquipmentWithDetails, isEquipped: boolean) {
@@ -177,9 +177,22 @@ export function PlayCombatPanel({
       eq.damage_bonus
     );
 
-    const apr = warriorEntry
-      ? getAttacksPerRound("warrior", warriorEntry.level, isSpecialized)
-      : "1";
+    // Warriors: PHB APR table, Non-warriors with S&P spec: +1/2 APR (1 → 3/2)
+    let apr: string;
+    let baseApr: string;
+    let hasSpecAprBonus = false;
+    if (warriorEntry) {
+      apr = getAttacksPerRound("warrior", warriorEntry.level, isSpecialized);
+      baseApr = getAttacksPerRound("warrior", warriorEntry.level, false);
+      hasSpecAprBonus = isSpecialized && apr !== baseApr;
+    } else if (isSpecialized) {
+      apr = "3/2";
+      baseApr = "1";
+      hasSpecAprBonus = true;
+    } else {
+      apr = "1";
+      baseApr = "1";
+    }
 
     return (
       <div
@@ -221,9 +234,12 @@ export function PlayCombatPanel({
           <div>
             <span className="text-xs text-muted-foreground">{t("attacksPerRound")}: </span>
             <span className="font-mono">{apr}</span>
+            {hasSpecAprBonus && (
+              <span className="ml-1 text-[10px] text-amber-400">({baseApr} +★)</span>
+            )}
           </div>
         </div>
-        <div className="mt-1.5 flex items-center gap-2">
+        <div className="mt-1.5 flex flex-wrap items-center gap-2">
           {eq.hit_bonus > 0 && (
             <span className="text-xs text-muted-foreground">
               +{eq.hit_bonus} {t("magicBonus")}
