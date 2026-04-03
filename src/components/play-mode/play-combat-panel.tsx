@@ -278,58 +278,101 @@ export function PlayCombatPanel({
             className="mt-2 space-y-2 border-t border-border/50 pt-2 text-xs"
             data-testid={`play-weapon-breakdown-${eq.id}`}
           >
-            {/* THAC0 Breakdown */}
-            <div>
-              <div className="mb-1 font-medium text-muted-foreground">
-                THAC0 {weapon.weapon_type !== "ranged" ? t("melee") : t("ranged")}
-              </div>
-              <div className="space-y-0.5 pl-2 font-mono text-[11px]">
-                <div className="flex justify-between">
-                  <span>{t("baseThac0")}</span>
-                  <span>{thac0}</span>
-                </div>
-                {weapon.weapon_type !== "ranged" && strMods.hitAdj !== 0 && (
+            {/* THAC0 Melee Breakdown */}
+            {weapon.weapon_type !== "ranged" && (
+              <div>
+                <div className="mb-1 font-medium text-muted-foreground">THAC0 {t("melee")}</div>
+                <div className="space-y-0.5 pl-2 font-mono text-[11px]">
                   <div className="flex justify-between">
-                    <span>{t("strHitAdj")}</span>
-                    <span>{strMods.hitAdj > 0 ? `-${strMods.hitAdj}` : `+${-strMods.hitAdj}`}</span>
+                    <span>{t("baseThac0")}</span>
+                    <span>{thac0}</span>
                   </div>
-                )}
-                {weapon.weapon_type !== "melee" && dexMods.missileAdj !== 0 && (
-                  <div className="flex justify-between">
-                    <span>{t("dexMissileAdj")}</span>
-                    <span>
-                      {dexMods.missileAdj > 0
-                        ? `-${dexMods.missileAdj}`
-                        : `+${-dexMods.missileAdj}`}
-                    </span>
+                  {strMods.hitAdj !== 0 && (
+                    <div className="flex justify-between">
+                      <span>{t("strHitAdj")}</span>
+                      <span>
+                        {strMods.hitAdj > 0 ? `-${strMods.hitAdj}` : `+${-strMods.hitAdj}`}
+                      </span>
+                    </div>
+                  )}
+                  {specHitBonus > 0 && (
+                    <div className="flex justify-between text-amber-400">
+                      <span>★ {t("specHitBonus")}</span>
+                      <span>-{specHitBonus}</span>
+                    </div>
+                  )}
+                  {profPenalty !== 0 && (
+                    <div className="flex justify-between text-red-400">
+                      <span>
+                        {t("notProficient")} ({t("profPenalty")})
+                      </span>
+                      <span>+{-profPenalty}</span>
+                    </div>
+                  )}
+                  {eq.hit_bonus !== 0 && (
+                    <div
+                      className={`flex justify-between ${eq.hit_bonus > 0 ? "text-blue-400" : "text-red-400"}`}
+                    >
+                      <span>{t("magicHitBonus")}</span>
+                      <span>{eq.hit_bonus > 0 ? `-${eq.hit_bonus}` : `+${-eq.hit_bonus}`}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between border-t border-border/30 pt-0.5 font-bold">
+                    <span>= THAC0</span>
+                    <span>{adjusted.melee}</span>
                   </div>
-                )}
-                {specHitBonus > 0 && (
-                  <div className="flex justify-between text-amber-400">
-                    <span>★ {t("specHitBonus")}</span>
-                    <span>-{specHitBonus}</span>
-                  </div>
-                )}
-                {profPenalty !== 0 && (
-                  <div className="flex justify-between text-red-400">
-                    <span>
-                      {t("notProficient")} ({t("profPenalty")})
-                    </span>
-                    <span>+{-profPenalty}</span>
-                  </div>
-                )}
-                {eq.hit_bonus > 0 && (
-                  <div className="flex justify-between text-blue-400">
-                    <span>{t("magicHitBonus")}</span>
-                    <span>-{eq.hit_bonus}</span>
-                  </div>
-                )}
-                <div className="flex justify-between border-t border-border/30 pt-0.5 font-bold">
-                  <span>= THAC0</span>
-                  <span>{weapon.weapon_type !== "ranged" ? adjusted.melee : adjusted.ranged}</span>
                 </div>
               </div>
-            </div>
+            )}
+
+            {/* THAC0 Ranged Breakdown */}
+            {adjusted.ranged !== null && (
+              <div>
+                <div className="mb-1 font-medium text-muted-foreground">THAC0 {t("ranged")}</div>
+                <div className="space-y-0.5 pl-2 font-mono text-[11px]">
+                  <div className="flex justify-between">
+                    <span>{t("baseThac0")}</span>
+                    <span>{thac0}</span>
+                  </div>
+                  {dexMods.missileAdj !== 0 && (
+                    <div className="flex justify-between">
+                      <span>{t("dexMissileAdj")}</span>
+                      <span>
+                        {dexMods.missileAdj > 0
+                          ? `-${dexMods.missileAdj}`
+                          : `+${-dexMods.missileAdj}`}
+                      </span>
+                    </div>
+                  )}
+                  {specHitBonus > 0 && (
+                    <div className="flex justify-between text-amber-400">
+                      <span>★ {t("specHitBonus")}</span>
+                      <span>-{specHitBonus}</span>
+                    </div>
+                  )}
+                  {profPenalty !== 0 && (
+                    <div className="flex justify-between text-red-400">
+                      <span>
+                        {t("notProficient")} ({t("profPenalty")})
+                      </span>
+                      <span>+{-profPenalty}</span>
+                    </div>
+                  )}
+                  {eq.hit_bonus !== 0 && (
+                    <div
+                      className={`flex justify-between ${eq.hit_bonus > 0 ? "text-blue-400" : "text-red-400"}`}
+                    >
+                      <span>{t("magicHitBonus")}</span>
+                      <span>{eq.hit_bonus > 0 ? `-${eq.hit_bonus}` : `+${-eq.hit_bonus}`}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between border-t border-border/30 pt-0.5 font-bold">
+                    <span>= THAC0</span>
+                    <span>{adjusted.ranged}</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Damage Breakdown */}
             <div>
@@ -353,10 +396,12 @@ export function PlayCombatPanel({
                     <span>+{specDmgBonus}</span>
                   </div>
                 )}
-                {eq.damage_bonus > 0 && (
-                  <div className="flex justify-between text-blue-400">
+                {eq.damage_bonus !== 0 && (
+                  <div
+                    className={`flex justify-between ${eq.damage_bonus > 0 ? "text-blue-400" : "text-red-400"}`}
+                  >
                     <span>{t("magicDmgBonus")}</span>
-                    <span>+{eq.damage_bonus}</span>
+                    <span>{eq.damage_bonus > 0 ? `+${eq.damage_bonus}` : eq.damage_bonus}</span>
                   </div>
                 )}
                 <div className="flex justify-between border-t border-border/30 pt-0.5 font-bold">
