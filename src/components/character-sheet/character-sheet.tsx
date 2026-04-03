@@ -230,7 +230,7 @@ export function CharacterSheet({
   const casterLevel = casterClass?.level ?? primaryLevel;
 
   // Epic item effects (stat overrides, thief penalties, spell failure warnings)
-  const epicEffects: EpicEffects = getEpicEffects(epicItems);
+  const epicEffects: EpicEffects = useMemo(() => getEpicEffects(epicItems), [epicItems]);
   const eo = epicEffects.statOverrides;
 
   // Apply epic stat overrides (e.g., Kondensator overrides CON)

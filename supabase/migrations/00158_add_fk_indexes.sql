@@ -34,6 +34,12 @@ CREATE INDEX IF NOT EXISTS idx_xp_history_character_id
 CREATE INDEX IF NOT EXISTS idx_character_shares_shared_with
   ON public.character_shares (shared_with_user_id);
 
--- Composite index for spell filtering (priest-spells.ts)
+CREATE INDEX IF NOT EXISTS idx_session_entries_session_id
+  ON public.session_entries (session_id);
+
+-- Composite indexes for spell filtering (priest-spells.ts)
 CREATE INDEX IF NOT EXISTS idx_spells_type_level
   ON public.spells (spell_type, level);
+
+CREATE INDEX IF NOT EXISTS idx_spells_type_sphere
+  ON public.spells (spell_type, sphere);

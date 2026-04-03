@@ -129,48 +129,53 @@ export function XpAddDialog({
     if (xpNum <= 0 || remaining < 0) return;
     setSaving(true);
 
-    const supabase = createClient();
+    try {
+      const supabase = createClient();
 
-    // Update each class's XP and level (parallel)
-    const classUpdates = activeClasses
-      .map((cc) => {
+      // Update each class's XP and level (parallel)
+      const classUpdates = activeClasses
+        .map((cc) => {
+          const classXp = classXpValues.find((v) => v.classId === cc.class_id)?.xp ?? 0;
+          if (classXp <= 0) return null;
+          const preview = previewXpGain(cc.class_id as ClassId, cc.level, cc.xp_current, classXp);
+          return supabase
+            .from("character_classes")
+            .update({ xp_current: preview.newXp, level: preview.newLevel })
+            .eq("id", cc.id);
+        })
+        .filter(Boolean);
+
+      await Promise.all(classUpdates);
+
+      // Save to XP history
+      await supabase.from("xp_history").insert({
+        character_id: characterId,
+        session_id: selectedSessionId || null,
+        xp_amount: xpNum,
+        note: note.trim(),
+      });
+
+      // Optimistic update (only on success)
+      const updatedClasses = characterClasses.map((cc) => {
+        if (!cc.is_active) return cc;
         const classXp = classXpValues.find((v) => v.classId === cc.class_id)?.xp ?? 0;
-        if (classXp <= 0) return null;
+        if (classXp <= 0) return cc;
         const preview = previewXpGain(cc.class_id as ClassId, cc.level, cc.xp_current, classXp);
-        return supabase
-          .from("character_classes")
-          .update({ xp_current: preview.newXp, level: preview.newLevel })
-          .eq("id", cc.id);
-      })
-      .filter(Boolean);
+        return { ...cc, xp_current: preview.newXp, level: preview.newLevel };
+      });
+      onClassesChange(updatedClasses);
 
-    await Promise.all(classUpdates);
-
-    // Save to XP history
-    await supabase.from("xp_history").insert({
-      character_id: characterId,
-      session_id: selectedSessionId || null,
-      xp_amount: xpNum,
-      note: note.trim(),
-    });
-
-    // Optimistic update
-    const updatedClasses = characterClasses.map((cc) => {
-      if (!cc.is_active) return cc;
-      const classXp = classXpValues.find((v) => v.classId === cc.class_id)?.xp ?? 0;
-      if (classXp <= 0) return cc;
-      const preview = previewXpGain(cc.class_id as ClassId, cc.level, cc.xp_current, classXp);
-      return { ...cc, xp_current: preview.newXp, level: preview.newLevel };
-    });
-    onClassesChange(updatedClasses);
-
-    setSaving(false);
-    setXpAmount("");
-    setNote("");
-    setSelectedSessionId("");
-    setClassXpOverrides({});
-    setHasManualOverride(false);
-    onClose();
+      setXpAmount("");
+      setNote("");
+      setSelectedSessionId("");
+      setClassXpOverrides({});
+      setHasManualOverride(false);
+      onClose();
+    } catch (err) {
+      console.error("Failed to save XP:", err);
+    } finally {
+      setSaving(false);
+    }
   }
 
   if (!open) return null;
