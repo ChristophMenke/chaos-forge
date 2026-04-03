@@ -37,6 +37,7 @@ import type {
   CharacterNWPWithDetails,
   CharacterLanguageRow,
   CharacterFightingStyleRow,
+  CharacterInventoryWithDetails,
   SpellRow,
 } from "@/lib/supabase/types";
 import { isPriestCaster } from "@/lib/rules/magic";
@@ -51,6 +52,7 @@ export interface PrintSheetProps {
   nonweaponProficiencies: CharacterNWPWithDetails[];
   languages: CharacterLanguageRow[];
   fightingStyles: CharacterFightingStyleRow[];
+  inventory: CharacterInventoryWithDetails[];
   priestAvailableSpells?: SpellRow[];
 }
 
@@ -68,6 +70,7 @@ export function PrintSheet({
   nonweaponProficiencies,
   languages,
   fightingStyles,
+  inventory,
   priestAvailableSpells = [],
   preferences = DEFAULT_PRINT_PREFERENCES,
   toolbar,
@@ -841,6 +844,45 @@ export function PrintSheet({
       );
     },
 
+    generalInventory: () => {
+      if (inventory.length === 0) return null;
+      return (
+        <section className="mb-4" data-testid="print-section-generalInventory">
+          <h2 className="mb-2 border-b border-gray-400 font-serif text-lg font-bold">
+            {t("generalInventoryTitle")}
+          </h2>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-300 text-left text-xs">
+                <th className="py-1">{t("itemLabel")}</th>
+                <th className="py-1 text-center">{t("weight")}</th>
+                <th className="py-1 text-center">{t("quantity")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {inventory.map((inv) => (
+                <tr
+                  key={inv.id}
+                  className="border-b border-gray-200"
+                  data-testid={`print-inventory-row-${inv.id}`}
+                >
+                  <td className="py-1">
+                    {inv.item
+                      ? localized(inv.item.name, inv.item.name_en, locale)
+                      : (inv.custom_name ?? "—")}
+                  </td>
+                  <td className="py-1 text-center text-xs">
+                    {inv.item ? `${lbsToKg(inv.item.weight)} kg` : "—"}
+                  </td>
+                  <td className="py-1 text-center text-xs">{inv.quantity}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      );
+    },
+
     spells: () => {
       const isPriest = isPriestCaster(character.class_id as ClassId);
       const priestSpells = priestAvailableSpells;
@@ -1095,6 +1137,7 @@ export function PrintSheetContainer({
   nonweaponProficiencies,
   languages,
   fightingStyles,
+  inventory,
   priestAvailableSpells = [],
 }: PrintSheetProps) {
   const t = useTranslations("print");
@@ -1116,6 +1159,7 @@ export function PrintSheetContainer({
     nonweaponProficiencies,
     languages,
     fightingStyles,
+    inventory,
     hasThiefSkills: hasThiefSkills(classIds),
     hasRacialClassAbilities: !!(
       (race?.racialAbilities?.length ?? 0) > 0 || activeClasses.length > 0
@@ -1146,6 +1190,7 @@ export function PrintSheetContainer({
               nonweaponProficiencies,
               languages,
               fightingStyles,
+              inventory,
               priestAvailableSpells,
               locale,
               preferences,
@@ -1184,6 +1229,7 @@ export function PrintSheetContainer({
       nonweaponProficiencies={nonweaponProficiencies}
       languages={languages}
       fightingStyles={fightingStyles}
+      inventory={inventory}
       priestAvailableSpells={priestAvailableSpells}
       preferences={preferences}
       toolbar={toolbar}

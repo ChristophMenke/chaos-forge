@@ -12,6 +12,7 @@ import type {
   CharacterNWPWithDetails,
   CharacterLanguageRow,
   CharacterFightingStyleRow,
+  CharacterInventoryWithDetails,
 } from "@/lib/supabase/types";
 
 interface PrintPageProps {
@@ -72,6 +73,11 @@ export default async function PrintPage({ params }: PrintPageProps) {
     .eq("character_id", id)
     .returns<CharacterFightingStyleRow[]>();
 
+  const { data: inventory } = await supabase
+    .from("character_inventory")
+    .select("*, item:general_items(*)")
+    .eq("character_id", id);
+
   const priestAvailableSpells = await fetchAvailablePriestSpells(
     supabase,
     character,
@@ -88,6 +94,7 @@ export default async function PrintPage({ params }: PrintPageProps) {
       nonweaponProficiencies={(nwProfs as CharacterNWPWithDetails[]) ?? []}
       languages={languages ?? []}
       fightingStyles={fightingStyles ?? []}
+      inventory={(inventory as CharacterInventoryWithDetails[]) ?? []}
       priestAvailableSpells={priestAvailableSpells}
     />
   );

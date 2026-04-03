@@ -42,6 +42,7 @@ import type {
   CharacterNWPWithDetails,
   CharacterLanguageRow,
   CharacterFightingStyleRow,
+  CharacterInventoryWithDetails,
   SpellRow,
 } from "@/lib/supabase/types";
 import type { PrintPreferences, PrintSectionId } from "@/lib/print-config";
@@ -56,6 +57,7 @@ export interface PrintSheetProps {
   nonweaponProficiencies: CharacterNWPWithDetails[];
   languages: CharacterLanguageRow[];
   fightingStyles: CharacterFightingStyleRow[];
+  inventory: CharacterInventoryWithDetails[];
   priestAvailableSpells?: SpellRow[];
   locale: string;
   preferences?: PrintPreferences;
@@ -148,6 +150,7 @@ const DOCX_I18N: Record<string, Record<string, string>> = {
     thiefSkills: "Diebesfähigkeiten",
     weapons: "Waffen",
     armorInventory: "Rüstung & Inventar",
+    generalInventory: "Allgemeine Gegenstände",
     spellsKnown: "Bekannte Zauber",
     spellsMemorized: "Vorbereitete Zauber",
     proficiencies: "Fertigkeiten",
@@ -170,6 +173,7 @@ const DOCX_I18N: Record<string, Record<string, string>> = {
     thiefSkills: "Thief Skills",
     weapons: "Weapons",
     armorInventory: "Armor & Inventory",
+    generalInventory: "General Inventory",
     spellsKnown: "Spells Known",
     spellsMemorized: "Spells Memorized",
     proficiencies: "Proficiencies",
@@ -198,6 +202,7 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
     nonweaponProficiencies,
     languages,
     fightingStyles,
+    inventory,
     priestAvailableSpells = [],
   } = props;
 
@@ -1017,6 +1022,52 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
                     }),
                     cell(e.equipped ? "Equipped" : "Inventory", {
                       width: 20,
+                      alignment: AlignmentType.CENTER,
+                    }),
+                  ],
+                })
+            ),
+          ],
+        })
+      );
+
+      return result;
+    },
+
+    // ── 7b. General Inventory ─────────────────────────────────────────────
+    generalInventory: () => {
+      if (inventory.length === 0) return [];
+
+      const result: (Paragraph | Table)[] = [];
+      result.push(sectionHeading(dt.generalInventory));
+      result.push(
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              tableHeader: true,
+              children: [
+                headerCell("Item", { width: 50 }),
+                headerCell("Weight", { width: 25, alignment: AlignmentType.CENTER }),
+                headerCell("Qty", { width: 25, alignment: AlignmentType.CENTER }),
+              ],
+            }),
+            ...inventory.map(
+              (inv) =>
+                new TableRow({
+                  children: [
+                    cell(
+                      inv.item
+                        ? localized(inv.item.name, inv.item.name_en, props.locale)
+                        : (inv.custom_name ?? "—"),
+                      { width: 50 }
+                    ),
+                    cell(inv.item ? `${lbsToKg(inv.item.weight)} kg` : "—", {
+                      width: 25,
+                      alignment: AlignmentType.CENTER,
+                    }),
+                    cell(String(inv.quantity), {
+                      width: 25,
                       alignment: AlignmentType.CENTER,
                     }),
                   ],
