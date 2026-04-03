@@ -18,6 +18,7 @@ interface DistributeGoldDialogProps {
   gold: PartyLootGoldRow;
   characters: CharacterOption[];
   userId: string;
+  activeCharacterName?: string;
   onDistribute: (updatedGold: PartyLootGoldRow) => void;
   onClose: () => void;
 }
@@ -26,6 +27,7 @@ export function DistributeGoldDialog({
   gold,
   characters,
   userId,
+  activeCharacterName = "",
   onDistribute,
   onClose,
 }: DistributeGoldDialogProps) {
@@ -89,7 +91,7 @@ export function DistributeGoldDialog({
         action: "distribute_gold",
         user_id: userId,
         character_id: selectedCharacterId,
-        details: { coins: { ...amounts }, amount: parts.join(", ") },
+        details: { coins: { ...amounts }, amount: parts.join(", "), actor: activeCharacterName },
       });
 
       const updatedGold: PartyLootGoldRow = {

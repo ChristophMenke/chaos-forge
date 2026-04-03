@@ -25,6 +25,7 @@ import { getNonproficiencyPenalty } from "@/lib/rules/proficiencies";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
 import { getKit, getEffectiveHitDie } from "@/lib/rules/kits";
 import { calculateAC, calculateEncumbrance, isShieldItem } from "@/lib/rules/equipment";
+import { getSingleWeaponStyleBonus } from "@/lib/rules/fighting-styles";
 import { feetToMeters } from "@/lib/utils/units";
 import { getAllAbilityModifiers } from "@/lib/rules/abilities";
 import { lbsToKg } from "@/lib/utils/units";
@@ -129,6 +130,7 @@ export function PrintSheet({
     ignoreEncumbrance: character.ignore_encumbrance,
     isMagicalProtection,
     epicAcBonus: epicEffects.acBonus,
+    singleWeaponStyleBonus: getSingleWeaponStyleBonus(fightingStyles),
   });
 
   const strDisplay =
@@ -647,6 +649,13 @@ export function PrintSheet({
         if (hasWarriorOrRogue && isUnencumbered) {
           parts.push({ label: t("unarmoredBonus"), value: -2 });
         }
+      }
+      const swsBonus = getSingleWeaponStyleBonus(fightingStyles);
+      if (swsBonus > 0 && !hasShieldForAC) {
+        parts.push({
+          label: t("singleWeaponStyleBonus"),
+          value: -swsBonus,
+        });
       }
       if (epicEffects.acBonus) {
         parts.push({

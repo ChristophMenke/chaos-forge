@@ -408,7 +408,13 @@ export interface PartyLootItemWithDetails extends PartyLootItemRow {
 
 export interface PartyLootLogRow {
   id: string;
-  action: "add_gold" | "add_item" | "distribute_gold" | "distribute_item" | "remove_item";
+  action:
+    | "add_gold"
+    | "add_item"
+    | "distribute_gold"
+    | "distribute_item"
+    | "remove_item"
+    | "remove_gold";
   user_id: string;
   character_id: string | null;
   details: Record<string, unknown>;

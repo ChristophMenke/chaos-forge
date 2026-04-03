@@ -571,6 +571,7 @@
     "totalXp": "Gesamt-XP",
     "tagCloud": "Kampagnen-Tags",
     "partyComposition": "Party-Zusammensetzung",
+    "partyOverview": "Party-Übersicht",
     "throwback": "Rückblick",
     "throwbackPrefix": "Vor {count} Sessions",
     "noQuotes": "Noch keine Zitate.",
@@ -749,6 +750,7 @@
     "acFinal": "Gesamt",
     "unarmoredBonus": "Ungerüstet",
     "epicAcBonus": "Episch",
+    "singleWeaponStyleBonus": "Einhandkampf",
     "weaponsTitle": "Waffen",
     "armorTitle": "Rüstungen & Inventar",
     "generalInventoryTitle": "Allgemeine Gegenstände",
@@ -1009,6 +1011,7 @@
     "overclockHealing": "Heilt {hp} TP/Stunde",
     "overclockExpired": "Übertaktung beendet",
     "epicAcBonus": "+{bonus} (Episch)",
+    "singleWeaponStyleBonus": "Einhandkampf",
     "kitAbilities": "Kit-Fähigkeiten",
     "kitArmorWarning": "Kit-Rüstungsbeschränkung: {kitName} erlaubt maximal RK {maxAC}",
     "kitSpellFailure": "Zauber-Fehlschlag: {percent}% ({kitName})",
@@ -1129,6 +1132,18 @@
     "cancel": "Abbrechen",
     "insufficientGold": "Nicht genug Gold in der Kasse",
     "removeItem": "{item} entfernen",
-    "saving": "Speichern..."
+    "saving": "Speichern...",
+    "actingAs": "Handelnd als",
+    "selectActingCharacter": "Charakter wählen...",
+    "removeGold": "Gold entnehmen",
+    "removeGoldTitle": "Gold aus der Kasse entnehmen",
+    "reason": "Grund",
+    "reasonExpense": "Gruppenausgabe",
+    "reasonTheft": "Diebstahl",
+    "reasonOther": "Sonstiges",
+    "logRemoveGold": "{user} hat {amount} entnommen ({reason})",
+    "logRemoveGoldTheft": "{amount} gestohlen",
+    "removeItemLost": "Verloren/Gestohlen",
+    "logRemoveItemLost": "{quantity}\u00d7 {item} verloren/gestohlen"
   }
 }

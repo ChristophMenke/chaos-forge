@@ -59,8 +59,10 @@ import type {
   CharacterInventoryWithDetails,
   EpicItemRow,
   SpellRow,
+  CharacterFightingStyleRow,
 } from "@/lib/supabase/types";
 import type { CoinPurse } from "@/lib/rules/equipment";
+import { getSingleWeaponStyleBonus } from "@/lib/rules/fighting-styles";
 
 // Icons as simple SVG components
 function SwordIcon({ className }: { className?: string }) {
@@ -171,6 +173,7 @@ interface PlayModeProps {
   nonweaponProficiencies: CharacterNWPWithDetails[];
   inventory: CharacterInventoryWithDetails[];
   epicItems?: EpicItemRow[];
+  fightingStyles?: CharacterFightingStyleRow[];
   priestAvailableSpells?: SpellRow[];
 }
 
@@ -184,6 +187,7 @@ export function PlayMode({
   nonweaponProficiencies,
   inventory: initialInventory,
   epicItems = [],
+  fightingStyles = [],
   priestAvailableSpells = [],
 }: PlayModeProps) {
   const t = useTranslations("playMode");
@@ -415,6 +419,10 @@ export function PlayMode({
   );
 
   const isMagicalProtection = equippedArmor?.armor?.is_magical_protection ?? false;
+  const singleWeaponStyleBonus = useMemo(
+    () => getSingleWeaponStyleBonus(fightingStyles),
+    [fightingStyles]
+  );
 
   const ac = useMemo(
     () =>
@@ -427,6 +435,7 @@ export function PlayMode({
         ignoreEncumbrance: character.ignore_encumbrance,
         isMagicalProtection,
         epicAcBonus: epicEffects.acBonus,
+        singleWeaponStyleBonus,
       }),
     [
       equippedArmor,
@@ -437,6 +446,7 @@ export function PlayMode({
       character.ignore_encumbrance,
       epicEffects.acBonus,
       isMagicalProtection,
+      singleWeaponStyleBonus,
     ]
   );
 
@@ -719,6 +729,7 @@ export function PlayMode({
             onEquipmentChange={setEquipment}
             epicEffects={epicEffects}
             characterKit={character.kit}
+            singleWeaponStyleBonus={singleWeaponStyleBonus}
           />
           {showSpells && (
             <PlaySpellbookPanel
@@ -811,6 +822,7 @@ export function PlayMode({
             onEquipmentChange={setEquipment}
             epicEffects={epicEffects}
             characterKit={character.kit}
+            singleWeaponStyleBonus={singleWeaponStyleBonus}
           />
         )}
         {activePanel === "spellbook" && showSpells && (

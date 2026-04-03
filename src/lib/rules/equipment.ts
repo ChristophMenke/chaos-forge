@@ -21,6 +21,8 @@ export interface ACCalculationInput {
   isMagicalProtection?: boolean;
   /** Epic AC bonus (positive value = AC improvement, e.g. 2 from Totem Tattoo) */
   epicAcBonus?: number;
+  /** Single-Weapon Style AC bonus (1 or 2, from fighting style slots) */
+  singleWeaponStyleBonus?: number;
 }
 
 /**
@@ -41,6 +43,7 @@ export function calculateAC(input: ACCalculationInput): number {
     ignoreEncumbrance = false,
     isMagicalProtection = false,
     epicAcBonus = 0,
+    singleWeaponStyleBonus = 0,
   } = input;
 
   // Magical protection (Bracers +4, Ring +1) is a BONUS subtracted from base 10,
@@ -59,7 +62,18 @@ export function calculateAC(input: ACCalculationInput): number {
     }
   }
 
-  return baseAC + shieldBonus + dexDefenseAdj + magicACModifier + unarmoredBonus - epicAcBonus;
+  // Single-Weapon Style bonus only applies when fighting without a shield
+  const effectiveSWSBonus = shieldEquipped ? 0 : singleWeaponStyleBonus;
+
+  return (
+    baseAC +
+    shieldBonus +
+    dexDefenseAdj +
+    magicACModifier +
+    unarmoredBonus -
+    epicAcBonus -
+    effectiveSWSBonus
+  );
 }
 
 /**
