@@ -16,28 +16,22 @@ export function PlayOverclockBanner({ ability, endTime }: PlayOverclockBannerPro
   const t = useTranslations("playMode");
   const locale = useLocale();
 
-  // Timer countdown (read-only display)
-  const [minutesLeft, setMinutesLeft] = useState<number | null>(() => {
-    if (!endTime) return null;
-    return Math.max(0, Math.ceil((endTime - Date.now()) / 60000));
-  });
+  // Timer countdown — update only via interval callbacks (not in effect body or render)
+  const [minutesLeft, setMinutesLeft] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!endTime) {
-      setMinutesLeft(() => null);
-      return;
-    }
-    setMinutesLeft(() => Math.max(0, Math.ceil((endTime - Date.now()) / 60000)));
-    const interval = setInterval(() => {
+    if (!endTime) return;
+    const tick = () => {
       const remaining = endTime - Date.now();
-      if (remaining <= 0) {
-        clearInterval(interval);
-        setMinutesLeft(0);
-      } else {
-        setMinutesLeft(Math.ceil(remaining / 60000));
-      }
-    }, 30000);
-    return () => clearInterval(interval);
+      setMinutesLeft(remaining <= 0 ? 0 : Math.ceil(remaining / 60000));
+    };
+    // Use requestAnimationFrame to defer the initial tick out of the effect body
+    const raf = requestAnimationFrame(tick);
+    const interval = setInterval(tick, 30000);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearInterval(interval);
+    };
   }, [endTime]);
 
   return (
