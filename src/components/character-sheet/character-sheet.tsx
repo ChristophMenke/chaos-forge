@@ -1825,13 +1825,14 @@ export function CharacterSheet({
             allGeneralItems={allGeneralItems}
             baseMovement={race?.baseMovement ?? 12}
             readOnly={!isOwner}
-            characterStr={character.str}
-            characterStrExceptional={character.str_exceptional}
-            characterDex={character.dex}
+            strHitAdj={strMods.hitAdj}
+            strDmgAdj={strMods.dmgAdj}
+            dexMissileAdj={dexMods.missileAdj}
             characterClasses={charClasses}
             weaponProficiencies={weaponProfsState}
             ignoreEncumbrance={character.ignore_encumbrance}
             characterKit={character.kit}
+            epicAcBonus={epicEffects.acBonus}
             onEquipmentChange={setEquipment}
             onInventoryChange={setInventory}
             onIgnoreEncumbranceChange={handleIgnoreEncumbranceChange}

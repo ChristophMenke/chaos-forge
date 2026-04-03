@@ -13,7 +13,7 @@ import { RACES } from "@/lib/rules/races";
 import { CLASSES, getClassGroup } from "@/lib/rules/classes";
 import { getAlignmentLabel } from "@/lib/rules/alignment";
 import { getXpForNextLevel } from "@/lib/rules/experience";
-import type { ClassId } from "@/lib/rules/types";
+import type { ClassId, ClassGroup } from "@/lib/rules/types";
 import { getMulticlassThac0, getMulticlassSaves } from "@/lib/rules/multiclass";
 import {
   getAttacksPerRound,
@@ -479,11 +479,14 @@ export function PrintSheet({
           <h2 className="mb-2 border-b border-gray-400 font-serif text-lg font-bold">
             {t("savingThrows")}
           </h2>
-          <div className="grid grid-cols-5 gap-x-4 gap-y-0.5 text-sm">
+          <div className="grid grid-cols-4 gap-x-4 gap-y-1 text-sm">
             {[
-              { label: t("savePara"), value: saves.paralyzation },
-              { label: t("savePetri"), value: saves.petrification },
-              { label: t("saveRod"), value: saves.rod },
+              { label: t("saveParalyzation"), value: saves.paralyzation },
+              { label: t("savePoison"), value: saves.paralyzation },
+              { label: t("saveDeathMagic"), value: saves.paralyzation },
+              { label: t("saveRodStaff"), value: saves.rod },
+              { label: t("savePetrification"), value: saves.petrification },
+              { label: t("savePolymorph"), value: saves.petrification },
               { label: t("saveBreath"), value: saves.breath },
               { label: t("saveSpell"), value: saves.spell },
             ].map(({ label, value }) => (
@@ -693,11 +696,14 @@ export function PrintSheet({
 
     weapons: () => {
       if (equipment.filter((e) => e.weapon && e.equipped).length === 0) return null;
-      const weaponClassGroup =
-        activeClasses.length > 0
-          ? (CLASSES[activeClasses[0].class_id as ClassId]?.group ?? "warrior")
-          : "warrior";
-      const primaryWeaponLevel = activeClasses[0]?.level ?? 1;
+      const warriorClassEntry = classEntries.find((ce) => getClassGroup(ce.classId) === "warrior");
+      const weaponClassGroup: ClassGroup = (() => {
+        const groups = classEntries.map((ce) => getClassGroup(ce.classId));
+        if (groups.includes("warrior")) return "warrior";
+        if (groups.includes("priest")) return "priest";
+        if (groups.includes("rogue")) return "rogue";
+        return (groups[0] ?? "warrior") as ClassGroup;
+      })();
       return (
         <section className="mb-4" data-testid="print-section-weapons">
           <h2 className="mb-2 border-b border-gray-400 font-serif text-lg font-bold">
@@ -730,12 +736,11 @@ export function PrintSheet({
                   const isSpecialized = matchingProf?.specialization ?? false;
                   const specHitBonus = isSpecialized ? 1 : 0;
                   const specDmgBonus = isSpecialized ? 2 : 0;
-                  const weaponApr =
-                    weaponClassGroup === "warrior"
-                      ? getAttacksPerRound("warrior", primaryWeaponLevel, isSpecialized)
-                      : isSpecialized
-                        ? "3/2"
-                        : "1";
+                  const weaponApr = warriorClassEntry
+                    ? getAttacksPerRound("warrior", warriorClassEntry.level, isSpecialized)
+                    : isSpecialized
+                      ? "3/2"
+                      : "1";
                   const penalty = isProficient ? 0 : getNonproficiencyPenalty(weaponClassGroup);
                   const hitBonus = e.hit_bonus ?? 0;
                   const dmgBonus = e.damage_bonus ?? 0;

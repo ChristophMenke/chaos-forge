@@ -280,7 +280,7 @@ export function PlayChecksPanel({
       {/* Saving Throws */}
       <div className="mb-4" data-testid="play-saving-throws">
         <h4 className="mb-1.5 text-xs font-medium text-muted-foreground">{t("savingThrows")}</h4>
-        <div className="grid grid-cols-5 gap-1 text-center">
+        <div className="grid grid-cols-4 gap-1 text-center">
           {[
             {
               key: "paralyzation",
@@ -288,13 +288,26 @@ export function PlayChecksPanel({
               value: saves.paralyzation,
               penalty: poisonSavePenalty,
             },
-            { key: "rod", label: t("rod"), value: saves.rod, penalty: 0 },
+            {
+              key: "poison",
+              label: t("poison"),
+              value: saves.paralyzation,
+              penalty: poisonSavePenalty,
+            },
+            { key: "deathMagic", label: t("deathMagic"), value: saves.paralyzation, penalty: 0 },
+            {
+              key: "rodStaffWand",
+              label: `${t("rod")}/${t("staff")}`,
+              value: saves.rod,
+              penalty: 0,
+            },
             {
               key: "petrification",
               label: t("petrification"),
               value: saves.petrification,
               penalty: 0,
             },
+            { key: "polymorph", label: t("polymorph"), value: saves.petrification, penalty: 0 },
             { key: "breath", label: t("breath"), value: saves.breath, penalty: 0 },
             { key: "spell", label: t("spell"), value: saves.spell, penalty: 0 },
           ].map((save) => {
