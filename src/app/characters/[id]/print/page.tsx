@@ -15,6 +15,7 @@ import type {
   CharacterLanguageRow,
   CharacterFightingStyleRow,
   CharacterInventoryWithDetails,
+  EpicItemRow,
 } from "@/lib/supabase/types";
 
 interface PrintPageProps {
@@ -47,6 +48,7 @@ export default async function PrintPage({ params }: PrintPageProps) {
     { data: languages },
     { data: fightingStyles },
     { data: inventory },
+    { data: epicItems },
   ] = await Promise.all([
     supabase
       .from("character_classes")
@@ -78,6 +80,7 @@ export default async function PrintPage({ params }: PrintPageProps) {
       .eq("character_id", id)
       .returns<CharacterFightingStyleRow[]>(),
     supabase.from("character_inventory").select("*, item:general_items(*)").eq("character_id", id),
+    supabase.from("epic_items").select("*").eq("character_id", id).returns<EpicItemRow[]>(),
   ]);
 
   // Wave 3: Priest spells (only if character has a priest class)
@@ -99,6 +102,7 @@ export default async function PrintPage({ params }: PrintPageProps) {
       languages={languages ?? []}
       fightingStyles={fightingStyles ?? []}
       inventory={(inventory as CharacterInventoryWithDetails[]) ?? []}
+      epicItems={epicItems ?? []}
       priestAvailableSpells={priestAvailableSpells}
     />
   );

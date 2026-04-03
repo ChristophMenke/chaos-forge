@@ -564,8 +564,21 @@ export function PlaySpellbookPanel({
                               {spell.sphere}
                             </Badge>
                           )}
-                          {spell.casting_time && (
-                            <Badge variant="outline" className="shrink-0 text-[10px]">
+                          {spell.casting_time && /^[\d]|^Special/i.test(spell.casting_time) && (
+                            <Badge
+                              variant="outline"
+                              className="shrink-0 gap-0.5 text-[10px]"
+                              title={`${t("castingTime")}: ${spell.casting_time}`}
+                              aria-label={`${t("castingTime")}: ${spell.casting_time}`}
+                            >
+                              <svg
+                                className="h-2.5 w-2.5"
+                                viewBox="0 0 16 16"
+                                fill="currentColor"
+                                aria-hidden="true"
+                              >
+                                <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm0 14A6 6 0 1 1 8 2a6 6 0 0 1 0 12zm1-6.59V4a1 1 0 0 0-2 0v4a1 1 0 0 0 .29.71l2 2a1 1 0 0 0 1.42-1.42L9 7.41z" />
+                              </svg>
                               {spell.casting_time}
                             </Badge>
                           )}
