@@ -92,6 +92,13 @@ export function DamageLevelCard({
   const elixirBonus = se.elixir_bonus as number | undefined;
   const elixirCost = se.elixir_cost_gp as number | undefined;
 
+  // Fragility — pre-compute before return
+  const fragility = getFragilityInfo(se as Record<string, unknown>);
+  const fragilityChance =
+    fragility && characterLevel
+      ? getFragilityChance(fragility.baseChance, fragility.reductionPerLevel, characterLevel)
+      : null;
+
   return (
     <GlassCard glow={glow} hover={false} data-testid={`epic-item-${item.slug}`}>
       {/* Header row */}
@@ -238,27 +245,19 @@ export function DamageLevelCard({
         {effectiveLevel === 0 && <p className="text-sm text-green-400">{t("functional")}</p>}
 
         {/* Fragility warning */}
-        {(() => {
-          const fragility = getFragilityInfo(se as Record<string, unknown>);
-          if (!fragility || !characterLevel) return null;
-          const chance = getFragilityChance(
-            fragility.baseChance,
-            fragility.reductionPerLevel,
-            characterLevel
-          );
-          if (chance <= 0) return null;
-          const triggerText = locale === "en" ? fragility.trigger_en : fragility.trigger;
-          return (
-            <div
-              className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2"
-              data-testid={`epic-fragility-${item.slug}`}
-            >
-              <span className="text-sm text-amber-400">
-                {t("fragilityChance", { chance, trigger: triggerText })}
-              </span>
-            </div>
-          );
-        })()}
+        {fragilityChance != null && fragilityChance > 0 && (
+          <div
+            className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2"
+            data-testid={`epic-fragility-${item.slug}`}
+          >
+            <span className="text-sm text-amber-400">
+              {t("fragilityChance", {
+                chance: fragilityChance,
+                trigger: localized(fragility!.trigger, fragility!.trigger_en, locale),
+              })}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Expandable all levels table */}

@@ -4,6 +4,8 @@ import {
   scaleSubStat,
   applyThiefPenalty,
   getCurrentDamageLevelEffect,
+  getFragilityChance,
+  getFragilityInfo,
 } from "./epic-items";
 import type { EpicItemRow } from "@/lib/supabase/types";
 
@@ -259,5 +261,72 @@ describe("applyThiefPenalty", () => {
   it("does not go below 0", () => {
     const effects = getEpicEffects([makeCondenser({ damage_level: 4 })]);
     expect(applyThiefPenalty(5, effects)).toBe(0);
+  });
+});
+
+// ── Fragility ──────────────────────────────────────────────
+
+describe("getFragilityChance", () => {
+  it("returns baseChance when reductionPerLevel is 0", () => {
+    expect(getFragilityChance(50, 0, 10)).toBe(50);
+  });
+
+  it("reduces chance by reductionPerLevel × level", () => {
+    expect(getFragilityChance(50, 2, 7)).toBe(36);
+    expect(getFragilityChance(50, 2, 10)).toBe(30);
+  });
+
+  it("clamps at 0 — never returns negative", () => {
+    expect(getFragilityChance(50, 2, 30)).toBe(0);
+  });
+
+  it("handles level 0 safely", () => {
+    expect(getFragilityChance(50, 2, 0)).toBe(50);
+  });
+});
+
+describe("getFragilityInfo", () => {
+  it("returns null when simple_effects is null", () => {
+    expect(getFragilityInfo(null)).toBeNull();
+  });
+
+  it("returns null when fragility key is absent", () => {
+    expect(getFragilityInfo({ overclock: {} })).toBeNull();
+  });
+
+  it("parses a well-formed fragility object", () => {
+    const result = getFragilityInfo({
+      fragility: {
+        base_chance: 50,
+        reduction_per_level: 2,
+        trigger_de: "Physischer Rettungswurf",
+        trigger_en: "Physical saving throw",
+      },
+    });
+    expect(result).toEqual({
+      baseChance: 50,
+      reductionPerLevel: 2,
+      trigger: "Physischer Rettungswurf",
+      trigger_en: "Physical saving throw",
+    });
+  });
+
+  it("uses fallback values when fields are missing", () => {
+    const result = getFragilityInfo({ fragility: {} });
+    expect(result?.baseChance).toBe(50);
+    expect(result?.reductionPerLevel).toBe(0);
+    expect(result?.trigger).toBe("Physischer Rettungswurf");
+    expect(result?.trigger_en).toBe("Physical saving throw");
+  });
+
+  it("falls back to 'trigger' key if 'trigger_de' is absent", () => {
+    const result = getFragilityInfo({
+      fragility: {
+        base_chance: 40,
+        trigger: "Angriffswurf",
+        trigger_en: "Attack roll",
+      },
+    });
+    expect(result?.trigger).toBe("Angriffswurf");
   });
 });

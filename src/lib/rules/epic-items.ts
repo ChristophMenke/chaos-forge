@@ -280,7 +280,11 @@ export interface FragilityInfo {
 
 /**
  * Calculate the current fragility chance for an epic item based on character level.
- * Returns a percentage (0-100).
+ * Formula: max(0, baseChance − reductionPerLevel × characterLevel)
+ * @param baseChance - Starting fragility percentage (e.g. 50 = 50%)
+ * @param reductionPerLevel - Percentage points reduced per character level
+ * @param characterLevel - AD&D character level (1-based)
+ * @returns Fragility percentage clamped to [0, baseChance]
  */
 export function getFragilityChance(
   baseChance: number,
@@ -302,7 +306,8 @@ export function getFragilityInfo(
   return {
     baseChance: (f.base_chance as number) ?? 50,
     reductionPerLevel: (f.reduction_per_level as number) ?? 0,
-    trigger: (f.trigger_de as string) ?? "Physischer Rettungswurf",
+    // DB uses "trigger_de" — differs from the usual name/name_en convention
+    trigger: (f.trigger_de as string) ?? (f.trigger as string) ?? "Physischer Rettungswurf",
     trigger_en: (f.trigger_en as string) ?? "Physical saving throw",
   };
 }
