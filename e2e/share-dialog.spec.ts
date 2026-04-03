@@ -2,32 +2,63 @@ import { test, expect } from "@playwright/test";
 import { createTestUser, deleteTestUser } from "./helpers/auth";
 import { CharacterSheetPage } from "./pages/character-sheet.page";
 
-const SHARE_TEST_EMAIL = "share-e2e-test@chaos-forge.de";
+const TEST_EMAIL = "christoph@chaos-forge.de";
 
 test.describe("Share Dialog", () => {
-  // Create a secondary test user before all tests
-  test.beforeAll(async ({ request }) => {
-    await createTestUser(request, SHARE_TEST_EMAIL);
+  let characterId: string;
+  let shareUserEmail: string;
+
+  // Create unique secondary test user + test character before each test
+  test.beforeEach(async ({ request }, testInfo) => {
+    const uniqueId = `${Date.now()}-${testInfo.workerIndex}`;
+    shareUserEmail = `share-e2e-${uniqueId}@chaos-forge.de`;
+    await createTestUser(request, shareUserEmail);
+
+    const resp = await request.put("/api/test-seed", {
+      data: {
+        email: TEST_EMAIL,
+        character: {
+          name: `QA-Share-${uniqueId}`,
+          level: 3,
+          race_id: "human",
+          class_id: "fighter",
+          str: 14,
+          dex: 12,
+          con: 13,
+          int: 10,
+          wis: 10,
+          cha: 10,
+          hp_current: 25,
+          hp_max: 25,
+          alignment: "chaotic-good",
+        },
+      },
+    });
+
+    expect(resp.ok()).toBeTruthy();
+    const data = await resp.json();
+    characterId = data.character_id;
   });
 
-  // Clean up the secondary test user after all tests
-  test.afterAll(async ({ request }) => {
-    await deleteTestUser(request, SHARE_TEST_EMAIL);
+  // Clean up test character + secondary user after each test
+  test.afterEach(async ({ request }) => {
+    if (characterId) {
+      await request.delete("/api/test-seed", {
+        data: { character_id: characterId },
+      });
+    }
+    if (shareUserEmail) {
+      await deleteTestUser(request, shareUserEmail);
+    }
   });
 
   test("opens share dialog and shows user list without @chaos-forge.de addresses", async ({
     page,
   }) => {
     test.setTimeout(60000);
-    await page.goto("/characters");
     const sheet = new CharacterSheetPage(page);
 
-    // Navigate to Gor (owned by test user) → choice page → manage
-    const gorCard = page.locator("a", { hasText: "Gor" });
-    await expect(gorCard).toBeVisible({ timeout: 10000 });
-    await gorCard.click();
-    await expect(page.getByTestId("character-choice-page")).toBeVisible({ timeout: 15000 });
-    await page.getByTestId("character-manage-link").click();
+    await page.goto(`/characters/${characterId}/manage`);
     await sheet.container.waitFor({ timeout: 30000 });
 
     // Open share dialog
@@ -46,7 +77,6 @@ test.describe("Share Dialog", () => {
     const options = select.locator("option");
     const count = await options.count();
     for (let i = 1; i < count; i++) {
-      // skip placeholder option
       const text = await options.nth(i).textContent();
       expect(text).not.toContain("@chaos-forge.de");
     }
@@ -58,14 +88,9 @@ test.describe("Share Dialog", () => {
 
   test("public toggle switches between yes and no", async ({ page }) => {
     test.setTimeout(60000);
-    await page.goto("/characters");
     const sheet = new CharacterSheetPage(page);
 
-    const gorCard = page.locator("a", { hasText: "Gor" });
-    await expect(gorCard).toBeVisible({ timeout: 10000 });
-    await gorCard.click();
-    await expect(page.getByTestId("character-choice-page")).toBeVisible({ timeout: 15000 });
-    await page.getByTestId("character-manage-link").click();
+    await page.goto(`/characters/${characterId}/manage`);
     await sheet.container.waitFor({ timeout: 30000 });
 
     await sheet.shareButton.click();

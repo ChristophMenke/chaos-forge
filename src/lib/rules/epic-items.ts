@@ -112,12 +112,12 @@ export function getCurrentDamageLevelEffect(
  */
 function getCumulativeEffects(
   item: EpicItemRow,
-  characterLevel: number
+  unlockedLevel: number
 ): { effects: string[]; statOverrides: EpicStatOverrides } {
   const se = item.simple_effects as Record<string, unknown> | null;
   const thresholds = se?.level_thresholds as number[] | undefined;
   if (!thresholds) {
-    const dl = getCurrentDamageLevelEffect(item, characterLevel);
+    const dl = item.damage_levels[String(unlockedLevel)];
     return {
       effects: dl?.effects ?? [],
       statOverrides: (dl?.stat_overrides as EpicStatOverrides) ?? {},
@@ -126,7 +126,6 @@ function getCumulativeEffects(
 
   const allEffects: string[] = [];
   const allOverrides: EpicStatOverrides = {};
-  const unlockedLevel = getAutoUnlockedLevel(item, characterLevel);
 
   const seen = new Set<string>();
   for (let i = 0; i <= unlockedLevel; i++) {
@@ -174,16 +173,11 @@ export function getEpicEffects(items: EpicItemRow[], characterLevel?: number): E
 
     // Items with damage levels (cumulative if level_thresholds present)
     if (item.max_damage_level > 0) {
-      const { effects, statOverrides } =
-        characterLevel != null
-          ? getCumulativeEffects(item, characterLevel)
-          : (() => {
-              const dl = getCurrentDamageLevelEffect(item);
-              return {
-                effects: dl?.effects ?? [],
-                statOverrides: (dl?.stat_overrides as EpicStatOverrides) ?? {},
-              };
-            })();
+      // Compute unlocked level once per item (was called 3x before)
+      const unlockedLevel =
+        characterLevel != null ? getAutoUnlockedLevel(item, characterLevel) : item.damage_level;
+
+      const { effects, statOverrides } = getCumulativeEffects(item, unlockedLevel);
 
       Object.assign(result.statOverrides, statOverrides);
 
@@ -193,7 +187,6 @@ export function getEpicEffects(items: EpicItemRow[], characterLevel?: number): E
         if (effect === "thief_penalty_10") result.thiefPenalty += 10;
         if (effect === "spell_failure_10") result.spellFailure = Math.max(result.spellFailure, 10);
         if (effect === "wild_magic_50") result.wildMagic = Math.max(result.wildMagic, 50);
-        // New effects
         if (effect.startsWith("ac_bonus_")) result.acBonus += parseInt(effect.split("_")[2]) || 0;
         if (effect.startsWith("perception_bonus_"))
           result.perceptionBonus += parseInt(effect.split("_")[2]) || 0;
@@ -204,8 +197,6 @@ export function getEpicEffects(items: EpicItemRow[], characterLevel?: number): E
 
       // Parse shapeshift forms from simple_effects
       if (se?.shapeshift_forms && Array.isArray(se.shapeshift_forms)) {
-        const unlockedLevel =
-          characterLevel != null ? getAutoUnlockedLevel(item, characterLevel) : item.damage_level;
         for (const form of se.shapeshift_forms as (ShapeshiftForm & { unlock_level: number })[]) {
           if (form.unlock_level <= unlockedLevel) {
             result.shapeshiftForms.push(form);
@@ -215,8 +206,6 @@ export function getEpicEffects(items: EpicItemRow[], characterLevel?: number): E
 
       // Parse special attacks from simple_effects
       if (se?.special_attacks && Array.isArray(se.special_attacks)) {
-        const unlockedLevel =
-          characterLevel != null ? getAutoUnlockedLevel(item, characterLevel) : item.damage_level;
         for (const atk of se.special_attacks as (SpecialAttack & { unlock_level: number })[]) {
           if (atk.unlock_level <= unlockedLevel) {
             result.specialAttacks.push(atk);

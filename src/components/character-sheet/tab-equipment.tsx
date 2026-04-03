@@ -475,14 +475,23 @@ export function TabEquipment({
   }
 
   // ── Combat calculations for weapon display ──
-  const activeClasses = characterClasses.filter((cc) => cc.is_active);
-  const classEntries = activeClasses.map((cc) => ({
-    classId: cc.class_id as ClassId,
-    level: cc.level,
-  }));
-  const baseThac0 = classEntries.length > 0 ? getMulticlassThac0(classEntries) : 20;
-  const strMods = getStrengthModifiers(characterStr, characterStrExceptional ?? undefined);
-  const dexMods = getDexterityModifiers(characterDex);
+  const activeClasses = useMemo(
+    () => characterClasses.filter((cc) => cc.is_active),
+    [characterClasses]
+  );
+  const classEntries = useMemo(
+    () => activeClasses.map((cc) => ({ classId: cc.class_id as ClassId, level: cc.level })),
+    [activeClasses]
+  );
+  const baseThac0 = useMemo(
+    () => (classEntries.length > 0 ? getMulticlassThac0(classEntries) : 20),
+    [classEntries]
+  );
+  const strMods = useMemo(
+    () => getStrengthModifiers(characterStr, characterStrExceptional ?? undefined),
+    [characterStr, characterStrExceptional]
+  );
+  const dexMods = useMemo(() => getDexterityModifiers(characterDex), [characterDex]);
   const strHitAdj = strMods.hitAdj;
   const strDmgAdj = strMods.dmgAdj;
   const dexMissileAdj = dexMods.missileAdj;
@@ -576,32 +585,31 @@ export function TabEquipment({
               </div>
             );
           })()}
-          {(() => {
-            const activeClasses = characterClasses.filter((cc) => cc.is_active);
-            if (activeClasses.length <= 1) return null;
-            const classIds = activeClasses.map((cc) => cc.class_id as ClassId);
-            const warnings = getMulticlassArmorWarnings(
-              classIds,
-              !!equippedArmor,
-              equippedArmor?.armor?.ac ?? null,
-              equippedArmor?.armor?.is_magical_protection ?? false
-            );
-            if (warnings.length === 0) return null;
-            return (
-              <>
-                {warnings.map((w) => (
-                  <div
-                    key={w.type}
-                    role="alert"
-                    className="mt-1 text-xs text-yellow-400"
-                    data-testid={`equipment-multiclass-${w.type}-warning`}
-                  >
-                    {ts(w.type === "wizard" ? "multiclassWizardArmor" : "multiclassThiefArmor")}
-                  </div>
-                ))}
-              </>
-            );
-          })()}
+          {activeClasses.length > 1 &&
+            (() => {
+              const classIds = activeClasses.map((cc) => cc.class_id as ClassId);
+              const warnings = getMulticlassArmorWarnings(
+                classIds,
+                !!equippedArmor,
+                equippedArmor?.armor?.ac ?? null,
+                equippedArmor?.armor?.is_magical_protection ?? false
+              );
+              if (warnings.length === 0) return null;
+              return (
+                <>
+                  {warnings.map((w) => (
+                    <div
+                      key={w.type}
+                      role="alert"
+                      className="mt-1 text-xs text-yellow-400"
+                      data-testid={`equipment-multiclass-${w.type}-warning`}
+                    >
+                      {ts(w.type === "wizard" ? "multiclassWizardArmor" : "multiclassThiefArmor")}
+                    </div>
+                  ))}
+                </>
+              );
+            })()}
         </div>
         <div className="rounded-md border border-border p-4 text-center">
           <div className="text-xs text-muted-foreground">{t("totalWeight")}</div>
