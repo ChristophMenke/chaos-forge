@@ -13,11 +13,14 @@ export default async function EpicEquipmentPage({ params }: EpicPageProps) {
   const user = await requireAuth();
   const supabase = await createClient();
 
-  const { data: character } = await supabase
-    .from("characters")
-    .select("id, name, avatar_url, user_id, level")
-    .eq("id", id)
-    .single<Pick<CharacterRow, "id" | "name" | "avatar_url" | "user_id" | "level">>();
+  const [{ data: character }, { data: classes }] = await Promise.all([
+    supabase
+      .from("characters")
+      .select("id, name, avatar_url, user_id, level")
+      .eq("id", id)
+      .single<Pick<CharacterRow, "id" | "name" | "avatar_url" | "user_id" | "level">>(),
+    supabase.from("character_classes").select("level").eq("character_id", id).eq("is_active", true),
+  ]);
 
   if (!character) {
     notFound();
@@ -29,11 +32,21 @@ export default async function EpicEquipmentPage({ params }: EpicPageProps) {
     redirect(`/characters/${id}`);
   }
 
+  // Use highest class level for multiclass characters
+  const highestLevel =
+    classes && classes.length > 0 ? Math.max(...classes.map((c) => c.level)) : character.level;
+
   const { data: epicItems } = await supabase
     .from("epic_items")
     .select("*")
     .eq("character_id", id)
     .returns<EpicItemRow[]>();
 
-  return <EpicEquipmentView character={character} epicItems={epicItems ?? []} isOwner={isOwner} />;
+  return (
+    <EpicEquipmentView
+      character={{ ...character, level: highestLevel }}
+      epicItems={epicItems ?? []}
+      isOwner={isOwner}
+    />
+  );
 }
