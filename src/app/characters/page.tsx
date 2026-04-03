@@ -12,21 +12,36 @@ export default async function CharactersPage() {
   const locale = await getLocale();
   const user = await requireAuth();
   const supabase = await createClient();
-  const [{ data: characters }, { data: allCharClasses }, { data: myShares }] = await Promise.all([
-    supabase
-      .from("characters")
-      .select("*")
-      .order("updated_at", { ascending: false })
-      .returns<CharacterRow[]>(),
-    supabase.from("character_classes").select("*").returns<CharacterClassRow[]>(),
-    supabase
-      .from("character_shares")
-      .select("*")
-      .eq("shared_with_user_id", user.id)
-      .returns<CharacterShareRow[]>(),
-  ]);
+  const [{ data: characters }, { data: allCharClasses }, { data: myShares }, { data: latestXp }] =
+    await Promise.all([
+      supabase
+        .from("characters")
+        .select("*")
+        .order("updated_at", { ascending: false })
+        .returns<CharacterRow[]>(),
+      supabase.from("character_classes").select("*").returns<CharacterClassRow[]>(),
+      supabase
+        .from("character_shares")
+        .select("*")
+        .eq("shared_with_user_id", user.id)
+        .returns<CharacterShareRow[]>(),
+      supabase
+        .from("xp_history")
+        .select("character_id, created_at")
+        .order("created_at", { ascending: false })
+        .limit(500)
+        .returns<{ character_id: string; created_at: string }[]>(),
+    ]);
 
   const sharedCharacterIds = new Set((myShares ?? []).map((s) => s.character_id));
+
+  // Build map: character_id → latest XP timestamp (first occurrence = most recent)
+  const lastXpMap = new Map<string, string>();
+  for (const xp of latestXp ?? []) {
+    if (!lastXpMap.has(xp.character_id)) {
+      lastXpMap.set(xp.character_id, xp.created_at);
+    }
+  }
 
   const charClassMap = new Map<string, CharacterClassRow[]>();
   for (const cc of allCharClasses ?? []) {
@@ -37,12 +52,24 @@ export default async function CharactersPage() {
 
   const allChars = characters ?? [];
 
-  // Split into groups
-  const ownActive = allChars.filter((c) => c.user_id === user.id && c.is_active !== false);
+  // Split into groups and sort
+  const ownActive = allChars
+    .filter((c) => c.user_id === user.id && c.is_active === true)
+    .sort((a, b) => {
+      const aXp = lastXpMap.get(a.id) ?? "";
+      const bXp = lastXpMap.get(b.id) ?? "";
+      return bXp.localeCompare(aXp); // most recent XP first
+    });
   const ownInactive = allChars.filter((c) => c.user_id === user.id && c.is_active === false);
-  const sharedChars = allChars.filter((c) => c.user_id !== user.id);
+  const sharedWithMe = allChars.filter(
+    (c) => c.user_id !== user.id && sharedCharacterIds.has(c.id)
+  );
+  const publicChars = allChars.filter(
+    (c) => c.user_id !== user.id && !sharedCharacterIds.has(c.id) && c.is_public
+  );
 
-  const hasOtherCharacters = ownInactive.length > 0 || sharedChars.length > 0;
+  const hasOtherCharacters =
+    ownInactive.length > 0 || sharedWithMe.length > 0 || publicChars.length > 0;
 
   function renderCard(character: CharacterRow) {
     const classes = charClassMap.get(character.id) ?? [];
@@ -76,7 +103,10 @@ export default async function CharactersPage() {
         </Link>
       </div>
 
-      {ownActive.length === 0 && ownInactive.length === 0 && sharedChars.length === 0 ? (
+      {ownActive.length === 0 &&
+      ownInactive.length === 0 &&
+      sharedWithMe.length === 0 &&
+      publicChars.length === 0 ? (
         <div
           className="flex flex-1 flex-col items-center justify-center gap-4 text-center"
           data-testid="no-characters"
@@ -103,41 +133,48 @@ export default async function CharactersPage() {
           )}
 
           {/* Other Characters (inactive + shared) */}
-          {hasOtherCharacters && (
-            <details className="mt-2" data-testid="other-characters-section">
+          {/* Shared with me */}
+          {sharedWithMe.length > 0 && (
+            <div className="mt-4">
+              <h2 className="mb-2 font-heading text-lg text-muted-foreground">
+                {t("sharedCharacters")} ({sharedWithMe.length})
+              </h2>
+              <div
+                className="stagger-reveal grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                data-testid="shared-characters-grid"
+              >
+                {sharedWithMe.map(renderCard)}
+              </div>
+            </div>
+          )}
+
+          {/* Public characters */}
+          {publicChars.length > 0 && (
+            <div className="mt-4">
+              <h2 className="mb-2 font-heading text-lg text-muted-foreground">
+                {t("publicCharacters")} ({publicChars.length})
+              </h2>
+              <div
+                className="stagger-reveal grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                data-testid="public-characters-grid"
+              >
+                {publicChars.map(renderCard)}
+              </div>
+            </div>
+          )}
+
+          {/* Own Inactive (collapsed) */}
+          {ownInactive.length > 0 && (
+            <details className="mt-4" data-testid="other-characters-section">
               <summary className="cursor-pointer font-heading text-lg text-muted-foreground hover:text-foreground">
-                {t("otherCharacters")} ({ownInactive.length + sharedChars.length})
+                {t("inactiveCharacters")} ({ownInactive.length})
               </summary>
-
-              {/* Own Inactive */}
-              {ownInactive.length > 0 && (
-                <div className="mt-3">
-                  <h3 className="mb-2 text-sm font-medium text-muted-foreground">
-                    {t("inactiveCharacters")} ({ownInactive.length})
-                  </h3>
-                  <div
-                    className="stagger-reveal grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-                    data-testid="inactive-characters-grid"
-                  >
-                    {ownInactive.map(renderCard)}
-                  </div>
-                </div>
-              )}
-
-              {/* Shared Characters */}
-              {sharedChars.length > 0 && (
-                <div className="mt-3">
-                  <h3 className="mb-2 text-sm font-medium text-muted-foreground">
-                    {t("sharedCharacters")} ({sharedChars.length})
-                  </h3>
-                  <div
-                    className="stagger-reveal grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-                    data-testid="shared-characters-grid"
-                  >
-                    {sharedChars.map(renderCard)}
-                  </div>
-                </div>
-              )}
+              <div
+                className="stagger-reveal mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                data-testid="inactive-characters-grid"
+              >
+                {ownInactive.map(renderCard)}
+              </div>
             </details>
           )}
         </>

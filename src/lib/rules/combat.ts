@@ -212,6 +212,20 @@ export function getAdjustedWeaponThac0(
 }
 
 /**
+ * Calculate the effective weapon speed factor for a magical weapon.
+ * Each positive bonus point reduces the speed factor by 1.
+ * When hit_bonus and damage_bonus differ, the lower bonus is used (PHB rule).
+ */
+export function getEffectiveWeaponSpeed(
+  baseSpeed: number,
+  hitBonus: number,
+  damageBonus: number = hitBonus
+): number {
+  const magicBonus = Math.max(0, Math.min(hitBonus, damageBonus));
+  return Math.max(0, baseSpeed - magicBonus);
+}
+
+/**
  * Format a damage string with STR damage bonus and optional weapon damage bonus.
  * e.g. "1d8" + 2 + 0 → "1d8+2", "1d6" + 0 + 2 → "1d6+2", "1d8" + 1 + 2 → "1d8+3"
  */

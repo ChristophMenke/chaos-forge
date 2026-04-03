@@ -19,6 +19,7 @@ import {
   getAdjustedWeaponThac0,
   formatDamageWithBonus,
   getAttacksPerRound,
+  getEffectiveWeaponSpeed,
 } from "@/lib/rules/combat";
 import { getMulticlassThac0, getMulticlassArmorWarnings } from "@/lib/rules/multiclass";
 import { getNonproficiencyPenalty } from "@/lib/rules/proficiencies";
@@ -1489,7 +1490,7 @@ export function TabEquipment({
                           className="py-2 text-center font-mono"
                           data-testid={`weapon-speed-${item.id}`}
                         >
-                          {weapon.speed}
+                          {getEffectiveWeaponSpeed(weapon.speed, hitBonus, dmgBonus)}
                         </td>
                         <td
                           className="py-2 text-center font-mono"
@@ -1631,7 +1632,9 @@ export function TabEquipment({
                       </div>
                       <div data-testid={`weapon-card-speed-${item.id}`}>
                         <span className="text-xs text-muted-foreground">{t("speed")}:</span>{" "}
-                        <span className="font-mono">{weapon.speed}</span>
+                        <span className="font-mono">
+                          {getEffectiveWeaponSpeed(weapon.speed, hitBonus, dmgBonus)}
+                        </span>
                       </div>
                       <div data-testid={`weapon-card-apr-${item.id}`}>
                         <span className="text-xs text-muted-foreground">

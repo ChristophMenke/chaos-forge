@@ -7,6 +7,7 @@ import {
   getAdjustedWeaponThac0,
   formatDamageWithBonus,
   getClassSaveAdjustments,
+  getEffectiveWeaponSpeed,
 } from "./combat";
 
 describe("COMBAT-001: THAC0", () => {
@@ -399,5 +400,32 @@ describe("Fighter vs non-warrior spec APR", () => {
     // getAttacksPerRound for priests always returns "1"
     // The UI caller checks: if non-warrior + specialized → "3/2"
     expect(getAttacksPerRound("priest", 11, true)).toBe("1");
+  });
+});
+
+describe("getEffectiveWeaponSpeed", () => {
+  it("reduces speed by magic bonus", () => {
+    expect(getEffectiveWeaponSpeed(10, 3, 3)).toBe(7);
+  });
+
+  it("uses the lower bonus when hit and damage differ", () => {
+    expect(getEffectiveWeaponSpeed(10, 3, 1)).toBe(9);
+    expect(getEffectiveWeaponSpeed(10, 1, 3)).toBe(9);
+  });
+
+  it("returns base speed for non-magical weapons (bonus 0)", () => {
+    expect(getEffectiveWeaponSpeed(5, 0, 0)).toBe(5);
+  });
+
+  it("does not go below 0", () => {
+    expect(getEffectiveWeaponSpeed(2, 5, 5)).toBe(0);
+  });
+
+  it("ignores negative bonuses (cursed weapons)", () => {
+    expect(getEffectiveWeaponSpeed(5, -1, -1)).toBe(5);
+  });
+
+  it("defaults damageBonus to hitBonus when not provided", () => {
+    expect(getEffectiveWeaponSpeed(10, 3)).toBe(7);
   });
 });

@@ -21,6 +21,7 @@ import {
   getAttacksPerRound,
   getAdjustedWeaponThac0,
   formatDamageWithBonus,
+  getEffectiveWeaponSpeed,
 } from "@/lib/rules/combat";
 import { getNonproficiencyPenalty } from "@/lib/rules/proficiencies";
 import { findWeaponProf } from "@/lib/utils/proficiency-match";
@@ -1014,7 +1015,7 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
                         font: "Courier New",
                       }
                     ),
-                    cell(String(weapon.speed), {
+                    cell(String(getEffectiveWeaponSpeed(weapon.speed, hitBonus, dmgBonus)), {
                       alignment: AlignmentType.CENTER,
                       font: "Courier New",
                     }),

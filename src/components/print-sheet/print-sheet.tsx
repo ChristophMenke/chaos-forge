@@ -19,6 +19,7 @@ import {
   getAttacksPerRound,
   getAdjustedWeaponThac0,
   formatDamageWithBonus,
+  getEffectiveWeaponSpeed,
 } from "@/lib/rules/combat";
 import { getNonproficiencyPenalty } from "@/lib/rules/proficiencies";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
@@ -801,7 +802,7 @@ export function PrintSheet({
                         className="py-1 text-center font-mono"
                         data-testid={`print-weapon-speed-${e.id}`}
                       >
-                        {weapon.speed}
+                        {getEffectiveWeaponSpeed(weapon.speed, hitBonus, dmgBonus)}
                       </td>
                       <td
                         className="py-1 text-center font-mono text-xs"
