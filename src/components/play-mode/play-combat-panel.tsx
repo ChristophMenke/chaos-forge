@@ -139,6 +139,7 @@ export function PlayCombatPanel({
   })();
 
   const [showAcBreakdown, setShowAcBreakdown] = useState(false);
+  const [expandedBreakdown, setExpandedBreakdown] = useState<string | null>(null);
 
   // Attacks per round from first warrior class
   const warriorEntry = classEntries.find(
@@ -256,6 +257,15 @@ export function PlayCombatPanel({
           <Button
             variant="ghost"
             size="sm"
+            className="h-6 text-xs text-muted-foreground"
+            onClick={() => setExpandedBreakdown((prev) => (prev === eq.id ? null : eq.id))}
+            data-testid={`play-weapon-breakdown-toggle-${eq.id}`}
+          >
+            {expandedBreakdown === eq.id ? t("hideBreakdown") : t("showBreakdown")}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
             className="ml-auto h-6 text-xs text-muted-foreground"
             onClick={() => toggleEquip(eq.id, isEquipped)}
             data-testid={`play-${isEquipped ? "unequip" : "equip"}-${eq.id}`}
@@ -263,6 +273,134 @@ export function PlayCombatPanel({
             {isEquipped ? t("unequip") : t("equip")}
           </Button>
         </div>
+        {expandedBreakdown === eq.id && (
+          <div
+            className="mt-2 space-y-2 border-t border-border/50 pt-2 text-xs"
+            data-testid={`play-weapon-breakdown-${eq.id}`}
+          >
+            {/* THAC0 Breakdown */}
+            <div>
+              <div className="mb-1 font-medium text-muted-foreground">
+                THAC0 {weapon.weapon_type !== "ranged" ? t("melee") : t("ranged")}
+              </div>
+              <div className="space-y-0.5 pl-2 font-mono text-[11px]">
+                <div className="flex justify-between">
+                  <span>{t("baseThac0")}</span>
+                  <span>{thac0}</span>
+                </div>
+                {weapon.weapon_type !== "ranged" && strMods.hitAdj !== 0 && (
+                  <div className="flex justify-between">
+                    <span>{t("strHitAdj")}</span>
+                    <span>{strMods.hitAdj > 0 ? `-${strMods.hitAdj}` : `+${-strMods.hitAdj}`}</span>
+                  </div>
+                )}
+                {weapon.weapon_type !== "melee" && dexMods.missileAdj !== 0 && (
+                  <div className="flex justify-between">
+                    <span>{t("dexMissileAdj")}</span>
+                    <span>
+                      {dexMods.missileAdj > 0
+                        ? `-${dexMods.missileAdj}`
+                        : `+${-dexMods.missileAdj}`}
+                    </span>
+                  </div>
+                )}
+                {specHitBonus > 0 && (
+                  <div className="flex justify-between text-amber-400">
+                    <span>★ {t("specHitBonus")}</span>
+                    <span>-{specHitBonus}</span>
+                  </div>
+                )}
+                {profPenalty !== 0 && (
+                  <div className="flex justify-between text-red-400">
+                    <span>
+                      {t("notProficient")} ({t("profPenalty")})
+                    </span>
+                    <span>+{-profPenalty}</span>
+                  </div>
+                )}
+                {eq.hit_bonus > 0 && (
+                  <div className="flex justify-between text-blue-400">
+                    <span>{t("magicHitBonus")}</span>
+                    <span>-{eq.hit_bonus}</span>
+                  </div>
+                )}
+                <div className="flex justify-between border-t border-border/30 pt-0.5 font-bold">
+                  <span>= THAC0</span>
+                  <span>{weapon.weapon_type !== "ranged" ? adjusted.melee : adjusted.ranged}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Damage Breakdown */}
+            <div>
+              <div className="mb-1 font-medium text-muted-foreground">{t("damage")}</div>
+              <div className="space-y-0.5 pl-2 font-mono text-[11px]">
+                <div className="flex justify-between">
+                  <span>{t("baseDamage")} (SM/L)</span>
+                  <span>
+                    {weapon.damage_sm} / {weapon.damage_l}
+                  </span>
+                </div>
+                {strMods.dmgAdj !== 0 && (
+                  <div className="flex justify-between">
+                    <span>{t("strDmgAdj")}</span>
+                    <span>{strMods.dmgAdj > 0 ? `+${strMods.dmgAdj}` : strMods.dmgAdj}</span>
+                  </div>
+                )}
+                {specDmgBonus > 0 && (
+                  <div className="flex justify-between text-amber-400">
+                    <span>★ {t("specDmgBonus")}</span>
+                    <span>+{specDmgBonus}</span>
+                  </div>
+                )}
+                {eq.damage_bonus > 0 && (
+                  <div className="flex justify-between text-blue-400">
+                    <span>{t("magicDmgBonus")}</span>
+                    <span>+{eq.damage_bonus}</span>
+                  </div>
+                )}
+                <div className="flex justify-between border-t border-border/30 pt-0.5 font-bold">
+                  <span>= {t("damage")}</span>
+                  <span>
+                    {damageSM} / {damageL}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* APR Breakdown */}
+            <div>
+              <div className="mb-1 font-medium text-muted-foreground">{t("attacksPerRound")}</div>
+              <div className="space-y-0.5 pl-2 font-mono text-[11px]">
+                <div className="flex justify-between">
+                  <span>{t("levelApr")}</span>
+                  <span>{baseApr}</span>
+                </div>
+                {hasSpecAprBonus && (
+                  <div className="flex justify-between text-amber-400">
+                    <span>★ {t("specAprBonus")}</span>
+                    <span>+1/2</span>
+                  </div>
+                )}
+                <div className="flex justify-between border-t border-border/30 pt-0.5 font-bold">
+                  <span>= {t("attacksPerRound")}</span>
+                  <span>{apr}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Speed */}
+            <div>
+              <div className="mb-1 font-medium text-muted-foreground">{t("weaponSpeed")}</div>
+              <div className="pl-2 font-mono text-[11px]">
+                <div className="flex justify-between">
+                  <span>{t("weaponSpeed")}</span>
+                  <span>{weapon.speed}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
