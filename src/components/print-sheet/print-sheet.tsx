@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, type ReactNode } from "react";
+import { Fragment, useMemo, type ReactNode } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { localized } from "@/lib/utils/localize";
 import type { PrintPreferences, PrintSectionId } from "@/lib/print-config";
@@ -137,16 +137,21 @@ export function PrintSheet({
       : "1";
 
   // ── Spell computations (shared by spells + spellsMemorized renderers) ──
-  const spellsByLevel: Record<number, typeof spells> = {};
-  for (const cs of spells) {
-    const lvl = cs.spell.level;
-    if (!spellsByLevel[lvl]) spellsByLevel[lvl] = [];
-    spellsByLevel[lvl].push(cs);
-  }
-  const sortedLevels = Object.keys(spellsByLevel)
-    .map(Number)
-    .sort((a, b) => a - b);
-  const preparedSpells = spells.filter((cs) => cs.prepared);
+  const { spellsByLevel, sortedLevels } = useMemo(() => {
+    const grouped: Record<number, typeof spells> = {};
+    for (const cs of spells) {
+      const lvl = cs.spell.level;
+      if (!grouped[lvl]) grouped[lvl] = [];
+      grouped[lvl].push(cs);
+    }
+    return {
+      spellsByLevel: grouped,
+      sortedLevels: Object.keys(grouped)
+        .map(Number)
+        .sort((a, b) => a - b),
+    };
+  }, [spells]);
+  const preparedSpells = useMemo(() => spells.filter((cs) => cs.prepared), [spells]);
 
   // ── Section Renderers ──────────────────────────────────────────
   const sectionRenderers: Record<PrintSectionId, () => ReactNode | null> = {

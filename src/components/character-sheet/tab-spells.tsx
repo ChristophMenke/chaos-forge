@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
-import ReactMarkdown from "react-markdown";
+import { MarkdownRenderer as ReactMarkdown } from "@/components/markdown-renderer";
 import { useTranslations, useLocale } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";

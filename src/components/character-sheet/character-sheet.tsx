@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { localized } from "@/lib/utils/localize";
@@ -230,7 +230,7 @@ export function CharacterSheet({
   const casterLevel = casterClass?.level ?? primaryLevel;
 
   // Epic item effects (stat overrides, thief penalties, spell failure warnings)
-  const epicEffects: EpicEffects = getEpicEffects(epicItems);
+  const epicEffects: EpicEffects = useMemo(() => getEpicEffects(epicItems), [epicItems]);
   const eo = epicEffects.statOverrides;
 
   // Apply epic stat overrides (e.g., Kondensator overrides CON)
@@ -251,52 +251,82 @@ export function CharacterSheet({
       ? scaleSubStat(character.con, character.con_fitness, effectiveCon)
       : character.con_fitness;
 
-  const strMods = getStrengthModifiers(
-    effectiveStr,
-    character.str_exceptional ?? undefined,
-    eo.str != null
-      ? scaleSubStat(character.str, character.str_muscle, effectiveStr)
-      : character.str_muscle,
-    eo.str != null
-      ? scaleSubStat(character.str, character.str_stamina, effectiveStr)
-      : character.str_stamina
+  const strMods = useMemo(
+    () =>
+      getStrengthModifiers(
+        effectiveStr,
+        character.str_exceptional ?? undefined,
+        eo.str != null
+          ? scaleSubStat(character.str, character.str_muscle, effectiveStr)
+          : character.str_muscle,
+        eo.str != null
+          ? scaleSubStat(character.str, character.str_stamina, effectiveStr)
+          : character.str_stamina
+      ),
+    [
+      effectiveStr,
+      character.str_exceptional,
+      character.str_muscle,
+      character.str_stamina,
+      eo.str,
+      character.str,
+    ]
   );
-  const dexMods = getDexterityModifiers(
-    effectiveDex,
-    eo.dex != null
-      ? scaleSubStat(character.dex, character.dex_aim, effectiveDex)
-      : character.dex_aim,
-    eo.dex != null
-      ? scaleSubStat(character.dex, character.dex_balance, effectiveDex)
-      : character.dex_balance
+  const dexMods = useMemo(
+    () =>
+      getDexterityModifiers(
+        effectiveDex,
+        eo.dex != null
+          ? scaleSubStat(character.dex, character.dex_aim, effectiveDex)
+          : character.dex_aim,
+        eo.dex != null
+          ? scaleSubStat(character.dex, character.dex_balance, effectiveDex)
+          : character.dex_balance
+      ),
+    [effectiveDex, character.dex, character.dex_aim, character.dex_balance, eo.dex]
   );
-  const conMods = getConstitutionModifiers(effectiveCon, effectiveConHealth, effectiveConFitness);
-  const intMods = getIntelligenceModifiers(
-    effectiveInt,
-    eo.int != null
-      ? scaleSubStat(character.int, character.int_knowledge, effectiveInt)
-      : character.int_knowledge,
-    eo.int != null
-      ? scaleSubStat(character.int, character.int_reason, effectiveInt)
-      : character.int_reason
+  const conMods = useMemo(
+    () => getConstitutionModifiers(effectiveCon, effectiveConHealth, effectiveConFitness),
+    [effectiveCon, effectiveConHealth, effectiveConFitness]
   );
-  const wisMods = getWisdomModifiers(
-    effectiveWis,
-    eo.wis != null
-      ? scaleSubStat(character.wis, character.wis_intuition, effectiveWis)
-      : character.wis_intuition,
-    eo.wis != null
-      ? scaleSubStat(character.wis, character.wis_willpower, effectiveWis)
-      : character.wis_willpower
+  const intMods = useMemo(
+    () =>
+      getIntelligenceModifiers(
+        effectiveInt,
+        eo.int != null
+          ? scaleSubStat(character.int, character.int_knowledge, effectiveInt)
+          : character.int_knowledge,
+        eo.int != null
+          ? scaleSubStat(character.int, character.int_reason, effectiveInt)
+          : character.int_reason
+      ),
+    [effectiveInt, character.int, character.int_knowledge, character.int_reason, eo.int]
   );
-  const chaMods = getCharismaModifiers(
-    effectiveCha,
-    eo.cha != null
-      ? scaleSubStat(character.cha, character.cha_leadership, effectiveCha)
-      : character.cha_leadership,
-    eo.cha != null
-      ? scaleSubStat(character.cha, character.cha_appearance, effectiveCha)
-      : character.cha_appearance
+  const wisMods = useMemo(
+    () =>
+      getWisdomModifiers(
+        effectiveWis,
+        eo.wis != null
+          ? scaleSubStat(character.wis, character.wis_intuition, effectiveWis)
+          : character.wis_intuition,
+        eo.wis != null
+          ? scaleSubStat(character.wis, character.wis_willpower, effectiveWis)
+          : character.wis_willpower
+      ),
+    [effectiveWis, character.wis, character.wis_intuition, character.wis_willpower, eo.wis]
+  );
+  const chaMods = useMemo(
+    () =>
+      getCharismaModifiers(
+        effectiveCha,
+        eo.cha != null
+          ? scaleSubStat(character.cha, character.cha_leadership, effectiveCha)
+          : character.cha_leadership,
+        eo.cha != null
+          ? scaleSubStat(character.cha, character.cha_appearance, effectiveCha)
+          : character.cha_appearance
+      ),
+    [effectiveCha, character.cha, character.cha_leadership, character.cha_appearance, eo.cha]
   );
   // AC calculation using equipped armor + shield + DEX + class bonuses (reactive to equipmentState)
   const equippedArmor = equipmentState.find(
@@ -317,6 +347,17 @@ export function CharacterSheet({
     ignoreEncumbrance: character.ignore_encumbrance,
     isMagicalProtection: equippedArmor?.armor?.is_magical_protection ?? false,
   });
+
+  const coinPurse = useMemo(
+    () => ({
+      pp: character.gold_pp,
+      gp: character.gold_gp,
+      ep: character.gold_ep,
+      sp: character.gold_sp,
+      cp: character.gold_cp,
+    }),
+    [character.gold_pp, character.gold_gp, character.gold_ep, character.gold_sp, character.gold_cp]
+  );
 
   async function handleIgnoreEncumbranceChange(value: boolean) {
     setCharacter((prev) => ({ ...prev, ignore_encumbrance: value }));
@@ -1574,13 +1615,7 @@ export function CharacterSheet({
           {/* Pay Dialog */}
           {payDialogOpen && (
             <PayDialog
-              purse={{
-                pp: character.gold_pp,
-                gp: character.gold_gp,
-                ep: character.gold_ep,
-                sp: character.gold_sp,
-                cp: character.gold_cp,
-              }}
+              purse={coinPurse}
               onPay={(remaining) => {
                 update("gold_pp", remaining.pp);
                 update("gold_gp", remaining.gp);

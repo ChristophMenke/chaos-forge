@@ -1,6 +1,6 @@
 "use client";
 
-import ReactMarkdown from "react-markdown";
+import { MarkdownRenderer as ReactMarkdown } from "@/components/markdown-renderer";
 import remarkBreaks from "remark-breaks";
 import { cn } from "@/lib/utils";
 import { convertImperialText } from "@/lib/utils/units";

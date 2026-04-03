@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import ReactMarkdown from "react-markdown";
+import { MarkdownRenderer as ReactMarkdown } from "@/components/markdown-renderer";
 import remarkBreaks from "remark-breaks";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";

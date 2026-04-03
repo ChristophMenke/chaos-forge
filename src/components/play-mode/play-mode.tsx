@@ -203,13 +203,13 @@ export function PlayMode({
     [epicItems, characterLevel]
   );
   // Overclock state — read from epicItems simple_effects (persisted in DB via Epic Equipment page)
+  // Plain function — React Compiler handles memoization automatically
   let overclockState = { active: false, endTime: null as number | null };
   for (const item of epicItems) {
     if (!item.equipped) continue;
     const se = item.simple_effects as Record<string, unknown> | null;
     if (se?.overclock_active) {
-      const endTime = (se.overclock_end_time as number | null) ?? null;
-      overclockState = { active: true, endTime };
+      overclockState = { active: true, endTime: (se.overclock_end_time as number | null) ?? null };
       break;
     }
   }
