@@ -8,6 +8,7 @@ export const PRINT_SECTION_IDS = [
   "acBreakdown",
   "weapons",
   "equipment",
+  "generalInventory",
   "spells",
   "spellsMemorized",
   "proficiencies",
@@ -78,6 +79,7 @@ export function computeSectionDataPresence(props: {
   nonweaponProficiencies: unknown[];
   languages: unknown[];
   fightingStyles: unknown[];
+  inventory: unknown[];
   hasThiefSkills: boolean;
   hasRacialClassAbilities: boolean;
   hasSaves: boolean;
@@ -95,6 +97,7 @@ export function computeSectionDataPresence(props: {
     acBreakdown: true,
     weapons: equippedWeapons.length > 0,
     equipment: hasEquipment,
+    generalInventory: props.inventory.length > 0,
     spells: props.spells.length > 0,
     spellsMemorized: props.spells.some((s) => s.prepared),
     proficiencies:
