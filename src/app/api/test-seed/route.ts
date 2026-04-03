@@ -84,6 +84,9 @@ export async function POST(request: Request) {
         alignment: "chaotic-good",
         is_public: false,
         is_active: true,
+        gold_gp: 100,
+        gold_sp: 50,
+        notes: "E2E test character",
       })
       .select("id")
       .single();
@@ -97,20 +100,18 @@ export async function POST(request: Request) {
         { onConflict: "character_id,class_id" }
       );
 
-    // Add Chain Mail armor to Gor's equipment
-    const { data: chainMail } = await supabaseAdmin
-      .from("armor")
-      .select("id")
-      .eq("name_en", "Chain Mail")
-      .limit(1)
-      .maybeSingle();
-    if (chainMail) {
-      await supabaseAdmin.from("character_equipment").insert({
-        character_id: gorData.id,
-        armor_id: chainMail.id,
-        quantity: 1,
-        equipped: true,
-      });
+    // Add Chain Mail armor and Long Sword weapon to Gor's equipment
+    const [{ data: chainMail }, { data: longSword }] = await Promise.all([
+      supabaseAdmin.from("armor").select("id").eq("name_en", "Chain Mail").limit(1).maybeSingle(),
+      supabaseAdmin.from("weapons").select("id").eq("name_en", "Long Sword").limit(1).maybeSingle(),
+    ]);
+    const equipmentRows = [];
+    if (chainMail)
+      equipmentRows.push({ character_id: gorData.id, armor_id: chainMail.id, equipped: true });
+    if (longSword)
+      equipmentRows.push({ character_id: gorData.id, weapon_id: longSword.id, equipped: true });
+    if (equipmentRows.length > 0) {
+      await supabaseAdmin.from("character_equipment").insert(equipmentRows);
     }
 
     created.push("Gor");
@@ -123,28 +124,57 @@ export async function POST(request: Request) {
         { onConflict: "character_id,class_id" }
       );
 
-    // Ensure Gor has armor equipment
-    const { count } = await supabaseAdmin
+    // Ensure Gor has armor + weapon equipment and gold
+    const { count: armorCount } = await supabaseAdmin
       .from("character_equipment")
       .select("id", { count: "exact", head: true })
       .eq("character_id", existingGor.id)
       .not("armor_id", "is", null);
-    if (count === 0) {
+    const { count: weaponCount } = await supabaseAdmin
+      .from("character_equipment")
+      .select("id", { count: "exact", head: true })
+      .eq("character_id", existingGor.id)
+      .not("weapon_id", "is", null);
+
+    const equipmentToAdd = [];
+    if (armorCount === 0) {
       const { data: chainMail } = await supabaseAdmin
         .from("armor")
         .select("id")
         .eq("name_en", "Chain Mail")
         .limit(1)
         .maybeSingle();
-      if (chainMail) {
-        await supabaseAdmin.from("character_equipment").insert({
+      if (chainMail)
+        equipmentToAdd.push({
           character_id: existingGor.id,
           armor_id: chainMail.id,
-          quantity: 1,
           equipped: true,
         });
-      }
     }
+    if (weaponCount === 0) {
+      const { data: longSword } = await supabaseAdmin
+        .from("weapons")
+        .select("id")
+        .eq("name_en", "Long Sword")
+        .limit(1)
+        .maybeSingle();
+      if (longSword)
+        equipmentToAdd.push({
+          character_id: existingGor.id,
+          weapon_id: longSword.id,
+          equipped: true,
+        });
+    }
+    if (equipmentToAdd.length > 0) {
+      await supabaseAdmin.from("character_equipment").insert(equipmentToAdd);
+    }
+
+    // Ensure Gor has starting gold
+    await supabaseAdmin
+      .from("characters")
+      .update({ gold_gp: 100, gold_sp: 50, notes: "E2E test character" })
+      .eq("id", existingGor.id)
+      .is("gold_gp", null);
   }
 
   // Create "Elara" (Mage) for secondary user — if not exists, made public
