@@ -363,6 +363,9 @@ export default function ImportCharacterPage() {
         }
       }
 
+      // Fetch all weapons for proficiency name normalization and equipment matching
+      const { data: allWeapons } = await supabase.from("weapons").select("id, name, name_en");
+
       // Separate fighting styles from weapon proficiencies
       const fightingStyleEntries =
         scanned.weaponProficiencies?.filter((wp) =>
@@ -394,13 +397,20 @@ export default function ImportCharacterPage() {
         }
       }
 
-      // Insert weapon proficiencies
+      // Insert weapon proficiencies (normalize to canonical DE name)
       if (actualWeaponProfs.length > 0) {
-        const wpRows = actualWeaponProfs.map((wp) => ({
-          character_id: data.id,
-          weapon_name: wp.name,
-          specialization: wp.specialized,
-        }));
+        const wpRows = actualWeaponProfs.map((wp) => {
+          const matchedWeapon = allWeapons?.find(
+            (w) =>
+              w.name.toLowerCase() === wp.name.toLowerCase() ||
+              (w.name_en ?? "").toLowerCase() === wp.name.toLowerCase()
+          );
+          return {
+            character_id: data.id,
+            weapon_name: matchedWeapon ? matchedWeapon.name : wp.name,
+            specialization: wp.specialized,
+          };
+        });
         await supabase.from("character_weapon_proficiencies").insert(wpRows);
       }
 
@@ -437,8 +447,6 @@ export default function ImportCharacterPage() {
 
       // Try to match and insert equipment (weapons + armor)
       if (scanned.equipment?.length > 0) {
-        // Fetch all weapons and armor from DB to match by name
-        const { data: allWeapons } = await supabase.from("weapons").select("id, name, name_en");
         const { data: allArmor } = await supabase.from("armor").select("id, name, name_en");
 
         for (const item of scanned.equipment) {

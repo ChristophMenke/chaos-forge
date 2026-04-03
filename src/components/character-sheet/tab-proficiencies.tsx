@@ -162,6 +162,20 @@ export function TabProficiencies({
   const showSpecialization = canSpecialize(classId as ClassId);
   const showSpecWarning = isNonStandardSpecialization(classId as ClassId);
 
+  // Lookup weapon name → localized display name
+  const weaponNameMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const w of allWeapons) {
+      map.set(w.name.toLowerCase(), localized(w.name, w.name_en, locale));
+      if (w.name_en) map.set(w.name_en.toLowerCase(), localized(w.name, w.name_en, locale));
+    }
+    return map;
+  }, [allWeapons, locale]);
+
+  function localizeWeaponName(weaponName: string): string {
+    return weaponNameMap.get(weaponName.toLowerCase()) ?? weaponName;
+  }
+
   const fightingStyleSlots = fightingStyles.reduce((sum, fs) => sum + fs.slots_invested, 0);
 
   const usedWeaponSlots =
@@ -208,13 +222,21 @@ export function TabProficiencies({
     const trimmed = newWeaponName.trim();
     if (!trimmed) return;
 
+    // Normalize to canonical DE name if weapon exists in DB
+    const matchedWeapon = allWeapons.find(
+      (w) =>
+        w.name.toLowerCase() === trimmed.toLowerCase() ||
+        (w.name_en ?? "").toLowerCase() === trimmed.toLowerCase()
+    );
+    const canonicalName = matchedWeapon ? matchedWeapon.name : trimmed;
+
     setLoading(true);
     const supabase = createClient();
     const { data, error } = await supabase
       .from("character_weapon_proficiencies")
       .insert({
         character_id: characterId,
-        weapon_name: trimmed,
+        weapon_name: canonicalName,
         specialization: newWeaponSpecialized,
       })
       .select("*")
@@ -503,7 +525,7 @@ export function TabProficiencies({
                 data-testid={`weapon-proficiency-${wp.id}`}
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">{wp.weapon_name}</span>
+                  <span className="text-sm font-medium">{localizeWeaponName(wp.weapon_name)}</span>
                   {wp.specialization && (
                     <Badge data-testid={`weapon-specialized-${wp.id}`}>{t("specialization")}</Badge>
                   )}
@@ -581,7 +603,7 @@ export function TabProficiencies({
                       className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-muted"
                       onMouseDown={(e) => {
                         e.preventDefault();
-                        setNewWeaponName(localized(weapon.name, weapon.name_en, locale));
+                        setNewWeaponName(weapon.name);
                         setWeaponDropdownOpen(false);
                       }}
                       data-testid={`weapon-option-${weapon.id}`}

@@ -100,6 +100,7 @@ export function TabEquipment({
   const [showCustomArmorForm, setShowCustomArmorForm] = useState(false);
   const [customWeapon, setCustomWeapon] = useState({
     name: "",
+    name_en: "",
     damage_sm: "",
     damage_l: "",
     speed: "",
@@ -110,6 +111,7 @@ export function TabEquipment({
   });
   const [customArmor, setCustomArmor] = useState({
     name: "",
+    name_en: "",
     ac: "",
     weight: "",
     cost_gp: "",
@@ -255,6 +257,7 @@ export function TabEquipment({
       .from("weapons")
       .insert({
         name: customWeapon.name.trim(),
+        name_en: customWeapon.name_en.trim() || null,
         damage_sm: customWeapon.damage_sm.trim() || "1d4",
         damage_l: customWeapon.damage_l.trim() || "1d4",
         weapon_type: "melee",
@@ -287,6 +290,7 @@ export function TabEquipment({
       }
       setCustomWeapon({
         name: "",
+        name_en: "",
         damage_sm: "",
         damage_l: "",
         speed: "",
@@ -308,6 +312,7 @@ export function TabEquipment({
       .from("armor")
       .insert({
         name: customArmor.name.trim(),
+        name_en: customArmor.name_en.trim() || null,
         ac: customArmor.ac ? Number(customArmor.ac) : 10,
         weight: customArmor.weight ? Number(customArmor.weight) : 0,
         cost_gp: customArmor.cost_gp ? Number(customArmor.cost_gp) : 0,
@@ -321,7 +326,14 @@ export function TabEquipment({
 
     if (!error && data) {
       await addItem("armor", data.id);
-      setCustomArmor({ name: "", ac: "", weight: "", cost_gp: "", is_magical_protection: false });
+      setCustomArmor({
+        name: "",
+        name_en: "",
+        ac: "",
+        weight: "",
+        cost_gp: "",
+        is_magical_protection: false,
+      });
       setShowCustomArmorForm(false);
     }
     setLoading(false);
@@ -472,14 +484,11 @@ export function TabEquipment({
   const dexMissileAdj = dexMods.missileAdj;
 
   // Determine primary class group for attacks per round
-  // House rule: Crusader gets warrior APR progression
   const primaryClassGroup =
     activeClasses.length > 0
       ? (CLASSES[activeClasses[0].class_id as ClassId]?.group ?? "warrior")
       : "warrior";
   const primaryLevel = activeClasses[0]?.level ?? 1;
-  const isCrusader = activeClasses.some((cc) => cc.class_id === "crusader");
-  const aprClassGroup = isCrusader ? "warrior" : primaryClassGroup;
 
   function getWeaponSpecialized(weaponName: string, weaponNameEn: string | null): boolean {
     return weaponProficiencies.some(
@@ -488,8 +497,12 @@ export function TabEquipment({
   }
 
   function getWeaponAttacksPerRound(weaponName: string, weaponNameEn: string | null): string {
-    const isSpecialized = getWeaponSpecialized(weaponName, weaponNameEn);
-    return getAttacksPerRound(aprClassGroup, primaryLevel, isSpecialized);
+    const isSpec = getWeaponSpecialized(weaponName, weaponNameEn);
+    if (primaryClassGroup === "warrior") {
+      return getAttacksPerRound("warrior", primaryLevel, isSpec);
+    }
+    // S&P: non-warrior specialization grants +1/2 APR (1 → 3/2)
+    return isSpec ? "3/2" : "1";
   }
 
   function getWeaponProficiencyPenalty(weaponName: string, weaponNameEn: string | null): number {
@@ -952,6 +965,16 @@ export function TabEquipment({
                           className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                           data-testid="custom-weapon-name"
                         />
+                        <input
+                          type="text"
+                          placeholder={t("nameEn")}
+                          value={customWeapon.name_en}
+                          onChange={(e) =>
+                            setCustomWeapon({ ...customWeapon, name_en: e.target.value })
+                          }
+                          className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                          data-testid="custom-weapon-name-en"
+                        />
                         <div className="grid grid-cols-2 gap-2">
                           <input
                             type="text"
@@ -1066,6 +1089,7 @@ export function TabEquipment({
                               setShowCustomWeaponForm(false);
                               setCustomWeapon({
                                 name: "",
+                                name_en: "",
                                 damage_sm: "",
                                 damage_l: "",
                                 speed: "",
@@ -1144,6 +1168,16 @@ export function TabEquipment({
                           className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                           data-testid="custom-armor-name"
                         />
+                        <input
+                          type="text"
+                          placeholder={t("nameEn")}
+                          value={customArmor.name_en}
+                          onChange={(e) =>
+                            setCustomArmor({ ...customArmor, name_en: e.target.value })
+                          }
+                          className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                          data-testid="custom-armor-name-en"
+                        />
                         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                           <input
                             type="number"
@@ -1205,6 +1239,7 @@ export function TabEquipment({
                               setShowCustomArmorForm(false);
                               setCustomArmor({
                                 name: "",
+                                name_en: "",
                                 ac: "",
                                 weight: "",
                                 cost_gp: "",
