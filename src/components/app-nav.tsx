@@ -20,6 +20,8 @@ export function AppNav({ userEmail }: AppNavProps) {
   const [moreOpen, setMoreOpen] = useState(false);
   const morePanelRef = useRef<HTMLDivElement>(null);
   const moreTriggerRef = useRef<HTMLButtonElement>(null);
+  const barItems = NAV_ITEMS.filter((item) => item.mobileBar);
+  const moreNavItems = NAV_ITEMS.filter((item) => !item.mobileBar);
 
   function closeMore() {
     setMoreOpen(false);
@@ -55,7 +57,27 @@ export function AppNav({ userEmail }: AppNavProps) {
               {userEmail}
             </span>
           )}
-          <div className="flex items-center justify-between">
+          {/* Nav items hidden from bottom bar */}
+          <div className="flex flex-col gap-1">
+            {moreNavItems.map((item) => {
+              const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors ${
+                    isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  onClick={closeMore}
+                  data-testid={`${item.testId}-mobile`}
+                >
+                  <item.icon className="h-4 w-4" />
+                  <span>{t(item.labelKey)}</span>
+                </Link>
+              );
+            })}
+          </div>
+          <div className="flex items-center justify-between border-t border-border pt-3">
             <LocaleToggle />
             <ThemeToggle />
             <LogoutButton />
@@ -65,8 +87,8 @@ export function AppNav({ userEmail }: AppNavProps) {
 
       {/* Bottom bar */}
       <div className="relative z-40 flex items-center justify-around border-t border-border bg-background px-2 py-1">
-        {NAV_ITEMS.map((item) => {
-          const hasMoreSpecificMatch = NAV_ITEMS.some(
+        {barItems.map((item) => {
+          const hasMoreSpecificMatch = barItems.some(
             (other) =>
               other.href !== item.href &&
               other.href.startsWith(item.href + "/") &&
