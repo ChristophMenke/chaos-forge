@@ -10,6 +10,7 @@ import {
   getAdjustedWeaponThac0,
   formatDamageWithBonus,
   getAttacksPerRound,
+  getEffectiveWeaponSpeed,
 } from "@/lib/rules/combat";
 import { getClassGroup } from "@/lib/rules/classes";
 import type { ClassId } from "@/lib/rules/types";
@@ -230,7 +231,9 @@ export function PlayCombatPanel({
           </div>
           <div>
             <span className="text-xs text-muted-foreground">{t("weaponSpeed")}: </span>
-            <span className="font-mono">{weapon.speed}</span>
+            <span className="font-mono">
+              {getEffectiveWeaponSpeed(weapon.speed, eq.hit_bonus, eq.damage_bonus)}
+            </span>
           </div>
           <div>
             <span className="text-xs text-muted-foreground">{t("attacksPerRound")}: </span>
@@ -435,10 +438,22 @@ export function PlayCombatPanel({
             {/* Speed */}
             <div>
               <div className="mb-1 font-medium text-muted-foreground">{t("weaponSpeed")}</div>
-              <div className="pl-2 font-mono text-[11px]">
+              <div className="space-y-0.5 pl-2 font-mono text-[11px]">
                 <div className="flex justify-between">
-                  <span>{t("weaponSpeed")}</span>
+                  <span>{t("baseDamage").replace(/\(.*/, "").trim() || "Base"}</span>
                   <span>{weapon.speed}</span>
+                </div>
+                {Math.max(0, Math.min(eq.hit_bonus, eq.damage_bonus || eq.hit_bonus)) > 0 && (
+                  <div className="flex justify-between text-blue-400">
+                    <span>{t("magicHitBonus")}</span>
+                    <span>-{Math.min(eq.hit_bonus, eq.damage_bonus || eq.hit_bonus)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between border-t border-border/30 pt-0.5 font-bold">
+                  <span>= {t("weaponSpeed")}</span>
+                  <span>
+                    {getEffectiveWeaponSpeed(weapon.speed, eq.hit_bonus, eq.damage_bonus)}
+                  </span>
                 </div>
               </div>
             </div>
