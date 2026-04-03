@@ -475,14 +475,23 @@ export function TabEquipment({
   }
 
   // ── Combat calculations for weapon display ──
-  const activeClasses = characterClasses.filter((cc) => cc.is_active);
-  const classEntries = activeClasses.map((cc) => ({
-    classId: cc.class_id as ClassId,
-    level: cc.level,
-  }));
-  const baseThac0 = classEntries.length > 0 ? getMulticlassThac0(classEntries) : 20;
-  const strMods = getStrengthModifiers(characterStr, characterStrExceptional ?? undefined);
-  const dexMods = getDexterityModifiers(characterDex);
+  const activeClasses = useMemo(
+    () => characterClasses.filter((cc) => cc.is_active),
+    [characterClasses]
+  );
+  const classEntries = useMemo(
+    () => activeClasses.map((cc) => ({ classId: cc.class_id as ClassId, level: cc.level })),
+    [activeClasses]
+  );
+  const baseThac0 = useMemo(
+    () => (classEntries.length > 0 ? getMulticlassThac0(classEntries) : 20),
+    [classEntries]
+  );
+  const strMods = useMemo(
+    () => getStrengthModifiers(characterStr, characterStrExceptional ?? undefined),
+    [characterStr, characterStrExceptional]
+  );
+  const dexMods = useMemo(() => getDexterityModifiers(characterDex), [characterDex]);
   const strHitAdj = strMods.hitAdj;
   const strDmgAdj = strMods.dmgAdj;
   const dexMissileAdj = dexMods.missileAdj;
