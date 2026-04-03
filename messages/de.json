@@ -307,6 +307,7 @@
     "dualclassDormant": "Dormant (Stufe {level})",
     "dualclassActive": "Aktiv (Stufe {level})",
     "xpHistory": "XP-Verlauf",
+    "xpDeleteConfirm": "Diesen XP-Eintrag löschen ({amount} XP)? XP und Stufe des Charakters werden neu berechnet.",
     "xpHistoryEmpty": "Noch keine XP vergeben.",
     "xpEarned": "Erfahrungspunkte"
   },

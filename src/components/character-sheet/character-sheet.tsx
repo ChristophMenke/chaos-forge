@@ -15,7 +15,7 @@ import { RACES, getAllRaces } from "@/lib/rules/races";
 import type { AbilityName } from "@/lib/rules/types";
 import { CLASSES } from "@/lib/rules/classes";
 import { getAlignmentLabel, ALL_ALIGNMENTS } from "@/lib/rules/alignment";
-import { getXpForNextLevel, getXpThreshold } from "@/lib/rules/experience";
+import { getXpForNextLevel, getXpThreshold, getLevelForXp } from "@/lib/rules/experience";
 import type { ClassId, RaceId } from "@/lib/rules/types";
 import {
   getMulticlassThac0,
@@ -134,6 +134,7 @@ export function CharacterSheet({
   const [inventoryState, setInventory] = useState(inventory);
   const [languagesState, setLanguages] = useState(languages);
   const [fightingStylesState, setFightingStyles] = useState(fightingStyles);
+  const [xpHistoryState, setXpHistory] = useState(xpHistory);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -595,6 +596,51 @@ export function CharacterSheet({
     setShowDuplicateDialog(false);
     router.push(`/characters/${newId}/manage`);
     router.refresh();
+  }
+
+  async function handleDeleteXpEntry(entry: XpHistoryRow) {
+    if (!confirm(t("xpDeleteConfirm", { amount: entry.xp_amount }))) return;
+
+    const supabase = createClient();
+    const { error } = await supabase.from("xp_history").delete().eq("id", entry.id);
+    if (error) return;
+
+    // Remove from local state
+    setXpHistory((prev) => prev.filter((xh) => xh.id !== entry.id));
+
+    // Recalculate XP and level for all active classes
+    const activeCC = charClasses.filter((cc) => cc.is_active);
+    const classCount = activeCC.length;
+    if (classCount === 0) return;
+
+    // Distribute the deleted XP evenly across active classes
+    const perClass = Math.floor(entry.xp_amount / classCount);
+    const remainder = entry.xp_amount % classCount;
+
+    const updates = activeCC.map((cc, i) => {
+      const deduction = perClass + (i === 0 ? remainder : 0);
+      const newXp = Math.max(0, cc.xp_current - deduction);
+      const newLevel = getLevelForXp(cc.class_id as ClassId, newXp);
+      return { ...cc, xp_current: newXp, level: newLevel };
+    });
+
+    // Update DB
+    await Promise.all(
+      updates.map((cc) =>
+        supabase
+          .from("character_classes")
+          .update({ xp_current: cc.xp_current, level: cc.level })
+          .eq("id", cc.id)
+      )
+    );
+
+    // Update local state
+    setCharClasses((prev) =>
+      prev.map((cc) => {
+        const updated = updates.find((u) => u.id === cc.id);
+        return updated ?? cc;
+      })
+    );
   }
 
   return (
@@ -1526,29 +1572,46 @@ export function CharacterSheet({
               </div>
             )}
 
-            {/* XP History (last 5) */}
-            {xpHistory.length > 0 && (
+            {/* XP History */}
+            {xpHistoryState.length > 0 && (
               <details className="mt-3" data-testid="xp-history-section">
                 <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
-                  {t("xpHistory")} ({xpHistory.length})
+                  {t("xpHistory")} ({xpHistoryState.length})
                 </summary>
                 <div className="mt-2 flex flex-col gap-1">
-                  {xpHistory.slice(0, 5).map((xh) => {
+                  {xpHistoryState.map((xh) => {
                     const session = sessions.find((s) => s.id === xh.session_id);
                     return (
                       <div
                         key={xh.id}
                         className="flex items-center justify-between rounded border border-border px-3 py-1.5 text-sm"
+                        data-testid={`xp-history-entry-${xh.id}`}
                       >
                         <div className="flex flex-col">
-                          <span className="font-medium">+{xh.xp_amount.toLocaleString()} XP</span>
+                          <span className="font-medium">
+                            {xh.xp_amount >= 0 ? "+" : ""}
+                            {xh.xp_amount.toLocaleString()} XP
+                          </span>
                           {xh.note && (
                             <span className="text-xs text-muted-foreground">{xh.note}</span>
                           )}
                         </div>
-                        <div className="text-xs text-muted-foreground">
-                          {session && <span className="mr-2">{session.title}</span>}
-                          {new Date(xh.created_at).toLocaleDateString(locale)}
+                        <div className="flex items-center gap-2">
+                          <div className="text-xs text-muted-foreground">
+                            {session && <span className="mr-2">{session.title}</span>}
+                            {new Date(xh.created_at).toLocaleDateString(locale)}
+                          </div>
+                          {isOwner && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-1.5 text-xs text-destructive hover:text-destructive"
+                              onClick={() => handleDeleteXpEntry(xh)}
+                              data-testid={`xp-history-delete-${xh.id}`}
+                            >
+                              ✕
+                            </Button>
+                          )}
                         </div>
                       </div>
                     );
