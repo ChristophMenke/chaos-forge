@@ -71,6 +71,7 @@ export interface CharacterRow {
   spell_whitelist: string[];
   created_at: string;
   updated_at: string;
+  last_accessed_at: string;
 }
 
 export interface CharacterInsert {

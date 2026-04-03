@@ -32,6 +32,13 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
     redirect(`/characters/${id}/manage`);
   }
 
+  // Track last access for dashboard sorting (fire-and-forget, owner only)
+  void supabase
+    .from("characters")
+    .update({ last_accessed_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
   // Check if character has epic items
   const { count: epicItemCount } = await supabase
     .from("epic_items")

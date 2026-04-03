@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/purity -- Server Component: Math.random()/Date.now() are safe (run once per request) */
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { requireAuth } from "@/lib/supabase/auth";
 import { getTranslations, getLocale } from "next-intl/server";
 import { GlassCard } from "@/components/glass-card";
 import { CharacterCard } from "@/components/character-card";
@@ -38,6 +39,7 @@ export default async function DashboardPage() {
   const t = await getTranslations("dashboard");
   const ts = await getTranslations("sharing");
   const locale = await getLocale();
+  const user = await requireAuth();
   const supabase = await createClient();
 
   // ── Queries (parallelized) ──────────────────────────────
@@ -55,7 +57,8 @@ export default async function DashboardPage() {
       .from("characters")
       .select("*")
       .eq("is_active", true)
-      .order("name")
+      .eq("user_id", user.id)
+      .order("last_accessed_at", { ascending: false })
       .returns<CharacterRow[]>(),
     supabase.from("character_classes").select("*").returns<CharacterClassRow[]>(),
     supabase
@@ -171,8 +174,10 @@ export default async function DashboardPage() {
   const xpRanking = [...xpTotals.entries()]
     .map(([charId, total]) => {
       const char = characters?.find((c) => c.id === charId);
-      return { name: char?.name ?? "?", total };
+      if (!char) return null;
+      return { name: char.name, total };
     })
+    .filter((entry): entry is { name: string; total: number } => entry !== null)
     .sort((a, b) => b.total - a.total);
 
   // Tag cloud with counts
@@ -455,7 +460,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* ── Character Grid ────────────────────────────────── */}
-      <h2 className="font-heading text-xl">{t("allCharacters")}</h2>
+      <h2 className="font-heading text-xl">{t("myCharacters")}</h2>
       {!characters || characters.length === 0 ? (
         <p className="text-muted-foreground">{t("noCharacters")}</p>
       ) : (
