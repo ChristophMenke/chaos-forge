@@ -8,17 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-import { previewXpGain, getXpForNextLevel, getXpThreshold } from "@/lib/rules/experience";
-import { getThac0, getSavingThrows, getAttacksPerRound } from "@/lib/rules/combat";
 import {
-  getBardSpellSlots,
-  getWizardSpellSlots,
-  getPriestSpellSlots,
-} from "@/lib/rules/spellslots";
-import { getWeaponProficiencySlots, getNonweaponProficiencySlots } from "@/lib/rules/proficiencies";
+  previewXpGain,
+  getXpForNextLevel,
+  getXpThreshold,
+  getNextLevelChanges,
+} from "@/lib/rules/experience";
 import { CLASSES } from "@/lib/rules/classes";
 import type { CharacterClassRow, SessionRow } from "@/lib/supabase/types";
-import type { ClassId, ClassGroup } from "@/lib/rules/types";
+import type { ClassId } from "@/lib/rules/types";
 
 interface XpAddDialogProps {
   open: boolean;
@@ -27,22 +25,6 @@ interface XpAddDialogProps {
   sessions: Pick<SessionRow, "id" | "title" | "session_date">[];
   onClose: () => void;
   onClassesChange: (classes: CharacterClassRow[]) => void;
-}
-
-interface ChangeItem {
-  label: string;
-  before: string;
-  after: string;
-  changed: boolean;
-}
-
-function getClassGroup(classId: string): ClassGroup {
-  return CLASSES[classId as ClassId]?.group ?? "warrior";
-}
-
-function formatSpellSlots(slots: number[]): string {
-  const nonZero = slots.filter((s) => s > 0);
-  return nonZero.length > 0 ? nonZero.join("/") : "—";
 }
 
 export function XpAddDialog({
@@ -62,169 +44,98 @@ export function XpAddDialog({
   const [saving, setSaving] = useState(false);
 
   const activeClasses = characterClasses.filter((cc) => cc.is_active);
+
+  // Per-class XP overrides — only set when user manually edits a class input
+  const [classXpOverrides, setClassXpOverrides] = useState<Record<string, string>>({});
+  const [hasManualOverride, setHasManualOverride] = useState(false);
+
   const xpNum = parseInt(xpAmount) || 0;
-  const xpPerClass = activeClasses.length > 0 ? Math.floor(xpNum / activeClasses.length) : 0;
 
-  // Compute previews for each class
+  // Compute per-class XP: use overrides if user edited, else equal split
+  const classXpMap = useMemo(() => {
+    if (xpNum <= 0 || activeClasses.length === 0) return {};
+    if (hasManualOverride) return classXpOverrides;
+
+    // Default: equal split
+    const perClass = Math.floor(xpNum / activeClasses.length);
+    const remainder = xpNum - perClass * activeClasses.length;
+    const map: Record<string, string> = {};
+    activeClasses.forEach((cc, i) => {
+      map[cc.class_id] = String(perClass + (i === 0 ? remainder : 0));
+    });
+    return map;
+  }, [xpNum, activeClasses, hasManualOverride, classXpOverrides]);
+
+  // Compute per-class XP values and remaining
+  const classXpValues = useMemo(() => {
+    return activeClasses.map((cc) => ({
+      classId: cc.class_id,
+      xp: parseInt(classXpMap[cc.class_id] ?? "0") || 0,
+    }));
+  }, [activeClasses, classXpMap]);
+
+  const totalDistributed = classXpValues.reduce((sum, v) => sum + v.xp, 0);
+  const remaining = xpNum - totalDistributed;
+
+  // Compute previews for each class (with XP gain)
   const previews = useMemo(() => {
-    if (xpPerClass <= 0) return [];
-
     return activeClasses.map((cc) => {
-      const preview = previewXpGain(cc.class_id as ClassId, cc.level, cc.xp_current, xpPerClass);
-      const group = getClassGroup(cc.class_id);
+      const classXp = classXpValues.find((v) => v.classId === cc.class_id)?.xp ?? 0;
       const cls = CLASSES[cc.class_id as ClassId];
       const className = cls ? localized(cls.name, cls.name_en, locale) : cc.class_id;
 
-      const changes: ChangeItem[] = [];
+      // XP gain preview
+      const preview =
+        classXp > 0
+          ? previewXpGain(cc.class_id as ClassId, cc.level, cc.xp_current, classXp)
+          : null;
 
-      // Level
-      if (preview.levelsGained > 0) {
-        changes.push({
-          label: t("level"),
-          before: String(preview.currentLevel),
-          after: String(preview.newLevel),
-          changed: true,
-        });
-      }
+      const effectiveNewLevel = preview?.newLevel ?? cc.level;
+      const effectiveNewXp = preview?.newXp ?? cc.xp_current;
 
-      // THAC0
-      const oldThac0 = getThac0(group, preview.currentLevel);
-      const newThac0 = getThac0(group, preview.newLevel);
-      if (oldThac0 !== newThac0) {
-        changes.push({
-          label: "THAC0",
-          before: String(oldThac0),
-          after: String(newThac0),
-          changed: true,
-        });
-      }
-
-      // Saving Throws
-      const oldSaves = getSavingThrows(group, preview.currentLevel);
-      const newSaves = getSavingThrows(group, preview.newLevel);
-      if (JSON.stringify(oldSaves) !== JSON.stringify(newSaves)) {
-        changes.push({
-          label: t("improvedSaves"),
-          before: "",
-          after: "",
-          changed: true,
-        });
-      }
-
-      // Spell Slots (bard — own table, max 6 spell levels)
-      if (preview.classId === "bard") {
-        const oldSlots = getBardSpellSlots(preview.currentLevel);
-        const newSlots = getBardSpellSlots(preview.newLevel);
-        if (JSON.stringify(oldSlots) !== JSON.stringify(newSlots)) {
-          changes.push({
-            label: t("newSpellSlots"),
-            before: formatSpellSlots(oldSlots),
-            after: formatSpellSlots(newSlots),
-            changed: true,
-          });
-        }
-      }
-
-      // Spell Slots (wizard)
-      if (group === "wizard" && preview.classId !== "bard") {
-        const oldSlots = getWizardSpellSlots(preview.currentLevel);
-        const newSlots = getWizardSpellSlots(preview.newLevel);
-        if (JSON.stringify(oldSlots) !== JSON.stringify(newSlots)) {
-          changes.push({
-            label: t("newSpellSlots"),
-            before: formatSpellSlots(oldSlots),
-            after: formatSpellSlots(newSlots),
-            changed: true,
-          });
-        }
-      }
-
-      // Spell Slots (priest)
-      if (group === "priest") {
-        const oldSlots = getPriestSpellSlots(preview.currentLevel);
-        const newSlots = getPriestSpellSlots(preview.newLevel);
-        if (JSON.stringify(oldSlots) !== JSON.stringify(newSlots)) {
-          changes.push({
-            label: t("newSpellSlots"),
-            before: formatSpellSlots(oldSlots),
-            after: formatSpellSlots(newSlots),
-            changed: true,
-          });
-        }
-      }
-
-      // Attacks per round (warriors)
-      if (group === "warrior") {
-        const oldAtk = getAttacksPerRound(group, preview.currentLevel, false);
-        const newAtk = getAttacksPerRound(group, preview.newLevel, false);
-        if (oldAtk !== newAtk) {
-          changes.push({
-            label: t("attacksPerRound"),
-            before: oldAtk,
-            after: newAtk,
-            changed: true,
-          });
-        }
-      }
-
-      // Weapon proficiency slots
-      const oldWpSlots = getWeaponProficiencySlots(group, preview.currentLevel);
-      const newWpSlots = getWeaponProficiencySlots(group, preview.newLevel);
-      if (oldWpSlots !== newWpSlots) {
-        changes.push({
-          label: t("newProfSlots"),
-          before: String(oldWpSlots),
-          after: String(newWpSlots),
-          changed: true,
-        });
-      }
-
-      // NWP slots
-      const oldNwpSlots = getNonweaponProficiencySlots(group, preview.currentLevel);
-      const newNwpSlots = getNonweaponProficiencySlots(group, preview.newLevel);
-      if (oldNwpSlots !== newNwpSlots) {
-        changes.push({
-          label: t("newNwpSlots"),
-          before: String(oldNwpSlots),
-          after: String(newNwpSlots),
-          changed: true,
-        });
-      }
-
-      // XP progress
-      const nextLevelXp = getXpForNextLevel(cc.class_id as ClassId, preview.newLevel);
-      const currentThreshold = getXpThreshold(cc.class_id as ClassId, preview.newLevel);
+      // XP progress bar
+      const nextLevelXp = getXpForNextLevel(cc.class_id as ClassId, effectiveNewLevel);
+      const currentThreshold = getXpThreshold(cc.class_id as ClassId, effectiveNewLevel);
       const progressPct =
         nextLevelXp !== null && nextLevelXp > currentThreshold
           ? Math.min(
               100,
               Math.round(
-                ((preview.newXp - currentThreshold) / (nextLevelXp - currentThreshold)) * 100
+                ((effectiveNewXp - currentThreshold) / (nextLevelXp - currentThreshold)) * 100
               )
             )
           : 100;
 
+      // Next-level changes (always shown)
+      const nextLevelChanges = getNextLevelChanges(cc.class_id as ClassId, effectiveNewLevel);
+
       return {
         classId: cc.class_id,
         className,
+        currentLevel: cc.level,
+        currentXp: cc.xp_current,
+        classXp,
         preview,
-        changes,
-        xpPerClass,
+        effectiveNewLevel,
+        effectiveNewXp,
         progressPct,
         nextLevelXp,
+        nextLevelChanges,
       };
     });
-  }, [activeClasses, xpPerClass, locale, t]);
+  }, [activeClasses, classXpValues, locale]);
 
   async function handleApply() {
-    if (xpNum <= 0) return;
+    if (xpNum <= 0 || remaining < 0) return;
     setSaving(true);
 
     const supabase = createClient();
 
     // Update each class's XP and level
     for (const cc of activeClasses) {
-      const preview = previewXpGain(cc.class_id as ClassId, cc.level, cc.xp_current, xpPerClass);
+      const classXp = classXpValues.find((v) => v.classId === cc.class_id)?.xp ?? 0;
+      if (classXp <= 0) continue;
+      const preview = previewXpGain(cc.class_id as ClassId, cc.level, cc.xp_current, classXp);
       await supabase
         .from("character_classes")
         .update({ xp_current: preview.newXp, level: preview.newLevel })
@@ -239,10 +150,12 @@ export function XpAddDialog({
       note: note.trim(),
     });
 
-    // Optimistic update: compute new XP/level for each class
+    // Optimistic update
     const updatedClasses = characterClasses.map((cc) => {
       if (!cc.is_active) return cc;
-      const preview = previewXpGain(cc.class_id as ClassId, cc.level, cc.xp_current, xpPerClass);
+      const classXp = classXpValues.find((v) => v.classId === cc.class_id)?.xp ?? 0;
+      if (classXp <= 0) return cc;
+      const preview = previewXpGain(cc.class_id as ClassId, cc.level, cc.xp_current, classXp);
       return { ...cc, xp_current: preview.newXp, level: preview.newLevel };
     });
     onClassesChange(updatedClasses);
@@ -251,6 +164,8 @@ export function XpAddDialog({
     setXpAmount("");
     setNote("");
     setSelectedSessionId("");
+    setClassXpOverrides({});
+    setHasManualOverride(false);
     onClose();
   }
 
@@ -260,6 +175,11 @@ export function XpAddDialog({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
       onClick={onClose}
+      onKeyDown={(e) => e.key === "Escape" && onClose()}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="xp-dialog-title"
+      tabIndex={-1}
       data-testid="xp-add-dialog"
     >
       <div
@@ -267,9 +187,11 @@ export function XpAddDialog({
         style={{ maxHeight: "90vh" }}
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="font-heading text-xl text-primary">{t("addXp")}</h3>
+        <h3 id="xp-dialog-title" className="font-heading text-xl text-primary">
+          {t("addXp")}
+        </h3>
 
-        {/* XP Amount */}
+        {/* Total XP Amount */}
         <div className="flex flex-col gap-1">
           <Label htmlFor="xp-amount">{t("xpAmount")}</Label>
           <Input
@@ -284,11 +206,40 @@ export function XpAddDialog({
           />
         </div>
 
-        {/* Multiclass hint */}
+        {/* Per-class XP distribution (only for multiclass) */}
         {activeClasses.length > 1 && xpNum > 0 && (
-          <p className="text-sm text-muted-foreground" data-testid="xp-split-info">
-            {t("xpPerClass")}: {xpPerClass} XP ({activeClasses.length} {t("classes")})
-          </p>
+          <div className="flex flex-col gap-3" data-testid="xp-distribution-section">
+            {activeClasses.map((cc) => {
+              const cls = CLASSES[cc.class_id as ClassId];
+              const className = cls ? localized(cls.name, cls.name_en, locale) : cc.class_id;
+              return (
+                <div key={cc.class_id} className="flex flex-col gap-1">
+                  <Label htmlFor={`xp-class-${cc.class_id}`}>
+                    {t("xpClassLabel", { className })} (L{cc.level})
+                  </Label>
+                  <Input
+                    id={`xp-class-${cc.class_id}`}
+                    type="number"
+                    min={0}
+                    value={classXpMap[cc.class_id] ?? ""}
+                    onChange={(e) => {
+                      setHasManualOverride(true);
+                      setClassXpOverrides((prev) => ({ ...prev, [cc.class_id]: e.target.value }));
+                    }}
+                    data-testid={`xp-class-input-${cc.class_id}`}
+                  />
+                </div>
+              );
+            })}
+
+            {/* Remaining indicator */}
+            <p
+              className={`text-sm font-medium ${remaining < 0 ? "text-red-400" : remaining === 0 ? "text-green-400" : "text-muted-foreground"}`}
+              data-testid="xp-remaining"
+            >
+              {t("xpRemaining", { xp: remaining })}
+            </p>
+          </div>
         )}
 
         {/* Session selection */}
@@ -322,68 +273,80 @@ export function XpAddDialog({
           />
         </div>
 
-        {/* Preview */}
-        {previews.length > 0 && (
-          <div
-            className="flex flex-col gap-3 rounded-md border border-border p-3"
-            data-testid="xp-preview-section"
-          >
-            <h4 className="text-sm font-medium text-muted-foreground">{t("xpPreview")}</h4>
+        {/* Per-class preview + next-level info */}
+        <div
+          className="flex flex-col gap-3 rounded-md border border-border p-3"
+          data-testid="xp-preview-section"
+        >
+          <h4 className="text-sm font-medium text-muted-foreground">{t("xpPreview")}</h4>
 
-            {previews.map((p) => (
-              <div key={p.classId} className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">{p.className}</span>
-                  <span className="text-sm text-muted-foreground">+{p.xpPerClass} XP</span>
-                </div>
-
-                {/* XP Progress Bar */}
-                <div className="h-2 w-full rounded-full bg-muted">
-                  <div
-                    className="h-2 rounded-full bg-primary transition-all"
-                    style={{ width: `${p.progressPct}%` }}
-                  />
-                </div>
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>{p.preview.newXp.toLocaleString()} XP</span>
-                  <span>
-                    {p.nextLevelXp
-                      ? `${t("nextLevel")}: ${p.nextLevelXp.toLocaleString()} XP`
-                      : t("maxLevel")}
-                  </span>
-                </div>
-
-                {/* Level-up indicator */}
-                {p.preview.levelsGained > 0 && (
-                  <div
-                    className="rounded-md bg-green-900/30 px-3 py-2 text-sm text-green-300"
-                    data-testid="level-up-indicator"
-                  >
-                    {t("levelUp")} {p.preview.currentLevel} → {p.preview.newLevel}
-                  </div>
-                )}
-
-                {/* Changes */}
-                {p.changes.length > 0 && (
-                  <div className="flex flex-col gap-1 text-sm">
-                    {p.changes.map((change, i) => (
-                      <div key={i} className="flex justify-between text-muted-foreground">
-                        <span>{change.label}</span>
-                        {change.before && change.after ? (
-                          <span>
-                            {change.before} → <span className="text-green-400">{change.after}</span>
-                          </span>
-                        ) : (
-                          <span className="text-green-400">✓</span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+          {previews.map((p) => (
+            <div key={p.classId} className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <span className="font-medium">
+                  {p.className} (L{p.effectiveNewLevel})
+                </span>
+                {p.classXp > 0 && (
+                  <span className="text-sm text-muted-foreground">+{p.classXp} XP</span>
                 )}
               </div>
-            ))}
-          </div>
-        )}
+
+              {/* XP Progress Bar */}
+              <div className="h-2 w-full rounded-full bg-muted">
+                <div
+                  className="h-2 rounded-full bg-primary transition-all"
+                  style={{ width: `${p.progressPct}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{p.effectiveNewXp.toLocaleString()} XP</span>
+                <span>
+                  {p.nextLevelXp
+                    ? `${t("nextLevel")}: ${p.nextLevelXp.toLocaleString()} XP`
+                    : t("maxLevel")}
+                </span>
+              </div>
+
+              {/* Level-up indicator */}
+              {p.preview && p.preview.levelsGained > 0 && (
+                <div
+                  className="rounded-md bg-green-900/30 px-3 py-2 text-sm text-green-300"
+                  data-testid={`level-up-indicator-${p.classId}`}
+                >
+                  {t("levelUp")} {p.preview.currentLevel} → {p.preview.newLevel}
+                </div>
+              )}
+
+              {/* Next-level changes (always shown) */}
+              {p.nextLevelChanges.length > 0 && (
+                <div className="flex flex-col gap-1 rounded bg-background/30 p-2">
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {t("nextLevelPreview", { level: p.effectiveNewLevel + 1 })}
+                  </span>
+                  {p.nextLevelChanges.map((change, i) => (
+                    <div key={i} className="flex justify-between text-xs text-muted-foreground">
+                      <span>
+                        {change.type === "thac0" && "THAC0"}
+                        {change.type === "saves" && t("improvedSaves")}
+                        {change.type === "spellSlots" && t("newSpellSlots")}
+                        {change.type === "attacks" && t("attacksPerRound")}
+                        {change.type === "weaponProf" && t("newProfSlots")}
+                        {change.type === "nwpProf" && t("newNwpSlots")}
+                      </span>
+                      {change.before && change.after ? (
+                        <span>
+                          {change.before} → <span className="text-green-400">{change.after}</span>
+                        </span>
+                      ) : (
+                        <span className="text-green-400">✓</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
 
         {/* Actions */}
         <div className="flex justify-end gap-2">
@@ -392,7 +355,7 @@ export function XpAddDialog({
           </Button>
           <Button
             onClick={handleApply}
-            disabled={saving || xpNum <= 0}
+            disabled={saving || xpNum <= 0 || remaining < 0}
             data-testid="xp-apply-button"
           >
             {saving ? (

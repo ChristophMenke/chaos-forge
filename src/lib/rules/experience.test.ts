@@ -158,3 +158,73 @@ describe("Monk/Shaman XP (PO:S&M)", () => {
     expect(getXpForNextLevel("shaman", 2)).toBe(3000);
   });
 });
+
+// ── Next Level Changes ─────────────────────────────────────
+
+import { getNextLevelChanges } from "./experience";
+
+describe("getNextLevelChanges", () => {
+  it("returns THAC0 improvement for fighter 6→7", () => {
+    const changes = getNextLevelChanges("fighter", 6);
+    const thac0 = changes.find((c) => c.type === "thac0");
+    expect(thac0).toBeDefined();
+    expect(thac0!.before).toBe("15");
+    expect(thac0!.after).toBe("14");
+  });
+
+  it("returns spell slots improvement for mage 2→3", () => {
+    const changes = getNextLevelChanges("mage", 2);
+    const spells = changes.find((c) => c.type === "spellSlots");
+    expect(spells).toBeDefined();
+    expect(spells!.before).toBe("2");
+    expect(spells!.after).toBe("2/1");
+  });
+
+  it("returns APR improvement for fighter 6→7", () => {
+    const changes = getNextLevelChanges("fighter", 6);
+    const apr = changes.find((c) => c.type === "attacks");
+    expect(apr).toBeDefined();
+    expect(apr!.before).toBe("1");
+    expect(apr!.after).toBe("3/2");
+  });
+
+  it("returns proficiency slot improvements when applicable", () => {
+    // Fighter gets weapon prof slot at L3→L4 (every 3 levels)
+    const changes = getNextLevelChanges("fighter", 3);
+    const wp = changes.find((c) => c.type === "weaponProf");
+    expect(wp).toBeDefined();
+    expect(wp!.before).toBe("4");
+    expect(wp!.after).toBe("5");
+  });
+
+  it("returns no THAC0 change when THAC0 stays the same", () => {
+    // Thief L1→L2: THAC0 stays 20
+    const changes = getNextLevelChanges("thief", 1);
+    const thac0 = changes.find((c) => c.type === "thac0");
+    expect(thac0).toBeUndefined();
+  });
+
+  it("returns saving throw improvement for fighter 4→5", () => {
+    const changes = getNextLevelChanges("fighter", 4);
+    const saves = changes.find((c) => c.type === "saves");
+    expect(saves).toBeDefined();
+  });
+
+  it("returns warrior THAC0 for crusader (PO:S&M exception)", () => {
+    // Crusader is priest group but uses warrior THAC0 (21 - level)
+    // L6→L7: warrior THAC0 goes from 15 to 14
+    const changes = getNextLevelChanges("crusader", 6);
+    const thac0 = changes.find((c) => c.type === "thac0");
+    expect(thac0).toBeDefined();
+    expect(thac0!.before).toBe("15");
+    expect(thac0!.after).toBe("14");
+  });
+
+  it("returns warrior APR for crusader", () => {
+    // Crusader gets warrior APR progression (3/2 at L7)
+    const changes = getNextLevelChanges("crusader", 6);
+    const apr = changes.find((c) => c.type === "attacks");
+    expect(apr).toBeDefined();
+    expect(apr!.after).toBe("3/2");
+  });
+});
