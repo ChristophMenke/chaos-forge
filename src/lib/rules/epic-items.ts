@@ -269,6 +269,49 @@ export function scaleSubStat(
   return Math.max(1, Math.min(overrideStat, scaled));
 }
 
+// ── Fragility System ──────────────────────────────────────
+
+export interface FragilityInfo {
+  baseChance: number;
+  reductionPerLevel: number;
+  trigger: string;
+  trigger_en: string;
+}
+
+/**
+ * Calculate the current fragility chance for an epic item based on character level.
+ * Formula: max(0, baseChance − reductionPerLevel × characterLevel)
+ * @param baseChance - Starting fragility percentage (e.g. 50 = 50%)
+ * @param reductionPerLevel - Percentage points reduced per character level
+ * @param characterLevel - AD&D character level (1-based)
+ * @returns Fragility percentage clamped to [0, baseChance]
+ */
+export function getFragilityChance(
+  baseChance: number,
+  reductionPerLevel: number,
+  characterLevel: number
+): number {
+  return Math.max(0, baseChance - reductionPerLevel * characterLevel);
+}
+
+/**
+ * Parse fragility info from an epic item's simple_effects.
+ * Returns null if no fragility data exists.
+ */
+export function getFragilityInfo(
+  simpleEffects: Record<string, unknown> | null
+): FragilityInfo | null {
+  if (!simpleEffects?.fragility) return null;
+  const f = simpleEffects.fragility as Record<string, unknown>;
+  return {
+    baseChance: (f.base_chance as number) ?? 50,
+    reductionPerLevel: (f.reduction_per_level as number) ?? 0,
+    // DB uses "trigger_de" — differs from the usual name/name_en convention
+    trigger: (f.trigger_de as string) ?? (f.trigger as string) ?? "Physischer Rettungswurf",
+    trigger_en: (f.trigger_en as string) ?? "Physical saving throw",
+  };
+}
+
 /**
  * Apply thief skill penalty to a skill value.
  * If disabled, returns 0. Otherwise subtracts the penalty percentage.

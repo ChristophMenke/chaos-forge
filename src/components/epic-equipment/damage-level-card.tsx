@@ -9,7 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { localized } from "@/lib/utils/localize";
-import { getCurrentDamageLevelEffect, getAutoUnlockedLevel } from "@/lib/rules/epic-items";
+import {
+  getCurrentDamageLevelEffect,
+  getAutoUnlockedLevel,
+  getFragilityInfo,
+  getFragilityChance,
+} from "@/lib/rules/epic-items";
 import type { EpicItemRow, DamageLevelEffect } from "@/lib/supabase/types";
 
 interface DamageLevelCardProps {
@@ -86,6 +91,13 @@ export function DamageLevelCard({
   ) as string | undefined;
   const elixirBonus = se.elixir_bonus as number | undefined;
   const elixirCost = se.elixir_cost_gp as number | undefined;
+
+  // Fragility — pre-compute before return
+  const fragility = getFragilityInfo(se as Record<string, unknown>);
+  const fragilityChance =
+    fragility && characterLevel
+      ? getFragilityChance(fragility.baseChance, fragility.reductionPerLevel, characterLevel)
+      : null;
 
   return (
     <GlassCard glow={glow} hover={false} data-testid={`epic-item-${item.slug}`}>
@@ -231,6 +243,21 @@ export function DamageLevelCard({
 
         {/* No damage = functional */}
         {effectiveLevel === 0 && <p className="text-sm text-green-400">{t("functional")}</p>}
+
+        {/* Fragility warning */}
+        {fragilityChance != null && fragilityChance > 0 && (
+          <div
+            className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2"
+            data-testid={`epic-fragility-${item.slug}`}
+          >
+            <span className="text-sm text-amber-400">
+              {t("fragilityChance", {
+                chance: fragilityChance,
+                trigger: localized(fragility!.trigger, fragility!.trigger_en, locale),
+              })}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Expandable all levels table */}
