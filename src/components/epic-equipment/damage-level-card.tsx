@@ -351,28 +351,25 @@ function OverclockPanel({
       : overclock.requires_check;
   const durationHours = (overclock.duration_hours as number) ?? 1;
 
-  // Timer
-  const [minutesLeft, setMinutesLeft] = useState<number | null>(() => {
-    if (!isActive || !endTime) return null;
-    return Math.max(0, Math.ceil((endTime - Date.now()) / 60000));
-  });
+  // Timer — update only via interval/rAF callbacks (React Compiler safe)
+  const [minutesLeft, setMinutesLeft] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!isActive || !endTime) {
-      setMinutesLeft(() => null);
-      return;
-    }
-    setMinutesLeft(() => Math.max(0, Math.ceil((endTime - Date.now()) / 60000)));
-    const interval = setInterval(() => {
+    if (!isActive || !endTime) return;
+    const tick = () => {
       const remaining = endTime - Date.now();
       if (remaining <= 0) {
-        clearInterval(interval);
         onToggle(false, null);
       } else {
         setMinutesLeft(Math.ceil(remaining / 60000));
       }
-    }, 30000);
-    return () => clearInterval(interval);
+    };
+    const raf = requestAnimationFrame(tick);
+    const interval = setInterval(tick, 30000);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearInterval(interval);
+    };
   }, [isActive, endTime, onToggle]);
 
   function handleToggle() {

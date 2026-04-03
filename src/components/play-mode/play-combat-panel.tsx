@@ -91,7 +91,7 @@ export function PlayCombatPanel({
   // Proficiency matching is handled by findWeaponProf (bilingual DE/EN lookup)
 
   // AC Breakdown — always starts from Base AC 10, armor shown as modifier
-  const acBreakdown = useMemo(() => {
+  const acBreakdown = (() => {
     const parts: { label: string; value: number }[] = [];
     // Base AC 10 is always the starting point
     parts.push({ label: t("baseAC"), value: 10 });
@@ -136,18 +136,7 @@ export function PlayCombatPanel({
       });
     }
     return parts;
-  }, [
-    equippedArmor,
-    equippedShield,
-    dexDefenseAdj,
-    classGroups,
-    encumbrance,
-    ignoreEncumbrance,
-    isMagicalProtection,
-    epicEffects?.acBonus,
-    t,
-    locale,
-  ]);
+  })();
 
   const [showAcBreakdown, setShowAcBreakdown] = useState(false);
 

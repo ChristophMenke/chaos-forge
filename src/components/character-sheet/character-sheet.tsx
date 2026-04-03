@@ -318,17 +318,11 @@ export function CharacterSheet({
     isMagicalProtection: equippedArmor?.armor?.is_magical_protection ?? false,
   });
 
-  const handleIgnoreEncumbranceChange = useCallback(
-    async (value: boolean) => {
-      setCharacter((prev) => ({ ...prev, ignore_encumbrance: value }));
-      const supabase = createClient();
-      await supabase
-        .from("characters")
-        .update({ ignore_encumbrance: value })
-        .eq("id", character.id);
-    },
-    [character.id]
-  );
+  async function handleIgnoreEncumbranceChange(value: boolean) {
+    setCharacter((prev) => ({ ...prev, ignore_encumbrance: value }));
+    const supabase = createClient();
+    await supabase.from("characters").update({ ignore_encumbrance: value }).eq("id", character.id);
+  }
 
   function update(field: keyof CharacterRow, value: string | number | null) {
     if (!isOwner) return;

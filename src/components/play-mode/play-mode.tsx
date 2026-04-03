@@ -203,19 +203,16 @@ export function PlayMode({
     [epicItems, characterLevel]
   );
   // Overclock state — read from epicItems simple_effects (persisted in DB via Epic Equipment page)
-  const overclockState = useMemo(() => {
-    for (const item of epicItems) {
-      if (!item.equipped) continue;
-      const se = item.simple_effects as Record<string, unknown> | null;
-      if (se?.overclock_active) {
-        const endTime = (se.overclock_end_time as number | null) ?? null;
-        // Check if timer has expired
-        if (endTime && endTime <= Date.now()) return { active: false, endTime: null };
-        return { active: true, endTime };
-      }
+  let overclockState = { active: false, endTime: null as number | null };
+  for (const item of epicItems) {
+    if (!item.equipped) continue;
+    const se = item.simple_effects as Record<string, unknown> | null;
+    if (se?.overclock_active) {
+      const endTime = (se.overclock_end_time as number | null) ?? null;
+      overclockState = { active: true, endTime };
+      break;
     }
-    return { active: false, endTime: null };
-  }, [epicItems]);
+  }
   const overclockActive = overclockState.active;
 
   const eo = epicEffects.statOverrides;

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/purity -- Server Component: Math.random()/Date.now() are safe (run once per request) */
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations, getLocale } from "next-intl/server";
