@@ -112,12 +112,12 @@ export function getCurrentDamageLevelEffect(
  */
 function getCumulativeEffects(
   item: EpicItemRow,
-  characterLevel: number
+  unlockedLevel: number
 ): { effects: string[]; statOverrides: EpicStatOverrides } {
   const se = item.simple_effects as Record<string, unknown> | null;
   const thresholds = se?.level_thresholds as number[] | undefined;
   if (!thresholds) {
-    const dl = getCurrentDamageLevelEffect(item, characterLevel);
+    const dl = item.damage_levels[String(unlockedLevel)];
     return {
       effects: dl?.effects ?? [],
       statOverrides: (dl?.stat_overrides as EpicStatOverrides) ?? {},
@@ -126,7 +126,6 @@ function getCumulativeEffects(
 
   const allEffects: string[] = [];
   const allOverrides: EpicStatOverrides = {};
-  const unlockedLevel = getAutoUnlockedLevel(item, characterLevel);
 
   const seen = new Set<string>();
   for (let i = 0; i <= unlockedLevel; i++) {
@@ -178,16 +177,7 @@ export function getEpicEffects(items: EpicItemRow[], characterLevel?: number): E
       const unlockedLevel =
         characterLevel != null ? getAutoUnlockedLevel(item, characterLevel) : item.damage_level;
 
-      const { effects, statOverrides } =
-        characterLevel != null
-          ? getCumulativeEffects(item, characterLevel)
-          : (() => {
-              const dl = getCurrentDamageLevelEffect(item);
-              return {
-                effects: dl?.effects ?? [],
-                statOverrides: (dl?.stat_overrides as EpicStatOverrides) ?? {},
-              };
-            })();
+      const { effects, statOverrides } = getCumulativeEffects(item, unlockedLevel);
 
       Object.assign(result.statOverrides, statOverrides);
 

@@ -43,7 +43,9 @@ export async function fetchAvailablePriestSpells(
   const maxSpellLevel = getMaxPriestSpellLevel(classId, priestClass.level);
   if (maxSpellLevel === 0) return [];
 
-  // Get accessible spheres from the rules engine
+  // Get accessible spheres from the rules engine.
+  // Rangers and Paladins ignore priesthoodId by design — their sphere access is
+  // fixed (Druid spheres for Rangers, Cleric spheres for Paladins per PHB Ch.3).
   const spheres = getPriestSpheres(classId, character.priesthood, character.alignment);
   const allSphereNames = Object.keys(spheres) as PriestSphere[];
   if (allSphereNames.length === 0) return [];
@@ -55,8 +57,6 @@ export async function fetchAvailablePriestSpells(
   // Build DB query with sphere + level filter
   // For major spheres: all levels up to maxSpellLevel
   // For minor spheres: only levels 1-3 (and capped by maxSpellLevel)
-  const minorMaxLevel = Math.min(3, maxSpellLevel);
-
   let query = supabase
     .from("spells")
     .select("*")
@@ -69,13 +69,19 @@ export async function fetchAvailablePriestSpells(
     query = query.in("sphere", majorSpheres).lte("level", maxSpellLevel);
   } else if (majorSpheres.length === 0) {
     // Only minor spheres — cap at level 3
+    const minorMaxLevel = Math.min(3, maxSpellLevel);
     query = query.in("sphere", minorSpheres).lte("level", minorMaxLevel);
   } else {
-    // Both major and minor — fetch both, then filter minor level cap in JS
+    // Both access levels — fetch all up to maxSpellLevel,
+    // then cap minor spheres in JS post-filter (can't express per-group level cap in a single SQL IN clause)
     query = query.in("sphere", allSphereNames).lte("level", maxSpellLevel);
   }
 
-  const { data: spells } = await query.returns<SpellRow[]>();
+  const { data: spells, error } = await query.returns<SpellRow[]>();
+  if (error) {
+    console.error("[fetchAvailablePriestSpells] DB query failed:", error.message);
+    return [];
+  }
   if (!spells || spells.length === 0) return [];
 
   // Post-filter: cap minor sphere spells to level 3 (only needed when both major+minor exist)

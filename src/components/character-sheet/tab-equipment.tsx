@@ -585,32 +585,31 @@ export function TabEquipment({
               </div>
             );
           })()}
-          {(() => {
-            const activeClasses = characterClasses.filter((cc) => cc.is_active);
-            if (activeClasses.length <= 1) return null;
-            const classIds = activeClasses.map((cc) => cc.class_id as ClassId);
-            const warnings = getMulticlassArmorWarnings(
-              classIds,
-              !!equippedArmor,
-              equippedArmor?.armor?.ac ?? null,
-              equippedArmor?.armor?.is_magical_protection ?? false
-            );
-            if (warnings.length === 0) return null;
-            return (
-              <>
-                {warnings.map((w) => (
-                  <div
-                    key={w.type}
-                    role="alert"
-                    className="mt-1 text-xs text-yellow-400"
-                    data-testid={`equipment-multiclass-${w.type}-warning`}
-                  >
-                    {ts(w.type === "wizard" ? "multiclassWizardArmor" : "multiclassThiefArmor")}
-                  </div>
-                ))}
-              </>
-            );
-          })()}
+          {activeClasses.length > 1 &&
+            (() => {
+              const classIds = activeClasses.map((cc) => cc.class_id as ClassId);
+              const warnings = getMulticlassArmorWarnings(
+                classIds,
+                !!equippedArmor,
+                equippedArmor?.armor?.ac ?? null,
+                equippedArmor?.armor?.is_magical_protection ?? false
+              );
+              if (warnings.length === 0) return null;
+              return (
+                <>
+                  {warnings.map((w) => (
+                    <div
+                      key={w.type}
+                      role="alert"
+                      className="mt-1 text-xs text-yellow-400"
+                      data-testid={`equipment-multiclass-${w.type}-warning`}
+                    >
+                      {ts(w.type === "wizard" ? "multiclassWizardArmor" : "multiclassThiefArmor")}
+                    </div>
+                  ))}
+                </>
+              );
+            })()}
         </div>
         <div className="rounded-md border border-border p-4 text-center">
           <div className="text-xs text-muted-foreground">{t("totalWeight")}</div>
