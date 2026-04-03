@@ -128,11 +128,15 @@ function getCumulativeEffects(
   const allOverrides: EpicStatOverrides = {};
   const unlockedLevel = getAutoUnlockedLevel(item, characterLevel);
 
+  const seen = new Set<string>();
   for (let i = 0; i <= unlockedLevel; i++) {
     const dl = item.damage_levels[String(i)];
     if (!dl) continue;
     for (const e of dl.effects ?? []) {
-      if (!allEffects.includes(e)) allEffects.push(e);
+      if (!seen.has(e)) {
+        seen.add(e);
+        allEffects.push(e);
+      }
     }
     if (dl.stat_overrides) {
       Object.assign(allOverrides, dl.stat_overrides);
