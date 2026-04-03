@@ -716,6 +716,11 @@ export function TabEquipment({
                       {item.hit_bonus > 0 && (
                         <span className="ml-1 font-bold text-primary">+{item.hit_bonus}</span>
                       )}
+                      {item.armor && (
+                        <span className="ml-1 text-xs text-muted-foreground">
+                          (AC {item.armor.ac})
+                        </span>
+                      )}
                       {item.weapon?.source_book && (
                         <span className="ml-1 text-[9px] text-muted-foreground">
                           ({getBookAbbreviation(item.weapon.source_book)})
