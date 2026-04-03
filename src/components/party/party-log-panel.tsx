@@ -26,9 +26,13 @@ export function PartyLogPanel({ log, userMap, characterMap }: PartyLogPanelProps
   const locale = useLocale();
 
   function formatEntry(entry: PartyLootLogRow): string {
-    const user = userMap[entry.user_id] ?? "?";
-    const character = entry.character_id ? (characterMap[entry.character_id] ?? "?") : "";
+    // Prefer actor (character name) from details, fall back to user display name
     const details = entry.details;
+    const user =
+      typeof details.actor === "string" && details.actor
+        ? details.actor
+        : (userMap[entry.user_id] ?? "?");
+    const character = entry.character_id ? (characterMap[entry.character_id] ?? "?") : "";
     const item =
       (typeof details.item_name === "string" ? details.item_name : null) ??
       (typeof details.custom_name === "string" ? details.custom_name : null) ??
@@ -46,6 +50,10 @@ export function PartyLogPanel({ log, userMap, characterMap }: PartyLogPanelProps
         return t("logDistributeItem", { user, quantity, item, character });
       case "remove_item":
         return t("logRemoveItem", { user, quantity, item });
+      case "remove_gold": {
+        const reason = typeof details.reasonLabel === "string" ? details.reasonLabel : "?";
+        return t("logRemoveGold", { user, amount: formatCoinAmount(details), reason });
+      }
       default:
         return `${user}: ${entry.action}`;
     }

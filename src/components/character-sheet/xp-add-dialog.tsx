@@ -341,6 +341,7 @@ export function XpAddDialog({
                         {change.type === "attacks" && t("attacksPerRound")}
                         {change.type === "weaponProf" && t("newProfSlots")}
                         {change.type === "nwpProf" && t("newNwpSlots")}
+                        {change.type === "backstab" && t("backstab")}
                       </span>
                       {change.before && change.after ? (
                         <span>

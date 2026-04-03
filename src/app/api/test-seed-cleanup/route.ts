@@ -44,5 +44,13 @@ export async function POST(request: Request) {
     .in("name", TEST_CHARACTER_NAMES)
     .select("id");
 
+  // Clean up party loot test data: reset gold to 0, clear log + items created by test users
+  await supabaseAdmin
+    .from("party_loot_gold")
+    .update({ pp: 0, gp: 0, ep: 0, sp: 0, cp: 0 })
+    .not("id", "is", null);
+  await supabaseAdmin.from("party_loot_items").delete().in("added_by", testUserIds);
+  await supabaseAdmin.from("party_loot_log").delete().in("user_id", testUserIds);
+
   return NextResponse.json({ deleted: deleted?.length ?? 0 });
 }

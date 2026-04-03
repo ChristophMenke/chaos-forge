@@ -134,7 +134,7 @@ export function PlayCombatPanel({
     // Single-Weapon Style AC bonus — only applies without a shield
     if (singleWeaponStyleBonus > 0 && !equippedShield) {
       parts.push({
-        label: t("singleWeaponStyleBonus", { bonus: singleWeaponStyleBonus }),
+        label: t("singleWeaponStyleBonus"),
         value: -singleWeaponStyleBonus,
       });
     }

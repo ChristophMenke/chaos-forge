@@ -1,9 +1,7 @@
 import { requireAuth } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
-import { PartyGoldPanel } from "@/components/party/party-gold-panel";
-import { PartyItemsPanel } from "@/components/party/party-items-panel";
-import { PartyLogPanel } from "@/components/party/party-log-panel";
+import { PartyPageClient } from "@/components/party/party-page-client";
 import type {
   PartyLootGoldRow,
   PartyLootItemWithDetails,
@@ -82,17 +80,16 @@ export default async function PartyPage() {
     <div className="flex flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6" data-testid="party-page">
       <h1 className="font-heading text-3xl text-primary">{t("title")}</h1>
 
-      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
-        <PartyGoldPanel gold={gold} userId={user.id} characters={characters ?? []} />
-        <PartyItemsPanel
-          items={items ?? []}
-          userId={user.id}
-          characters={characters ?? []}
-          allGeneralItems={generalItems ?? []}
-        />
-      </div>
-
-      <PartyLogPanel log={log ?? []} userMap={userMap} characterMap={characterMap} />
+      <PartyPageClient
+        gold={gold}
+        items={items ?? []}
+        log={log ?? []}
+        characters={characters ?? []}
+        userMap={userMap}
+        characterMap={characterMap}
+        userId={user.id}
+        allGeneralItems={generalItems ?? []}
+      />
     </div>
   );
 }

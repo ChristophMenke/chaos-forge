@@ -20,6 +20,7 @@ interface PartyItemsPanelProps {
   userId: string;
   characters: CharacterOption[];
   allGeneralItems: GeneralItemRow[];
+  activeCharacterName?: string;
 }
 
 export function PartyItemsPanel({
@@ -27,6 +28,7 @@ export function PartyItemsPanel({
   userId,
   characters,
   allGeneralItems,
+  activeCharacterName = "",
 }: PartyItemsPanelProps) {
   const t = useTranslations("party");
   const locale = useLocale();
@@ -76,7 +78,7 @@ export function PartyItemsPanel({
     await supabase.from("party_loot_log").insert({
       action: "add_item",
       user_id: userId,
-      details: { item_name: name, quantity: 1 },
+      details: { item_name: name, quantity: 1, actor: activeCharacterName },
     });
     setItems([data as PartyLootItemWithDetails, ...items]);
     setSearchQuery("");
@@ -103,7 +105,12 @@ export function PartyItemsPanel({
     await supabase.from("party_loot_log").insert({
       action: "add_item",
       user_id: userId,
-      details: { item_name: customName.trim(), custom_name: customName.trim(), quantity: 1 },
+      details: {
+        item_name: customName.trim(),
+        custom_name: customName.trim(),
+        quantity: 1,
+        actor: activeCharacterName,
+      },
     });
     setItems([data as PartyLootItemWithDetails, ...items]);
     setCustomName("");
@@ -118,7 +125,7 @@ export function PartyItemsPanel({
     await supabase.from("party_loot_log").insert({
       action: "remove_item",
       user_id: userId,
-      details: { item_name: itemName(item), quantity: item.quantity },
+      details: { item_name: itemName(item), quantity: item.quantity, actor: activeCharacterName },
     });
     setItems(items.filter((i) => i.id !== item.id));
     setSavingId(null);

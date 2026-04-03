@@ -1011,7 +1011,7 @@
     "overclockHealing": "Heals {hp} HP/hour",
     "overclockExpired": "Overclock ended",
     "epicAcBonus": "+{bonus} (Epic)",
-    "singleWeaponStyleBonus": "Single-Weapon ({bonus})",
+    "singleWeaponStyleBonus": "Single-Weapon",
     "kitAbilities": "Kit Abilities",
     "kitArmorWarning": "Kit armor restriction: {kitName} allows max AC {maxAC}",
     "kitSpellFailure": "Spell Failure: {percent}% ({kitName})",
@@ -1132,6 +1132,18 @@
     "cancel": "Cancel",
     "insufficientGold": "Not enough gold in the pool",
     "removeItem": "Remove {item}",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "actingAs": "Acting as",
+    "selectActingCharacter": "Select character...",
+    "removeGold": "Remove Gold",
+    "removeGoldTitle": "Remove gold from pool",
+    "reason": "Reason",
+    "reasonExpense": "Group expense",
+    "reasonTheft": "Theft",
+    "reasonOther": "Other",
+    "logRemoveGold": "{user} removed {amount} ({reason})",
+    "logRemoveGoldTheft": "{amount} stolen",
+    "removeItemLost": "Lost/Stolen",
+    "logRemoveItemLost": "{quantity}\u00d7 {item} lost/stolen"
   }
 }

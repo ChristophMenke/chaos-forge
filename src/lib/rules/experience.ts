@@ -3,6 +3,7 @@ import { CLASSES } from "./classes";
 import { getThac0, getSavingThrows, getAttacksPerRound } from "./combat";
 import { getWizardSpellSlots, getPriestSpellSlots, getBardSpellSlots } from "./spellslots";
 import { getWeaponProficiencySlots, getNonweaponProficiencySlots } from "./proficiencies";
+import { getBackstabMultiplier, hasThiefSkills } from "./thief";
 
 // PHB XP tables by class
 // Index 0 = XP needed to reach level 2, index 1 = level 3, etc.
@@ -111,7 +112,7 @@ export function formatSpellSlotString(slots: number[]): string {
 // ── Next Level Changes ──────────────────────────────────────
 
 export interface NextLevelChange {
-  type: "thac0" | "saves" | "spellSlots" | "attacks" | "weaponProf" | "nwpProf";
+  type: "thac0" | "saves" | "spellSlots" | "attacks" | "weaponProf" | "nwpProf" | "backstab";
   before: string;
   after: string;
 }
@@ -184,6 +185,15 @@ export function getNextLevelChanges(classId: ClassId, currentLevel: number): Nex
   const newNwp = getNonweaponProficiencySlots(group, nextLevel);
   if (oldNwp !== newNwp) {
     changes.push({ type: "nwpProf", before: String(oldNwp), after: String(newNwp) });
+  }
+
+  // Backstab multiplier (thief and multiclass with thief)
+  if (hasThiefSkills([classId])) {
+    const oldBs = getBackstabMultiplier(currentLevel);
+    const newBs = getBackstabMultiplier(nextLevel);
+    if (oldBs !== newBs) {
+      changes.push({ type: "backstab", before: `x${oldBs}`, after: `x${newBs}` });
+    }
   }
 
   return changes;
