@@ -15,7 +15,6 @@ import { useTranslations, useLocale } from "next-intl";
 import { localized } from "@/lib/utils/localize";
 import { matchesWeaponProf, findWeaponProf } from "@/lib/utils/proficiency-match";
 import { lbsToKg, feetToMeters } from "@/lib/utils/units";
-import { getStrengthModifiers, getDexterityModifiers } from "@/lib/rules/abilities";
 import {
   getAdjustedWeaponThac0,
   formatDamageWithBonus,
@@ -49,9 +48,9 @@ interface TabEquipmentProps {
   allGeneralItems: GeneralItemRow[];
   baseMovement: number;
   readOnly?: boolean;
-  characterStr: number;
-  characterStrExceptional: number | null;
-  characterDex: number;
+  strHitAdj: number;
+  strDmgAdj: number;
+  dexMissileAdj: number;
   characterClasses: CharacterClassRow[];
   weaponProficiencies: CharacterWeaponProficiencyRow[];
   ignoreEncumbrance?: boolean;
@@ -74,9 +73,9 @@ export function TabEquipment({
   allGeneralItems,
   baseMovement,
   readOnly = false,
-  characterStr,
-  characterStrExceptional,
-  characterDex,
+  strHitAdj,
+  strDmgAdj,
+  dexMissileAdj,
   characterClasses,
   weaponProficiencies,
   ignoreEncumbrance = true,
@@ -490,14 +489,6 @@ export function TabEquipment({
     () => (classEntries.length > 0 ? getMulticlassThac0(classEntries) : 20),
     [classEntries]
   );
-  const strMods = useMemo(
-    () => getStrengthModifiers(characterStr, characterStrExceptional ?? undefined),
-    [characterStr, characterStrExceptional]
-  );
-  const dexMods = useMemo(() => getDexterityModifiers(characterDex), [characterDex]);
-  const strHitAdj = strMods.hitAdj;
-  const strDmgAdj = strMods.dmgAdj;
-  const dexMissileAdj = dexMods.missileAdj;
 
   // Determine warrior class for APR progression (best warrior level wins)
   const warriorEntry = classEntries.find((ce) => getClassGroup(ce.classId) === "warrior");

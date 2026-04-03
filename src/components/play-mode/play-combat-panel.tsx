@@ -236,7 +236,7 @@ export function PlayCombatPanel({
             <span className="text-xs text-muted-foreground">{t("attacksPerRound")}: </span>
             <span className="font-mono">{apr}</span>
             {hasSpecAprBonus && (
-              <span className="ml-1 text-[10px] text-amber-400">({baseApr} +★)</span>
+              <span className="ml-1 text-[10px] text-amber-400">★</span>
             )}
           </div>
         </div>

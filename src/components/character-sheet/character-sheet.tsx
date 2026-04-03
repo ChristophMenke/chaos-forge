@@ -1825,9 +1825,9 @@ export function CharacterSheet({
             allGeneralItems={allGeneralItems}
             baseMovement={race?.baseMovement ?? 12}
             readOnly={!isOwner}
-            characterStr={effectiveStr}
-            characterStrExceptional={eo.str != null ? null : character.str_exceptional}
-            characterDex={effectiveDex}
+            strHitAdj={strMods.hitAdj}
+            strDmgAdj={strMods.dmgAdj}
+            dexMissileAdj={dexMods.missileAdj}
             characterClasses={charClasses}
             weaponProficiencies={weaponProfsState}
             ignoreEncumbrance={character.ignore_encumbrance}
