@@ -25,11 +25,10 @@ test.describe("Character Sheet — Owner", () => {
     await page.goto("/characters");
     const sheet = new CharacterSheetPage(page);
 
-    // Navigate to first own character → choice page → manage
-    const activeGrid = page.getByTestId("active-characters-grid");
-    await expect(activeGrid).toBeVisible({ timeout: 10000 });
-    const firstCard = activeGrid.locator("a").first();
-    await firstCard.click();
+    // Navigate to Gor (seeded test character, owned by test user)
+    const gorCard = page.locator("a", { hasText: "Gor" });
+    await expect(gorCard).toBeVisible({ timeout: 10000 });
+    await gorCard.click();
     await expect(page.getByTestId("character-choice-page")).toBeVisible({ timeout: 15000 });
     await page.getByTestId("character-manage-link").click();
     await sheet.container.waitFor({ timeout: 30000 });
@@ -43,14 +42,10 @@ test.describe("Character Sheet — Owner", () => {
     await expect(page.getByTestId("equipment-ac")).toBeVisible({ timeout: 5000 });
     await expect(page.getByTestId("equipment-movement")).toBeVisible({ timeout: 5000 });
 
-    // Armor items in inventory show AC value
-    const armorAcBadges = page.locator("[data-testid^='armor-ac-']");
-    const armorCount = await armorAcBadges.count();
-    if (armorCount > 0) {
-      const firstBadge = armorAcBadges.first();
-      await expect(firstBadge).toBeVisible();
-      await expect(firstBadge).toHaveText(/\(AC \d+\)/);
-    }
+    // Armor items in inventory show AC value (Gor has Chain Mail from seed)
+    const armorAcBadge = page.locator("[data-testid^='armor-ac-']").first();
+    await expect(armorAcBadge).toBeVisible({ timeout: 5000 });
+    await expect(armorAcBadge).toHaveText(/\(AC \d+\)/);
 
     // Spells tab (if visible)
     const spellsTrigger = page.getByTestId("tab-trigger-spells");
@@ -75,22 +70,19 @@ test.describe("Character Sheet — Owner", () => {
 });
 
 test.describe("Character Sheet — Read-Only", () => {
-  test("non-owner cannot see save or delete buttons", async ({ page }) => {
+  test("non-owner cannot see delete button", async ({ page }) => {
     test.setTimeout(60000);
     await page.goto("/characters");
     const sheet = new CharacterSheetPage(page);
 
-    // Other characters (shared, not owned by test user)
+    // Elara is owned by secondary test user, visible in "Other Characters"
     const otherSection = page.getByTestId("other-characters-section");
-    if (!(await otherSection.isVisible({ timeout: 3000 }).catch(() => false))) {
-      test.skip(true, "No shared characters available");
-    }
+    await expect(otherSection).toBeVisible({ timeout: 5000 });
     await otherSection.locator("summary").click();
 
-    // Click first shared character
-    const sharedCard = otherSection.locator("a").first();
-    await expect(sharedCard).toBeVisible({ timeout: 5000 });
-    await sharedCard.click();
+    const elaraCard = page.locator("a", { hasText: "Elara" });
+    await expect(elaraCard).toBeVisible({ timeout: 10000 });
+    await elaraCard.click();
     // Non-owner is redirected directly to manage (no choice page)
     await sheet.container.waitFor({ timeout: 30000 });
 
@@ -112,10 +104,10 @@ test.describe("Character Choice Page", () => {
     test.setTimeout(60000);
     await page.goto("/characters");
 
-    // Navigate to first own character
-    const activeGrid = page.getByTestId("active-characters-grid");
-    await expect(activeGrid).toBeVisible({ timeout: 10000 });
-    await activeGrid.locator("a").first().click();
+    // Navigate to Gor (seeded test character)
+    const gorCard = page.locator("a", { hasText: "Gor" });
+    await expect(gorCard).toBeVisible({ timeout: 10000 });
+    await gorCard.click();
 
     // Choice page loads with both options
     await expect(page.getByTestId("character-choice-page")).toBeVisible({ timeout: 15000 });
@@ -142,9 +134,9 @@ test.describe("Print View", () => {
     await page.goto("/characters");
     const sheet = new CharacterSheetPage(page);
 
-    const activeGrid = page.getByTestId("active-characters-grid");
-    await expect(activeGrid).toBeVisible({ timeout: 10000 });
-    await activeGrid.locator("a").first().click();
+    const gorCard = page.locator("a", { hasText: "Gor" });
+    await expect(gorCard).toBeVisible({ timeout: 10000 });
+    await gorCard.click();
     await expect(page.getByTestId("character-choice-page")).toBeVisible({ timeout: 15000 });
     await page.getByTestId("character-manage-link").click();
     await sheet.container.waitFor({ timeout: 30000 });

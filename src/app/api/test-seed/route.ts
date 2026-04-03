@@ -96,6 +96,23 @@ export async function POST(request: Request) {
         { character_id: gorData.id, class_id: "fighter", level: 5, xp_current: 32000 },
         { onConflict: "character_id,class_id" }
       );
+
+    // Add Chain Mail armor to Gor's equipment
+    const { data: chainMail } = await supabaseAdmin
+      .from("armor")
+      .select("id")
+      .eq("name_en", "Chain Mail")
+      .limit(1)
+      .maybeSingle();
+    if (chainMail) {
+      await supabaseAdmin.from("character_equipment").insert({
+        character_id: gorData.id,
+        armor_id: chainMail.id,
+        quantity: 1,
+        equipped: true,
+      });
+    }
+
     created.push("Gor");
   } else {
     // Ensure character_classes entry exists for pre-existing Gor
@@ -105,6 +122,29 @@ export async function POST(request: Request) {
         { character_id: existingGor.id, class_id: "fighter", level: 5, xp_current: 32000 },
         { onConflict: "character_id,class_id" }
       );
+
+    // Ensure Gor has armor equipment
+    const { count } = await supabaseAdmin
+      .from("character_equipment")
+      .select("id", { count: "exact", head: true })
+      .eq("character_id", existingGor.id)
+      .not("armor_id", "is", null);
+    if (count === 0) {
+      const { data: chainMail } = await supabaseAdmin
+        .from("armor")
+        .select("id")
+        .eq("name_en", "Chain Mail")
+        .limit(1)
+        .maybeSingle();
+      if (chainMail) {
+        await supabaseAdmin.from("character_equipment").insert({
+          character_id: existingGor.id,
+          armor_id: chainMail.id,
+          quantity: 1,
+          equipped: true,
+        });
+      }
+    }
   }
 
   // Create "Elara" (Mage) for secondary user — if not exists, made public
