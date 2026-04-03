@@ -31,39 +31,36 @@ export default async function SessionsPage() {
   } = await supabase.auth.getUser();
   const currentUserId = user?.id ?? "";
 
-  const { data: sessions } = await supabase
-    .from("sessions")
-    .select("*")
-    .order("session_date", { ascending: false })
-    .returns<SessionRow[]>();
+  // Wave 1: Sessions + independent data in parallel
+  const [{ data: sessions }, { data: npcs }, { data: quotes }] = await Promise.all([
+    supabase
+      .from("sessions")
+      .select("*")
+      .order("session_date", { ascending: false })
+      .returns<SessionRow[]>(),
+    supabase.from("chronicle_npcs").select("*").order("name").returns<ChronicleNpcRow[]>(),
+    supabase
+      .from("chronicle_quotes")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .returns<ChronicleQuoteRow[]>(),
+  ]);
 
-  // Fetch tags for all sessions
+  // Wave 2: Dependent queries (need session/quote IDs)
   const sessionIds = sessions?.map((s) => s.id) ?? [];
-  const { data: sessionTags } = await supabase
-    .from("session_tags")
-    .select("session_id, tag_id, tags(*)")
-    .in("session_id", sessionIds.length > 0 ? sessionIds : ["none"]);
-
-  // Fetch NPCs
-  const { data: npcs } = await supabase
-    .from("chronicle_npcs")
-    .select("*")
-    .order("name")
-    .returns<ChronicleNpcRow[]>();
-
-  // Fetch Quotes with reactions
-  const { data: quotes } = await supabase
-    .from("chronicle_quotes")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .returns<ChronicleQuoteRow[]>();
-
   const quoteIds = quotes?.map((q) => q.id) ?? [];
-  const { data: reactions } = await supabase
-    .from("chronicle_quote_reactions")
-    .select("*")
-    .in("quote_id", quoteIds.length > 0 ? quoteIds : ["none"])
-    .returns<QuoteReactionRow[]>();
+
+  const [{ data: sessionTags }, { data: reactions }] = await Promise.all([
+    supabase
+      .from("session_tags")
+      .select("session_id, tag_id, tags(*)")
+      .in("session_id", sessionIds.length > 0 ? sessionIds : ["none"]),
+    supabase
+      .from("chronicle_quote_reactions")
+      .select("*")
+      .in("quote_id", quoteIds.length > 0 ? quoteIds : ["none"])
+      .returns<QuoteReactionRow[]>(),
+  ]);
 
   // Group tags by session
   const tagsBySession: Record<string, TagRow[]> = {};

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import ReactMarkdown from "react-markdown";
+import { MarkdownRenderer as ReactMarkdown } from "@/components/markdown-renderer";
 import { localized } from "@/lib/utils/localize";
 import {
   spellName as getSpellName,

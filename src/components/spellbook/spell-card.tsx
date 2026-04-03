@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, memo } from "react";
-import ReactMarkdown from "react-markdown";
+import { MarkdownRenderer as ReactMarkdown } from "@/components/markdown-renderer";
 import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

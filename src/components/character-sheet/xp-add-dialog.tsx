@@ -131,16 +131,20 @@ export function XpAddDialog({
 
     const supabase = createClient();
 
-    // Update each class's XP and level
-    for (const cc of activeClasses) {
-      const classXp = classXpValues.find((v) => v.classId === cc.class_id)?.xp ?? 0;
-      if (classXp <= 0) continue;
-      const preview = previewXpGain(cc.class_id as ClassId, cc.level, cc.xp_current, classXp);
-      await supabase
-        .from("character_classes")
-        .update({ xp_current: preview.newXp, level: preview.newLevel })
-        .eq("id", cc.id);
-    }
+    // Update each class's XP and level (parallel)
+    const classUpdates = activeClasses
+      .map((cc) => {
+        const classXp = classXpValues.find((v) => v.classId === cc.class_id)?.xp ?? 0;
+        if (classXp <= 0) return null;
+        const preview = previewXpGain(cc.class_id as ClassId, cc.level, cc.xp_current, classXp);
+        return supabase
+          .from("character_classes")
+          .update({ xp_current: preview.newXp, level: preview.newLevel })
+          .eq("id", cc.id);
+      })
+      .filter(Boolean);
+
+    await Promise.all(classUpdates);
 
     // Save to XP history
     await supabase.from("xp_history").insert({

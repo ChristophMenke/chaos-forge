@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import ReactMarkdown from "react-markdown";
+import { MarkdownRenderer as ReactMarkdown } from "@/components/markdown-renderer";
 import remarkBreaks from "remark-breaks";
 import { Pencil, Check, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";

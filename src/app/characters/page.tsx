@@ -12,24 +12,19 @@ export default async function CharactersPage() {
   const locale = await getLocale();
   const user = await requireAuth();
   const supabase = await createClient();
-  const { data: characters } = await supabase
-    .from("characters")
-    .select("*")
-    .order("updated_at", { ascending: false })
-    .returns<CharacterRow[]>();
-
-  // Load all character_classes for display
-  const { data: allCharClasses } = await supabase
-    .from("character_classes")
-    .select("*")
-    .returns<CharacterClassRow[]>();
-
-  // Load shares where the current user is the recipient (to detect shared characters)
-  const { data: myShares } = await supabase
-    .from("character_shares")
-    .select("*")
-    .eq("shared_with_user_id", user.id)
-    .returns<CharacterShareRow[]>();
+  const [{ data: characters }, { data: allCharClasses }, { data: myShares }] = await Promise.all([
+    supabase
+      .from("characters")
+      .select("*")
+      .order("updated_at", { ascending: false })
+      .returns<CharacterRow[]>(),
+    supabase.from("character_classes").select("*").returns<CharacterClassRow[]>(),
+    supabase
+      .from("character_shares")
+      .select("*")
+      .eq("shared_with_user_id", user.id)
+      .returns<CharacterShareRow[]>(),
+  ]);
 
   const sharedCharacterIds = new Set((myShares ?? []).map((s) => s.character_id));
 

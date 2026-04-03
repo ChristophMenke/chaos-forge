@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -235,19 +235,23 @@ export function TabEquipment({
     setAddQuantity(1);
   }
 
-  const filteredWeapons = allWeapons.filter((w) => {
+  const filteredWeapons = useMemo(() => {
     const q = searchQuery.toLowerCase();
-    const matchesSearch =
-      w.name.toLowerCase().includes(q) || (w.name_en ?? "").toLowerCase().includes(q);
-    const matchesCategory =
-      weaponCategoryFilter === "all" || w.weapon_type === weaponCategoryFilter;
-    return matchesSearch && matchesCategory;
-  });
+    return allWeapons.filter((w) => {
+      const matchesSearch =
+        w.name.toLowerCase().includes(q) || (w.name_en ?? "").toLowerCase().includes(q);
+      const matchesCategory =
+        weaponCategoryFilter === "all" || w.weapon_type === weaponCategoryFilter;
+      return matchesSearch && matchesCategory;
+    });
+  }, [allWeapons, searchQuery, weaponCategoryFilter]);
 
-  const filteredArmor = allArmor.filter((a) => {
+  const filteredArmor = useMemo(() => {
     const q = searchQuery.toLowerCase();
-    return a.name.toLowerCase().includes(q) || (a.name_en ?? "").toLowerCase().includes(q);
-  });
+    return allArmor.filter(
+      (a) => a.name.toLowerCase().includes(q) || (a.name_en ?? "").toLowerCase().includes(q)
+    );
+  }, [allArmor, searchQuery]);
 
   async function createCustomWeapon() {
     if (!customWeapon.name.trim()) return;
