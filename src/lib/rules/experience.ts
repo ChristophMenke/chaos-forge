@@ -197,3 +197,17 @@ export function getXpThreshold(classId: ClassId, level: number): number {
   if (index >= table.length) return table[table.length - 1];
   return table[index];
 }
+
+/**
+ * Calculate the correct level for a given XP total.
+ * Starts at level 1 and advances as long as the XP meets the next threshold.
+ */
+export function getLevelForXp(classId: ClassId, xp: number): number {
+  let level = 1;
+  let nextXp = getXpForNextLevel(classId, level);
+  while (nextXp !== null && xp >= nextXp) {
+    level++;
+    nextXp = getXpForNextLevel(classId, level);
+  }
+  return level;
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getXpForNextLevel, getXpThreshold, previewXpGain } from "./experience";
+import { getXpForNextLevel, getXpThreshold, previewXpGain, getLevelForXp } from "./experience";
 
 describe("XP-001 XP-002 XP-003: Experience Points", () => {
   it("should return 2000 XP for fighter level 2", () => {
@@ -226,5 +226,34 @@ describe("getNextLevelChanges", () => {
     const apr = changes.find((c) => c.type === "attacks");
     expect(apr).toBeDefined();
     expect(apr!.after).toBe("3/2");
+  });
+});
+
+describe("getLevelForXp", () => {
+  it("returns level 1 for 0 XP", () => {
+    expect(getLevelForXp("fighter", 0)).toBe(1);
+  });
+
+  it("returns level 1 for XP below level 2 threshold", () => {
+    expect(getLevelForXp("fighter", 1999)).toBe(1);
+  });
+
+  it("returns level 2 at exactly 2000 XP (fighter)", () => {
+    expect(getLevelForXp("fighter", 2000)).toBe(2);
+  });
+
+  it("returns level 6 for 32000 XP (fighter)", () => {
+    // Fighter thresholds: L2=2000, L3=4000, L4=8000, L5=16000, L6=32000
+    expect(getLevelForXp("fighter", 32000)).toBe(6);
+  });
+
+  it("works for mage class", () => {
+    expect(getLevelForXp("mage", 2500)).toBe(2);
+    expect(getLevelForXp("mage", 5000)).toBe(3);
+  });
+
+  it("returns correct level after XP reduction", () => {
+    // Fighter had 32000 XP (L6), lost 10000 → 22000 XP = L5 (16000 needed for L5)
+    expect(getLevelForXp("fighter", 22000)).toBe(5);
   });
 });

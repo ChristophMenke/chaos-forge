@@ -377,3 +377,40 @@ export interface QuoteReactionRow {
   emoji: string;
   created_at: string;
 }
+
+// ── Party Loot ───────────────────────────────────────────
+
+export interface PartyLootGoldRow {
+  id: string;
+  pp: number;
+  gp: number;
+  ep: number;
+  sp: number;
+  cp: number;
+  updated_at: string;
+  updated_by: string | null;
+}
+
+export interface PartyLootItemRow {
+  id: string;
+  item_id: string | null;
+  custom_name: string | null;
+  quantity: number;
+  notes: string;
+  added_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PartyLootItemWithDetails extends PartyLootItemRow {
+  item: GeneralItemRow | null;
+}
+
+export interface PartyLootLogRow {
+  id: string;
+  action: "add_gold" | "add_item" | "distribute_gold" | "distribute_item" | "remove_item";
+  user_id: string;
+  character_id: string | null;
+  details: Record<string, unknown>;
+  created_at: string;
+}

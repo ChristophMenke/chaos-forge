@@ -53,7 +53,8 @@
     "more": "Mehr",
     "settings": "Einstellungen",
     "newCharacter": "Neuer Charakter",
-    "rulebook": "Chat"
+    "rulebook": "Chat",
+    "party": "Beutekasse"
   },
   "notFound": {
     "title": "404",
@@ -307,6 +308,7 @@
     "dualclassDormant": "Dormant (Stufe {level})",
     "dualclassActive": "Aktiv (Stufe {level})",
     "xpHistory": "XP-Verlauf",
+    "xpDeleteConfirm": "Diesen XP-Eintrag löschen ({amount} XP)? XP und Stufe des Charakters werden neu berechnet.",
     "xpHistoryEmpty": "Noch keine XP vergeben.",
     "xpEarned": "Erfahrungspunkte"
   },
@@ -1094,5 +1096,39 @@
     "filterBooks": "Bücher filtern",
     "allBooks": "Alle Bücher",
     "source": "Quelle"
+  },
+  "party": {
+    "title": "Party-Inventar",
+    "goldPool": "Goldkasse",
+    "totalGP": "Gesamt in GP",
+    "addGold": "Gold hinzufügen",
+    "addGoldTitle": "Gold zur Kasse hinzufügen",
+    "distributeGold": "Gold verteilen",
+    "distributeGoldTitle": "Gold an Charakter verteilen",
+    "items": "Beute",
+    "addItem": "Hinzufügen",
+    "itemName": "Item-Name...",
+    "searchItems": "Item suchen...",
+    "customItem": "Eigenes Item",
+    "quantity": "Anzahl",
+    "distributeItem": "Verteilen",
+    "distributeItemTitle": "\"{item}\" verteilen",
+    "toCharacter": "An Charakter",
+    "selectCharacter": "Charakter wählen...",
+    "available": "{count} verfügbar",
+    "distribute": "Verteilen",
+    "noItems": "Noch keine Beute im Pool.",
+    "log": "Protokoll",
+    "noLog": "Noch keine Einträge.",
+    "logAddGold": "{user} hat {amount} hinzugefügt",
+    "logAddItem": "{user} hat {quantity}\u00d7 {item} hinzugefügt",
+    "logDistributeGold": "{user} hat {amount} an {character} verteilt",
+    "logDistributeItem": "{user} hat {quantity}\u00d7 {item} an {character} verteilt",
+    "logRemoveItem": "{user} hat {quantity}\u00d7 {item} entfernt",
+    "apply": "Anwenden",
+    "cancel": "Abbrechen",
+    "insufficientGold": "Nicht genug Gold in der Kasse",
+    "removeItem": "{item} entfernen",
+    "saving": "Speichern..."
   }
 }

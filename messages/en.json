@@ -53,7 +53,8 @@
     "more": "More",
     "settings": "Settings",
     "newCharacter": "New Character",
-    "rulebook": "Chat"
+    "rulebook": "Chat",
+    "party": "Party Loot"
   },
   "notFound": {
     "title": "404",
@@ -307,6 +308,7 @@
     "dualclassDormant": "Dormant (Level {level})",
     "dualclassActive": "Active (Level {level})",
     "xpHistory": "XP History",
+    "xpDeleteConfirm": "Delete this XP entry ({amount} XP)? The character's XP and level will be recalculated.",
     "xpHistoryEmpty": "No XP awarded yet.",
     "xpEarned": "Experience Points"
   },
@@ -1094,5 +1096,39 @@
     "filterBooks": "Filter books",
     "allBooks": "All books",
     "source": "Source"
+  },
+  "party": {
+    "title": "Party Inventory",
+    "goldPool": "Gold Pool",
+    "totalGP": "Total in GP",
+    "addGold": "Add Gold",
+    "addGoldTitle": "Add Gold to Pool",
+    "distributeGold": "Distribute Gold",
+    "distributeGoldTitle": "Distribute Gold to Character",
+    "items": "Loot",
+    "addItem": "Add",
+    "itemName": "Item name...",
+    "searchItems": "Search items...",
+    "customItem": "Custom Item",
+    "quantity": "Quantity",
+    "distributeItem": "Distribute",
+    "distributeItemTitle": "Distribute \"{item}\"",
+    "toCharacter": "To Character",
+    "selectCharacter": "Select character...",
+    "available": "{count} available",
+    "distribute": "Distribute",
+    "noItems": "No loot in the pool yet.",
+    "log": "Activity Log",
+    "noLog": "No entries yet.",
+    "logAddGold": "{user} added {amount}",
+    "logAddItem": "{user} added {quantity}\u00d7 {item}",
+    "logDistributeGold": "{user} distributed {amount} to {character}",
+    "logDistributeItem": "{user} distributed {quantity}\u00d7 {item} to {character}",
+    "logRemoveItem": "{user} removed {quantity}\u00d7 {item}",
+    "apply": "Apply",
+    "cancel": "Cancel",
+    "insufficientGold": "Not enough gold in the pool",
+    "removeItem": "Remove {item}",
+    "saving": "Saving..."
   }
 }

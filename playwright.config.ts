@@ -32,6 +32,7 @@ export default defineConfig({
         "responsive-a11y.spec.ts",
         "share-dialog.spec.ts",
         "rulebook-chat.spec.ts",
+        "party.spec.ts",
       ],
     },
     // Unauthenticated tests — no storage state
