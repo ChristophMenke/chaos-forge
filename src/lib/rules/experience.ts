@@ -102,6 +102,12 @@ export function previewXpGain(
   };
 }
 
+/** Format spell slots array as "X/Y/Z" string, filtering zeros. */
+export function formatSpellSlotString(slots: number[]): string {
+  const nonZero = slots.filter((v) => v > 0);
+  return nonZero.length > 0 ? nonZero.join("/") : "—";
+}
+
 // ── Next Level Changes ──────────────────────────────────────
 
 export interface NextLevelChange {
@@ -121,9 +127,9 @@ export function getNextLevelChanges(classId: ClassId, currentLevel: number): Nex
   const nextLevel = currentLevel + 1;
   const changes: NextLevelChange[] = [];
 
-  // THAC0
-  const oldThac0 = getThac0(group, currentLevel);
-  const newThac0 = getThac0(group, nextLevel);
+  // THAC0 (pass classId for crusader exception — warrior THAC0 despite priest group)
+  const oldThac0 = getThac0(group, currentLevel, classId);
+  const newThac0 = getThac0(group, nextLevel, classId);
   if (oldThac0 !== newThac0) {
     changes.push({ type: "thac0", before: String(oldThac0), after: String(newThac0) });
   }
@@ -136,33 +142,31 @@ export function getNextLevelChanges(classId: ClassId, currentLevel: number): Nex
   }
 
   // Spell Slots
-  if (classId === "bard") {
-    const oldSlots = getBardSpellSlots(currentLevel);
-    const newSlots = getBardSpellSlots(nextLevel);
+  const getSlots =
+    classId === "bard"
+      ? getBardSpellSlots
+      : group === "wizard"
+        ? getWizardSpellSlots
+        : group === "priest"
+          ? getPriestSpellSlots
+          : null;
+  if (getSlots) {
+    const oldSlots = getSlots(currentLevel);
+    const newSlots = getSlots(nextLevel);
     if (JSON.stringify(oldSlots) !== JSON.stringify(newSlots)) {
-      const fmt = (s: number[]) => s.filter((v) => v > 0).join("/") || "—";
-      changes.push({ type: "spellSlots", before: fmt(oldSlots), after: fmt(newSlots) });
-    }
-  } else if (group === "wizard") {
-    const oldSlots = getWizardSpellSlots(currentLevel);
-    const newSlots = getWizardSpellSlots(nextLevel);
-    if (JSON.stringify(oldSlots) !== JSON.stringify(newSlots)) {
-      const fmt = (s: number[]) => s.filter((v) => v > 0).join("/") || "—";
-      changes.push({ type: "spellSlots", before: fmt(oldSlots), after: fmt(newSlots) });
-    }
-  } else if (group === "priest") {
-    const oldSlots = getPriestSpellSlots(currentLevel);
-    const newSlots = getPriestSpellSlots(nextLevel);
-    if (JSON.stringify(oldSlots) !== JSON.stringify(newSlots)) {
-      const fmt = (s: number[]) => s.filter((v) => v > 0).join("/") || "—";
-      changes.push({ type: "spellSlots", before: fmt(oldSlots), after: fmt(newSlots) });
+      changes.push({
+        type: "spellSlots",
+        before: formatSpellSlotString(oldSlots),
+        after: formatSpellSlotString(newSlots),
+      });
     }
   }
 
-  // Attacks per round (warriors)
-  if (group === "warrior") {
-    const oldAtk = getAttacksPerRound(group, currentLevel, false);
-    const newAtk = getAttacksPerRound(group, nextLevel, false);
+  // Attacks per round (warriors + crusader uses warrior APR)
+  const usesWarriorApr = group === "warrior" || classId === "crusader";
+  if (usesWarriorApr) {
+    const oldAtk = getAttacksPerRound("warrior", currentLevel, false);
+    const newAtk = getAttacksPerRound("warrior", nextLevel, false);
     if (oldAtk !== newAtk) {
       changes.push({ type: "attacks", before: oldAtk, after: newAtk });
     }

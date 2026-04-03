@@ -204,21 +204,27 @@ describe("getNextLevelChanges", () => {
     expect(thac0).toBeUndefined();
   });
 
-  it("returns saving throw improvement when saves change", () => {
-    // Fighter saves improve at certain levels
-    const changes = getNextLevelChanges("fighter", 2);
+  it("returns saving throw improvement for fighter 4→5", () => {
+    const changes = getNextLevelChanges("fighter", 4);
     const saves = changes.find((c) => c.type === "saves");
-    // L2→L3: fighter saves stay the same (change at 3→4 boundary)
-    // Let's check a level where saves do change
-    const changes2 = getNextLevelChanges("fighter", 4);
-    // Saves might not change at every level — this tests the mechanic exists
-    expect(Array.isArray(changes2)).toBe(true);
+    expect(saves).toBeDefined();
   });
 
-  it("returns XP needed for next level", () => {
-    const changes = getNextLevelChanges("fighter", 5);
-    expect(changes).toBeDefined();
-    // Just verify it returns a valid array
-    expect(Array.isArray(changes)).toBe(true);
+  it("returns warrior THAC0 for crusader (PO:S&M exception)", () => {
+    // Crusader is priest group but uses warrior THAC0 (21 - level)
+    // L6→L7: warrior THAC0 goes from 15 to 14
+    const changes = getNextLevelChanges("crusader", 6);
+    const thac0 = changes.find((c) => c.type === "thac0");
+    expect(thac0).toBeDefined();
+    expect(thac0!.before).toBe("15");
+    expect(thac0!.after).toBe("14");
+  });
+
+  it("returns warrior APR for crusader", () => {
+    // Crusader gets warrior APR progression (3/2 at L7)
+    const changes = getNextLevelChanges("crusader", 6);
+    const apr = changes.find((c) => c.type === "attacks");
+    expect(apr).toBeDefined();
+    expect(apr!.after).toBe("3/2");
   });
 });

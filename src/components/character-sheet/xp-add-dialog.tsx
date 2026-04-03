@@ -27,11 +27,6 @@ interface XpAddDialogProps {
   onClassesChange: (classes: CharacterClassRow[]) => void;
 }
 
-function formatSpellSlots(slots: number[]): string {
-  const nonZero = slots.filter((s) => s > 0);
-  return nonZero.length > 0 ? nonZero.join("/") : "—";
-}
-
 export function XpAddDialog({
   open,
   characterId,
@@ -180,6 +175,11 @@ export function XpAddDialog({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
       onClick={onClose}
+      onKeyDown={(e) => e.key === "Escape" && onClose()}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="xp-dialog-title"
+      tabIndex={-1}
       data-testid="xp-add-dialog"
     >
       <div
@@ -187,7 +187,9 @@ export function XpAddDialog({
         style={{ maxHeight: "90vh" }}
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="font-heading text-xl text-primary">{t("addXp")}</h3>
+        <h3 id="xp-dialog-title" className="font-heading text-xl text-primary">
+          {t("addXp")}
+        </h3>
 
         {/* Total XP Amount */}
         <div className="flex flex-col gap-1">
@@ -309,7 +311,7 @@ export function XpAddDialog({
               {p.preview && p.preview.levelsGained > 0 && (
                 <div
                   className="rounded-md bg-green-900/30 px-3 py-2 text-sm text-green-300"
-                  data-testid="level-up-indicator"
+                  data-testid={`level-up-indicator-${p.classId}`}
                 >
                   {t("levelUp")} {p.preview.currentLevel} → {p.preview.newLevel}
                 </div>
