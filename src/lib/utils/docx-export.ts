@@ -940,12 +940,16 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
               ],
             }),
             ...(() => {
-              const weaponClassGroup: ClassGroup =
-                activeClasses.length > 0
-                  ? (CLASSES[activeClasses[0].class_id as ClassId]?.group ??
-                    ("warrior" as ClassGroup))
-                  : ("warrior" as ClassGroup);
-              const primaryLevel = activeClasses[0]?.level ?? 1;
+              const warriorClassEntry = classEntries.find(
+                (ce) => getClassGroup(ce.classId) === "warrior"
+              );
+              const weaponClassGroup: ClassGroup = (() => {
+                const groups = classEntries.map((ce) => getClassGroup(ce.classId));
+                if (groups.includes("warrior")) return "warrior";
+                if (groups.includes("priest")) return "priest";
+                if (groups.includes("rogue")) return "rogue";
+                return (groups[0] ?? "warrior") as ClassGroup;
+              })();
               return equippedWeapons.map((e) => {
                 const weapon = e.weapon!;
                 const matchingProf = findWeaponProf(
@@ -1020,8 +1024,8 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
                       size: 18,
                     }),
                     cell(
-                      weaponClassGroup === "warrior"
-                        ? getAttacksPerRound("warrior", primaryLevel, isSpecialized)
+                      warriorClassEntry
+                        ? getAttacksPerRound("warrior", warriorClassEntry.level, isSpecialized)
                         : isSpecialized
                           ? "3/2"
                           : "1",
