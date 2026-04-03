@@ -665,6 +665,11 @@ export function PrintSheet({
 
     weapons: () => {
       if (equipment.filter((e) => e.weapon && e.equipped).length === 0) return null;
+      const weaponClassGroup =
+        activeClasses.length > 0
+          ? (CLASSES[activeClasses[0].class_id as ClassId]?.group ?? "warrior")
+          : "warrior";
+      const primaryWeaponLevel = activeClasses[0]?.level ?? 1;
       return (
         <section className="mb-4" data-testid="print-section-weapons">
           <h2 className="mb-2 border-b border-gray-400 font-serif text-lg font-bold">
@@ -697,21 +702,13 @@ export function PrintSheet({
                   const isSpecialized = matchingProf?.specialization ?? false;
                   const specHitBonus = isSpecialized ? 1 : 0;
                   const specDmgBonus = isSpecialized ? 2 : 0;
-                  const weaponClassGroup =
-                    activeClasses.length > 0
-                      ? (CLASSES[activeClasses[0].class_id as ClassId]?.group ?? "warrior")
-                      : "warrior";
-                  const isCrusader = activeClasses.some((cc) => cc.class_id === "crusader");
-                  const aprGroup = isCrusader ? "warrior" : weaponClassGroup;
-                  const weaponLevel = activeClasses[0]?.level ?? 1;
-                  const weaponApr = getAttacksPerRound(
-                    aprGroup,
-                    weaponLevel,
-                    isSpecialized
-                  );
-                  const penalty = isProficient
-                    ? 0
-                    : getNonproficiencyPenalty(weaponClassGroup);
+                  const weaponApr =
+                    weaponClassGroup === "warrior"
+                      ? getAttacksPerRound("warrior", primaryWeaponLevel, isSpecialized)
+                      : isSpecialized
+                        ? "3/2"
+                        : "1";
+                  const penalty = isProficient ? 0 : getNonproficiencyPenalty(weaponClassGroup);
                   const hitBonus = e.hit_bonus ?? 0;
                   const dmgBonus = e.damage_bonus ?? 0;
                   const weaponThac0 = getAdjustedWeaponThac0(
@@ -751,13 +748,21 @@ export function PrintSheet({
                         className="py-1 text-center font-mono"
                         data-testid={`print-weapon-damage-sm-${e.id}`}
                       >
-                        {formatDamageWithBonus(weapon.damage_sm, strMods.dmgAdj + specDmgBonus, dmgBonus)}
+                        {formatDamageWithBonus(
+                          weapon.damage_sm,
+                          strMods.dmgAdj + specDmgBonus,
+                          dmgBonus
+                        )}
                       </td>
                       <td
                         className="py-1 text-center font-mono"
                         data-testid={`print-weapon-damage-l-${e.id}`}
                       >
-                        {formatDamageWithBonus(weapon.damage_l, strMods.dmgAdj + specDmgBonus, dmgBonus)}
+                        {formatDamageWithBonus(
+                          weapon.damage_l,
+                          strMods.dmgAdj + specDmgBonus,
+                          dmgBonus
+                        )}
                       </td>
                       <td
                         className="py-1 text-center font-mono"

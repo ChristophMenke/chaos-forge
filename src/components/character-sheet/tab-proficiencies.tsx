@@ -13,6 +13,7 @@ import {
   getNonweaponProficiencySlots,
   getNonproficiencyPenalty,
   canSpecialize,
+  isNonStandardSpecialization,
 } from "@/lib/rules/proficiencies";
 import type { ClassGroup, ClassId } from "@/lib/rules/types";
 import { RACES } from "@/lib/rules/races";
@@ -159,7 +160,7 @@ export function TabProficiencies({
   }
   const penalty = getNonproficiencyPenalty(group);
   const showSpecialization = canSpecialize(classId as ClassId);
-  const showSpecWarning = group !== "warrior";
+  const showSpecWarning = isNonStandardSpecialization(classId as ClassId);
 
   const fightingStyleSlots = fightingStyles.reduce((sum, fs) => sum + fs.slots_invested, 0);
 
@@ -507,7 +508,10 @@ export function TabProficiencies({
                     <Badge data-testid={`weapon-specialized-${wp.id}`}>{t("specialization")}</Badge>
                   )}
                   {showSpecWarning && wp.specialization && (
-                    <span className="text-xs text-amber-400" data-testid={`weapon-spec-warning-${wp.id}`}>
+                    <span
+                      className="text-xs text-amber-400"
+                      data-testid={`weapon-spec-warning-${wp.id}`}
+                    >
                       {t("specNonFighterWarning")}
                     </span>
                   )}

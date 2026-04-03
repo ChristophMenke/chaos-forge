@@ -876,74 +876,98 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
                 headerCell("Atk/Rnd", { alignment: AlignmentType.CENTER }),
               ],
             }),
-            ...equippedWeapons.map((e) => {
-              const weapon = e.weapon!;
-              const matchingProf = findWeaponProf(
-                weaponProficiencies,
-                weapon.name,
-                weapon.name_en
-              );
-              const isProficient = !!matchingProf;
-              const isSpecialized = matchingProf?.specialization ?? false;
-              const specHitBonus = isSpecialized ? 1 : 0;
-              const specDmgBonus = isSpecialized ? 2 : 0;
-              const classGroup =
+            ...(() => {
+              const weaponClassGroup: ClassGroup =
                 activeClasses.length > 0
                   ? (CLASSES[activeClasses[0].class_id as ClassId]?.group ??
-                      ("warrior" as ClassGroup))
+                    ("warrior" as ClassGroup))
                   : ("warrior" as ClassGroup);
-              const penalty = isProficient ? 0 : getNonproficiencyPenalty(classGroup);
-              const hitBonus = e.hit_bonus ?? 0;
-              const dmgBonus = e.damage_bonus ?? 0;
-              const weaponThac0 = getAdjustedWeaponThac0(
-                thac0,
-                strMods.hitAdj + specHitBonus,
-                dexMods.missileAdj + specHitBonus,
-                weapon.weapon_type,
-                penalty,
-                hitBonus
-              );
-              const rangeStr =
-                weapon.weapon_type !== "melee" &&
-                weapon.range_short != null &&
-                weapon.range_medium != null &&
-                weapon.range_long != null
-                  ? `${feetToMeters(weapon.range_short)}/${feetToMeters(weapon.range_medium)}/${feetToMeters(weapon.range_long)}`
-                  : "—";
-              const weaponLabel = `${localized(weapon.name, weapon.name_en, props.locale)}${hitBonus > 0 ? ` +${hitBonus}` : ""}${!isProficient ? " *" : ""}`;
+              const primaryLevel = activeClasses[0]?.level ?? 1;
+              return equippedWeapons.map((e) => {
+                const weapon = e.weapon!;
+                const matchingProf = findWeaponProf(
+                  weaponProficiencies,
+                  weapon.name,
+                  weapon.name_en
+                );
+                const isProficient = !!matchingProf;
+                const isSpecialized = matchingProf?.specialization ?? false;
+                const specHitBonus = isSpecialized ? 1 : 0;
+                const specDmgBonus = isSpecialized ? 2 : 0;
+                const penalty = isProficient ? 0 : getNonproficiencyPenalty(weaponClassGroup);
+                const hitBonus = e.hit_bonus ?? 0;
+                const dmgBonus = e.damage_bonus ?? 0;
+                const weaponThac0 = getAdjustedWeaponThac0(
+                  thac0,
+                  strMods.hitAdj + specHitBonus,
+                  dexMods.missileAdj + specHitBonus,
+                  weapon.weapon_type,
+                  penalty,
+                  hitBonus
+                );
+                const rangeStr =
+                  weapon.weapon_type !== "melee" &&
+                  weapon.range_short != null &&
+                  weapon.range_medium != null &&
+                  weapon.range_long != null
+                    ? `${feetToMeters(weapon.range_short)}/${feetToMeters(weapon.range_medium)}/${feetToMeters(weapon.range_long)}`
+                    : "—";
+                const weaponLabel = `${localized(weapon.name, weapon.name_en, props.locale)}${hitBonus > 0 ? ` +${hitBonus}` : ""}${!isProficient ? " *" : ""}`;
 
-              return new TableRow({
-                children: [
-                  cell(weaponLabel),
-                  cell(String(weaponThac0.melee), {
-                    alignment: AlignmentType.CENTER,
-                    font: "Courier New",
-                  }),
-                  cell(weaponThac0.ranged !== null ? String(weaponThac0.ranged) : "—", {
-                    alignment: AlignmentType.CENTER,
-                    font: "Courier New",
-                  }),
-                  cell(formatDamageWithBonus(weapon.damage_sm, strMods.dmgAdj + specDmgBonus, dmgBonus), {
-                    alignment: AlignmentType.CENTER,
-                    font: "Courier New",
-                  }),
-                  cell(formatDamageWithBonus(weapon.damage_l, strMods.dmgAdj + specDmgBonus, dmgBonus), {
-                    alignment: AlignmentType.CENTER,
-                    font: "Courier New",
-                  }),
-                  cell(String(weapon.speed), {
-                    alignment: AlignmentType.CENTER,
-                    font: "Courier New",
-                  }),
-                  cell(rangeStr, {
-                    alignment: AlignmentType.CENTER,
-                    font: "Courier New",
-                    size: 18,
-                  }),
-                  cell(attacksDisplay, { alignment: AlignmentType.CENTER, font: "Courier New" }),
-                ],
+                return new TableRow({
+                  children: [
+                    cell(weaponLabel),
+                    cell(String(weaponThac0.melee), {
+                      alignment: AlignmentType.CENTER,
+                      font: "Courier New",
+                    }),
+                    cell(weaponThac0.ranged !== null ? String(weaponThac0.ranged) : "—", {
+                      alignment: AlignmentType.CENTER,
+                      font: "Courier New",
+                    }),
+                    cell(
+                      formatDamageWithBonus(
+                        weapon.damage_sm,
+                        strMods.dmgAdj + specDmgBonus,
+                        dmgBonus
+                      ),
+                      {
+                        alignment: AlignmentType.CENTER,
+                        font: "Courier New",
+                      }
+                    ),
+                    cell(
+                      formatDamageWithBonus(
+                        weapon.damage_l,
+                        strMods.dmgAdj + specDmgBonus,
+                        dmgBonus
+                      ),
+                      {
+                        alignment: AlignmentType.CENTER,
+                        font: "Courier New",
+                      }
+                    ),
+                    cell(String(weapon.speed), {
+                      alignment: AlignmentType.CENTER,
+                      font: "Courier New",
+                    }),
+                    cell(rangeStr, {
+                      alignment: AlignmentType.CENTER,
+                      font: "Courier New",
+                      size: 18,
+                    }),
+                    cell(
+                      weaponClassGroup === "warrior"
+                        ? getAttacksPerRound("warrior", primaryLevel, isSpecialized)
+                        : isSpecialized
+                          ? "3/2"
+                          : "1",
+                      { alignment: AlignmentType.CENTER, font: "Courier New" }
+                    ),
+                  ],
+                });
               });
-            }),
+            })(),
           ],
         })
       );

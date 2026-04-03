@@ -153,8 +153,7 @@ export function PlayCombatPanel({
 
   // Attacks per round from first warrior class (house rule: crusader gets warrior APR)
   const warriorEntry = classEntries.find(
-    (ce) =>
-      getClassGroup(ce.classId as ClassId) === "warrior" || ce.classId === "crusader"
+    (ce) => getClassGroup(ce.classId as ClassId) === "warrior" || ce.classId === "crusader"
   );
 
   function renderWeaponCard(eq: CharacterEquipmentWithDetails, isEquipped: boolean) {
@@ -239,6 +238,14 @@ export function PlayCombatPanel({
           {eq.hit_bonus > 0 && (
             <span className="text-xs text-muted-foreground">
               +{eq.hit_bonus} {t("magicBonus")}
+            </span>
+          )}
+          {isSpecialized && (
+            <span
+              className="text-xs text-amber-400"
+              data-testid={`play-weapon-spec-bonus-${eq.id}`}
+            >
+              ★ {t("specBonus")}
             </span>
           )}
           <Button
