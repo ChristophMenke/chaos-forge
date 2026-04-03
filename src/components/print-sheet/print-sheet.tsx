@@ -479,11 +479,14 @@ export function PrintSheet({
           <h2 className="mb-2 border-b border-gray-400 font-serif text-lg font-bold">
             {t("savingThrows")}
           </h2>
-          <div className="grid grid-cols-5 gap-x-4 gap-y-0.5 text-sm">
+          <div className="grid grid-cols-4 gap-x-4 gap-y-1 text-sm">
             {[
-              { label: t("savePara"), value: saves.paralyzation },
-              { label: t("savePetri"), value: saves.petrification },
-              { label: t("saveRod"), value: saves.rod },
+              { label: t("saveParalyzation"), value: saves.paralyzation },
+              { label: t("savePoison"), value: saves.paralyzation },
+              { label: t("saveDeathMagic"), value: saves.paralyzation },
+              { label: t("saveRodStaff"), value: saves.rod },
+              { label: t("savePetrification"), value: saves.petrification },
+              { label: t("savePolymorph"), value: saves.petrification },
               { label: t("saveBreath"), value: saves.breath },
               { label: t("saveSpell"), value: saves.spell },
             ].map(({ label, value }) => (

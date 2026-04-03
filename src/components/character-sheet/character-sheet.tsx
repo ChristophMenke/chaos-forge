@@ -1832,6 +1832,7 @@ export function CharacterSheet({
             weaponProficiencies={weaponProfsState}
             ignoreEncumbrance={character.ignore_encumbrance}
             characterKit={character.kit}
+            epicAcBonus={epicEffects.acBonus}
             onEquipmentChange={setEquipment}
             onInventoryChange={setInventory}
             onIgnoreEncumbranceChange={handleIgnoreEncumbranceChange}

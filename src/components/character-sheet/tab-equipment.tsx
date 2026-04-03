@@ -26,7 +26,7 @@ import { getNonproficiencyPenalty } from "@/lib/rules/proficiencies";
 import { CLASSES, getClassGroup } from "@/lib/rules/classes";
 import { getKitArmorWarning } from "@/lib/rules/kits";
 import { getBookAbbreviation } from "@/lib/utils/source-books";
-import type { ClassId } from "@/lib/rules/types";
+import type { ClassId, ClassGroup } from "@/lib/rules/types";
 import type {
   CharacterEquipmentWithDetails,
   WeaponRow,
@@ -56,6 +56,7 @@ interface TabEquipmentProps {
   weaponProficiencies: CharacterWeaponProficiencyRow[];
   ignoreEncumbrance?: boolean;
   characterKit?: string | null;
+  epicAcBonus?: number;
   onEquipmentChange: (equipment: CharacterEquipmentWithDetails[]) => void;
   onInventoryChange: (inventory: CharacterInventoryWithDetails[]) => void;
   onIgnoreEncumbranceChange: (value: boolean) => void;
@@ -80,6 +81,7 @@ export function TabEquipment({
   weaponProficiencies,
   ignoreEncumbrance = true,
   characterKit,
+  epicAcBonus = 0,
   onEquipmentChange,
   onInventoryChange,
   onIgnoreEncumbranceChange,
@@ -169,6 +171,7 @@ export function TabEquipment({
     encumbrance: encumbranceLevel,
     ignoreEncumbrance,
     isMagicalProtection: equippedArmor?.armor?.is_magical_protection ?? false,
+    epicAcBonus,
   });
 
   const equippedItems = equipment.filter((e) => e.equipped);
@@ -496,12 +499,16 @@ export function TabEquipment({
   const strDmgAdj = strMods.dmgAdj;
   const dexMissileAdj = dexMods.missileAdj;
 
-  // Determine primary class group for attacks per round
-  const primaryClassGroup =
-    activeClasses.length > 0
-      ? (CLASSES[activeClasses[0].class_id as ClassId]?.group ?? "warrior")
-      : "warrior";
-  const primaryLevel = activeClasses[0]?.level ?? 1;
+  // Determine warrior class for APR progression (best warrior level wins)
+  const warriorEntry = classEntries.find((ce) => getClassGroup(ce.classId) === "warrior");
+  // Primary class group for proficiency penalty (best = warrior > priest/rogue > wizard)
+  const primaryClassGroup = (() => {
+    const groups = classEntries.map((ce) => getClassGroup(ce.classId));
+    if (groups.includes("warrior")) return "warrior" as const;
+    if (groups.includes("priest")) return "priest" as const;
+    if (groups.includes("rogue")) return "rogue" as const;
+    return (groups[0] ?? "warrior") as ClassGroup;
+  })();
 
   function getWeaponSpecialized(weaponName: string, weaponNameEn: string | null): boolean {
     return weaponProficiencies.some(
@@ -511,8 +518,8 @@ export function TabEquipment({
 
   function getWeaponAttacksPerRound(weaponName: string, weaponNameEn: string | null): string {
     const isSpec = getWeaponSpecialized(weaponName, weaponNameEn);
-    if (primaryClassGroup === "warrior") {
-      return getAttacksPerRound("warrior", primaryLevel, isSpec);
+    if (warriorEntry) {
+      return getAttacksPerRound("warrior", warriorEntry.level, isSpec);
     }
     // S&P: non-warrior specialization grants +1/2 APR (1 → 3/2)
     return isSpec ? "3/2" : "1";
