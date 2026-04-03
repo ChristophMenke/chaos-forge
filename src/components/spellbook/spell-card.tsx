@@ -71,8 +71,15 @@ export const SpellCard = memo(function SpellCard({
             {spell.components.join(", ")}
           </span>
         )}
-        {spell.casting_time && (
-          <span className="hidden shrink-0 text-xs text-muted-foreground lg:inline">
+        {spell.casting_time && /^[\d]|^Special/i.test(spell.casting_time) && (
+          <span
+            className="hidden shrink-0 items-center gap-0.5 text-xs text-muted-foreground lg:inline-flex"
+            title={`${tSpells("castingTime")}: ${spell.casting_time}`}
+            aria-label={`${tSpells("castingTime")}: ${spell.casting_time}`}
+          >
+            <svg className="h-3 w-3" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+              <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm0 14A6 6 0 1 1 8 2a6 6 0 0 1 0 12zm1-6.59V4a1 1 0 0 0-2 0v4a1 1 0 0 0 .29.71l2 2a1 1 0 0 0 1.42-1.42L9 7.41z" />
+            </svg>
             {spell.casting_time}
           </span>
         )}

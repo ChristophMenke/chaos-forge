@@ -2,7 +2,7 @@
 
 import { Fragment, useMemo, type ReactNode } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { localized } from "@/lib/utils/localize";
+import { localized, translateGender } from "@/lib/utils/localize";
 import type { PrintPreferences, PrintSectionId } from "@/lib/print-config";
 import { DEFAULT_PRINT_PREFERENCES } from "@/lib/print-config";
 import { usePrintPreferences } from "@/lib/hooks/use-print-preferences";
@@ -39,7 +39,9 @@ import type {
   CharacterFightingStyleRow,
   CharacterInventoryWithDetails,
   SpellRow,
+  EpicItemRow,
 } from "@/lib/supabase/types";
+import { getEpicEffects } from "@/lib/rules/epic-items";
 import { isPriestCaster } from "@/lib/rules/magic";
 import { getFightingStyle } from "@/lib/rules/fighting-styles";
 
@@ -53,6 +55,7 @@ export interface PrintSheetProps {
   languages: CharacterLanguageRow[];
   fightingStyles: CharacterFightingStyleRow[];
   inventory: CharacterInventoryWithDetails[];
+  epicItems?: EpicItemRow[];
   priestAvailableSpells?: SpellRow[];
 }
 
@@ -71,6 +74,7 @@ export function PrintSheet({
   languages,
   fightingStyles,
   inventory,
+  epicItems = [],
   priestAvailableSpells = [],
   preferences = DEFAULT_PRINT_PREFERENCES,
   toolbar,
@@ -78,6 +82,7 @@ export function PrintSheet({
   const t = useTranslations("print");
   const locale = useLocale();
   const race = character.race_id ? RACES[character.race_id as keyof typeof RACES] : null;
+  const epicEffects = useMemo(() => getEpicEffects(epicItems), [epicItems]);
 
   const activeClasses = characterClasses.filter((cc) => cc.is_active);
   const classEntries = activeClasses.map((cc) => ({
@@ -113,6 +118,7 @@ export function PrintSheet({
     0
   );
   const encumbranceLevel = calculateEncumbrance(totalWeight, strMods.weightAllow);
+  const isMagicalProtection = equippedArmorForAC?.armor?.is_magical_protection ?? false;
   const effectiveAC = calculateAC({
     equippedArmorAC: equippedArmorForAC?.armor?.ac ?? null,
     shieldEquipped: hasShieldForAC,
@@ -120,7 +126,8 @@ export function PrintSheet({
     classGroups,
     encumbrance: encumbranceLevel,
     ignoreEncumbrance: character.ignore_encumbrance,
-    isMagicalProtection: equippedArmorForAC?.armor?.is_magical_protection ?? false,
+    isMagicalProtection,
+    epicAcBonus: epicEffects.acBonus,
   });
 
   const strDisplay =
@@ -246,7 +253,8 @@ export function PrintSheet({
               )}
               {character.gender && (
                 <div>
-                  <span className="font-semibold">{t("gender")}:</span> {character.gender}
+                  <span className="font-semibold">{t("gender")}:</span>{" "}
+                  {translateGender(character.gender, locale)}
                 </div>
               )}
             </div>
@@ -473,14 +481,9 @@ export function PrintSheet({
           </h2>
           <div className="grid grid-cols-5 gap-x-4 gap-y-0.5 text-sm">
             {[
-              { label: "Paralyzation", value: saves.paralyzation },
-              { label: "Poison", value: saves.paralyzation },
-              { label: "Death Magic", value: saves.paralyzation },
-              { label: "Petrification", value: saves.petrification },
-              { label: "Polymorph", value: saves.petrification },
-              { label: "Rod", value: saves.rod },
-              { label: "Staff", value: saves.rod },
-              { label: "Wand", value: saves.rod },
+              { label: t("savePara"), value: saves.paralyzation },
+              { label: t("savePetri"), value: saves.petrification },
+              { label: t("saveRod"), value: saves.rod },
               { label: t("saveBreath"), value: saves.breath },
               { label: t("saveSpell"), value: saves.spell },
             ].map(({ label, value }) => (
@@ -598,78 +601,95 @@ export function PrintSheet({
       );
     },
 
-    acBreakdown: () => (
-      <section className="mb-4" data-testid="print-section-ac-breakdown">
-        <h2 className="mb-2 border-b border-gray-400 font-serif text-lg font-bold">
-          {t("acBreakdown")}
-        </h2>
-        {(() => {
-          const equippedArmorItem = equipment.find(
-            (e) => e.armor && e.equipped && !isShieldItem(e.armor.name)
-          );
-          const shieldEquipped = equipment.some(
-            (e) => e.armor && e.equipped && isShieldItem(e.armor.name)
-          );
-          const finalAC = calculateAC({
-            equippedArmorAC: equippedArmorItem?.armor?.ac ?? null,
-            shieldEquipped,
-            dexDefenseAdj: dexMods.defensiveAdj,
-            classGroups,
-            encumbrance: encumbranceLevel,
-            ignoreEncumbrance: character.ignore_encumbrance,
-            isMagicalProtection: equippedArmorItem?.armor?.is_magical_protection ?? false,
+    acBreakdown: () => {
+      const parts: { label: string; value: number; sublabel?: string }[] = [];
+      parts.push({ label: t("base"), value: 10 });
+      if (equippedArmorForAC?.armor) {
+        if (isMagicalProtection) {
+          parts.push({
+            label: t("acArmor"),
+            value: -equippedArmorForAC.armor.ac,
+            sublabel: localized(
+              equippedArmorForAC.armor.name,
+              equippedArmorForAC.armor.name_en,
+              locale
+            ),
           });
-          return (
-            <div
-              className="grid grid-cols-5 gap-2 text-center text-sm"
-              data-testid="print-ac-breakdown-grid"
-            >
-              <div className="rounded border border-gray-300 p-2">
-                <div className="text-xs text-gray-500">{t("base")}</div>
-                <div className="font-mono text-lg font-bold" data-testid="print-ac-base">
-                  10
+        } else {
+          const armorMod = equippedArmorForAC.armor.ac - 10;
+          if (armorMod !== 0) {
+            parts.push({
+              label: t("acArmor"),
+              value: armorMod,
+              sublabel: localized(
+                equippedArmorForAC.armor.name,
+                equippedArmorForAC.armor.name_en,
+                locale
+              ),
+            });
+          }
+        }
+      }
+      if (hasShieldForAC) {
+        parts.push({ label: t("acShield"), value: -1 });
+      }
+      if (dexMods.defensiveAdj !== 0) {
+        parts.push({ label: t("acDex"), value: dexMods.defensiveAdj });
+      }
+      const isEffectivelyUnarmored = !equippedArmorForAC?.armor || isMagicalProtection;
+      if (isEffectivelyUnarmored) {
+        const hasWarriorOrRogue = classGroups.some((g) => g === "warrior" || g === "rogue");
+        const isUnencumbered = character.ignore_encumbrance || encumbranceLevel === "unencumbered";
+        if (hasWarriorOrRogue && isUnencumbered) {
+          parts.push({ label: t("unarmoredBonus"), value: -2 });
+        }
+      }
+      if (epicEffects.acBonus) {
+        parts.push({
+          label: t("epicAcBonus"),
+          value: -epicEffects.acBonus,
+        });
+      }
+      return (
+        <section className="mb-4" data-testid="print-section-ac-breakdown">
+          <h2 className="mb-2 border-b border-gray-400 font-serif text-lg font-bold">
+            {t("acBreakdown")}
+          </h2>
+          <div
+            className="flex flex-wrap gap-2 text-center text-sm"
+            data-testid="print-ac-breakdown-grid"
+          >
+            {parts.map((part) => (
+              <div
+                key={part.label}
+                className="min-w-[70px] flex-1 rounded border border-gray-300 p-2"
+              >
+                <div className="text-xs text-gray-500">{part.label}</div>
+                <div
+                  className="font-mono text-lg font-bold"
+                  data-testid={part.label === t("base") ? "print-ac-base" : undefined}
+                >
+                  {part.label === t("base")
+                    ? part.value
+                    : part.value >= 0
+                      ? `+${part.value}`
+                      : part.value}
                 </div>
-              </div>
-              <div className="rounded border border-gray-300 p-2">
-                <div className="text-xs text-gray-500">{t("acArmor")}</div>
-                <div className="font-mono text-lg font-bold" data-testid="print-ac-armor">
-                  {equippedArmorItem ? `${-(10 - equippedArmorItem.armor!.ac)}` : "—"}
-                </div>
-                {equippedArmorItem && (
-                  <div className="text-[9px] text-gray-400 truncate">
-                    {localized(
-                      equippedArmorItem.armor!.name,
-                      equippedArmorItem.armor!.name_en,
-                      locale
-                    )}
-                  </div>
+                {part.sublabel && (
+                  <div className="truncate text-[9px] text-gray-400">{part.sublabel}</div>
                 )}
               </div>
-              <div className="rounded border border-gray-300 p-2">
-                <div className="text-xs text-gray-500">{t("acShield")}</div>
-                <div className="font-mono text-lg font-bold" data-testid="print-ac-shield">
-                  {shieldEquipped ? "-1" : "—"}
-                </div>
-              </div>
-              <div className="rounded border border-gray-300 p-2">
-                <div className="text-xs text-gray-500">{t("acDex")}</div>
-                <div className="font-mono text-lg font-bold" data-testid="print-ac-dex">
-                  {dexMods.defensiveAdj !== 0
-                    ? `${dexMods.defensiveAdj >= 0 ? "+" : ""}${dexMods.defensiveAdj}`
-                    : "—"}
-                </div>
-              </div>
-              <div className="rounded border border-gray-400 p-2">
-                <div className="text-xs text-gray-500">{t("acFinal")}</div>
-                <div className="font-mono text-lg font-bold" data-testid="print-ac-final">
-                  {finalAC}
-                </div>
+            ))}
+            <div className="min-w-[70px] flex-1 rounded border border-gray-400 p-2">
+              <div className="text-xs text-gray-500">{t("acFinal")}</div>
+              <div className="font-mono text-lg font-bold" data-testid="print-ac-final">
+                {effectiveAC}
               </div>
             </div>
-          );
-        })()}
-      </section>
-    ),
+          </div>
+        </section>
+      );
+    },
 
     weapons: () => {
       if (equipment.filter((e) => e.weapon && e.equipped).length === 0) return null;
@@ -1143,6 +1163,7 @@ export function PrintSheetContainer({
   languages,
   fightingStyles,
   inventory,
+  epicItems = [],
   priestAvailableSpells = [],
 }: PrintSheetProps) {
   const t = useTranslations("print");
@@ -1196,6 +1217,7 @@ export function PrintSheetContainer({
               languages,
               fightingStyles,
               inventory,
+              epicItems,
               priestAvailableSpells,
               locale,
               preferences,
@@ -1235,6 +1257,7 @@ export function PrintSheetContainer({
       languages={languages}
       fightingStyles={fightingStyles}
       inventory={inventory}
+      epicItems={epicItems}
       priestAvailableSpells={priestAvailableSpells}
       preferences={preferences}
       toolbar={toolbar}

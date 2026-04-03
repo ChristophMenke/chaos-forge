@@ -737,6 +737,8 @@
     "acShield": "Shield",
     "acDex": "DEX",
     "acFinal": "Final",
+    "unarmoredBonus": "Unarmored",
+    "epicAcBonus": "Epic",
     "weaponsTitle": "Weapons",
     "armorTitle": "Armor & Inventory",
     "generalInventoryTitle": "General Inventory",

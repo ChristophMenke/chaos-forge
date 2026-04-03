@@ -28,11 +28,12 @@ import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
 import { getKit, getEffectiveHitDie } from "@/lib/rules/kits";
 import { calculateAC, calculateEncumbrance, isShieldItem } from "@/lib/rules/equipment";
 import { feetToMeters, lbsToKg } from "@/lib/utils/units";
-import { localized } from "@/lib/utils/localize";
+import { localized, translateGender } from "@/lib/utils/localize";
 import { spellRange, spellArea } from "@/lib/utils/spell-display";
 import { getFightingStyle } from "@/lib/rules/fighting-styles";
 import { isPriestCaster } from "@/lib/rules/magic";
 import { getAllAbilityModifiers } from "@/lib/rules/abilities";
+import { getEpicEffects } from "@/lib/rules/epic-items";
 import type {
   CharacterRow,
   CharacterClassRow,
@@ -44,6 +45,7 @@ import type {
   CharacterFightingStyleRow,
   CharacterInventoryWithDetails,
   SpellRow,
+  EpicItemRow,
 } from "@/lib/supabase/types";
 import type { PrintPreferences, PrintSectionId } from "@/lib/print-config";
 import { DEFAULT_PRINT_PREFERENCES } from "@/lib/print-config";
@@ -58,6 +60,7 @@ export interface PrintSheetProps {
   languages: CharacterLanguageRow[];
   fightingStyles: CharacterFightingStyleRow[];
   inventory: CharacterInventoryWithDetails[];
+  epicItems?: EpicItemRow[];
   priestAvailableSpells?: SpellRow[];
   locale: string;
   preferences?: PrintPreferences;
@@ -159,6 +162,30 @@ const DOCX_I18N: Record<string, Record<string, string>> = {
     languages: "Sprachen",
     fightingStyles: "Kampfstile",
     notes: "Notizen",
+    gender: "Geschlecht",
+    savePara: "Gift/Lähmung/Tod",
+    saveRod: "Stab/Rute/Zepter",
+    savePetri: "Versteinerung/Verwandlung",
+    saveBreath: "Odemwaffe",
+    saveSpell: "Zauber",
+    base: "Basis",
+    acShield: "Schild",
+    acFinal: "Gesamt",
+    unarmoredBonus: "Ungerüstet",
+    epicAcBonus: "Episch",
+    race: "Rasse",
+    class: "Klasse",
+    level: "Stufe",
+    hitDie: "TW",
+    hp: "TP",
+    alignment: "Gesinnung",
+    kit: "Kit",
+    xp: "EP",
+    treasure: "Schätze",
+    player: "Spieler",
+    age: "Alter",
+    height: "Größe",
+    weight: "Gewicht",
     footer: "Chaos Forge — AD&D 2nd Edition Manager",
     createdAt: "Erstellt am",
   },
@@ -182,6 +209,30 @@ const DOCX_I18N: Record<string, Record<string, string>> = {
     languages: "Languages",
     fightingStyles: "Fighting Styles",
     notes: "Notes",
+    gender: "Gender",
+    savePara: "Poison/Para/Death",
+    saveRod: "Rod/Staff/Wand",
+    savePetri: "Petrification/Polymorph",
+    saveBreath: "Breath Weapon",
+    saveSpell: "Spell",
+    base: "Base",
+    acShield: "Shield",
+    acFinal: "Final",
+    unarmoredBonus: "Unarmored",
+    epicAcBonus: "Epic",
+    race: "Race",
+    class: "Class",
+    level: "Level",
+    hitDie: "Hit Die",
+    hp: "HP",
+    alignment: "Alignment",
+    kit: "Kit",
+    xp: "XP",
+    treasure: "Treasure",
+    player: "Player",
+    age: "Age",
+    height: "Height",
+    weight: "Weight",
     footer: "Chaos Forge — AD&D 2nd Edition Manager",
     createdAt: "Created on",
   },
@@ -242,6 +293,8 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
     0
   );
   const encumbranceLevel = calculateEncumbrance(totalWeight, strMods.weightAllow);
+  const isMagicalProtection = equippedArmorForAC?.armor?.is_magical_protection ?? false;
+  const epicEffects = getEpicEffects(props.epicItems ?? []);
   const effectiveAC = calculateAC({
     equippedArmorAC: equippedArmorForAC?.armor?.ac ?? null,
     shieldEquipped: hasShieldForAC,
@@ -249,7 +302,8 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
     classGroups,
     encumbrance: encumbranceLevel,
     ignoreEncumbrance: character.ignore_encumbrance,
-    isMagicalProtection: equippedArmorForAC?.armor?.is_magical_protection ?? false,
+    isMagicalProtection,
+    epicAcBonus: epicEffects.acBonus,
   });
 
   const strDisplay =
@@ -313,17 +367,18 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
       );
 
       const headerLines: string[] = [
-        `Race: ${race ? localized(race.name, race.name_en, props.locale) : "—"}  |  Class: ${classNames || "—"}  |  Level: ${levelDisplay || character.level}`,
-        `Hit Die: ${hitDice || "—"}  |  HP: ${character.hp_current}/${character.hp_max}  |  Alignment: ${getAlignmentLabel(character.alignment, props.locale)}`,
-        ...(kitDef ? [`Kit: ${localized(kitDef.name, kitDef.name_en, props.locale)}`] : []),
-        `XP: ${xpDisplay}`,
-        `Treasure: ${treasureDisplay}`,
+        `${dt.race}: ${race ? localized(race.name, race.name_en, props.locale) : "—"}  |  ${dt.class}: ${classNames || "—"}  |  ${dt.level}: ${levelDisplay || character.level}`,
+        `${dt.hitDie}: ${hitDice || "—"}  |  ${dt.hp}: ${character.hp_current}/${character.hp_max}  |  ${dt.alignment}: ${getAlignmentLabel(character.alignment, props.locale)}`,
+        ...(kitDef ? [`${dt.kit}: ${localized(kitDef.name, kitDef.name_en, props.locale)}`] : []),
+        `${dt.xp}: ${xpDisplay}`,
+        `${dt.treasure}: ${treasureDisplay}`,
       ];
-      if (character.player_name) headerLines.push(`Player: ${character.player_name}`);
-      if (character.age != null) headerLines.push(`Age: ${character.age}`);
-      if (character.height_cm != null) headerLines.push(`Height: ${character.height_cm} cm`);
-      if (character.weight_kg != null) headerLines.push(`Weight: ${character.weight_kg} kg`);
-      if (character.gender) headerLines.push(`Gender: ${character.gender}`);
+      if (character.player_name) headerLines.push(`${dt.player}: ${character.player_name}`);
+      if (character.age != null) headerLines.push(`${dt.age}: ${character.age}`);
+      if (character.height_cm != null) headerLines.push(`${dt.height}: ${character.height_cm} cm`);
+      if (character.weight_kg != null) headerLines.push(`${dt.weight}: ${character.weight_kg} kg`);
+      if (character.gender)
+        headerLines.push(`${dt.gender}: ${translateGender(character.gender, props.locale)}`);
 
       for (const line of headerLines) {
         result.push(
@@ -558,11 +613,11 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
             new TableRow({
               tableHeader: true,
               children: [
-                headerCell("Poison/Para/Death", { alignment: AlignmentType.CENTER }),
-                headerCell("Rod/Staff/Wand", { alignment: AlignmentType.CENTER }),
-                headerCell("Petrification", { alignment: AlignmentType.CENTER }),
-                headerCell("Breath Weapon", { alignment: AlignmentType.CENTER }),
-                headerCell("Spell", { alignment: AlignmentType.CENTER }),
+                headerCell(dt.savePara, { alignment: AlignmentType.CENTER }),
+                headerCell(dt.saveRod, { alignment: AlignmentType.CENTER }),
+                headerCell(dt.savePetri, { alignment: AlignmentType.CENTER }),
+                headerCell(dt.saveBreath, { alignment: AlignmentType.CENTER }),
+                headerCell(dt.saveSpell, { alignment: AlignmentType.CENTER }),
               ],
             }),
             new TableRow({
@@ -746,15 +801,47 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
       const result: (Paragraph | Table)[] = [];
       result.push(sectionHeading(dt.acBreakdown));
 
-      const armorReduction = equippedArmorForAC ? `${-(10 - equippedArmorForAC.armor!.ac)}` : "—";
-      const armorName = equippedArmorForAC
-        ? ` (${localized(equippedArmorForAC.armor!.name, equippedArmorForAC.armor!.name_en, props.locale)})`
-        : "";
-      const shieldVal = hasShieldForAC ? "-1" : "—";
-      const dexVal =
-        dexMods.defensiveAdj !== 0
-          ? `${dexMods.defensiveAdj >= 0 ? "+" : ""}${dexMods.defensiveAdj}`
-          : "—";
+      // Build dynamic AC parts (same logic as play-combat-panel and print-sheet)
+      const parts: { label: string; value: string }[] = [];
+      parts.push({ label: dt.base ?? "Base", value: "10" });
+
+      if (equippedArmorForAC?.armor) {
+        const armorLabel = localized(
+          equippedArmorForAC.armor.name,
+          equippedArmorForAC.armor.name_en,
+          props.locale
+        );
+        if (isMagicalProtection) {
+          parts.push({ label: armorLabel, value: String(-equippedArmorForAC.armor.ac) });
+        } else {
+          const armorMod = equippedArmorForAC.armor.ac - 10;
+          if (armorMod !== 0) {
+            parts.push({ label: armorLabel, value: String(armorMod) });
+          }
+        }
+      }
+      if (hasShieldForAC) {
+        parts.push({ label: dt.acShield ?? "Shield", value: "-1" });
+      }
+      if (dexMods.defensiveAdj !== 0) {
+        const v = dexMods.defensiveAdj;
+        parts.push({ label: "DEX", value: v >= 0 ? `+${v}` : String(v) });
+      }
+      const isEffectivelyUnarmored = !equippedArmorForAC?.armor || isMagicalProtection;
+      if (isEffectivelyUnarmored) {
+        const hasWarriorOrRogue = classGroups.some((g) => g === "warrior" || g === "rogue");
+        const isUnencumbered = character.ignore_encumbrance || encumbranceLevel === "unencumbered";
+        if (hasWarriorOrRogue && isUnencumbered) {
+          parts.push({ label: dt.unarmoredBonus ?? "Unarmored", value: "-2" });
+        }
+      }
+      if (epicEffects.acBonus) {
+        parts.push({
+          label: dt.epicAcBonus ?? "Epic",
+          value: String(-epicEffects.acBonus),
+        });
+      }
+      parts.push({ label: dt.acFinal ?? "Final", value: String(effectiveAC) });
 
       result.push(
         new Table({
@@ -762,46 +849,17 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
           rows: [
             new TableRow({
               tableHeader: true,
-              children: [
-                headerCell("Base", { alignment: AlignmentType.CENTER }),
-                headerCell("Armor", { alignment: AlignmentType.CENTER }),
-                headerCell("Shield", { alignment: AlignmentType.CENTER }),
-                headerCell("DEX", { alignment: AlignmentType.CENTER }),
-                headerCell("Final", { alignment: AlignmentType.CENTER }),
-              ],
+              children: parts.map((p) => headerCell(p.label, { alignment: AlignmentType.CENTER })),
             }),
             new TableRow({
-              children: [
-                cell("10", {
+              children: parts.map((p) =>
+                cell(p.value, {
                   alignment: AlignmentType.CENTER,
                   bold: true,
                   font: "Courier New",
                   size: 24,
-                }),
-                cell(`${armorReduction}${armorName}`, {
-                  alignment: AlignmentType.CENTER,
-                  bold: true,
-                  size: 20,
-                }),
-                cell(shieldVal, {
-                  alignment: AlignmentType.CENTER,
-                  bold: true,
-                  font: "Courier New",
-                  size: 24,
-                }),
-                cell(dexVal, {
-                  alignment: AlignmentType.CENTER,
-                  bold: true,
-                  font: "Courier New",
-                  size: 24,
-                }),
-                cell(String(effectiveAC), {
-                  alignment: AlignmentType.CENTER,
-                  bold: true,
-                  font: "Courier New",
-                  size: 24,
-                }),
-              ],
+                })
+              ),
             }),
           ],
         })
