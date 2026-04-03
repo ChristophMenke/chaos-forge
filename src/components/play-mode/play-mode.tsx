@@ -37,7 +37,7 @@ import {
 } from "@/lib/rules/equipment";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
 import { getConBonusCap } from "@/lib/rules/hitpoints";
-import { getClassGroup } from "@/lib/rules/classes";
+import { CLASSES, getClassGroup } from "@/lib/rules/classes";
 import { getEpicEffects, scaleSubStat } from "@/lib/rules/epic-items";
 import type { EpicEffects } from "@/lib/rules/epic-items";
 import { getClassGroupColors } from "@/lib/utils/class-colors";
@@ -378,7 +378,12 @@ export function PlayMode({
     return Math.round(totalDelta / divisor);
   }, [activeClasses, conMods.hpAdj, baseConMods.hpAdj]);
   const effectiveHpMax = Math.max(1, character.hp_max + hpDelta);
-  const effectiveHpCurrent = Math.max(0, Math.min(character.hp_current + hpDelta, effectiveHpMax));
+  // Asymmetric HP capping: damage (negative delta) caps current HP down,
+  // but repair (positive delta) only raises max — never heals current HP.
+  const effectiveHpCurrent = Math.max(
+    0,
+    Math.min(character.hp_current + Math.min(0, hpDelta), effectiveHpMax)
+  );
 
   // Equipment calculations
   const equippedArmor = useMemo(
@@ -488,8 +493,11 @@ export function PlayMode({
       character.priesthood && priestClass
         ? getActivePowers(character.priesthood, priestClass.level).length > 0
         : false;
-    return hasRacialAbilities || hasGrantedPowers;
-  }, [character.race_id, character.priesthood, activeClasses]);
+    const hasClassAbilities = classIds.some(
+      (id) => (CLASSES[id as ClassId]?.classAbilities?.length ?? 0) > 0
+    );
+    return hasRacialAbilities || hasGrantedPowers || hasClassAbilities;
+  }, [character.race_id, character.priesthood, activeClasses, classIds]);
 
   const priestClassForAbilities = useMemo(() => {
     return activeClasses.find((cc) => cc.class_id === "cleric" || cc.class_id === "druid");
@@ -543,8 +551,9 @@ export function PlayMode({
   );
 
   function handleHpChange(newEffectiveHp: number) {
-    // Convert effective HP back to base HP for DB storage
-    const baseHp = newEffectiveHp - hpDelta;
+    // Inverse of asymmetric formula: effective = base + min(0, delta)
+    // => base = effective - min(0, delta)
+    const baseHp = newEffectiveHp - Math.min(0, hpDelta);
     updateCharacter({ hp_current: Math.max(0, baseHp) });
   }
 
@@ -831,6 +840,7 @@ export function PlayMode({
         {activePanel === "abilities" && showAbilities && (
           <PlayAbilitiesPanel
             raceId={character.race_id ?? "human"}
+            classIds={classIds}
             priesthoodId={character.priesthood}
             priestLevel={priestClassForAbilities?.level ?? 1}
           />
