@@ -5,6 +5,7 @@ import { requireAuth } from "@/lib/supabase/auth";
 import { getTranslations, getLocale } from "next-intl/server";
 import { GlassCard } from "@/components/glass-card";
 import { CharacterCard } from "@/components/character-card";
+import { QuoteReactionBar } from "@/components/session/quote-reaction-bar";
 import { AvatarDisplay } from "@/components/avatar-display";
 import { Badge } from "@/components/ui/badge";
 import { CLASSES } from "@/lib/rules/classes";
@@ -205,12 +206,6 @@ export default async function DashboardPage() {
     ? (sessions?.findIndex((s) => s.id === throwbackSession.id) ?? 0) + 1
     : 0;
 
-  // Reaction grouping for random quote
-  const reactionCounts = new Map<string, number>();
-  for (const r of quoteReactions ?? []) {
-    reactionCounts.set(r.emoji, (reactionCounts.get(r.emoji) ?? 0) + 1);
-  }
-
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6" data-testid="dashboard-page">
       <h1 className="font-heading text-3xl text-primary">{t("title")}</h1>
@@ -263,17 +258,13 @@ export default async function DashboardPage() {
             <blockquote className="mt-3 border-l-2 border-primary/40 pl-4 italic text-foreground">
               &ldquo;{randomQuote.content}&rdquo;
             </blockquote>
-            <div className="mt-2 flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">— {randomQuote.attributed_to}</span>
-              {reactionCounts.size > 0 && (
-                <div className="flex gap-1.5">
-                  {[...reactionCounts.entries()].map(([emoji, count]) => (
-                    <span key={emoji} className="rounded-full bg-muted px-1.5 py-0.5 text-xs">
-                      {emoji} {count}
-                    </span>
-                  ))}
-                </div>
-              )}
+            <div className="mt-2 text-sm text-muted-foreground">— {randomQuote.attributed_to}</div>
+            <div className="mt-2">
+              <QuoteReactionBar
+                quoteId={randomQuote.id}
+                currentUserId={user.id}
+                initialReactions={quoteReactions ?? []}
+              />
             </div>
           </GlassCard>
         )}
