@@ -717,7 +717,10 @@ export function TabEquipment({
                         <span className="ml-1 font-bold text-primary">+{item.hit_bonus}</span>
                       )}
                       {item.armor && (
-                        <span className="ml-1 text-xs text-muted-foreground">
+                        <span
+                          className="ml-1 text-xs text-muted-foreground"
+                          data-testid={`armor-ac-${item.id}`}
+                        >
                           (AC {item.armor.ac})
                         </span>
                       )}

@@ -51,6 +51,15 @@ test.describe("Character Sheet — Owner", () => {
     await expect(page.getByTestId("equipment-ac")).toBeVisible({ timeout: 5000 });
     await expect(page.getByTestId("equipment-movement")).toBeVisible({ timeout: 5000 });
 
+    // Armor items in inventory show AC value
+    const armorAcBadges = page.locator("[data-testid^='armor-ac-']");
+    const armorCount = await armorAcBadges.count();
+    if (armorCount > 0) {
+      const firstBadge = armorAcBadges.first();
+      await expect(firstBadge).toBeVisible();
+      await expect(firstBadge).toHaveText(/\(AC \d+\)/);
+    }
+
     // Spells tab (if visible)
     const spellsTrigger = page.getByTestId("tab-trigger-spells");
     if (await spellsTrigger.isVisible({ timeout: 2000 }).catch(() => false)) {
