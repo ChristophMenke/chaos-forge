@@ -33,6 +33,7 @@ import {
 } from "@/lib/rules/abilities";
 import { getAttacksPerRound } from "@/lib/rules/combat";
 import { calculateAC, calculateEncumbrance, isShieldItem } from "@/lib/rules/equipment";
+import { getSingleWeaponStyleBonus } from "@/lib/rules/fighting-styles";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
 import { getKit, getEffectiveHitDie, getKitsForClass } from "@/lib/rules/kits";
 import { getPriesthood } from "@/lib/rules/priesthoods";
@@ -347,6 +348,7 @@ export function CharacterSheet({
     encumbrance: encumbranceLevel,
     ignoreEncumbrance: character.ignore_encumbrance,
     isMagicalProtection: equippedArmor?.armor?.is_magical_protection ?? false,
+    singleWeaponStyleBonus: getSingleWeaponStyleBonus(fightingStylesState),
   });
 
   const coinPurse = useMemo(

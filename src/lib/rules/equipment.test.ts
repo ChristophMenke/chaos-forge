@@ -192,6 +192,46 @@ describe("EQUIP-001: AC Calculation", () => {
       })
     ).toBe(4); // 5 - 1 = 4
   });
+
+  // ─── Single-Weapon Style AC Bonus ─────────────────────────────────
+  it("Single-Weapon Style: 1 slot → -1 AC", () => {
+    expect(calculateAC({ dexDefenseAdj: 0, singleWeaponStyleBonus: 1 })).toBe(9);
+  });
+
+  it("Single-Weapon Style: 2 slots → -2 AC", () => {
+    expect(calculateAC({ dexDefenseAdj: 0, singleWeaponStyleBonus: 2 })).toBe(8);
+  });
+
+  it("Single-Weapon Style stacks with armor + DEX (no shield)", () => {
+    expect(
+      calculateAC({
+        equippedArmorAC: 5,
+        dexDefenseAdj: -2,
+        singleWeaponStyleBonus: 2,
+      })
+    ).toBe(1); // 5 - 2 DEX - 2 style = 1
+  });
+
+  it("Single-Weapon Style: suppressed when shield is equipped", () => {
+    expect(
+      calculateAC({
+        dexDefenseAdj: 0,
+        shieldEquipped: true,
+        singleWeaponStyleBonus: 2,
+      })
+    ).toBe(9); // 10 - 1 shield, NO style bonus
+  });
+
+  it("Single-Weapon Style stacks with unarmored bonus", () => {
+    expect(
+      calculateAC({
+        dexDefenseAdj: -2,
+        classGroups: ["warrior"],
+        encumbrance: "unencumbered",
+        singleWeaponStyleBonus: 2,
+      })
+    ).toBe(4); // 10 - 2 DEX - 2 unarmored - 2 style = 4
+  });
 });
 
 describe("EQUIP-002: Encumbrance", () => {

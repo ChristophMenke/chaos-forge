@@ -6,6 +6,7 @@ import {
   getSpecializableFightingStyles,
   canLearnMoreFightingStyles,
   getFightingStyle,
+  getSingleWeaponStyleBonus,
 } from "./fighting-styles";
 
 describe("Fighting Styles (PHBR01)", () => {
@@ -116,6 +117,37 @@ describe("Fighting Styles (PHBR01)", () => {
 
     it("returns null for unknown id", () => {
       expect(getFightingStyle("unknown")).toBeNull();
+    });
+  });
+
+  describe("getSingleWeaponStyleBonus", () => {
+    it("returns 0 when no fighting styles", () => {
+      expect(getSingleWeaponStyleBonus([])).toBe(0);
+    });
+
+    it("returns 0 when no single-weapon style", () => {
+      expect(getSingleWeaponStyleBonus([{ style_id: "two_weapon", slots_invested: 1 }])).toBe(0);
+    });
+
+    it("returns 1 for 1 slot invested", () => {
+      expect(getSingleWeaponStyleBonus([{ style_id: "single_weapon", slots_invested: 1 }])).toBe(1);
+    });
+
+    it("returns 2 for 2 slots invested", () => {
+      expect(getSingleWeaponStyleBonus([{ style_id: "single_weapon", slots_invested: 2 }])).toBe(2);
+    });
+
+    it("caps at 2 even with more slots", () => {
+      expect(getSingleWeaponStyleBonus([{ style_id: "single_weapon", slots_invested: 5 }])).toBe(2);
+    });
+
+    it("works alongside other fighting styles", () => {
+      expect(
+        getSingleWeaponStyleBonus([
+          { style_id: "two_weapon", slots_invested: 1 },
+          { style_id: "single_weapon", slots_invested: 2 },
+        ])
+      ).toBe(2);
     });
   });
 });

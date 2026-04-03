@@ -9,6 +9,10 @@ import { QuoteReactionBar } from "@/components/session/quote-reaction-bar";
 import { AvatarDisplay } from "@/components/avatar-display";
 import { Badge } from "@/components/ui/badge";
 import { CLASSES } from "@/lib/rules/classes";
+import { RACES } from "@/lib/rules/races";
+import { getClassGroupColors } from "@/lib/utils/class-colors";
+import { localized } from "@/lib/utils/localize";
+import type { ClassGroup, ClassId } from "@/lib/rules/types";
 import type {
   CharacterRow,
   CharacterClassRow,
@@ -20,20 +24,11 @@ import type {
   TagRow,
 } from "@/lib/supabase/types";
 
-type SessionSummary = Pick<SessionRow, "id" | "title" | "session_date" | "summary">;
-
 const TAG_COLORS: Record<string, string> = {
   npc: "bg-red-900/50 text-red-200",
   location: "bg-green-900/50 text-green-200",
   item: "bg-blue-900/50 text-blue-200",
   quest: "bg-purple-900/50 text-purple-200",
-};
-
-const CLASS_GROUP_COLORS: Record<string, string> = {
-  warrior: "bg-red-700/30 text-red-300 border-red-500/30",
-  priest: "bg-amber-700/30 text-amber-300 border-amber-500/30",
-  rogue: "bg-blue-700/30 text-blue-300 border-blue-500/30",
-  wizard: "bg-teal-700/30 text-teal-300 border-teal-500/30",
 };
 
 export default async function DashboardPage() {
@@ -46,6 +41,7 @@ export default async function DashboardPage() {
   // ── Queries (parallelized) ──────────────────────────────
   const [
     { data: characters },
+    { data: allActiveCharacters },
     { data: allCharClasses },
     { data: sessions },
     { data: allQuotes },
@@ -60,6 +56,12 @@ export default async function DashboardPage() {
       .eq("is_active", true)
       .eq("user_id", user.id)
       .order("last_accessed_at", { ascending: false })
+      .returns<CharacterRow[]>(),
+    supabase
+      .from("characters")
+      .select("*")
+      .eq("is_active", true)
+      .order("name")
       .returns<CharacterRow[]>(),
     supabase.from("character_classes").select("*").returns<CharacterClassRow[]>(),
     supabase
@@ -142,23 +144,6 @@ export default async function DashboardPage() {
     }
     return Math.round(totalLevel / characters.length);
   })();
-
-  // Class group distribution
-  const classGroups: Record<string, number> = {};
-  for (const c of characters ?? []) {
-    const classes = (charClassMap.get(c.id) ?? []).filter((cc) => cc.is_active);
-    if (classes.length > 0) {
-      for (const cc of classes) {
-        const cls = CLASSES[cc.class_id as keyof typeof CLASSES];
-        const group = cls?.group ?? "unknown";
-        classGroups[group] = (classGroups[group] || 0) + 1;
-      }
-    } else if (c.class_id) {
-      const cls = CLASSES[c.class_id as keyof typeof CLASSES];
-      const group = cls?.group ?? "unknown";
-      classGroups[group] = (classGroups[group] || 0) + 1;
-    }
-  }
 
   const sessionCount = sessions?.length ?? 0;
   const daysSinceLastSession = latestSession
@@ -269,26 +254,67 @@ export default async function DashboardPage() {
           </GlassCard>
         )}
 
-        {/* Party Composition */}
-        <GlassCard glow="neutral" data-testid="dashboard-party-composition">
+        {/* Party Overview */}
+        <GlassCard glow="neutral" data-testid="dashboard-party-overview">
           <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            {t("partyComposition")}
+            {t("partyOverview")}
           </h3>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            {(["warrior", "priest", "rogue", "wizard"] as const).map((group) => {
-              const count = classGroups[group] ?? 0;
-              const colors = CLASS_GROUP_COLORS[group] ?? "";
+          <div className="mt-3 flex flex-col gap-2">
+            {(allActiveCharacters ?? []).map((char) => {
+              const classes = (charClassMap.get(char.id) ?? []).filter((cc) => cc.is_active);
+              const primaryGroup: ClassGroup = (() => {
+                if (classes.length === 0) return "warrior";
+                const primary = classes.reduce((best, cc) => (cc.level >= best.level ? cc : best));
+                return CLASSES[primary.class_id as ClassId]?.group ?? "warrior";
+              })();
+              const colors = getClassGroupColors(primaryGroup);
+              const race = RACES[char.race_id as keyof typeof RACES];
+              const raceName = race ? localized(race.name, race.name_en, locale) : char.race_id;
+              const classLabel =
+                classes.length > 0
+                  ? classes
+                      .map((cc) => {
+                        const cls = CLASSES[cc.class_id as keyof typeof CLASSES];
+                        const name = cls ? localized(cls.name, cls.name_en, locale) : cc.class_id;
+                        return `${name} ${cc.level}`;
+                      })
+                      .join(" / ")
+                  : `${char.class_id ?? "?"} ${char.level}`;
+              const hpPct =
+                char.hp_max > 0
+                  ? Math.min(100, Math.round((char.hp_current / char.hp_max) * 100))
+                  : 100;
+
               return (
-                <div
-                  key={group}
-                  className={`rounded-lg border p-3 text-center ${colors} ${count === 0 ? "opacity-30" : ""}`}
-                  data-testid={`party-group-${group}`}
+                <Link
+                  key={char.id}
+                  href={`/characters/${char.id}`}
+                  className={`flex items-center gap-3 rounded-lg border p-2 transition-colors hover:bg-accent/30 ${colors.glow}`}
+                  data-testid={`party-char-${char.id}`}
                 >
-                  <div className="text-xs">
-                    {t(`group${group.charAt(0).toUpperCase()}${group.slice(1)}`)}
+                  <AvatarDisplay name={char.name} avatarUrl={char.avatar_url} size={32} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="truncate font-medium text-sm">{char.name}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <span className="truncate">{raceName}</span>
+                      <span>·</span>
+                      <span className="truncate">{classLabel}</span>
+                    </div>
                   </div>
-                  <div className="font-heading text-2xl">{count}</div>
-                </div>
+                  <div className="flex shrink-0 flex-col items-end gap-0.5">
+                    <span className="text-xs text-muted-foreground">
+                      {char.hp_current}/{char.hp_max} HP
+                    </span>
+                    <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
+                      <div
+                        className={`h-full rounded-full ${colors.hpBar}`}
+                        style={{ width: `${hpPct}%` }}
+                      />
+                    </div>
+                  </div>
+                </Link>
               );
             })}
           </div>

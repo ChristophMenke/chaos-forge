@@ -33,6 +33,7 @@ export default defineConfig({
         "share-dialog.spec.ts",
         "rulebook-chat.spec.ts",
         "party.spec.ts",
+        "dashboard.spec.ts",
       ],
     },
     // Unauthenticated tests — no storage state

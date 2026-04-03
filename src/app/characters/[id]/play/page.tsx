@@ -14,6 +14,7 @@ import type {
   CharacterNWPWithDetails,
   CharacterInventoryWithDetails,
   EpicItemRow,
+  CharacterFightingStyleRow,
 } from "@/lib/supabase/types";
 
 interface PlayPageProps {
@@ -45,6 +46,7 @@ export default async function PlayPage({ params }: PlayPageProps) {
     { data: nwProfs },
     { data: inventory },
     { data: epicItems },
+    { data: fightingStyles },
   ] = await Promise.all([
     supabase
       .from("character_classes")
@@ -67,6 +69,11 @@ export default async function PlayPage({ params }: PlayPageProps) {
       .eq("character_id", id),
     supabase.from("character_inventory").select("*, item:general_items(*)").eq("character_id", id),
     supabase.from("epic_items").select("*").eq("character_id", id).returns<EpicItemRow[]>(),
+    supabase
+      .from("character_fighting_styles")
+      .select("*")
+      .eq("character_id", id)
+      .returns<CharacterFightingStyleRow[]>(),
   ]);
 
   // Wave 3: Priest spells (only if character has a priest class)
@@ -88,6 +95,7 @@ export default async function PlayPage({ params }: PlayPageProps) {
       nonweaponProficiencies={(nwProfs as CharacterNWPWithDetails[]) ?? []}
       inventory={(inventory as CharacterInventoryWithDetails[]) ?? []}
       epicItems={epicItems ?? []}
+      fightingStyles={fightingStyles ?? []}
       priestAvailableSpells={priestAvailableSpells}
     />
   );

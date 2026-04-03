@@ -28,6 +28,7 @@ import { findWeaponProf } from "@/lib/utils/proficiency-match";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
 import { getKit, getEffectiveHitDie } from "@/lib/rules/kits";
 import { calculateAC, calculateEncumbrance, isShieldItem } from "@/lib/rules/equipment";
+import { getSingleWeaponStyleBonus } from "@/lib/rules/fighting-styles";
 import { feetToMeters, lbsToKg } from "@/lib/utils/units";
 import { localized, translateGender } from "@/lib/utils/localize";
 import { spellRange, spellArea } from "@/lib/utils/spell-display";
@@ -305,6 +306,7 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
     ignoreEncumbrance: character.ignore_encumbrance,
     isMagicalProtection,
     epicAcBonus: epicEffects.acBonus,
+    singleWeaponStyleBonus: getSingleWeaponStyleBonus(props.fightingStyles),
   });
 
   const strDisplay =

@@ -145,3 +145,16 @@ export function canLearnMoreFightingStyles(
 export function getFightingStyle(id: string): FightingStyleDefinition | null {
   return FIGHTING_STYLES[id] ?? null;
 }
+
+/**
+ * Get the AC bonus from Single-Weapon Style specialization.
+ * 1 slot = +1 AC, 2 slots = +2 AC (maximum).
+ * Returns 0 if the character has no Single-Weapon Style.
+ */
+export function getSingleWeaponStyleBonus(
+  fightingStyles: { style_id: string; slots_invested: number }[]
+): number {
+  const sws = fightingStyles.find((fs) => fs.style_id === "single_weapon");
+  if (!sws) return 0;
+  return Math.min(sws.slots_invested, 2);
+}

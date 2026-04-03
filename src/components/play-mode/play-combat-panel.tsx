@@ -49,6 +49,7 @@ interface PlayCombatPanelProps {
   onEquipmentChange: (equipment: CharacterEquipmentWithDetails[]) => void;
   epicEffects?: EpicEffects;
   characterKit?: string | null;
+  singleWeaponStyleBonus?: number;
 }
 
 export function PlayCombatPanel({
@@ -71,6 +72,7 @@ export function PlayCombatPanel({
   onEquipmentChange,
   epicEffects,
   characterKit,
+  singleWeaponStyleBonus = 0,
 }: PlayCombatPanelProps) {
   const t = useTranslations("playMode");
   const locale = useLocale();
@@ -128,6 +130,13 @@ export function PlayCombatPanel({
       if (hasWarriorOrRogue && isUnencumbered) {
         parts.push({ label: t("unarmoredBonus"), value: -2 });
       }
+    }
+    // Single-Weapon Style AC bonus — only applies without a shield
+    if (singleWeaponStyleBonus > 0 && !equippedShield) {
+      parts.push({
+        label: t("singleWeaponStyleBonus", { bonus: singleWeaponStyleBonus }),
+        value: -singleWeaponStyleBonus,
+      });
     }
     // Epic AC bonus (e.g. Totem Tattoo +2)
     if (epicEffects?.acBonus) {
