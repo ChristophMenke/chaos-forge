@@ -1010,6 +1010,7 @@
     "repairInfo": "Fertigkeitswurf: {skill} (Schwierigkeit: Fertigkeitswert − {level})",
     "elixirInfo": "Kupfer-Elixier: +{bonus} auf den Wurf (Kosten: {cost} GM)",
     "functional": "Voll funktionsfähig",
+    "fragilityChance": "Bruchgefahr: {chance}% bei {trigger}",
     "totalFailure": "Totalausfall",
     "noItems": "Keine epischen Gegenstände vorhanden.",
     "activeEffects": "Aktive Effekte",

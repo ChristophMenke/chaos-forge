@@ -1010,6 +1010,7 @@
     "repairInfo": "Skill check: {skill} (Difficulty: Skill value − {level})",
     "elixirInfo": "Copper Elixir: +{bonus} to roll (Cost: {cost} GP)",
     "functional": "Fully functional",
+    "fragilityChance": "Fragility: {chance}% on {trigger}",
     "totalFailure": "Total failure",
     "noItems": "No epic items found.",
     "activeEffects": "Active Effects",

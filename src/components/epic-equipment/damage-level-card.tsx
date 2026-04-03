@@ -9,7 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { localized } from "@/lib/utils/localize";
-import { getCurrentDamageLevelEffect, getAutoUnlockedLevel } from "@/lib/rules/epic-items";
+import {
+  getCurrentDamageLevelEffect,
+  getAutoUnlockedLevel,
+  getFragilityInfo,
+  getFragilityChance,
+} from "@/lib/rules/epic-items";
 import type { EpicItemRow, DamageLevelEffect } from "@/lib/supabase/types";
 
 interface DamageLevelCardProps {
@@ -231,6 +236,29 @@ export function DamageLevelCard({
 
         {/* No damage = functional */}
         {effectiveLevel === 0 && <p className="text-sm text-green-400">{t("functional")}</p>}
+
+        {/* Fragility warning */}
+        {(() => {
+          const fragility = getFragilityInfo(se as Record<string, unknown>);
+          if (!fragility || !characterLevel) return null;
+          const chance = getFragilityChance(
+            fragility.baseChance,
+            fragility.reductionPerLevel,
+            characterLevel
+          );
+          if (chance <= 0) return null;
+          const triggerText = locale === "en" ? fragility.trigger_en : fragility.trigger;
+          return (
+            <div
+              className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2"
+              data-testid={`epic-fragility-${item.slug}`}
+            >
+              <span className="text-sm text-amber-400">
+                {t("fragilityChance", { chance, trigger: triggerText })}
+              </span>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Expandable all levels table */}
