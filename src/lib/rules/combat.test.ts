@@ -338,9 +338,7 @@ describe("Lady Catrina: Crusader L11 combat calculations", () => {
     });
 
     it("Damage L = 3d6 + 5(STR) + 2(spec) + 3(magic) = 3d6+10", () => {
-      expect(formatDamageWithBonus("3d6", strDmgAdj + specDmgBonus, weaponDmgBonus)).toBe(
-        "3d6+10"
-      );
+      expect(formatDamageWithBonus("3d6", strDmgAdj + specDmgBonus, weaponDmgBonus)).toBe("3d6+10");
     });
 
     it("APR = 3/2 (S&P: non-warrior spec grants +1/2 APR, 1 → 3/2)", () => {
@@ -370,15 +368,11 @@ describe("Lady Catrina: Crusader L11 combat calculations", () => {
     });
 
     it("Damage S/M = 1d4 + 5(STR) + 0(no spec) + 2(magic) = 1d4+7", () => {
-      expect(formatDamageWithBonus("1d4", strDmgAdj + specDmgBonus, weaponDmgBonus)).toBe(
-        "1d4+7"
-      );
+      expect(formatDamageWithBonus("1d4", strDmgAdj + specDmgBonus, weaponDmgBonus)).toBe("1d4+7");
     });
 
     it("Damage L = 1d3 + 5(STR) + 0(no spec) + 2(magic) = 1d3+7", () => {
-      expect(formatDamageWithBonus("1d3", strDmgAdj + specDmgBonus, weaponDmgBonus)).toBe(
-        "1d3+7"
-      );
+      expect(formatDamageWithBonus("1d3", strDmgAdj + specDmgBonus, weaponDmgBonus)).toBe("1d3+7");
     });
 
     it("APR = 1 (Crusader is priest group, base APR)", () => {

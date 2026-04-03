@@ -515,6 +515,18 @@ export function TabEquipment({
     );
   }
 
+  function resolveWeaponCombatData(item: CharacterEquipmentWithDetails) {
+    const weapon = item.weapon!;
+    const hitBonus = item.hit_bonus ?? 0;
+    const dmgBonus = item.damage_bonus ?? 0;
+    const isSpec = getWeaponSpecialized(weapon.name, weapon.name_en);
+    const specDmgBonus = isSpec ? 2 : 0;
+    const thac0s = getWeaponThac0(weapon, hitBonus);
+    const isProficient = !!findWeaponProf(weaponProficiencies, weapon.name, weapon.name_en);
+    const apr = getWeaponAttacksPerRound(weapon.name, weapon.name_en);
+    return { weapon, hitBonus, dmgBonus, isSpec, specDmgBonus, thac0s, isProficient, apr };
+  }
+
   return (
     <div className="flex flex-col gap-6" data-testid="tab-equipment">
       {/* Summary Row: AC + Encumbrance */}
@@ -1326,17 +1338,8 @@ export function TabEquipment({
                 {equippedItems
                   .filter((e) => e.weapon)
                   .map((item) => {
-                    const weapon = item.weapon!;
-                    const hitBonus = item.hit_bonus ?? 0;
-                    const dmgBonus = item.damage_bonus ?? 0;
-                    const isSpec = getWeaponSpecialized(weapon.name, weapon.name_en);
-                    const specDmgBonus = isSpec ? 2 : 0;
-                    const thac0s = getWeaponThac0(weapon, hitBonus);
-                    const isProficient = !!findWeaponProf(
-                      weaponProficiencies,
-                      weapon.name,
-                      weapon.name_en
-                    );
+                    const { weapon, hitBonus, dmgBonus, specDmgBonus, thac0s, isProficient, apr } =
+                      resolveWeaponCombatData(item);
                     return (
                       <tr
                         key={item.id}
@@ -1414,13 +1417,21 @@ export function TabEquipment({
                           className="py-2 text-center font-mono"
                           data-testid={`weapon-damage-sm-${item.id}`}
                         >
-                          {formatDamageWithBonus(weapon.damage_sm, strDmgAdj + dmgBonus + specDmgBonus)}
+                          {formatDamageWithBonus(
+                            weapon.damage_sm,
+                            strDmgAdj + specDmgBonus,
+                            dmgBonus
+                          )}
                         </td>
                         <td
                           className="py-2 text-center font-mono"
                           data-testid={`weapon-damage-l-${item.id}`}
                         >
-                          {formatDamageWithBonus(weapon.damage_l, strDmgAdj + dmgBonus + specDmgBonus)}
+                          {formatDamageWithBonus(
+                            weapon.damage_l,
+                            strDmgAdj + specDmgBonus,
+                            dmgBonus
+                          )}
                         </td>
                         <td
                           className="py-2 text-center font-mono"
@@ -1443,7 +1454,7 @@ export function TabEquipment({
                           className="py-2 text-center font-mono"
                           data-testid={`weapon-apr-${item.id}`}
                         >
-                          {getWeaponAttacksPerRound(weapon.name, weapon.name_en)}
+                          {apr}
                         </td>
                         <td
                           className="py-2 text-center font-mono"
@@ -1463,17 +1474,8 @@ export function TabEquipment({
             {equippedItems
               .filter((e) => e.weapon)
               .map((item) => {
-                const weapon = item.weapon!;
-                const hitBonus = item.hit_bonus ?? 0;
-                const dmgBonus = item.damage_bonus ?? 0;
-                const isSpec = getWeaponSpecialized(weapon.name, weapon.name_en);
-                const specDmgBonus = isSpec ? 2 : 0;
-                const thac0s = getWeaponThac0(weapon, hitBonus);
-                const isProficient = !!findWeaponProf(
-                  weaponProficiencies,
-                  weapon.name,
-                  weapon.name_en
-                );
+                const { weapon, hitBonus, dmgBonus, specDmgBonus, thac0s, isProficient, apr } =
+                  resolveWeaponCombatData(item);
                 return (
                   <div
                     key={item.id}
@@ -1556,7 +1558,11 @@ export function TabEquipment({
                           {t("damageSMWithStr")}:
                         </span>{" "}
                         <span className="font-mono">
-                          {formatDamageWithBonus(weapon.damage_sm, strDmgAdj + dmgBonus + specDmgBonus)}
+                          {formatDamageWithBonus(
+                            weapon.damage_sm,
+                            strDmgAdj + specDmgBonus,
+                            dmgBonus
+                          )}
                         </span>
                       </div>
                       <div data-testid={`weapon-card-damage-l-${item.id}`}>
@@ -1564,7 +1570,11 @@ export function TabEquipment({
                           {t("damageLWithStr")}:
                         </span>{" "}
                         <span className="font-mono">
-                          {formatDamageWithBonus(weapon.damage_l, strDmgAdj + dmgBonus + specDmgBonus)}
+                          {formatDamageWithBonus(
+                            weapon.damage_l,
+                            strDmgAdj + specDmgBonus,
+                            dmgBonus
+                          )}
                         </span>
                       </div>
                       <div data-testid={`weapon-card-speed-${item.id}`}>
@@ -1575,7 +1585,7 @@ export function TabEquipment({
                         <span className="text-xs text-muted-foreground">
                           {t("attacksPerRound")}:
                         </span>{" "}
-                        <span className="font-mono">{getWeaponAttacksPerRound(weapon.name, weapon.name_en)}</span>
+                        <span className="font-mono">{apr}</span>
                       </div>
                       <div data-testid={`weapon-card-weight-${item.id}`}>
                         <span className="text-xs text-muted-foreground">{t("weight")}:</span>{" "}

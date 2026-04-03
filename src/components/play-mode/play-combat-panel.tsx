@@ -259,7 +259,10 @@ export function PlayCombatPanel({
             </span>
           )}
           {isSpecialized && (
-            <span className="text-xs text-amber-400" data-testid={`play-weapon-spec-bonus-${eq.id}`}>
+            <span
+              className="text-xs text-amber-400"
+              data-testid={`play-weapon-spec-bonus-${eq.id}`}
+            >
               ★ {t("specBonus")}
             </span>
           )}
