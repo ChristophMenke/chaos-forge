@@ -255,18 +255,18 @@ export function PlayCombatPanel({
             </span>
           )}
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="h-6 text-xs text-muted-foreground"
+            className="h-7 text-xs"
             onClick={() => setExpandedBreakdown((prev) => (prev === eq.id ? null : eq.id))}
             data-testid={`play-weapon-breakdown-toggle-${eq.id}`}
           >
             {expandedBreakdown === eq.id ? t("hideBreakdown") : t("showBreakdown")}
           </Button>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="ml-auto h-6 text-xs text-muted-foreground"
+            className="ml-auto h-7 text-xs"
             onClick={() => toggleEquip(eq.id, isEquipped)}
             data-testid={`play-${isEquipped ? "unequip" : "equip"}-${eq.id}`}
           >
