@@ -702,6 +702,7 @@
     "languagesLabel": "Languages",
     "itemLabel": "Item",
     "typeLabel": "Type",
+    "quantity": "Qty",
     "statusLabel": "Status",
     "weaponType": "Weapon",
     "armorType": "Armor",

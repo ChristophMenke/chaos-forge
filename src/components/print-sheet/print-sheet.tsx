@@ -861,7 +861,11 @@ export function PrintSheet({
             </thead>
             <tbody>
               {inventory.map((inv) => (
-                <tr key={inv.id} className="border-b border-gray-200">
+                <tr
+                  key={inv.id}
+                  className="border-b border-gray-200"
+                  data-testid={`print-inventory-row-${inv.id}`}
+                >
                   <td className="py-1">
                     {inv.item
                       ? localized(inv.item.name, inv.item.name_en, locale)

@@ -702,6 +702,7 @@
     "languagesLabel": "Sprachen",
     "itemLabel": "Gegenstand",
     "typeLabel": "Typ",
+    "quantity": "Menge",
     "statusLabel": "Status",
     "weaponType": "Waffe",
     "armorType": "Rüstung",
