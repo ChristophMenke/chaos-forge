@@ -2,6 +2,13 @@
   "name": "Chaos Forge",
   "short_name": "Chaos Forge",
   "description": "AD&D 2nd Edition Charakter-Manager & Session-Tracker",
+  "start_url": "/characters",
+  "scope": "/",
+  "id": "/characters",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#1a1408",
+  "background_color": "#1a1408",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
@@ -12,9 +19,12 @@
       "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
-  ],
-  "theme_color": "#1a1408",
-  "background_color": "#1a1408",
-  "display": "standalone"
+  ]
 }
