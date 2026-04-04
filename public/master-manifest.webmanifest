@@ -3,6 +3,7 @@
   "short_name": "Master",
   "description": "GM Dashboard für AD&D 2nd Edition — Chaos RPG",
   "start_url": "/master",
+  "id": "/master",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
