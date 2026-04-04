@@ -141,3 +141,120 @@ export async function injectItemToParty(
 
   return { success: true };
 }
+
+// ─── Auto-Share Characters ─────────────────────────────────────────────
+
+export async function autoShareCharacters(userId: string): Promise<void> {
+  const service = createServiceClient();
+
+  const { data: characters } = await service.from("characters").select("id").eq("is_active", true);
+
+  if (!characters || characters.length === 0) return;
+
+  const shares = characters.map((c) => ({
+    character_id: c.id,
+    shared_with_user_id: userId,
+  }));
+
+  await service.from("character_shares").upsert(shares, {
+    onConflict: "character_id,shared_with_user_id",
+    ignoreDuplicates: true,
+  });
+}
+
+// ─── Gold Distribution ─────────────────────────────────────────────────
+
+export async function distributeGold(
+  characterId: string,
+  coins: { pp: number; gp: number; ep: number; sp: number; cp: number }
+): Promise<{ success: boolean; error?: string }> {
+  if (!(await checkGmSession())) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  const service = createServiceClient();
+  const { error } = await service.rpc("distribute_gold", {
+    char_id: characterId,
+    pp: coins.pp,
+    gp: coins.gp,
+    ep: coins.ep,
+    sp: coins.sp,
+    cp: coins.cp,
+  });
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+// ─── Custom Item Creation (GM) ─────────────────────────────────────────
+
+export async function createCustomWeaponGm(data: {
+  name: string;
+  name_en?: string;
+  damage_sm?: string;
+  damage_l?: string;
+  weapon_type: "melee" | "ranged" | "both";
+  speed?: number;
+  weight?: number;
+  hit_bonus?: number;
+  damage_bonus?: number;
+}): Promise<{ success: boolean; weaponId?: string; error?: string }> {
+  if (!(await checkGmSession())) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  const service = createServiceClient();
+  const { data: weapon, error } = await service
+    .from("weapons")
+    .insert({
+      name: data.name,
+      name_en: data.name_en || null,
+      damage_sm: data.damage_sm || "1d4",
+      damage_l: data.damage_l || "1d4",
+      weapon_type: data.weapon_type,
+      speed: data.speed ?? 0,
+      weight: data.weight ?? 0,
+      cost_gp: 0,
+      is_custom: true,
+    })
+    .select("id")
+    .single();
+
+  if (error || !weapon) return { success: false, error: error?.message };
+  return { success: true, weaponId: weapon.id };
+}
+
+export async function createCustomArmorGm(data: {
+  name: string;
+  name_en?: string;
+  ac?: number;
+  weight?: number;
+  is_shield: boolean;
+  shield_type?: "buckler" | "small" | "medium" | "large" | null;
+  is_magical_protection?: boolean;
+}): Promise<{ success: boolean; armorId?: string; error?: string }> {
+  if (!(await checkGmSession())) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  const service = createServiceClient();
+  const { data: armor, error } = await service
+    .from("armor")
+    .insert({
+      name: data.name,
+      name_en: data.name_en || null,
+      ac: data.ac ?? 10,
+      weight: data.weight ?? 0,
+      cost_gp: 0,
+      max_movement: 12,
+      is_custom: true,
+      is_magical_protection: data.is_magical_protection ?? false,
+      is_shield: data.is_shield,
+      shield_type: data.is_shield ? (data.shield_type ?? null) : null,
+    })
+    .select("id")
+    .single();
+
+  if (error || !armor) return { success: false, error: error?.message };
+  return { success: true, armorId: armor.id };
+}

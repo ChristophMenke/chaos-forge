@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
+import { Eye } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
 import { HpBar } from "@/components/hp-bar";
 import { LevelBadge } from "@/components/level-badge";
@@ -54,8 +56,12 @@ export function MasterCharacterCard({
       className="p-3"
       data-testid={`gm-character-card-${character.id}`}
     >
-      {/* Header: Avatar + Name + Race/Class + Level */}
-      <div className="mb-2 flex items-center gap-3">
+      {/* Header: Avatar + Name + Race/Class + Level + View Link */}
+      <Link
+        href={`/characters/${character.id}/manage`}
+        className="mb-2 flex items-center gap-3 rounded-lg transition-colors hover:bg-background/20"
+        data-testid={`gm-view-character-${character.id}`}
+      >
         <AvatarDisplay name={character.name} avatarUrl={character.avatar_url} size={40} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
@@ -68,7 +74,8 @@ export function MasterCharacterCard({
             {raceName} {classLabel}
           </p>
         </div>
-      </div>
+        <Eye className="h-4 w-4 shrink-0 text-muted-foreground" />
+      </Link>
 
       {/* HP Bar */}
       <div className="mb-3">

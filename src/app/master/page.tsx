@@ -1,5 +1,5 @@
 import { requireAuth } from "@/lib/supabase/auth";
-import { checkGmSession } from "./actions";
+import { checkGmSession, autoShareCharacters } from "./actions";
 import { MasterPinGate } from "@/components/master/master-pin-gate";
 import { MasterDashboard } from "@/components/master/master-dashboard";
 import { createServiceClient } from "@/lib/supabase/service";
@@ -17,12 +17,15 @@ import type {
 } from "@/lib/supabase/types";
 
 export default async function MasterPage() {
-  await requireAuth();
+  const user = await requireAuth();
   const isGm = await checkGmSession();
 
   if (!isGm) {
     return <MasterPinGate />;
   }
+
+  // Auto-share all active characters with the GM user
+  await autoShareCharacters(user.id);
 
   const service = createServiceClient();
 

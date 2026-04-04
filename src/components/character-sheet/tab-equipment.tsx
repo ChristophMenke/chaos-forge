@@ -105,6 +105,7 @@ export function TabEquipment({
     name_en: "",
     damage_sm: "",
     damage_l: "",
+    weapon_type: "melee" as "melee" | "ranged" | "both",
     speed: "",
     weight: "",
     cost_gp: "",
@@ -118,6 +119,8 @@ export function TabEquipment({
     weight: "",
     cost_gp: "",
     is_magical_protection: false,
+    is_shield: false,
+    shield_type: "" as "" | "buckler" | "small" | "medium" | "large",
   });
 
   const [magicItem, setMagicItem] = useState({
@@ -274,7 +277,7 @@ export function TabEquipment({
         name_en: customWeapon.name_en.trim() || null,
         damage_sm: customWeapon.damage_sm.trim() || "1d4",
         damage_l: customWeapon.damage_l.trim() || "1d4",
-        weapon_type: "melee",
+        weapon_type: customWeapon.weapon_type,
         speed: customWeapon.speed ? Number(customWeapon.speed) : 0,
         weight: customWeapon.weight ? Number(customWeapon.weight) : 0,
         cost_gp: customWeapon.cost_gp ? Number(customWeapon.cost_gp) : 0,
@@ -307,6 +310,7 @@ export function TabEquipment({
         name_en: "",
         damage_sm: "",
         damage_l: "",
+        weapon_type: "melee",
         speed: "",
         weight: "",
         cost_gp: "",
@@ -333,6 +337,9 @@ export function TabEquipment({
         max_movement: 12,
         is_custom: true,
         is_magical_protection: customArmor.is_magical_protection,
+        is_shield: customArmor.is_shield,
+        shield_type:
+          customArmor.is_shield && customArmor.shield_type ? customArmor.shield_type : null,
         created_by: userId,
       })
       .select()
@@ -347,6 +354,8 @@ export function TabEquipment({
         weight: "",
         cost_gp: "",
         is_magical_protection: false,
+        is_shield: false,
+        shield_type: "",
       });
       setShowCustomArmorForm(false);
     }
@@ -1023,6 +1032,30 @@ export function TabEquipment({
                             data-testid="custom-weapon-damage-l"
                           />
                         </div>
+                        <div>
+                          <span className="mb-1 block text-xs text-muted-foreground">
+                            {t("weaponTypeLabel")}
+                          </span>
+                          <div className="flex gap-1">
+                            {(["melee", "ranged", "both"] as const).map((wt) => (
+                              <button
+                                key={wt}
+                                type="button"
+                                className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+                                  customWeapon.weapon_type === wt
+                                    ? "bg-primary text-primary-foreground"
+                                    : "bg-muted text-muted-foreground hover:text-foreground"
+                                }`}
+                                onClick={() =>
+                                  setCustomWeapon({ ...customWeapon, weapon_type: wt })
+                                }
+                                data-testid={`custom-weapon-type-${wt}`}
+                              >
+                                {t(wt)}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                           <input
                             type="number"
@@ -1118,6 +1151,7 @@ export function TabEquipment({
                                 name_en: "",
                                 damage_sm: "",
                                 damage_l: "",
+                                weapon_type: "melee",
                                 speed: "",
                                 weight: "",
                                 cost_gp: "",
@@ -1248,6 +1282,57 @@ export function TabEquipment({
                           />
                           {t("magicalProtection")}
                         </label>
+                        <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+                          <input
+                            type="checkbox"
+                            checked={customArmor.is_shield}
+                            onChange={(e) =>
+                              setCustomArmor({
+                                ...customArmor,
+                                is_shield: e.target.checked,
+                                shield_type: e.target.checked
+                                  ? customArmor.shield_type || "small"
+                                  : "",
+                              })
+                            }
+                            data-testid="custom-armor-is-shield"
+                          />
+                          {t("isShieldLabel")}
+                        </label>
+                        {customArmor.is_shield && (
+                          <div>
+                            <span className="mb-1 block text-xs text-muted-foreground">
+                              {t("shieldTypeLabel")}
+                            </span>
+                            <div className="flex gap-1">
+                              {(["buckler", "small", "medium", "large"] as const).map((st) => (
+                                <button
+                                  key={st}
+                                  type="button"
+                                  className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
+                                    customArmor.shield_type === st
+                                      ? "bg-primary text-primary-foreground"
+                                      : "bg-muted text-muted-foreground hover:text-foreground"
+                                  }`}
+                                  onClick={() =>
+                                    setCustomArmor({ ...customArmor, shield_type: st })
+                                  }
+                                  data-testid={`custom-armor-shield-type-${st}`}
+                                >
+                                  {t(
+                                    st === "buckler"
+                                      ? "buckler"
+                                      : st === "small"
+                                        ? "smallShield"
+                                        : st === "medium"
+                                          ? "mediumShield"
+                                          : "largeShield"
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                         <div className="flex gap-2">
                           <Button
                             variant="default"
@@ -1270,6 +1355,8 @@ export function TabEquipment({
                                 weight: "",
                                 cost_gp: "",
                                 is_magical_protection: false,
+                                is_shield: false,
+                                shield_type: "",
                               });
                             }}
                             data-testid="custom-armor-cancel"

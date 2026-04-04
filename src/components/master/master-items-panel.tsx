@@ -2,14 +2,19 @@
 
 import { useState, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { Search, Swords, ShieldIcon, Package } from "lucide-react";
+import { Search, Swords, ShieldIcon, Package, Plus, ChevronDown, ChevronUp } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { localized } from "@/lib/utils/localize";
 import { lbsToKg } from "@/lib/utils/units";
-import { injectItemToCharacter, injectItemToParty } from "@/app/master/actions";
+import {
+  injectItemToCharacter,
+  injectItemToParty,
+  createCustomWeaponGm,
+  createCustomArmorGm,
+} from "@/app/master/actions";
 import type { CharacterRow, WeaponRow, ArmorRow, GeneralItemRow } from "@/lib/supabase/types";
 
 interface MasterItemsPanelProps {
@@ -33,6 +38,80 @@ export function MasterItemsPanel({
   const [itemTab, setItemTab] = useState<ItemTab>("weapons");
   const [injectingKey, setInjectingKey] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [createType, setCreateType] = useState<"weapon" | "armor" | "item">("weapon");
+  const [creating, setCreating] = useState(false);
+
+  // Custom weapon form
+  const [cwName, setCwName] = useState("");
+  const [cwWeaponType, setCwWeaponType] = useState<"melee" | "ranged" | "both">("melee");
+  const [cwDamageSm, setCwDamageSm] = useState("");
+  const [cwDamageLg, setCwDamageLg] = useState("");
+  const [cwSpeed, setCwSpeed] = useState("");
+  const [cwWeight, setCwWeight] = useState("");
+  const [cwMagicBonus, setCwMagicBonus] = useState(0);
+
+  // Custom armor form
+  const [caName, setCaName] = useState("");
+  const [caAc, setCaAc] = useState("");
+  const [caWeight, setCaWeight] = useState("");
+  const [caIsShield, setCaIsShield] = useState(false);
+  const [caShieldType, setCaShieldType] = useState<"buckler" | "small" | "medium" | "large">(
+    "small"
+  );
+  const [caIsMagical, setCaIsMagical] = useState(false);
+
+  async function handleCreateWeapon() {
+    if (!cwName.trim()) return;
+    setCreating(true);
+    const result = await createCustomWeaponGm({
+      name: cwName.trim(),
+      weapon_type: cwWeaponType,
+      damage_sm: cwDamageSm || "1d4",
+      damage_l: cwDamageLg || "1d4",
+      speed: cwSpeed ? Number(cwSpeed) : 0,
+      weight: cwWeight ? Number(cwWeight) : 0,
+      hit_bonus: cwMagicBonus,
+      damage_bonus: cwMagicBonus,
+    });
+    setCreating(false);
+    if (result.success && result.weaponId) {
+      showToastMsg(t("customWeaponCreated"), "success");
+      setCwName("");
+      setCwDamageSm("");
+      setCwDamageLg("");
+      setCwSpeed("");
+      setCwWeight("");
+      setCwMagicBonus(0);
+      setCwWeaponType("melee");
+    } else {
+      showToastMsg(t("injectFailed"), "error");
+    }
+  }
+
+  async function handleCreateArmor() {
+    if (!caName.trim()) return;
+    setCreating(true);
+    const result = await createCustomArmorGm({
+      name: caName.trim(),
+      ac: caAc ? Number(caAc) : 10,
+      weight: caWeight ? Number(caWeight) : 0,
+      is_shield: caIsShield,
+      shield_type: caIsShield ? caShieldType : null,
+      is_magical_protection: caIsMagical,
+    });
+    setCreating(false);
+    if (result.success) {
+      showToastMsg(t("customArmorCreated"), "success");
+      setCaName("");
+      setCaAc("");
+      setCaWeight("");
+      setCaIsShield(false);
+      setCaIsMagical(false);
+    } else {
+      showToastMsg(t("injectFailed"), "error");
+    }
+  }
 
   // Filter items by search
   const filteredWeapons = useMemo(() => {
@@ -74,7 +153,7 @@ export function MasterItemsPanel({
     setInjectingKey(key);
     const result = await injectItemToCharacter(characterId, itemType, itemId);
     setInjectingKey(null);
-    showToast(
+    showToastMsg(
       result.success ? t("injected") : t("injectFailed"),
       result.success ? "success" : "error"
     );
@@ -89,13 +168,13 @@ export function MasterItemsPanel({
     setInjectingKey(key);
     const result = await injectItemToParty(itemType, itemId, name);
     setInjectingKey(null);
-    showToast(
+    showToastMsg(
       result.success ? t("injected") : t("injectFailed"),
       result.success ? "success" : "error"
     );
   }
 
-  function showToast(message: string, type: "success" | "error") {
+  function showToastMsg(message: string, type: "success" | "error") {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   }
@@ -142,6 +221,239 @@ export function MasterItemsPanel({
 
   return (
     <div data-testid="gm-items-panel">
+      {/* Create Custom Item */}
+      <div className="mb-3">
+        <button
+          onClick={() => setShowCreate(!showCreate)}
+          className="flex w-full items-center justify-between rounded-lg bg-primary/10 px-3 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
+          data-testid="gm-create-toggle"
+        >
+          <span className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            {t("createCustom")}
+          </span>
+          {showCreate ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        </button>
+
+        {showCreate && (
+          <GlassCard hover={false} className="mt-2 p-3" data-testid="gm-create-form">
+            {/* Create Type Tabs */}
+            <div className="mb-3 flex gap-1 rounded-lg bg-background/20 p-0.5" role="tablist">
+              {(["weapon", "armor", "item"] as const).map((ct) => (
+                <button
+                  key={ct}
+                  role="tab"
+                  aria-selected={createType === ct}
+                  onClick={() => setCreateType(ct)}
+                  className={`flex-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors ${
+                    createType === ct
+                      ? "bg-primary/20 text-primary"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  data-testid={`gm-create-type-${ct}`}
+                >
+                  {ct === "weapon" ? t("weapons") : ct === "armor" ? t("armor") : t("items")}
+                </button>
+              ))}
+            </div>
+
+            {/* Weapon Form */}
+            {createType === "weapon" && (
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  placeholder={t("name")}
+                  value={cwName}
+                  onChange={(e) => setCwName(e.target.value)}
+                  className="w-full rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  data-testid="gm-create-weapon-name"
+                />
+                <div>
+                  <span className="mb-1 block text-[10px] text-muted-foreground">
+                    {t("weaponType")}
+                  </span>
+                  <div className="flex gap-1">
+                    {(["melee", "ranged", "both"] as const).map((wt) => (
+                      <button
+                        key={wt}
+                        type="button"
+                        onClick={() => setCwWeaponType(wt)}
+                        className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+                          cwWeaponType === wt
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                        data-testid={`gm-create-weapon-type-${wt}`}
+                      >
+                        {t(wt)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    placeholder={t("damageSm")}
+                    value={cwDamageSm}
+                    onChange={(e) => setCwDamageSm(e.target.value)}
+                    className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    data-testid="gm-create-weapon-dmg-sm"
+                  />
+                  <input
+                    type="text"
+                    placeholder={t("damageLg")}
+                    value={cwDamageLg}
+                    onChange={(e) => setCwDamageLg(e.target.value)}
+                    className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    data-testid="gm-create-weapon-dmg-lg"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="number"
+                    placeholder={t("speed")}
+                    value={cwSpeed}
+                    onChange={(e) => setCwSpeed(e.target.value)}
+                    className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    data-testid="gm-create-weapon-speed"
+                  />
+                  <input
+                    type="number"
+                    placeholder={t("weight")}
+                    value={cwWeight}
+                    onChange={(e) => setCwWeight(e.target.value)}
+                    className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    data-testid="gm-create-weapon-weight"
+                  />
+                </div>
+                <div>
+                  <span className="mb-1 block text-[10px] text-muted-foreground">
+                    {t("magicBonus")}
+                  </span>
+                  <div className="flex gap-1">
+                    {[0, 1, 2, 3, 4, 5].map((b) => (
+                      <button
+                        key={b}
+                        type="button"
+                        onClick={() => setCwMagicBonus(b)}
+                        className={`rounded-md px-2 py-1 text-xs font-medium ${cwMagicBonus === b ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+                        data-testid={`gm-create-weapon-magic-${b}`}
+                      >
+                        {b === 0 ? "—" : `+${b}`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <Button
+                  className="w-full"
+                  disabled={creating || !cwName.trim()}
+                  onClick={handleCreateWeapon}
+                  data-testid="gm-create-weapon-submit"
+                >
+                  {t("createWeapon")}
+                </Button>
+              </div>
+            )}
+
+            {/* Armor Form */}
+            {createType === "armor" && (
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  placeholder={t("name")}
+                  value={caName}
+                  onChange={(e) => setCaName(e.target.value)}
+                  className="w-full rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  data-testid="gm-create-armor-name"
+                />
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="number"
+                    placeholder={`${t("ac")} (10)`}
+                    value={caAc}
+                    onChange={(e) => setCaAc(e.target.value)}
+                    className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    data-testid="gm-create-armor-ac"
+                  />
+                  <input
+                    type="number"
+                    placeholder={t("weight")}
+                    value={caWeight}
+                    onChange={(e) => setCaWeight(e.target.value)}
+                    className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    data-testid="gm-create-armor-weight"
+                  />
+                </div>
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    checked={caIsMagical}
+                    onChange={(e) => setCaIsMagical(e.target.checked)}
+                    data-testid="gm-create-armor-magical"
+                  />
+                  {t("isMagicalProtection")}
+                </label>
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    checked={caIsShield}
+                    onChange={(e) => {
+                      setCaIsShield(e.target.checked);
+                      if (e.target.checked && !caShieldType) setCaShieldType("small");
+                    }}
+                    data-testid="gm-create-armor-is-shield"
+                  />
+                  {t("isShield")}
+                </label>
+                {caIsShield && (
+                  <div>
+                    <span className="mb-1 block text-[10px] text-muted-foreground">
+                      {t("shieldType")}
+                    </span>
+                    <div className="flex gap-1">
+                      {(["buckler", "small", "medium", "large"] as const).map((st) => (
+                        <button
+                          key={st}
+                          type="button"
+                          onClick={() => setCaShieldType(st)}
+                          className={`rounded-md px-2 py-1 text-xs font-medium ${caShieldType === st ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+                          data-testid={`gm-create-armor-shield-${st}`}
+                        >
+                          {t(
+                            st === "buckler"
+                              ? "buckler"
+                              : st === "small"
+                                ? "smallShield"
+                                : st === "medium"
+                                  ? "mediumShield"
+                                  : "largeShield"
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <Button
+                  className="w-full"
+                  disabled={creating || !caName.trim()}
+                  onClick={handleCreateArmor}
+                  data-testid="gm-create-armor-submit"
+                >
+                  {t("createArmor")}
+                </Button>
+              </div>
+            )}
+
+            {/* General Item — just name, directly inject */}
+            {createType === "item" && (
+              <p className="py-4 text-center text-xs text-muted-foreground">
+                {t("items")} — {t("searchItems")}
+              </p>
+            )}
+          </GlassCard>
+        )}
+      </div>
+
       {/* Search */}
       <div className="relative mb-3">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

@@ -6,6 +6,8 @@ import { Shield, Zap } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { MasterPartyPanel } from "./master-party-panel";
 import { MasterItemsPanel } from "./master-items-panel";
+import { MasterGoldPanel } from "./master-gold-panel";
+import { MasterBottomNav } from "./master-bottom-nav";
 import type {
   CharacterRow,
   CharacterClassRow,
@@ -28,7 +30,7 @@ interface MasterDashboardProps {
   generalItems: GeneralItemRow[];
 }
 
-type TabId = "party" | "items";
+type TabId = "party" | "items" | "gold";
 
 export function MasterDashboard({ partyData, weapons, armor, generalItems }: MasterDashboardProps) {
   const t = useTranslations("master");
@@ -132,10 +134,11 @@ export function MasterDashboard({ partyData, weapons, armor, generalItems }: Mas
   const tabs: { id: TabId; label: string }[] = [
     { id: "party", label: t("partyTab") },
     { id: "items", label: t("itemsTab") },
+    { id: "gold", label: t("goldTab") },
   ];
 
   return (
-    <div className="mx-auto w-full max-w-7xl p-3 sm:p-4" data-testid="gm-dashboard">
+    <div className="mx-auto w-full max-w-7xl p-3 pb-20 sm:p-4 sm:pb-4" data-testid="gm-dashboard">
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -182,6 +185,10 @@ export function MasterDashboard({ partyData, weapons, armor, generalItems }: Mas
           characters={partyData.map((p) => p.character)}
         />
       )}
+      {activeTab === "gold" && <MasterGoldPanel characters={partyData.map((p) => p.character)} />}
+
+      {/* Mobile Bottom Nav */}
+      <MasterBottomNav />
     </div>
   );
 }
