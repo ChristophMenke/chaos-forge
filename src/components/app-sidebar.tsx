@@ -7,15 +7,17 @@ import { LogOut } from "lucide-react";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LocaleToggle } from "@/components/locale-toggle";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { NAV_ITEMS } from "@/lib/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
 interface AppSidebarProps {
   userEmail?: string;
+  userId?: string;
 }
 
-export function AppSidebar({ userEmail }: AppSidebarProps) {
+export function AppSidebar({ userEmail, userId }: AppSidebarProps) {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const router = useRouter();
@@ -65,6 +67,7 @@ export function AppSidebar({ userEmail }: AppSidebarProps) {
             </Tooltip>
           );
         })}
+        {userId && <NotificationBell userId={userId} />}
       </div>
 
       {/* Bottom Actions */}

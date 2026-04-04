@@ -577,7 +577,8 @@
     "title": "Gruppen-Dashboard",
     "adventurers": "Abenteurer",
     "averageLevel": "Durchschnittsstufe",
-    "classDistribution": "Klassenverteilung",
+    "classDistribution": "Klassen",
+    "raceDistribution": "Rassen",
     "latestSession": "Letzte Session",
     "allCharacters": "Alle Charaktere",
     "myCharacters": "Meine Charaktere",
@@ -1059,7 +1060,15 @@
     "turned": "vertrieben",
     "destroyed": "vernichtet",
     "commanded": "befehligt",
-    "referenceTable": "Referenztabelle"
+    "referenceTable": "Referenztabelle",
+    "sendItem": "Senden",
+    "sendItemTitle": "Item senden",
+    "sendGold": "Senden",
+    "sendGoldTitle": "Gold senden",
+    "toCharacter": "An",
+    "selectCharacter": "Charakter wählen...",
+    "sendConfirm": "Senden",
+    "insufficientFunds": "Nicht genug Münzen"
   },
   "epic": {
     "title": "Epische Ausrüstung",
@@ -1265,5 +1274,22 @@
     "goldSP": "SP",
     "goldCP": "CP",
     "noCharactersFound": "Keine Charaktere gefunden."
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "markAllRead": "Alle als gelesen markieren",
+    "empty": "Keine Benachrichtigungen",
+    "gmItemReceived": "{character} hat {item} erhalten (GM)",
+    "gmGoldReceived": "{character} hat Gold erhalten (GM)",
+    "partyItemReceived": "{item} aus dem Party-Loot an {character}",
+    "partyGoldReceived": "Gold aus der Gruppenkasse an {character}",
+    "tradeItemReceived": "{from} hat {item} an {character} gesendet",
+    "tradeGoldReceived": "{from} hat Gold an {character} gesendet",
+    "goldDetail": "{pp} PP, {gp} GP, {ep} EP, {sp} SP, {cp} CP",
+    "quantityDetail": "× {count}",
+    "timeJustNow": "gerade eben",
+    "timeMinutes": "vor {count} Min",
+    "timeHours": "vor {count} Std",
+    "timeDays": "vor {count} Tagen"
   }
 }

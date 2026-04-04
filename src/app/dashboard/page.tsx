@@ -55,7 +55,6 @@ export default async function DashboardPage() {
     supabase
       .from("characters")
       .select("*")
-      .eq("is_active", true)
       .eq("user_id", user.id)
       .order("last_accessed_at", { ascending: false })
       .returns<CharacterRow[]>(),
@@ -162,10 +161,13 @@ export default async function DashboardPage() {
 
   // ── Calculations ──────────────────────────────────────────
 
+  const allCharacters = characters ?? [];
+  const activeCharacters = allCharacters.filter((c) => c.is_active);
+
   const avgLevel = (() => {
-    if (!characters || characters.length === 0) return 0;
+    if (allCharacters.length === 0) return 0;
     let totalLevel = 0;
-    for (const c of characters) {
+    for (const c of allCharacters) {
       const classes = (charClassMap.get(c.id) ?? []).filter((cc) => cc.is_active);
       if (classes.length > 0) {
         totalLevel += Math.max(...classes.map((cc) => cc.level));
@@ -173,7 +175,36 @@ export default async function DashboardPage() {
         totalLevel += c.level;
       }
     }
-    return Math.round(totalLevel / characters.length);
+    return Math.round(totalLevel / allCharacters.length);
+  })();
+
+  // Class distribution across all characters
+  const classDistribution = (() => {
+    const counts = new Map<string, number>();
+    for (const c of allCharacters) {
+      const classes = (charClassMap.get(c.id) ?? []).filter((cc) => cc.is_active);
+      for (const cc of classes) {
+        const cls = CLASSES[cc.class_id as ClassId];
+        const name = cls ? localized(cls.name, cls.name_en, locale) : cc.class_id;
+        counts.set(name, (counts.get(name) ?? 0) + 1);
+      }
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => ({ name, count }));
+  })();
+
+  // Race distribution across all characters
+  const raceDistribution = (() => {
+    const counts = new Map<string, number>();
+    for (const c of allCharacters) {
+      const race = RACES[c.race_id as keyof typeof RACES];
+      const name = race ? localized(race.name, race.name_en, locale) : (c.race_id ?? "?");
+      counts.set(name, (counts.get(name) ?? 0) + 1);
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => ({ name, count }));
   })();
 
   const sessionCount = sessions?.length ?? 0;
@@ -231,7 +262,7 @@ export default async function DashboardPage() {
         <GlassCard glow="neutral" data-testid="stat-card-adventurers">
           <div className="text-center">
             <div className="text-xs text-muted-foreground">{t("adventurers")}</div>
-            <div className="font-heading text-3xl text-primary">{characters?.length ?? 0}</div>
+            <div className="font-heading text-3xl text-primary">{allCharacters.length}</div>
           </div>
         </GlassCard>
         <GlassCard glow="neutral" data-testid="stat-card-avg-level">
@@ -253,6 +284,54 @@ export default async function DashboardPage() {
           </div>
         </GlassCard>
       </div>
+
+      {/* ── Class & Race Distribution ────────────────────── */}
+      {(classDistribution.length > 0 || raceDistribution.length > 0) && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {classDistribution.length > 0 && (
+            <GlassCard glow="neutral" data-testid="stat-card-classes">
+              <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                {t("classDistribution")}
+              </h3>
+              <p className="text-sm text-foreground">
+                {classDistribution.map((c) => `${c.name} ${c.count}`).join(" · ")}
+              </p>
+            </GlassCard>
+          )}
+          {raceDistribution.length > 0 && (
+            <GlassCard glow="neutral" data-testid="stat-card-races">
+              <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                {t("raceDistribution")}
+              </h3>
+              <p className="text-sm text-foreground">
+                {raceDistribution.map((r) => `${r.name} ${r.count}`).join(" · ")}
+              </p>
+            </GlassCard>
+          )}
+        </div>
+      )}
+
+      {/* ── Character Grid (moved up) ────────────────────── */}
+      <h2 className="font-heading text-xl">{t("myCharacters")}</h2>
+      {activeCharacters.length === 0 ? (
+        <p className="text-muted-foreground">{t("noCharacters")}</p>
+      ) : (
+        <div className="stagger-reveal grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {activeCharacters.map((character) => (
+            <CharacterCard
+              key={character.id}
+              character={character}
+              classes={charClassMap.get(character.id) ?? []}
+              isOwner={true}
+              isSharedWithMe={false}
+              badgePrivateLabel={ts("badgePrivate")}
+              badgeSharedLabel={ts("badgeShared")}
+              badgePublicLabel={ts("badgePublic")}
+              locale={locale}
+            />
+          ))}
+        </div>
+      )}
 
       {/* ── Two-Column Grid ───────────────────────────────── */}
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
@@ -438,9 +517,9 @@ export default async function DashboardPage() {
               {t("xpOverview")}
             </h3>
             <div className="mt-3 space-y-2">
-              {xpRanking.map((entry, i) => (
+              {xpRanking.map((entry) => (
                 <div
-                  key={i}
+                  key={entry.name}
                   className="flex items-center justify-between rounded-md border border-border/50 px-3 py-1.5"
                 >
                   <span className="text-sm">{entry.name}</span>
@@ -506,28 +585,6 @@ export default async function DashboardPage() {
           </GlassCard>
         )}
       </div>
-
-      {/* ── Character Grid ────────────────────────────────── */}
-      <h2 className="font-heading text-xl">{t("myCharacters")}</h2>
-      {!characters || characters.length === 0 ? (
-        <p className="text-muted-foreground">{t("noCharacters")}</p>
-      ) : (
-        <div className="stagger-reveal grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {characters.map((character) => (
-            <CharacterCard
-              key={character.id}
-              character={character}
-              classes={charClassMap.get(character.id) ?? []}
-              isOwner={true}
-              isSharedWithMe={false}
-              badgePrivateLabel={ts("badgePrivate")}
-              badgeSharedLabel={ts("badgeShared")}
-              badgePublicLabel={ts("badgePublic")}
-              locale={locale}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 }

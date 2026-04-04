@@ -36,6 +36,7 @@ export default defineConfig({
         "dashboard.spec.ts",
         "xp-management.spec.ts",
         "master.spec.ts",
+        "notifications.spec.ts",
       ],
     },
     // Unauthenticated tests — no storage state, but wait for setup (webserver)

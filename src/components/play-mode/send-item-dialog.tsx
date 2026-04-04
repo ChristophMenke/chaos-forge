@@ -4,32 +4,34 @@ import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
-import { localized } from "@/lib/utils/localize";
 import { createNotification } from "@/lib/notifications";
-import type { PartyLootItemWithDetails } from "@/lib/supabase/types";
+import { localized } from "@/lib/utils/localize";
+import type { CharacterInventoryWithDetails } from "@/lib/supabase/types";
 
-interface CharacterOption {
+interface TradeCharacter {
   id: string;
   name: string;
   user_id: string;
 }
 
-interface DistributeItemDialogProps {
-  item: PartyLootItemWithDetails;
-  characters: CharacterOption[];
-  userId: string;
-  onDistribute: (itemId: string, quantity: number) => void;
+interface SendItemDialogProps {
+  item: CharacterInventoryWithDetails;
+  senderCharacterId: string;
+  senderCharacterName: string;
+  characters: TradeCharacter[];
+  onSend: (itemId: string, quantity: number) => void;
   onClose: () => void;
 }
 
-export function DistributeItemDialog({
+export function SendItemDialog({
   item,
+  senderCharacterId,
+  senderCharacterName,
   characters,
-  userId,
-  onDistribute,
+  onSend,
   onClose,
-}: DistributeItemDialogProps) {
-  const t = useTranslations("party");
+}: SendItemDialogProps) {
+  const t = useTranslations("playMode");
   const locale = useLocale();
   const supabase = createClient();
   const [selectedCharacterId, setSelectedCharacterId] = useState("");
@@ -43,38 +45,15 @@ export function DistributeItemDialog({
       ? localized(item.item.name, item.item.name_en, locale)
       : "???";
 
-  async function handleDistribute() {
+  async function handleSend() {
     if (!selectedCharacterId || quantity < 1 || quantity > item.quantity || isSaving) return;
 
     setIsSaving(true);
     setError("");
 
     try {
-      // Update or delete party item
-      const remaining = item.quantity - quantity;
-      if (remaining <= 0) {
-        const { error: delError } = await supabase
-          .from("party_loot_items")
-          .delete()
-          .eq("id", item.id);
-        if (delError) {
-          setError(delError.message);
-          return;
-        }
-      } else {
-        const { error: updError } = await supabase
-          .from("party_loot_items")
-          .update({ quantity: remaining })
-          .eq("id", item.id);
-        if (updError) {
-          setError(updError.message);
-          return;
-        }
-      }
-
-      // Add to character inventory
+      // Add to recipient FIRST (safer: duplicate item > lost item on partial failure)
       if (item.item_id) {
-        // Check if character already has this catalog item
         const { data: existing } = await supabase
           .from("character_inventory")
           .select("id, quantity")
@@ -83,7 +62,6 @@ export function DistributeItemDialog({
           .maybeSingle();
 
         if (existing) {
-          // Atomic increment via RPC
           const { error: incError } = await supabase.rpc("increment_inventory_quantity", {
             p_inventory_id: existing.id,
             p_delta: quantity,
@@ -105,7 +83,6 @@ export function DistributeItemDialog({
           }
         }
       } else if (item.custom_name) {
-        // Custom name item — null-safe check
         const { data: existing } = await supabase
           .from("character_inventory")
           .select("id, quantity")
@@ -136,13 +113,27 @@ export function DistributeItemDialog({
         }
       }
 
-      // Log
-      await supabase.from("party_loot_log").insert({
-        action: "distribute_item",
-        user_id: userId,
-        character_id: selectedCharacterId,
-        details: { item_name: name, quantity },
-      });
+      // Remove/decrement from sender SECOND
+      const remaining = item.quantity - quantity;
+      if (remaining <= 0) {
+        const { error: delError } = await supabase
+          .from("character_inventory")
+          .delete()
+          .eq("id", item.id);
+        if (delError) {
+          setError(delError.message);
+          return;
+        }
+      } else {
+        const { error: updError } = await supabase
+          .from("character_inventory")
+          .update({ quantity: remaining })
+          .eq("id", item.id);
+        if (updError) {
+          setError(updError.message);
+          return;
+        }
+      }
 
       // Notification for recipient
       const recipient = characters.find((c) => c.id === selectedCharacterId);
@@ -150,16 +141,24 @@ export function DistributeItemDialog({
         await createNotification(supabase, {
           userId: recipient.user_id,
           characterId: selectedCharacterId,
-          type: "party_item_received",
-          details: { item_name: name, quantity, character_name: recipient.name },
+          type: "trade_item_received",
+          details: {
+            item_name: name,
+            quantity,
+            from_character: senderCharacterName,
+            character_name: recipient.name,
+          },
         });
       }
 
-      onDistribute(item.id, quantity);
+      onSend(item.id, quantity);
     } finally {
       setIsSaving(false);
     }
   }
+
+  // Filter out sender from character list
+  const availableCharacters = characters.filter((c) => c.id !== senderCharacterId);
 
   return (
     <div
@@ -168,17 +167,21 @@ export function DistributeItemDialog({
       onKeyDown={(e) => e.key === "Escape" && onClose()}
       role="dialog"
       aria-modal="true"
-      aria-labelledby="distribute-item-dialog-title"
+      aria-labelledby="send-item-dialog-title"
       tabIndex={-1}
-      data-testid="party-distribute-item-dialog"
+      data-testid="play-send-item-dialog"
     >
       <div
         className="mx-4 flex w-full max-w-sm flex-col gap-3 rounded-lg border border-border bg-card p-4"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 id="distribute-item-dialog-title" className="font-heading text-lg text-primary">
-          {t("distributeItemTitle", { item: name })}
+        <h3 id="send-item-dialog-title" className="font-heading text-lg text-primary">
+          {t("sendItemTitle")}
         </h3>
+
+        <p className="text-sm text-muted-foreground">
+          {name} {item.quantity > 1 && `(${item.quantity})`}
+        </p>
 
         {/* Character selector */}
         <div>
@@ -187,10 +190,10 @@ export function DistributeItemDialog({
             value={selectedCharacterId}
             onChange={(e) => setSelectedCharacterId(e.target.value)}
             className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm"
-            data-testid="party-distribute-item-character"
+            data-testid="play-send-item-character"
           >
             <option value="">{t("selectCharacter")}</option>
-            {characters.map((c) => (
+            {availableCharacters.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>
@@ -199,22 +202,24 @@ export function DistributeItemDialog({
         </div>
 
         {/* Quantity */}
-        <div>
-          <label className="mb-1 block text-xs text-muted-foreground">
-            {t("quantity")} — {t("available", { count: item.quantity })}
-          </label>
-          <input
-            type="number"
-            min="1"
-            max={item.quantity}
-            value={quantity}
-            onChange={(e) =>
-              setQuantity(Math.max(1, Math.min(item.quantity, parseInt(e.target.value, 10) || 1)))
-            }
-            className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm"
-            data-testid="party-distribute-item-quantity"
-          />
-        </div>
+        {item.quantity > 1 && (
+          <div>
+            <label className="mb-1 block text-xs text-muted-foreground">
+              {t("quantity")} (max {item.quantity})
+            </label>
+            <input
+              type="number"
+              min="1"
+              max={item.quantity}
+              value={quantity}
+              onChange={(e) =>
+                setQuantity(Math.max(1, Math.min(item.quantity, parseInt(e.target.value, 10) || 1)))
+              }
+              className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+              data-testid="play-send-item-quantity"
+            />
+          </div>
+        )}
 
         {error && <p className="text-xs text-red-400">{error}</p>}
 
@@ -222,18 +227,18 @@ export function DistributeItemDialog({
           <Button
             size="sm"
             className="flex-1"
-            onClick={handleDistribute}
+            onClick={handleSend}
             disabled={!selectedCharacterId || quantity < 1 || isSaving}
-            data-testid="party-distribute-item-confirm"
+            data-testid="play-send-item-confirm"
           >
-            {isSaving ? t("saving") : t("distribute")}
+            {isSaving ? t("saving") : t("sendConfirm")}
           </Button>
           <Button
             variant="ghost"
             size="sm"
             className="flex-1"
             onClick={onClose}
-            data-testid="party-distribute-item-cancel"
+            data-testid="play-send-item-cancel"
           >
             {t("cancel")}
           </Button>

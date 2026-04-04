@@ -5,24 +5,36 @@ import { useTranslations } from "next-intl";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { PayDialog } from "@/components/character-sheet/pay-dialog";
+import { SendGoldDialog } from "./send-gold-dialog";
 import { purseTotalInCP, type CoinPurse } from "@/lib/rules/equipment";
+
+interface TradeCharacter {
+  id: string;
+  name: string;
+  user_id: string;
+}
 
 interface PlayCoinPursePanelProps {
   characterId: string;
+  characterName?: string;
   coinPurse: CoinPurse;
   readOnly: boolean;
+  tradeCharacters?: TradeCharacter[];
   onCoinChange: (purse: CoinPurse) => void;
 }
 
 export function PlayCoinPursePanel({
   characterId,
+  characterName = "",
   coinPurse,
   readOnly,
+  tradeCharacters,
   onCoinChange,
 }: PlayCoinPursePanelProps) {
   const t = useTranslations("playMode");
   const [showPayDialog, setShowPayDialog] = useState(false);
   const [showReceiveDialog, setShowReceiveDialog] = useState(false);
+  const [showSendDialog, setShowSendDialog] = useState(false);
   const [receiveAmounts, setReceiveAmounts] = useState<CoinPurse>({
     pp: 0,
     gp: 0,
@@ -51,6 +63,18 @@ export function PlayCoinPursePanel({
     setReceiveAmounts({ pp: 0, gp: 0, ep: 0, sp: 0, cp: 0 });
   }
 
+  function handleGoldSent(deducted: CoinPurse) {
+    const newPurse: CoinPurse = {
+      pp: coinPurse.pp - deducted.pp,
+      gp: coinPurse.gp - deducted.gp,
+      ep: coinPurse.ep - deducted.ep,
+      sp: coinPurse.sp - deducted.sp,
+      cp: coinPurse.cp - deducted.cp,
+    };
+    onCoinChange(newPurse);
+    setShowSendDialog(false);
+  }
+
   const coins = [
     { key: "pp" as const, label: "PP", value: coinPurse.pp },
     { key: "gp" as const, label: "GP", value: coinPurse.gp },
@@ -58,6 +82,8 @@ export function PlayCoinPursePanel({
     { key: "sp" as const, label: "SP", value: coinPurse.sp },
     { key: "cp" as const, label: "CP", value: coinPurse.cp },
   ];
+
+  const canTrade = !readOnly && tradeCharacters && tradeCharacters.length > 0;
 
   return (
     <GlassCard hover={false} data-testid="play-coin-purse-panel">
@@ -103,6 +129,17 @@ export function PlayCoinPursePanel({
           >
             {t("receive")}
           </Button>
+          {canTrade && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1"
+              onClick={() => setShowSendDialog(true)}
+              data-testid="play-send-gold-btn"
+            >
+              {t("sendGold")}
+            </Button>
+          )}
         </div>
       )}
 
@@ -162,12 +199,25 @@ export function PlayCoinPursePanel({
                 size="sm"
                 className="flex-1"
                 onClick={() => setShowReceiveDialog(false)}
+                data-testid="play-receive-cancel"
               >
                 {t("cancel")}
               </Button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* Send gold dialog */}
+      {showSendDialog && tradeCharacters && (
+        <SendGoldDialog
+          senderCharacterId={characterId}
+          senderCharacterName={characterName}
+          coinPurse={coinPurse}
+          characters={tradeCharacters}
+          onSend={handleGoldSent}
+          onClose={() => setShowSendDialog(false)}
+        />
       )}
     </GlassCard>
   );
