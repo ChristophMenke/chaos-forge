@@ -54,40 +54,70 @@ export function MasterItemsPanel({
   const [cwProfSearch, setCwProfSearch] = useState("");
   const [cwProfSelected, setCwProfSelected] = useState<string | null>(null);
 
-  // Unique weapon names for proficiency dropdown
-  const proficiencyNames = useMemo(() => {
-    const names = new Set<string>();
+  // Unique weapon proficiency entries (name + name_en for bilingual display/search)
+  const proficiencyEntries = useMemo(() => {
+    const seen = new Set<string>();
+    const entries: { name: string; name_en: string | null; label: string }[] = [];
     for (const w of weapons) {
-      if (!w.is_custom) names.add(w.name);
+      if (!w.is_custom && !seen.has(w.name)) {
+        seen.add(w.name);
+        entries.push({
+          name: w.name,
+          name_en: w.name_en,
+          label: localized(w.name, w.name_en, locale),
+        });
+      }
     }
-    return Array.from(names).sort();
-  }, [weapons]);
+    return entries.sort((a, b) => a.label.localeCompare(b.label));
+  }, [weapons, locale]);
 
-  const filteredProfNames = useMemo(() => {
-    if (!cwProfSearch.trim()) return proficiencyNames.slice(0, 10);
+  const filteredProfEntries = useMemo(() => {
+    if (!cwProfSearch.trim()) return proficiencyEntries.slice(0, 10);
     const q = cwProfSearch.toLowerCase();
-    return proficiencyNames.filter((n) => n.toLowerCase().includes(q)).slice(0, 10);
-  }, [proficiencyNames, cwProfSearch]);
+    return proficiencyEntries
+      .filter(
+        (e) =>
+          e.name.toLowerCase().includes(q) ||
+          (e.name_en?.toLowerCase().includes(q) ?? false) ||
+          e.label.toLowerCase().includes(q)
+      )
+      .slice(0, 10);
+  }, [proficiencyEntries, cwProfSearch]);
 
   // Custom general item form
   const [ciName, setCiName] = useState("");
   const [ciWeight, setCiWeight] = useState("");
 
-  // Armor proficiency names (for shields)
-  const armorProfNames = useMemo(() => {
-    const names = new Set<string>();
+  // Armor proficiency entries (bilingual)
+  const armorProfEntries = useMemo(() => {
+    const seen = new Set<string>();
+    const entries: { name: string; name_en: string | null; label: string }[] = [];
     for (const a of armor) {
-      if (!a.is_custom) names.add(a.name);
+      if (!a.is_custom && !seen.has(a.name)) {
+        seen.add(a.name);
+        entries.push({
+          name: a.name,
+          name_en: a.name_en,
+          label: localized(a.name, a.name_en, locale),
+        });
+      }
     }
-    return Array.from(names).sort();
-  }, [armor]);
+    return entries.sort((a, b) => a.label.localeCompare(b.label));
+  }, [armor, locale]);
   const [caProfSearch, setCaProfSearch] = useState("");
   const [caProfSelected, setCaProfSelected] = useState<string | null>(null);
-  const filteredArmorProfNames = useMemo(() => {
-    if (!caProfSearch.trim()) return armorProfNames.slice(0, 10);
+  const filteredArmorProfEntries = useMemo(() => {
+    if (!caProfSearch.trim()) return armorProfEntries.slice(0, 10);
     const q = caProfSearch.toLowerCase();
-    return armorProfNames.filter((n) => n.toLowerCase().includes(q)).slice(0, 10);
-  }, [armorProfNames, caProfSearch]);
+    return armorProfEntries
+      .filter(
+        (e) =>
+          e.name.toLowerCase().includes(q) ||
+          (e.name_en?.toLowerCase().includes(q) ?? false) ||
+          e.label.toLowerCase().includes(q)
+      )
+      .slice(0, 10);
+  }, [armorProfEntries, caProfSearch]);
 
   // Custom armor form
   const [caName, setCaName] = useState("");
@@ -319,7 +349,14 @@ export function MasterItemsPanel({
                   <span className="mb-1 block text-[10px] text-muted-foreground">Proficiency</span>
                   <input
                     type="text"
-                    placeholder={cwProfSelected ?? "z.B. Langschwert, Streitkolben..."}
+                    placeholder={
+                      cwProfSelected
+                        ? (proficiencyEntries.find((e) => e.name === cwProfSelected)?.label ??
+                          cwProfSelected)
+                        : locale === "de"
+                          ? "z.B. Langschwert..."
+                          : "e.g. Long Sword..."
+                    }
                     value={cwProfSearch}
                     onChange={(e) => {
                       setCwProfSearch(e.target.value);
@@ -330,20 +367,20 @@ export function MasterItemsPanel({
                     }`}
                     data-testid="gm-create-weapon-prof"
                   />
-                  {cwProfSearch && !cwProfSelected && filteredProfNames.length > 0 && (
+                  {cwProfSearch && !cwProfSelected && filteredProfEntries.length > 0 && (
                     <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded-md border border-border bg-background shadow-lg">
-                      {filteredProfNames.map((name) => (
+                      {filteredProfEntries.map((entry) => (
                         <button
-                          key={name}
+                          key={entry.name}
                           type="button"
                           onClick={() => {
-                            setCwProfSelected(name);
+                            setCwProfSelected(entry.name);
                             setCwProfSearch("");
                           }}
                           className="w-full px-3 py-1.5 text-left text-sm hover:bg-accent/50"
-                          data-testid={`gm-prof-option-${name}`}
+                          data-testid={`gm-prof-option-${entry.name}`}
                         >
-                          {name}
+                          {entry.label}
                         </button>
                       ))}
                     </div>
@@ -464,7 +501,14 @@ export function MasterItemsPanel({
                   <span className="mb-1 block text-[10px] text-muted-foreground">Proficiency</span>
                   <input
                     type="text"
-                    placeholder={caProfSelected ?? "z.B. Kettenpanzer, Schild..."}
+                    placeholder={
+                      caProfSelected
+                        ? (armorProfEntries.find((e) => e.name === caProfSelected)?.label ??
+                          caProfSelected)
+                        : locale === "de"
+                          ? "z.B. Kettenpanzer..."
+                          : "e.g. Chain Mail..."
+                    }
                     value={caProfSearch}
                     onChange={(e) => {
                       setCaProfSearch(e.target.value);
@@ -475,19 +519,19 @@ export function MasterItemsPanel({
                     }`}
                     data-testid="gm-create-armor-prof"
                   />
-                  {caProfSearch && !caProfSelected && filteredArmorProfNames.length > 0 && (
+                  {caProfSearch && !caProfSelected && filteredArmorProfEntries.length > 0 && (
                     <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded-md border border-border bg-background shadow-lg">
-                      {filteredArmorProfNames.map((name) => (
+                      {filteredArmorProfEntries.map((entry) => (
                         <button
-                          key={name}
+                          key={entry.name}
                           type="button"
                           onClick={() => {
-                            setCaProfSelected(name);
+                            setCaProfSelected(entry.name);
                             setCaProfSearch("");
                           }}
                           className="w-full px-3 py-1.5 text-left text-sm hover:bg-accent/50"
                         >
-                          {name}
+                          {entry.label}
                         </button>
                       ))}
                     </div>

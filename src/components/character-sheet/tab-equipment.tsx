@@ -107,33 +107,63 @@ export function TabEquipment({
   const [armorProfSearch, setArmorProfSearch] = useState("");
   const [armorProfSelected, setArmorProfSelected] = useState<string | null>(null);
 
-  const weaponProfNames = useMemo(() => {
-    const names = new Set<string>();
+  const weaponProfEntries = useMemo(() => {
+    const seen = new Set<string>();
+    const entries: { name: string; name_en: string | null; label: string }[] = [];
     for (const w of allWeapons) {
-      if (!w.is_custom) names.add(w.name);
+      if (!w.is_custom && !seen.has(w.name)) {
+        seen.add(w.name);
+        entries.push({
+          name: w.name,
+          name_en: w.name_en,
+          label: localized(w.name, w.name_en, locale),
+        });
+      }
     }
-    return Array.from(names).sort();
-  }, [allWeapons]);
+    return entries.sort((a, b) => a.label.localeCompare(b.label));
+  }, [allWeapons, locale]);
 
-  const armorProfNames = useMemo(() => {
-    const names = new Set<string>();
+  const armorProfEntries = useMemo(() => {
+    const seen = new Set<string>();
+    const entries: { name: string; name_en: string | null; label: string }[] = [];
     for (const a of allArmor) {
-      if (!a.is_custom) names.add(a.name);
+      if (!a.is_custom && !seen.has(a.name)) {
+        seen.add(a.name);
+        entries.push({
+          name: a.name,
+          name_en: a.name_en,
+          label: localized(a.name, a.name_en, locale),
+        });
+      }
     }
-    return Array.from(names).sort();
-  }, [allArmor]);
+    return entries.sort((a, b) => a.label.localeCompare(b.label));
+  }, [allArmor, locale]);
 
   const filteredWeaponProfs = useMemo(() => {
-    if (!weaponProfSearch.trim()) return weaponProfNames.slice(0, 10);
+    if (!weaponProfSearch.trim()) return weaponProfEntries.slice(0, 10);
     const q = weaponProfSearch.toLowerCase();
-    return weaponProfNames.filter((n) => n.toLowerCase().includes(q)).slice(0, 10);
-  }, [weaponProfNames, weaponProfSearch]);
+    return weaponProfEntries
+      .filter(
+        (e) =>
+          e.name.toLowerCase().includes(q) ||
+          (e.name_en?.toLowerCase().includes(q) ?? false) ||
+          e.label.toLowerCase().includes(q)
+      )
+      .slice(0, 10);
+  }, [weaponProfEntries, weaponProfSearch]);
 
   const filteredArmorProfs = useMemo(() => {
-    if (!armorProfSearch.trim()) return armorProfNames.slice(0, 10);
+    if (!armorProfSearch.trim()) return armorProfEntries.slice(0, 10);
     const q = armorProfSearch.toLowerCase();
-    return armorProfNames.filter((n) => n.toLowerCase().includes(q)).slice(0, 10);
-  }, [armorProfNames, armorProfSearch]);
+    return armorProfEntries
+      .filter(
+        (e) =>
+          e.name.toLowerCase().includes(q) ||
+          (e.name_en?.toLowerCase().includes(q) ?? false) ||
+          e.label.toLowerCase().includes(q)
+      )
+      .slice(0, 10);
+  }, [armorProfEntries, armorProfSearch]);
   const [customWeapon, setCustomWeapon] = useState({
     name: "",
     name_en: "",
@@ -1047,7 +1077,14 @@ export function TabEquipment({
                           </span>
                           <input
                             type="text"
-                            placeholder={weaponProfSelected ?? "z.B. Langschwert..."}
+                            placeholder={
+                              weaponProfSelected
+                                ? (weaponProfEntries.find((e) => e.name === weaponProfSelected)
+                                    ?.label ?? weaponProfSelected)
+                                : locale === "de"
+                                  ? "z.B. Langschwert..."
+                                  : "e.g. Long Sword..."
+                            }
                             value={weaponProfSearch}
                             onChange={(e) => {
                               setWeaponProfSearch(e.target.value);
@@ -1062,17 +1099,17 @@ export function TabEquipment({
                             !weaponProfSelected &&
                             filteredWeaponProfs.length > 0 && (
                               <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded-md border border-border bg-background shadow-lg">
-                                {filteredWeaponProfs.map((name) => (
+                                {filteredWeaponProfs.map((entry) => (
                                   <button
-                                    key={name}
+                                    key={entry.name}
                                     type="button"
                                     onClick={() => {
-                                      setWeaponProfSelected(name);
+                                      setWeaponProfSelected(entry.name);
                                       setWeaponProfSearch("");
                                     }}
                                     className="w-full px-3 py-1.5 text-left text-sm hover:bg-accent/50"
                                   >
-                                    {name}
+                                    {entry.label}
                                   </button>
                                 ))}
                               </div>
@@ -1327,7 +1364,14 @@ export function TabEquipment({
                           </span>
                           <input
                             type="text"
-                            placeholder={armorProfSelected ?? "z.B. Kettenpanzer, Schild..."}
+                            placeholder={
+                              armorProfSelected
+                                ? (armorProfEntries.find((e) => e.name === armorProfSelected)
+                                    ?.label ?? armorProfSelected)
+                                : locale === "de"
+                                  ? "z.B. Kettenpanzer..."
+                                  : "e.g. Chain Mail..."
+                            }
                             value={armorProfSearch}
                             onChange={(e) => {
                               setArmorProfSearch(e.target.value);
@@ -1342,17 +1386,17 @@ export function TabEquipment({
                             !armorProfSelected &&
                             filteredArmorProfs.length > 0 && (
                               <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded-md border border-border bg-background shadow-lg">
-                                {filteredArmorProfs.map((name) => (
+                                {filteredArmorProfs.map((entry) => (
                                   <button
-                                    key={name}
+                                    key={entry.name}
                                     type="button"
                                     onClick={() => {
-                                      setArmorProfSelected(name);
+                                      setArmorProfSelected(entry.name);
                                       setArmorProfSearch("");
                                     }}
                                     className="w-full px-3 py-1.5 text-left text-sm hover:bg-accent/50"
                                   >
-                                    {name}
+                                    {entry.label}
                                   </button>
                                 ))}
                               </div>
