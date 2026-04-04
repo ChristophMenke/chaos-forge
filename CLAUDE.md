@@ -14,8 +14,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Datenbank & Auth:** Supabase (PostgreSQL + Row Level Security)
 - **Styling:** Tailwind CSS v4 + shadcn/ui + Glassmorphism Design-System
 - **i18n:** next-intl (Cookie-basiert, DE/EN) + `localized()` Utility für DB-Daten
-- **Unit-/Integrationstests:** Vitest (1140+ Tests)
-- **E2E-Tests:** Playwright (Chromium, POM-Pattern, getByTestId, axe-core A11y)
+- **Unit-/Integrationstests:** Vitest (1164+ Tests)
+- **E2E-Tests:** Playwright (80+ E2E inkl. Responsive, A11y, Sidebar, XP-Management, GM-Dashboard)
 - **Linting/Formatting:** ESLint (next config) + Prettier
 - **Hosting:** Vercel (Free-Tier)
 - **AI:** Anthropic Claude API (Character Import, Session Summaries)
@@ -47,6 +47,7 @@ src/
     characters/import/    # OCR/Vision-Import (Claude API)
     dashboard/            # Dashboard mit 8 Widgets (Zitat, NPCs, XP, Tags, Party-Übersicht, etc.)
     party/                # Party-Inventar & Loot-Verteilung (Gold + Items + Audit-Log)
+    master/               # GM-Dashboard: PIN-Gate, Party-Übersicht, Loot-Verteilung, Gold, Chat
     sessions/             # Chronik des Chaos (Session-Log + Sprachnotizen)
   components/
     character-sheet/      # Tabs: Stats, Combat, Notes, Equipment, Spells, Thief Skills, Proficiencies
@@ -57,6 +58,7 @@ src/
     level-badge.tsx       # Hexagonales Level-Badge (CSS clip-path)
     app-sidebar.tsx       # Desktop Left-Sidebar (Icons, Tooltips, Logout)
     app-nav.tsx           # Mobile Bottom-Nav + More-Menu
+    master/               # GM-Dashboard (PIN-Gate, Party Cards, Items Panel, Gold Panel, Sidebar, Bottom Nav)
     epic-equipment/       # Epische Ausrüstung (Schadensstufen-Cards, Simple Items, Blade System, Spell Abilities)
     party/                # Party-Inventar (Gold-Panel, Items-Panel, Log-Panel, Loot-Verteilung)
     play-mode/            # Play Mode (Kampf, Zauber, Fähigkeiten, Checks, Wahrnehmung, Inventar, Geldbörse, Untote vertreiben, Gestaltwandlung)
@@ -88,7 +90,7 @@ src/
       thief.ts            # Diebesfähigkeiten, Rassen-Adj., Backstab-Multiplikator
       types.ts            # Zentrale Typdefinitionen
       index.ts            # Barrel-Export
-    supabase/             # Supabase Client-Helfer (client.ts, server.ts, middleware.ts, priest-spells.ts)
+    supabase/             # Supabase Client-Helfer (client.ts, server.ts, service.ts, middleware.ts, priest-spells.ts)
     utils/                # Hilfsfunktionen
       class-colors.ts     # Klassengruppen-Akzentfarben (warrior/priest/rogue/wizard)
       localize.ts         # localized(de, en, locale) — Locale-aware Text-Auswahl
@@ -108,7 +110,7 @@ e2e/                      # Playwright E2E-Tests
   helpers/                # Auth-Helper (Cookie-basierter Test-Login)
 messages/                 # i18n-Dateien (de.json, en.json)
 supabase/
-  migrations/             # 169 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items)
+  migrations/             # 176 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items + Realtime + Gold RPC)
 ressources/
   books/                  # OCR-Texte der AD&D 2e Regelbücher (metrisch konvertiert)
 ```
@@ -172,6 +174,7 @@ Die AD&D-Regeln sind als **reine TypeScript-Funktionen** implementiert (kein DB-
 - `scaleSubStat(baseStat, baseSub, overrideStat)` — Sub-Stats proportional skalieren bei Stat-Override
 - `applyThiefPenalty(baseValue, effects)` — Thief-Skill-Penalty anwenden
 - `getConBonusCap(classGroup)` — CON-HP-Bonus-Cap (+2 Non-Warrior, +4 Warrior)
+- `computeCharacterCombatData(character, classes, equipment, epicItems, profs, styles)` — Shared Utility für alle abgeleiteten Kampfwerte (THAC0, AC, Saves, Perception, Thief Skills). Genutzt von Play Mode + GM Dashboard.
 
 **Sonstiges:**
 
@@ -258,11 +261,11 @@ Diese Abweichungen vom Standard-PHB gelten für die "Chaos RPG"-Gruppe:
 
 ## Supabase
 
-- **Client-Helfer:** `src/lib/supabase/client.ts` (Browser), `server.ts` (Server Components), `middleware.ts` (Session-Refresh)
-- **Env-Variablen:** `NEXT_PUBLIC_SUPABASE_URL` und `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local` (siehe `.env.local.example`)
+- **Client-Helfer:** `src/lib/supabase/client.ts` (Browser), `server.ts` (Server Components), `service.ts` (Service Role, RLS-Bypass), `middleware.ts` (Session-Refresh)
+- **Env-Variablen:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GM_PIN` (6-Digit), optional `GM_SESSION_SECRET` in `.env.local`
 - **RLS:** Alle Tabellen nutzen Row Level Security — SELECT für alle Authentifizierten, INSERT/UPDATE/DELETE nur für Owner
 - **Storage:** `voice-notes` Bucket für Sprachnotizen, `avatars` für Character-Avatare
-- **Migrationen:** 169 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
+- **Migrationen:** 176 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
 
 ## AD&D 2e Regelwerk-Spezifika
 
@@ -316,3 +319,4 @@ Finaler explorativer Test mit etablierten Testing-Heuristiken und gezielten "Tes
 11. **Regelwerk-Vollständigkeit** — Crusader, Monk, Shaman, Bard Slots, Dual-Class Engine, Beschreibungstext-Audit ✅
 12. **Party-Inventar & Loot** — Gemeinsame Kasse (5 Münztypen), Item-Pool, Verteilung an Charaktere, Audit-Log, Gold-Abzug ✅
 13. **Epische Waffen & P.O: S&P** — Klinge des Wassers (Spell Abilities, Kälteschaden), Shield Proficiency AC-Bonus, Traits & Disadvantages ✅
+14. **Master of Chaos (GM-Dashboard)** — PIN-Gate, Party-Übersicht (Realtime HP), Loot-Verteilung, Gold-Distribution, Custom Items mit Proficiency-Autocomplete, eingebetteter Chat, PWA ✅

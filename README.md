@@ -38,6 +38,7 @@ Chaos Forge ersetzt umständliche Offline-Editoren aus den 90er Jahren durch ein
 - **Bilinguale Suche** — Zauber können in Deutsch und Englisch gefunden werden, unabhängig von Locale
 - **Fertigkeiten** — NWP-Beschreibungen (PHB Chapter 5) beim Anklicken, Click-to-expand im Character Sheet und Play Mode
 - **Metrisches System** — Automatische Konvertierung von imperialen Einheiten (Fuß, Yards, Meilen) zu metrisch in Zauber-Texten
+- **Master of Chaos (GM-Dashboard)** — PIN-geschützter Spielleiter-Bereich mit taktischer Party-Übersicht (AC, THAC0, HP, Saves, Perception, Thief Skills), Supabase Realtime für Live-HP, Loot-Verteilung (Waffen, Rüstungen, Items), Gold-Distribution (5 Münztypen), Custom Item Creation mit Proficiency-Autocomplete, eingebetteter Rulebook Chat, eigene Sidebar + Bottom-Nav, PWA-Manifest für Homescreen-Installation
 - **Responsive Design** — Desktop Left-Sidebar, Mobile Bottom-Nav mit More-Menu, Glassmorphism Cards
 - **Accessibility** — WCAG 2 AA geprüft via axe-core Playwright Tests
 - **Regelwerk-Engine** — Reine TypeScript-Funktionen für alle PHB-Regeln + Player's Option
@@ -48,7 +49,7 @@ Chaos Forge ersetzt umständliche Offline-Editoren aus den 90er Jahren durch ein
 - **Datenbank & Auth:** Supabase (PostgreSQL + Row Level Security)
 - **Styling:** Tailwind CSS v4 + shadcn/ui + Glassmorphism Design-System
 - **i18n:** next-intl (Cookie-basiert, DE/EN) + `localized()` Utility für DB-Daten
-- **Testing:** Vitest (1140+ Unit-Tests), Playwright (76+ E2E inkl. Responsive, A11y, Sidebar, XP-Management)
+- **Testing:** Vitest (1164+ Unit-Tests), Playwright (80+ E2E inkl. Responsive, A11y, Sidebar, XP-Management, GM-Dashboard)
 - **Hosting:** Vercel (Free-Tier optimiert)
 - **AI:** Anthropic Claude API (Character Import, Session Summaries)
 - **Export:** `docx` Paket für Word-Export
@@ -174,7 +175,7 @@ e2e/                      # Playwright E2E-Tests (POM-Pattern)
   helpers/                # Auth-Helper
 messages/                 # i18n-Dateien (de.json, en.json)
 supabase/
-  migrations/             # 169 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items + Priest + Party + Shield + Traits)
+  migrations/             # 176 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items + Priest + Party + Shield + Traits + Realtime + Gold RPC)
 ressources/
   books/                  # OCR-Texte der AD&D 2e Regelbücher
 ```
