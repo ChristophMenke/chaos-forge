@@ -22,6 +22,7 @@ import type {
   QuoteReactionRow,
   ChronicleNpcRow,
   TagRow,
+  CharacterShareRow,
 } from "@/lib/supabase/types";
 
 const TAG_COLORS: Record<string, string> = {
@@ -41,7 +42,8 @@ export default async function DashboardPage() {
   // ── Queries (parallelized) ──────────────────────────────
   const [
     { data: characters },
-    { data: allActiveCharacters },
+    { data: publicCharacters },
+    { data: sharedWithMe },
     { data: allCharClasses },
     { data: sessions },
     { data: allQuotes },
@@ -61,8 +63,16 @@ export default async function DashboardPage() {
       .from("characters")
       .select("*")
       .eq("is_active", true)
+      .eq("is_public", true)
+      .neq("user_id", user.id)
       .order("name")
       .returns<CharacterRow[]>(),
+    supabase
+      .from("character_shares")
+      .select("*")
+      .eq("shared_with_user_id", user.id)
+      .returns<CharacterShareRow[]>(),
+    // Intentionally unscoped: charClassMap is used for ALL characters (own + party overview)
     supabase.from("character_classes").select("*").returns<CharacterClassRow[]>(),
     supabase
       .from("sessions")
@@ -83,6 +93,27 @@ export default async function DashboardPage() {
     supabase.from("tags").select("*").returns<TagRow[]>(),
     supabase.from("session_tags").select("tag_id").returns<{ tag_id: string }[]>(),
   ]);
+
+  // Build party overview: public characters + shared (non-public) characters
+  const publicIds = new Set((publicCharacters ?? []).map((c) => c.id));
+  const sharedNonPublicIds = (sharedWithMe ?? [])
+    .map((s) => s.character_id)
+    .filter((id) => !publicIds.has(id));
+
+  let sharedChars: CharacterRow[] = [];
+  if (sharedNonPublicIds.length > 0) {
+    const { data } = await supabase
+      .from("characters")
+      .select("*")
+      .in("id", sharedNonPublicIds)
+      .eq("is_active", true)
+      .returns<CharacterRow[]>();
+    sharedChars = data ?? [];
+  }
+
+  const partyOverviewCharacters = [...(publicCharacters ?? []), ...sharedChars].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
 
   const charClassMap = new Map<string, CharacterClassRow[]>();
   for (const cc of allCharClasses ?? []) {
@@ -260,7 +291,7 @@ export default async function DashboardPage() {
             {t("partyOverview")}
           </h3>
           <div className="mt-3 flex flex-col gap-2">
-            {(allActiveCharacters ?? []).map((char) => {
+            {partyOverviewCharacters.map((char) => {
               const classes = (charClassMap.get(char.id) ?? []).filter((cc) => cc.is_active);
               const primaryGroup: ClassGroup = (() => {
                 if (classes.length === 0) return "warrior";
