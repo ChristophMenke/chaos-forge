@@ -89,6 +89,7 @@ export default async function MasterPage() {
       weapons={weapons ?? []}
       armor={armor ?? []}
       generalItems={generalItems ?? []}
+      userEmail={user.email ?? ""}
     />
   );
 }

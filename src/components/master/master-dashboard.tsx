@@ -8,6 +8,7 @@ import { MasterPartyPanel } from "./master-party-panel";
 import { MasterItemsPanel } from "./master-items-panel";
 import { MasterGoldPanel } from "./master-gold-panel";
 import { MasterBottomNav } from "./master-bottom-nav";
+import { MasterSidebar } from "./master-sidebar";
 import type {
   CharacterRow,
   CharacterClassRow,
@@ -28,11 +29,18 @@ interface MasterDashboardProps {
   weapons: WeaponRow[];
   armor: ArmorRow[];
   generalItems: GeneralItemRow[];
+  userEmail?: string;
 }
 
 type TabId = "party" | "items" | "gold";
 
-export function MasterDashboard({ partyData, weapons, armor, generalItems }: MasterDashboardProps) {
+export function MasterDashboard({
+  partyData,
+  weapons,
+  armor,
+  generalItems,
+  userEmail,
+}: MasterDashboardProps) {
   const t = useTranslations("master");
   const [activeTab, setActiveTab] = useState<TabId>("party");
   const [liveHpMap, setLiveHpMap] = useState<Map<string, { current: number; max: number }>>(
@@ -127,64 +135,49 @@ export function MasterDashboard({ partyData, weapons, armor, generalItems }: Mas
 
   const characters = useMemo(() => partyData.map((p) => p.character), [partyData]);
 
-  const tabs: { id: TabId; label: string }[] = [
-    { id: "party", label: t("partyTab") },
-    { id: "items", label: t("itemsTab") },
-    { id: "gold", label: t("goldTab") },
-  ];
-
   return (
-    <div className="mx-auto w-full max-w-7xl p-3 pb-20 sm:p-4 sm:pb-4" data-testid="gm-dashboard">
-      {/* Header */}
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Shield className="h-6 w-6 text-amber-400" />
-          <h1 className="font-heading text-xl text-foreground sm:text-2xl">{t("title")}</h1>
+    <>
+      {/* Desktop Sidebar */}
+      <MasterSidebar activeTab={activeTab} onTabChange={setActiveTab} userEmail={userEmail} />
+
+      {/* Main Content — offset for sidebar on desktop */}
+      <div
+        className="mx-auto w-full max-w-7xl p-3 pb-20 sm:pl-20 sm:pr-4 sm:pt-4 sm:pb-4 xl:pl-52"
+        data-testid="gm-dashboard"
+      >
+        {/* Header */}
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Shield className="h-6 w-6 text-amber-400" />
+            <h1 className="font-heading text-xl text-foreground sm:text-2xl">{t("title")}</h1>
+          </div>
+          <div className="flex items-center gap-1.5" data-testid="gm-live-indicator">
+            <Zap
+              className={`h-3.5 w-3.5 ${isRealtimeConnected ? "text-green-400" : "text-yellow-400"}`}
+            />
+            <span
+              className={`text-xs ${isRealtimeConnected ? "text-green-400" : "text-yellow-400"}`}
+            >
+              {t("liveIndicator")}
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-1.5" data-testid="gm-live-indicator">
-          <Zap
-            className={`h-3.5 w-3.5 ${isRealtimeConnected ? "text-green-400" : "text-yellow-400"}`}
+
+        {/* Tab Content */}
+        {activeTab === "party" && <MasterPartyPanel partyData={partyData} liveHpMap={liveHpMap} />}
+        {activeTab === "items" && (
+          <MasterItemsPanel
+            weapons={weapons}
+            armor={armor}
+            generalItems={generalItems}
+            characters={characters}
           />
-          <span className={`text-xs ${isRealtimeConnected ? "text-green-400" : "text-yellow-400"}`}>
-            {t("liveIndicator")}
-          </span>
-        </div>
+        )}
+        {activeTab === "gold" && <MasterGoldPanel characters={characters} />}
       </div>
-
-      {/* Tab Navigation — Desktop only (mobile uses bottom nav) */}
-      <div className="mb-4 hidden gap-1 rounded-lg bg-background/30 p-1 sm:flex" role="tablist">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            role="tab"
-            aria-selected={activeTab === tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 rounded-md px-4 py-2.5 text-sm font-medium transition-colors ${
-              activeTab === tab.id
-                ? "bg-primary/20 text-primary shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-            data-testid={`gm-tab-${tab.id}`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab Content */}
-      {activeTab === "party" && <MasterPartyPanel partyData={partyData} liveHpMap={liveHpMap} />}
-      {activeTab === "items" && (
-        <MasterItemsPanel
-          weapons={weapons}
-          armor={armor}
-          generalItems={generalItems}
-          characters={characters}
-        />
-      )}
-      {activeTab === "gold" && <MasterGoldPanel characters={characters} />}
 
       {/* Mobile Bottom Nav with tab switching */}
       <MasterBottomNav activeTab={activeTab} onTabChange={setActiveTab} />
-    </div>
+    </>
   );
 }
