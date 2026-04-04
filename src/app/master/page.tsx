@@ -29,7 +29,7 @@ export default async function MasterPage() {
 
   const service = createServiceClient();
 
-  // Fetch ALL active characters + related data (bypass RLS via Service Role)
+  // Fetch ALL characters (active + inactive) + related data (bypass RLS via Service Role)
   const [
     { data: characters },
     { data: allClasses },
@@ -41,12 +41,7 @@ export default async function MasterPage() {
     { data: armor },
     { data: generalItems },
   ] = await Promise.all([
-    service
-      .from("characters")
-      .select("*")
-      .eq("is_active", true)
-      .order("name")
-      .returns<CharacterRow[]>(),
+    service.from("characters").select("*").order("name").returns<CharacterRow[]>(),
     service.from("character_classes").select("*").returns<CharacterClassRow[]>(),
     service
       .from("character_equipment")
