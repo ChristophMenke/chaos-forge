@@ -7,8 +7,8 @@ export default async function ChatLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="flex flex-1 flex-col sm:flex-row" data-testid="rulebook-layout">
-      <AppSidebar userEmail={user.email ?? ""} />
-      <AppNav userEmail={user.email ?? ""} />
+      <AppSidebar userEmail={user.email ?? ""} userId={user.id} />
+      <AppNav userEmail={user.email ?? ""} userId={user.id} />
       <div className="flex flex-1 flex-col overflow-hidden sm:ml-16 xl:ml-48">{children}</div>
     </div>
   );

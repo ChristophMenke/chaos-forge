@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { PlayHpBar } from "./play-hp-bar";
@@ -197,8 +197,26 @@ export function PlayMode({
   const [spells, setSpells] = useState(initialSpells);
   const [inventory, setInventory] = useState(initialInventory);
   const [activePanel, setActivePanel] = useState<PanelId>("combat");
+  const [tradeCharacters, setTradeCharacters] = useState<
+    { id: string; name: string; user_id: string }[]
+  >([]);
 
   const isOwner = character.user_id === userId;
+
+  // Fetch active characters for trading
+  useEffect(() => {
+    if (!isOwner) return;
+    const supabase = createClient();
+    supabase
+      .from("characters")
+      .select("id, name, user_id")
+      .eq("is_active", true)
+      .neq("id", character.id)
+      .order("name")
+      .then(({ data }) => {
+        if (data) setTradeCharacters(data);
+      });
+  }, [character.id, isOwner]);
 
   // Epic item effects (with auto-unlock based on character level)
   const characterLevel = character.level;
@@ -803,17 +821,21 @@ export function PlayMode({
           />
           <PlayCoinPursePanel
             characterId={character.id}
+            characterName={character.name}
             coinPurse={coinPurse}
             readOnly={!isOwner}
+            tradeCharacters={tradeCharacters}
             onCoinChange={handleCoinChange}
           />
           <PlayInventoryPanel
             characterId={character.id}
+            characterName={character.name}
             inventory={inventory}
             totalWeight={totalWeight}
             encumbrance={encumbranceLevel}
             ignoreEncumbrance={character.ignore_encumbrance}
             readOnly={!isOwner}
+            tradeCharacters={tradeCharacters}
             onInventoryChange={setInventory}
           />
         </div>
@@ -899,19 +921,23 @@ export function PlayMode({
         {activePanel === "inventory" && (
           <PlayInventoryPanel
             characterId={character.id}
+            characterName={character.name}
             inventory={inventory}
             totalWeight={totalWeight}
             encumbrance={encumbranceLevel}
             ignoreEncumbrance={character.ignore_encumbrance}
             readOnly={!isOwner}
+            tradeCharacters={tradeCharacters}
             onInventoryChange={setInventory}
           />
         )}
         {activePanel === "coinPurse" && (
           <PlayCoinPursePanel
             characterId={character.id}
+            characterName={character.name}
             coinPurse={coinPurse}
             readOnly={!isOwner}
+            tradeCharacters={tradeCharacters}
             onCoinChange={handleCoinChange}
           />
         )}

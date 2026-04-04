@@ -7,8 +7,8 @@ export default async function SessionsLayout({ children }: { children: React.Rea
 
   return (
     <div className="flex flex-1 flex-col sm:flex-row" data-testid="sessions-layout">
-      <AppSidebar userEmail={user.email ?? ""} />
-      <AppNav userEmail={user.email ?? ""} />
+      <AppSidebar userEmail={user.email ?? ""} userId={user.id} />
+      <AppNav userEmail={user.email ?? ""} userId={user.id} />
       <div className="flex flex-1 flex-col sm:ml-16 xl:ml-48">{children}</div>
     </div>
   );

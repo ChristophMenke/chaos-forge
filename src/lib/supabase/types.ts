@@ -418,6 +418,26 @@ export interface PartyLootItemWithDetails extends PartyLootItemRow {
   item: GeneralItemRow | null;
 }
 
+// ── Notifications ───────────────────────────────────────
+
+export type NotificationType =
+  | "gm_item_received"
+  | "gm_gold_received"
+  | "party_item_received"
+  | "party_gold_received"
+  | "trade_item_received"
+  | "trade_gold_received";
+
+export interface NotificationRow {
+  id: string;
+  user_id: string;
+  character_id: string | null;
+  type: NotificationType;
+  details: Record<string, unknown>;
+  is_read: boolean;
+  created_at: string;
+}
+
 export interface PartyLootLogRow {
   id: string;
   action:

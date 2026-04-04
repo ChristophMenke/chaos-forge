@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import crypto from "crypto";
 import { createServiceClient } from "@/lib/supabase/service";
+import { createNotification } from "@/lib/notifications";
 
 const COOKIE_NAME = "gm_session";
 const COOKIE_MAX_AGE = 60 * 60 * 24; // 24h
@@ -111,6 +112,38 @@ export async function injectItemToCharacter(
     if (error) return { success: false, error: error.message };
   }
 
+  // Create notification for character owner
+  const { data: char } = await service
+    .from("characters")
+    .select("user_id, name")
+    .eq("id", characterId)
+    .single();
+
+  if (char) {
+    let itemName = "Item";
+    if (itemType === "weapon") {
+      const { data: w } = await service.from("weapons").select("name").eq("id", itemId).single();
+      if (w) itemName = w.name;
+    } else if (itemType === "armor") {
+      const { data: a } = await service.from("armor").select("name").eq("id", itemId).single();
+      if (a) itemName = a.name;
+    } else {
+      const { data: g } = await service
+        .from("general_items")
+        .select("name")
+        .eq("id", itemId)
+        .single();
+      if (g) itemName = g.name;
+    }
+
+    await createNotification(service, {
+      userId: char.user_id,
+      characterId,
+      type: "gm_item_received",
+      details: { item_name: itemName, quantity: qty, character_name: char.name },
+    });
+  }
+
   return { success: true };
 }
 
@@ -185,6 +218,23 @@ export async function distributeGold(
   });
 
   if (error) return { success: false, error: error.message };
+
+  // Create notification for character owner
+  const { data: char } = await service
+    .from("characters")
+    .select("user_id, name")
+    .eq("id", characterId)
+    .single();
+
+  if (char) {
+    await createNotification(service, {
+      userId: char.user_id,
+      characterId,
+      type: "gm_gold_received",
+      details: { ...coins, character_name: char.name },
+    });
+  }
+
   return { success: true };
 }
 

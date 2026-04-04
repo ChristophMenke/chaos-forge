@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -8,20 +8,27 @@ import { Ellipsis } from "lucide-react";
 import { LogoutButton } from "@/components/logout-button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LocaleToggle } from "@/components/locale-toggle";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { NAV_ITEMS } from "@/lib/navigation";
 
 interface AppNavProps {
   userEmail?: string;
+  userId?: string;
 }
 
-export function AppNav({ userEmail }: AppNavProps) {
+export function AppNav({ userEmail, userId }: AppNavProps) {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const morePanelRef = useRef<HTMLDivElement>(null);
   const moreTriggerRef = useRef<HTMLButtonElement>(null);
   const barItems = NAV_ITEMS.filter((item) => item.mobileBar);
   const moreNavItems = NAV_ITEMS.filter((item) => !item.mobileBar);
+
+  const handleUnreadCountChange = useCallback((count: number) => {
+    setUnreadCount(count);
+  }, []);
 
   function closeMore() {
     setMoreOpen(false);
@@ -56,6 +63,14 @@ export function AppNav({ userEmail }: AppNavProps) {
             >
               {userEmail}
             </span>
+          )}
+          {/* Notifications */}
+          {userId && (
+            <NotificationBell
+              userId={userId}
+              variant="mobile"
+              onUnreadCountChange={handleUnreadCountChange}
+            />
           )}
           {/* Nav items hidden from bottom bar */}
           <div className="flex flex-col gap-1">
@@ -121,7 +136,17 @@ export function AppNav({ userEmail }: AppNavProps) {
           aria-expanded={moreOpen}
           data-testid="mobile-more-trigger"
         >
-          <Ellipsis className="h-5 w-5" />
+          <div className="relative">
+            <Ellipsis className="h-5 w-5" />
+            {unreadCount > 0 && (
+              <span
+                className="absolute -right-1.5 -top-1.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-red-500 px-0.5 text-[8px] font-bold text-white"
+                data-testid="mobile-more-unread-badge"
+              >
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </div>
           <span className="truncate">{t("more")}</span>
         </button>
       </div>

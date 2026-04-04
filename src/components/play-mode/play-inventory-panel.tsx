@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { Send } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SendItemDialog } from "./send-item-dialog";
 import { createClient } from "@/lib/supabase/client";
 import { getEncumbranceLabel } from "@/lib/rules/equipment";
 import type { EncumbranceLevel } from "@/lib/rules/equipment";
@@ -12,29 +14,40 @@ import type { CharacterInventoryWithDetails } from "@/lib/supabase/types";
 import { localized } from "@/lib/utils/localize";
 import { lbsToKg } from "@/lib/utils/units";
 
+interface TradeCharacter {
+  id: string;
+  name: string;
+  user_id: string;
+}
+
 interface PlayInventoryPanelProps {
   characterId: string;
+  characterName?: string;
   inventory: CharacterInventoryWithDetails[];
   totalWeight: number;
   encumbrance: EncumbranceLevel;
   ignoreEncumbrance: boolean;
   readOnly: boolean;
+  tradeCharacters?: TradeCharacter[];
   onInventoryChange: (inventory: CharacterInventoryWithDetails[]) => void;
 }
 
 export function PlayInventoryPanel({
   characterId,
+  characterName = "",
   inventory,
   totalWeight,
   encumbrance,
   ignoreEncumbrance,
   readOnly,
+  tradeCharacters,
   onInventoryChange,
 }: PlayInventoryPanelProps) {
   const t = useTranslations("playMode");
   const locale = useLocale();
   const [newItemName, setNewItemName] = useState("");
   const [newItemQty, setNewItemQty] = useState(1);
+  const [sendingItem, setSendingItem] = useState<CharacterInventoryWithDetails | null>(null);
 
   async function addItem() {
     if (!newItemName.trim()) return;
@@ -70,11 +83,27 @@ export function PlayInventoryPanel({
     onInventoryChange(inventory.map((i) => (i.id === itemId ? { ...i, quantity: newQty } : i)));
   }
 
+  function handleItemSent(itemId: string, qty: number) {
+    const item = inventory.find((i) => i.id === itemId);
+    if (!item) return;
+    const remaining = item.quantity - qty;
+    if (remaining <= 0) {
+      onInventoryChange(inventory.filter((i) => i.id !== itemId));
+    } else {
+      onInventoryChange(
+        inventory.map((i) => (i.id === itemId ? { ...i, quantity: remaining } : i))
+      );
+    }
+    setSendingItem(null);
+  }
+
   const itemName = (item: CharacterInventoryWithDetails) => {
     if (item.custom_name) return item.custom_name;
     if (item.item) return localized(item.item.name, item.item.name_en, locale);
     return "???";
   };
+
+  const canTrade = !readOnly && tradeCharacters && tradeCharacters.length > 0;
 
   return (
     <GlassCard hover={false} data-testid="play-inventory-panel">
@@ -168,11 +197,35 @@ export function PlayInventoryPanel({
                   >
                     +
                   </Button>
+                  {canTrade && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 text-xs text-muted-foreground hover:text-primary"
+                      onClick={() => setSendingItem(item)}
+                      aria-label={`${itemName(item)} ${t("sendItem")}`}
+                      data-testid={`play-inventory-send-${item.id}`}
+                    >
+                      <Send className="h-3 w-3" />
+                    </Button>
+                  )}
                 </div>
               )}
             </div>
           ))}
         </div>
+      )}
+
+      {/* Send item dialog */}
+      {sendingItem && tradeCharacters && (
+        <SendItemDialog
+          item={sendingItem}
+          senderCharacterId={characterId}
+          senderCharacterName={characterName}
+          characters={tradeCharacters}
+          onSend={handleItemSent}
+          onClose={() => setSendingItem(null)}
+        />
       )}
     </GlassCard>
   );
