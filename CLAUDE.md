@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Datenbank & Auth:** Supabase (PostgreSQL + Row Level Security)
 - **Styling:** Tailwind CSS v4 + shadcn/ui + Glassmorphism Design-System
 - **i18n:** next-intl (Cookie-basiert, DE/EN) + `localized()` Utility für DB-Daten
-- **Unit-/Integrationstests:** Vitest (960+ Tests)
+- **Unit-/Integrationstests:** Vitest (1140+ Tests)
 - **E2E-Tests:** Playwright (Chromium, POM-Pattern, getByTestId, axe-core A11y)
 - **Linting/Formatting:** ESLint (next config) + Prettier
 - **Hosting:** Vercel (Free-Tier)
@@ -45,7 +45,8 @@ src/
     characters/[id]/      # Charakterbogen, Druckansicht, Zauberbuch, Play Mode, Epische Ausrüstung
     characters/new/       # Charakter-Erstellung (Auswahl: Wizard oder Import)
     characters/import/    # OCR/Vision-Import (Claude API)
-    dashboard/            # Dashboard mit 8 Widgets (Zitat, NPCs, XP, Tags, Party, etc.)
+    dashboard/            # Dashboard mit 8 Widgets (Zitat, NPCs, XP, Tags, Party-Übersicht, etc.)
+    party/                # Party-Inventar & Loot-Verteilung (Gold + Items + Audit-Log)
     sessions/             # Chronik des Chaos (Session-Log + Sprachnotizen)
   components/
     character-sheet/      # Tabs: Stats, Combat, Notes, Equipment, Spells, Thief Skills, Proficiencies
@@ -56,7 +57,8 @@ src/
     level-badge.tsx       # Hexagonales Level-Badge (CSS clip-path)
     app-sidebar.tsx       # Desktop Left-Sidebar (Icons, Tooltips, Logout)
     app-nav.tsx           # Mobile Bottom-Nav + More-Menu
-    epic-equipment/       # Epische Ausrüstung (Schadensstufen-Cards, Simple Items, Blade System)
+    epic-equipment/       # Epische Ausrüstung (Schadensstufen-Cards, Simple Items, Blade System, Spell Abilities)
+    party/                # Party-Inventar (Gold-Panel, Items-Panel, Log-Panel, Loot-Verteilung)
     play-mode/            # Play Mode (Kampf, Zauber, Fähigkeiten, Checks, Wahrnehmung, Inventar, Geldbörse, Untote vertreiben, Gestaltwandlung)
     spellbook/            # Standalone Spellbook-Seite (Suche, Filter, Prepare, Learn, Source-Book-Filter)
     print-sheet/          # Druckansicht + Word-Export (.docx), Customization Panel
@@ -71,7 +73,8 @@ src/
       classes.ts          # 16 Klassen-Definitionen, Attribut-Anforderungen, Fähigkeiten
       combat.ts           # THAC0, Angriffswürfe, Rettungswürfe, Angriffe/Runde (inkl. Spezialisierung)
       epic-items.ts       # Epische Ausrüstung: Stat-Overrides, Thief-Penalties, Spell Failure, Perception, Shapeshift, Auto-Unlock
-      equipment.ts        # RK-Berechnung, Belastung, Bewegungsrate
+      equipment.ts        # RK-Berechnung, Belastung, Bewegungsrate, Shield Proficiency
+      fighting-styles.ts  # 4 Kampfstile (Single-Weapon, Two-Hander, Weapon & Shield, Two-Weapon)
       experience.ts       # XP-Tabellen, Stufen-Berechnung
       hitpoints.ts        # HP-Berechnung, CON-Bonus-Cap (Warrior +4, andere +2)
       kits.ts             # 20 Kit-Definitionen (Fighter, Thief, Wizard, Priest, Ranger, Bard)
@@ -105,7 +108,7 @@ e2e/                      # Playwright E2E-Tests
   helpers/                # Auth-Helper (Cookie-basierter Test-Login)
 messages/                 # i18n-Dateien (de.json, en.json)
 supabase/
-  migrations/             # 59 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items)
+  migrations/             # 169 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items)
 ressources/
   books/                  # OCR-Texte der AD&D 2e Regelbücher (metrisch konvertiert)
 ```
@@ -155,7 +158,8 @@ Die AD&D-Regeln sind als **reine TypeScript-Funktionen** implementiert (kein DB-
 **Fertigkeiten & Ausrüstung:**
 
 - `getWeaponProficiencySlots(classGroup, level)` / `getNonweaponProficiencySlots(classGroup, level)` / `canSpecialize(classId)`
-- `calculateAC(armorAC, shield, dexAdj)` / `calculateEncumbrance(weight, strAllow)` / `getMovementRate(base, encumbrance)`
+- `calculateAC({equippedArmorAC, shieldEquipped, dexDefenseAdj, shieldProficiencyBonus, ...})` / `getShieldProficiencyBonus(shieldType, shieldName, profs)` / `getShieldType(name)`
+- `calculateEncumbrance(weight, strAllow)` / `getMovementRate(base, encumbrance)`
 
 **Dieb:**
 
@@ -163,7 +167,8 @@ Die AD&D-Regeln sind als **reine TypeScript-Funktionen** implementiert (kein DB-
 
 **Epische Ausrüstung:**
 
-- `getEpicEffects(items)` — Kombinierte Effekte aller angelegten Epic Items (Stat-Overrides, Thief-Penalties, Spell Failure, Wild Magic, Perception)
+- `getEpicEffects(items, characterLevel?)` — Kombinierte Effekte aller angelegten Epic Items (Stat-Overrides, Thief-Penalties, Spell Failure, Wild Magic, Perception, Spell Abilities)
+- `getUnlockedSpellAbilities(item, unlockedLevel)` — Spell-Like Abilities mit `replaces`-Logik (Water Walk, Cone of Cold etc.)
 - `scaleSubStat(baseStat, baseSub, overrideStat)` — Sub-Stats proportional skalieren bei Stat-Override
 - `applyThiefPenalty(baseValue, effects)` — Thief-Skill-Penalty anwenden
 - `getConBonusCap(classGroup)` — CON-HP-Bonus-Cap (+2 Non-Warrior, +4 Warrior)
@@ -257,7 +262,7 @@ Diese Abweichungen vom Standard-PHB gelten für die "Chaos RPG"-Gruppe:
 - **Env-Variablen:** `NEXT_PUBLIC_SUPABASE_URL` und `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local` (siehe `.env.local.example`)
 - **RLS:** Alle Tabellen nutzen Row Level Security — SELECT für alle Authentifizierten, INSERT/UPDATE/DELETE nur für Owner
 - **Storage:** `voice-notes` Bucket für Sprachnotizen, `avatars` für Character-Avatare
-- **Migrationen:** 73 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
+- **Migrationen:** 169 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
 
 ## AD&D 2e Regelwerk-Spezifika
 
@@ -269,7 +274,9 @@ Das Datenmodell und die Regelwerk-Engine müssen folgende AD&D 2e Besonderheiten
 - **Rassen & Klassen:** Inklusive Level-Caps pro Rasse/Klasse-Kombination
 - **Magie:** Magier nutzen Schulen (inkl. Spezialisten), Priester nutzen Sphären (Haupt-/Nebenzugang)
 - **Fertigkeiten:** Waffenfertigkeiten (inkl. Spezialisierung → Angriffe/Runde) und Allgemeine Fertigkeiten
-- **Ausrüstung:** Gewicht/Belastung, Waffengeschwindigkeit, AC-Breakdown (Armor + Shield + DEX)
+- **Ausrüstung:** Gewicht/Belastung, Waffengeschwindigkeit, AC-Breakdown (Armor + Shield + Shield Proficiency + DEX + SWS + Epic)
+- **Shield Proficiency:** P.O: Skills & Powers Table 51 — Buckler +1, Small +2, Medium +3, Large +3 (über `armor.shield_type` + Weapon Proficiency)
+- **Traits & Disadvantages:** P.O: Skills & Powers — JSONB-Arrays auf `characters` mit Name, Beschreibung, CP-Kosten (bilingual)
 - **Source Books:** Jedes Item/Waffe/Zauber hat ein `source_book` Feld (PHB, AEG, ToM, etc.)
 
 ## Entwicklungs-Workflow (zwingend)
@@ -307,3 +314,5 @@ Finaler explorativer Test mit etablierten Testing-Heuristiken und gezielten "Tes
 9. **Priester-System** — Sphären-Zauber, Gottheit/Priesthood, Turn Undead, Quellenbuch-Filter, Spell Points ✅
 10. **Tiefling & Erweiterungen** — 9. Rasse, Rassenwechsel, Fähigkeiten-Panel, Magische Items/Waffen, Import-Verbesserungen ✅
 11. **Regelwerk-Vollständigkeit** — Crusader, Monk, Shaman, Bard Slots, Dual-Class Engine, Beschreibungstext-Audit ✅
+12. **Party-Inventar & Loot** — Gemeinsame Kasse (5 Münztypen), Item-Pool, Verteilung an Charaktere, Audit-Log, Gold-Abzug ✅
+13. **Epische Waffen & P.O: S&P** — Klinge des Wassers (Spell Abilities, Kälteschaden), Shield Proficiency AC-Bonus, Traits & Disadvantages ✅
