@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { MasterPartyPanel } from "./master-party-panel";
 import { MasterItemsPanel } from "./master-items-panel";
 import { MasterGoldPanel } from "./master-gold-panel";
+import { RulebookChat } from "@/components/rulebook-chat/rulebook-chat";
 import { MasterBottomNav } from "./master-bottom-nav";
 import { MasterSidebar } from "./master-sidebar";
 import type {
@@ -32,7 +33,7 @@ interface MasterDashboardProps {
   userEmail?: string;
 }
 
-type TabId = "party" | "items" | "gold";
+type TabId = "party" | "items" | "gold" | "chat";
 
 export function MasterDashboard({
   partyData,
@@ -174,6 +175,7 @@ export function MasterDashboard({
           />
         )}
         {activeTab === "gold" && <MasterGoldPanel characters={characters} />}
+        {activeTab === "chat" && <RulebookChat />}
       </div>
 
       {/* Mobile Bottom Nav with tab switching */}

@@ -1,13 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Users, Swords, Coins, BookOpen } from "lucide-react";
-import { LocaleToggle } from "@/components/locale-toggle";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { LogoutButton } from "@/components/logout-button";
 
-type TabId = "party" | "items" | "gold";
+type TabId = "party" | "items" | "gold" | "chat";
 
 interface MasterBottomNavProps {
   activeTab: TabId;
@@ -22,6 +18,7 @@ export function MasterBottomNav({ activeTab, onTabChange }: MasterBottomNavProps
     { id: "party", icon: <Users className="h-5 w-5" />, label: t("partyTab") },
     { id: "items", icon: <Swords className="h-5 w-5" />, label: t("itemsTab") },
     { id: "gold", icon: <Coins className="h-5 w-5" />, label: t("goldTab") },
+    { id: "chat", icon: <BookOpen className="h-5 w-5" />, label: tn("rulebook") },
   ];
 
   return (
@@ -44,23 +41,6 @@ export function MasterBottomNav({ activeTab, onTabChange }: MasterBottomNavProps
             <span className="truncate">{tab.label}</span>
           </button>
         ))}
-        <Link
-          href="/chat"
-          className="flex flex-1 flex-col items-center gap-0.5 rounded-md py-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
-          data-testid="gm-nav-chat"
-        >
-          <BookOpen className="h-5 w-5" />
-          <span className="truncate">{tn("rulebook")}</span>
-        </Link>
-        <div className="flex flex-col items-center gap-0.5 py-1">
-          <LocaleToggle />
-        </div>
-        <div className="flex flex-col items-center gap-0.5 py-1">
-          <ThemeToggle />
-        </div>
-        <div className="flex flex-col items-center gap-0.5 py-1">
-          <LogoutButton />
-        </div>
       </div>
     </nav>
   );
