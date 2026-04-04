@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Shield, Zap } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -45,6 +45,23 @@ export function MasterDashboard({ partyData, weapons, armor, generalItems }: Mas
   const setupRealtime = useCallback(() => {
     const supabase = createClient();
     const characterIds = partyData.map((p) => p.character.id);
+    let fallbackTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    async function pollHp() {
+      const { data } = await supabase
+        .from("characters")
+        .select("id, hp_current, hp_max")
+        .in("id", characterIds);
+      if (data) {
+        setLiveHpMap((prev) => {
+          const next = new Map(prev);
+          for (const row of data) {
+            next.set(row.id, { current: row.hp_current, max: row.hp_max });
+          }
+          return next;
+        });
+      }
+    }
 
     const channel = supabase
       .channel("gm-hp-updates")
@@ -69,56 +86,33 @@ export function MasterDashboard({ partyData, weapons, armor, generalItems }: Mas
       .subscribe((status) => {
         if (status === "SUBSCRIBED") {
           setIsRealtimeConnected(true);
+          // Cancel fallback — Realtime is up
+          if (fallbackTimeout) {
+            clearTimeout(fallbackTimeout);
+            fallbackTimeout = null;
+          }
           if (pollingRef.current) {
             clearInterval(pollingRef.current);
             pollingRef.current = null;
           }
         } else if (status === "CLOSED" || status === "CHANNEL_ERROR") {
           setIsRealtimeConnected(false);
-          // Restart polling fallback when Realtime drops
           if (!pollingRef.current) {
-            pollingRef.current = setInterval(async () => {
-              const { data } = await supabase
-                .from("characters")
-                .select("id, hp_current, hp_max")
-                .in("id", characterIds);
-              if (data) {
-                setLiveHpMap((prev) => {
-                  const next = new Map(prev);
-                  for (const row of data) {
-                    next.set(row.id, { current: row.hp_current, max: row.hp_max });
-                  }
-                  return next;
-                });
-              }
-            }, 10_000);
+            pollingRef.current = setInterval(pollHp, 10_000);
           }
         }
       });
 
     // Fallback polling every 10s if Realtime doesn't connect within 5s
-    const fallbackTimeout = setTimeout(() => {
+    fallbackTimeout = setTimeout(() => {
+      fallbackTimeout = null;
       if (!pollingRef.current) {
-        pollingRef.current = setInterval(async () => {
-          const { data } = await supabase
-            .from("characters")
-            .select("id, hp_current, hp_max")
-            .in("id", characterIds);
-          if (data) {
-            setLiveHpMap((prev) => {
-              const next = new Map(prev);
-              for (const row of data) {
-                next.set(row.id, { current: row.hp_current, max: row.hp_max });
-              }
-              return next;
-            });
-          }
-        }, 10_000);
+        pollingRef.current = setInterval(pollHp, 10_000);
       }
     }, 5_000);
 
     return () => {
-      clearTimeout(fallbackTimeout);
+      if (fallbackTimeout) clearTimeout(fallbackTimeout);
       if (pollingRef.current) {
         clearInterval(pollingRef.current);
         pollingRef.current = null;
@@ -130,6 +124,8 @@ export function MasterDashboard({ partyData, weapons, armor, generalItems }: Mas
   useEffect(() => {
     return setupRealtime();
   }, [setupRealtime]);
+
+  const characters = useMemo(() => partyData.map((p) => p.character), [partyData]);
 
   const tabs: { id: TabId; label: string }[] = [
     { id: "party", label: t("partyTab") },
@@ -182,10 +178,10 @@ export function MasterDashboard({ partyData, weapons, armor, generalItems }: Mas
           weapons={weapons}
           armor={armor}
           generalItems={generalItems}
-          characters={partyData.map((p) => p.character)}
+          characters={characters}
         />
       )}
-      {activeTab === "gold" && <MasterGoldPanel characters={partyData.map((p) => p.character)} />}
+      {activeTab === "gold" && <MasterGoldPanel characters={characters} />}
 
       {/* Mobile Bottom Nav */}
       <MasterBottomNav />

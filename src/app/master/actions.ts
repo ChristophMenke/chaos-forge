@@ -145,6 +145,8 @@ export async function injectItemToParty(
 // ─── Auto-Share Characters ─────────────────────────────────────────────
 
 export async function autoShareCharacters(userId: string): Promise<void> {
+  if (!(await checkGmSession())) return;
+
   const service = createServiceClient();
 
   const { data: characters } = await service.from("characters").select("id").eq("is_active", true);
