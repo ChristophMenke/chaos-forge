@@ -80,7 +80,7 @@ async function openXpDialog(page: Page, charId: string) {
   await expect(page.getByTestId("xp-add-dialog")).toBeVisible({ timeout: 5000 });
 }
 
-test.describe.configure({ mode: "serial" });
+// Each test creates and cleans up its own data — fully independent
 
 test.describe("XP Management", () => {
   test("single-class: add and verify XP", async ({ page }) => {
@@ -124,48 +124,38 @@ test.describe("XP Management", () => {
   test("single-class: delete XP entry via confirm dialog", async ({ page }) => {
     test.setTimeout(90000);
 
-    // Use the existing Gor character (has XP history from test seed)
-    // Navigate to Gor via characters page → first card
-    await page.goto("/characters");
-    await page.getByTestId("characters-page").waitFor({ timeout: 10000 });
+    // Create own test character (fully independent)
+    const charId = await createSingleClassChar(page.request);
+    expect(charId).toBeTruthy();
 
-    // Find Gor card and navigate to manage
-    const activeGrid = page.getByTestId("active-characters-grid");
-    await activeGrid.waitFor({ timeout: 5000 });
-    const gorLink = activeGrid.locator("a").first();
-    await gorLink.click();
-    await page.getByTestId("character-choice-page").waitFor({ timeout: 10000 });
-    await page.getByTestId("character-manage-link").click();
-    await page.getByTestId("character-sheet").waitFor({ timeout: 15000 });
+    try {
+      // First add XP so there's something to delete
+      await openXpDialog(page, charId);
+      await page.getByTestId("xp-amount-input").fill("100");
+      await page.getByTestId("xp-apply-button").click();
+      await expect(page.getByTestId("xp-add-dialog")).not.toBeVisible({ timeout: 10000 });
 
-    // First add XP so there's something to delete
-    const addXpBtn = page.getByTestId("sheet-add-xp-button");
-    await addXpBtn.scrollIntoViewIfNeeded();
-    await addXpBtn.click();
-    await expect(page.getByTestId("xp-add-dialog")).toBeVisible({ timeout: 5000 });
-    await page.getByTestId("xp-amount-input").fill("100");
-    await page.getByTestId("xp-apply-button").click();
-    await expect(page.getByTestId("xp-add-dialog")).not.toBeVisible({ timeout: 10000 });
+      // Reload to get fresh history
+      await page.reload();
+      await page.getByTestId("character-sheet").waitFor({ timeout: 15000 });
 
-    // Reload to get fresh history
-    await page.reload();
-    await page.getByTestId("character-sheet").waitFor({ timeout: 15000 });
+      // Open XP history section
+      const xpHistory = page.getByTestId("xp-history-section");
+      await xpHistory.scrollIntoViewIfNeeded();
+      await xpHistory.click();
+      await page.waitForTimeout(500);
 
-    // Open XP history section
-    const xpHistory = page.getByTestId("xp-history-section");
-    await xpHistory.scrollIntoViewIfNeeded();
-    await xpHistory.click();
-    await page.waitForTimeout(500);
+      // Delete button should exist
+      const deleteBtn = page.locator("[data-testid^='xp-history-delete-']").first();
+      const isVisible = await deleteBtn.isVisible().catch(() => false);
 
-    // Delete button should exist
-    const deleteBtn = page.locator("[data-testid^='xp-history-delete-']").first();
-    const isVisible = await deleteBtn.isVisible().catch(() => false);
-
-    if (isVisible) {
-      // Set up dialog handler BEFORE clicking
-      page.on("dialog", (dialog) => dialog.accept());
-      await deleteBtn.click();
-      await page.waitForTimeout(2000);
+      if (isVisible) {
+        page.on("dialog", (dialog) => dialog.accept());
+        await deleteBtn.click();
+        await page.waitForTimeout(2000);
+      }
+    } finally {
+      await deleteTestChar(page.request, charId);
     }
   });
 

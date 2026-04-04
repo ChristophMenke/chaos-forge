@@ -38,9 +38,10 @@ export default defineConfig({
         "master.spec.ts",
       ],
     },
-    // Unauthenticated tests — no storage state
+    // Unauthenticated tests — no storage state, but wait for setup (webserver)
     {
       name: "chromium-noauth",
+      dependencies: ["setup"],
       use: { ...devices["Desktop Chrome"] },
       testMatch: [
         "smoke.spec.ts",
