@@ -223,16 +223,25 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Create character_classes entry
-  await supabaseAdmin.from("character_classes").upsert(
+  // Create character_classes entries (supports multiclass via classes array)
+  const classEntries = characterData.classes ?? [
     {
-      character_id: char.id,
       class_id: characterData.class_id ?? "fighter",
       level: characterData.level ?? 1,
       xp_current: 0,
     },
-    { onConflict: "character_id,class_id" }
-  );
+  ];
+  for (const cc of classEntries) {
+    await supabaseAdmin.from("character_classes").upsert(
+      {
+        character_id: char.id,
+        class_id: cc.class_id,
+        level: cc.level ?? 1,
+        xp_current: cc.xp_current ?? 0,
+      },
+      { onConflict: "character_id,class_id" }
+    );
+  }
 
   return NextResponse.json({ character_id: char.id });
 }

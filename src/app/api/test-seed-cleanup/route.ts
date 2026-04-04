@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 const TEST_DOMAIN = "@chaos-forge.de";
-const TEST_CHARACTER_NAMES = ["Gor", "Elara"];
+const TEST_CHARACTER_NAMES = ["Gor", "Elara", "QA-MultiXP", "QA-SingleXP"];
 
 /**
  * Removes test characters created by the E2E test seed.

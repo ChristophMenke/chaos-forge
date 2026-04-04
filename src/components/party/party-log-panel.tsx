@@ -1,7 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { Trash2 } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
+import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/client";
 import type { PartyLootLogRow } from "@/lib/supabase/types";
 
 interface PartyLogPanelProps {
@@ -21,12 +25,15 @@ function formatCoinAmount(details: Record<string, unknown>): string {
   return parts.join(", ");
 }
 
-export function PartyLogPanel({ log, userMap, characterMap }: PartyLogPanelProps) {
+export function PartyLogPanel({ log: initialLog, userMap, characterMap }: PartyLogPanelProps) {
   const t = useTranslations("party");
+  const tc = useTranslations("common");
   const locale = useLocale();
+  const [log, setLog] = useState(initialLog);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   function formatEntry(entry: PartyLootLogRow): string {
-    // Prefer actor (character name) from details, fall back to user display name
     const details = entry.details;
     const user =
       typeof details.actor === "string" && details.actor
@@ -59,6 +66,19 @@ export function PartyLogPanel({ log, userMap, characterMap }: PartyLogPanelProps
     }
   }
 
+  async function handleDelete(entryId: string) {
+    setDeletingId(entryId);
+    const supabase = createClient();
+    const { error } = await supabase.from("party_loot_log").delete().eq("id", entryId);
+    setDeletingId(null);
+    if (error) {
+      // Keep dialog open so user knows it failed
+      return;
+    }
+    setLog((prev) => prev.filter((e) => e.id !== entryId));
+    setConfirmDeleteId(null);
+  }
+
   return (
     <GlassCard hover={false} data-testid="party-log-panel">
       <h3 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">
@@ -77,14 +97,67 @@ export function PartyLogPanel({ log, userMap, characterMap }: PartyLogPanelProps
             return (
               <div
                 key={entry.id}
-                className="flex items-start gap-2 text-sm"
+                className="group flex items-start gap-2 text-sm"
                 data-testid={`party-log-entry-${entry.id}`}
               >
                 <span className="shrink-0 font-mono text-xs text-muted-foreground">{time}</span>
-                <span className="text-foreground/80">{formatEntry(entry)}</span>
+                <span className="flex-1 text-foreground/80">{formatEntry(entry)}</span>
+                <button
+                  onClick={() => setConfirmDeleteId(entry.id)}
+                  className="shrink-0 rounded p-0.5 text-muted-foreground/50 opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
+                  aria-label={t("deleteLogEntry")}
+                  data-testid={`party-log-delete-${entry.id}`}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {confirmDeleteId && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={() => setConfirmDeleteId(null)}
+          onKeyDown={(e) => e.key === "Escape" && setConfirmDeleteId(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-log-dialog-title"
+          tabIndex={-1}
+          data-testid="party-log-delete-dialog"
+        >
+          <div
+            className="mx-4 flex w-full max-w-sm flex-col gap-3 rounded-lg border border-border bg-card p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 id="delete-log-dialog-title" className="font-heading text-lg text-destructive">
+              {t("deleteLogTitle")}
+            </h3>
+            <p className="text-sm text-muted-foreground">{t("deleteLogConfirm")}</p>
+            <div className="flex gap-2">
+              <Button
+                variant="destructive"
+                size="sm"
+                className="flex-1"
+                onClick={() => handleDelete(confirmDeleteId)}
+                disabled={deletingId === confirmDeleteId}
+                data-testid="party-log-delete-confirm"
+              >
+                {deletingId === confirmDeleteId ? tc("saving") : t("deleteLogEntry")}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex-1"
+                onClick={() => setConfirmDeleteId(null)}
+                data-testid="party-log-delete-cancel"
+              >
+                {tc("cancel")}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </GlassCard>
