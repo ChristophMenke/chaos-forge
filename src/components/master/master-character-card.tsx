@@ -59,6 +59,7 @@ export function MasterCharacterCard({
       {/* Header: Avatar + Name + Race/Class + Level + View Link */}
       <Link
         href={`/characters/${character.id}/manage`}
+        target="_blank"
         className="mb-2 flex items-center gap-3 rounded-lg transition-colors hover:bg-background/20"
         data-testid={`gm-view-character-${character.id}`}
       >

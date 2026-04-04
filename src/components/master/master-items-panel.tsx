@@ -51,6 +51,10 @@ export function MasterItemsPanel({
   const [cwWeight, setCwWeight] = useState("");
   const [cwMagicBonus, setCwMagicBonus] = useState(0);
 
+  // Custom general item form
+  const [ciName, setCiName] = useState("");
+  const [ciWeight, setCiWeight] = useState("");
+
   // Custom armor form
   const [caName, setCaName] = useState("");
   const [caAc, setCaAc] = useState("");
@@ -446,9 +450,44 @@ export function MasterItemsPanel({
 
             {/* General Item — just name, directly inject */}
             {createType === "item" && (
-              <p className="py-4 text-center text-xs text-muted-foreground">
-                {t("items")} — {t("searchItems")}
-              </p>
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  placeholder={t("name")}
+                  value={ciName}
+                  onChange={(e) => setCiName(e.target.value)}
+                  className="w-full rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  data-testid="gm-create-item-name"
+                />
+                <input
+                  type="number"
+                  placeholder={t("weight")}
+                  value={ciWeight}
+                  onChange={(e) => setCiWeight(e.target.value)}
+                  className="w-full rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  data-testid="gm-create-item-weight"
+                />
+                <Button
+                  className="w-full"
+                  disabled={creating || !ciName.trim()}
+                  onClick={async () => {
+                    if (!ciName.trim()) return;
+                    setCreating(true);
+                    const result = await injectItemToParty("general", "", ciName.trim());
+                    setCreating(false);
+                    if (result.success) {
+                      showToastMsg(t("customItemCreated"), "success");
+                      setCiName("");
+                      setCiWeight("");
+                    } else {
+                      showToastMsg(t("injectFailed"), "error");
+                    }
+                  }}
+                  data-testid="gm-create-item-submit"
+                >
+                  {t("createItem")}
+                </Button>
+              </div>
             )}
           </GlassCard>
         )}
@@ -497,7 +536,7 @@ export function MasterItemsPanel({
                   <span className="font-medium text-foreground">
                     {localized(w.name, w.name_en, locale)}
                   </span>
-                  <div className="mt-0.5 flex gap-2 text-xs text-muted-foreground">
+                  <div className="mt-0.5 flex flex-wrap gap-2 text-xs text-muted-foreground">
                     <span>
                       {t("damage")}: {w.damage_sm}/{w.damage_l}
                     </span>
@@ -508,6 +547,7 @@ export function MasterItemsPanel({
                       {t("weight")}: {lbsToKg(w.weight)}
                     </span>
                   </div>
+                  <div className="mt-1 text-[10px] text-blue-400">Proficiency: {w.name}</div>
                 </div>
                 <Badge variant="outline" className="text-[10px]">
                   {w.weapon_type}
@@ -533,6 +573,11 @@ export function MasterItemsPanel({
                       {t("weight")}: {lbsToKg(a.weight)}
                     </span>
                   </div>
+                  {a.is_shield && (
+                    <div className="mt-1 text-[10px] text-blue-400">
+                      Proficiency: {a.name} ({a.shield_type})
+                    </div>
+                  )}
                 </div>
                 {a.is_shield && (
                   <Badge variant="outline" className="text-[10px]">

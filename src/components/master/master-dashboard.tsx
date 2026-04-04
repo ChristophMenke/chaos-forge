@@ -151,8 +151,8 @@ export function MasterDashboard({ partyData, weapons, armor, generalItems }: Mas
         </div>
       </div>
 
-      {/* Tab Navigation — Pill Style */}
-      <div className="mb-4 flex gap-1 rounded-lg bg-background/30 p-1" role="tablist">
+      {/* Tab Navigation — Desktop only (mobile uses bottom nav) */}
+      <div className="mb-4 hidden gap-1 rounded-lg bg-background/30 p-1 sm:flex" role="tablist">
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -183,8 +183,8 @@ export function MasterDashboard({ partyData, weapons, armor, generalItems }: Mas
       )}
       {activeTab === "gold" && <MasterGoldPanel characters={characters} />}
 
-      {/* Mobile Bottom Nav */}
-      <MasterBottomNav />
+      {/* Mobile Bottom Nav with tab switching */}
+      <MasterBottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
 }
