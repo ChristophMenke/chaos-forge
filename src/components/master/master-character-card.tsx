@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { Eye } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
@@ -21,6 +20,8 @@ interface MasterCharacterCardProps {
   combat: CharacterCombatData;
   /** Live HP override from Realtime subscription */
   liveHp?: { current: number; max: number } | null;
+  /** Called when GM clicks to view character details */
+  onViewCharacter?: (characterId: string) => void;
 }
 
 export function MasterCharacterCard({
@@ -28,6 +29,7 @@ export function MasterCharacterCard({
   classes,
   combat,
   liveHp,
+  onViewCharacter,
 }: MasterCharacterCardProps) {
   const t = useTranslations("master");
   const locale = useLocale();
@@ -56,11 +58,10 @@ export function MasterCharacterCard({
       className="p-3"
       data-testid={`gm-character-card-${character.id}`}
     >
-      {/* Header: Avatar + Name + Race/Class + Level + View Link */}
-      <Link
-        href={`/characters/${character.id}/manage`}
-        target="_blank"
-        className="mb-2 flex items-center gap-3 rounded-lg transition-colors hover:bg-background/20"
+      {/* Header: Avatar + Name + Race/Class + Level + View Button */}
+      <button
+        onClick={() => onViewCharacter?.(character.id)}
+        className="mb-2 flex w-full items-center gap-3 rounded-lg text-left transition-colors hover:bg-background/20"
         data-testid={`gm-view-character-${character.id}`}
       >
         <AvatarDisplay name={character.name} avatarUrl={character.avatar_url} size={40} />
@@ -76,7 +77,7 @@ export function MasterCharacterCard({
           </p>
         </div>
         <Eye className="h-4 w-4 shrink-0 text-muted-foreground" />
-      </Link>
+      </button>
 
       {/* HP Bar */}
       <div className="mb-3">

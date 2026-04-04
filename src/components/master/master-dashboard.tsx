@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { Shield, Zap } from "lucide-react";
+import { Shield, Zap, ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { MasterPartyPanel } from "./master-party-panel";
 import { MasterItemsPanel } from "./master-items-panel";
@@ -44,6 +44,7 @@ export function MasterDashboard({
 }: MasterDashboardProps) {
   const t = useTranslations("master");
   const [activeTab, setActiveTab] = useState<TabId>("party");
+  const [viewingCharacterId, setViewingCharacterId] = useState<string | null>(null);
   const [liveHpMap, setLiveHpMap] = useState<Map<string, { current: number; max: number }>>(
     new Map()
   );
@@ -136,6 +137,58 @@ export function MasterDashboard({
 
   const characters = useMemo(() => partyData.map((p) => p.character), [partyData]);
 
+  // When viewing a character, show embedded character sheet
+  if (viewingCharacterId) {
+    const viewingChar = partyData.find((p) => p.character.id === viewingCharacterId);
+    return (
+      <>
+        <MasterSidebar
+          activeTab={activeTab}
+          onTabChange={(tab) => {
+            setViewingCharacterId(null);
+            setActiveTab(tab);
+          }}
+          userEmail={userEmail}
+        />
+        <div
+          className="flex h-screen flex-col pb-20 sm:pl-16 sm:pb-0 xl:pl-48"
+          data-testid="gm-character-view"
+        >
+          {/* Back bar */}
+          <div className="flex items-center gap-3 border-b border-border px-4 py-2">
+            <button
+              onClick={() => setViewingCharacterId(null)}
+              className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
+              data-testid="gm-back-to-party"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              {t("partyTab")}
+            </button>
+            {viewingChar && (
+              <span className="font-heading text-sm text-foreground">
+                {viewingChar.character.name}
+              </span>
+            )}
+          </div>
+          {/* Embedded character sheet */}
+          <iframe
+            src={`/characters/${viewingCharacterId}/manage`}
+            className="flex-1 border-0"
+            title={viewingChar?.character.name ?? "Character Sheet"}
+            data-testid="gm-character-iframe"
+          />
+        </div>
+        <MasterBottomNav
+          activeTab={activeTab}
+          onTabChange={(tab) => {
+            setViewingCharacterId(null);
+            setActiveTab(tab);
+          }}
+        />
+      </>
+    );
+  }
+
   return (
     <>
       {/* Desktop Sidebar */}
@@ -171,7 +224,13 @@ export function MasterDashboard({
         )}
 
         {/* Tab Content */}
-        {activeTab === "party" && <MasterPartyPanel partyData={partyData} liveHpMap={liveHpMap} />}
+        {activeTab === "party" && (
+          <MasterPartyPanel
+            partyData={partyData}
+            liveHpMap={liveHpMap}
+            onViewCharacter={setViewingCharacterId}
+          />
+        )}
         {activeTab === "items" && (
           <MasterItemsPanel
             weapons={weapons}

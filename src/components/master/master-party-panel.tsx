@@ -13,9 +13,10 @@ interface PartyMember {
 interface MasterPartyPanelProps {
   partyData: PartyMember[];
   liveHpMap: Map<string, { current: number; max: number }>;
+  onViewCharacter: (characterId: string) => void;
 }
 
-export function MasterPartyPanel({ partyData, liveHpMap }: MasterPartyPanelProps) {
+export function MasterPartyPanel({ partyData, liveHpMap, onViewCharacter }: MasterPartyPanelProps) {
   if (partyData.length === 0) {
     return (
       <p className="py-12 text-center text-sm text-muted-foreground" data-testid="gm-party-empty">
@@ -36,6 +37,7 @@ export function MasterPartyPanel({ partyData, liveHpMap }: MasterPartyPanelProps
           classes={classes}
           combat={combat}
           liveHp={liveHpMap.get(character.id)}
+          onViewCharacter={onViewCharacter}
         />
       ))}
     </div>
