@@ -35,6 +35,7 @@ export default defineConfig({
         "party.spec.ts",
         "dashboard.spec.ts",
         "xp-management.spec.ts",
+        "master.spec.ts",
       ],
     },
     // Unauthenticated tests — no storage state
