@@ -31,7 +31,7 @@ export default async function MasterPage() {
 
   // Fetch ALL characters (active + inactive) + related data (bypass RLS via Service Role)
   const [
-    { data: characters, error: charError },
+    { data: characters },
     { data: allClasses },
     { data: allEquipment },
     { data: allEpicItems },
@@ -57,14 +57,6 @@ export default async function MasterPage() {
     service.from("armor").select("*").order("name").returns<ArmorRow[]>(),
     service.from("general_items").select("*").order("name").returns<GeneralItemRow[]>(),
   ]);
-
-  // Debug: log errors on Vercel (visible in Vercel Logs)
-  if (charError) {
-    console.error("[Master] Characters fetch error:", charError.message, charError.details);
-  }
-  if (!characters || characters.length === 0) {
-    console.warn("[Master] No characters found. Service key present:", !!process.env.SUPABASE_SERVICE_ROLE_KEY);
-  }
 
   // Compute combat data for each character
   const partyData = (characters ?? []).map((char) => {
