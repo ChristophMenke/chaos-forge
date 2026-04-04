@@ -47,6 +47,7 @@ interface PlayCombatPanelProps {
   backstabMultiplier: number | null;
   ignoreEncumbrance: boolean;
   isMagicalProtection: boolean;
+  readOnly?: boolean;
   onEquipmentChange: (equipment: CharacterEquipmentWithDetails[]) => void;
   epicEffects?: EpicEffects;
   characterKit?: string | null;
@@ -72,6 +73,7 @@ export function PlayCombatPanel({
   backstabMultiplier,
   ignoreEncumbrance,
   isMagicalProtection,
+  readOnly = false,
   onEquipmentChange,
   epicEffects,
   characterKit,
@@ -295,15 +297,17 @@ export function PlayCombatPanel({
           >
             {expandedBreakdown === eq.id ? t("hideBreakdown") : t("showBreakdown")}
           </Button>
-          <Button
-            variant="default"
-            size="sm"
-            className="ml-auto h-6 shrink-0 px-2 text-[10px]"
-            onClick={() => toggleEquip(eq.id, isEquipped)}
-            data-testid={`play-${isEquipped ? "unequip" : "equip"}-${eq.id}`}
-          >
-            {isEquipped ? t("unequip") : t("equip")}
-          </Button>
+          {!readOnly && (
+            <Button
+              variant="default"
+              size="sm"
+              className="ml-auto h-6 shrink-0 px-2 text-[10px]"
+              onClick={() => toggleEquip(eq.id, isEquipped)}
+              data-testid={`play-${isEquipped ? "unequip" : "equip"}-${eq.id}`}
+            >
+              {isEquipped ? t("unequip") : t("equip")}
+            </Button>
+          )}
         </div>
         {expandedBreakdown === eq.id && (
           <div
@@ -522,6 +526,7 @@ export function PlayCombatPanel({
   }
 
   async function toggleEquip(equipmentId: string, currentlyEquipped: boolean) {
+    if (readOnly) return;
     const supabase = createClient();
     await supabase
       .from("character_equipment")
@@ -646,7 +651,16 @@ export function PlayCombatPanel({
           <div className="mb-3 flex flex-wrap gap-2" data-testid="play-shields">
             {shields.map((s) => {
               const name = localized(s.armor!.name, s.armor!.name_en, locale);
-              return (
+              return readOnly ? (
+                <Badge
+                  key={s.id}
+                  variant={s.equipped ? "default" : "outline"}
+                  className="h-7 text-xs"
+                  data-testid={`play-shield-toggle-${s.id}`}
+                >
+                  🛡 {name}
+                </Badge>
+              ) : (
                 <Button
                   key={s.id}
                   variant={s.equipped ? "default" : "outline"}

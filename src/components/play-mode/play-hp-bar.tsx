@@ -21,6 +21,7 @@ interface PlayHpBarProps {
   kitName?: string | null;
   deity?: string | null;
   priesthoodName?: string | null;
+  readOnly?: boolean;
   onHpChange: (newHp: number) => void;
 }
 
@@ -36,6 +37,7 @@ export function PlayHpBar({
   kitName,
   deity,
   priesthoodName,
+  readOnly = false,
   onHpChange,
 }: PlayHpBarProps) {
   const t = useTranslations("playMode");
@@ -140,29 +142,33 @@ export function PlayHpBar({
               </Badge>
             )}
             <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10"
-                onClick={() => openInput("damage")}
-                data-testid="play-damage-btn"
-                aria-label={t("takeDamage")}
-              >
-                −
-              </Button>
+              {!readOnly && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10"
+                  onClick={() => openInput("damage")}
+                  data-testid="play-damage-btn"
+                  aria-label={t("takeDamage")}
+                >
+                  −
+                </Button>
+              )}
               <span className="font-mono text-sm font-bold" data-testid="play-hp-text">
                 {hpCurrent}/{hpMax}
               </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0 text-green-500 hover:bg-green-500/10"
-                onClick={() => openInput("heal")}
-                data-testid="play-heal-btn"
-                aria-label={t("heal")}
-              >
-                +
-              </Button>
+              {!readOnly && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 p-0 text-green-500 hover:bg-green-500/10"
+                  onClick={() => openInput("heal")}
+                  data-testid="play-heal-btn"
+                  aria-label={t("heal")}
+                >
+                  +
+                </Button>
+              )}
             </div>
           </div>
 

@@ -35,11 +35,13 @@ export default defineConfig({
         "party.spec.ts",
         "dashboard.spec.ts",
         "xp-management.spec.ts",
+        "master.spec.ts",
       ],
     },
-    // Unauthenticated tests — no storage state
+    // Unauthenticated tests — no storage state, but wait for setup (webserver)
     {
       name: "chromium-noauth",
+      dependencies: ["setup"],
       use: { ...devices["Desktop Chrome"] },
       testMatch: [
         "smoke.spec.ts",
