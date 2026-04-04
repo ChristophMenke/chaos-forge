@@ -135,7 +135,10 @@ export function MasterDashboard({
     return setupRealtime();
   }, [setupRealtime]);
 
-  const characters = useMemo(() => partyData.map((p) => p.character), [partyData]);
+  const characters = useMemo(
+    () => partyData.filter((p) => p.character.is_active).map((p) => p.character),
+    [partyData]
+  );
 
   // When viewing a character, show embedded character sheet
   if (viewingCharacterId) {
