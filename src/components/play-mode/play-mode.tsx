@@ -686,6 +686,7 @@ export function PlayMode({
         kitName={kitDisplayName}
         deity={character.deity}
         priesthoodName={priesthoodDisplayName}
+        readOnly={!isOwner}
         onHpChange={handleHpChange}
       />
 
@@ -742,6 +743,7 @@ export function PlayMode({
             backstabMultiplier={backstabMultiplier}
             ignoreEncumbrance={character.ignore_encumbrance}
             isMagicalProtection={isMagicalProtection}
+            readOnly={!isOwner}
             onEquipmentChange={setEquipment}
             epicEffects={epicEffects}
             characterKit={character.kit}
@@ -837,6 +839,7 @@ export function PlayMode({
             backstabMultiplier={backstabMultiplier}
             ignoreEncumbrance={character.ignore_encumbrance}
             isMagicalProtection={isMagicalProtection}
+            readOnly={!isOwner}
             onEquipmentChange={setEquipment}
             epicEffects={epicEffects}
             characterKit={character.kit}
