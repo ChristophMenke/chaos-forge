@@ -44,12 +44,30 @@ export function MasterItemsPanel({
 
   // Custom weapon form
   const [cwName, setCwName] = useState("");
+  const [cwNameEn, setCwNameEn] = useState("");
   const [cwWeaponType, setCwWeaponType] = useState<"melee" | "ranged" | "both">("melee");
   const [cwDamageSm, setCwDamageSm] = useState("");
   const [cwDamageLg, setCwDamageLg] = useState("");
   const [cwSpeed, setCwSpeed] = useState("");
   const [cwWeight, setCwWeight] = useState("");
   const [cwMagicBonus, setCwMagicBonus] = useState(0);
+  const [cwProfSearch, setCwProfSearch] = useState("");
+  const [cwProfSelected, setCwProfSelected] = useState<string | null>(null);
+
+  // Unique weapon names for proficiency dropdown
+  const proficiencyNames = useMemo(() => {
+    const names = new Set<string>();
+    for (const w of weapons) {
+      if (!w.is_custom) names.add(w.name);
+    }
+    return Array.from(names).sort();
+  }, [weapons]);
+
+  const filteredProfNames = useMemo(() => {
+    if (!cwProfSearch.trim()) return proficiencyNames.slice(0, 10);
+    const q = cwProfSearch.toLowerCase();
+    return proficiencyNames.filter((n) => n.toLowerCase().includes(q)).slice(0, 10);
+  }, [proficiencyNames, cwProfSearch]);
 
   // Custom general item form
   const [ciName, setCiName] = useState("");
@@ -68,8 +86,12 @@ export function MasterItemsPanel({
   async function handleCreateWeapon() {
     if (!cwName.trim()) return;
     setCreating(true);
+    // Use proficiency name as DB weapon name (for proficiency matching)
+    // Custom display name goes into custom_label when injecting to a character
+    const profName = cwProfSelected ?? cwName.trim();
     const result = await createCustomWeaponGm({
-      name: cwName.trim(),
+      name: profName,
+      name_en: cwNameEn.trim() || undefined,
       weapon_type: cwWeaponType,
       damage_sm: cwDamageSm || "1d4",
       damage_l: cwDamageLg || "1d4",
@@ -82,12 +104,15 @@ export function MasterItemsPanel({
     if (result.success && result.weaponId) {
       showToastMsg(t("customWeaponCreated"), "success");
       setCwName("");
+      setCwNameEn("");
       setCwDamageSm("");
       setCwDamageLg("");
       setCwSpeed("");
       setCwWeight("");
       setCwMagicBonus(0);
       setCwWeaponType("melee");
+      setCwProfSearch("");
+      setCwProfSelected(null);
     } else {
       showToastMsg(t("injectFailed"), "error");
     }
@@ -272,6 +297,53 @@ export function MasterItemsPanel({
                   className="w-full rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   data-testid="gm-create-weapon-name"
                 />
+                {/* Proficiency selector — which existing weapon category does this belong to? */}
+                <div className="relative">
+                  <span className="mb-1 block text-[10px] text-muted-foreground">Proficiency</span>
+                  <input
+                    type="text"
+                    placeholder={cwProfSelected ?? "z.B. Langschwert, Streitkolben..."}
+                    value={cwProfSearch}
+                    onChange={(e) => {
+                      setCwProfSearch(e.target.value);
+                      setCwProfSelected(null);
+                    }}
+                    className={`w-full rounded-md border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${
+                      cwProfSelected ? "border-primary text-primary" : "border-border"
+                    }`}
+                    data-testid="gm-create-weapon-prof"
+                  />
+                  {cwProfSearch && !cwProfSelected && filteredProfNames.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded-md border border-border bg-background shadow-lg">
+                      {filteredProfNames.map((name) => (
+                        <button
+                          key={name}
+                          type="button"
+                          onClick={() => {
+                            setCwProfSelected(name);
+                            setCwProfSearch("");
+                          }}
+                          className="w-full px-3 py-1.5 text-left text-sm hover:bg-accent/50"
+                          data-testid={`gm-prof-option-${name}`}
+                        >
+                          {name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {cwProfSelected && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCwProfSelected(null);
+                        setCwProfSearch("");
+                      }}
+                      className="absolute right-2 top-6 text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
                 <div>
                   <span className="mb-1 block text-[10px] text-muted-foreground">
                     {t("weaponType")}

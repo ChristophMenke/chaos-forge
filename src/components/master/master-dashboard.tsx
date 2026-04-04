@@ -143,26 +143,32 @@ export function MasterDashboard({
 
       {/* Main Content — offset for sidebar on desktop */}
       <div
-        className="mx-auto w-full max-w-7xl p-3 pb-20 sm:pl-20 sm:pr-4 sm:pt-4 sm:pb-4 xl:pl-52"
+        className={`pb-20 sm:pl-16 sm:pb-4 xl:pl-48 ${
+          activeTab === "chat"
+            ? "flex h-[calc(100vh-var(--header-height,140px))] flex-col sm:h-screen"
+            : "mx-auto w-full max-w-7xl p-3 sm:pr-4 sm:pt-4"
+        }`}
         data-testid="gm-dashboard"
       >
-        {/* Header */}
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Shield className="h-6 w-6 text-amber-400" />
-            <h1 className="font-heading text-xl text-foreground sm:text-2xl">{t("title")}</h1>
+        {/* Header — hidden on chat tab for max space */}
+        {activeTab !== "chat" && (
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Shield className="h-6 w-6 text-amber-400" />
+              <h1 className="font-heading text-xl text-foreground sm:text-2xl">{t("title")}</h1>
+            </div>
+            <div className="flex items-center gap-1.5" data-testid="gm-live-indicator">
+              <Zap
+                className={`h-3.5 w-3.5 ${isRealtimeConnected ? "text-green-400" : "text-yellow-400"}`}
+              />
+              <span
+                className={`text-xs ${isRealtimeConnected ? "text-green-400" : "text-yellow-400"}`}
+              >
+                {t("liveIndicator")}
+              </span>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5" data-testid="gm-live-indicator">
-            <Zap
-              className={`h-3.5 w-3.5 ${isRealtimeConnected ? "text-green-400" : "text-yellow-400"}`}
-            />
-            <span
-              className={`text-xs ${isRealtimeConnected ? "text-green-400" : "text-yellow-400"}`}
-            >
-              {t("liveIndicator")}
-            </span>
-          </div>
-        </div>
+        )}
 
         {/* Tab Content */}
         {activeTab === "party" && <MasterPartyPanel partyData={partyData} liveHpMap={liveHpMap} />}
