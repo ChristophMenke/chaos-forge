@@ -939,10 +939,13 @@
     "specHitBonus": "Spez. Trefferbonus",
     "profPenalty": "Übungsabzug",
     "magicHitBonus": "Mag. Trefferbonus",
+    "epicHitBonus": "Epischer Bonus",
     "baseDamage": "Basisschaden",
     "strDmgAdj": "STR Schadensmod.",
     "specDmgBonus": "Spez. Schadensbonus",
     "magicDmgBonus": "Mag. Schadensbonus",
+    "epicDmgBonus": "Epischer Bonus",
+    "epicColdDamage": "+1d6 Kälteschaden",
     "levelApr": "Stufen-Angriffe",
     "specAprBonus": "Spez. Angriffsbonus",
     "notProficient": "Nicht geübt",
@@ -1082,7 +1085,13 @@
     "damage": "Schaden",
     "type": "Typ",
     "range": "Reichweite",
-    "weight": "Gewicht"
+    "weight": "Gewicht",
+    "spellAbilities": "Zauber-Fähigkeiten",
+    "perDay": "{count}×/Tag",
+    "perWeek": "{count}×/Woche",
+    "abilityUsed": "Eingesetzt",
+    "abilityAvailable": "Verfügbar",
+    "coldDamage": "+1d6 Kälteschaden"
   },
   "rulebook": {
     "title": "Regelbuch-Chat",

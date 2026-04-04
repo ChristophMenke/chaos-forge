@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { Snowflake, Swords } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -158,7 +159,8 @@ export function PlayCombatPanel({
 
   function renderWeaponCard(eq: CharacterEquipmentWithDetails, isEquipped: boolean) {
     const weapon = eq.weapon!;
-    const weaponName = localized(weapon.name, weapon.name_en, locale);
+    const weaponName = eq.custom_label || localized(weapon.name, weapon.name_en, locale);
+    const isEpicWeapon = !!eq.custom_label;
     const matchingProf = findWeaponProf(weaponProficiencies, weapon.name, weapon.name_en);
     const isProficient = !!matchingProf;
     const isSpecialized = matchingProf?.specialization ?? false;
@@ -252,8 +254,18 @@ export function PlayCombatPanel({
         </div>
         <div className="mt-1.5 flex flex-wrap items-center gap-2">
           {eq.hit_bonus > 0 && (
-            <span className="text-xs text-muted-foreground">
-              +{eq.hit_bonus} {t("magicBonus")}
+            <span
+              className={`text-xs ${isEpicWeapon ? "text-purple-400" : "text-muted-foreground"}`}
+              data-testid={`play-weapon-bonus-${eq.id}`}
+            >
+              {isEpicWeapon && <Swords className="mr-0.5 inline h-3 w-3" aria-hidden="true" />}+
+              {eq.hit_bonus} {isEpicWeapon ? t("epicHitBonus") : t("magicBonus")}
+            </span>
+          )}
+          {isEpicWeapon && epicEffects?.miscEffects.includes("cold_damage_1d6") && (
+            <span className="text-xs text-purple-400" data-testid={`play-weapon-cold-dmg-${eq.id}`}>
+              <Snowflake className="mr-0.5 inline h-3 w-3" aria-hidden="true" />
+              {t("epicColdDamage")}
             </span>
           )}
           {isSpecialized && (
@@ -321,9 +333,14 @@ export function PlayCombatPanel({
                   )}
                   {eq.hit_bonus !== 0 && (
                     <div
-                      className={`flex justify-between ${eq.hit_bonus > 0 ? "text-blue-400" : "text-red-400"}`}
+                      className={`flex justify-between ${isEpicWeapon ? "text-purple-400" : eq.hit_bonus > 0 ? "text-blue-400" : "text-red-400"}`}
                     >
-                      <span>{t("magicHitBonus")}</span>
+                      <span>
+                        {isEpicWeapon && (
+                          <Swords className="mr-0.5 inline h-3 w-3" aria-hidden="true" />
+                        )}
+                        {isEpicWeapon ? t("epicHitBonus") : t("magicHitBonus")}
+                      </span>
                       <span>{eq.hit_bonus > 0 ? `-${eq.hit_bonus}` : `+${-eq.hit_bonus}`}</span>
                     </div>
                   )}
@@ -370,9 +387,14 @@ export function PlayCombatPanel({
                   )}
                   {eq.hit_bonus !== 0 && (
                     <div
-                      className={`flex justify-between ${eq.hit_bonus > 0 ? "text-blue-400" : "text-red-400"}`}
+                      className={`flex justify-between ${isEpicWeapon ? "text-purple-400" : eq.hit_bonus > 0 ? "text-blue-400" : "text-red-400"}`}
                     >
-                      <span>{t("magicHitBonus")}</span>
+                      <span>
+                        {isEpicWeapon && (
+                          <Swords className="mr-0.5 inline h-3 w-3" aria-hidden="true" />
+                        )}
+                        {isEpicWeapon ? t("epicHitBonus") : t("magicHitBonus")}
+                      </span>
                       <span>{eq.hit_bonus > 0 ? `-${eq.hit_bonus}` : `+${-eq.hit_bonus}`}</span>
                     </div>
                   )}
@@ -408,16 +430,33 @@ export function PlayCombatPanel({
                 )}
                 {eq.damage_bonus !== 0 && (
                   <div
-                    className={`flex justify-between ${eq.damage_bonus > 0 ? "text-blue-400" : "text-red-400"}`}
+                    className={`flex justify-between ${isEpicWeapon ? "text-purple-400" : eq.damage_bonus > 0 ? "text-blue-400" : "text-red-400"}`}
                   >
-                    <span>{t("magicDmgBonus")}</span>
+                    <span>
+                      {isEpicWeapon && (
+                        <Swords className="mr-0.5 inline h-3 w-3" aria-hidden="true" />
+                      )}
+                      {isEpicWeapon ? t("epicDmgBonus") : t("magicDmgBonus")}
+                    </span>
                     <span>{eq.damage_bonus > 0 ? `+${eq.damage_bonus}` : eq.damage_bonus}</span>
+                  </div>
+                )}
+                {isEpicWeapon && epicEffects?.miscEffects.includes("cold_damage_1d6") && (
+                  <div className="flex justify-between text-purple-400">
+                    <span>
+                      <Snowflake className="mr-0.5 inline h-3 w-3" aria-hidden="true" />
+                      {t("epicColdDamage")}
+                    </span>
+                    <span>+1d6</span>
                   </div>
                 )}
                 <div className="flex justify-between border-t border-border/30 pt-0.5 font-bold">
                   <span>= {t("damage")}</span>
                   <span>
                     {damageSM} / {damageL}
+                    {isEpicWeapon && epicEffects?.miscEffects.includes("cold_damage_1d6")
+                      ? " +1d6"
+                      : ""}
                   </span>
                 </div>
               </div>
