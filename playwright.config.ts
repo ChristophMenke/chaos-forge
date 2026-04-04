@@ -34,6 +34,7 @@ export default defineConfig({
         "rulebook-chat.spec.ts",
         "party.spec.ts",
         "dashboard.spec.ts",
+        "xp-management.spec.ts",
       ],
     },
     // Unauthenticated tests — no storage state

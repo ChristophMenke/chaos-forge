@@ -1144,6 +1144,9 @@
     "logRemoveGold": "{user} removed {amount} ({reason})",
     "logRemoveGoldTheft": "{amount} stolen",
     "removeItemLost": "Lost/Stolen",
-    "logRemoveItemLost": "{quantity}\u00d7 {item} lost/stolen"
+    "logRemoveItemLost": "{quantity}\u00d7 {item} lost/stolen",
+    "deleteLogEntry": "Delete entry",
+    "deleteLogConfirm": "Really delete this log entry? This action cannot be undone.",
+    "deleteLogTitle": "Delete entry?"
   }
 }
