@@ -281,4 +281,222 @@ describe("computeCharacterCombatData", () => {
     // AC = 10 - 2 (unarmored warrior) = 8
     expect(result.ac).toBe(8);
   });
+
+  // ─── Custom Items with explicit type tagging ──────────────────────────
+
+  describe("custom items with explicit type tagging", () => {
+    function makeEquip(
+      id: string,
+      armorData: Partial<CharacterEquipmentWithDetails["armor"]> & { name: string }
+    ): CharacterEquipmentWithDetails {
+      return {
+        id,
+        character_id: "test-char",
+        weapon_id: null,
+        armor_id: id,
+        quantity: 1,
+        equipped: true,
+        hit_bonus: 0,
+        damage_bonus: 0,
+        magic_effects: {},
+        custom_label: null,
+        weapon: null,
+        armor: {
+          id,
+          name: armorData.name,
+          name_en: armorData.name_en ?? null,
+          ac: armorData.ac ?? 10,
+          weight: armorData.weight ?? 0,
+          cost_gp: armorData.cost_gp ?? 0,
+          max_movement: armorData.max_movement ?? 12,
+          source_book: armorData.source_book ?? "PHB",
+          is_custom: armorData.is_custom ?? true,
+          is_magical_protection: armorData.is_magical_protection ?? false,
+          is_shield: armorData.is_shield ?? false,
+          shield_type: armorData.shield_type ?? null,
+          created_by: armorData.created_by ?? null,
+        },
+      };
+    }
+
+    it("custom armor (is_custom=true) applies AC correctly", () => {
+      const char = makeCharacter({ dex: 10 });
+      const classes = [makeClass("fighter", 5)];
+      // Custom "Drachenrüstung" with proficiency name "Plattenpanzer" (AC 3)
+      const equipment = [
+        makeEquip("custom-armor", {
+          name: "Plattenpanzer",
+          name_en: "Plate Mail",
+          ac: 3,
+          weight: 45,
+          is_custom: true,
+          is_shield: false,
+        }),
+      ];
+
+      const result = computeCharacterCombatData(char, classes, equipment, [], []);
+      // AC = 3 (plate) + 0 (no DEX adj for DEX 10) = 3
+      expect(result.ac).toBe(3);
+    });
+
+    it("custom shield (is_shield=true, shield_type set) gives -1 AC", () => {
+      const char = makeCharacter({ dex: 10 });
+      const classes = [makeClass("fighter", 5)];
+      const equipment = [
+        makeEquip("custom-shield", {
+          name: "Mittlerer Schild",
+          is_custom: true,
+          is_shield: true,
+          shield_type: "medium",
+        }),
+      ];
+
+      const result = computeCharacterCombatData(char, classes, equipment, [], []);
+      // AC = 10 - 1 (shield) - 2 (unarmored warrior) = 7
+      expect(result.ac).toBe(7);
+    });
+
+    it("custom shield with proficiency gives shield proficiency bonus", () => {
+      const char = makeCharacter({ dex: 10 });
+      const classes = [makeClass("fighter", 5)];
+      const equipment = [
+        makeEquip("custom-shield", {
+          name: "Großer Schild",
+          is_custom: true,
+          is_shield: true,
+          shield_type: "large",
+        }),
+      ];
+      // Character has proficiency for "Großer Schild"
+      const profs = [{ weapon_name: "Großer Schild", specialization: false }];
+
+      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      // AC = 10 - 1 (shield) - 2 (unarmored warrior) - 3 (large shield prof) = 4
+      expect(result.ac).toBe(4);
+    });
+
+    it("custom shield without matching proficiency gives NO proficiency bonus", () => {
+      const char = makeCharacter({ dex: 10 });
+      const classes = [makeClass("fighter", 5)];
+      const equipment = [
+        makeEquip("custom-shield", {
+          name: "Großer Schild",
+          is_custom: true,
+          is_shield: true,
+          shield_type: "large",
+        }),
+      ];
+      // Character has proficiency for a DIFFERENT shield type
+      const profs = [{ weapon_name: "Buckler", specialization: false }];
+
+      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      // AC = 10 - 1 (shield) - 2 (unarmored warrior) = 7 (no prof bonus)
+      expect(result.ac).toBe(7);
+    });
+
+    it("custom armor + custom shield together compute AC correctly", () => {
+      const char = makeCharacter({ dex: 16 }); // DEX 16 → -2
+      const classes = [makeClass("fighter", 5)];
+      const equipment = [
+        makeEquip("custom-armor", {
+          name: "Kettenpanzer",
+          ac: 5,
+          weight: 40,
+          is_custom: true,
+          is_shield: false,
+        }),
+        makeEquip("custom-shield", {
+          name: "Buckler",
+          is_custom: true,
+          is_shield: true,
+          shield_type: "buckler",
+        }),
+      ];
+      const profs = [{ weapon_name: "Buckler", specialization: false }];
+
+      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      // AC = 5 (chain) - 1 (shield) - 2 (DEX) - 1 (buckler prof) = 1
+      expect(result.ac).toBe(1);
+    });
+
+    it("custom magical protection item counts as unarmored for warrior bonus", () => {
+      const char = makeCharacter({ dex: 10 });
+      const classes = [makeClass("fighter", 5)];
+      const equipment = [
+        makeEquip("custom-bracers", {
+          name: "Armschienen",
+          ac: 4, // Bracers of Defense AC 4 → gives -4 bonus from base 10
+          is_custom: true,
+          is_shield: false,
+          is_magical_protection: true,
+        }),
+      ];
+
+      const result = computeCharacterCombatData(char, classes, equipment, [], []);
+      // Magical protection: base 10 - 4 (bracers) - 2 (unarmored warrior) = 4
+      expect(result.ac).toBe(4);
+    });
+
+    it("custom item with is_shield=false is NOT treated as shield", () => {
+      const char = makeCharacter({ dex: 10 });
+      const classes = [makeClass("fighter", 5)];
+      // An armor item whose name contains "Schild" but is_shield=false
+      const equipment = [
+        makeEquip("not-a-shield", {
+          name: "Schildkrötenrüstung",
+          ac: 4,
+          is_custom: true,
+          is_shield: false, // Explicitly NOT a shield despite name
+          shield_type: null,
+        }),
+      ];
+
+      const result = computeCharacterCombatData(char, classes, equipment, [], []);
+      // Should be treated as regular armor (AC 4), NOT as a shield
+      // AC = 4 (armor replaces base) + 0 (no shield) + 0 (no DEX adj) = 4
+      // No unarmored bonus because character IS armored
+      expect(result.ac).toBe(4);
+    });
+
+    it("shield_type from DB is used for equipped shield detection", () => {
+      const char = makeCharacter({ dex: 10 });
+      const classes = [makeClass("fighter", 5)];
+      // Shield named with standard proficiency name "Mittlerer Schild"
+      // but created as custom item with explicit is_shield + shield_type
+      const equipment = [
+        makeEquip("magic-shield", {
+          name: "Mittlerer Schild",
+          name_en: "Medium Shield",
+          is_custom: true,
+          is_shield: true,
+          shield_type: "medium",
+        }),
+      ];
+      // Proficiency matches by shield_type (medium) via getShieldType("Mittlerer Schild")
+      const profs = [{ weapon_name: "Mittlerer Schild", specialization: false }];
+
+      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      // AC = 10 - 1 (shield) - 2 (unarmored warrior) - 3 (medium shield prof) = 4
+      expect(result.ac).toBe(4);
+    });
+
+    it("custom shield with non-standard name uses DB shield_type for AC", () => {
+      const char = makeCharacter({ dex: 10 });
+      const classes = [makeClass("fighter", 5)];
+      // Custom shield with unusual name — is_shield=true means it gives -1 AC
+      const equipment = [
+        makeEquip("fancy-shield", {
+          name: "Flammenbarriere",
+          is_custom: true,
+          is_shield: true,
+          shield_type: "large",
+        }),
+      ];
+
+      const result = computeCharacterCombatData(char, classes, equipment, [], []);
+      // AC = 10 - 1 (shield via is_shield=true) - 2 (unarmored warrior) = 7
+      // No proficiency bonus because no matching weapon_proficiency exists
+      expect(result.ac).toBe(7);
+    });
+  });
 });
