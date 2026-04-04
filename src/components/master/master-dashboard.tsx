@@ -172,7 +172,7 @@ export function MasterDashboard({
           </div>
           {/* Embedded character sheet */}
           <iframe
-            src={`/characters/${viewingCharacterId}/manage`}
+            src={`/characters/${viewingCharacterId}/manage?embed=1`}
             className="flex-1 border-0"
             title={viewingChar?.character.name ?? "Character Sheet"}
             data-testid="gm-character-iframe"

@@ -425,6 +425,16 @@
   }
 }
 
+/* Embed mode: hide chrome when loaded in iframe (GM dashboard) */
+.embed-mode .embed-hidden,
+.embed-mode [data-testid="app-sidebar"],
+.embed-mode [data-testid="app-nav-mobile"] {
+  display: none !important;
+}
+.embed-mode main {
+  padding-bottom: 0 !important;
+}
+
 /* Shake animation for PIN error */
 @keyframes shake {
   0%,

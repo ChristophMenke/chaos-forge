@@ -81,10 +81,16 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col overflow-x-hidden">
+        {/* Embed mode: hide header, sidebar, nav when loaded in iframe */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if(new URLSearchParams(location.search).has('embed'))document.documentElement.classList.add('embed-mode')`,
+          }}
+        />
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
             <TooltipProvider>
-              <header className="flex items-center justify-center border-b border-border px-4 py-2 sm:px-6 sm:py-4">
+              <header className="embed-hidden flex items-center justify-center border-b border-border px-4 py-2 sm:px-6 sm:py-4">
                 <Link href="/">
                   <Image
                     src="/header-logo.webp"
