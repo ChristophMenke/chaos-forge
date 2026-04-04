@@ -67,6 +67,7 @@ export function PlayChecksPanel({
       specialAttacks: [],
       passiveAbilities: [],
       overclockAbility: null,
+      spellAbilities: [],
     }),
     []
   );

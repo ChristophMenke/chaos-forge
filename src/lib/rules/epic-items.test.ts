@@ -330,3 +330,170 @@ describe("getFragilityInfo", () => {
     expect(result?.trigger).toBe("Angriffswurf");
   });
 });
+
+// ── Spell Abilities ──────────────────────────────────────────
+
+function makeBladeOfWater(overrides: Partial<EpicItemRow> = {}): EpicItemRow {
+  return {
+    id: "test-blade",
+    character_id: "char-1",
+    slug: "klinge-des-wassers",
+    name: "Klinge des Wassers",
+    name_en: "Blade of Water",
+    description: "",
+    description_en: null,
+    icon: "swords",
+    equipped: true,
+    damage_level: 0,
+    max_damage_level: 4,
+    damage_levels: {
+      "0": { description: "Base", description_en: "Base", effects: [] },
+      "1": { description: "L3-4", description_en: "L3-4", effects: [] },
+      "2": { description: "L5-6", description_en: "L5-6", effects: [] },
+      "3": {
+        description: "L7-8",
+        description_en: "L7-8",
+        effects: ["cold_damage_1d6"],
+      },
+      "4": {
+        description: "L9-10",
+        description_en: "L9-10",
+        effects: ["cold_damage_1d6"],
+      },
+    },
+    simple_effects: {
+      level_thresholds: [3, 5, 7, 9],
+      spell_abilities: [
+        {
+          key: "water_walk",
+          name: "Water Walk",
+          name_en: "Water Walk",
+          unlock_level: 1,
+          usesPerDay: 1,
+          usesPerWeek: 0,
+          effect: "Auf Wasser laufen",
+          effect_en: "Walk on water",
+        },
+        {
+          key: "water_walk_3",
+          name: "Water Walk",
+          name_en: "Water Walk",
+          unlock_level: 2,
+          usesPerDay: 3,
+          usesPerWeek: 0,
+          replaces: "water_walk",
+          effect: "Auf Wasser laufen",
+          effect_en: "Walk on water",
+        },
+        {
+          key: "water_breathing",
+          name: "Water Breathing",
+          name_en: "Water Breathing",
+          unlock_level: 2,
+          usesPerDay: 1,
+          usesPerWeek: 0,
+          effect: "Unter Wasser atmen",
+          effect_en: "Breathe underwater",
+        },
+        {
+          key: "water_breathing_3",
+          name: "Water Breathing",
+          name_en: "Water Breathing",
+          unlock_level: 3,
+          usesPerDay: 3,
+          usesPerWeek: 0,
+          replaces: "water_breathing",
+          effect: "Unter Wasser atmen",
+          effect_en: "Breathe underwater",
+        },
+        {
+          key: "cone_of_cold",
+          name: "Cone of Cold",
+          name_en: "Cone of Cold",
+          unlock_level: 4,
+          usesPerDay: 0,
+          usesPerWeek: 1,
+          effect: "10d4+10 Kälteschaden",
+          effect_en: "10d4+10 cold damage",
+        },
+      ],
+    },
+    notes: "",
+    created_at: "",
+    updated_at: "",
+    ...overrides,
+  };
+}
+
+describe("spell abilities", () => {
+  // Tier mapping with thresholds [3,5,7,9] and max_damage_level=4:
+  // tier 0 = base (level < 3), tier 1 = L3-4, tier 2 = L5-6, tier 3 = L7-8, tier 4 = L9-10
+
+  it("returns spell abilities for character level 3 (tier 1)", () => {
+    const effects = getEpicEffects([makeBladeOfWater()], 3);
+    expect(effects.spellAbilities).toHaveLength(1);
+    expect(effects.spellAbilities[0].key).toBe("water_walk");
+    expect(effects.spellAbilities[0].usesPerDay).toBe(1);
+  });
+
+  it("replaces water_walk with water_walk_3 at tier 2 (level 5)", () => {
+    const effects = getEpicEffects([makeBladeOfWater()], 5);
+    expect(effects.spellAbilities).toHaveLength(2);
+    const keys = effects.spellAbilities.map((a) => a.key);
+    expect(keys).toContain("water_walk_3");
+    expect(keys).toContain("water_breathing");
+    expect(keys).not.toContain("water_walk");
+  });
+
+  it("replaces water_breathing with water_breathing_3 at tier 3 (level 7)", () => {
+    const effects = getEpicEffects([makeBladeOfWater()], 7);
+    expect(effects.spellAbilities).toHaveLength(2);
+    const keys = effects.spellAbilities.map((a) => a.key);
+    expect(keys).toContain("water_walk_3");
+    expect(keys).toContain("water_breathing_3");
+    expect(keys).not.toContain("water_breathing");
+  });
+
+  it("includes cone_of_cold at tier 4 (level 9)", () => {
+    const effects = getEpicEffects([makeBladeOfWater()], 9);
+    expect(effects.spellAbilities).toHaveLength(3);
+    const cone = effects.spellAbilities.find((a) => a.key === "cone_of_cold");
+    expect(cone).toBeDefined();
+    expect(cone!.usesPerWeek).toBe(1);
+    expect(cone!.usesPerDay).toBe(0);
+  });
+
+  it("includes cold_damage_1d6 in miscEffects at tier 3+ (level 7)", () => {
+    const effects = getEpicEffects([makeBladeOfWater()], 7);
+    expect(effects.miscEffects).toContain("cold_damage_1d6");
+  });
+
+  it("does not include cold_damage_1d6 at tier 1-2 (level 5)", () => {
+    const effects = getEpicEffects([makeBladeOfWater()], 5);
+    expect(effects.miscEffects).not.toContain("cold_damage_1d6");
+  });
+
+  it("returns no spellAbilities at tier 0 (level 2)", () => {
+    const effects = getEpicEffects([makeBladeOfWater()], 2);
+    expect(effects.spellAbilities).toHaveLength(0);
+  });
+
+  it("returns empty spellAbilities when no spell_abilities in simple_effects", () => {
+    const effects = getEpicEffects([makeCondenser()]);
+    expect(effects.spellAbilities).toHaveLength(0);
+  });
+
+  it("returns empty spellAbilities when item is not equipped", () => {
+    const effects = getEpicEffects([makeBladeOfWater({ equipped: false })], 9);
+    expect(effects.spellAbilities).toHaveLength(0);
+  });
+
+  it("does not break existing effects when spell_abilities is present", () => {
+    const condenser = makeCondenser({ damage_level: 3 });
+    const blade = makeBladeOfWater();
+    const effects = getEpicEffects([condenser, blade], 9);
+    expect(effects.statOverrides.con).toBe(15);
+    expect(effects.spellFailure).toBe(10);
+    expect(effects.spellAbilities).toHaveLength(3);
+  });
+});

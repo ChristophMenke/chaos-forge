@@ -939,10 +939,13 @@
     "specHitBonus": "Spec. Hit Bonus",
     "profPenalty": "Prof. Penalty",
     "magicHitBonus": "Magic Hit Bonus",
+    "epicHitBonus": "Epic Bonus",
     "baseDamage": "Base Damage",
     "strDmgAdj": "STR Dmg Adj",
     "specDmgBonus": "Spec. Dmg Bonus",
     "magicDmgBonus": "Magic Dmg Bonus",
+    "epicDmgBonus": "Epic Bonus",
+    "epicColdDamage": "+1d6 Cold Damage",
     "levelApr": "Level APR",
     "specAprBonus": "Spec. APR Bonus",
     "notProficient": "Not Proficient",
@@ -1082,7 +1085,13 @@
     "damage": "Damage",
     "type": "Type",
     "range": "Range",
-    "weight": "Weight"
+    "weight": "Weight",
+    "spellAbilities": "Spell Abilities",
+    "perDay": "{count}×/day",
+    "perWeek": "{count}×/week",
+    "abilityUsed": "Used",
+    "abilityAvailable": "Available",
+    "coldDamage": "+1d6 Cold Damage"
   },
   "rulebook": {
     "title": "Rulebook Chat",

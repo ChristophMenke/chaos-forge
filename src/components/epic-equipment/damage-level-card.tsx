@@ -14,6 +14,7 @@ import {
   getAutoUnlockedLevel,
   getFragilityInfo,
   getFragilityChance,
+  getUnlockedSpellAbilities,
 } from "@/lib/rules/epic-items";
 import type { EpicItemRow, DamageLevelEffect } from "@/lib/supabase/types";
 
@@ -51,6 +52,8 @@ function getEffectBadges(effects: string[], t: ReturnType<typeof useTranslations
       badges.push({ label: t("saveVsDeath"), variant: "red" });
     } else if (effect === "device_offline") {
       badges.push({ label: t("deviceOffline"), variant: "red" });
+    } else if (effect === "cold_damage_1d6") {
+      badges.push({ label: t("coldDamage"), variant: "blue" });
     }
   }
 
@@ -68,6 +71,7 @@ export function DamageLevelCard({
 }: DamageLevelCardProps) {
   const t = useTranslations("epic");
   const [expanded, setExpanded] = useState(false);
+  const [usedSpellAbilities, setUsedSpellAbilities] = useState<Set<string>>(new Set());
 
   // Auto-unlock: if item has level_thresholds, compute effective level from character level
   const hasAutoUnlock = !!(item.simple_effects as Record<string, unknown>)?.level_thresholds;
@@ -98,6 +102,8 @@ export function DamageLevelCard({
     fragility && characterLevel
       ? getFragilityChance(fragility.baseChance, fragility.reductionPerLevel, characterLevel)
       : null;
+
+  const spellAbilities = getUnlockedSpellAbilities(item, effectiveLevel);
 
   return (
     <GlassCard glow={glow} hover={false} data-testid={`epic-item-${item.slug}`}>
@@ -259,6 +265,61 @@ export function DamageLevelCard({
           </div>
         )}
       </div>
+
+      {/* Spell Abilities */}
+      {spellAbilities.length > 0 && (
+        <div className="mt-3" data-testid={`epic-spell-abilities-${item.slug}`}>
+          <p className="mb-2 text-sm font-medium text-muted-foreground">{t("spellAbilities")}</p>
+          <div className="flex flex-col gap-2">
+            {spellAbilities.map((ability) => {
+              const isUsed = usedSpellAbilities.has(ability.key);
+              const usesLabel =
+                ability.usesPerDay > 0
+                  ? t("perDay", { count: ability.usesPerDay })
+                  : t("perWeek", { count: ability.usesPerWeek });
+              return (
+                <div
+                  key={ability.key}
+                  className={`flex items-start justify-between rounded-md border px-3 py-2 ${
+                    isUsed
+                      ? "border-muted bg-muted/30 opacity-50"
+                      : "border-purple-500/30 bg-purple-500/5"
+                  }`}
+                  data-testid={`epic-spell-ability-${ability.key}`}
+                >
+                  <div>
+                    <span className="text-sm font-bold">
+                      {localized(ability.name, ability.name_en, locale)}
+                    </span>
+                    <Badge variant="outline" className="ml-2 border-purple-500/50 text-purple-400">
+                      {usesLabel}
+                    </Badge>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {localized(ability.effect, ability.effect_en, locale)}
+                    </p>
+                  </div>
+                  {isOwner && (
+                    <Button
+                      variant={isUsed ? "outline" : "default"}
+                      size="xs"
+                      className="ml-2 shrink-0"
+                      onClick={() => {
+                        const next = new Set(usedSpellAbilities);
+                        if (isUsed) next.delete(ability.key);
+                        else next.add(ability.key);
+                        setUsedSpellAbilities(next);
+                      }}
+                      data-testid={`epic-spell-ability-toggle-${ability.key}`}
+                    >
+                      {isUsed ? t("abilityAvailable") : t("abilityUsed")}
+                    </Button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Expandable all levels table */}
       <div className="mt-3">

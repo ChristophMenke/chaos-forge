@@ -452,9 +452,9 @@ export function TabEquipment({
   }
 
   function getItemName(item: CharacterEquipmentWithDetails): string {
+    if (item.custom_label) return item.custom_label;
     if (item.weapon) return localized(item.weapon.name, item.weapon.name_en, locale);
     if (item.armor) return localized(item.armor.name, item.armor.name_en, locale);
-    if (item.custom_label) return item.custom_label;
     return "—";
   }
 

@@ -48,6 +48,16 @@ export interface OverclockAbility {
   description_en: string;
 }
 
+export interface SpellAbility {
+  key: string;
+  name: string;
+  name_en: string;
+  usesPerDay: number; // >0 = per day, 0 = not daily
+  usesPerWeek: number; // >0 = per week, 0 = not weekly
+  effect: string;
+  effect_en: string;
+}
+
 export interface EpicEffects {
   statOverrides: EpicStatOverrides;
   miscEffects: string[];
@@ -73,6 +83,8 @@ export interface EpicEffects {
   passiveAbilities: string[];
   /** Overclock ability (e.g., Kondensator boost) */
   overclockAbility: OverclockAbility | null;
+  /** Spell-like abilities from epic items (e.g., Water Walk, Cone of Cold) */
+  spellAbilities: SpellAbility[];
 }
 
 // ── Core Functions ───────────────────────────────────────────
@@ -163,6 +175,7 @@ export function getEpicEffects(items: EpicItemRow[], characterLevel?: number): E
     specialAttacks: [],
     passiveAbilities: [],
     overclockAbility: null,
+    spellAbilities: [],
   };
 
   let overclockCandidate: OverclockAbility | null = null;
@@ -213,6 +226,9 @@ export function getEpicEffects(items: EpicItemRow[], characterLevel?: number): E
         }
       }
 
+      // Parse spell abilities from simple_effects
+      result.spellAbilities.push(...getUnlockedSpellAbilities(item, unlockedLevel));
+
       // Collect overclock candidate (resolved after loop to ensure device_offline is fully known)
       if (se?.overclock && typeof se.overclock === "object" && !overclockCandidate) {
         const oc = se.overclock as Record<string, unknown>;
@@ -260,6 +276,30 @@ export function scaleSubStat(
   if (baseStat === 0) return overrideStat;
   const scaled = Math.round(overrideStat * (baseSub / baseStat));
   return Math.max(1, Math.min(overrideStat, scaled));
+}
+
+// ── Spell Abilities ──────────────────────────────────────
+
+/**
+ * Get unlocked spell abilities for an epic item at a given tier level.
+ * Handles the `replaces` field: if ability B replaces ability A and both
+ * are unlocked, only B is returned.
+ */
+export function getUnlockedSpellAbilities(
+  item: EpicItemRow,
+  unlockedLevel: number
+): SpellAbility[] {
+  const se = item.simple_effects as Record<string, unknown> | null;
+  const raw = se?.spell_abilities as
+    | (SpellAbility & { unlock_level: number; replaces?: string })[]
+    | undefined;
+  if (!raw || !Array.isArray(raw)) return [];
+
+  const unlocked = raw.filter((a) => a.unlock_level <= unlockedLevel);
+  const replacedByUnlocked = new Set(unlocked.filter((a) => a.replaces).map((a) => a.replaces!));
+  return unlocked
+    .filter((a) => !replacedByUnlocked.has(a.key))
+    .map(({ unlock_level: _ul, replaces: _rep, ...ability }) => ability);
 }
 
 // ── Fragility System ──────────────────────────────────────
