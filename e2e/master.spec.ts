@@ -74,11 +74,12 @@ test.describe("Master of Chaos — GM Interface", () => {
       await expect(master.dashboard).toBeVisible({ timeout: 10_000 });
     });
 
-    test("shows party tab with character cards", async ({ page }) => {
+    test("shows sidebar with tabs and character cards", async ({ page }) => {
       const master = new MasterPage(page);
 
-      await expect(master.partyTab).toBeVisible();
-      await expect(master.itemsTab).toBeVisible();
+      await expect(master.sidebarParty).toBeVisible();
+      await expect(master.sidebarItems).toBeVisible();
+      await expect(master.sidebarGold).toBeVisible();
 
       // Party panel should be visible by default
       await expect(master.partyPanel).toBeVisible();
@@ -169,9 +170,7 @@ test.describe("Master of Chaos — GM Interface", () => {
     });
 
     test("no horizontal scroll on mobile", async ({ page }) => {
-      const hasOverflow = await page.evaluate(
-        () => document.body.scrollWidth > window.innerWidth
-      );
+      const hasOverflow = await page.evaluate(() => document.body.scrollWidth > window.innerWidth);
       expect(hasOverflow).toBe(false);
     });
 

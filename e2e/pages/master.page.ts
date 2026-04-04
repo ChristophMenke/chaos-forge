@@ -13,8 +13,12 @@ export class MasterPage {
   // Dashboard
   readonly dashboard: Locator;
   readonly liveIndicator: Locator;
-  readonly partyTab: Locator;
-  readonly itemsTab: Locator;
+
+  // Sidebar (desktop) — used for tab switching
+  readonly sidebarParty: Locator;
+  readonly sidebarItems: Locator;
+  readonly sidebarGold: Locator;
+  readonly sidebarChat: Locator;
 
   // Party Panel
   readonly partyPanel: Locator;
@@ -41,8 +45,12 @@ export class MasterPage {
     // Dashboard
     this.dashboard = page.getByTestId("gm-dashboard");
     this.liveIndicator = page.getByTestId("gm-live-indicator");
-    this.partyTab = page.getByTestId("gm-tab-party");
-    this.itemsTab = page.getByTestId("gm-tab-items");
+
+    // Sidebar tabs (desktop)
+    this.sidebarParty = page.getByTestId("gm-sidebar-party");
+    this.sidebarItems = page.getByTestId("gm-sidebar-items");
+    this.sidebarGold = page.getByTestId("gm-sidebar-gold");
+    this.sidebarChat = page.getByTestId("gm-sidebar-chat");
 
     // Party Panel
     this.partyPanel = page.getByTestId("gm-party-panel");
@@ -75,12 +83,16 @@ export class MasterPage {
 
   async enterAndSubmitPin(pin: string) {
     await this.enterPin(pin);
-    // Auto-submit on 6th digit, but wait for response
     await this.page.waitForTimeout(2000);
   }
 
   async switchToItems() {
-    await this.itemsTab.click();
+    await this.sidebarItems.click();
+    await this.page.waitForTimeout(500);
+  }
+
+  async switchToGold() {
+    await this.sidebarGold.click();
     await this.page.waitForTimeout(500);
   }
 
