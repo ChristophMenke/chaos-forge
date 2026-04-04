@@ -21,13 +21,16 @@ Chaos Forge ersetzt umständliche Offline-Editoren aus den 90er Jahren durch ein
 - **Aktive/Inaktive Charaktere** — Archivierung mit einklappbarer Sektion
 - **Character Import** — OCR/Vision-Import via Claude API (Foto oder PDF), Zauber-Erkennung, magische Items, editierbare Review-UI
 - **Character Sharing** — Öffentliche/private Sichtbarkeit + gezieltes Teilen mit Mitspielern
-- **Epische Ausrüstung** — Generisches System für character-gebundene Items mit Effekten (Stat-Overrides, Thief-Penalties, Spell Failure, Schadensstufen, Gestaltwandlung, Spezialangriffe, Auto-Unlock nach Charakterstufe)
+- **Epische Ausrüstung** — Generisches System für character-gebundene Items mit Effekten (Stat-Overrides, Thief-Penalties, Spell Failure, Schadensstufen, Gestaltwandlung, Spezialangriffe, Spell-Like Abilities, Auto-Unlock nach Charakterstufe)
+- **Party-Inventar** — Gemeinsame Gruppenkasse (5 Münztypen), Item-Pool, Loot-Verteilung an Charaktere, Audit-Log, Gold-Abzug (Ausgaben/Diebstahl)
+- **Traits & Disadvantages** — Player's Option: Skills & Powers Traits (angeborene Fähigkeiten) und Disadvantages (Nachteile) mit CP-Kosten, editierbar im Character Sheet
+- **Shield Proficiency** — P.O: Skills & Powers Table 51 AC-Bonus nach Schildtyp (Buckler +1, Small +2, Medium +3, Large +3)
 - **Priester-System** — Sphären-basiertes Zaubersystem (Priester sehen automatisch alle Zauber ihrer Sphären), Gottheit + Priesthood-Auswahl, 20+ Priesterschaften mit Granted Powers, Turn Undead Panel, Quellenbuch-Filter (DM entscheidet welche Bücher)
 - **9 Rassen** — Inkl. Tiefling (Planescape) und Kobold. Rasse im Character Sheet änderbar mit automatischer Attribut-Adjustment-Anpassung
 - **Fähigkeiten-Panel** — Rassenfähigkeiten + Priesthood Granted Powers im Play Mode mit "Nutzen"-Button und usesPerDay-Tracking
 - **Magische Items** — Ringe, Amulette, Umhänge etc. mit Stat-Effekten (STR, DEX, AC etc.). Magische Waffen mit +1 bis +5 Bonus und Mengenangabe
-- **Play Mode** — Session-optimierte Ansicht mit Kampf, Zaubern, Fähigkeiten, Prüfungen, Wahrnehmungswurf (Hausregel), Inventar, Geldbörse, Untote vertreiben, Gestaltwandlung, Spezialangriffe
-- **Dashboard** — Gruppen-Übersicht mit 8 Widgets (Zitat des Tages, Party-Zusammensetzung, XP-Ranking, Tag-Wolke, NPCs, Session-Stats, Throwback)
+- **Play Mode** — Session-optimierte Ansicht mit Kampf, Zaubern, Fähigkeiten, Prüfungen, Wahrnehmungswurf (Hausregel), Inventar, Geldbörse, Untote vertreiben, Gestaltwandlung, Spezialangriffe, Schild an-/ablegen
+- **Dashboard** — Gruppen-Übersicht mit 8 Widgets (Zitat des Tages, Party-Übersicht mit Avataren, XP-Ranking, Tag-Wolke, NPCs, Session-Stats, Throwback)
 - **Session-Chronik** — Timeline mit Tags (NPCs, Orte, Items, Quests), KI-Zusammenfassungen, Sprachnotizen
 - **Komplettes Zauber-Compendium** — 3.200+ Zauber aus allen AD&D 2e Quellenbüchern (Wizard Spell Compendium Vol 1-4, Priest Spell Compendium Vol 1-3, Tome of Magic, Player's Option)
 - **Source Book Tracking** — Jedes Item/Waffe/Zauber zeigt seine Quelle (PHB, WSC1-4, PSC1-3, ToM, etc.) mit Filter-Funktion
@@ -45,7 +48,7 @@ Chaos Forge ersetzt umständliche Offline-Editoren aus den 90er Jahren durch ein
 - **Datenbank & Auth:** Supabase (PostgreSQL + Row Level Security)
 - **Styling:** Tailwind CSS v4 + shadcn/ui + Glassmorphism Design-System
 - **i18n:** next-intl (Cookie-basiert, DE/EN) + `localized()` Utility für DB-Daten
-- **Testing:** Vitest (960+ Unit-Tests), Playwright (76+ E2E inkl. Responsive, A11y, Sidebar, Priesthood)
+- **Testing:** Vitest (1140+ Unit-Tests), Playwright (76+ E2E inkl. Responsive, A11y, Sidebar, XP-Management)
 - **Hosting:** Vercel (Free-Tier optimiert)
 - **AI:** Anthropic Claude API (Character Import, Session Summaries)
 - **Export:** `docx` Paket für Word-Export
@@ -117,7 +120,8 @@ src/
     characters/[id]/      # Charakterbogen, Druckansicht, Zauberbuch, Play Mode, Epische Ausrüstung
     characters/new/       # Charakter-Erstellung (Auswahl + Wizard)
     characters/import/    # OCR/Vision-Import
-    dashboard/            # Dashboard mit 8 Widgets (Zitat, NPCs, XP, Tags, Party, etc.)
+    dashboard/            # Dashboard mit 8 Widgets (Zitat, NPCs, XP, Tags, Party-Übersicht, etc.)
+    party/                # Party-Inventar & Loot-Verteilung (Gold + Items + Audit-Log)
     sessions/             # Chronik des Chaos (Session-Log)
   components/
     character-sheet/      # Tabs: Stats, Combat, Equipment, Spells, Proficiencies, Thief Skills
@@ -126,8 +130,9 @@ src/
     glass-card.tsx        # Wiederverwendbare Glass-Surface-Komponente
     hp-bar.tsx            # Leuchtende HP-Fortschrittsleiste
     level-badge.tsx       # Hexagonales Level-Badge
-    epic-equipment/       # Epische Ausrüstung (Schadensstufen, Simple Items)
-    play-mode/            # Play Mode (Kampf, Zauber, Fähigkeiten, Checks, Inventar, Geldbörse, Untote)
+    epic-equipment/       # Epische Ausrüstung (Schadensstufen, Simple Items, Spell Abilities)
+    party/                # Party-Inventar (Gold-Panel, Items-Panel, Log-Panel, Loot-Verteilung)
+    play-mode/            # Play Mode (Kampf, Zauber, Fähigkeiten, Checks, Inventar, Geldbörse, Untote, Schild-Toggle)
     spellbook/            # Standalone Spellbook-Seite (Suche, Filter, Prepare, Learn)
     print-sheet/          # Druckansicht + Word-Export
     session/              # Session-Einträge + Sprachnotizen
@@ -140,7 +145,9 @@ src/
       alignment.ts        # 9 Gesinnungen (DE/EN), Klassen-Restriktionen
       classes.ts          # 16 Klassen-Definitionen
       combat.ts           # THAC0, Rettungswürfe, Angriffe/Runde (inkl. Spezialisierung)
-      equipment.ts        # RK-Berechnung, Belastung, Bewegungsrate
+      equipment.ts        # RK-Berechnung, Belastung, Bewegungsrate, Shield Proficiency
+      fighting-styles.ts  # 4 Kampfstile (Single-Weapon, Two-Hander, Weapon & Shield, Two-Weapon)
+      epic-items.ts       # Epische Ausrüstung-Engine (Effekte, Auto-Unlock, Spell Abilities)
       experience.ts       # XP-Tabellen, Stufen-Berechnung
       kits.ts             # 20 Kit-Definitionen (Fighter, Thief, Wizard, Priest, Ranger, Bard)
       magic.ts            # Magie-Schulen, Priester-Sphären, Spezialisten
@@ -167,7 +174,7 @@ e2e/                      # Playwright E2E-Tests (POM-Pattern)
   helpers/                # Auth-Helper
 messages/                 # i18n-Dateien (de.json, en.json)
 supabase/
-  migrations/             # 73 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items + Priest + Magic Items)
+  migrations/             # 169 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items + Priest + Party + Shield + Traits)
 ressources/
   books/                  # OCR-Texte der AD&D 2e Regelbücher
 ```
