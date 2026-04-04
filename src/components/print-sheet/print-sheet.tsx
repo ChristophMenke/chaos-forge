@@ -27,7 +27,6 @@ import { getKit, getEffectiveHitDie } from "@/lib/rules/kits";
 import {
   calculateAC,
   calculateEncumbrance,
-  isShieldItem,
   getShieldProficiencyBonus,
 } from "@/lib/rules/equipment";
 import { getSingleWeaponStyleBonus } from "@/lib/rules/fighting-styles";
@@ -116,10 +115,8 @@ export function PrintSheet({
   const { strMods, dexMods, conMods, intMods, wisMods, chaMods } =
     getAllAbilityModifiers(character);
   // Correct AC with equipped armor + shield + DEX
-  const equippedArmorForAC = equipment.find(
-    (e) => e.armor && e.equipped && !isShieldItem(e.armor.name)
-  );
-  const hasShieldForAC = equipment.some((e) => e.armor && e.equipped && isShieldItem(e.armor.name));
+  const equippedArmorForAC = equipment.find((e) => e.armor && e.equipped && !e.armor.is_shield);
+  const hasShieldForAC = equipment.some((e) => e.armor && e.equipped && e.armor.is_shield);
   const classGroups = activeClasses.map((cc) => getClassGroup(cc.class_id as ClassId));
   const totalWeight = equipment.reduce(
     (sum, e) => sum + (e.weapon?.weight ?? e.armor?.weight ?? 0),
@@ -127,10 +124,9 @@ export function PrintSheet({
   );
   const encumbranceLevel = calculateEncumbrance(totalWeight, strMods.weightAllow);
   const isMagicalProtection = equippedArmorForAC?.armor?.is_magical_protection ?? false;
-  const equippedShieldForAC = equipment.find(
-    (e) => e.armor && e.equipped && isShieldItem(e.armor.name)
-  );
+  const equippedShieldForAC = equipment.find((e) => e.armor && e.equipped && e.armor.is_shield);
   const shieldProfBonus = getShieldProficiencyBonus(
+    equippedShieldForAC?.armor?.shield_type ?? null,
     equippedShieldForAC?.armor?.name ?? null,
     weaponProficiencies
   );

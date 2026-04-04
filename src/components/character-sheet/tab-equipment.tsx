@@ -9,7 +9,6 @@ import {
   calculateEncumbrance,
   calculateAC,
   getMovementRate,
-  isShieldItem,
   getShieldProficiencyBonus,
 } from "@/lib/rules/equipment";
 import { useTranslations, useLocale } from "next-intl";
@@ -159,13 +158,16 @@ export function TabEquipment({
   };
   const encumbranceLabel = encumbranceLabelMap[encumbranceLevel];
 
-  const equippedArmor = equipment.find((e) => e.armor && e.equipped && !isShieldItem(e.armor.name));
-  const shieldEquipped = equipment.some((e) => e.armor && e.equipped && isShieldItem(e.armor.name));
+  const equippedArmor = equipment.find((e) => e.armor && e.equipped && !e.armor.is_shield);
+  const shieldEquipped = equipment.some((e) => e.armor && e.equipped && e.armor.is_shield);
   const classGroups = characterClasses
     .filter((cc) => cc.is_active)
     .map((cc) => getClassGroup(cc.class_id as ClassId));
-  const equippedShieldItem = equipment.find(
-    (e) => e.armor && e.equipped && isShieldItem(e.armor.name)
+  const equippedShieldItem = equipment.find((e) => e.armor && e.equipped && e.armor.is_shield);
+  const shieldProfBonus = getShieldProficiencyBonus(
+    equippedShieldItem?.armor?.shield_type ?? null,
+    equippedShieldItem?.armor?.name ?? null,
+    weaponProficiencies
   );
   const currentAC = calculateAC({
     equippedArmorAC: equippedArmor?.armor?.ac ?? null,
@@ -176,10 +178,7 @@ export function TabEquipment({
     ignoreEncumbrance,
     isMagicalProtection: equippedArmor?.armor?.is_magical_protection ?? false,
     epicAcBonus,
-    shieldProficiencyBonus: getShieldProficiencyBonus(
-      equippedShieldItem?.armor?.name ?? null,
-      weaponProficiencies
-    ),
+    shieldProficiencyBonus: shieldProfBonus,
   });
 
   const equippedItems = equipment.filter((e) => e.equipped);
@@ -192,9 +191,9 @@ export function TabEquipment({
 
     // If equipping armor (non-shield), unequip any currently equipped armor first
     const armorsToUnequip: string[] = [];
-    if (newEquipped && item.armor && !isShieldItem(item.armor.name)) {
+    if (newEquipped && item.armor && !item.armor.is_shield) {
       const currentArmors = equipment.filter(
-        (e) => e.armor && e.equipped && e.id !== item.id && !isShieldItem(e.armor.name)
+        (e) => e.armor && e.equipped && e.id !== item.id && !e.armor.is_shield
       );
       for (const a of currentArmors) {
         await supabase.from("character_equipment").update({ equipped: false }).eq("id", a.id);

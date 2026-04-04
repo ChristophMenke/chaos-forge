@@ -408,47 +408,59 @@ describe("isShieldItem", () => {
 });
 
 describe("getShieldProficiencyBonus", () => {
-  it("Buckler proficiency → +1", () => {
-    expect(getShieldProficiencyBonus("Buckler", [{ weapon_name: "Buckler" }])).toBe(1);
+  // With DB shield_type (preferred path)
+  it("DB shield_type 'buckler' + proficiency → +1", () => {
+    expect(getShieldProficiencyBonus("buckler", "Buckler", [{ weapon_name: "Buckler" }])).toBe(1);
   });
 
-  it("Schild proficiency → +2", () => {
-    expect(getShieldProficiencyBonus("Schild", [{ weapon_name: "Schild" }])).toBe(2);
-  });
-
-  it("Mittlerer Schild proficiency → +3", () => {
+  it("DB shield_type 'medium' + proficiency → +3", () => {
     expect(
-      getShieldProficiencyBonus("Mittlerer Schild", [{ weapon_name: "Mittlerer Schild" }])
+      getShieldProficiencyBonus("medium", "Mittlerer Schild", [{ weapon_name: "Shield (medium)" }])
     ).toBe(3);
   });
 
-  it("Großer Schild proficiency → +3", () => {
-    expect(getShieldProficiencyBonus("Großer Schild", [{ weapon_name: "Großer Schild" }])).toBe(3);
+  it("DB shield_type 'small' + proficiency → +2", () => {
+    expect(getShieldProficiencyBonus("small", "Schild", [{ weapon_name: "Schild" }])).toBe(2);
+  });
+
+  // Fallback: no DB shield_type, derive from name
+  it("no DB type, name 'Mittlerer Schild' → +3 (name fallback)", () => {
+    expect(
+      getShieldProficiencyBonus(null, "Mittlerer Schild", [{ weapon_name: "Mittlerer Schild" }])
+    ).toBe(3);
+  });
+
+  it("no DB type, name 'Großer Schild' → +3 (name fallback)", () => {
+    expect(
+      getShieldProficiencyBonus(null, "Großer Schild", [{ weapon_name: "Großer Schild" }])
+    ).toBe(3);
   });
 
   it("no proficiency → 0", () => {
-    expect(getShieldProficiencyBonus("Schild", [{ weapon_name: "Langschwert" }])).toBe(0);
+    expect(getShieldProficiencyBonus("small", "Schild", [{ weapon_name: "Langschwert" }])).toBe(0);
   });
 
   it("null shield → 0", () => {
-    expect(getShieldProficiencyBonus(null, [{ weapon_name: "Schild" }])).toBe(0);
+    expect(getShieldProficiencyBonus(null, null, [{ weapon_name: "Schild" }])).toBe(0);
   });
 
-  it("cross-format: equipped 'Mittlerer Schild' + proficiency 'Shield (medium)' → +3", () => {
+  it("cross-format: DB type 'medium' + proficiency 'Shield (medium)' → +3", () => {
     expect(
-      getShieldProficiencyBonus("Mittlerer Schild", [{ weapon_name: "Shield (medium)" }])
+      getShieldProficiencyBonus("medium", "Mittlerer Schild", [{ weapon_name: "Shield (medium)" }])
     ).toBe(3);
   });
 
-  it("cross-format: equipped 'Medium Shield' + proficiency 'Mittlerer Schild' → +3", () => {
-    expect(getShieldProficiencyBonus("Medium Shield", [{ weapon_name: "Mittlerer Schild" }])).toBe(
-      3
-    );
+  it("custom shield with DB type but unrecognized proficiency name → 0", () => {
+    // Proficiency name "Aegis" can't be mapped to a shield type
+    expect(
+      getShieldProficiencyBonus("large", "Aegis des Schutzes", [{ weapon_name: "Aegis" }])
+    ).toBe(0);
   });
 
-  it("import format 'Shield (medium)' as equipped shield → +3", () => {
-    expect(getShieldProficiencyBonus("Shield (medium)", [{ weapon_name: "Shield (medium)" }])).toBe(
-      3
-    );
+  it("custom shield with matching standard proficiency → works", () => {
+    // Custom shield with DB type 'large', proficiency matches via "Großer Schild"
+    expect(
+      getShieldProficiencyBonus("large", "Aegis des Schutzes", [{ weapon_name: "Großer Schild" }])
+    ).toBe(3);
   });
 });

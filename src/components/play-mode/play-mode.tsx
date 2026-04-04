@@ -33,7 +33,6 @@ import {
   calculateAC,
   calculateEncumbrance,
   getMovementRate,
-  isShieldItem,
   getShieldProficiencyBonus,
 } from "@/lib/rules/equipment";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
@@ -390,13 +389,13 @@ export function PlayMode({
     Math.min(character.hp_current + Math.min(0, hpDelta), effectiveHpMax)
   );
 
-  // Equipment calculations
+  // Equipment calculations — use DB is_shield flag instead of name heuristic
   const equippedArmor = useMemo(
-    () => equipment.find((e) => e.equipped && e.armor && !isShieldItem(e.armor.name)),
+    () => equipment.find((e) => e.equipped && e.armor && !e.armor.is_shield),
     [equipment]
   );
   const equippedShield = useMemo(
-    () => equipment.some((e) => e.equipped && e.armor && isShieldItem(e.armor.name)),
+    () => equipment.some((e) => e.equipped && e.armor && e.armor.is_shield),
     [equipment]
   );
   const totalWeight = useMemo(() => {
@@ -421,7 +420,7 @@ export function PlayMode({
 
   const isMagicalProtection = equippedArmor?.armor?.is_magical_protection ?? false;
   const equippedShieldItem = useMemo(
-    () => equipment.find((e) => e.equipped && e.armor && isShieldItem(e.armor.name)),
+    () => equipment.find((e) => e.equipped && e.armor && e.armor.is_shield),
     [equipment]
   );
   const equippedShieldName = equippedShieldItem?.armor?.name ?? null;
@@ -430,8 +429,13 @@ export function PlayMode({
     [fightingStyles]
   );
   const shieldProficiencyBonus = useMemo(
-    () => getShieldProficiencyBonus(equippedShieldName, weaponProficiencies),
-    [equippedShieldName, weaponProficiencies]
+    () =>
+      getShieldProficiencyBonus(
+        equippedShieldItem?.armor?.shield_type ?? null,
+        equippedShieldName,
+        weaponProficiencies
+      ),
+    [equippedShieldItem, equippedShieldName, weaponProficiencies]
   );
 
   const ac = useMemo(

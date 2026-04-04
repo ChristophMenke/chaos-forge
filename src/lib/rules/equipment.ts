@@ -120,16 +120,15 @@ export function getShieldType(name: string): ShieldType | null {
 
 /**
  * Get Shield Proficiency AC bonus for an equipped shield.
- * Matches by shield TYPE (not exact name) — handles DE, EN, and import formats
- * like "Shield (medium)", "Mittlerer Schild", "Medium Shield" etc.
+ * Uses DB shield_type when available, falls back to name-based type detection.
  * Returns 0 if not proficient or no shield equipped.
  */
 export function getShieldProficiencyBonus(
+  shieldType: ShieldType | null,
   shieldName: string | null,
   weaponProficiencies: { weapon_name: string }[]
 ): number {
-  if (!shieldName) return 0;
-  const equippedType = getShieldType(shieldName);
+  const equippedType = shieldType ?? (shieldName ? getShieldType(shieldName) : null);
   if (!equippedType) return 0;
   const isProficient = weaponProficiencies.some((wp) => {
     const profType = getShieldType(wp.weapon_name);

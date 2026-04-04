@@ -35,7 +35,6 @@ import { getAttacksPerRound } from "@/lib/rules/combat";
 import {
   calculateAC,
   calculateEncumbrance,
-  isShieldItem,
   getShieldProficiencyBonus,
 } from "@/lib/rules/equipment";
 import { getSingleWeaponStyleBonus } from "@/lib/rules/fighting-styles";
@@ -337,18 +336,14 @@ export function CharacterSheet({
     [effectiveCha, character.cha, character.cha_leadership, character.cha_appearance, eo.cha]
   );
   // AC calculation using equipped armor + shield + DEX + class bonuses (reactive to equipmentState)
-  const equippedArmor = equipmentState.find(
-    (e) => e.equipped && e.armor && !isShieldItem(e.armor.name)
-  );
-  const hasShield = equipmentState.some((e) => e.equipped && e.armor && isShieldItem(e.armor.name));
+  const equippedArmor = equipmentState.find((e) => e.equipped && e.armor && !e.armor.is_shield);
+  const hasShield = equipmentState.some((e) => e.equipped && e.armor && e.armor.is_shield);
   const totalWeight = equipmentState.reduce(
     (sum, e) => sum + (e.weapon?.weight ?? e.armor?.weight ?? 0),
     0
   );
   const encumbranceLevel = calculateEncumbrance(totalWeight, strMods.weightAllow);
-  const equippedShieldItem = equipmentState.find(
-    (e) => e.equipped && e.armor && isShieldItem(e.armor.name)
-  );
+  const equippedShieldItem = equipmentState.find((e) => e.equipped && e.armor && e.armor.is_shield);
   const effectiveAC = calculateAC({
     equippedArmorAC: equippedArmor?.armor?.ac ?? null,
     shieldEquipped: hasShield,
@@ -359,6 +354,7 @@ export function CharacterSheet({
     isMagicalProtection: equippedArmor?.armor?.is_magical_protection ?? false,
     singleWeaponStyleBonus: getSingleWeaponStyleBonus(fightingStylesState),
     shieldProficiencyBonus: getShieldProficiencyBonus(
+      equippedShieldItem?.armor?.shield_type ?? null,
       equippedShieldItem?.armor?.name ?? null,
       weaponProfsState
     ),

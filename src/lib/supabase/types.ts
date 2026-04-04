@@ -162,6 +162,8 @@ export interface ArmorRow {
   source_book: string;
   is_custom: boolean;
   is_magical_protection: boolean;
+  is_shield: boolean;
+  shield_type: "buckler" | "small" | "medium" | "large" | null;
   created_by: string | null;
 }
 
