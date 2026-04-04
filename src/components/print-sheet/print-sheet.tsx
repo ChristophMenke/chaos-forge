@@ -128,7 +128,7 @@ export function PrintSheet({
   const shieldProfBonus = getShieldProficiencyBonus(
     equippedShieldForAC?.armor?.shield_type ?? null,
     equippedShieldForAC?.armor?.name ?? null,
-    weaponProficiencies
+    weaponProficiencies ?? []
   );
   const effectiveAC = calculateAC({
     equippedArmorAC: equippedArmorForAC?.armor?.ac ?? null,
