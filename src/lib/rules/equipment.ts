@@ -94,22 +94,34 @@ export function isShieldItem(name: string): boolean {
 
 // ─── SHIELD PROFICIENCY (Player's Option: Skills & Powers, Table 51) ────────
 
-const SHIELD_PROF_BONUS: Record<string, number> = {
+export type ShieldType = "buckler" | "small" | "medium" | "large";
+
+const SHIELD_TYPE_BONUS: Record<ShieldType, number> = {
   buckler: 1,
-  schild: 2,
-  shield: 2,
-  "kleiner schild": 2,
-  "small shield": 2,
-  "mittlerer schild": 3,
-  "medium shield": 3,
-  "großer schild": 3,
-  "large shield": 3,
-  "body shield": 3,
+  small: 2,
+  medium: 3,
+  large: 3,
 };
 
 /**
+ * Derive the shield type from a shield name (supports DE, EN, and import formats).
+ * Returns null if the name is not recognized as a shield.
+ */
+export function getShieldType(name: string): ShieldType | null {
+  const lower = name.toLowerCase();
+  if (lower === "buckler") return "buckler";
+  if (lower.includes("medium") || lower.includes("mittler")) return "medium";
+  if (lower.includes("large") || lower.includes("groß") || lower.includes("body")) return "large";
+  if (lower.includes("small") || lower.includes("klein")) return "small";
+  // Generic "Schild" / "Shield" without qualifier → small shield
+  if (lower === "schild" || lower === "shield") return "small";
+  return null;
+}
+
+/**
  * Get Shield Proficiency AC bonus for an equipped shield.
- * Requires a matching weapon proficiency entry for the shield type.
+ * Matches by shield TYPE (not exact name) — handles DE, EN, and import formats
+ * like "Shield (medium)", "Mittlerer Schild", "Medium Shield" etc.
  * Returns 0 if not proficient or no shield equipped.
  */
 export function getShieldProficiencyBonus(
@@ -117,10 +129,14 @@ export function getShieldProficiencyBonus(
   weaponProficiencies: { weapon_name: string }[]
 ): number {
   if (!shieldName) return 0;
-  const lower = shieldName.toLowerCase();
-  const isProficient = weaponProficiencies.some((wp) => wp.weapon_name.toLowerCase() === lower);
+  const equippedType = getShieldType(shieldName);
+  if (!equippedType) return 0;
+  const isProficient = weaponProficiencies.some((wp) => {
+    const profType = getShieldType(wp.weapon_name);
+    return profType === equippedType;
+  });
   if (!isProficient) return 0;
-  return SHIELD_PROF_BONUS[lower] ?? 0;
+  return SHIELD_TYPE_BONUS[equippedType];
 }
 
 /**

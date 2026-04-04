@@ -434,9 +434,21 @@ describe("getShieldProficiencyBonus", () => {
     expect(getShieldProficiencyBonus(null, [{ weapon_name: "Schild" }])).toBe(0);
   });
 
-  it("case-insensitive matching", () => {
+  it("cross-format: equipped 'Mittlerer Schild' + proficiency 'Shield (medium)' → +3", () => {
     expect(
-      getShieldProficiencyBonus("mittlerer schild", [{ weapon_name: "Mittlerer Schild" }])
+      getShieldProficiencyBonus("Mittlerer Schild", [{ weapon_name: "Shield (medium)" }])
     ).toBe(3);
+  });
+
+  it("cross-format: equipped 'Medium Shield' + proficiency 'Mittlerer Schild' → +3", () => {
+    expect(getShieldProficiencyBonus("Medium Shield", [{ weapon_name: "Mittlerer Schild" }])).toBe(
+      3
+    );
+  });
+
+  it("import format 'Shield (medium)' as equipped shield → +3", () => {
+    expect(getShieldProficiencyBonus("Shield (medium)", [{ weapon_name: "Shield (medium)" }])).toBe(
+      3
+    );
   });
 });
