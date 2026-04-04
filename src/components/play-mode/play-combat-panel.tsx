@@ -51,6 +51,8 @@ interface PlayCombatPanelProps {
   epicEffects?: EpicEffects;
   characterKit?: string | null;
   singleWeaponStyleBonus?: number;
+  shieldProficiencyBonus?: number;
+  equippedShieldName?: string | null;
 }
 
 export function PlayCombatPanel({
@@ -74,6 +76,8 @@ export function PlayCombatPanel({
   epicEffects,
   characterKit,
   singleWeaponStyleBonus = 0,
+  shieldProficiencyBonus = 0,
+  equippedShieldName,
 }: PlayCombatPanelProps) {
   const t = useTranslations("playMode");
   const locale = useLocale();
@@ -119,6 +123,12 @@ export function PlayCombatPanel({
     }
     if (equippedShield) {
       parts.push({ label: t("shield"), value: -1 });
+    }
+    if (shieldProficiencyBonus > 0 && equippedShield) {
+      parts.push({
+        label: t("shieldProficiency", { shield: equippedShieldName ?? "" }),
+        value: -shieldProficiencyBonus,
+      });
     }
     if (dexDefenseAdj !== 0) {
       parts.push({ label: t("dexBonus"), value: dexDefenseAdj });
@@ -627,6 +637,32 @@ export function PlayCombatPanel({
           </div>
         )}
       </div>
+
+      {/* Shield toggle */}
+      {(() => {
+        const shields = equipment.filter((e) => e.armor && e.armor.is_shield);
+        if (shields.length === 0) return null;
+        return (
+          <div className="mb-3 flex flex-wrap gap-2" data-testid="play-shields">
+            {shields.map((s) => {
+              const name = localized(s.armor!.name, s.armor!.name_en, locale);
+              return (
+                <Button
+                  key={s.id}
+                  variant={s.equipped ? "default" : "outline"}
+                  size="sm"
+                  className="h-7 text-xs"
+                  onClick={() => toggleEquip(s.id, s.equipped)}
+                  data-testid={`play-shield-toggle-${s.id}`}
+                >
+                  🛡 {name}
+                  {s.equipped ? ` — ${t("unequip")}` : ` — ${t("equip")}`}
+                </Button>
+              );
+            })}
+          </div>
+        );
+      })()}
 
       {/* Weapon cards */}
       {equippedWeapons.length === 0 ? (

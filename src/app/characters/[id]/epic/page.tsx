@@ -28,8 +28,17 @@ export default async function EpicEquipmentPage({ params }: EpicPageProps) {
 
   const isOwner = character.user_id === user.id;
 
+  // Allow shared users to view epic items (read-only)
   if (!isOwner) {
-    redirect(`/characters/${id}`);
+    const { data: share } = await supabase
+      .from("character_shares")
+      .select("id")
+      .eq("character_id", id)
+      .eq("shared_with_user_id", user.id)
+      .maybeSingle();
+    if (!share) {
+      redirect(`/characters/${id}`);
+    }
   }
 
   // Use highest class level for multiclass characters

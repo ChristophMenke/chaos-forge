@@ -23,6 +23,8 @@ export interface ACCalculationInput {
   epicAcBonus?: number;
   /** Single-Weapon Style AC bonus (1 or 2, from fighting style slots) */
   singleWeaponStyleBonus?: number;
+  /** Shield Proficiency AC bonus (1-3, from P.O: Skills & Powers Table 51) */
+  shieldProficiencyBonus?: number;
 }
 
 /**
@@ -44,6 +46,7 @@ export function calculateAC(input: ACCalculationInput): number {
     isMagicalProtection = false,
     epicAcBonus = 0,
     singleWeaponStyleBonus = 0,
+    shieldProficiencyBonus = 0,
   } = input;
 
   // Magical protection (Bracers +4, Ring +1) is a BONUS subtracted from base 10,
@@ -65,6 +68,9 @@ export function calculateAC(input: ACCalculationInput): number {
   // Single-Weapon Style bonus only applies when fighting without a shield
   const effectiveSWSBonus = shieldEquipped ? 0 : singleWeaponStyleBonus;
 
+  // Shield proficiency bonus only applies when a shield is equipped
+  const effectiveShieldProfBonus = shieldEquipped ? shieldProficiencyBonus : 0;
+
   return (
     baseAC +
     shieldBonus +
@@ -72,7 +78,8 @@ export function calculateAC(input: ACCalculationInput): number {
     magicACModifier +
     unarmoredBonus -
     epicAcBonus -
-    effectiveSWSBonus
+    effectiveSWSBonus -
+    effectiveShieldProfBonus
   );
 }
 
@@ -82,7 +89,53 @@ export function calculateAC(input: ACCalculationInput): number {
  */
 export function isShieldItem(name: string): boolean {
   const lower = name.toLowerCase();
-  return lower === "schild" || lower === "shield" || lower.includes("shield");
+  return lower === "buckler" || lower.includes("shield") || lower.includes("schild");
+}
+
+// ─── SHIELD PROFICIENCY (Player's Option: Skills & Powers, Table 51) ────────
+
+export type ShieldType = "buckler" | "small" | "medium" | "large";
+
+const SHIELD_TYPE_BONUS: Record<ShieldType, number> = {
+  buckler: 1,
+  small: 2,
+  medium: 3,
+  large: 3,
+};
+
+/**
+ * Derive the shield type from a shield name (supports DE, EN, and import formats).
+ * Returns null if the name is not recognized as a shield.
+ */
+export function getShieldType(name: string): ShieldType | null {
+  const lower = name.toLowerCase();
+  if (lower === "buckler") return "buckler";
+  if (lower.includes("medium") || lower.includes("mittler")) return "medium";
+  if (lower.includes("large") || lower.includes("groß") || lower.includes("body")) return "large";
+  if (lower.includes("small") || lower.includes("klein")) return "small";
+  // Generic "Schild" / "Shield" without qualifier → small shield
+  if (lower === "schild" || lower === "shield") return "small";
+  return null;
+}
+
+/**
+ * Get Shield Proficiency AC bonus for an equipped shield.
+ * Uses DB shield_type when available, falls back to name-based type detection.
+ * Returns 0 if not proficient or no shield equipped.
+ */
+export function getShieldProficiencyBonus(
+  shieldType: ShieldType | null,
+  shieldName: string | null,
+  weaponProficiencies: { weapon_name: string }[]
+): number {
+  const equippedType = shieldType ?? (shieldName ? getShieldType(shieldName) : null);
+  if (!equippedType) return 0;
+  const isProficient = weaponProficiencies.some((wp) => {
+    const profType = getShieldType(wp.weapon_name);
+    return profType === equippedType;
+  });
+  if (!isProficient) return 0;
+  return SHIELD_TYPE_BONUS[equippedType];
 }
 
 /**

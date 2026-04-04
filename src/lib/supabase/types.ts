@@ -69,9 +69,19 @@ export interface CharacterRow {
   ignore_encumbrance: boolean;
   allowed_spell_books: string[];
   spell_whitelist: string[];
+  traits: TraitEntry[];
+  disadvantages: TraitEntry[];
   created_at: string;
   updated_at: string;
   last_accessed_at: string;
+}
+
+export interface TraitEntry {
+  name: string;
+  name_en: string;
+  description: string;
+  description_en: string;
+  cost: number;
 }
 
 export interface CharacterInsert {
@@ -152,6 +162,8 @@ export interface ArmorRow {
   source_book: string;
   is_custom: boolean;
   is_magical_protection: boolean;
+  is_shield: boolean;
+  shield_type: "buckler" | "small" | "medium" | "large" | null;
   created_by: string | null;
 }
 

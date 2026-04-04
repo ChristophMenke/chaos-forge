@@ -32,7 +32,11 @@ import {
   getCharismaModifiers,
 } from "@/lib/rules/abilities";
 import { getAttacksPerRound } from "@/lib/rules/combat";
-import { calculateAC, calculateEncumbrance, isShieldItem } from "@/lib/rules/equipment";
+import {
+  calculateAC,
+  calculateEncumbrance,
+  getShieldProficiencyBonus,
+} from "@/lib/rules/equipment";
 import { getSingleWeaponStyleBonus } from "@/lib/rules/fighting-styles";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
 import { getKit, getEffectiveHitDie, getKitsForClass } from "@/lib/rules/kits";
@@ -46,7 +50,7 @@ import { ImageLightbox } from "@/components/image-lightbox";
 import { WebresearchBadge } from "@/components/webresearch-badge";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { ShareDialog } from "./share-dialog";
-import { Share2, Printer, EyeOff, Eye, Trash2, Copy } from "lucide-react";
+import { Share2, Printer, EyeOff, Eye, Trash2, Copy, Plus, X } from "lucide-react";
 import { CharacterModeNav } from "@/components/character-mode-nav";
 import Link from "next/link";
 import type {
@@ -54,6 +58,7 @@ import type {
   CharacterClassRow,
   SessionRow,
   XpHistoryRow,
+  TraitEntry,
 } from "@/lib/supabase/types";
 import { TabEquipment } from "./tab-equipment";
 import { TabSpells } from "./tab-spells";
@@ -331,15 +336,14 @@ export function CharacterSheet({
     [effectiveCha, character.cha, character.cha_leadership, character.cha_appearance, eo.cha]
   );
   // AC calculation using equipped armor + shield + DEX + class bonuses (reactive to equipmentState)
-  const equippedArmor = equipmentState.find(
-    (e) => e.equipped && e.armor && !isShieldItem(e.armor.name)
-  );
-  const hasShield = equipmentState.some((e) => e.equipped && e.armor && isShieldItem(e.armor.name));
+  const equippedArmor = equipmentState.find((e) => e.equipped && e.armor && !e.armor.is_shield);
+  const hasShield = equipmentState.some((e) => e.equipped && e.armor && e.armor.is_shield);
   const totalWeight = equipmentState.reduce(
     (sum, e) => sum + (e.weapon?.weight ?? e.armor?.weight ?? 0),
     0
   );
   const encumbranceLevel = calculateEncumbrance(totalWeight, strMods.weightAllow);
+  const equippedShieldItem = equipmentState.find((e) => e.equipped && e.armor && e.armor.is_shield);
   const effectiveAC = calculateAC({
     equippedArmorAC: equippedArmor?.armor?.ac ?? null,
     shieldEquipped: hasShield,
@@ -349,6 +353,11 @@ export function CharacterSheet({
     ignoreEncumbrance: character.ignore_encumbrance,
     isMagicalProtection: equippedArmor?.armor?.is_magical_protection ?? false,
     singleWeaponStyleBonus: getSingleWeaponStyleBonus(fightingStylesState),
+    shieldProficiencyBonus: getShieldProficiencyBonus(
+      equippedShieldItem?.armor?.shield_type ?? null,
+      equippedShieldItem?.armor?.name ?? null,
+      weaponProfsState
+    ),
   });
 
   const coinPurse = useMemo(
@@ -368,7 +377,10 @@ export function CharacterSheet({
     await supabase.from("characters").update({ ignore_encumbrance: value }).eq("id", character.id);
   }
 
-  function update(field: keyof CharacterRow, value: string | number | null) {
+  function update(
+    field: keyof CharacterRow,
+    value: string | number | null | TraitEntry[] | Record<string, unknown>
+  ) {
     if (!isOwner) return;
     setCharacter((prev) => ({ ...prev, [field]: value }));
     setDirty(true);
@@ -1864,16 +1876,45 @@ export function CharacterSheet({
 
         {/* Notes Tab */}
         <TabsContent value="notes" className="glass glow-neutral rounded-xl p-4">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="notes">{t("notes")}</Label>
-            <textarea
-              id="notes"
-              value={character.notes}
-              onChange={(e) => update("notes", e.target.value)}
-              className="min-h-[200px] w-full rounded-md border border-input bg-input p-3 text-sm"
-              placeholder={t("notesPlaceholder")}
-              data-testid="sheet-notes"
+          <div className="flex flex-col gap-6">
+            {/* Traits */}
+            <TraitSection
+              title={t("traits")}
+              entries={character.traits ?? []}
+              emptyText={t("noTraits")}
+              addLabel={t("addTrait")}
+              testIdPrefix="trait"
+              isOwner={isOwner}
+              locale={locale}
+              t={t}
+              onChange={(entries) => update("traits", entries)}
             />
+
+            {/* Disadvantages */}
+            <TraitSection
+              title={t("disadvantages")}
+              entries={character.disadvantages ?? []}
+              emptyText={t("noDisadvantages")}
+              addLabel={t("addDisadvantage")}
+              testIdPrefix="disadvantage"
+              isOwner={isOwner}
+              locale={locale}
+              t={t}
+              onChange={(entries) => update("disadvantages", entries)}
+            />
+
+            {/* Notes */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="notes">{t("notesLabel")}</Label>
+              <textarea
+                id="notes"
+                value={character.notes}
+                onChange={(e) => update("notes", e.target.value)}
+                className="min-h-[200px] w-full rounded-md border border-input bg-input p-3 text-sm"
+                placeholder={t("notesPlaceholder")}
+                data-testid="sheet-notes"
+              />
+            </div>
           </div>
         </TabsContent>
 
@@ -1990,6 +2031,192 @@ export function CharacterSheet({
           alt={`Avatar von ${character.name}`}
           onClose={() => setShowAvatarLightbox(false)}
         />
+      )}
+    </div>
+  );
+}
+
+// ── Trait / Disadvantage Section ─────────────────────────────────────────
+
+function TraitSection({
+  title,
+  entries,
+  emptyText,
+  addLabel,
+  testIdPrefix,
+  isOwner,
+  locale,
+  t,
+  onChange,
+}: {
+  title: string;
+  entries: TraitEntry[];
+  emptyText: string;
+  addLabel: string;
+  testIdPrefix: string;
+  isOwner: boolean;
+  locale: string;
+  t: ReturnType<typeof useTranslations>;
+  onChange: (entries: TraitEntry[]) => void;
+}) {
+  const [showAdd, setShowAdd] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newNameEn, setNewNameEn] = useState("");
+  const [newDesc, setNewDesc] = useState("");
+  const [newDescEn, setNewDescEn] = useState("");
+  const [newCost, setNewCost] = useState(0);
+
+  function handleAdd() {
+    if (!newName.trim()) return;
+    onChange([
+      ...entries,
+      {
+        name: newName.trim(),
+        name_en: newNameEn.trim() || newName.trim(),
+        description: newDesc.trim(),
+        description_en: newDescEn.trim() || newDesc.trim(),
+        cost: newCost,
+      },
+    ]);
+    setNewName("");
+    setNewNameEn("");
+    setNewDesc("");
+    setNewDescEn("");
+    setNewCost(0);
+    setShowAdd(false);
+  }
+
+  function handleRemove(index: number) {
+    onChange(entries.filter((_, i) => i !== index));
+  }
+
+  return (
+    <div data-testid={`${testIdPrefix}-section`}>
+      <h3 className="mb-2 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        {title}
+      </h3>
+      {entries.length === 0 && !showAdd && (
+        <p className="text-sm text-muted-foreground">{emptyText}</p>
+      )}
+      <div className="flex flex-col gap-2">
+        {entries.map((entry, i) => (
+          <div
+            key={i}
+            className="flex items-start gap-2 rounded-md border border-border p-3"
+            data-testid={`${testIdPrefix}-entry-${i}`}
+          >
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <span className="font-medium">
+                  {locale === "en" && entry.name_en ? entry.name_en : entry.name}
+                </span>
+                <Badge variant="outline" className="text-[10px]">
+                  {t("cpCost", { cost: entry.cost })}
+                </Badge>
+              </div>
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                {locale === "en" && entry.description_en ? entry.description_en : entry.description}
+              </p>
+            </div>
+            {isOwner && (
+              <button
+                onClick={() => handleRemove(i)}
+                className="shrink-0 rounded p-1 text-muted-foreground hover:text-destructive"
+                data-testid={`${testIdPrefix}-remove-${i}`}
+                aria-label={`Remove ${locale === "en" && entry.name_en ? entry.name_en : entry.name}`}
+              >
+                <X className="h-4 w-4" aria-hidden="true" />
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {isOwner && !showAdd && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="mt-2"
+          onClick={() => setShowAdd(true)}
+          data-testid={`${testIdPrefix}-add-button`}
+        >
+          <Plus className="mr-1 h-4 w-4" />
+          {addLabel}
+        </Button>
+      )}
+
+      {showAdd && (
+        <div
+          className="mt-2 flex flex-col gap-2 rounded-md border border-border p-3"
+          data-testid={`${testIdPrefix}-add-form`}
+        >
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label className="text-xs">{t("traitName")}</Label>
+              <input
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                className="w-full rounded-md border border-input bg-input p-2 text-sm"
+                data-testid={`${testIdPrefix}-add-name`}
+              />
+            </div>
+            <div>
+              <Label className="text-xs">{t("traitNameEn")}</Label>
+              <input
+                value={newNameEn}
+                onChange={(e) => setNewNameEn(e.target.value)}
+                className="w-full rounded-md border border-input bg-input p-2 text-sm"
+                data-testid={`${testIdPrefix}-add-name-en`}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label className="text-xs">{t("traitDescription")}</Label>
+              <textarea
+                value={newDesc}
+                onChange={(e) => setNewDesc(e.target.value)}
+                className="w-full rounded-md border border-input bg-input p-2 text-sm"
+                rows={2}
+                data-testid={`${testIdPrefix}-add-desc`}
+              />
+            </div>
+            <div>
+              <Label className="text-xs">{t("traitDescriptionEn")}</Label>
+              <textarea
+                value={newDescEn}
+                onChange={(e) => setNewDescEn(e.target.value)}
+                className="w-full rounded-md border border-input bg-input p-2 text-sm"
+                rows={2}
+                data-testid={`${testIdPrefix}-add-desc-en`}
+              />
+            </div>
+          </div>
+          <div className="w-24">
+            <Label className="text-xs">{t("traitCost")}</Label>
+            <input
+              type="number"
+              value={newCost}
+              onChange={(e) => setNewCost(Number(e.target.value))}
+              className="w-full rounded-md border border-input bg-input p-2 text-sm"
+              data-testid={`${testIdPrefix}-add-cost`}
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" onClick={handleAdd} data-testid={`${testIdPrefix}-add-save`}>
+              {t("addTrait")}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAdd(false)}
+              data-testid={`${testIdPrefix}-add-cancel`}
+              aria-label="Cancel"
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   );
