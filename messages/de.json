@@ -1263,6 +1263,7 @@
     "goldGP": "GP",
     "goldEP": "EP",
     "goldSP": "SP",
-    "goldCP": "CP"
+    "goldCP": "CP",
+    "noCharactersFound": "Keine Charaktere gefunden."
   }
 }

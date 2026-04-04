@@ -21,6 +21,7 @@ interface MasterPartyPanelProps {
 
 export function MasterPartyPanel({ partyData, liveHpMap, onViewCharacter }: MasterPartyPanelProps) {
   const t = useTranslations("characters");
+  const tm = useTranslations("master");
   const [showInactive, setShowInactive] = useState(false);
 
   const active = partyData.filter((p) => p.character.is_active);
@@ -29,7 +30,7 @@ export function MasterPartyPanel({ partyData, liveHpMap, onViewCharacter }: Mast
   if (partyData.length === 0) {
     return (
       <p className="py-12 text-center text-sm text-muted-foreground" data-testid="gm-party-empty">
-        Keine Charaktere gefunden.
+        {tm("noCharactersFound")}
       </p>
     );
   }

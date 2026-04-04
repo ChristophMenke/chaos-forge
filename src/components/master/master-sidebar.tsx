@@ -72,9 +72,9 @@ export function MasterSidebar({ activeTab, onTabChange, userEmail }: MasterSideb
         {/* Chat Tab */}
         <Tooltip>
           <TooltipTrigger
-            onClick={() => onTabChange("chat" as TabId)}
+            onClick={() => onTabChange("chat")}
             className={`flex h-10 w-10 items-center justify-center rounded-lg transition-all xl:w-full xl:justify-start xl:gap-3 xl:px-3 ${
-              activeTab === ("chat" as TabId)
+              activeTab === "chat"
                 ? "bg-primary/10 text-primary shadow-sm"
                 : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
             }`}

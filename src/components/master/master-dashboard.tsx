@@ -175,6 +175,7 @@ export function MasterDashboard({
             src={`/characters/${viewingCharacterId}/manage?embed=1`}
             className="flex-1 border-0"
             title={viewingChar?.character.name ?? "Character Sheet"}
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
             data-testid="gm-character-iframe"
           />
         </div>
