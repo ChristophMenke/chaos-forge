@@ -24,7 +24,12 @@ import {
 import { getNonproficiencyPenalty } from "@/lib/rules/proficiencies";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
 import { getKit, getEffectiveHitDie } from "@/lib/rules/kits";
-import { calculateAC, calculateEncumbrance, isShieldItem } from "@/lib/rules/equipment";
+import {
+  calculateAC,
+  calculateEncumbrance,
+  isShieldItem,
+  getShieldProficiencyBonus,
+} from "@/lib/rules/equipment";
 import { getSingleWeaponStyleBonus } from "@/lib/rules/fighting-styles";
 import { feetToMeters } from "@/lib/utils/units";
 import { getAllAbilityModifiers } from "@/lib/rules/abilities";
@@ -42,6 +47,7 @@ import type {
   CharacterInventoryWithDetails,
   SpellRow,
   EpicItemRow,
+  TraitEntry,
 } from "@/lib/supabase/types";
 import { getEpicEffects } from "@/lib/rules/epic-items";
 import { isPriestCaster } from "@/lib/rules/magic";
@@ -121,6 +127,13 @@ export function PrintSheet({
   );
   const encumbranceLevel = calculateEncumbrance(totalWeight, strMods.weightAllow);
   const isMagicalProtection = equippedArmorForAC?.armor?.is_magical_protection ?? false;
+  const equippedShieldForAC = equipment.find(
+    (e) => e.armor && e.equipped && isShieldItem(e.armor.name)
+  );
+  const shieldProfBonus = getShieldProficiencyBonus(
+    equippedShieldForAC?.armor?.name ?? null,
+    weaponProficiencies
+  );
   const effectiveAC = calculateAC({
     equippedArmorAC: equippedArmorForAC?.armor?.ac ?? null,
     shieldEquipped: hasShieldForAC,
@@ -131,6 +144,7 @@ export function PrintSheet({
     isMagicalProtection,
     epicAcBonus: epicEffects.acBonus,
     singleWeaponStyleBonus: getSingleWeaponStyleBonus(fightingStyles),
+    shieldProficiencyBonus: shieldProfBonus,
   });
 
   const strDisplay =
@@ -569,6 +583,34 @@ export function PrintSheet({
                   </div>
                 );
               })()}
+            {character.traits && character.traits.length > 0 && (
+              <div data-testid="print-traits">
+                <h3 className="font-semibold">{t("traits")}</h3>
+                <ul className="mt-1 list-inside list-disc text-xs">
+                  {character.traits.map((a, i) => (
+                    <li key={i}>
+                      <span className="font-medium">{localized(a.name, a.name_en, locale)}</span>
+                      {" — "}
+                      {localized(a.description, a.description_en, locale)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {character.disadvantages && character.disadvantages.length > 0 && (
+              <div data-testid="print-disadvantages">
+                <h3 className="font-semibold">{t("disadvantages")}</h3>
+                <ul className="mt-1 list-inside list-disc text-xs">
+                  {character.disadvantages.map((a, i) => (
+                    <li key={i}>
+                      <span className="font-medium">{localized(a.name, a.name_en, locale)}</span>
+                      {" — "}
+                      {localized(a.description, a.description_en, locale)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </section>
       );
@@ -638,6 +680,16 @@ export function PrintSheet({
       }
       if (hasShieldForAC) {
         parts.push({ label: t("acShield"), value: -1 });
+      }
+      if (shieldProfBonus > 0 && hasShieldForAC) {
+        parts.push({
+          label: t("acShieldProficiency", {
+            shield: equippedShieldForAC?.armor
+              ? localized(equippedShieldForAC.armor.name, equippedShieldForAC.armor.name_en, locale)
+              : "",
+          }),
+          value: -shieldProfBonus,
+        });
       }
       if (dexMods.defensiveAdj !== 0) {
         parts.push({ label: t("acDex"), value: dexMods.defensiveAdj });

@@ -10,6 +10,7 @@ import {
   calculateAC,
   getMovementRate,
   isShieldItem,
+  getShieldProficiencyBonus,
 } from "@/lib/rules/equipment";
 import { useTranslations, useLocale } from "next-intl";
 import { localized } from "@/lib/utils/localize";
@@ -163,6 +164,9 @@ export function TabEquipment({
   const classGroups = characterClasses
     .filter((cc) => cc.is_active)
     .map((cc) => getClassGroup(cc.class_id as ClassId));
+  const equippedShieldItem = equipment.find(
+    (e) => e.armor && e.equipped && isShieldItem(e.armor.name)
+  );
   const currentAC = calculateAC({
     equippedArmorAC: equippedArmor?.armor?.ac ?? null,
     shieldEquipped,
@@ -172,6 +176,10 @@ export function TabEquipment({
     ignoreEncumbrance,
     isMagicalProtection: equippedArmor?.armor?.is_magical_protection ?? false,
     epicAcBonus,
+    shieldProficiencyBonus: getShieldProficiencyBonus(
+      equippedShieldItem?.armor?.name ?? null,
+      weaponProficiencies
+    ),
   });
 
   const equippedItems = equipment.filter((e) => e.equipped);

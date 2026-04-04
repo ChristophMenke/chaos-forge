@@ -51,6 +51,8 @@ interface PlayCombatPanelProps {
   epicEffects?: EpicEffects;
   characterKit?: string | null;
   singleWeaponStyleBonus?: number;
+  shieldProficiencyBonus?: number;
+  equippedShieldName?: string | null;
 }
 
 export function PlayCombatPanel({
@@ -74,6 +76,8 @@ export function PlayCombatPanel({
   epicEffects,
   characterKit,
   singleWeaponStyleBonus = 0,
+  shieldProficiencyBonus = 0,
+  equippedShieldName,
 }: PlayCombatPanelProps) {
   const t = useTranslations("playMode");
   const locale = useLocale();
@@ -119,6 +123,12 @@ export function PlayCombatPanel({
     }
     if (equippedShield) {
       parts.push({ label: t("shield"), value: -1 });
+    }
+    if (shieldProficiencyBonus > 0 && equippedShield) {
+      parts.push({
+        label: t("shieldProficiency", { shield: equippedShieldName ?? "" }),
+        value: -shieldProficiencyBonus,
+      });
     }
     if (dexDefenseAdj !== 0) {
       parts.push({ label: t("dexBonus"), value: dexDefenseAdj });

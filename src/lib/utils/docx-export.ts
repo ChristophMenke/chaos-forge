@@ -27,7 +27,12 @@ import { getNonproficiencyPenalty } from "@/lib/rules/proficiencies";
 import { findWeaponProf } from "@/lib/utils/proficiency-match";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
 import { getKit, getEffectiveHitDie } from "@/lib/rules/kits";
-import { calculateAC, calculateEncumbrance, isShieldItem } from "@/lib/rules/equipment";
+import {
+  calculateAC,
+  calculateEncumbrance,
+  isShieldItem,
+  getShieldProficiencyBonus,
+} from "@/lib/rules/equipment";
 import { getSingleWeaponStyleBonus } from "@/lib/rules/fighting-styles";
 import { feetToMeters, lbsToKg } from "@/lib/utils/units";
 import { localized, translateGender } from "@/lib/utils/localize";
@@ -48,6 +53,7 @@ import type {
   CharacterInventoryWithDetails,
   SpellRow,
   EpicItemRow,
+  TraitEntry,
 } from "@/lib/supabase/types";
 import type { PrintPreferences, PrintSectionId } from "@/lib/print-config";
 import { DEFAULT_PRINT_PREFERENCES } from "@/lib/print-config";
@@ -151,6 +157,8 @@ const DOCX_I18N: Record<string, Record<string, string>> = {
     racialAbilities: "Rassenfähigkeiten",
     classAbilities: "Klassenfähigkeiten",
     kitAbilities: "Kit-Fähigkeiten",
+    traits: "Traits",
+    disadvantages: "Nachteile",
     acBreakdown: "RK-Aufschlüsselung",
     thiefSkills: "Diebesfähigkeiten",
     weapons: "Waffen",
@@ -172,6 +180,7 @@ const DOCX_I18N: Record<string, Record<string, string>> = {
     saveSpell: "Zauber",
     base: "Basis",
     acShield: "Schild",
+    acShieldProficiency: "Schildkunde ({shield})",
     acFinal: "Gesamt",
     unarmoredBonus: "Ungerüstet",
     epicAcBonus: "Episch",
@@ -198,6 +207,8 @@ const DOCX_I18N: Record<string, Record<string, string>> = {
     racialAbilities: "Racial Abilities",
     classAbilities: "Class Abilities",
     kitAbilities: "Kit Abilities",
+    traits: "Traits",
+    disadvantages: "Disadvantages",
     acBreakdown: "AC Breakdown",
     thiefSkills: "Thief Skills",
     weapons: "Weapons",
@@ -219,6 +230,7 @@ const DOCX_I18N: Record<string, Record<string, string>> = {
     saveSpell: "Spell",
     base: "Base",
     acShield: "Shield",
+    acShieldProficiency: "Shield Prof. ({shield})",
     acFinal: "Final",
     unarmoredBonus: "Unarmored",
     epicAcBonus: "Epic",
@@ -297,6 +309,13 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
   const encumbranceLevel = calculateEncumbrance(totalWeight, strMods.weightAllow);
   const isMagicalProtection = equippedArmorForAC?.armor?.is_magical_protection ?? false;
   const epicEffects = getEpicEffects(props.epicItems ?? []);
+  const equippedShieldForAC = equipment.find(
+    (e) => e.armor && e.equipped && isShieldItem(e.armor.name)
+  );
+  const shieldProfBonus = getShieldProficiencyBonus(
+    equippedShieldForAC?.armor?.name ?? null,
+    props.weaponProficiencies
+  );
   const effectiveAC = calculateAC({
     equippedArmorAC: equippedArmorForAC?.armor?.ac ?? null,
     shieldEquipped: hasShieldForAC,
@@ -307,6 +326,7 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
     isMagicalProtection,
     epicAcBonus: epicEffects.acBonus,
     singleWeaponStyleBonus: getSingleWeaponStyleBonus(props.fightingStyles),
+    shieldProficiencyBonus: shieldProfBonus,
   });
 
   const strDisplay =
@@ -796,6 +816,86 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
         }
       }
 
+      // Traits
+      const traits = character.traits ?? [];
+      if (traits.length > 0) {
+        result.push(
+          new Paragraph({
+            spacing: { before: 120, after: 60 },
+            children: [
+              new TextRun({
+                text: dt.traits ?? "Traits",
+                bold: true,
+                font: "Calibri",
+                size: 22,
+              }),
+            ],
+          })
+        );
+        for (const a of traits) {
+          result.push(
+            new Paragraph({
+              spacing: { after: 20 },
+              indent: { left: 360 },
+              bullet: { level: 0 },
+              children: [
+                new TextRun({
+                  text: localized(a.name, a.name_en, props.locale),
+                  bold: true,
+                  font: "Calibri",
+                  size: 20,
+                }),
+                new TextRun({
+                  text: ` — ${localized(a.description, a.description_en, props.locale)}`,
+                  font: "Calibri",
+                  size: 20,
+                }),
+              ],
+            })
+          );
+        }
+      }
+
+      // Disadvantages
+      const disadvantages = character.disadvantages ?? [];
+      if (disadvantages.length > 0) {
+        result.push(
+          new Paragraph({
+            spacing: { before: 120, after: 60 },
+            children: [
+              new TextRun({
+                text: dt.disadvantages ?? "Disadvantages",
+                bold: true,
+                font: "Calibri",
+                size: 22,
+              }),
+            ],
+          })
+        );
+        for (const a of disadvantages) {
+          result.push(
+            new Paragraph({
+              spacing: { after: 20 },
+              indent: { left: 360 },
+              bullet: { level: 0 },
+              children: [
+                new TextRun({
+                  text: localized(a.name, a.name_en, props.locale),
+                  bold: true,
+                  font: "Calibri",
+                  size: 20,
+                }),
+                new TextRun({
+                  text: ` — ${localized(a.description, a.description_en, props.locale)}`,
+                  font: "Calibri",
+                  size: 20,
+                }),
+              ],
+            })
+          );
+        }
+      }
+
       return result;
     },
 
@@ -825,6 +925,22 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
       }
       if (hasShieldForAC) {
         parts.push({ label: dt.acShield ?? "Shield", value: "-1" });
+      }
+      if (shieldProfBonus > 0 && hasShieldForAC) {
+        const shieldLabel = equippedShieldForAC?.armor
+          ? localized(
+              equippedShieldForAC.armor.name,
+              equippedShieldForAC.armor.name_en,
+              props.locale
+            )
+          : "";
+        parts.push({
+          label: (dt.acShieldProficiency ?? "Shield Prof. ({shield})").replace(
+            "{shield}",
+            shieldLabel
+          ),
+          value: String(-shieldProfBonus),
+        });
       }
       if (dexMods.defensiveAdj !== 0) {
         const v = dexMods.defensiveAdj;

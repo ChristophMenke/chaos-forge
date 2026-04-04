@@ -23,6 +23,8 @@ export interface ACCalculationInput {
   epicAcBonus?: number;
   /** Single-Weapon Style AC bonus (1 or 2, from fighting style slots) */
   singleWeaponStyleBonus?: number;
+  /** Shield Proficiency AC bonus (1-3, from P.O: Skills & Powers Table 51) */
+  shieldProficiencyBonus?: number;
 }
 
 /**
@@ -44,6 +46,7 @@ export function calculateAC(input: ACCalculationInput): number {
     isMagicalProtection = false,
     epicAcBonus = 0,
     singleWeaponStyleBonus = 0,
+    shieldProficiencyBonus = 0,
   } = input;
 
   // Magical protection (Bracers +4, Ring +1) is a BONUS subtracted from base 10,
@@ -65,6 +68,9 @@ export function calculateAC(input: ACCalculationInput): number {
   // Single-Weapon Style bonus only applies when fighting without a shield
   const effectiveSWSBonus = shieldEquipped ? 0 : singleWeaponStyleBonus;
 
+  // Shield proficiency bonus only applies when a shield is equipped
+  const effectiveShieldProfBonus = shieldEquipped ? shieldProficiencyBonus : 0;
+
   return (
     baseAC +
     shieldBonus +
@@ -72,7 +78,8 @@ export function calculateAC(input: ACCalculationInput): number {
     magicACModifier +
     unarmoredBonus -
     epicAcBonus -
-    effectiveSWSBonus
+    effectiveSWSBonus -
+    effectiveShieldProfBonus
   );
 }
 
@@ -82,7 +89,38 @@ export function calculateAC(input: ACCalculationInput): number {
  */
 export function isShieldItem(name: string): boolean {
   const lower = name.toLowerCase();
-  return lower === "schild" || lower === "shield" || lower.includes("shield");
+  return lower === "buckler" || lower.includes("shield") || lower.includes("schild");
+}
+
+// ─── SHIELD PROFICIENCY (Player's Option: Skills & Powers, Table 51) ────────
+
+const SHIELD_PROF_BONUS: Record<string, number> = {
+  buckler: 1,
+  schild: 2,
+  shield: 2,
+  "kleiner schild": 2,
+  "small shield": 2,
+  "mittlerer schild": 3,
+  "medium shield": 3,
+  "großer schild": 3,
+  "large shield": 3,
+  "body shield": 3,
+};
+
+/**
+ * Get Shield Proficiency AC bonus for an equipped shield.
+ * Requires a matching weapon proficiency entry for the shield type.
+ * Returns 0 if not proficient or no shield equipped.
+ */
+export function getShieldProficiencyBonus(
+  shieldName: string | null,
+  weaponProficiencies: { weapon_name: string }[]
+): number {
+  if (!shieldName) return 0;
+  const lower = shieldName.toLowerCase();
+  const isProficient = weaponProficiencies.some((wp) => wp.weapon_name.toLowerCase() === lower);
+  if (!isProficient) return 0;
+  return SHIELD_PROF_BONUS[lower] ?? 0;
 }
 
 /**

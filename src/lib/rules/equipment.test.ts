@@ -6,6 +6,8 @@ import {
   getStartingGold,
   calculatePayment,
   purseTotalInCP,
+  isShieldItem,
+  getShieldProficiencyBonus,
 } from "./equipment";
 
 describe("EQUIP-001: AC Calculation", () => {
@@ -222,6 +224,39 @@ describe("EQUIP-001: AC Calculation", () => {
     ).toBe(9); // 10 - 1 shield, NO style bonus
   });
 
+  // ─── Shield Proficiency Bonus (P.O: Skills & Powers) ────────────────
+  it("Shield Proficiency: Medium Shield +3 bonus", () => {
+    expect(
+      calculateAC({
+        equippedArmorAC: 5,
+        shieldEquipped: true,
+        dexDefenseAdj: 0,
+        shieldProficiencyBonus: 3,
+      })
+    ).toBe(1); // 5 - 1 shield - 3 prof = 1
+  });
+
+  it("Shield Proficiency: ignored when no shield equipped", () => {
+    expect(
+      calculateAC({
+        equippedArmorAC: 5,
+        dexDefenseAdj: 0,
+        shieldProficiencyBonus: 3,
+      })
+    ).toBe(5); // No shield → no prof bonus
+  });
+
+  it("Shield Proficiency: stacks with DEX and shield", () => {
+    expect(
+      calculateAC({
+        equippedArmorAC: 5,
+        shieldEquipped: true,
+        dexDefenseAdj: -2,
+        shieldProficiencyBonus: 2,
+      })
+    ).toBe(0); // 5 - 1 shield - 2 DEX - 2 prof = 0
+  });
+
   it("Single-Weapon Style stacks with unarmored bonus", () => {
     expect(
       calculateAC({
@@ -357,5 +392,51 @@ describe("Payment System", () => {
     expect(result.success).toBe(true);
     expect(result.remaining.sp).toBe(2);
     expect(result.remaining.cp).toBe(5);
+  });
+});
+
+describe("isShieldItem", () => {
+  it("detects Schild", () => expect(isShieldItem("Schild")).toBe(true));
+  it("detects Shield", () => expect(isShieldItem("Shield")).toBe(true));
+  it("detects Buckler", () => expect(isShieldItem("Buckler")).toBe(true));
+  it("detects Großer Schild", () => expect(isShieldItem("Großer Schild")).toBe(true));
+  it("detects Large Shield", () => expect(isShieldItem("Large Shield")).toBe(true));
+  it("detects Mittlerer Schild", () => expect(isShieldItem("Mittlerer Schild")).toBe(true));
+  it("detects Medium Shield", () => expect(isShieldItem("Medium Shield")).toBe(true));
+  it("rejects Kettenhemd", () => expect(isShieldItem("Kettenhemd")).toBe(false));
+  it("rejects Chain Mail", () => expect(isShieldItem("Chain Mail")).toBe(false));
+});
+
+describe("getShieldProficiencyBonus", () => {
+  it("Buckler proficiency → +1", () => {
+    expect(getShieldProficiencyBonus("Buckler", [{ weapon_name: "Buckler" }])).toBe(1);
+  });
+
+  it("Schild proficiency → +2", () => {
+    expect(getShieldProficiencyBonus("Schild", [{ weapon_name: "Schild" }])).toBe(2);
+  });
+
+  it("Mittlerer Schild proficiency → +3", () => {
+    expect(
+      getShieldProficiencyBonus("Mittlerer Schild", [{ weapon_name: "Mittlerer Schild" }])
+    ).toBe(3);
+  });
+
+  it("Großer Schild proficiency → +3", () => {
+    expect(getShieldProficiencyBonus("Großer Schild", [{ weapon_name: "Großer Schild" }])).toBe(3);
+  });
+
+  it("no proficiency → 0", () => {
+    expect(getShieldProficiencyBonus("Schild", [{ weapon_name: "Langschwert" }])).toBe(0);
+  });
+
+  it("null shield → 0", () => {
+    expect(getShieldProficiencyBonus(null, [{ weapon_name: "Schild" }])).toBe(0);
+  });
+
+  it("case-insensitive matching", () => {
+    expect(
+      getShieldProficiencyBonus("mittlerer schild", [{ weapon_name: "Mittlerer Schild" }])
+    ).toBe(3);
   });
 });

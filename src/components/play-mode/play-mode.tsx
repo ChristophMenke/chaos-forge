@@ -34,6 +34,7 @@ import {
   calculateEncumbrance,
   getMovementRate,
   isShieldItem,
+  getShieldProficiencyBonus,
 } from "@/lib/rules/equipment";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
 import { getConBonusCap } from "@/lib/rules/hitpoints";
@@ -419,9 +420,18 @@ export function PlayMode({
   );
 
   const isMagicalProtection = equippedArmor?.armor?.is_magical_protection ?? false;
+  const equippedShieldItem = useMemo(
+    () => equipment.find((e) => e.equipped && e.armor && isShieldItem(e.armor.name)),
+    [equipment]
+  );
+  const equippedShieldName = equippedShieldItem?.armor?.name ?? null;
   const singleWeaponStyleBonus = useMemo(
     () => getSingleWeaponStyleBonus(fightingStyles),
     [fightingStyles]
+  );
+  const shieldProficiencyBonus = useMemo(
+    () => getShieldProficiencyBonus(equippedShieldName, weaponProficiencies),
+    [equippedShieldName, weaponProficiencies]
   );
 
   const ac = useMemo(
@@ -436,6 +446,7 @@ export function PlayMode({
         isMagicalProtection,
         epicAcBonus: epicEffects.acBonus,
         singleWeaponStyleBonus,
+        shieldProficiencyBonus,
       }),
     [
       equippedArmor,
@@ -447,6 +458,7 @@ export function PlayMode({
       epicEffects.acBonus,
       isMagicalProtection,
       singleWeaponStyleBonus,
+      shieldProficiencyBonus,
     ]
   );
 
@@ -730,6 +742,8 @@ export function PlayMode({
             epicEffects={epicEffects}
             characterKit={character.kit}
             singleWeaponStyleBonus={singleWeaponStyleBonus}
+            shieldProficiencyBonus={shieldProficiencyBonus}
+            equippedShieldName={equippedShieldName}
           />
           {showSpells && (
             <PlaySpellbookPanel
@@ -823,6 +837,8 @@ export function PlayMode({
             epicEffects={epicEffects}
             characterKit={character.kit}
             singleWeaponStyleBonus={singleWeaponStyleBonus}
+            shieldProficiencyBonus={shieldProficiencyBonus}
+            equippedShieldName={equippedShieldName}
           />
         )}
         {activePanel === "spellbook" && showSpells && (

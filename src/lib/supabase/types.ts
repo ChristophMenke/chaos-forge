@@ -69,9 +69,19 @@ export interface CharacterRow {
   ignore_encumbrance: boolean;
   allowed_spell_books: string[];
   spell_whitelist: string[];
+  traits: TraitEntry[];
+  disadvantages: TraitEntry[];
   created_at: string;
   updated_at: string;
   last_accessed_at: string;
+}
+
+export interface TraitEntry {
+  name: string;
+  name_en: string;
+  description: string;
+  description_en: string;
+  cost: number;
 }
 
 export interface CharacterInsert {
