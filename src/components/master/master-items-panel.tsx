@@ -73,6 +73,22 @@ export function MasterItemsPanel({
   const [ciName, setCiName] = useState("");
   const [ciWeight, setCiWeight] = useState("");
 
+  // Armor proficiency names (for shields)
+  const armorProfNames = useMemo(() => {
+    const names = new Set<string>();
+    for (const a of armor) {
+      if (!a.is_custom) names.add(a.name);
+    }
+    return Array.from(names).sort();
+  }, [armor]);
+  const [caProfSearch, setCaProfSearch] = useState("");
+  const [caProfSelected, setCaProfSelected] = useState<string | null>(null);
+  const filteredArmorProfNames = useMemo(() => {
+    if (!caProfSearch.trim()) return armorProfNames.slice(0, 10);
+    const q = caProfSearch.toLowerCase();
+    return armorProfNames.filter((n) => n.toLowerCase().includes(q)).slice(0, 10);
+  }, [armorProfNames, caProfSearch]);
+
   // Custom armor form
   const [caName, setCaName] = useState("");
   const [caAc, setCaAc] = useState("");
@@ -84,11 +100,9 @@ export function MasterItemsPanel({
   const [caIsMagical, setCaIsMagical] = useState(false);
 
   async function handleCreateWeapon() {
-    if (!cwName.trim()) return;
+    if (!cwName.trim() || !cwProfSelected) return;
     setCreating(true);
-    // Use proficiency name as DB weapon name (for proficiency matching)
-    // Custom display name goes into custom_label when injecting to a character
-    const profName = cwProfSelected ?? cwName.trim();
+    const profName = cwProfSelected;
     const result = await createCustomWeaponGm({
       name: profName,
       name_en: cwNameEn.trim() || undefined,
@@ -119,10 +133,11 @@ export function MasterItemsPanel({
   }
 
   async function handleCreateArmor() {
-    if (!caName.trim()) return;
+    if (!caName.trim() || !caProfSelected) return;
     setCreating(true);
     const result = await createCustomArmorGm({
-      name: caName.trim(),
+      name: caProfSelected,
+      name_en: caName.trim() !== caProfSelected ? caName.trim() : undefined,
       ac: caAc ? Number(caAc) : 10,
       weight: caWeight ? Number(caWeight) : 0,
       is_shield: caIsShield,
@@ -137,6 +152,8 @@ export function MasterItemsPanel({
       setCaWeight("");
       setCaIsShield(false);
       setCaIsMagical(false);
+      setCaProfSearch("");
+      setCaProfSelected(null);
     } else {
       showToastMsg(t("injectFailed"), "error");
     }
@@ -422,7 +439,7 @@ export function MasterItemsPanel({
                 </div>
                 <Button
                   className="w-full"
-                  disabled={creating || !cwName.trim()}
+                  disabled={creating || !cwName.trim() || !cwProfSelected}
                   onClick={handleCreateWeapon}
                   data-testid="gm-create-weapon-submit"
                 >
@@ -442,6 +459,52 @@ export function MasterItemsPanel({
                   className="w-full rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   data-testid="gm-create-armor-name"
                 />
+                {/* Armor/Shield Proficiency selector */}
+                <div className="relative">
+                  <span className="mb-1 block text-[10px] text-muted-foreground">Proficiency</span>
+                  <input
+                    type="text"
+                    placeholder={caProfSelected ?? "z.B. Kettenpanzer, Schild..."}
+                    value={caProfSearch}
+                    onChange={(e) => {
+                      setCaProfSearch(e.target.value);
+                      setCaProfSelected(null);
+                    }}
+                    className={`w-full rounded-md border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${
+                      caProfSelected ? "border-primary text-primary" : "border-border"
+                    }`}
+                    data-testid="gm-create-armor-prof"
+                  />
+                  {caProfSearch && !caProfSelected && filteredArmorProfNames.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded-md border border-border bg-background shadow-lg">
+                      {filteredArmorProfNames.map((name) => (
+                        <button
+                          key={name}
+                          type="button"
+                          onClick={() => {
+                            setCaProfSelected(name);
+                            setCaProfSearch("");
+                          }}
+                          className="w-full px-3 py-1.5 text-left text-sm hover:bg-accent/50"
+                        >
+                          {name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {caProfSelected && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCaProfSelected(null);
+                        setCaProfSearch("");
+                      }}
+                      className="absolute right-2 top-6 text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="number"
@@ -511,7 +574,7 @@ export function MasterItemsPanel({
                 )}
                 <Button
                   className="w-full"
-                  disabled={creating || !caName.trim()}
+                  disabled={creating || !caName.trim() || !caProfSelected}
                   onClick={handleCreateArmor}
                   data-testid="gm-create-armor-submit"
                 >

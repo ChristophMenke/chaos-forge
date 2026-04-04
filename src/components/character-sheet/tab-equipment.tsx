@@ -100,6 +100,40 @@ export function TabEquipment({
   const [addQuantity, setAddQuantity] = useState(1);
   const [showCustomWeaponForm, setShowCustomWeaponForm] = useState(false);
   const [showCustomArmorForm, setShowCustomArmorForm] = useState(false);
+
+  // Proficiency autocomplete for custom items
+  const [weaponProfSearch, setWeaponProfSearch] = useState("");
+  const [weaponProfSelected, setWeaponProfSelected] = useState<string | null>(null);
+  const [armorProfSearch, setArmorProfSearch] = useState("");
+  const [armorProfSelected, setArmorProfSelected] = useState<string | null>(null);
+
+  const weaponProfNames = useMemo(() => {
+    const names = new Set<string>();
+    for (const w of allWeapons) {
+      if (!w.is_custom) names.add(w.name);
+    }
+    return Array.from(names).sort();
+  }, [allWeapons]);
+
+  const armorProfNames = useMemo(() => {
+    const names = new Set<string>();
+    for (const a of allArmor) {
+      if (!a.is_custom) names.add(a.name);
+    }
+    return Array.from(names).sort();
+  }, [allArmor]);
+
+  const filteredWeaponProfs = useMemo(() => {
+    if (!weaponProfSearch.trim()) return weaponProfNames.slice(0, 10);
+    const q = weaponProfSearch.toLowerCase();
+    return weaponProfNames.filter((n) => n.toLowerCase().includes(q)).slice(0, 10);
+  }, [weaponProfNames, weaponProfSearch]);
+
+  const filteredArmorProfs = useMemo(() => {
+    if (!armorProfSearch.trim()) return armorProfNames.slice(0, 10);
+    const q = armorProfSearch.toLowerCase();
+    return armorProfNames.filter((n) => n.toLowerCase().includes(q)).slice(0, 10);
+  }, [armorProfNames, armorProfSearch]);
   const [customWeapon, setCustomWeapon] = useState({
     name: "",
     name_en: "",
@@ -267,13 +301,13 @@ export function TabEquipment({
   }, [allArmor, searchQuery]);
 
   async function createCustomWeapon() {
-    if (!customWeapon.name.trim()) return;
+    if (!customWeapon.name.trim() || !weaponProfSelected) return;
     setLoading(true);
     const supabase = createClient();
     const { data, error } = await supabase
       .from("weapons")
       .insert({
-        name: customWeapon.name.trim(),
+        name: weaponProfSelected,
         name_en: customWeapon.name_en.trim() || null,
         damage_sm: customWeapon.damage_sm.trim() || "1d4",
         damage_l: customWeapon.damage_l.trim() || "1d4",
@@ -299,6 +333,8 @@ export function TabEquipment({
           equipped: false,
           hit_bonus: customWeapon.magic_bonus,
           damage_bonus: customWeapon.magic_bonus,
+          custom_label:
+            customWeapon.name.trim() !== weaponProfSelected ? customWeapon.name.trim() : null,
         })
         .select("*, weapon:weapons(*), armor:armor(*)")
         .single();
@@ -317,19 +353,21 @@ export function TabEquipment({
         magic_bonus: 0,
         quantity: 1,
       });
+      setWeaponProfSearch("");
+      setWeaponProfSelected(null);
       setShowCustomWeaponForm(false);
     }
     setLoading(false);
   }
 
   async function createCustomArmor() {
-    if (!customArmor.name.trim()) return;
+    if (!customArmor.name.trim() || !armorProfSelected) return;
     setLoading(true);
     const supabase = createClient();
     const { data, error } = await supabase
       .from("armor")
       .insert({
-        name: customArmor.name.trim(),
+        name: armorProfSelected,
         name_en: customArmor.name_en.trim() || null,
         ac: customArmor.ac ? Number(customArmor.ac) : 10,
         weight: customArmor.weight ? Number(customArmor.weight) : 0,
@@ -357,6 +395,8 @@ export function TabEquipment({
         is_shield: false,
         shield_type: "",
       });
+      setArmorProfSearch("");
+      setArmorProfSelected(null);
       setShowCustomArmorForm(false);
     }
     setLoading(false);
@@ -1000,6 +1040,56 @@ export function TabEquipment({
                           className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                           data-testid="custom-weapon-name"
                         />
+                        {/* Proficiency Autocomplete */}
+                        <div className="relative">
+                          <span className="mb-1 block text-xs text-muted-foreground">
+                            Proficiency
+                          </span>
+                          <input
+                            type="text"
+                            placeholder={weaponProfSelected ?? "z.B. Langschwert..."}
+                            value={weaponProfSearch}
+                            onChange={(e) => {
+                              setWeaponProfSearch(e.target.value);
+                              setWeaponProfSelected(null);
+                            }}
+                            className={`w-full rounded-md border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
+                              weaponProfSelected ? "border-primary text-primary" : "border-border"
+                            }`}
+                            data-testid="custom-weapon-prof"
+                          />
+                          {weaponProfSearch &&
+                            !weaponProfSelected &&
+                            filteredWeaponProfs.length > 0 && (
+                              <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded-md border border-border bg-background shadow-lg">
+                                {filteredWeaponProfs.map((name) => (
+                                  <button
+                                    key={name}
+                                    type="button"
+                                    onClick={() => {
+                                      setWeaponProfSelected(name);
+                                      setWeaponProfSearch("");
+                                    }}
+                                    className="w-full px-3 py-1.5 text-left text-sm hover:bg-accent/50"
+                                  >
+                                    {name}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          {weaponProfSelected && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setWeaponProfSelected(null);
+                                setWeaponProfSearch("");
+                              }}
+                              className="absolute right-2 top-7 text-xs text-muted-foreground hover:text-foreground"
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </div>
                         <input
                           type="text"
                           placeholder={t("nameEn")}
@@ -1135,7 +1225,7 @@ export function TabEquipment({
                           <Button
                             variant="default"
                             size="sm"
-                            disabled={loading || !customWeapon.name.trim()}
+                            disabled={loading || !customWeapon.name.trim() || !weaponProfSelected}
                             onClick={createCustomWeapon}
                             data-testid="custom-weapon-submit"
                           >
@@ -1158,6 +1248,8 @@ export function TabEquipment({
                                 magic_bonus: 0,
                                 quantity: 1,
                               });
+                              setWeaponProfSearch("");
+                              setWeaponProfSelected(null);
                             }}
                             data-testid="custom-weapon-cancel"
                           >
@@ -1228,6 +1320,56 @@ export function TabEquipment({
                           className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                           data-testid="custom-armor-name"
                         />
+                        {/* Armor/Shield Proficiency Autocomplete */}
+                        <div className="relative">
+                          <span className="mb-1 block text-xs text-muted-foreground">
+                            Proficiency
+                          </span>
+                          <input
+                            type="text"
+                            placeholder={armorProfSelected ?? "z.B. Kettenpanzer, Schild..."}
+                            value={armorProfSearch}
+                            onChange={(e) => {
+                              setArmorProfSearch(e.target.value);
+                              setArmorProfSelected(null);
+                            }}
+                            className={`w-full rounded-md border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
+                              armorProfSelected ? "border-primary text-primary" : "border-border"
+                            }`}
+                            data-testid="custom-armor-prof"
+                          />
+                          {armorProfSearch &&
+                            !armorProfSelected &&
+                            filteredArmorProfs.length > 0 && (
+                              <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded-md border border-border bg-background shadow-lg">
+                                {filteredArmorProfs.map((name) => (
+                                  <button
+                                    key={name}
+                                    type="button"
+                                    onClick={() => {
+                                      setArmorProfSelected(name);
+                                      setArmorProfSearch("");
+                                    }}
+                                    className="w-full px-3 py-1.5 text-left text-sm hover:bg-accent/50"
+                                  >
+                                    {name}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          {armorProfSelected && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setArmorProfSelected(null);
+                                setArmorProfSearch("");
+                              }}
+                              className="absolute right-2 top-7 text-xs text-muted-foreground hover:text-foreground"
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </div>
                         <input
                           type="text"
                           placeholder={t("nameEn")}
@@ -1337,7 +1479,7 @@ export function TabEquipment({
                           <Button
                             variant="default"
                             size="sm"
-                            disabled={loading || !customArmor.name.trim()}
+                            disabled={loading || !customArmor.name.trim() || !armorProfSelected}
                             onClick={createCustomArmor}
                             data-testid="custom-armor-submit"
                           >
@@ -1358,6 +1500,8 @@ export function TabEquipment({
                                 is_shield: false,
                                 shield_type: "",
                               });
+                              setArmorProfSearch("");
+                              setArmorProfSelected(null);
                             }}
                             data-testid="custom-armor-cancel"
                           >
