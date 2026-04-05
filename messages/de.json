@@ -657,7 +657,13 @@
     "strongestStat": "Stärkstes Attribut",
     "alignmentDistribution": "Gesinnungen",
     "partyClassDistribution": "Party-Klassen",
-    "partyRaceDistribution": "Party-Rassen"
+    "partyRaceDistribution": "Party-Rassen",
+    "multiclassCount": "Multiclass",
+    "multiclassValue": "{count} von {total}",
+    "spellChampion": "Meiste Zauber",
+    "spellChampionValue": "{name} ({count})",
+    "xpChampion": "XP-Champion",
+    "xpChampionValue": "{name} ({total} XP)"
   },
   "import": {
     "title": "Charakterbogen importieren",

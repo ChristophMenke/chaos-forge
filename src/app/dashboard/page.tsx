@@ -16,6 +16,9 @@ import {
   Crown,
   Swords,
   Shield,
+  Layers,
+  Sparkles,
+  Trophy,
   type LucideIcon,
 } from "lucide-react";
 import { getAlignmentLabel } from "@/lib/rules/alignment";
@@ -68,6 +71,35 @@ function StatCard({
   );
 }
 
+/** Compact stat card for party-wide stats (less padding, smaller text) */
+function MiniStatCard({
+  icon: Icon,
+  label,
+  value,
+  testId,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  testId: string;
+}) {
+  return (
+    <div className="stat-card-frame glass glow-neutral rounded-lg px-3 py-2.5" data-testid={testId}>
+      <div className="relative z-10 flex items-center gap-2.5">
+        <Icon className="stat-icon-glow h-4 w-4 shrink-0 text-primary/70" aria-hidden="true" />
+        <div className="min-w-0 flex-1">
+          <div className="text-[0.5625rem] font-medium uppercase tracking-[0.15em] text-muted-foreground">
+            {label}
+          </div>
+          <div className="stat-glow-pulse truncate font-heading text-lg leading-tight text-primary">
+            {value}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default async function DashboardPage() {
   const t = await getTranslations("dashboard");
   const ts = await getTranslations("sharing");
@@ -87,6 +119,7 @@ export default async function DashboardPage() {
     { data: xpHistory },
     { data: tags },
     { data: sessionTagRows },
+    { data: spellCounts },
   ] = await Promise.all([
     supabase
       .from("characters")
@@ -127,6 +160,7 @@ export default async function DashboardPage() {
       .returns<{ character_id: string; xp_amount: number }[]>(),
     supabase.from("tags").select("*").returns<TagRow[]>(),
     supabase.from("session_tags").select("tag_id").returns<{ tag_id: string }[]>(),
+    supabase.from("character_spells").select("character_id").returns<{ character_id: string }[]>(),
   ]);
 
   // Build party overview: public characters + shared (non-public) characters
@@ -391,6 +425,40 @@ export default async function DashboardPage() {
   })();
   const maxPartyRaceCount = partyRaceDistribution[0]?.count ?? 1;
 
+  // Multiclass count in party
+  const multiclassCount = partyChars.filter((c) => {
+    const classes = (charClassMap.get(c.id) ?? []).filter((cc) => cc.is_active);
+    return classes.length > 1;
+  }).length;
+
+  // Spell champion (most learned spells)
+  const spellCountMap = new Map<string, number>();
+  for (const row of spellCounts ?? []) {
+    spellCountMap.set(row.character_id, (spellCountMap.get(row.character_id) ?? 0) + 1);
+  }
+  const spellChampion = (() => {
+    let best: { name: string; count: number } | null = null;
+    for (const c of partyChars) {
+      const count = spellCountMap.get(c.id) ?? 0;
+      if (count > 0 && (!best || count > best.count)) {
+        best = { name: c.name, count };
+      }
+    }
+    return best;
+  })();
+
+  // XP champion (highest total XP)
+  const xpChampion = (() => {
+    let best: { name: string; total: number } | null = null;
+    for (const c of partyChars) {
+      const total = xpTotals.get(c.id) ?? 0;
+      if (total > 0 && (!best || total > best.total)) {
+        best = { name: c.name, total };
+      }
+    }
+    return best;
+  })();
+
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6" data-testid="dashboard-page">
       <h1 className="font-heading text-3xl text-primary">{t("title")}</h1>
@@ -512,75 +580,100 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* ── Party-Wide Stats ────────────────────────────────── */}
+      {/* ── Party-Wide Stats (compact) ───────────────────────── */}
       {partyChars.length > 0 && (
         <>
           <h2 className="font-heading text-xl">{t("partyStats")}</h2>
 
-          {/* Party stat cards row */}
-          <div className="stagger-reveal grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard
+          {/* Compact stat cards — 2x2 on mobile, 4-across on desktop */}
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
+            <MiniStatCard
               icon={Users}
               label={t("partyAdventurers")}
               value={partyChars.length}
               testId="stat-card-party-adventurers"
             />
-            <StatCard
+            <MiniStatCard
               icon={TrendingUp}
               label={t("partyAvgLevel")}
               value={partyAvgLevel}
               testId="stat-card-party-avg-level"
             />
             {highestLevelChar && (
-              <StatCard
+              <MiniStatCard
                 icon={Crown}
                 label={t("highestLevel")}
-                value={t("highestLevelChar", {
-                  name: highestLevelChar.name,
-                  level: highestLevelChar.level,
-                })}
+                value={`${highestLevelChar.name} (${highestLevelChar.level})`}
                 testId="stat-card-highest-level"
               />
             )}
             {strongestStat && (
-              <StatCard
+              <MiniStatCard
                 icon={Swords}
                 label={t("strongestStat")}
                 value={`${strongestStat.stat} ${strongestStat.value} (${strongestStat.name})`}
                 testId="stat-card-strongest-stat"
               />
             )}
+            <MiniStatCard
+              icon={Layers}
+              label={t("multiclassCount")}
+              value={t("multiclassValue", {
+                count: multiclassCount,
+                total: partyChars.length,
+              })}
+              testId="stat-card-multiclass"
+            />
+            {spellChampion && (
+              <MiniStatCard
+                icon={Sparkles}
+                label={t("spellChampion")}
+                value={t("spellChampionValue", {
+                  name: spellChampion.name,
+                  count: spellChampion.count,
+                })}
+                testId="stat-card-spell-champion"
+              />
+            )}
+            {xpChampion && (
+              <MiniStatCard
+                icon={Trophy}
+                label={t("xpChampion")}
+                value={t("xpChampionValue", {
+                  name: xpChampion.name,
+                  total: xpChampion.total.toLocaleString(locale),
+                })}
+                testId="stat-card-xp-champion"
+              />
+            )}
           </div>
 
-          {/* Party distributions */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Compact distributions — 3 columns on desktop */}
+          <div className="grid gap-2 sm:gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {/* Alignment Distribution */}
             {alignmentDistribution.length > 0 && (
               <div
-                className="stat-card-frame glass glow-neutral rounded-xl p-5"
+                className="stat-card-frame glass glow-neutral rounded-lg p-3"
                 data-testid="stat-card-alignments"
               >
-                <span aria-hidden="true" className="stat-corner-tr" />
-                <h3 className="relative z-10 mb-3 text-[0.625rem] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                  <Shield
-                    className="mr-1.5 inline h-3.5 w-3.5 align-[-2px] text-primary/60"
-                    aria-hidden="true"
-                  />
+                <h3 className="relative z-10 mb-2 text-[0.5625rem] font-medium uppercase tracking-[0.15em] text-muted-foreground">
                   {t("alignmentDistribution")}
                 </h3>
-                <div className="relative z-10 space-y-2.5">
+                <div className="relative z-10 space-y-1.5">
                   {alignmentDistribution.map((a) => {
                     const pct = Math.round((a.count / maxAlignmentCount) * 100);
                     return (
-                      <div key={a.name} className="flex items-center gap-3">
-                        <span className="w-28 truncate text-xs text-foreground">{a.name}</span>
+                      <div key={a.name} className="flex items-center gap-2">
+                        <span className="w-24 truncate text-[0.6875rem] text-foreground">
+                          {a.name}
+                        </span>
                         <div className="distribution-bar flex-1">
                           <div
                             className="distribution-bar-fill hp-bar-priest"
                             style={{ width: `${pct}%` }}
                           />
                         </div>
-                        <span className="w-6 text-right font-mono text-xs text-muted-foreground">
+                        <span className="w-4 text-right font-mono text-[0.6875rem] text-muted-foreground">
                           {a.count}
                         </span>
                       </div>
@@ -593,27 +686,28 @@ export default async function DashboardPage() {
             {/* Party Class Distribution */}
             {partyClassDistribution.length > 0 && (
               <div
-                className="stat-card-frame glass glow-neutral rounded-xl p-5"
+                className="stat-card-frame glass glow-neutral rounded-lg p-3"
                 data-testid="stat-card-party-classes"
               >
-                <span aria-hidden="true" className="stat-corner-tr" />
-                <h3 className="relative z-10 mb-3 text-[0.625rem] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                <h3 className="relative z-10 mb-2 text-[0.5625rem] font-medium uppercase tracking-[0.15em] text-muted-foreground">
                   {t("partyClassDistribution")}
                 </h3>
-                <div className="relative z-10 space-y-2.5">
+                <div className="relative z-10 space-y-1.5">
                   {partyClassDistribution.map((c) => {
                     const pct = Math.round((c.count / maxPartyClassCount) * 100);
                     const colors = getClassGroupColors(c.group);
                     return (
-                      <div key={c.name} className="flex items-center gap-3">
-                        <span className="w-20 truncate text-xs text-foreground">{c.name}</span>
+                      <div key={c.name} className="flex items-center gap-2">
+                        <span className="w-16 truncate text-[0.6875rem] text-foreground">
+                          {c.name}
+                        </span>
                         <div className="distribution-bar flex-1">
                           <div
                             className={`distribution-bar-fill ${colors.hpBar}`}
                             style={{ width: `${pct}%` }}
                           />
                         </div>
-                        <span className="w-6 text-right font-mono text-xs text-muted-foreground">
+                        <span className="w-4 text-right font-mono text-[0.6875rem] text-muted-foreground">
                           {c.count}
                         </span>
                       </div>
@@ -626,26 +720,27 @@ export default async function DashboardPage() {
             {/* Party Race Distribution */}
             {partyRaceDistribution.length > 0 && (
               <div
-                className="stat-card-frame glass glow-neutral rounded-xl p-5"
+                className="stat-card-frame glass glow-neutral rounded-lg p-3"
                 data-testid="stat-card-party-races"
               >
-                <span aria-hidden="true" className="stat-corner-tr" />
-                <h3 className="relative z-10 mb-3 text-[0.625rem] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                <h3 className="relative z-10 mb-2 text-[0.5625rem] font-medium uppercase tracking-[0.15em] text-muted-foreground">
                   {t("partyRaceDistribution")}
                 </h3>
-                <div className="relative z-10 space-y-2.5">
+                <div className="relative z-10 space-y-1.5">
                   {partyRaceDistribution.map((r) => {
                     const pct = Math.round((r.count / maxPartyRaceCount) * 100);
                     return (
-                      <div key={r.name} className="flex items-center gap-3">
-                        <span className="w-20 truncate text-xs text-foreground">{r.name}</span>
+                      <div key={r.name} className="flex items-center gap-2">
+                        <span className="w-16 truncate text-[0.6875rem] text-foreground">
+                          {r.name}
+                        </span>
                         <div className="distribution-bar flex-1">
                           <div
                             className="distribution-bar-fill hp-bar-priest"
                             style={{ width: `${pct}%` }}
                           />
                         </div>
-                        <span className="w-6 text-right font-mono text-xs text-muted-foreground">
+                        <span className="w-4 text-right font-mono text-[0.6875rem] text-muted-foreground">
                           {r.count}
                         </span>
                       </div>

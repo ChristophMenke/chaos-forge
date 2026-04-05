@@ -657,7 +657,13 @@
     "strongestStat": "Strongest Attribute",
     "alignmentDistribution": "Alignments",
     "partyClassDistribution": "Party Classes",
-    "partyRaceDistribution": "Party Races"
+    "partyRaceDistribution": "Party Races",
+    "multiclassCount": "Multiclass",
+    "multiclassValue": "{count} of {total}",
+    "spellChampion": "Most Spells",
+    "spellChampionValue": "{name} ({count})",
+    "xpChampion": "XP Champion",
+    "xpChampionValue": "{name} ({total} XP)"
   },
   "import": {
     "title": "Import Character Sheet",
