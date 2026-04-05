@@ -6,22 +6,6 @@ import AxeBuilder from "@axe-core/playwright";
 const MOBILE_VIEWPORT = { width: 390, height: 844 };
 
 test.describe("Mobile Responsive (iPhone 13)", () => {
-  test("characters page — mobile nav has more menu", async ({ page }) => {
-    await page.setViewportSize(MOBILE_VIEWPORT);
-    await page.goto("/characters");
-    // Wait for hydration + CSS to apply (CI can be slow)
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(2000);
-    // Mobile bottom nav should be visible at 390px width (< sm breakpoint 640px)
-    await expect(page.getByTestId("app-nav-mobile")).toBeVisible({ timeout: 10000 });
-    // More button should exist
-    const moreTrigger = page.getByTestId("mobile-more-trigger");
-    await expect(moreTrigger).toBeVisible();
-    // Click more to open panel
-    await moreTrigger.click();
-    await expect(page.getByTestId("mobile-more-panel")).toBeVisible({ timeout: 5000 });
-  });
-
   test("character cards render without overflow on mobile", async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await page.goto("/characters");

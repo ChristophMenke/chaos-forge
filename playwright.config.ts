@@ -40,6 +40,16 @@ export default defineConfig({
         "magic-items.spec.ts",
       ],
     },
+    // Mobile tests — use iPhone device for reliable mobile viewport
+    {
+      name: "mobile",
+      dependencies: ["setup"],
+      use: {
+        ...devices["iPhone 13"],
+        storageState: "e2e/.auth/user.json",
+      },
+      testMatch: ["mobile.spec.ts"],
+    },
     // Unauthenticated tests — no storage state, but wait for setup (webserver)
     {
       name: "chromium-noauth",
