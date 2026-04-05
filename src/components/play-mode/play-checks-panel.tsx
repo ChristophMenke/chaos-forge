@@ -419,14 +419,31 @@ export function PlayChecksPanel({
       {nwpChecks.length > 0 && (
         <div data-testid="play-nwp-checks">
           <h4 className="mb-1.5 text-xs font-medium text-muted-foreground">{t("nwpChecks")}</h4>
+          <span id="nwp-toggle-hint" className="sr-only">
+            {t("toggleDescription")}
+          </span>
           <div className="space-y-1">
             {nwpChecks.map((nwp) => (
               <div
                 key={nwp.name}
+                role={nwp.description ? "button" : undefined}
+                tabIndex={nwp.description ? 0 : undefined}
+                aria-expanded={nwp.description ? expandedNwp === nwp.name : undefined}
+                aria-describedby={nwp.description ? "nwp-toggle-hint" : undefined}
                 className={`rounded-md border border-border px-2 py-1 ${nwp.description ? "cursor-pointer" : ""}`}
                 onClick={
                   nwp.description
                     ? () => setExpandedNwp(expandedNwp === nwp.name ? null : nwp.name)
+                    : undefined
+                }
+                onKeyDown={
+                  nwp.description
+                    ? (e: React.KeyboardEvent) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setExpandedNwp(expandedNwp === nwp.name ? null : nwp.name);
+                        }
+                      }
                     : undefined
                 }
               >

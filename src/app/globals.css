@@ -72,19 +72,19 @@
   --card-foreground: oklch(0.18 0.03 285);
   --popover: oklch(0.94 0.01 80);
   --popover-foreground: oklch(0.18 0.03 285);
-  --primary: oklch(0.5 0.18 80);
+  --primary: oklch(0.38 0.12 80);
   --primary-foreground: oklch(0.98 0.005 80);
   --secondary: oklch(0.88 0.02 280);
   --secondary-foreground: oklch(0.22 0.04 285);
   --muted: oklch(0.91 0.01 280);
-  --muted-foreground: oklch(0.45 0.03 285);
+  --muted-foreground: oklch(0.35 0.03 285);
   --accent: oklch(0.6 0.15 185);
   --accent-foreground: oklch(0.15 0.02 185);
   --destructive: oklch(0.55 0.22 25);
   --border: oklch(0.8 0.025 280);
   --input: oklch(0.9 0.01 280);
-  --ring: oklch(0.5 0.18 80);
-  --gold: oklch(0.5 0.18 80);
+  --ring: oklch(0.38 0.12 80);
+  --gold: oklch(0.38 0.12 80);
   --gold-dark: oklch(0.42 0.12 75);
   --warrior: oklch(0.5 0.22 25);
   --priest: oklch(0.55 0.15 80);
@@ -98,12 +98,12 @@
   --radius: 0.5rem;
   --sidebar: oklch(0.94 0.01 280);
   --sidebar-foreground: oklch(0.18 0.03 285);
-  --sidebar-primary: oklch(0.5 0.18 80);
+  --sidebar-primary: oklch(0.38 0.12 80);
   --sidebar-primary-foreground: oklch(0.98 0.005 80);
   --sidebar-accent: oklch(0.88 0.02 280);
   --sidebar-accent-foreground: oklch(0.18 0.03 285);
   --sidebar-border: oklch(0.8 0.025 280);
-  --sidebar-ring: oklch(0.5 0.18 80);
+  --sidebar-ring: oklch(0.38 0.12 80);
 }
 
 /* Dark mode — deep purple dungeon with gold + teal */
@@ -188,7 +188,7 @@
   backdrop-filter: blur(16px) saturate(1.4);
   -webkit-backdrop-filter: blur(16px) saturate(1.4);
   border: 1px solid oklch(0.75 0.02 80 / 0.3);
-  background: oklch(0.97 0.005 80 / 0.75);
+  background: oklch(0.96 0.008 80 / 0.97);
   box-shadow:
     0 4px 20px oklch(0.2 0.02 285 / 0.1),
     0 1px 3px oklch(0.2 0.02 285 / 0.06);

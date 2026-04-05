@@ -229,11 +229,14 @@ export function CharacterWizard() {
         )}
       </div>
 
-      {error && (
-        <p className="text-sm text-destructive" data-testid="wizard-error">
-          {error}
-        </p>
-      )}
+      <p
+        id="wizard-error"
+        role="alert"
+        className={`text-sm text-destructive ${error ? "" : "sr-only"}`}
+        data-testid="wizard-error"
+      >
+        {error ?? ""}
+      </p>
     </div>
   );
 }
