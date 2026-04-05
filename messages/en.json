@@ -671,6 +671,8 @@
     "avgAC": "Average AC",
     "bestThac0": "Best THAC0",
     "bestThac0Value": "{name} ({value})",
+    "bestAC": "Best AC",
+    "bestACValue": "{name} (AC {value})",
     "partyWeight": "Party Weight"
   },
   "import": {

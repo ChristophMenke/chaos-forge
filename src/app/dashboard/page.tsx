@@ -597,6 +597,12 @@ export default async function DashboardPage() {
       ? partyCombatData.reduce((best, c) => (c.thac0 < best.thac0 ? c : best))
       : null;
 
+  // Best (lowest) AC
+  const bestAC =
+    partyCombatData.length > 0
+      ? partyCombatData.reduce((best, c) => (c.ac < best.ac ? c : best))
+      : null;
+
   // Total party equipment weight (in lbs → convert to kg)
   const partyWeightLbs = (allEquipment ?? []).reduce((sum, eq) => {
     // Only count equipment belonging to party characters
@@ -810,6 +816,17 @@ export default async function DashboardPage() {
                   value: bestThac0.thac0,
                 })}
                 testId="stat-card-best-thac0"
+              />
+            )}
+            {bestAC && (
+              <MiniStatCard
+                icon={Shield}
+                label={t("bestAC")}
+                value={t("bestACValue", {
+                  name: bestAC.name,
+                  value: bestAC.ac,
+                })}
+                testId="stat-card-best-ac"
               />
             )}
             <MiniStatCard
