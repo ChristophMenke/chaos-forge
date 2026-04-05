@@ -663,7 +663,15 @@
     "spellChampion": "Meiste Zauber",
     "spellChampionValue": "{name} ({count})",
     "xpChampion": "XP-Champion",
-    "xpChampionValue": "{name} ({total} XP)"
+    "xpChampionValue": "{name} ({total} XP)",
+    "attrAverages": "Attribut-Durchschnitte",
+    "bestSave": "Bester Rettungswurf",
+    "bestSaveValue": "{name} — {category} {value}",
+    "attrExtremes": "Attribut-Extreme",
+    "avgAC": "Durchschn. RK",
+    "bestThac0": "Bester ETW0",
+    "bestThac0Value": "{name} ({value})",
+    "partyWeight": "Party-Gewicht"
   },
   "import": {
     "title": "Charakterbogen importieren",

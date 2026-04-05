@@ -663,7 +663,15 @@
     "spellChampion": "Most Spells",
     "spellChampionValue": "{name} ({count})",
     "xpChampion": "XP Champion",
-    "xpChampionValue": "{name} ({total} XP)"
+    "xpChampionValue": "{name} ({total} XP)",
+    "attrAverages": "Attribute Averages",
+    "bestSave": "Best Saving Throw",
+    "bestSaveValue": "{name} — {category} {value}",
+    "attrExtremes": "Attribute Extremes",
+    "avgAC": "Average AC",
+    "bestThac0": "Best THAC0",
+    "bestThac0Value": "{name} ({value})",
+    "partyWeight": "Party Weight"
   },
   "import": {
     "title": "Import Character Sheet",

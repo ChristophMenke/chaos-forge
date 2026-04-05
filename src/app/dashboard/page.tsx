@@ -22,6 +22,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { getAlignmentLabel } from "@/lib/rules/alignment";
+import { getMulticlassSaves, getMulticlassThac0 } from "@/lib/rules/multiclass";
+import { computeCharacterCombatData } from "@/lib/rules/character-computed";
 import { CLASSES } from "@/lib/rules/classes";
 import { RACES } from "@/lib/rules/races";
 import { getClassGroupColors } from "@/lib/utils/class-colors";
@@ -120,6 +122,10 @@ export default async function DashboardPage() {
     { data: tags },
     { data: sessionTagRows },
     { data: spellCounts },
+    { data: allEquipment },
+    { data: allEpicItems },
+    { data: allWeaponProfs },
+    { data: allFightingStyles },
   ] = await Promise.all([
     supabase
       .from("characters")
@@ -161,6 +167,19 @@ export default async function DashboardPage() {
     supabase.from("tags").select("*").returns<TagRow[]>(),
     supabase.from("session_tags").select("tag_id").returns<{ tag_id: string }[]>(),
     supabase.from("character_spells").select("character_id").returns<{ character_id: string }[]>(),
+    supabase
+      .from("character_equipment")
+      .select("*, weapon:weapons(*), armor:armor(*)")
+      .returns<import("@/lib/supabase/types").CharacterEquipmentWithDetails[]>(),
+    supabase.from("epic_items").select("*").returns<import("@/lib/supabase/types").EpicItemRow[]>(),
+    supabase
+      .from("character_weapon_proficiencies")
+      .select("*")
+      .returns<import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]>(),
+    supabase
+      .from("character_fighting_styles")
+      .select("*")
+      .returns<import("@/lib/supabase/types").CharacterFightingStyleRow[]>(),
   ]);
 
   // Build party overview: public characters + shared (non-public) characters
@@ -459,6 +478,134 @@ export default async function DashboardPage() {
     return best;
   })();
 
+  // ── Attribute averages across party ──
+  const attrAverages = (() => {
+    if (partyChars.length === 0) return null;
+    const stats = ["str", "dex", "con", "int", "wis", "cha"] as const;
+    const sums = { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 };
+    for (const c of partyChars) {
+      for (const s of stats) sums[s] += c[s];
+    }
+    const n = partyChars.length;
+    return stats.map((s) => ({ stat: s.toUpperCase(), avg: Math.round(sums[s] / n) }));
+  })();
+
+  // ── Best saving throw in party ──
+  const bestSave = (() => {
+    let best: { name: string; category: string; value: number } | null = null;
+    const saveLabels = ["paralyzation", "rod", "petrification", "breath", "spell"] as const;
+    const saveLabelMap: Record<string, string> = {
+      paralyzation: "Para",
+      rod: "Stab",
+      petrification: "Verst",
+      breath: "Odem",
+      spell: "Zauber",
+    };
+    for (const c of partyChars) {
+      const classes = (charClassMap.get(c.id) ?? []).filter((cc) => cc.is_active);
+      if (classes.length === 0) continue;
+      const entries = classes.map((cc) => ({
+        classId: cc.class_id as import("@/lib/rules/types").ClassId,
+        level: cc.level,
+      }));
+      const saves = getMulticlassSaves(entries);
+      for (const cat of saveLabels) {
+        if (!best || saves[cat] < best.value) {
+          best = { name: c.name, category: saveLabelMap[cat] ?? cat, value: saves[cat] };
+        }
+      }
+    }
+    return best;
+  })();
+
+  // ── Attribute extremes (highest + lowest per stat) ──
+  const attrExtremes = (() => {
+    if (partyChars.length < 2) return null;
+    const stats = ["str", "dex", "con", "int", "wis", "cha"] as const;
+    return stats.map((s) => {
+      let high = partyChars[0];
+      let low = partyChars[0];
+      for (const c of partyChars) {
+        if (c[s] > high[s]) high = c;
+        if (c[s] < low[s]) low = c;
+      }
+      return {
+        stat: s.toUpperCase(),
+        highName: high.name,
+        highVal: high[s],
+        lowName: low.name,
+        lowVal: low[s],
+      };
+    });
+  })();
+
+  // ── Combat stats via computeCharacterCombatData ──
+  const equipmentByChar = new Map<
+    string,
+    import("@/lib/supabase/types").CharacterEquipmentWithDetails[]
+  >();
+  for (const eq of allEquipment ?? []) {
+    const list = equipmentByChar.get(eq.character_id) ?? [];
+    list.push(eq);
+    equipmentByChar.set(eq.character_id, list);
+  }
+  const epicByChar = new Map<string, import("@/lib/supabase/types").EpicItemRow[]>();
+  for (const ei of allEpicItems ?? []) {
+    const list = epicByChar.get(ei.character_id) ?? [];
+    list.push(ei);
+    epicByChar.set(ei.character_id, list);
+  }
+  const profsByChar = new Map<
+    string,
+    import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
+  >();
+  for (const p of allWeaponProfs ?? []) {
+    const list = profsByChar.get(p.character_id) ?? [];
+    list.push(p);
+    profsByChar.set(p.character_id, list);
+  }
+  const stylesByChar = new Map<
+    string,
+    import("@/lib/supabase/types").CharacterFightingStyleRow[]
+  >();
+  for (const fs of allFightingStyles ?? []) {
+    const list = stylesByChar.get(fs.character_id) ?? [];
+    list.push(fs);
+    stylesByChar.set(fs.character_id, list);
+  }
+
+  // Compute combat data for all party characters
+  const partyCombatData = partyChars.map((c) => {
+    const classes = charClassMap.get(c.id) ?? [];
+    const equipment = equipmentByChar.get(c.id) ?? [];
+    const epicItems = epicByChar.get(c.id) ?? [];
+    const profs = profsByChar.get(c.id) ?? [];
+    const styles = stylesByChar.get(c.id) ?? [];
+    const combat = computeCharacterCombatData(c, classes, equipment, epicItems, profs, styles);
+    return { name: c.name, ...combat };
+  });
+
+  // Average AC
+  const avgAC =
+    partyCombatData.length > 0
+      ? Math.round(partyCombatData.reduce((sum, c) => sum + c.ac, 0) / partyCombatData.length)
+      : null;
+
+  // Best (lowest) THAC0
+  const bestThac0 =
+    partyCombatData.length > 0
+      ? partyCombatData.reduce((best, c) => (c.thac0 < best.thac0 ? c : best))
+      : null;
+
+  // Total party equipment weight (in lbs → convert to kg)
+  const partyWeightLbs = (allEquipment ?? []).reduce((sum, eq) => {
+    // Only count equipment belonging to party characters
+    if (!partyCharsMap.has(eq.character_id)) return sum;
+    const w = eq.weapon?.weight ?? eq.armor?.weight ?? 0;
+    return sum + w * eq.quantity;
+  }, 0);
+  const partyWeightKg = Math.round(partyWeightLbs * 0.4536);
+
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6" data-testid="dashboard-page">
       <h1 className="font-heading text-3xl text-primary">{t("title")}</h1>
@@ -646,7 +793,93 @@ export default async function DashboardPage() {
                 testId="stat-card-xp-champion"
               />
             )}
+            {avgAC != null && (
+              <MiniStatCard
+                icon={Shield}
+                label={t("avgAC")}
+                value={avgAC}
+                testId="stat-card-avg-ac"
+              />
+            )}
+            {bestThac0 && (
+              <MiniStatCard
+                icon={Swords}
+                label={t("bestThac0")}
+                value={t("bestThac0Value", {
+                  name: bestThac0.name,
+                  value: bestThac0.thac0,
+                })}
+                testId="stat-card-best-thac0"
+              />
+            )}
+            <MiniStatCard
+              icon={Layers}
+              label={t("partyWeight")}
+              value={`${partyWeightKg} kg`}
+              testId="stat-card-party-weight"
+            />
+            {bestSave && (
+              <MiniStatCard
+                icon={Shield}
+                label={t("bestSave")}
+                value={t("bestSaveValue", {
+                  name: bestSave.name,
+                  category: bestSave.category,
+                  value: bestSave.value,
+                })}
+                testId="stat-card-best-save"
+              />
+            )}
           </div>
+
+          {/* Attribute averages + extremes */}
+          {attrAverages && (
+            <div className="grid gap-2 sm:gap-3 sm:grid-cols-2">
+              {/* Attribute Averages */}
+              <div
+                className="stat-card-frame glass glow-neutral rounded-lg p-3"
+                data-testid="stat-card-attr-averages"
+              >
+                <h3 className="relative z-10 mb-2 text-[0.5625rem] font-medium uppercase tracking-[0.15em] text-muted-foreground">
+                  {t("attrAverages")}
+                </h3>
+                <div className="relative z-10 grid grid-cols-6 gap-1 text-center">
+                  {attrAverages.map((a) => (
+                    <div key={a.stat}>
+                      <div className="text-[0.5625rem] text-muted-foreground">{a.stat}</div>
+                      <div className="font-heading text-base text-primary">{a.avg}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Attribute Extremes */}
+              {attrExtremes && (
+                <div
+                  className="stat-card-frame glass glow-neutral rounded-lg p-3"
+                  data-testid="stat-card-attr-extremes"
+                >
+                  <h3 className="relative z-10 mb-2 text-[0.5625rem] font-medium uppercase tracking-[0.15em] text-muted-foreground">
+                    {t("attrExtremes")}
+                  </h3>
+                  <div className="relative z-10 space-y-1">
+                    {attrExtremes.map((e) => (
+                      <div key={e.stat} className="flex items-center gap-1.5 text-[0.6875rem]">
+                        <span className="w-8 font-mono font-bold text-primary/80">{e.stat}</span>
+                        <span className="text-green-400">
+                          {e.highVal} {e.highName}
+                        </span>
+                        <span className="text-muted-foreground">/</span>
+                        <span className="text-red-400">
+                          {e.lowVal} {e.lowName}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Compact distributions — 3 columns on desktop */}
           <div className="grid gap-2 sm:gap-3 sm:grid-cols-2 lg:grid-cols-3">
