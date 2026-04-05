@@ -77,12 +77,18 @@ export class MasterPage {
   }
 
   async submitPin() {
-    await this.pinSubmit.click();
+    // PIN gate auto-submits when all 6 digits are filled.
+    // If the button is still enabled (e.g. auto-submit didn't trigger), click it.
+    const btn = this.pinSubmit;
+    if (await btn.isEnabled().catch(() => false)) {
+      await btn.click();
+    }
     await this.page.waitForTimeout(2000);
   }
 
   async enterAndSubmitPin(pin: string) {
     await this.enterPin(pin);
+    // Wait for auto-submit or the dashboard to appear
     await this.page.waitForTimeout(2000);
   }
 
