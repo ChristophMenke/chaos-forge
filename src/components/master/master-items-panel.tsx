@@ -2,7 +2,16 @@
 
 import { useState, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { Search, Swords, ShieldIcon, Package, Plus, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Search,
+  Swords,
+  ShieldIcon,
+  Package,
+  Plus,
+  ChevronDown,
+  ChevronUp,
+  Sparkles,
+} from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -14,7 +23,10 @@ import {
   injectItemToParty,
   createCustomWeaponGm,
   createCustomArmorGm,
+  injectMagicItemToCharacter,
+  injectMagicItemToParty,
 } from "@/app/master/actions";
+import { MagicItemForm, type MagicItemFormData } from "@/components/shared/magic-item-form";
 import type { CharacterRow, WeaponRow, ArmorRow, GeneralItemRow } from "@/lib/supabase/types";
 
 interface MasterItemsPanelProps {
@@ -24,7 +36,7 @@ interface MasterItemsPanelProps {
   characters: CharacterRow[];
 }
 
-type ItemTab = "weapons" | "armor" | "items";
+type ItemTab = "weapons" | "armor" | "items" | "magic";
 
 export function MasterItemsPanel({
   weapons,
@@ -41,6 +53,8 @@ export function MasterItemsPanel({
   const [showCreate, setShowCreate] = useState(false);
   const [createType, setCreateType] = useState<"weapon" | "armor" | "item">("weapon");
   const [creating, setCreating] = useState(false);
+  const [showMagicInject, setShowMagicInject] = useState(false);
+  const [magicFormData, setMagicFormData] = useState<MagicItemFormData | null>(null);
 
   // Custom weapon form
   const [cwName, setCwName] = useState("");
@@ -259,6 +273,7 @@ export function MasterItemsPanel({
     { id: "weapons", label: t("weapons"), icon: <Swords className="h-3.5 w-3.5" /> },
     { id: "armor", label: t("armor"), icon: <ShieldIcon className="h-3.5 w-3.5" /> },
     { id: "items", label: t("items"), icon: <Package className="h-3.5 w-3.5" /> },
+    { id: "magic", label: t("magicItems"), icon: <Sparkles className="h-3.5 w-3.5" /> },
   ];
 
   function renderInjectButtons(
@@ -785,6 +800,105 @@ export function MasterItemsPanel({
               {renderInjectButtons("general", item.id, item.name)}
             </GlassCard>
           ))}
+
+        {itemTab === "magic" && (
+          <GlassCard hover={false} className="p-4" data-testid="gm-magic-item-create">
+            <MagicItemForm
+              onSubmit={(formData: MagicItemFormData) => {
+                setMagicFormData(formData);
+                setShowMagicInject(true);
+              }}
+              submitLabel={t("createAndDistribute")}
+              loading={creating}
+            />
+          </GlassCard>
+        )}
+
+        {/* Magic item inject dialog */}
+        {showMagicInject && magicFormData && (
+          <GlassCard hover={false} className="mt-2 p-4" data-testid="gm-magic-inject-targets">
+            <div className="mb-2 text-sm font-medium">
+              {t("distributeItem")}: {magicFormData.name}
+              {magicFormData.category ? ` (${magicFormData.category})` : ""}
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {characters
+                .filter((c) => c.is_active)
+                .map((char) => (
+                  <Button
+                    key={char.id}
+                    variant="outline"
+                    size="sm"
+                    disabled={injectingKey === `magic-${char.id}`}
+                    onClick={async () => {
+                      setInjectingKey(`magic-${char.id}`);
+                      try {
+                        const result = await injectMagicItemToCharacter(char.id, {
+                          name: magicFormData.name,
+                          category: magicFormData.category || undefined,
+                          magic_effects: magicFormData.effects,
+                        });
+                        if (result.success) {
+                          showToastMsg(t("injectedTo", { name: char.name }), "success");
+                        } else {
+                          showToastMsg(t("injectFailed"), "error");
+                        }
+                        setShowMagicInject(false);
+                        setMagicFormData(null);
+                      } catch {
+                        showToastMsg(t("injectFailed"), "error");
+                      } finally {
+                        setInjectingKey(null);
+                      }
+                    }}
+                    data-testid={`gm-magic-inject-${char.id}`}
+                  >
+                    {char.name}
+                  </Button>
+                ))}
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={injectingKey === "magic-party"}
+                onClick={async () => {
+                  setInjectingKey("magic-party");
+                  try {
+                    const result = await injectMagicItemToParty({
+                      name: magicFormData.name,
+                      category: magicFormData.category || undefined,
+                      magic_effects: magicFormData.effects,
+                    });
+                    if (result.success) {
+                      showToastMsg(t("injectedToParty"), "success");
+                    } else {
+                      showToastMsg(t("injectFailed"), "error");
+                    }
+                    setShowMagicInject(false);
+                    setMagicFormData(null);
+                  } catch {
+                    showToastMsg(t("injectFailed"), "error");
+                  } finally {
+                    setInjectingKey(null);
+                  }
+                }}
+                className="bg-amber-700/30 text-amber-300 hover:bg-amber-700/50"
+                data-testid="gm-magic-inject-party"
+              >
+                {t("injectToParty")}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setShowMagicInject(false);
+                  setMagicFormData(null);
+                }}
+              >
+                {t("cancel")}
+              </Button>
+            </div>
+          </GlassCard>
+        )}
 
         {((itemTab === "weapons" && filteredWeapons.length === 0) ||
           (itemTab === "armor" && filteredArmor.length === 0) ||

@@ -40,6 +40,7 @@ import { getConBonusCap } from "@/lib/rules/hitpoints";
 import { CLASSES, getClassGroup } from "@/lib/rules/classes";
 import { getEpicEffects, scaleSubStat } from "@/lib/rules/epic-items";
 import type { EpicEffects } from "@/lib/rules/epic-items";
+import { getMagicItemEffects } from "@/lib/rules/magic-items";
 import { getClassGroupColors } from "@/lib/utils/class-colors";
 import { getKit } from "@/lib/rules/kits";
 import {
@@ -224,6 +225,8 @@ export function PlayMode({
     () => getEpicEffects(epicItems, characterLevel),
     [epicItems, characterLevel]
   );
+  const magicEffects = useMemo(() => getMagicItemEffects(equipment), [equipment]);
+  const mb = magicEffects.statBonuses;
   // Overclock state — read from epicItems simple_effects (persisted in DB via Epic Equipment page)
   // Plain function — React Compiler handles memoization automatically
   let overclockState = { active: false, endTime: null as number | null };
@@ -242,15 +245,15 @@ export function PlayMode({
   // Overclock is only effective when the ability exists and is active
   const overclockEffective = overclockActive && epicEffects.overclockAbility != null;
 
-  // Effective stats (with epic overrides + overclock)
-  const effectiveStr = eo.str ?? character.str;
-  const effectiveDex = eo.dex ?? character.dex;
+  // Effective stats (with epic overrides + magic bonuses + overclock)
+  const effectiveStr = (eo.str ?? character.str) + (mb.str ?? 0);
+  const effectiveDex = (eo.dex ?? character.dex) + (mb.dex ?? 0);
   const effectiveCon = overclockEffective
     ? epicEffects.overclockAbility!.conOverride
-    : (eo.con ?? character.con);
-  const effectiveInt = eo.int ?? character.int;
-  const effectiveWis = eo.wis ?? character.wis;
-  const effectiveCha = eo.cha ?? character.cha;
+    : (eo.con ?? character.con) + (mb.con ?? 0);
+  const effectiveInt = (eo.int ?? character.int) + (mb.int ?? 0);
+  const effectiveWis = (eo.wis ?? character.wis) + (mb.wis ?? 0);
+  const effectiveCha = (eo.cha ?? character.cha) + (mb.cha ?? 0);
 
   // Derived rules engine values
   const activeClasses = useMemo(
@@ -283,7 +286,22 @@ export function PlayMode({
   }, [characterClasses, activeClasses, classEntries]);
 
   const thac0 = useMemo(() => getMulticlassThac0(effectiveClassEntries), [effectiveClassEntries]);
-  const saves = useMemo(() => getMulticlassSaves(effectiveClassEntries), [effectiveClassEntries]);
+  const baseSaves = useMemo(
+    () => getMulticlassSaves(effectiveClassEntries),
+    [effectiveClassEntries]
+  );
+  // Apply magic item save bonuses (lower is better in AD&D → subtract)
+  const msb = magicEffects.saveBonuses;
+  const saves = useMemo(
+    () => ({
+      paralyzation: baseSaves.paralyzation - (msb.paralyzation ?? 0),
+      rod: baseSaves.rod - (msb.rod ?? 0),
+      petrification: baseSaves.petrification - (msb.petrification ?? 0),
+      breath: baseSaves.breath - (msb.breath ?? 0),
+      spell: baseSaves.spell - (msb.spell ?? 0),
+    }),
+    [baseSaves, msb]
+  );
 
   const strMods = useMemo(
     () =>
@@ -462,6 +480,7 @@ export function PlayMode({
         equippedArmorAC: equippedArmor?.armor?.ac ?? null,
         shieldEquipped: equippedShield,
         dexDefenseAdj: dexMods.defensiveAdj,
+        magicACModifier: magicEffects.acBonus,
         classGroups,
         encumbrance: encumbranceLevel,
         ignoreEncumbrance: character.ignore_encumbrance,
@@ -474,6 +493,7 @@ export function PlayMode({
       equippedArmor,
       equippedShield,
       dexMods.defensiveAdj,
+      magicEffects.acBonus,
       classGroups,
       encumbranceLevel,
       character.ignore_encumbrance,
@@ -818,6 +838,7 @@ export function PlayMode({
             nonweaponProficiencies={nonweaponProficiencies}
             epicEffects={epicEffects}
             poisonSavePenalty={poisonSavePenalty}
+            magicPerceptionBonus={magicEffects.perceptionBonus}
           />
           <PlayCoinPursePanel
             characterId={character.id}
@@ -916,6 +937,7 @@ export function PlayMode({
             nonweaponProficiencies={nonweaponProficiencies}
             epicEffects={epicEffects}
             poisonSavePenalty={poisonSavePenalty}
+            magicPerceptionBonus={magicEffects.perceptionBonus}
           />
         )}
         {activePanel === "inventory" && (

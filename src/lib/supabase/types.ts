@@ -101,16 +101,69 @@ export interface CharacterInsert {
   notes?: string;
 }
 
+export interface MagicSpellAbility {
+  name: string;
+  name_en?: string;
+  uses_per_day: number; // 0 = at-will / unlimited
+  description: string;
+  description_en?: string;
+}
+
 export interface MagicEffects {
+  // Attribute (additive bonuses, NOT overrides like epic items)
   str?: number;
   dex?: number;
   con?: number;
   int?: number;
   wis?: number;
   cha?: number;
-  ac_bonus?: number;
+
+  // Combat
+  ac_bonus?: number; // Negative = better AC (AD&D descending)
+  attack_bonus?: number;
+  damage_bonus?: number;
+
+  // Saving Throws
+  save_all?: number;
+  save_vs_spell?: number;
+  save_vs_poison?: number; // Includes Death Magic
+  save_vs_breath?: number;
+  save_vs_petrification?: number; // Includes Polymorph
+  save_vs_rod?: number; // Rod/Staff/Wand
+
+  // Thief Skills
   hide_in_shadows?: number;
   move_silently?: number;
+  pick_pockets?: number;
+  open_locks?: number;
+  find_traps?: number;
+  climb_walls?: number;
+  detect_noise?: number;
+  read_languages?: number;
+
+  // Movement & Perception
+  perception_bonus?: number;
+  movement_bonus?: number; // In feet (displayed metric in UI)
+
+  // Magic
+  magic_resistance?: number; // Percentage (0-100)
+  spell_failure?: number; // Percentage (0-100)
+
+  // Charges (Wands/Staves/Rods)
+  max_charges?: number;
+  current_charges?: number;
+
+  // Spell-Like Abilities
+  spell_abilities?: MagicSpellAbility[];
+
+  // Free-form arrays
+  resistances?: string[]; // e.g. "Fire Resistance", "Immune to Charm"
+  passive_abilities?: string[]; // e.g. "Infravision 18m", "Water Breathing"
+
+  // Meta
+  description?: string;
+  description_en?: string;
+  is_cursed?: boolean;
 }
 
 export interface CharacterEquipmentRow {

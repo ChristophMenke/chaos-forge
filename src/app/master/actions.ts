@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import crypto from "crypto";
 import { createServiceClient } from "@/lib/supabase/service";
 import { createNotification } from "@/lib/notifications";
+import type { MagicEffects } from "@/lib/supabase/types";
 
 const COOKIE_NAME = "gm_session";
 const COOKIE_MAX_AGE = 60 * 60 * 24; // 24h
@@ -309,4 +310,77 @@ export async function createCustomArmorGm(data: {
 
   if (error || !armor) return { success: false, error: error?.message };
   return { success: true, armorId: armor.id };
+}
+
+// ─── Magic Item Creation & Distribution (GM) ──────────────────────────
+
+export async function injectMagicItemToCharacter(
+  characterId: string,
+  data: {
+    name: string;
+    category?: string;
+    magic_effects: MagicEffects;
+  }
+): Promise<{ success: boolean; error?: string }> {
+  if (!(await checkGmSession())) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  const service = createServiceClient();
+  const label = data.category ? `${data.name} (${data.category})` : data.name;
+
+  const { error } = await service.from("character_equipment").insert({
+    character_id: characterId,
+    weapon_id: null,
+    armor_id: null,
+    quantity: 1,
+    equipped: false,
+    hit_bonus: 0,
+    damage_bonus: 0,
+    magic_effects: data.magic_effects,
+    custom_label: label,
+  });
+
+  if (error) return { success: false, error: error.message };
+
+  // Create notification for character owner
+  const { data: char } = await service
+    .from("characters")
+    .select("user_id, name")
+    .eq("id", characterId)
+    .single();
+
+  if (char) {
+    await createNotification(service, {
+      userId: char.user_id,
+      characterId,
+      type: "gm_item_received",
+      details: { item_name: label, quantity: 1, character_name: char.name },
+    });
+  }
+
+  return { success: true };
+}
+
+export async function injectMagicItemToParty(data: {
+  name: string;
+  category?: string;
+  magic_effects: object;
+}): Promise<{ success: boolean; error?: string }> {
+  if (!(await checkGmSession())) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  const service = createServiceClient();
+  const label = data.category ? `${data.name} (${data.category})` : data.name;
+
+  const { error } = await service.from("party_loot_items").insert({
+    custom_name: label,
+    quantity: 1,
+    magic_effects: data.magic_effects,
+    custom_label: label,
+  });
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
 }

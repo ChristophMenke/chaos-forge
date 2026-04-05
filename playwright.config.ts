@@ -37,6 +37,7 @@ export default defineConfig({
         "xp-management.spec.ts",
         "master.spec.ts",
         "notifications.spec.ts",
+        "magic-items.spec.ts",
       ],
     },
     // Unauthenticated tests — no storage state, but wait for setup (webserver)

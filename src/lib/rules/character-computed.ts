@@ -10,6 +10,7 @@ import type {
   CharacterWeaponProficiencyRow,
   CharacterFightingStyleRow,
   EpicItemRow,
+  MagicSpellAbility,
 } from "@/lib/supabase/types";
 import type { ClassGroup, ClassId, SavingThrows } from "./types";
 import {
@@ -21,6 +22,7 @@ import {
 import { calculateAC, calculateEncumbrance, getShieldProficiencyBonus } from "./equipment";
 import { getEpicEffects } from "./epic-items";
 import type { EpicEffects } from "./epic-items";
+import { getMagicItemEffects } from "./magic-items";
 import { getStrengthModifiers, getDexterityModifiers, getConstitutionModifiers } from "./abilities";
 import { scaleSubStat, applyThiefPenalty } from "./epic-items";
 import { hasThiefSkills, getBackstabMultiplier } from "./thief";
@@ -43,7 +45,7 @@ export interface CharacterCombatData {
   thac0: number;
   ac: number;
   saves: SavingThrows;
-  /** floor((INT + WIS) / 2) + epicPerceptionBonus — House Rule */
+  /** floor((INT + WIS) / 2) + epicPerceptionBonus + magicPerceptionBonus — House Rule */
   perception: number;
   classGroups: ClassGroup[];
   primaryClassGroup: ClassGroup;
@@ -54,6 +56,16 @@ export interface CharacterCombatData {
   thiefSkills: ThiefSkillValues | null;
   poisonSavePenalty: number;
   epicEffects: EpicEffects;
+  /** Magic resistance percentage from magic items (max, not cumulative) */
+  magicResistance: number;
+  /** Spell failure percentage from magic items (combined with epic) */
+  magicSpellFailure: number;
+  /** Resistances/immunities from magic items */
+  magicResistances: string[];
+  /** Passive abilities from magic items */
+  magicPassiveAbilities: string[];
+  /** Spell-like abilities from magic items */
+  magicSpellAbilities: MagicSpellAbility[];
 }
 
 /**
@@ -103,11 +115,16 @@ export function computeCharacterCombatData(
   const epicEffects = getEpicEffects(epicItems, character.level);
   const eo = epicEffects.statOverrides;
 
-  // Effective stats
-  const effectiveStr = eo.str ?? character.str;
-  const effectiveDex = eo.dex ?? character.dex;
-  const effectiveInt = eo.int ?? character.int;
-  const effectiveWis = eo.wis ?? character.wis;
+  // Magic item effects (additive bonuses)
+  const magicEffects = getMagicItemEffects(equipment);
+  const mb = magicEffects.statBonuses;
+
+  // Effective stats: epic overrides first, then magic additive bonuses (capped at 25 per AD&D)
+  const MAX_STAT = 25;
+  const effectiveStr = Math.min((eo.str ?? character.str) + (mb.str ?? 0), MAX_STAT);
+  const effectiveDex = Math.min((eo.dex ?? character.dex) + (mb.dex ?? 0), MAX_STAT);
+  const effectiveInt = Math.min((eo.int ?? character.int) + (mb.int ?? 0), MAX_STAT);
+  const effectiveWis = Math.min((eo.wis ?? character.wis) + (mb.wis ?? 0), MAX_STAT);
 
   // Modifiers (only STR and DEX needed for AC calc)
   const strMods = getStrengthModifiers(
@@ -131,7 +148,7 @@ export function computeCharacterCombatData(
   );
 
   // CON adjustment for HP (same logic as play-mode.tsx)
-  const effectiveCon = eo.con ?? character.con;
+  const effectiveCon = Math.min((eo.con ?? character.con) + (mb.con ?? 0), MAX_STAT);
   const conMods = getConstitutionModifiers(effectiveCon);
   const baseConMods = getConstitutionModifiers(character.con);
 
@@ -173,11 +190,12 @@ export function computeCharacterCombatData(
     weaponProficiencies
   );
 
-  // AC
+  // AC (magic item AC bonus is negative = better in AD&D descending)
   const ac = calculateAC({
     equippedArmorAC: equippedArmor?.armor?.ac ?? null,
     shieldEquipped: equippedShield,
     dexDefenseAdj: dexMods.defensiveAdj,
+    magicACModifier: magicEffects.acBonus,
     classGroups,
     encumbrance: encumbranceLevel,
     ignoreEncumbrance: character.ignore_encumbrance,
@@ -187,20 +205,39 @@ export function computeCharacterCombatData(
     shieldProficiencyBonus,
   });
 
-  // Perception (House Rule)
-  const perception = Math.floor((effectiveInt + effectiveWis) / 2) + epicEffects.perceptionBonus;
+  // Perception (House Rule) — epic + magic bonuses stack
+  const perception =
+    Math.floor((effectiveInt + effectiveWis) / 2) +
+    epicEffects.perceptionBonus +
+    magicEffects.perceptionBonus;
 
-  // Thief skills
+  // Saving throw bonuses from magic items (lower is better → subtract)
+  const msb = magicEffects.saveBonuses;
+  const adjustedSaves: SavingThrows = {
+    paralyzation: saves.paralyzation - (msb.paralyzation ?? 0),
+    rod: saves.rod - (msb.rod ?? 0),
+    petrification: saves.petrification - (msb.petrification ?? 0),
+    breath: saves.breath - (msb.breath ?? 0),
+    spell: saves.spell - (msb.spell ?? 0),
+  };
+
+  // Thief skills (epic penalties + magic bonuses)
+  const mtb = magicEffects.thiefSkillBonuses;
   let thiefSkills: ThiefSkillValues | null = null;
   if (hasThiefSkills(classIds) && !epicEffects.thiefDisabled) {
     thiefSkills = {
-      openLocks: applyThiefPenalty(character.thief_pick_locks, epicEffects),
-      findTraps: applyThiefPenalty(character.thief_find_traps, epicEffects),
-      moveSilently: applyThiefPenalty(character.thief_move_silently, epicEffects),
-      hideInShadows: applyThiefPenalty(character.thief_hide_shadows, epicEffects),
-      detectNoise: applyThiefPenalty(character.thief_detect_noise, epicEffects),
-      climbWalls: applyThiefPenalty(character.thief_climb_walls, epicEffects),
-      readLanguages: applyThiefPenalty(character.thief_read_languages, epicEffects),
+      openLocks: applyThiefPenalty(character.thief_pick_locks, epicEffects) + (mtb.openLocks ?? 0),
+      findTraps: applyThiefPenalty(character.thief_find_traps, epicEffects) + (mtb.findTraps ?? 0),
+      moveSilently:
+        applyThiefPenalty(character.thief_move_silently, epicEffects) + (mtb.moveSilently ?? 0),
+      hideInShadows:
+        applyThiefPenalty(character.thief_hide_shadows, epicEffects) + (mtb.hideInShadows ?? 0),
+      detectNoise:
+        applyThiefPenalty(character.thief_detect_noise, epicEffects) + (mtb.detectNoise ?? 0),
+      climbWalls:
+        applyThiefPenalty(character.thief_climb_walls, epicEffects) + (mtb.climbWalls ?? 0),
+      readLanguages:
+        applyThiefPenalty(character.thief_read_languages, epicEffects) + (mtb.readLanguages ?? 0),
     };
   }
 
@@ -229,7 +266,7 @@ export function computeCharacterCombatData(
   return {
     thac0,
     ac,
-    saves,
+    saves: adjustedSaves,
     perception,
     classGroups,
     primaryClassGroup,
@@ -240,5 +277,10 @@ export function computeCharacterCombatData(
     thiefSkills,
     poisonSavePenalty,
     epicEffects,
+    magicResistance: magicEffects.magicResistance,
+    magicSpellFailure: Math.max(magicEffects.spellFailure, epicEffects.spellFailure),
+    magicResistances: magicEffects.resistances,
+    magicPassiveAbilities: magicEffects.passiveAbilities,
+    magicSpellAbilities: magicEffects.spellAbilities,
   };
 }
