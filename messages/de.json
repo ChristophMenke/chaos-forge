@@ -648,7 +648,16 @@
     "groupWarrior": "Krieger",
     "groupPriest": "Priester",
     "groupRogue": "Schurke",
-    "groupWizard": "Magier"
+    "groupWizard": "Magier",
+    "partyStats": "Party-Statistiken",
+    "partyAdventurers": "Party-Abenteurer",
+    "partyAvgLevel": "Party-Durchschnittsstufe",
+    "highestLevel": "Höchste Stufe",
+    "highestLevelChar": "{name} (Stufe {level})",
+    "strongestStat": "Stärkstes Attribut",
+    "alignmentDistribution": "Gesinnungen",
+    "partyClassDistribution": "Party-Klassen",
+    "partyRaceDistribution": "Party-Rassen"
   },
   "import": {
     "title": "Charakterbogen importieren",

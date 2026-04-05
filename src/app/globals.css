@@ -308,6 +308,96 @@
     inset 0 0 36px oklch(0.7 0.14 185 / 0.06);
 }
 
+/* ─── AAA Stat Card System ──────────────────────────────────────────────── */
+
+/* Beveled metallic frame with layered depth */
+/* .stat-card-frame is combined with .glass + .glow-neutral. Source order: glass → glow → stat-card-frame */
+.stat-card-frame {
+  position: relative;
+  border: 1.5px solid oklch(0.7 0.12 80 / 0.5);
+  overflow: hidden;
+  /* Light mode: subtle parchment-tinted frame with inset highlights */
+  box-shadow:
+    0 4px 16px oklch(0.2 0.02 285 / 0.08),
+    inset 0 1px 0 oklch(0.9 0.08 80 / 0.6),
+    inset 0 -1px 0 oklch(0.6 0.05 80 / 0.2);
+}
+.dark .stat-card-frame {
+  background: linear-gradient(135deg, oklch(0.18 0.03 285 / 0.8), oklch(0.12 0.02 285 / 0.9));
+  box-shadow:
+    0 8px 24px oklch(0 0 0 / 0.5),
+    0 2px 8px oklch(0 0 0 / 0.3),
+    inset 0 1px 0 oklch(0.8 0.1 80 / 0.15),
+    inset 0 -1px 0 oklch(0 0 0 / 0.3);
+}
+/* Noise texture pseudo-element */
+.stat-card-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-conic-gradient(oklch(0.5 0 0 / 0.03) 0% 25%, transparent 0% 50%) 0 0 / 4px
+    4px;
+  pointer-events: none;
+  z-index: 0;
+}
+/* Corner ornament (top-left only — top-right via ::after is not possible with ::before taken) */
+.stat-card-frame::after {
+  content: "✦";
+  position: absolute;
+  top: 6px;
+  left: 10px;
+  color: oklch(0.75 0.12 80 / 0.4);
+  font-size: 10px;
+  z-index: 1;
+  pointer-events: none;
+}
+/* Second corner ornament (top-right) via child span */
+.stat-corner-tr {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  color: oklch(0.75 0.12 80 / 0.4);
+  font-size: 10px;
+  z-index: 1;
+  pointer-events: none;
+}
+.stat-corner-tr::after {
+  content: "✦";
+}
+
+/* Ambient glow pulse for stat value */
+.stat-glow-pulse {
+  animation: stat-ambient-glow 3s ease-in-out infinite;
+}
+@keyframes stat-ambient-glow {
+  0%,
+  100% {
+    text-shadow: 0 0 20px oklch(0.82 0.14 80 / 0.4);
+  }
+  50% {
+    text-shadow: 0 0 28px oklch(0.82 0.14 80 / 0.6);
+  }
+}
+
+/* Icon container glow */
+.stat-icon-glow {
+  filter: drop-shadow(0 0 6px oklch(0.82 0.14 80 / 0.5));
+}
+
+/* Distribution bar */
+.distribution-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: oklch(0.25 0.02 285 / 0.5);
+  overflow: hidden;
+}
+.distribution-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  box-shadow: none; /* Override hp-bar-* glow (clipped by overflow:hidden anyway) */
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* ─── Hexagonal Level Badge ──────────────────────────────────────────────── */
 
 .hex-badge {
@@ -413,9 +503,13 @@
 /* Respect reduced motion preferences (WCAG 2.3.3) */
 @media (prefers-reduced-motion: reduce) {
   .hp-bar-pulse,
+  .stat-glow-pulse,
   .stagger-reveal > * {
     animation: none !important;
     opacity: 1 !important;
+  }
+  .distribution-bar-fill {
+    transition: none !important;
   }
   .tilt-card:hover {
     transform: none !important;

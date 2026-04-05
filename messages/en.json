@@ -648,7 +648,16 @@
     "groupWarrior": "Warrior",
     "groupPriest": "Priest",
     "groupRogue": "Rogue",
-    "groupWizard": "Wizard"
+    "groupWizard": "Wizard",
+    "partyStats": "Party Statistics",
+    "partyAdventurers": "Party Adventurers",
+    "partyAvgLevel": "Party Avg Level",
+    "highestLevel": "Highest Level",
+    "highestLevelChar": "{name} (Level {level})",
+    "strongestStat": "Strongest Attribute",
+    "alignmentDistribution": "Alignments",
+    "partyClassDistribution": "Party Classes",
+    "partyRaceDistribution": "Party Races"
   },
   "import": {
     "title": "Import Character Sheet",

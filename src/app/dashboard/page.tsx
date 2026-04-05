@@ -8,6 +8,17 @@ import { CharacterCard } from "@/components/character-card";
 import { QuoteReactionBar } from "@/components/session/quote-reaction-bar";
 import { AvatarDisplay } from "@/components/avatar-display";
 import { Badge } from "@/components/ui/badge";
+import {
+  Users,
+  TrendingUp,
+  BookOpen,
+  Clock,
+  Crown,
+  Swords,
+  Shield,
+  type LucideIcon,
+} from "lucide-react";
+import { getAlignmentLabel } from "@/lib/rules/alignment";
 import { CLASSES } from "@/lib/rules/classes";
 import { RACES } from "@/lib/rules/races";
 import { getClassGroupColors } from "@/lib/utils/class-colors";
@@ -31,6 +42,31 @@ const TAG_COLORS: Record<string, string> = {
   item: "bg-blue-900/50 text-blue-200",
   quest: "bg-purple-900/50 text-purple-200",
 };
+
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  testId,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  testId: string;
+}) {
+  return (
+    <div className="stat-card-frame glass glow-neutral rounded-xl p-5" data-testid={testId}>
+      <span aria-hidden="true" className="stat-corner-tr" />
+      <div className="relative z-10 flex flex-col items-center gap-2 text-center">
+        <Icon className="stat-icon-glow h-6 w-6 text-primary/80" aria-hidden="true" />
+        <div className="text-[0.625rem] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+          {label}
+        </div>
+        <div className="stat-glow-pulse font-heading text-4xl text-primary">{value}</div>
+      </div>
+    </div>
+  );
+}
 
 export default async function DashboardPage() {
   const t = await getTranslations("dashboard");
@@ -178,20 +214,26 @@ export default async function DashboardPage() {
     return Math.round(totalLevel / allCharacters.length);
   })();
 
-  // Class distribution across all characters
+  // Class distribution across all characters (with class group for color-coding)
   const classDistribution = (() => {
-    const counts = new Map<string, number>();
+    const counts = new Map<string, { count: number; group: ClassGroup }>();
     for (const c of allCharacters) {
       const classes = (charClassMap.get(c.id) ?? []).filter((cc) => cc.is_active);
       for (const cc of classes) {
         const cls = CLASSES[cc.class_id as ClassId];
         const name = cls ? localized(cls.name, cls.name_en, locale) : cc.class_id;
-        counts.set(name, (counts.get(name) ?? 0) + 1);
+        const group = cls?.group ?? "warrior";
+        const existing = counts.get(name);
+        if (existing) {
+          existing.count++;
+        } else {
+          counts.set(name, { count: 1, group });
+        }
       }
     }
     return [...counts.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .map(([name, count]) => ({ name, count }));
+      .sort((a, b) => b[1].count - a[1].count)
+      .map(([name, { count, group }]) => ({ name, count, group }));
   })();
 
   // Race distribution across all characters
@@ -253,65 +295,107 @@ export default async function DashboardPage() {
     ? (sessions?.findIndex((s) => s.id === throwbackSession.id) ?? 0) + 1
     : 0;
 
+  // Pre-compute distribution max counts for bar widths
+  const maxClassCount = classDistribution[0]?.count ?? 1;
+  const maxRaceCount = raceDistribution[0]?.count ?? 1;
+
+  // ── Party-wide statistics (all visible characters, not just own) ──
+  const allPartyChars = [...allCharacters, ...partyOverviewCharacters];
+  // Deduplicate by id (own characters might also be in partyOverview if public)
+  const partyCharsMap = new Map(allPartyChars.map((c) => [c.id, c]));
+  const partyChars = [...partyCharsMap.values()];
+
+  const partyAvgLevel = (() => {
+    if (partyChars.length === 0) return 0;
+    let total = 0;
+    for (const c of partyChars) {
+      const classes = (charClassMap.get(c.id) ?? []).filter((cc) => cc.is_active);
+      total += classes.length > 0 ? Math.max(...classes.map((cc) => cc.level)) : c.level;
+    }
+    return Math.round(total / partyChars.length);
+  })();
+
+  // Highest level character in party
+  const highestLevelChar = (() => {
+    let best: { name: string; level: number } | null = null;
+    for (const c of partyChars) {
+      const classes = (charClassMap.get(c.id) ?? []).filter((cc) => cc.is_active);
+      const level = classes.length > 0 ? Math.max(...classes.map((cc) => cc.level)) : c.level;
+      if (!best || level > best.level) {
+        best = { name: c.name, level };
+      }
+    }
+    return best;
+  })();
+
+  // Strongest attribute across all party characters
+  const strongestStat = (() => {
+    const stats = ["str", "dex", "con", "int", "wis", "cha"] as const;
+    let best: { stat: string; value: number; name: string } | null = null;
+    for (const c of partyChars) {
+      for (const stat of stats) {
+        const val = c[stat];
+        if (!best || val > best.value) {
+          best = { stat: stat.toUpperCase(), value: val, name: c.name };
+        }
+      }
+    }
+    return best;
+  })();
+
+  // Alignment distribution
+  const alignmentDistribution = (() => {
+    const counts = new Map<string, number>();
+    for (const c of partyChars) {
+      if (!c.alignment) continue;
+      const label = getAlignmentLabel(c.alignment, locale);
+      counts.set(label, (counts.get(label) ?? 0) + 1);
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => ({ name, count }));
+  })();
+  const maxAlignmentCount = alignmentDistribution[0]?.count ?? 1;
+
+  // Party class distribution
+  const partyClassDistribution = (() => {
+    const counts = new Map<string, { count: number; group: ClassGroup }>();
+    for (const c of partyChars) {
+      const classes = (charClassMap.get(c.id) ?? []).filter((cc) => cc.is_active);
+      for (const cc of classes) {
+        const cls = CLASSES[cc.class_id as ClassId];
+        const name = cls ? localized(cls.name, cls.name_en, locale) : cc.class_id;
+        const group = cls?.group ?? "warrior";
+        const existing = counts.get(name);
+        if (existing) existing.count++;
+        else counts.set(name, { count: 1, group });
+      }
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1].count - a[1].count)
+      .map(([name, { count, group }]) => ({ name, count, group }));
+  })();
+  const maxPartyClassCount = partyClassDistribution[0]?.count ?? 1;
+
+  // Party race distribution
+  const partyRaceDistribution = (() => {
+    const counts = new Map<string, number>();
+    for (const c of partyChars) {
+      const race = RACES[c.race_id as keyof typeof RACES];
+      const name = race ? localized(race.name, race.name_en, locale) : (c.race_id ?? "?");
+      counts.set(name, (counts.get(name) ?? 0) + 1);
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => ({ name, count }));
+  })();
+  const maxPartyRaceCount = partyRaceDistribution[0]?.count ?? 1;
+
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6" data-testid="dashboard-page">
       <h1 className="font-heading text-3xl text-primary">{t("title")}</h1>
 
-      {/* ── Stats Row ─────────────────────────────────────── */}
-      <div className="stagger-reveal grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <GlassCard glow="neutral" data-testid="stat-card-adventurers">
-          <div className="text-center">
-            <div className="text-xs text-muted-foreground">{t("adventurers")}</div>
-            <div className="font-heading text-3xl text-primary">{allCharacters.length}</div>
-          </div>
-        </GlassCard>
-        <GlassCard glow="neutral" data-testid="stat-card-avg-level">
-          <div className="text-center">
-            <div className="text-xs text-muted-foreground">{t("averageLevel")}</div>
-            <div className="font-heading text-3xl text-primary">{avgLevel}</div>
-          </div>
-        </GlassCard>
-        <GlassCard glow="neutral" data-testid="stat-card-sessions">
-          <div className="text-center">
-            <div className="text-xs text-muted-foreground">{t("totalSessions")}</div>
-            <div className="font-heading text-3xl text-primary">{sessionCount}</div>
-          </div>
-        </GlassCard>
-        <GlassCard glow="neutral" data-testid="stat-card-days-since">
-          <div className="text-center">
-            <div className="text-xs text-muted-foreground">{t("daysSinceLastSession")}</div>
-            <div className="font-heading text-3xl text-primary">{daysSinceLastSession ?? "—"}</div>
-          </div>
-        </GlassCard>
-      </div>
-
-      {/* ── Class & Race Distribution ────────────────────── */}
-      {(classDistribution.length > 0 || raceDistribution.length > 0) && (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {classDistribution.length > 0 && (
-            <GlassCard glow="neutral" data-testid="stat-card-classes">
-              <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                {t("classDistribution")}
-              </h3>
-              <p className="text-sm text-foreground">
-                {classDistribution.map((c) => `${c.name} ${c.count}`).join(" · ")}
-              </p>
-            </GlassCard>
-          )}
-          {raceDistribution.length > 0 && (
-            <GlassCard glow="neutral" data-testid="stat-card-races">
-              <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                {t("raceDistribution")}
-              </h3>
-              <p className="text-sm text-foreground">
-                {raceDistribution.map((r) => `${r.name} ${r.count}`).join(" · ")}
-              </p>
-            </GlassCard>
-          )}
-        </div>
-      )}
-
-      {/* ── Character Grid (moved up) ────────────────────── */}
+      {/* ── Character Grid (Hero Section — top) ──────────── */}
       <h2 className="font-heading text-xl">{t("myCharacters")}</h2>
       {activeCharacters.length === 0 ? (
         <p className="text-muted-foreground">{t("noCharacters")}</p>
@@ -331,6 +415,247 @@ export default async function DashboardPage() {
             />
           ))}
         </div>
+      )}
+
+      {/* ── Stats Row (AAA Style) ─────────────────────────── */}
+      <div className="stagger-reveal grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          icon={Users}
+          label={t("adventurers")}
+          value={allCharacters.length}
+          testId="stat-card-adventurers"
+        />
+        <StatCard
+          icon={TrendingUp}
+          label={t("averageLevel")}
+          value={avgLevel}
+          testId="stat-card-avg-level"
+        />
+        <StatCard
+          icon={BookOpen}
+          label={t("totalSessions")}
+          value={sessionCount}
+          testId="stat-card-sessions"
+        />
+        <StatCard
+          icon={Clock}
+          label={t("daysSinceLastSession")}
+          value={daysSinceLastSession ?? "—"}
+          testId="stat-card-days-since"
+        />
+      </div>
+
+      {/* ── Class & Race Distribution (Visual Bars) ──────── */}
+      {(classDistribution.length > 0 || raceDistribution.length > 0) && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {classDistribution.length > 0 && (
+            <div
+              className="stat-card-frame glass glow-neutral rounded-xl p-5"
+              data-testid="stat-card-classes"
+            >
+              <span aria-hidden="true" className="stat-corner-tr" />
+              <h3 className="relative z-10 mb-3 text-[0.625rem] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                {t("classDistribution")}
+              </h3>
+              <div className="relative z-10 space-y-2.5">
+                {classDistribution.map((c) => {
+                  const pct = Math.round((c.count / maxClassCount) * 100);
+                  const colors = getClassGroupColors(c.group);
+                  return (
+                    <div key={c.name} className="flex items-center gap-3">
+                      <span className="w-20 truncate text-xs text-foreground">{c.name}</span>
+                      <div className="distribution-bar flex-1">
+                        <div
+                          className={`distribution-bar-fill ${colors.hpBar}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <span className="w-6 text-right font-mono text-xs text-muted-foreground">
+                        {c.count}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          {raceDistribution.length > 0 && (
+            <div
+              className="stat-card-frame glass glow-neutral rounded-xl p-5"
+              data-testid="stat-card-races"
+            >
+              <span aria-hidden="true" className="stat-corner-tr" />
+              <h3 className="relative z-10 mb-3 text-[0.625rem] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                {t("raceDistribution")}
+              </h3>
+              <div className="relative z-10 space-y-2.5">
+                {raceDistribution.map((r) => {
+                  const pct = Math.round((r.count / maxRaceCount) * 100);
+                  return (
+                    <div key={r.name} className="flex items-center gap-3">
+                      <span className="w-20 truncate text-xs text-foreground">{r.name}</span>
+                      <div className="distribution-bar flex-1">
+                        <div
+                          className="distribution-bar-fill hp-bar-priest"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <span className="w-6 text-right font-mono text-xs text-muted-foreground">
+                        {r.count}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Party-Wide Stats ────────────────────────────────── */}
+      {partyChars.length > 0 && (
+        <>
+          <h2 className="font-heading text-xl">{t("partyStats")}</h2>
+
+          {/* Party stat cards row */}
+          <div className="stagger-reveal grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <StatCard
+              icon={Users}
+              label={t("partyAdventurers")}
+              value={partyChars.length}
+              testId="stat-card-party-adventurers"
+            />
+            <StatCard
+              icon={TrendingUp}
+              label={t("partyAvgLevel")}
+              value={partyAvgLevel}
+              testId="stat-card-party-avg-level"
+            />
+            {highestLevelChar && (
+              <StatCard
+                icon={Crown}
+                label={t("highestLevel")}
+                value={t("highestLevelChar", {
+                  name: highestLevelChar.name,
+                  level: highestLevelChar.level,
+                })}
+                testId="stat-card-highest-level"
+              />
+            )}
+            {strongestStat && (
+              <StatCard
+                icon={Swords}
+                label={t("strongestStat")}
+                value={`${strongestStat.stat} ${strongestStat.value} (${strongestStat.name})`}
+                testId="stat-card-strongest-stat"
+              />
+            )}
+          </div>
+
+          {/* Party distributions */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Alignment Distribution */}
+            {alignmentDistribution.length > 0 && (
+              <div
+                className="stat-card-frame glass glow-neutral rounded-xl p-5"
+                data-testid="stat-card-alignments"
+              >
+                <span aria-hidden="true" className="stat-corner-tr" />
+                <h3 className="relative z-10 mb-3 text-[0.625rem] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                  <Shield
+                    className="mr-1.5 inline h-3.5 w-3.5 align-[-2px] text-primary/60"
+                    aria-hidden="true"
+                  />
+                  {t("alignmentDistribution")}
+                </h3>
+                <div className="relative z-10 space-y-2.5">
+                  {alignmentDistribution.map((a) => {
+                    const pct = Math.round((a.count / maxAlignmentCount) * 100);
+                    return (
+                      <div key={a.name} className="flex items-center gap-3">
+                        <span className="w-28 truncate text-xs text-foreground">{a.name}</span>
+                        <div className="distribution-bar flex-1">
+                          <div
+                            className="distribution-bar-fill hp-bar-priest"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                        <span className="w-6 text-right font-mono text-xs text-muted-foreground">
+                          {a.count}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Party Class Distribution */}
+            {partyClassDistribution.length > 0 && (
+              <div
+                className="stat-card-frame glass glow-neutral rounded-xl p-5"
+                data-testid="stat-card-party-classes"
+              >
+                <span aria-hidden="true" className="stat-corner-tr" />
+                <h3 className="relative z-10 mb-3 text-[0.625rem] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                  {t("partyClassDistribution")}
+                </h3>
+                <div className="relative z-10 space-y-2.5">
+                  {partyClassDistribution.map((c) => {
+                    const pct = Math.round((c.count / maxPartyClassCount) * 100);
+                    const colors = getClassGroupColors(c.group);
+                    return (
+                      <div key={c.name} className="flex items-center gap-3">
+                        <span className="w-20 truncate text-xs text-foreground">{c.name}</span>
+                        <div className="distribution-bar flex-1">
+                          <div
+                            className={`distribution-bar-fill ${colors.hpBar}`}
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                        <span className="w-6 text-right font-mono text-xs text-muted-foreground">
+                          {c.count}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Party Race Distribution */}
+            {partyRaceDistribution.length > 0 && (
+              <div
+                className="stat-card-frame glass glow-neutral rounded-xl p-5"
+                data-testid="stat-card-party-races"
+              >
+                <span aria-hidden="true" className="stat-corner-tr" />
+                <h3 className="relative z-10 mb-3 text-[0.625rem] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                  {t("partyRaceDistribution")}
+                </h3>
+                <div className="relative z-10 space-y-2.5">
+                  {partyRaceDistribution.map((r) => {
+                    const pct = Math.round((r.count / maxPartyRaceCount) * 100);
+                    return (
+                      <div key={r.name} className="flex items-center gap-3">
+                        <span className="w-20 truncate text-xs text-foreground">{r.name}</span>
+                        <div className="distribution-bar flex-1">
+                          <div
+                            className="distribution-bar-fill hp-bar-priest"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                        <span className="w-6 text-right font-mono text-xs text-muted-foreground">
+                          {r.count}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       {/* ── Two-Column Grid ───────────────────────────────── */}
