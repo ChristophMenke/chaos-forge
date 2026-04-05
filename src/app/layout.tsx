@@ -6,6 +6,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { SkipToMain } from "@/components/skip-to-main";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
@@ -90,6 +91,7 @@ export default async function RootLayout({
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
             <TooltipProvider>
+              <SkipToMain />
               <header className="embed-hidden flex items-center justify-center border-b border-border px-4 py-2 sm:px-6 sm:py-4">
                 <Link href="/">
                   <Image
@@ -103,7 +105,9 @@ export default async function RootLayout({
                 </Link>
               </header>
 
-              <main className="flex flex-1 flex-col pb-16 sm:pb-0">{children}</main>
+              <main id="main" className="flex flex-1 flex-col pb-16 sm:pb-0">
+                {children}
+              </main>
             </TooltipProvider>
           </ThemeProvider>
         </NextIntlClientProvider>

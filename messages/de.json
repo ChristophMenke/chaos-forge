@@ -19,7 +19,8 @@
     "yes": "Ja",
     "no": "Nein",
     "unknown": "Unbekannt",
-    "notLoggedIn": "Nicht eingeloggt."
+    "notLoggedIn": "Nicht eingeloggt.",
+    "skipToMain": "Zum Hauptinhalt springen"
   },
   "landing": {
     "tagline": "Schmiede deine Legende",
@@ -1072,6 +1073,7 @@
     "abilityChecks": "Fähigkeits-Checks",
     "thiefSkills": "Diebesfähigkeiten",
     "nwpChecks": "Fertigkeits-Checks",
+    "toggleDescription": "Beschreibung ein-/ausblenden",
     "target": "Ziel",
     "totalWeight": "Gesamtgewicht",
     "encumbrance": "Belastung",

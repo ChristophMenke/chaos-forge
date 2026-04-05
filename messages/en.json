@@ -19,7 +19,8 @@
     "yes": "Yes",
     "no": "No",
     "unknown": "Unknown",
-    "notLoggedIn": "Not logged in."
+    "notLoggedIn": "Not logged in.",
+    "skipToMain": "Skip to main content"
   },
   "landing": {
     "tagline": "Forge your legend",
@@ -1072,6 +1073,7 @@
     "abilityChecks": "Ability Checks",
     "thiefSkills": "Thief Skills",
     "nwpChecks": "Proficiency Checks",
+    "toggleDescription": "Toggle description",
     "target": "Target",
     "totalWeight": "Total Weight",
     "encumbrance": "Encumbrance",
