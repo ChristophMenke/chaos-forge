@@ -22,13 +22,13 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { getAlignmentLabel } from "@/lib/rules/alignment";
-import { getMulticlassSaves, getMulticlassThac0 } from "@/lib/rules/multiclass";
+import { getMulticlassSaves } from "@/lib/rules/multiclass";
 import { computeCharacterCombatData } from "@/lib/rules/character-computed";
 import { CLASSES } from "@/lib/rules/classes";
 import { RACES } from "@/lib/rules/races";
 import { getClassGroupColors } from "@/lib/utils/class-colors";
 import { localized } from "@/lib/utils/localize";
-import { lbsToKg } from "@/lib/utils/units";
+import { LBS_TO_KG } from "@/lib/utils/units";
 import type { ClassGroup, ClassId } from "@/lib/rules/types";
 import type {
   CharacterRow,
@@ -349,9 +349,9 @@ export default async function DashboardPage() {
     .map(([charId, total]) => {
       const char = characters?.find((c) => c.id === charId);
       if (!char) return null;
-      return { name: char.name, total };
+      return { id: charId, name: char.name, total };
     })
-    .filter((entry): entry is { name: string; total: number } => entry !== null)
+    .filter((entry): entry is { id: string; name: string; total: number } => entry !== null)
     .sort((a, b) => b.total - a.total);
 
   // Tag cloud with counts
@@ -384,10 +384,9 @@ export default async function DashboardPage() {
   const maxRaceCount = raceDistribution[0]?.count ?? 1;
 
   // ── Party-wide statistics (active characters only) ──
-  const allPartyChars = [...activeCharacters, ...partyOverviewCharacters];
-  // Deduplicate by id (own characters might also be in partyOverview if public)
-  const partyCharsMap = new Map(allPartyChars.map((c) => [c.id, c]));
-  const partyChars = [...partyCharsMap.values()];
+  // activeCharacters = own active chars; partyOverviewCharacters = other users' active chars
+  // (publicCharacters is queried with .neq("user_id") so no deduplication needed)
+  const partyChars = [...activeCharacters, ...partyOverviewCharacters];
   const partyCharIds = partyChars.map((c) => c.id);
 
   // ── Combat data queries (scoped to party characters) ──
@@ -565,6 +564,7 @@ export default async function DashboardPage() {
       breath: t("saveLabel_breath"),
       spell: t("saveLabel_spell"),
     };
+    // Find the character with the single best (lowest) save in any category
     for (const c of partyChars) {
       const classes = (charClassMap.get(c.id) ?? []).filter((cc) => cc.is_active);
       if (classes.length === 0) continue;
@@ -573,10 +573,11 @@ export default async function DashboardPage() {
         level: cc.level,
       }));
       const saves = getMulticlassSaves(entries);
-      for (const cat of saveLabels) {
-        if (!best || saves[cat] < best.value) {
-          best = { name: c.name, category: saveLabelMap[cat] ?? cat, value: saves[cat] };
-        }
+      // Find this character's best save (lowest value = easiest to make)
+      const minSave = Math.min(...saveLabels.map((cat) => saves[cat]));
+      const minCat = saveLabels.find((cat) => saves[cat] === minSave)!;
+      if (!best || minSave < best.value) {
+        best = { name: c.name, category: saveLabelMap[minCat] ?? minCat, value: minSave };
       }
     }
     return best;
@@ -671,7 +672,7 @@ export default async function DashboardPage() {
   // Total party weight: character body weight (kg) + equipment weight (lbs→kg)
   const equipWeightKg = allEquipment.reduce((sum, eq) => {
     const w = eq.weapon?.weight ?? eq.armor?.weight ?? 0;
-    return sum + w * eq.quantity * 0.453592;
+    return sum + w * eq.quantity * LBS_TO_KG;
   }, 0);
   const charWeightKg = partyChars.reduce((sum, c) => sum + (c.weight_kg ?? 0), 0);
   const partyWeightKg = Math.round(charWeightKg + equipWeightKg);
@@ -1007,8 +1008,8 @@ export default async function DashboardPage() {
                   : `${char.class_id ?? "?"} ${char.level}`;
               const hpPct =
                 char.hp_max > 0
-                  ? Math.min(100, Math.round((char.hp_current / char.hp_max) * 100))
-                  : 100;
+                  ? Math.max(0, Math.min(100, Math.round((char.hp_current / char.hp_max) * 100)))
+                  : 0;
 
               return (
                 <Link
@@ -1134,7 +1135,7 @@ export default async function DashboardPage() {
             <div className="mt-3 space-y-2">
               {xpRanking.map((entry) => (
                 <div
-                  key={entry.name}
+                  key={entry.id}
                   className="flex items-center justify-between rounded-md border border-border/50 px-3 py-1.5"
                 >
                   <span className="text-sm">{entry.name}</span>
