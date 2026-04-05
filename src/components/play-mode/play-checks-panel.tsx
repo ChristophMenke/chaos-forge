@@ -31,6 +31,9 @@ interface PlayChecksPanelProps {
   nonweaponProficiencies: CharacterNWPWithDetails[];
   epicEffects?: EpicEffects;
   poisonSavePenalty?: number;
+  magicPerceptionBonus?: number;
+  magicSaveBonuses?: Partial<SavingThrows>;
+  magicThiefBonuses?: Record<string, number>;
 }
 
 export function PlayChecksPanel({
@@ -46,6 +49,9 @@ export function PlayChecksPanel({
   nonweaponProficiencies,
   epicEffects,
   poisonSavePenalty = 0,
+  magicPerceptionBonus = 0,
+  magicSaveBonuses = {},
+  magicThiefBonuses = {},
 }: PlayChecksPanelProps) {
   const t = useTranslations("playMode");
   const te = useTranslations("epic");
@@ -380,7 +386,9 @@ export function PlayChecksPanel({
         >
           <div className="text-[10px] text-muted-foreground">{t("perceptionFormula")}</div>
           <div className="font-mono text-lg font-bold">
-            {Math.floor(((eo.int ?? character.int) + (eo.wis ?? character.wis)) / 2)}
+            {Math.floor(((eo.int ?? character.int) + (eo.wis ?? character.wis)) / 2) +
+              epic.perceptionBonus +
+              magicPerceptionBonus}
           </div>
         </div>
       </div>

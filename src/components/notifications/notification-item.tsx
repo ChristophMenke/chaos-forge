@@ -23,12 +23,6 @@ function getRelativeTime(
   return t("timeDays", { count: days });
 }
 
-function getNotificationIcon(type: string) {
-  if (type.includes("gold")) return Coins;
-  if (type.includes("trade")) return ArrowRightLeft;
-  return Package;
-}
-
 export function NotificationItem({ notification, onMarkRead }: NotificationItemProps) {
   const t = useTranslations("notifications");
   const details = notification.details;
@@ -67,7 +61,16 @@ export function NotificationItem({ notification, onMarkRead }: NotificationItemP
     subtitle = t("quantityDetail", { count: quantity });
   }
 
-  const Icon = getNotificationIcon(notification.type);
+  const iconClassName = `mt-0.5 h-4 w-4 shrink-0 ${
+    notification.is_read ? "text-muted-foreground" : "text-primary"
+  }`;
+  const icon = notification.type.includes("gold") ? (
+    <Coins className={iconClassName} />
+  ) : notification.type.includes("trade") ? (
+    <ArrowRightLeft className={iconClassName} />
+  ) : (
+    <Package className={iconClassName} />
+  );
 
   return (
     <button
@@ -77,11 +80,7 @@ export function NotificationItem({ notification, onMarkRead }: NotificationItemP
       onClick={() => !notification.is_read && onMarkRead(notification.id)}
       data-testid={`notification-item-${notification.id}`}
     >
-      <Icon
-        className={`mt-0.5 h-4 w-4 shrink-0 ${
-          notification.is_read ? "text-muted-foreground" : "text-primary"
-        }`}
-      />
+      {icon}
       <div className="min-w-0 flex-1">
         <p className="text-sm text-foreground">{message}</p>
         {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}

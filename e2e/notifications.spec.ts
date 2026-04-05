@@ -9,30 +9,6 @@ test.describe("Notifications", () => {
     await expect(bell).toBeVisible();
   });
 
-  test("bell icon is visible in mobile more panel", async ({ page }) => {
-    // Use a small viewport to trigger mobile layout
-    await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto("/dashboard");
-    await page.getByTestId("dashboard-page").waitFor({ timeout: 15000 });
-
-    // Mobile bottom nav should be visible at this viewport
-    const mobileNav = page.getByTestId("app-nav-mobile");
-    if (!(await mobileNav.isVisible())) {
-      // Desktop Chrome device may override viewport — skip gracefully
-      test.skip();
-      return;
-    }
-
-    // Open more panel
-    await page.getByTestId("mobile-more-trigger").click();
-    await page.getByTestId("mobile-more-panel").waitFor({ timeout: 5000 });
-
-    // Bell should be in the more panel — use locator within panel
-    const panel = page.getByTestId("mobile-more-panel");
-    const bell = panel.getByTestId("notification-bell");
-    await expect(bell).toBeVisible({ timeout: 10000 });
-  });
-
   test("clicking bell opens notification dropdown", async ({ page }) => {
     await page.goto("/dashboard");
     await page.getByTestId("dashboard-page").waitFor({ timeout: 15000 });

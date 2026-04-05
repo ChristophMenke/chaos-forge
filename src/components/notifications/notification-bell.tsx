@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Bell, CheckCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -32,23 +32,23 @@ export function NotificationBell({
     onUnreadCountChange?.(unreadCount);
   }, [unreadCount, onUnreadCountChange]);
 
-  const fetchNotifications = useCallback(async () => {
-    const supabase = createClient();
-    const { data } = await supabase
-      .from("notifications")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(20)
-      .returns<NotificationRow[]>();
-    if (data) setNotifications(data);
-  }, [userId]);
-
   // Initial fetch + Realtime subscription
   useEffect(() => {
+    const supabase = createClient();
+
+    async function fetchNotifications() {
+      const { data } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(20)
+        .returns<NotificationRow[]>();
+      if (data) setNotifications(data);
+    }
+
     fetchNotifications();
 
-    const supabase = createClient();
     const channel = supabase
       .channel("user-notifications")
       .on(
@@ -69,7 +69,7 @@ export function NotificationBell({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId, fetchNotifications]);
+  }, [userId]);
 
   // Click-outside handler
   useEffect(() => {

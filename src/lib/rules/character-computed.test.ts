@@ -268,7 +268,13 @@ describe("computeCharacterCombatData", () => {
     ];
     const profs = [{ weapon_name: "Mittlerer Schild", specialization: false }];
 
-    const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+    const result = computeCharacterCombatData(
+      char,
+      classes,
+      equipment,
+      [],
+      profs as unknown as import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
+    );
     // AC = 10 - 1 (shield) - 2 (unarmored warrior) - 3 (medium shield prof) = 4
     expect(result.ac).toBe(4);
   });
@@ -370,7 +376,13 @@ describe("computeCharacterCombatData", () => {
       // Character has proficiency for "Großer Schild"
       const profs = [{ weapon_name: "Großer Schild", specialization: false }];
 
-      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      const result = computeCharacterCombatData(
+        char,
+        classes,
+        equipment,
+        [],
+        profs as unknown as import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
+      );
       // AC = 10 - 1 (shield) - 2 (unarmored warrior) - 3 (large shield prof) = 4
       expect(result.ac).toBe(4);
     });
@@ -389,7 +401,13 @@ describe("computeCharacterCombatData", () => {
       // Character has proficiency for a DIFFERENT shield type
       const profs = [{ weapon_name: "Buckler", specialization: false }];
 
-      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      const result = computeCharacterCombatData(
+        char,
+        classes,
+        equipment,
+        [],
+        profs as unknown as import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
+      );
       // AC = 10 - 1 (shield) - 2 (unarmored warrior) = 7 (no prof bonus)
       expect(result.ac).toBe(7);
     });
@@ -414,7 +432,13 @@ describe("computeCharacterCombatData", () => {
       ];
       const profs = [{ weapon_name: "Buckler", specialization: false }];
 
-      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      const result = computeCharacterCombatData(
+        char,
+        classes,
+        equipment,
+        [],
+        profs as unknown as import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
+      );
       // AC = 5 (chain) - 1 (shield) - 2 (DEX) - 1 (buckler prof) = 1
       expect(result.ac).toBe(1);
     });
@@ -475,7 +499,13 @@ describe("computeCharacterCombatData", () => {
       // Proficiency matches by shield_type (medium) via getShieldType("Mittlerer Schild")
       const profs = [{ weapon_name: "Mittlerer Schild", specialization: false }];
 
-      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      const result = computeCharacterCombatData(
+        char,
+        classes,
+        equipment,
+        [],
+        profs as unknown as import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
+      );
       // AC = 10 - 1 (shield) - 2 (unarmored warrior) - 3 (medium shield prof) = 4
       expect(result.ac).toBe(4);
     });
@@ -594,7 +624,13 @@ describe("computeCharacterCombatData", () => {
       // Character has Langschwert proficiency WITH specialization
       const profs = [{ weapon_name: "Langschwert", specialization: true }];
 
-      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      const result = computeCharacterCombatData(
+        char,
+        classes,
+        equipment,
+        [],
+        profs as unknown as import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
+      );
 
       // Fighter L5 unarmored: AC = 10 - 2 (unarmored warrior) = 8
       expect(result.ac).toBe(8);
@@ -630,7 +666,13 @@ describe("computeCharacterCombatData", () => {
       ];
       const profs = [{ weapon_name: "Mittlerer Schild", specialization: false }];
 
-      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      const result = computeCharacterCombatData(
+        char,
+        classes,
+        equipment,
+        [],
+        profs as unknown as import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
+      );
 
       // AC = 10 - 1 (shield) - 2 (unarmored warrior) - 3 (medium shield prof) = 4
       expect(result.ac).toBe(4);
@@ -648,7 +690,13 @@ describe("computeCharacterCombatData", () => {
       // Character has NO shield proficiency
       const profs: { weapon_name: string; specialization: boolean }[] = [];
 
-      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      const result = computeCharacterCombatData(
+        char,
+        classes,
+        equipment,
+        [],
+        profs as unknown as import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
+      );
 
       // AC = 10 - 1 (shield) - 2 (unarmored warrior) = 7 (no prof bonus)
       expect(result.ac).toBe(7);
@@ -667,10 +715,267 @@ describe("computeCharacterCombatData", () => {
       ];
       const profs = [{ weapon_name: "Mittlerer Schild", specialization: false }];
 
-      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      const result = computeCharacterCombatData(
+        char,
+        classes,
+        equipment,
+        [],
+        profs as unknown as import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
+      );
 
       // AC = 5 (chain) - 1 (shield) - 2 (DEX 16) - 3 (medium shield prof) = -1
       expect(result.ac).toBe(-1);
+    });
+  });
+
+  // ─── Magic Item Effects Integration ─────────────────────────────────
+
+  describe("magic item effects integration", () => {
+    function makeMagicEquip(
+      effects: import("@/lib/supabase/types").MagicEffects,
+      label = "Magic Ring"
+    ): CharacterEquipmentWithDetails {
+      return {
+        id: `magic-${Math.random()}`,
+        character_id: "test-char",
+        weapon_id: null,
+        armor_id: null,
+        quantity: 1,
+        equipped: true,
+        hit_bonus: 0,
+        damage_bonus: 0,
+        magic_effects: effects,
+        custom_label: label,
+        weapon: null,
+        armor: null,
+      };
+    }
+
+    it("magic item AC bonus is applied to AC calculation", () => {
+      const char = makeCharacter({ dex: 10 });
+      const classes = [makeClass("fighter", 5)];
+      const ring = makeMagicEquip({ ac_bonus: -2 }, "Ring of Protection +2");
+
+      const result = computeCharacterCombatData(char, classes, [ring], [], []);
+      // AC = 10 - 2 (unarmored warrior) - 2 (ring) = 6
+      expect(result.ac).toBe(6);
+    });
+
+    it("magic item save bonuses are applied to saves", () => {
+      const char = makeCharacter();
+      const classes = [makeClass("fighter", 5)];
+      const ring = makeMagicEquip({ save_all: 2 }, "Ring of Protection +2");
+
+      const result = computeCharacterCombatData(char, classes, [ring], [], []);
+      // Fighter L5 saves: paralyzation=11, rod=13, petrification=12, breath=13, spell=14
+      // With +2 bonus (lower is better in AD&D, so subtract):
+      expect(result.saves.paralyzation).toBe(9); // 11 - 2
+      expect(result.saves.rod).toBe(11); // 13 - 2
+      expect(result.saves.petrification).toBe(10); // 12 - 2
+      expect(result.saves.breath).toBe(11); // 13 - 2
+      expect(result.saves.spell).toBe(12); // 14 - 2
+    });
+
+    it("magic item specific save bonuses stack with save_all", () => {
+      const char = makeCharacter();
+      const classes = [makeClass("fighter", 5)];
+      const ring = makeMagicEquip({ save_all: 1 }, "Ring of Protection +1");
+      const cloak = makeMagicEquip({ save_vs_spell: 2 }, "Cloak vs Spells");
+
+      const result = computeCharacterCombatData(char, classes, [ring, cloak], [], []);
+      // spell save: 14 - 1 (all) - 2 (specific) = 11
+      expect(result.saves.spell).toBe(11);
+      // paralyzation: 11 - 1 (all only) = 10
+      expect(result.saves.paralyzation).toBe(10);
+    });
+
+    it("magic item perception bonus is added", () => {
+      const char = makeCharacter({ int: 14, wis: 16 });
+      const classes = [makeClass("fighter", 5)];
+      const goggles = makeMagicEquip({ perception_bonus: 3 }, "Goggles of Perception");
+
+      const result = computeCharacterCombatData(char, classes, [goggles], [], []);
+      // floor((14+16)/2) + 3 = 15 + 3 = 18
+      expect(result.perception).toBe(18);
+    });
+
+    it("magic item perception stacks with epic perception", () => {
+      const char = makeCharacter({ int: 14, wis: 16 });
+      const classes = [makeClass("fighter", 5)];
+      const goggles = makeMagicEquip({ perception_bonus: 2 }, "Goggles");
+      const epicItems: EpicItemRow[] = [
+        {
+          id: "epic-1",
+          character_id: "test-char",
+          slug: "totem",
+          name: "Totem",
+          name_en: "Totem",
+          description: "",
+          description_en: "",
+          icon: "eye",
+          equipped: true,
+          damage_level: 0,
+          max_damage_level: 1,
+          damage_levels: { "0": { description: "", description_en: "", effects: [] } },
+          simple_effects: { perception_bonus: 3 },
+          notes: "",
+          created_at: "",
+          updated_at: "",
+        },
+      ];
+
+      const result = computeCharacterCombatData(char, classes, [goggles], epicItems, []);
+      // floor((14+16)/2) + 3 (epic) + 2 (magic) = 15 + 5 = 20
+      expect(result.perception).toBe(20);
+    });
+
+    it("magic item thief skill bonuses are applied", () => {
+      const char = makeCharacter({
+        thief_pick_locks: 50,
+        thief_find_traps: 30,
+        thief_move_silently: 60,
+        thief_hide_shadows: 40,
+        thief_climb_walls: 80,
+        thief_detect_noise: 35,
+        thief_read_languages: 15,
+      });
+      const classes = [makeClass("thief", 5)];
+      const boots = makeMagicEquip({ move_silently: 10, hide_in_shadows: 5 }, "Boots of Elvenkind");
+
+      const result = computeCharacterCombatData(char, classes, [boots], [], []);
+      expect(result.thiefSkills!.moveSilently).toBe(70); // 60 + 10
+      expect(result.thiefSkills!.hideInShadows).toBe(45); // 40 + 5
+      expect(result.thiefSkills!.openLocks).toBe(50); // unchanged
+    });
+
+    it("magic item stat bonuses affect derived values", () => {
+      // DEX 14 → 0 def adj. With DEX +2 bonus → DEX 16 → -2 def adj
+      const char = makeCharacter({ dex: 14 });
+      const classes = [makeClass("fighter", 5)];
+      const bracers = makeMagicEquip({ dex: 2 }, "Bracers of Dexterity +2");
+
+      const result = computeCharacterCombatData(char, classes, [bracers], [], []);
+      // AC = 10 - 2 (unarmored warrior) - 2 (DEX 16 def adj) = 6
+      expect(result.ac).toBe(6);
+    });
+
+    it("exposes magic resistance, spell failure, resistances, passive abilities, spell abilities", () => {
+      const char = makeCharacter();
+      const classes = [makeClass("fighter", 5)];
+      const robe = makeMagicEquip(
+        {
+          magic_resistance: 5,
+          spell_failure: 10,
+          resistances: ["Fire Resistance"],
+          passive_abilities: ["Infravision 18m"],
+          spell_abilities: [{ name: "Feuerball", uses_per_day: 1, description: "3W6 Feuer" }],
+        },
+        "Robe of the Archmagi"
+      );
+
+      const result = computeCharacterCombatData(char, classes, [robe], [], []);
+      expect(result.magicResistance).toBe(5);
+      expect(result.magicSpellFailure).toBe(10);
+      expect(result.magicResistances).toEqual(["Fire Resistance"]);
+      expect(result.magicPassiveAbilities).toEqual(["Infravision 18m"]);
+      expect(result.magicSpellAbilities).toHaveLength(1);
+      expect(result.magicSpellAbilities[0].name).toBe("Feuerball");
+    });
+
+    it("stat bonuses are capped at 25 (AD&D max)", () => {
+      // Character with STR 24 + magic STR +5 should cap at 25
+      const char = makeCharacter({ str: 24, dex: 23 });
+      const classes = [makeClass("fighter", 5)];
+      const gauntlets = makeMagicEquip({ str: 5, dex: 5 }, "Gauntlets of Excess");
+
+      const result = computeCharacterCombatData(char, classes, [gauntlets], [], []);
+      // STR should be capped: min(24+5, 25) = 25
+      // DEX should be capped: min(23+5, 25) = 25
+      // Verify via AC: DEX 25 → -6 def adj (PHB table)
+      // AC = 10 - 2 (unarmored warrior) - 6 (DEX 25) = 2
+      expect(result.ac).toBe(2);
+    });
+
+    it("magic items with no effects produce zero-initialized result fields", () => {
+      const char = makeCharacter();
+      const classes = [makeClass("fighter", 5)];
+
+      const result = computeCharacterCombatData(char, classes, [], [], []);
+      expect(result.magicResistance).toBe(0);
+      expect(result.magicSpellFailure).toBe(0);
+      expect(result.magicResistances).toEqual([]);
+      expect(result.magicPassiveAbilities).toEqual([]);
+      expect(result.magicSpellAbilities).toEqual([]);
+    });
+
+    it("magic spell failure combines with epic spell failure (max of both)", () => {
+      const char = makeCharacter();
+      const classes = [makeClass("fighter", 5)];
+      const cursed = makeMagicEquip({ spell_failure: 15 }, "Cursed Gauntlets");
+      const epicItems: EpicItemRow[] = [
+        {
+          id: "epic-sf",
+          character_id: "test-char",
+          slug: "condenser",
+          name: "Kondensator",
+          name_en: "Condenser",
+          description: "",
+          description_en: "",
+          icon: "zap",
+          equipped: true,
+          damage_level: 1,
+          max_damage_level: 3,
+          damage_levels: {
+            "1": { description: "", description_en: "", effects: ["spell_failure_10"] },
+          },
+          simple_effects: {},
+          notes: "",
+          created_at: "",
+          updated_at: "",
+        },
+      ];
+
+      const result = computeCharacterCombatData(char, classes, [cursed], epicItems, []);
+      // magicSpellFailure = max(magic=15, epic=10) = 15
+      expect(result.magicSpellFailure).toBe(15);
+    });
+
+    it("magic AC bonus stacks with armor and epic AC bonus", () => {
+      const char = makeCharacter({ dex: 10 });
+      const classes = [makeClass("fighter", 5)];
+      const armor: CharacterEquipmentWithDetails = {
+        id: "eq-armor",
+        character_id: "test-char",
+        weapon_id: null,
+        armor_id: "armor-1",
+        quantity: 1,
+        equipped: true,
+        hit_bonus: 0,
+        damage_bonus: 0,
+        magic_effects: {},
+        custom_label: null,
+        weapon: null,
+        armor: {
+          id: "armor-1",
+          name: "Kettenpanzer",
+          name_en: "Chain Mail",
+          ac: 5,
+          weight: 40,
+          cost_gp: 75,
+          max_movement: 9,
+          source_book: "PHB",
+          is_custom: false,
+          is_magical_protection: false,
+          is_shield: false,
+          shield_type: null,
+          created_by: null,
+        },
+      };
+      const ring = makeMagicEquip({ ac_bonus: -1 }, "Ring of Protection +1");
+
+      const result = computeCharacterCombatData(char, classes, [armor, ring], [], []);
+      // AC = 5 (chain) + (-1) (ring magic AC) = 4
+      expect(result.ac).toBe(4);
     });
   });
 });
