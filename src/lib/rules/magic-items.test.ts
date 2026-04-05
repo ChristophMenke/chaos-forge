@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getMagicItemEffects, type AggregatedMagicEffects } from "./magic-items";
+import { getMagicItemEffects } from "./magic-items";
 import type { CharacterEquipmentWithDetails, MagicEffects } from "@/lib/supabase/types";
 
 /** Helper to create a magic item (no weapon/armor refs) */

@@ -268,7 +268,13 @@ describe("computeCharacterCombatData", () => {
     ];
     const profs = [{ weapon_name: "Mittlerer Schild", specialization: false }];
 
-    const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+    const result = computeCharacterCombatData(
+      char,
+      classes,
+      equipment,
+      [],
+      profs as unknown as import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
+    );
     // AC = 10 - 1 (shield) - 2 (unarmored warrior) - 3 (medium shield prof) = 4
     expect(result.ac).toBe(4);
   });
@@ -370,7 +376,13 @@ describe("computeCharacterCombatData", () => {
       // Character has proficiency for "Großer Schild"
       const profs = [{ weapon_name: "Großer Schild", specialization: false }];
 
-      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      const result = computeCharacterCombatData(
+        char,
+        classes,
+        equipment,
+        [],
+        profs as unknown as import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
+      );
       // AC = 10 - 1 (shield) - 2 (unarmored warrior) - 3 (large shield prof) = 4
       expect(result.ac).toBe(4);
     });
@@ -389,7 +401,13 @@ describe("computeCharacterCombatData", () => {
       // Character has proficiency for a DIFFERENT shield type
       const profs = [{ weapon_name: "Buckler", specialization: false }];
 
-      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      const result = computeCharacterCombatData(
+        char,
+        classes,
+        equipment,
+        [],
+        profs as unknown as import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
+      );
       // AC = 10 - 1 (shield) - 2 (unarmored warrior) = 7 (no prof bonus)
       expect(result.ac).toBe(7);
     });
@@ -414,7 +432,13 @@ describe("computeCharacterCombatData", () => {
       ];
       const profs = [{ weapon_name: "Buckler", specialization: false }];
 
-      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      const result = computeCharacterCombatData(
+        char,
+        classes,
+        equipment,
+        [],
+        profs as unknown as import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
+      );
       // AC = 5 (chain) - 1 (shield) - 2 (DEX) - 1 (buckler prof) = 1
       expect(result.ac).toBe(1);
     });
@@ -475,7 +499,13 @@ describe("computeCharacterCombatData", () => {
       // Proficiency matches by shield_type (medium) via getShieldType("Mittlerer Schild")
       const profs = [{ weapon_name: "Mittlerer Schild", specialization: false }];
 
-      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      const result = computeCharacterCombatData(
+        char,
+        classes,
+        equipment,
+        [],
+        profs as unknown as import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
+      );
       // AC = 10 - 1 (shield) - 2 (unarmored warrior) - 3 (medium shield prof) = 4
       expect(result.ac).toBe(4);
     });
@@ -594,7 +624,13 @@ describe("computeCharacterCombatData", () => {
       // Character has Langschwert proficiency WITH specialization
       const profs = [{ weapon_name: "Langschwert", specialization: true }];
 
-      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      const result = computeCharacterCombatData(
+        char,
+        classes,
+        equipment,
+        [],
+        profs as unknown as import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
+      );
 
       // Fighter L5 unarmored: AC = 10 - 2 (unarmored warrior) = 8
       expect(result.ac).toBe(8);
@@ -630,7 +666,13 @@ describe("computeCharacterCombatData", () => {
       ];
       const profs = [{ weapon_name: "Mittlerer Schild", specialization: false }];
 
-      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      const result = computeCharacterCombatData(
+        char,
+        classes,
+        equipment,
+        [],
+        profs as unknown as import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
+      );
 
       // AC = 10 - 1 (shield) - 2 (unarmored warrior) - 3 (medium shield prof) = 4
       expect(result.ac).toBe(4);
@@ -648,7 +690,13 @@ describe("computeCharacterCombatData", () => {
       // Character has NO shield proficiency
       const profs: { weapon_name: string; specialization: boolean }[] = [];
 
-      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      const result = computeCharacterCombatData(
+        char,
+        classes,
+        equipment,
+        [],
+        profs as unknown as import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
+      );
 
       // AC = 10 - 1 (shield) - 2 (unarmored warrior) = 7 (no prof bonus)
       expect(result.ac).toBe(7);
@@ -667,7 +715,13 @@ describe("computeCharacterCombatData", () => {
       ];
       const profs = [{ weapon_name: "Mittlerer Schild", specialization: false }];
 
-      const result = computeCharacterCombatData(char, classes, equipment, [], profs as any);
+      const result = computeCharacterCombatData(
+        char,
+        classes,
+        equipment,
+        [],
+        profs as unknown as import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
+      );
 
       // AC = 5 (chain) - 1 (shield) - 2 (DEX 16) - 3 (medium shield prof) = -1
       expect(result.ac).toBe(-1);
