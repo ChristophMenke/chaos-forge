@@ -10,18 +10,14 @@ test.describe("Notifications", () => {
   });
 
   test("bell icon is visible in mobile more panel", async ({ page }) => {
-    // Use a small viewport to trigger mobile layout
+    // Set mobile viewport before navigation so CSS renders correctly
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/dashboard");
+    await page.waitForLoadState("networkidle");
     await page.getByTestId("dashboard-page").waitFor({ timeout: 15000 });
 
     // Mobile bottom nav should be visible at this viewport
-    const mobileNav = page.getByTestId("app-nav-mobile");
-    if (!(await mobileNav.isVisible())) {
-      // Desktop Chrome device may override viewport — skip gracefully
-      test.skip();
-      return;
-    }
+    await expect(page.getByTestId("app-nav-mobile")).toBeVisible({ timeout: 10000 });
 
     // Open more panel
     await page.getByTestId("mobile-more-trigger").click();
