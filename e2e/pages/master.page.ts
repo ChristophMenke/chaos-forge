@@ -98,8 +98,16 @@ export class MasterPage {
 
   async enterAndSubmitPin(pin: string) {
     await this.enterPin(pin);
-    // Auto-submit triggers from paste handler — wait for server response
-    await this.page.waitForTimeout(3000);
+    // Auto-submit triggers from paste handler — wait for dashboard or error
+    try {
+      await this.dashboard.waitFor({ state: "visible", timeout: 10000 });
+    } catch {
+      // If auto-submit didn't work, try manual submit
+      if (await this.pinSubmit.isEnabled().catch(() => false)) {
+        await this.pinSubmit.click();
+        await this.dashboard.waitFor({ state: "visible", timeout: 10000 });
+      }
+    }
   }
 
   async switchToItems() {

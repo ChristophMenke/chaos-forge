@@ -40,12 +40,12 @@ export default defineConfig({
         "magic-items.spec.ts",
       ],
     },
-    // Mobile tests — use iPhone device for reliable mobile viewport
+    // Mobile tests — use Pixel 5 (Chromium-based) for reliable mobile viewport in CI
     {
       name: "mobile",
       dependencies: ["setup"],
       use: {
-        ...devices["iPhone 13"],
+        ...devices["Pixel 5"],
         storageState: "e2e/.auth/user.json",
       },
       testMatch: ["mobile.spec.ts"],
