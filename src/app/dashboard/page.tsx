@@ -74,6 +74,52 @@ function StatCard({
   );
 }
 
+/** Reusable distribution bar panel (alignment, class, race distributions) */
+function DistributionPanel({
+  title,
+  items,
+  maxCount,
+  testId,
+  labelWidth = "w-16",
+}: {
+  title: string;
+  items: { name: string; count: number; barClass?: string }[];
+  maxCount: number;
+  testId: string;
+  labelWidth?: string;
+}) {
+  if (items.length === 0) return null;
+  return (
+    <div className="stat-card-frame glass glow-neutral rounded-lg p-3" data-testid={testId}>
+      <span aria-hidden="true" className="stat-corner-tr" />
+      <h3 className="relative z-10 mb-2 text-[0.5625rem] font-medium uppercase tracking-[0.15em] text-muted-foreground">
+        {title}
+      </h3>
+      <div className="relative z-10 space-y-1.5">
+        {items.map((item) => {
+          const pct = Math.round((item.count / maxCount) * 100);
+          return (
+            <div key={item.name} className="flex items-center gap-2">
+              <span className={`${labelWidth} truncate text-[0.6875rem] text-foreground`}>
+                {item.name}
+              </span>
+              <div className="distribution-bar flex-1">
+                <div
+                  className={`distribution-bar-fill ${item.barClass ?? "hp-bar-priest"}`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+              <span className="w-4 text-right font-mono text-[0.6875rem] text-muted-foreground">
+                {item.count}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /** Compact stat card for party-wide stats (less padding, smaller text) */
 function MiniStatCard({
   icon: Icon,
@@ -684,67 +730,24 @@ export default async function DashboardPage() {
       {/* ── Class & Race Distribution (Visual Bars) ──────── */}
       {(classDistribution.length > 0 || raceDistribution.length > 0) && (
         <div className="grid gap-4 sm:grid-cols-2">
-          {classDistribution.length > 0 && (
-            <div
-              className="stat-card-frame glass glow-neutral rounded-xl p-5"
-              data-testid="stat-card-classes"
-            >
-              <span aria-hidden="true" className="stat-corner-tr" />
-              <h3 className="relative z-10 mb-3 text-[0.625rem] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                {t("classDistribution")}
-              </h3>
-              <div className="relative z-10 space-y-2.5">
-                {classDistribution.map((c) => {
-                  const pct = Math.round((c.count / maxClassCount) * 100);
-                  const colors = getClassGroupColors(c.group);
-                  return (
-                    <div key={c.name} className="flex items-center gap-3">
-                      <span className="w-20 truncate text-xs text-foreground">{c.name}</span>
-                      <div className="distribution-bar flex-1">
-                        <div
-                          className={`distribution-bar-fill ${colors.hpBar}`}
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                      <span className="w-6 text-right font-mono text-xs text-muted-foreground">
-                        {c.count}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-          {raceDistribution.length > 0 && (
-            <div
-              className="stat-card-frame glass glow-neutral rounded-xl p-5"
-              data-testid="stat-card-races"
-            >
-              <span aria-hidden="true" className="stat-corner-tr" />
-              <h3 className="relative z-10 mb-3 text-[0.625rem] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                {t("raceDistribution")}
-              </h3>
-              <div className="relative z-10 space-y-2.5">
-                {raceDistribution.map((r) => {
-                  const pct = Math.round((r.count / maxRaceCount) * 100);
-                  return (
-                    <div key={r.name} className="flex items-center gap-3">
-                      <span className="w-20 truncate text-xs text-foreground">{r.name}</span>
-                      <div className="distribution-bar flex-1">
-                        <div
-                          className="distribution-bar-fill hp-bar-priest"
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                      <span className="w-6 text-right font-mono text-xs text-muted-foreground">
-                        {r.count}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+          <DistributionPanel
+            title={t("classDistribution")}
+            items={classDistribution.map((c) => ({
+              name: c.name,
+              count: c.count,
+              barClass: getClassGroupColors(c.group).hpBar,
+            }))}
+            maxCount={maxClassCount}
+            testId="stat-card-classes"
+            labelWidth="w-20"
+          />
+          <DistributionPanel
+            title={t("raceDistribution")}
+            items={raceDistribution}
+            maxCount={maxRaceCount}
+            testId="stat-card-races"
+            labelWidth="w-20"
+          />
         </div>
       )}
 
@@ -915,105 +918,29 @@ export default async function DashboardPage() {
 
           {/* Compact distributions — 3 columns on desktop */}
           <div className="grid gap-2 sm:gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {/* Alignment Distribution */}
-            {alignmentDistribution.length > 0 && (
-              <div
-                className="stat-card-frame glass glow-neutral rounded-lg p-3"
-                data-testid="stat-card-alignments"
-              >
-                <h3 className="relative z-10 mb-2 text-[0.5625rem] font-medium uppercase tracking-[0.15em] text-muted-foreground">
-                  {t("alignmentDistribution")}
-                </h3>
-                <div className="relative z-10 space-y-1.5">
-                  {alignmentDistribution.map((a) => {
-                    const pct = Math.round((a.count / maxAlignmentCount) * 100);
-                    return (
-                      <div key={a.name} className="flex items-center gap-2">
-                        <span className="w-24 truncate text-[0.6875rem] text-foreground">
-                          {a.name}
-                        </span>
-                        <div className="distribution-bar flex-1">
-                          <div
-                            className="distribution-bar-fill hp-bar-priest"
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                        <span className="w-4 text-right font-mono text-[0.6875rem] text-muted-foreground">
-                          {a.count}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Party Class Distribution */}
-            {partyClassDistribution.length > 0 && (
-              <div
-                className="stat-card-frame glass glow-neutral rounded-lg p-3"
-                data-testid="stat-card-party-classes"
-              >
-                <h3 className="relative z-10 mb-2 text-[0.5625rem] font-medium uppercase tracking-[0.15em] text-muted-foreground">
-                  {t("partyClassDistribution")}
-                </h3>
-                <div className="relative z-10 space-y-1.5">
-                  {partyClassDistribution.map((c) => {
-                    const pct = Math.round((c.count / maxPartyClassCount) * 100);
-                    const colors = getClassGroupColors(c.group);
-                    return (
-                      <div key={c.name} className="flex items-center gap-2">
-                        <span className="w-16 truncate text-[0.6875rem] text-foreground">
-                          {c.name}
-                        </span>
-                        <div className="distribution-bar flex-1">
-                          <div
-                            className={`distribution-bar-fill ${colors.hpBar}`}
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                        <span className="w-4 text-right font-mono text-[0.6875rem] text-muted-foreground">
-                          {c.count}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Party Race Distribution */}
-            {partyRaceDistribution.length > 0 && (
-              <div
-                className="stat-card-frame glass glow-neutral rounded-lg p-3"
-                data-testid="stat-card-party-races"
-              >
-                <h3 className="relative z-10 mb-2 text-[0.5625rem] font-medium uppercase tracking-[0.15em] text-muted-foreground">
-                  {t("partyRaceDistribution")}
-                </h3>
-                <div className="relative z-10 space-y-1.5">
-                  {partyRaceDistribution.map((r) => {
-                    const pct = Math.round((r.count / maxPartyRaceCount) * 100);
-                    return (
-                      <div key={r.name} className="flex items-center gap-2">
-                        <span className="w-16 truncate text-[0.6875rem] text-foreground">
-                          {r.name}
-                        </span>
-                        <div className="distribution-bar flex-1">
-                          <div
-                            className="distribution-bar-fill hp-bar-priest"
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                        <span className="w-4 text-right font-mono text-[0.6875rem] text-muted-foreground">
-                          {r.count}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+            <DistributionPanel
+              title={t("alignmentDistribution")}
+              items={alignmentDistribution}
+              maxCount={maxAlignmentCount}
+              testId="stat-card-alignments"
+              labelWidth="w-24"
+            />
+            <DistributionPanel
+              title={t("partyClassDistribution")}
+              items={partyClassDistribution.map((c) => ({
+                name: c.name,
+                count: c.count,
+                barClass: getClassGroupColors(c.group).hpBar,
+              }))}
+              maxCount={maxPartyClassCount}
+              testId="stat-card-party-classes"
+            />
+            <DistributionPanel
+              title={t("partyRaceDistribution")}
+              items={partyRaceDistribution}
+              maxCount={maxPartyRaceCount}
+              testId="stat-card-party-races"
+            />
           </div>
         </>
       )}
