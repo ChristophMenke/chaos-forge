@@ -49,6 +49,7 @@ jobs:
       - run: npm run test:e2e
         env:
           CI_USE_BUILD: true
+          GM_PIN: "123456"
 
       - uses: actions/upload-artifact@v4
         if: failure()

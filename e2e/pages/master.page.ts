@@ -71,14 +71,24 @@ export class MasterPage {
   }
 
   async enterPin(pin: string) {
-    for (let i = 0; i < pin.length; i++) {
-      await this.page.getByTestId(`gm-pin-digit-${i}`).fill(pin[i]);
-    }
+    // Focus first input and paste the full PIN to trigger the handlePaste handler
+    // which reliably sets all digits and auto-submits when complete
+    const firstInput = this.page.getByTestId("gm-pin-digit-0");
+    await firstInput.focus();
+
+    // Use clipboard paste which triggers the onPaste handler for reliable 6-digit entry
+    await this.page.evaluate((p) => {
+      const dt = new DataTransfer();
+      dt.setData("text/plain", p);
+      const event = new ClipboardEvent("paste", { clipboardData: dt, bubbles: true });
+      document.activeElement?.dispatchEvent(event);
+    }, pin);
   }
 
   async submitPin() {
-    // PIN gate auto-submits when all 6 digits are filled.
-    // If the button is still enabled (e.g. auto-submit didn't trigger), click it.
+    // PIN gate auto-submits when all 6 digits are filled via paste.
+    // If the button is still enabled, click it as fallback.
+    await this.page.waitForTimeout(500);
     const btn = this.pinSubmit;
     if (await btn.isEnabled().catch(() => false)) {
       await btn.click();
@@ -88,8 +98,8 @@ export class MasterPage {
 
   async enterAndSubmitPin(pin: string) {
     await this.enterPin(pin);
-    // Wait for auto-submit or the dashboard to appear
-    await this.page.waitForTimeout(2000);
+    // Auto-submit triggers from paste handler — wait for server response
+    await this.page.waitForTimeout(3000);
   }
 
   async switchToItems() {
