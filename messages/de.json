@@ -673,7 +673,12 @@
     "bestThac0Value": "{name} ({value})",
     "bestAC": "Beste RK",
     "bestACValue": "{name} (RK {value})",
-    "partyWeight": "Party-Gewicht"
+    "partyWeight": "Party-Gewicht",
+    "saveLabel_paralyzation": "Para",
+    "saveLabel_rod": "Stab",
+    "saveLabel_petrification": "Verst",
+    "saveLabel_breath": "Odem",
+    "saveLabel_spell": "Zauber"
   },
   "import": {
     "title": "Charakterbogen importieren",

@@ -28,6 +28,7 @@ import { CLASSES } from "@/lib/rules/classes";
 import { RACES } from "@/lib/rules/races";
 import { getClassGroupColors } from "@/lib/utils/class-colors";
 import { localized } from "@/lib/utils/localize";
+import { lbsToKg } from "@/lib/utils/units";
 import type { ClassGroup, ClassId } from "@/lib/rules/types";
 import type {
   CharacterRow,
@@ -87,6 +88,7 @@ function MiniStatCard({
 }) {
   return (
     <div className="stat-card-frame glass glow-neutral rounded-lg px-3 py-2.5" data-testid={testId}>
+      <span aria-hidden="true" className="stat-corner-tr" />
       <div className="relative z-10 flex items-center gap-2.5">
         <Icon className="stat-icon-glow h-4 w-4 shrink-0 text-primary/70" aria-hidden="true" />
         <div className="min-w-0 flex-1">
@@ -122,10 +124,6 @@ export default async function DashboardPage() {
     { data: tags },
     { data: sessionTagRows },
     { data: spellCounts },
-    { data: allEquipment },
-    { data: allEpicItems },
-    { data: allWeaponProfs },
-    { data: allFightingStyles },
   ] = await Promise.all([
     supabase
       .from("characters")
@@ -167,19 +165,6 @@ export default async function DashboardPage() {
     supabase.from("tags").select("*").returns<TagRow[]>(),
     supabase.from("session_tags").select("tag_id").returns<{ tag_id: string }[]>(),
     supabase.from("character_spells").select("character_id").returns<{ character_id: string }[]>(),
-    supabase
-      .from("character_equipment")
-      .select("*, weapon:weapons(*), armor:armor(*)")
-      .returns<import("@/lib/supabase/types").CharacterEquipmentWithDetails[]>(),
-    supabase.from("epic_items").select("*").returns<import("@/lib/supabase/types").EpicItemRow[]>(),
-    supabase
-      .from("character_weapon_proficiencies")
-      .select("*")
-      .returns<import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]>(),
-    supabase
-      .from("character_fighting_styles")
-      .select("*")
-      .returns<import("@/lib/supabase/types").CharacterFightingStyleRow[]>(),
   ]);
 
   // Build party overview: public characters + shared (non-public) characters
@@ -357,6 +342,38 @@ export default async function DashboardPage() {
   // Deduplicate by id (own characters might also be in partyOverview if public)
   const partyCharsMap = new Map(allPartyChars.map((c) => [c.id, c]));
   const partyChars = [...partyCharsMap.values()];
+  const partyCharIds = partyChars.map((c) => c.id);
+
+  // ── Combat data queries (scoped to party characters) ──
+  const [allEquipment, allEpicItems, allWeaponProfs, allFightingStyles] =
+    partyCharIds.length > 0
+      ? await Promise.all([
+          supabase
+            .from("character_equipment")
+            .select("*, weapon:weapons(*), armor:armor(*)")
+            .in("character_id", partyCharIds)
+            .returns<import("@/lib/supabase/types").CharacterEquipmentWithDetails[]>()
+            .then((r) => r.data ?? []),
+          supabase
+            .from("epic_items")
+            .select("*")
+            .in("character_id", partyCharIds)
+            .returns<import("@/lib/supabase/types").EpicItemRow[]>()
+            .then((r) => r.data ?? []),
+          supabase
+            .from("character_weapon_proficiencies")
+            .select("*")
+            .in("character_id", partyCharIds)
+            .returns<import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]>()
+            .then((r) => r.data ?? []),
+          supabase
+            .from("character_fighting_styles")
+            .select("*")
+            .in("character_id", partyCharIds)
+            .returns<import("@/lib/supabase/types").CharacterFightingStyleRow[]>()
+            .then((r) => r.data ?? []),
+        ])
+      : [[], [], [], []];
 
   const partyAvgLevel = (() => {
     if (partyChars.length === 0) return 0;
@@ -495,11 +512,11 @@ export default async function DashboardPage() {
     let best: { name: string; category: string; value: number } | null = null;
     const saveLabels = ["paralyzation", "rod", "petrification", "breath", "spell"] as const;
     const saveLabelMap: Record<string, string> = {
-      paralyzation: "Para",
-      rod: "Stab",
-      petrification: "Verst",
-      breath: "Odem",
-      spell: "Zauber",
+      paralyzation: t("saveLabel_paralyzation"),
+      rod: t("saveLabel_rod"),
+      petrification: t("saveLabel_petrification"),
+      breath: t("saveLabel_breath"),
+      spell: t("saveLabel_spell"),
     };
     for (const c of partyChars) {
       const classes = (charClassMap.get(c.id) ?? []).filter((cc) => cc.is_active);
@@ -544,13 +561,13 @@ export default async function DashboardPage() {
     string,
     import("@/lib/supabase/types").CharacterEquipmentWithDetails[]
   >();
-  for (const eq of allEquipment ?? []) {
+  for (const eq of allEquipment) {
     const list = equipmentByChar.get(eq.character_id) ?? [];
     list.push(eq);
     equipmentByChar.set(eq.character_id, list);
   }
   const epicByChar = new Map<string, import("@/lib/supabase/types").EpicItemRow[]>();
-  for (const ei of allEpicItems ?? []) {
+  for (const ei of allEpicItems) {
     const list = epicByChar.get(ei.character_id) ?? [];
     list.push(ei);
     epicByChar.set(ei.character_id, list);
@@ -559,7 +576,7 @@ export default async function DashboardPage() {
     string,
     import("@/lib/supabase/types").CharacterWeaponProficiencyRow[]
   >();
-  for (const p of allWeaponProfs ?? []) {
+  for (const p of allWeaponProfs) {
     const list = profsByChar.get(p.character_id) ?? [];
     list.push(p);
     profsByChar.set(p.character_id, list);
@@ -568,7 +585,7 @@ export default async function DashboardPage() {
     string,
     import("@/lib/supabase/types").CharacterFightingStyleRow[]
   >();
-  for (const fs of allFightingStyles ?? []) {
+  for (const fs of allFightingStyles) {
     const list = stylesByChar.get(fs.character_id) ?? [];
     list.push(fs);
     stylesByChar.set(fs.character_id, list);
@@ -604,13 +621,11 @@ export default async function DashboardPage() {
       : null;
 
   // Total party equipment weight (in lbs → convert to kg)
-  const partyWeightLbs = (allEquipment ?? []).reduce((sum, eq) => {
-    // Only count equipment belonging to party characters
-    if (!partyCharsMap.has(eq.character_id)) return sum;
+  const partyWeightLbs = allEquipment.reduce((sum, eq) => {
     const w = eq.weapon?.weight ?? eq.armor?.weight ?? 0;
     return sum + w * eq.quantity;
   }, 0);
-  const partyWeightKg = Math.round(partyWeightLbs * 0.4536);
+  const partyWeightKg = lbsToKg(partyWeightLbs);
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6" data-testid="dashboard-page">
