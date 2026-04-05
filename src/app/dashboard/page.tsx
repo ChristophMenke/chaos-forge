@@ -383,8 +383,8 @@ export default async function DashboardPage() {
   const maxClassCount = classDistribution[0]?.count ?? 1;
   const maxRaceCount = raceDistribution[0]?.count ?? 1;
 
-  // ── Party-wide statistics (all visible characters, not just own) ──
-  const allPartyChars = [...allCharacters, ...partyOverviewCharacters];
+  // ── Party-wide statistics (active characters only) ──
+  const allPartyChars = [...activeCharacters, ...partyOverviewCharacters];
   // Deduplicate by id (own characters might also be in partyOverview if public)
   const partyCharsMap = new Map(allPartyChars.map((c) => [c.id, c]));
   const partyChars = [...partyCharsMap.values()];
