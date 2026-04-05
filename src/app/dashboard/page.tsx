@@ -507,11 +507,11 @@ export default async function DashboardPage() {
   })();
   const maxPartyRaceCount = partyRaceDistribution[0]?.count ?? 1;
 
-  // Multiclass count in party
-  const multiclassCount = partyChars.filter((c) => {
+  // Multiclass: total number of active classes across all party characters
+  const totalPartyClasses = partyChars.reduce((sum, c) => {
     const classes = (charClassMap.get(c.id) ?? []).filter((cc) => cc.is_active);
-    return classes.length > 1;
-  }).length;
+    return sum + classes.length;
+  }, 0);
 
   // Spell champion (most learned spells)
   const spellCountMap = new Map<string, number>();
@@ -529,11 +529,12 @@ export default async function DashboardPage() {
     return best;
   })();
 
-  // XP champion (highest total XP)
+  // XP champion (highest current XP from character classes)
   const xpChampion = (() => {
     let best: { name: string; total: number } | null = null;
     for (const c of partyChars) {
-      const total = xpTotals.get(c.id) ?? 0;
+      const classes = (charClassMap.get(c.id) ?? []).filter((cc) => cc.is_active);
+      const total = classes.reduce((sum, cc) => sum + cc.xp_current, 0);
       if (total > 0 && (!best || total > best.total)) {
         best = { name: c.name, total };
       }
@@ -667,11 +668,13 @@ export default async function DashboardPage() {
       : null;
 
   // Total party equipment weight (in lbs → convert to kg)
-  const partyWeightLbs = allEquipment.reduce((sum, eq) => {
+  // Total party weight: character body weight (kg) + equipment weight (lbs→kg)
+  const equipWeightKg = allEquipment.reduce((sum, eq) => {
     const w = eq.weapon?.weight ?? eq.armor?.weight ?? 0;
-    return sum + w * eq.quantity;
+    return sum + w * eq.quantity * 0.453592;
   }, 0);
-  const partyWeightKg = lbsToKg(partyWeightLbs);
+  const charWeightKg = partyChars.reduce((sum, c) => sum + (c.weight_kg ?? 0), 0);
+  const partyWeightKg = Math.round(charWeightKg + equipWeightKg);
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6" data-testid="dashboard-page">
@@ -790,7 +793,7 @@ export default async function DashboardPage() {
               icon={Layers}
               label={t("multiclassCount")}
               value={t("multiclassValue", {
-                count: multiclassCount,
+                count: totalPartyClasses,
                 total: partyChars.length,
               })}
               testId="stat-card-multiclass"

@@ -659,7 +659,7 @@
     "partyClassDistribution": "Party-Klassen",
     "partyRaceDistribution": "Party-Rassen",
     "multiclassCount": "Multiclass",
-    "multiclassValue": "{count} von {total}",
+    "multiclassValue": "{count} Klassen / {total} Chars",
     "spellChampion": "Meiste Zauber",
     "spellChampionValue": "{name} ({count})",
     "xpChampion": "XP-Champion",
