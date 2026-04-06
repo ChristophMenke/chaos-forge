@@ -125,11 +125,17 @@ describe("PHB Character Creation Rules — Coverage", () => {
   describe("Partial rules have some implementation", () => {
     const partialRules = CHARACTER_CREATION_RULES.filter((r) => r.status === "partial");
 
-    for (const rule of partialRules) {
-      it(`${rule.id} [PARTIAL]: ${rule.description.slice(0, 60)}`, () => {
-        // Partial rules should have at least a note explaining the gap
-        expect(rule.notes).toBeTruthy();
+    if (partialRules.length === 0) {
+      it("no partial rules — all fully implemented", () => {
+        expect(partialRules).toHaveLength(0);
       });
+    } else {
+      for (const rule of partialRules) {
+        it(`${rule.id} [PARTIAL]: ${rule.description.slice(0, 60)}`, () => {
+          // Partial rules should have at least a note explaining the gap
+          expect(rule.notes).toBeTruthy();
+        });
+      }
     }
   });
 
