@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { ClassGroup } from "@/lib/rules/types";
 import { getClassGroupColors } from "@/lib/utils/class-colors";
+import { getHpStatus, getDeathThreshold } from "@/lib/rules/hitpoints";
 
 interface PlayHpBarProps {
   characterId: string;
@@ -46,13 +47,16 @@ export function PlayHpBar({
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const pct = hpMax > 0 ? Math.min(100, Math.round((hpCurrent / hpMax) * 100)) : 0;
+  // pct is only used for bar width when status === "alive".
+  // For unconscious/dead, width is forced to 100%. Math.max(0, ...) handles negative hpCurrent.
+  const pct = hpMax > 0 ? Math.max(0, Math.min(100, Math.round((hpCurrent / hpMax) * 100))) : 0;
   const colors = getClassGroupColors(classGroup);
+  const status = getHpStatus(hpCurrent, hpMax);
 
   function applyDamage() {
     const amount = parseInt(inputValue, 10);
     if (!isNaN(amount) && amount > 0) {
-      onHpChange(Math.max(0, hpCurrent - amount));
+      onHpChange(Math.max(getDeathThreshold(hpMax), hpCurrent - amount));
     }
     setShowDamageInput(false);
     setInputValue("");
@@ -157,6 +161,24 @@ export function PlayHpBar({
               <span className="font-mono text-sm font-bold" data-testid="play-hp-text">
                 {hpCurrent}/{hpMax}
               </span>
+              {status === "unconscious" && (
+                <Badge
+                  variant="outline"
+                  className="border-amber-500/50 bg-amber-500/10 text-amber-400"
+                  data-testid="play-status-unconscious"
+                >
+                  {t("unconscious")}
+                </Badge>
+              )}
+              {status === "dead" && (
+                <Badge
+                  variant="outline"
+                  className="border-red-500/50 bg-red-500/10 text-red-400"
+                  data-testid="play-status-dead"
+                >
+                  💀 {t("dead")}
+                </Badge>
+              )}
               {!readOnly && (
                 <Button
                   variant="ghost"
@@ -173,10 +195,17 @@ export function PlayHpBar({
           </div>
 
           {/* HP Bar */}
-          <div className="mt-1 h-2 overflow-hidden rounded-full bg-black/30 dark:bg-black/50">
+          <div
+            role="progressbar"
+            aria-valuenow={hpCurrent}
+            aria-valuemin={-hpMax}
+            aria-valuemax={hpMax}
+            aria-label={`HP: ${hpCurrent}/${hpMax}`}
+            className={`mt-1 h-2 overflow-hidden rounded-full ${status === "dead" ? "bg-red-900/50" : "bg-black/30 dark:bg-black/50"}`}
+          >
             <div
-              className={`h-full rounded-full transition-all duration-500 ${colors.hpBar}${pct < 25 && pct > 0 ? " hp-bar-pulse" : ""}`}
-              style={{ width: `${pct}%` }}
+              className={`h-full rounded-full transition-all duration-500 ${status !== "alive" ? "bg-red-800/60" : colors.hpBar}${pct < 25 && pct > 0 ? " hp-bar-pulse" : ""}`}
+              style={{ width: status !== "alive" ? "100%" : `${pct}%` }}
               data-testid="play-hp-bar-fill"
             />
           </div>

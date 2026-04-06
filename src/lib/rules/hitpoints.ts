@@ -20,3 +20,24 @@ export function calculateHitPointsLevel1(
 export function getConBonusCap(classGroup: ClassGroup): number {
   return classGroup === "warrior" ? 4 : 2;
 }
+
+export type HpStatus = "alive" | "unconscious" | "dead";
+
+/**
+ * Death threshold: character dies when HP reaches -maxHP.
+ */
+export function getDeathThreshold(maxHp: number): number {
+  return -maxHp;
+}
+
+/**
+ * Determine character status based on current and max HP.
+ * - alive: HP > 0
+ * - unconscious: HP <= 0 but above death threshold
+ * - dead: HP <= -maxHP
+ */
+export function getHpStatus(currentHp: number, maxHp: number): HpStatus {
+  if (currentHp > 0) return "alive";
+  if (currentHp <= getDeathThreshold(maxHp)) return "dead";
+  return "unconscious";
+}

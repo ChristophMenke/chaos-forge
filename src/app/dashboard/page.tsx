@@ -7,6 +7,7 @@ import { GlassCard } from "@/components/glass-card";
 import { CharacterCard } from "@/components/character-card";
 import { QuoteReactionBar } from "@/components/session/quote-reaction-bar";
 import { AvatarDisplay } from "@/components/avatar-display";
+import { HpBar } from "@/components/hp-bar";
 import { Badge } from "@/components/ui/badge";
 import {
   Users,
@@ -153,6 +154,7 @@ function MiniStatCard({
 export default async function DashboardPage() {
   const t = await getTranslations("dashboard");
   const ts = await getTranslations("sharing");
+  const tp = await getTranslations("playMode");
   const locale = await getLocale();
   const user = await requireAuth();
   const supabase = await createClient();
@@ -697,6 +699,8 @@ export default async function DashboardPage() {
               badgePrivateLabel={ts("badgePrivate")}
               badgeSharedLabel={ts("badgeShared")}
               badgePublicLabel={ts("badgePublic")}
+              unconsciousLabel={tp("unconscious")}
+              deadLabel={tp("dead")}
               locale={locale}
             />
           ))}
@@ -1006,11 +1010,6 @@ export default async function DashboardPage() {
                       })
                       .join(" / ")
                   : `${char.class_id ?? "?"} ${char.level}`;
-              const hpPct =
-                char.hp_max > 0
-                  ? Math.max(0, Math.min(100, Math.round((char.hp_current / char.hp_max) * 100)))
-                  : 0;
-
               return (
                 <Link
                   key={char.id}
@@ -1029,16 +1028,14 @@ export default async function DashboardPage() {
                       <span className="truncate">{classLabel}</span>
                     </div>
                   </div>
-                  <div className="flex shrink-0 flex-col items-end gap-0.5">
-                    <span className="text-xs text-muted-foreground">
-                      {char.hp_current}/{char.hp_max} HP
-                    </span>
-                    <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className={`h-full rounded-full ${colors.hpBar}`}
-                        style={{ width: `${hpPct}%` }}
-                      />
-                    </div>
+                  <div className="w-32 shrink-0">
+                    <HpBar
+                      current={char.hp_current}
+                      max={char.hp_max}
+                      barClass={colors.hpBar}
+                      unconsciousLabel={tp("unconscious")}
+                      deadLabel={tp("dead")}
+                    />
                   </div>
                 </Link>
               );

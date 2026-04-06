@@ -9,6 +9,7 @@ import type { CharacterRow, CharacterClassRow, CharacterShareRow } from "@/lib/s
 export default async function CharactersPage() {
   const t = await getTranslations("characters");
   const ts = await getTranslations("sharing");
+  const tp = await getTranslations("playMode");
   const locale = await getLocale();
   const user = await requireAuth();
   const supabase = await createClient();
@@ -89,6 +90,8 @@ export default async function CharactersPage() {
         badgePrivateLabel={ts("badgePrivate")}
         badgeSharedLabel={ts("badgeShared")}
         badgePublicLabel={ts("badgePublic")}
+        unconsciousLabel={tp("unconscious")}
+        deadLabel={tp("dead")}
         locale={locale}
       />
     );

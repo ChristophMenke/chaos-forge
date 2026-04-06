@@ -20,6 +20,8 @@ interface CharacterCardProps {
   badgePrivateLabel: string;
   badgeSharedLabel: string;
   badgePublicLabel: string;
+  unconsciousLabel?: string;
+  deadLabel?: string;
   locale: string;
 }
 
@@ -42,6 +44,8 @@ export function CharacterCard({
   badgePrivateLabel,
   badgeSharedLabel,
   badgePublicLabel,
+  unconsciousLabel,
+  deadLabel,
   locale,
 }: CharacterCardProps) {
   const activeClasses = classes.filter((cc) => cc.is_active);
@@ -161,6 +165,8 @@ export function CharacterCard({
                 current={character.hp_current}
                 max={character.hp_max}
                 barClass={colors.hpBar}
+                unconsciousLabel={unconsciousLabel}
+                deadLabel={deadLabel}
               />
             </div>
 
