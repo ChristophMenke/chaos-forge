@@ -1054,6 +1054,8 @@ export function getTotalLanguageSlots(
 ): number {
   const intMods = getIntelligenceModifiers(intScore, knowledgeSub);
   const race = RACES[raceId];
-  const racialCount = race?.defaultLanguages.length ?? 1;
-  return racialCount + intMods.numberOfLanguages;
+  if (!race) {
+    throw new Error(`getTotalLanguageSlots: unknown raceId "${raceId}"`);
+  }
+  return race.defaultLanguages.length + intMods.numberOfLanguages;
 }
