@@ -61,12 +61,12 @@ async function createSingleClassChar(request: Page["request"]): Promise<string> 
 }
 
 /** Delete test character via API */
-async function deleteTestChar(_request: Page["request"], charId: string) {
-  await fetch(`${BASE_URL}/api/test-seed`, {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: TEST_EMAIL, character_id: charId }),
-  }).catch(() => {});
+async function deleteTestChar(request: Page["request"], charId: string) {
+  await request
+    .delete(`${BASE_URL}/api/test-seed`, {
+      data: { character_id: charId },
+    })
+    .catch(() => {});
 }
 
 /** Navigate to character manage page and open XP dialog */
