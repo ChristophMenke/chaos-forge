@@ -313,9 +313,16 @@ export const CHARACTER_CREATION_RULES: readonly RuleEntry[] = [
     implementationFunctions: ["getIntelligenceModifiers", "getTotalLanguageSlots"],
     testFiles: ["abilities.test.ts"],
     scenarios: [
-      { description: "INT 3 gibt 0 zusätzliche Sprachen" },
+      {
+        description: "INT 3 gibt 1 zusätzliche Sprache (PHB Table 4 Minimum)",
+        example: "getIntelligenceModifiers(3).numberOfLanguages === 1",
+      },
       { description: "INT 12 gibt 3 zusätzliche Sprachen" },
       { description: "INT 18 gibt 7 zusätzliche Sprachen" },
+      {
+        description: "getTotalLanguageSlots addiert Rassen-Sprachen + INT-Bonus",
+        example: "getTotalLanguageSlots(10, 'human') === 3",
+      },
     ],
   },
 
@@ -739,7 +746,7 @@ export const CHARACTER_CREATION_RULES: readonly RuleEntry[] = [
       "Dual-Class Regeln: Voraussetzungen, Original-Klasse muss ≥15 in Prime Req der neuen Klasse",
     status: "implemented",
     implementationFiles: ["multiclass.ts", "types.ts"],
-    implementationFunctions: ["meetsDualclassRequirements", "isDualclassDormant"],
+    implementationFunctions: ["meetsDualclassRequirements"],
     testFiles: ["multiclass.test.ts"],
     scenarios: [
       { description: "Fighter→Mage braucht STR 15+ und INT 17+" },
