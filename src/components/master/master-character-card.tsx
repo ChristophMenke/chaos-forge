@@ -81,7 +81,13 @@ export function MasterCharacterCard({
 
       {/* HP Bar */}
       <div className="mb-3">
-        <HpBar current={hpCurrent} max={hpMax} barClass={colors.hpBar} />
+        <HpBar
+          current={hpCurrent}
+          max={hpMax}
+          barClass={colors.hpBar}
+          unconsciousLabel={t("unconscious")}
+          deadLabel={t("dead")}
+        />
       </div>
 
       {/* AC + THAC0 */}

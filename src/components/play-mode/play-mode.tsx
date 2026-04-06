@@ -36,7 +36,7 @@ import {
   getShieldProficiencyBonus,
 } from "@/lib/rules/equipment";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
-import { getConBonusCap } from "@/lib/rules/hitpoints";
+import { getConBonusCap, getDeathThreshold } from "@/lib/rules/hitpoints";
 import { CLASSES, getClassGroup } from "@/lib/rules/classes";
 import { getEpicEffects, scaleSubStat } from "@/lib/rules/epic-items";
 import type { EpicEffects } from "@/lib/rules/epic-items";
@@ -420,8 +420,9 @@ export function PlayMode({
   const effectiveHpMax = Math.max(1, character.hp_max + hpDelta);
   // Asymmetric HP capping: damage (negative delta) caps current HP down,
   // but repair (positive delta) only raises max — never heals current HP.
+  // HP can go negative down to -maxHP (death threshold).
   const effectiveHpCurrent = Math.max(
-    0,
+    getDeathThreshold(effectiveHpMax),
     Math.min(character.hp_current + Math.min(0, hpDelta), effectiveHpMax)
   );
 
@@ -617,8 +618,10 @@ export function PlayMode({
   function handleHpChange(newEffectiveHp: number) {
     // Inverse of asymmetric formula: effective = base + min(0, delta)
     // => base = effective - min(0, delta)
+    // HP can go negative (down to -maxHP = death threshold)
     const baseHp = newEffectiveHp - Math.min(0, hpDelta);
-    updateCharacter({ hp_current: Math.max(0, baseHp) });
+    const clampedBaseHp = Math.max(-character.hp_max, Math.min(character.hp_max, baseHp));
+    updateCharacter({ hp_current: clampedBaseHp });
   }
 
   function handleCoinChange(newPurse: CoinPurse) {
