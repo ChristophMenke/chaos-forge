@@ -11,6 +11,7 @@ import {
   rollAbilityScoresMethodIII,
   rollAbilityScoresMethodIV,
   rollAbilityScoresMethodV,
+  getTotalLanguageSlots,
 } from "./abilities";
 
 describe("ABILITY-001 ABILITY-002: Strength Modifiers", () => {
@@ -509,5 +510,34 @@ describe("Extended Ability Scores (19-25)", () => {
     const mods = getDexterityModifiers(15, 20);
     expect(mods.missileAdj).toBe(3); // from aim 20
     expect(mods.defensiveAdj).toBe(-1); // from base DEX 15
+  });
+});
+
+describe("ABILITY-014: getTotalLanguageSlots", () => {
+  it("Human INT 10: 1 racial (Common) + 2 INT bonus = 3", () => {
+    expect(getTotalLanguageSlots(10, "human")).toBe(3);
+  });
+
+  it("Elf INT 12: 2 racial (Common, Elfisch) + 3 INT bonus = 5", () => {
+    expect(getTotalLanguageSlots(12, "elf")).toBe(5);
+  });
+
+  it("Dwarf INT 18: 2 racial (Common, Zwergisch) + 7 INT bonus = 9", () => {
+    expect(getTotalLanguageSlots(18, "dwarf")).toBe(9);
+  });
+
+  it("Kobold INT 8: 4 racial + 1 INT bonus = 5", () => {
+    // Kobold: Common, Koboldisch, Orkisch, Untercommon
+    expect(getTotalLanguageSlots(8, "kobold")).toBe(5);
+  });
+
+  it("Human INT 3: 1 racial + 1 INT bonus = 2", () => {
+    expect(getTotalLanguageSlots(3, "human")).toBe(2);
+  });
+
+  it("respects Knowledge sub-stat override", () => {
+    // INT 10 with Knowledge 16: uses Knowledge for numberOfLanguages (5)
+    // Elf: 2 racial + 5 = 7
+    expect(getTotalLanguageSlots(10, "elf", 16)).toBe(7);
   });
 });

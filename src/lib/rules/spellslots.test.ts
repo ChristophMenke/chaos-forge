@@ -217,7 +217,7 @@ describe("CLASS-008: getPaladinSpellSlots", () => {
   });
 });
 
-describe("Specialist Bonus Slots", () => {
+describe("MAGIC-011: Specialist Bonus Slots", () => {
   it("illusionist level 5 gets +1 at levels 1-3 (where base > 0)", () => {
     const bonus = getSpecialistBonusSlots("illusionist", 5);
     expect(bonus[0]).toBe(1); // base = 4
