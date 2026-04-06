@@ -5,7 +5,9 @@ import type {
   IntelligenceModifiers,
   WisdomModifiers,
   CharismaModifiers,
+  RaceId,
 } from "./types";
+import { RACES } from "./races";
 
 // ─── STRENGTH ──────────────────────────────────────────────────────────────────
 // PHB Table 1: Strength
@@ -1036,4 +1038,24 @@ export function getAllAbilityModifiers(character: {
       character.cha_appearance
     ),
   };
+}
+
+// ─── LANGUAGE SLOTS ───────────────────────────────────────────────────────────
+// PHB Table 4: Number of Languages = racial default languages + INT bonus languages
+
+/**
+ * Get the total number of language slots for a character.
+ * = number of racial default languages + additional languages from INT.
+ */
+export function getTotalLanguageSlots(
+  intScore: number,
+  raceId: RaceId,
+  knowledgeSub?: number | null
+): number {
+  const intMods = getIntelligenceModifiers(intScore, knowledgeSub);
+  const race = RACES[raceId];
+  if (!race) {
+    throw new Error(`getTotalLanguageSlots: unknown raceId "${raceId}"`);
+  }
+  return race.defaultLanguages.length + intMods.numberOfLanguages;
 }

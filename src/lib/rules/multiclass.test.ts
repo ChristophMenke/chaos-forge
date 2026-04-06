@@ -282,7 +282,7 @@ describe("getMulticlassArmorWarnings", () => {
 
 // ─── DUAL-CLASS ──────────────────────────────────────────────────────────────
 
-describe("meetsDualclassRequirements", () => {
+describe("CLASS-012: meetsDualclassRequirements", () => {
   it("allows fighter→mage with STR 17, INT 15", () => {
     const result = meetsDualclassRequirements("fighter", "mage", { str: 17, int: 15 });
     expect(result.allowed).toBe(true);
@@ -323,7 +323,7 @@ describe("meetsDualclassRequirements", () => {
   });
 });
 
-describe("isDualclassDormant", () => {
+describe("CLASS-013: isDualclassDormant", () => {
   const dualclass = {
     originalClass: "fighter" as ClassId,
     newClass: "mage" as ClassId,
@@ -343,7 +343,7 @@ describe("isDualclassDormant", () => {
   });
 });
 
-describe("getDualclassThac0", () => {
+describe("CLASS-013: getDualclassThac0", () => {
   const dualclass = {
     originalClass: "fighter" as ClassId,
     newClass: "mage" as ClassId,
@@ -364,7 +364,7 @@ describe("getDualclassThac0", () => {
   });
 });
 
-describe("getDualclassSaves", () => {
+describe("CLASS-013: getDualclassSaves", () => {
   const dualclass = {
     originalClass: "fighter" as ClassId,
     newClass: "cleric" as ClassId,

@@ -308,17 +308,22 @@ export const CHARACTER_CREATION_RULES: readonly RuleEntry[] = [
     chapter: "ch1-abilities",
     phbReference: "Table 4: Intelligence — Number of Languages",
     description: "Anzahl erlernbarer Sprachen basierend auf INT-Wert",
-    status: "partial",
+    status: "implemented",
     implementationFiles: ["abilities.ts"],
-    implementationFunctions: ["getIntelligenceModifiers"],
+    implementationFunctions: ["getIntelligenceModifiers", "getTotalLanguageSlots"],
     testFiles: ["abilities.test.ts"],
     scenarios: [
-      { description: "INT 3 gibt 0 zusätzliche Sprachen" },
+      {
+        description: "INT 3 gibt 1 zusätzliche Sprache (PHB Table 4 Minimum)",
+        example: "getIntelligenceModifiers(3).numberOfLanguages === 1",
+      },
       { description: "INT 12 gibt 3 zusätzliche Sprachen" },
       { description: "INT 18 gibt 7 zusätzliche Sprachen" },
+      {
+        description: "getTotalLanguageSlots addiert Rassen-Sprachen + INT-Bonus",
+        example: "getTotalLanguageSlots(10, 'human') === 3",
+      },
     ],
-    notes:
-      "numberOfLanguages ist in IntelligenceModifiers enthalten, aber keine dedizierte Komfortfunktion zum Zusammenrechnen mit Rassen-Sprachen",
   },
 
   // =========================================================================
@@ -691,16 +696,15 @@ export const CHARACTER_CREATION_RULES: readonly RuleEntry[] = [
     chapter: "ch3-classes",
     phbReference: "Chapter 3: Bard — Spellcasting",
     description: "Barde: Wizard-Zauber ab Stufe 2, eigene Slot-Tabelle",
-    status: "partial",
+    status: "implemented",
     implementationFiles: ["spellslots.ts"],
-    implementationFunctions: ["getWizardSpellSlots"],
-    testFiles: [],
+    implementationFunctions: ["getBardSpellSlots"],
+    testFiles: ["spellslots.test.ts"],
     scenarios: [
       { description: "Bard L1 hat keine Zauber" },
       { description: "Bard L2 hat 1 Wizard-Zauber Stufe 1" },
       { description: "Bard Slot-Progression unterscheidet sich von Mage" },
     ],
-    notes: "Spellbook-Zugang funktioniert, aber Bard hat eigene Slot-Tabelle (weniger als Mage)",
   },
   {
     id: "CLASS-010",
@@ -740,16 +744,15 @@ export const CHARACTER_CREATION_RULES: readonly RuleEntry[] = [
     phbReference: "Chapter 3: Dual-Class Benefits",
     description:
       "Dual-Class Regeln: Voraussetzungen, Original-Klasse muss ≥15 in Prime Req der neuen Klasse",
-    status: "partial",
-    implementationFiles: ["types.ts"],
-    implementationFunctions: [],
-    testFiles: [],
+    status: "implemented",
+    implementationFiles: ["multiclass.ts", "types.ts"],
+    implementationFunctions: ["meetsDualclassRequirements"],
+    testFiles: ["multiclass.test.ts"],
     scenarios: [
       { description: "Fighter→Mage braucht STR 15+ und INT 17+" },
       { description: "Original-Klasse Level-Fähigkeiten ruhen bis neue Klasse höher" },
     ],
-    notes:
-      "DualclassInfo Interface definiert, aber keine Logik implementiert. Hausregel: Dualclass für alle Rassen, nicht nur Menschen.",
+    notes: "Hausregel: Dualclass für alle Rassen, nicht nur Menschen.",
   },
   {
     id: "CLASS-013",
@@ -757,16 +760,16 @@ export const CHARACTER_CREATION_RULES: readonly RuleEntry[] = [
     phbReference: "Chapter 3: Dual-Class Restrictions",
     description:
       "Dual-Class Einschränkungen während der Transition: keine Fähigkeiten der alten Klasse",
-    status: "partial",
-    implementationFiles: ["types.ts"],
-    implementationFunctions: [],
-    testFiles: [],
+    status: "implemented",
+    implementationFiles: ["multiclass.ts"],
+    implementationFunctions: ["isDualclassDormant", "getDualclassThac0", "getDualclassSaves"],
+    testFiles: ["multiclass.test.ts"],
     scenarios: [
       { description: "Alte Klasse-Fähigkeiten ruhen während Transition" },
       { description: "XP wird nur für neue Klasse gezählt" },
       { description: "Wenn neue Klasse höheres Level erreicht: alte Fähigkeiten kommen zurück" },
     ],
-    notes: "Keine Implementierung vorhanden, nur Typ-Definition",
+    notes: "Hausregel: Dualclass für alle Rassen, nicht nur Menschen.",
   },
 
   // =========================================================================
@@ -1173,16 +1176,14 @@ export const CHARACTER_CREATION_RULES: readonly RuleEntry[] = [
     chapter: "ch7-magic",
     phbReference: "Chapter 7: Specialist Bonus",
     description: "Spezialisten bekommen +1 Zauberslot pro Zauberstufe in ihrer Schule",
-    status: "partial",
-    implementationFiles: ["magic.ts"],
-    implementationFunctions: ["getSpecialist"],
-    testFiles: [],
+    status: "implemented",
+    implementationFiles: ["spellslots.ts"],
+    implementationFunctions: ["getSpecialistBonusSlots"],
+    testFiles: ["spellslots.test.ts"],
     scenarios: [
       { description: "Abjurer bekommt +1 Abjuration-Slot pro Stufe" },
       { description: "Generalist (Mage) bekommt keinen Bonus" },
     ],
-    notes:
-      "Spezialist-Definitionen vorhanden, aber Bonus-Slot-Berechnung nicht als eigene Funktion implementiert",
   },
   {
     id: "MAGIC-012",
