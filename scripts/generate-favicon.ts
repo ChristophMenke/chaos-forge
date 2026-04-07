@@ -2,12 +2,6 @@
  * Generate a themed favicon for Chaos Forge using Gemini Imagen.
  *
  * Usage: npx tsx scripts/generate-favicon.ts
- *
- * Generates:
- *   - public/favicon-16x16.png
- *   - public/favicon-32x32.png
- *   - public/apple-touch-icon.png
- *   - src/app/favicon.ico
  */
 
 import dotenv from "dotenv";
@@ -19,14 +13,21 @@ import { writeFileSync } from "fs";
 import { join } from "path";
 import pngToIco from "png-to-ico";
 
-const PROMPT =
-  "A favicon/app icon for a dark fantasy tabletop RPG character manager called 'Chaos Forge'. " +
-  "Show a stylized anvil with magical arcane energy and flames around it, " +
-  "dark moody background with deep purple and gold accents. " +
-  "The anvil should have glowing runes carved into it. " +
-  "Minimalist icon design, clean edges, works well at very small sizes (16x16 to 192x192 pixels). " +
-  "No text, no letters, no words. Square composition, centered subject. " +
-  "Dark fantasy style, jewel tones, magical glow effects.";
+const PROMPT = `Design a premium mobile app icon for "Chaos Forge", a dark fantasy tabletop RPG character manager for Advanced Dungeons & Dragons 2nd Edition.
+
+The app is used by a small group of friends to manage their D&D characters, track sessions, distribute loot, and cast spells. The visual theme is dark fantasy with glassmorphism UI elements, gold/amber accents on deep dark backgrounds.
+
+Icon requirements:
+- Show a stylized golden D20 die (icosahedron) as the central element
+- The D20 should have visible triangular facets with subtle golden light reflections
+- Behind or around the die: faint arcane energy, magical ember particles, or a subtle forge glow
+- Color palette: deep black/dark brown background (#0d0a04 to #1a1408), golden/amber highlights (#d4a030, #f5c542)
+- Style: premium, polished, modern app icon quality — like a top-tier iOS game icon
+- The icon should have slightly rounded corners suitable for iOS app icons
+- ABSOLUTELY NO TEXT, NO LETTERS, NO NUMBERS, NO WORDS anywhere on the icon
+- Clean, bold silhouette that reads well at small sizes (16x16 pixels)
+- Square composition, centered subject, slight depth/3D feel
+- Dark moody atmosphere with warm golden magical glow`;
 
 async function main() {
   console.log("Generating favicon with Gemini Imagen...");
@@ -42,7 +43,7 @@ async function main() {
   if (!base64) throw new Error("No image generated");
 
   const original = Buffer.from(base64, "base64");
-  console.log("Image generated, converting to favicon formats...");
+  console.log("Image generated, converting to all sizes...");
 
   const root = join(__dirname, "..");
 
@@ -51,33 +52,37 @@ async function main() {
     { name: "apple-touch-icon.png", size: 180, dir: "public" },
     { name: "favicon-32x32.png", size: 32, dir: "public" },
     { name: "favicon-16x16.png", size: 16, dir: "public" },
+    { name: "icon-192x192.png", size: 192, dir: "public" },
+    { name: "icon-512x512.png", size: 512, dir: "public" },
   ];
 
   for (const { name, size, dir } of sizes) {
     const buf = await sharp(original).resize(size, size, { fit: "cover" }).png().toBuffer();
-    const path = join(root, dir, name);
-    writeFileSync(path, buf);
-    console.log(`  Written: ${dir}/${name} (${size}x${size})`);
+    writeFileSync(join(root, dir, name), buf);
+    console.log(`  ✓ ${dir}/${name} (${size}×${size})`);
   }
 
-  // Generate ICO (contains 16x16 and 32x32)
+  // Also write to ressources/favicon/
+  for (const name of ["apple-touch-icon.png", "favicon-32x32.png", "favicon-16x16.png"]) {
+    const size = name.includes("apple") ? 180 : name.includes("32") ? 32 : 16;
+    const buf = await sharp(original).resize(size, size, { fit: "cover" }).png().toBuffer();
+    writeFileSync(join(root, "ressources", "favicon", name), buf);
+    console.log(`  ✓ ressources/favicon/${name}`);
+  }
+
+  // Generate ICO
   const ico16 = await sharp(original).resize(16, 16, { fit: "cover" }).png().toBuffer();
   const ico32 = await sharp(original).resize(32, 32, { fit: "cover" }).png().toBuffer();
   const icoBuffer = await pngToIco([ico32, ico16]);
-  const icoPath = join(root, "src", "app", "favicon.ico");
-  writeFileSync(icoPath, icoBuffer);
-  console.log("  Written: src/app/favicon.ico");
+  writeFileSync(join(root, "src", "app", "favicon.ico"), icoBuffer);
+  writeFileSync(join(root, "ressources", "favicon", "favicon.ico"), icoBuffer);
+  console.log("  ✓ favicon.ico");
 
-  // Also generate a 192x192 for PWA manifest
-  const pwa192 = await sharp(original).resize(192, 192, { fit: "cover" }).png().toBuffer();
-  writeFileSync(join(root, "public", "icon-192x192.png"), pwa192);
-  console.log("  Written: public/icon-192x192.png (192x192)");
+  // Save the original full-size image for reference
+  writeFileSync(join(root, "ressources", "favicon", "original-generated.png"), original);
+  console.log("  ✓ ressources/favicon/original-generated.png (original)");
 
-  const pwa512 = await sharp(original).resize(512, 512, { fit: "cover" }).png().toBuffer();
-  writeFileSync(join(root, "public", "icon-512x512.png"), pwa512);
-  console.log("  Written: public/icon-512x512.png (512x512)");
-
-  console.log("\nDone! Favicon files have been generated.");
+  console.log("\nDone! All icons generated.");
 }
 
 main().catch((err) => {

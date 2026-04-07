@@ -11,7 +11,7 @@ export const STYLE_LANDSCAPE = `${STYLE_BASE}, wide landscape composition, atmos
 export function racePrompt(raceId: string): string {
   const descriptions: Record<string, string> = {
     human: "a seasoned human adventurer, weathered face, leather armor, torch in hand",
-    elf: "an elegant high elf, pointed ears, flowing robes, ethereal glow, ancient wisdom",
+    elf: "a single elegant female high elf, long pointed ears, flowing silver-green robes, ethereal glow, ancient wisdom in her eyes, delicate elven features, one person only",
     half_elf: "a half-elf ranger, blend of human ruggedness and elven grace, forest background",
     dwarf: "a stout dwarf warrior, braided beard, heavy plate armor, warhammer, mine entrance",
     gnome: "a clever gnome tinker, wild hair, goggles on forehead, gadgets and tools",
