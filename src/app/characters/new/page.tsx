@@ -3,7 +3,14 @@ import { getTranslations } from "next-intl/server";
 import { GlassCard } from "@/components/glass-card";
 import { PenLine, FileUp } from "lucide-react";
 
-export default async function NewCharacterPage() {
+export default async function NewCharacterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ npc?: string }>;
+}) {
+  const params = await searchParams;
+  const isNpc = params.npc === "1";
+  const npcParam = isNpc ? "?npc=1" : "";
   const t = await getTranslations("characters");
 
   return (
@@ -15,7 +22,7 @@ export default async function NewCharacterPage() {
       <p className="text-center text-muted-foreground">{t("newCharacterChoice")}</p>
 
       <div className="grid w-full max-w-lg gap-4 sm:grid-cols-2">
-        <Link href="/characters/new/wizard" data-testid="create-manually-link">
+        <Link href={`/characters/new/wizard${npcParam}`} data-testid="create-manually-link">
           <GlassCard glow="neutral" className="flex flex-col items-center gap-3 p-6 text-center">
             <PenLine className="h-10 w-10 text-primary" />
             <h2 className="font-heading text-lg">{t("createManually")}</h2>
@@ -23,7 +30,7 @@ export default async function NewCharacterPage() {
           </GlassCard>
         </Link>
 
-        <Link href="/characters/import" data-testid="import-character-link">
+        <Link href={`/characters/import${npcParam}`} data-testid="import-character-link">
           <GlassCard glow="neutral" className="flex flex-col items-center gap-3 p-6 text-center">
             <FileUp className="h-10 w-10 text-primary" />
             <h2 className="font-heading text-lg">{t("importCharacter")}</h2>

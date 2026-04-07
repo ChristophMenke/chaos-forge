@@ -38,7 +38,12 @@ export default async function SessionsPage() {
       .select("*")
       .order("session_date", { ascending: false })
       .returns<SessionRow[]>(),
-    supabase.from("chronicle_npcs").select("*").order("name").returns<ChronicleNpcRow[]>(),
+    supabase
+      .from("chronicle_npcs")
+      .select("*")
+      .eq("is_visible_to_players", true)
+      .order("name")
+      .returns<ChronicleNpcRow[]>(),
     supabase
       .from("chronicle_quotes")
       .select("*")

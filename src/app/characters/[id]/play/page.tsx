@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/supabase/auth";
 import { PlayMode } from "@/components/play-mode/play-mode";
@@ -35,6 +35,11 @@ export default async function PlayPage({ params }: PlayPageProps) {
 
   if (!character) {
     notFound();
+  }
+
+  // NPCs are managed via /master/npcs/
+  if (character.is_npc) {
+    redirect(`/master/npcs/${id}/play`);
   }
 
   // Wave 2: All independent queries in parallel

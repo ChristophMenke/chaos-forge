@@ -73,9 +73,12 @@ async function deleteTestChar(_request: Page["request"], charId: string) {
 async function openXpDialog(page: Page, charId: string) {
   await page.goto(`/characters/${charId}/manage`);
   await page.getByTestId("character-sheet").waitFor({ timeout: 15000 });
+  // Wait for hydration to complete before interacting
+  await page.waitForLoadState("networkidle");
 
   const addXpBtn = page.getByTestId("sheet-add-xp-button");
   await addXpBtn.scrollIntoViewIfNeeded();
+  await expect(addXpBtn).toBeVisible({ timeout: 5000 });
   await addXpBtn.click();
   await expect(page.getByTestId("xp-add-dialog")).toBeVisible({ timeout: 5000 });
 }
@@ -112,10 +115,8 @@ test.describe("XP Management", () => {
       const xpHistory = page.getByTestId("xp-history-section");
       await xpHistory.scrollIntoViewIfNeeded();
       await xpHistory.click();
-      await page.waitForTimeout(500);
-      const historyText = await xpHistory.textContent();
-      // Locale-agnostic: "1,000" (EN) or "1.000" (DE) or just "1000"
-      expect(historyText).toMatch(/1[,.]?000/);
+      // Wait for history content to expand
+      await expect(xpHistory).toContainText(/1[,.]?000/, { timeout: 5000 });
     } finally {
       await deleteTestChar(page.request, charId);
     }
@@ -143,16 +144,18 @@ test.describe("XP Management", () => {
       const xpHistory = page.getByTestId("xp-history-section");
       await xpHistory.scrollIntoViewIfNeeded();
       await xpHistory.click();
-      await page.waitForTimeout(500);
 
-      // Delete button should exist
+      // Wait for delete button to appear after history expands
       const deleteBtn = page.locator("[data-testid^='xp-history-delete-']").first();
-      const isVisible = await deleteBtn.isVisible().catch(() => false);
+      const isVisible = await deleteBtn.isVisible({ timeout: 3000 }).catch(() => false);
 
       if (isVisible) {
         page.on("dialog", (dialog) => dialog.accept());
         await deleteBtn.click();
-        await page.waitForTimeout(2000);
+        // Wait for deletion to complete
+        await expect(deleteBtn)
+          .not.toBeVisible({ timeout: 5000 })
+          .catch(() => {});
       }
     } finally {
       await deleteTestChar(page.request, charId);
@@ -176,13 +179,11 @@ test.describe("XP Management", () => {
 
       // Two class inputs should exist
       const classInputs = page.locator("[data-testid^='xp-class-input-']");
-      const inputCount = await classInputs.count();
-      expect(inputCount).toBe(2);
+      await expect(classInputs).toHaveCount(2, { timeout: 3000 });
 
       // Default: equal split (1000 each)
       const firstInput = classInputs.first();
-      const firstValue = await firstInput.inputValue();
-      expect(Number(firstValue)).toBe(1000);
+      await expect(firstInput).toHaveValue("1000", { timeout: 3000 });
 
       // Preview should show both classes with L7
       const preview = page.getByTestId("xp-preview-section");
@@ -212,14 +213,13 @@ test.describe("XP Management", () => {
 
       // Override: give 2000 to first class, 1000 to second
       const classInputs = page.locator("[data-testid^='xp-class-input-']");
+      await expect(classInputs).toHaveCount(2, { timeout: 3000 });
       await classInputs.first().fill("2000");
       await classInputs.nth(1).fill("1000");
 
       // Remaining should show 0
       const remaining = page.getByTestId("xp-remaining");
-      await expect(remaining).toBeVisible();
-      const remainingText = await remaining.textContent();
-      expect(remainingText).toContain("0");
+      await expect(remaining).toContainText("0", { timeout: 3000 });
 
       // Apply
       await page.getByTestId("xp-apply-button").click();

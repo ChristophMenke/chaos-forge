@@ -79,7 +79,15 @@ interface FilePreview {
   previewUrl: string | null; // null for PDFs
 }
 
-export default function ImportCharacterPage() {
+interface ImportCharacterPageProps {
+  basePath?: string;
+  isNpc?: boolean;
+}
+
+export default function ImportCharacterPage({
+  basePath = "/characters",
+  isNpc = false,
+}: ImportCharacterPageProps = {}) {
   const router = useRouter();
   const t = useTranslations("import");
   const locale = useLocale();
@@ -339,6 +347,7 @@ export default function ImportCharacterPage() {
           gender: scanned.gender || "",
           height_cm: scanned.height ? Math.round(parseImperialHeight(scanned.height)) : null,
           weight_kg: scanned.weight ? Math.round(scanned.weight * 0.4536) : null,
+          ...(isNpc ? { is_npc: true, npc_visible_to_players: false, is_active: false } : {}),
         })
         .select("id")
         .single();
@@ -574,7 +583,7 @@ export default function ImportCharacterPage() {
         }
       }
 
-      router.push(`/characters/${data.id}`);
+      router.push(`${basePath}/${data.id}/manage`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Fehler beim Erstellen.");
       setSaving(false);

@@ -56,7 +56,6 @@ test.describe("Desktop Sidebar Navigation", () => {
 
     // Switch to mobile viewport
     await page.setViewportSize(MOBILE_VIEWPORT);
-    await page.waitForTimeout(300);
     // Sidebar should be hidden on mobile
     await expect(page.getByTestId("app-sidebar")).not.toBeVisible();
     // Mobile nav should be visible

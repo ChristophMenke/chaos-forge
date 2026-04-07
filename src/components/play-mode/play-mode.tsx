@@ -176,6 +176,7 @@ interface PlayModeProps {
   epicItems?: EpicItemRow[];
   fightingStyles?: CharacterFightingStyleRow[];
   priestAvailableSpells?: SpellRow[];
+  basePath?: string;
 }
 
 export function PlayMode({
@@ -190,6 +191,7 @@ export function PlayMode({
   epicItems = [],
   fightingStyles = [],
   priestAvailableSpells = [],
+  basePath = "/characters",
 }: PlayModeProps) {
   const t = useTranslations("playMode");
   const locale = useLocale();
@@ -713,7 +715,11 @@ export function PlayMode({
   return (
     <div className="mx-auto w-full max-w-7xl" data-testid="play-mode">
       <div className="flex justify-end px-4 pt-3">
-        <CharacterModeNav characterId={character.id} hasEpicItems={epicItems.length > 0} />
+        <CharacterModeNav
+          characterId={character.id}
+          hasEpicItems={epicItems.length > 0}
+          basePath={basePath}
+        />
       </div>
       <PlayHpBar
         characterId={character.id}
@@ -729,6 +735,7 @@ export function PlayMode({
         priesthoodName={priesthoodDisplayName}
         readOnly={!isOwner}
         onHpChange={handleHpChange}
+        basePath={basePath}
       />
 
       {/* Overclock banner (Kondensator) — read-only display of active overclock */}

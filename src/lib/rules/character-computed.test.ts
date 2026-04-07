@@ -79,6 +79,8 @@ function makeCharacter(overrides: Partial<CharacterRow> = {}): CharacterRow {
     created_at: "",
     updated_at: "",
     last_accessed_at: "",
+    is_npc: false,
+    npc_visible_to_players: false,
     ...overrides,
   };
 }

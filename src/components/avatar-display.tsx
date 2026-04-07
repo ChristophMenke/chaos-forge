@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface AvatarDisplayProps {
   name: string;
   avatarUrl: string | null;
@@ -27,8 +29,7 @@ export function AvatarDisplay({
 
   if (avatarUrl) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <Image
         src={avatarUrl}
         alt={`Avatar von ${name}`}
         width={size}

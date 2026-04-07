@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/supabase/auth";
 import { CharacterSheet } from "@/components/character-sheet/character-sheet";
@@ -39,6 +39,11 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
 
   if (!character) {
     notFound();
+  }
+
+  // NPCs are managed via /master/npcs/
+  if (character.is_npc) {
+    redirect(`/master/npcs/${id}/manage`);
   }
 
   // Wave 2: All independent queries in parallel

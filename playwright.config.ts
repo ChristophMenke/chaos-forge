@@ -1,4 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
+import dotenv from "dotenv";
+import path from "path";
+
+// Load .env.local so tests can access GM_PIN, SUPABASE keys etc.
+dotenv.config({ path: path.resolve(__dirname, ".env.local") });
 
 export default defineConfig({
   globalSetup: "./e2e/global-setup.ts",
@@ -7,11 +12,14 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 3 : undefined,
+  workers: process.env.CI ? 3 : 4,
   reporter: process.env.CI ? "github" : "html",
+  expect: { timeout: 10_000 },
   use: {
     baseURL: "http://localhost:3000",
     trace: "on-first-retry",
+    actionTimeout: 10_000,
+    navigationTimeout: 30_000,
   },
   projects: [
     // Auth setup — runs once, saves storage state for authenticated tests

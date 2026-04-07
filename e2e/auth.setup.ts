@@ -41,10 +41,10 @@ setup("authenticate", async ({ page }) => {
     },
   ]);
 
-  // Verify the session works
+  // Verify the session works — wait for characters page to load (not redirect to login)
   await page.goto("/characters");
-  await page.waitForTimeout(3000);
-  expect(page.url()).not.toContain("/login");
+  await expect(page).not.toHaveURL(/\/login/, { timeout: 15000 });
+  await page.getByTestId("active-characters-grid").waitFor({ state: "visible", timeout: 15000 });
 
   // Save state for all workers to reuse
   await page.context().storageState({ path: AUTH_FILE });

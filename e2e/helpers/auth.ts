@@ -65,9 +65,12 @@ export async function loginAsUser(page: Page, email: string) {
     { session: sessionData, projectRef: SUPABASE_PROJECT_REF }
   );
 
-  // Step 4: Navigate to protected page
+  // Step 4: Navigate to protected page and verify session
   await page.goto("/characters");
-  await page.waitForTimeout(3000);
+  await page
+    .getByTestId("active-characters-grid")
+    .waitFor({ state: "visible", timeout: 15000 })
+    .catch(() => {});
 
   if (page.url().includes("/login")) {
     throw new Error("Login failed — cookies did not establish session");

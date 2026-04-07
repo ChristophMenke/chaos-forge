@@ -1,7 +1,23 @@
 import { test, expect } from "@playwright/test";
 import { PartyPage } from "./pages/party.page";
 
+const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
+const TEST_EMAIL = "christoph@chaos-forge.de";
+
 test.describe("Party Inventory Page", () => {
+  // Clean up party state after all tests: reset gold and remove test items
+  test.afterAll(async () => {
+    try {
+      await fetch(`${BASE_URL}/api/test-seed-cleanup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: TEST_EMAIL }),
+      });
+    } catch {
+      /* server may be shutting down */
+    }
+  });
+
   test("shows party page with gold pool, items panel, and log", async ({ page }) => {
     test.setTimeout(30000);
     const party = new PartyPage(page);
@@ -47,9 +63,9 @@ test.describe("Party Inventory Page", () => {
     // Dialog closes
     await expect(party.addGoldDialog).not.toBeVisible({ timeout: 5000 });
 
-    // GP value increased by 50
-    const gpAfter = await party.goldGP.textContent();
-    expect(Number(gpAfter)).toBe(Number(gpBefore) + 50);
+    // GP value increased by 50 — use auto-retrying assertion
+    const expectedGP = String(Number(gpBefore) + 50);
+    await expect(party.goldGP).toHaveText(expectedGP, { timeout: 5000 });
 
     // Log entry appears after reload (server component fetches from DB)
     await page.reload();
@@ -86,9 +102,9 @@ test.describe("Party Inventory Page", () => {
     await party.itemsSearchInput.click();
     await party.itemsSearchInput.fill("QA-Testartikel");
 
-    // Wait for dropdown, then click the custom item link
-    await page.waitForTimeout(500);
-    const customBtn = page.locator("button.text-primary", { hasText: "QA-Testartikel" }).first();
+    // Wait for custom item button to appear in dropdown
+    const customBtn = page.getByTestId("party-items-custom-create");
+    await expect(customBtn).toBeVisible({ timeout: 3000 });
     await customBtn.click();
 
     // Now in custom mode — click Add
@@ -108,9 +124,9 @@ test.describe("Party Inventory Page", () => {
     // First add an item via the custom item flow
     await party.itemsSearchInput.click();
     await party.itemsSearchInput.fill("QA-RemoveTest");
-    // Wait for dropdown, then click the custom item link
-    await page.waitForTimeout(500);
-    const customBtn = page.locator("button.text-primary", { hasText: "QA-RemoveTest" }).first();
+    // Wait for custom item button to appear in dropdown
+    const customBtn = page.getByTestId("party-items-custom-create");
+    await expect(customBtn).toBeVisible({ timeout: 3000 });
     await customBtn.click();
     // Now in custom mode, click Add
     await party.itemsAddBtn.click();
@@ -131,7 +147,7 @@ test.describe("Party Inventory Page", () => {
   test("navigation item exists and links to /party", async ({ page }) => {
     test.setTimeout(20000);
     await page.goto("/dashboard");
-    await page.waitForTimeout(2000);
+    await page.getByTestId("dashboard-page").waitFor({ timeout: 10000 });
 
     const navItem = page.getByTestId("nav-party");
     await expect(navItem).toBeVisible();

@@ -222,6 +222,7 @@ export function PartyItemsPanel({
                 <button
                   type="button"
                   className="text-primary hover:underline"
+                  data-testid="party-items-custom-create"
                   onClick={() => {
                     setCustomName(searchQuery);
                     setShowSearch(false);
@@ -237,6 +238,7 @@ export function PartyItemsPanel({
                 <button
                   type="button"
                   className="text-xs text-primary hover:underline"
+                  data-testid="party-items-custom-create-alt"
                   onClick={() => {
                     setCustomName(searchQuery);
                     setShowSearch(false);

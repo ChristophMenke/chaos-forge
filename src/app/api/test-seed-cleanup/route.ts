@@ -52,5 +52,12 @@ export async function POST(request: Request) {
   await supabaseAdmin.from("party_loot_items").delete().in("added_by", testUserIds);
   await supabaseAdmin.from("party_loot_log").delete().in("user_id", testUserIds);
 
+  // Clean up QA NPCs created by test users
+  await supabaseAdmin
+    .from("chronicle_npcs")
+    .delete()
+    .in("created_by", testUserIds)
+    .like("name", "QA%");
+
   return NextResponse.json({ deleted: deleted?.length ?? 0 });
 }

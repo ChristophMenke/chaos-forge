@@ -8,15 +8,20 @@ import { PenLine, Swords, Sparkles } from "lucide-react";
 interface CharacterModeNavProps {
   characterId: string;
   hasEpicItems: boolean;
+  basePath?: string;
 }
 
-export function CharacterModeNav({ characterId, hasEpicItems }: CharacterModeNavProps) {
+export function CharacterModeNav({
+  characterId,
+  hasEpicItems,
+  basePath = "/characters",
+}: CharacterModeNavProps) {
   const t = useTranslations("characters");
   const pathname = usePathname();
 
   const modes = [
     {
-      href: `/characters/${characterId}/manage`,
+      href: `${basePath}/${characterId}/manage`,
       label: t("manageCharacter"),
       shortLabel: t("manage"),
       icon: PenLine,
@@ -24,7 +29,7 @@ export function CharacterModeNav({ characterId, hasEpicItems }: CharacterModeNav
       active: pathname.includes("/manage"),
     },
     {
-      href: `/characters/${characterId}/play`,
+      href: `${basePath}/${characterId}/play`,
       label: t("playCharacter"),
       shortLabel: t("play"),
       icon: Swords,
@@ -34,7 +39,7 @@ export function CharacterModeNav({ characterId, hasEpicItems }: CharacterModeNav
     ...(hasEpicItems
       ? [
           {
-            href: `/characters/${characterId}/epic`,
+            href: `${basePath}/${characterId}/epic`,
             label: t("epicEquipment"),
             shortLabel: t("epic"),
             icon: Sparkles,

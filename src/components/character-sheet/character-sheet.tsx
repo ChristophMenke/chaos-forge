@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { localized } from "@/lib/utils/localize";
 import { createClient } from "@/lib/supabase/client";
@@ -103,6 +104,7 @@ interface CharacterSheetProps {
   sessions: Pick<SessionRow, "id" | "title" | "session_date">[];
   xpHistory: XpHistoryRow[];
   epicItems?: EpicItemRow[];
+  basePath?: string;
 }
 
 export function CharacterSheet({
@@ -124,6 +126,7 @@ export function CharacterSheet({
   sessions,
   xpHistory,
   epicItems = [],
+  basePath = "/characters",
 }: CharacterSheetProps) {
   const router = useRouter();
   const locale = useLocale();
@@ -529,7 +532,7 @@ export function CharacterSheet({
     const supabase = createClient();
     const { error } = await supabase.from("characters").delete().eq("id", character.id);
     if (error) return;
-    router.push("/characters");
+    router.push(basePath);
     router.refresh();
   }
 
@@ -608,7 +611,7 @@ export function CharacterSheet({
 
     setDuplicating(false);
     setShowDuplicateDialog(false);
-    router.push(`/characters/${newId}/manage`);
+    router.push(`${basePath}/${newId}/manage`);
     router.refresh();
   }
 
@@ -700,9 +703,11 @@ export function CharacterSheet({
               className="cursor-pointer"
               data-testid="avatar-readonly"
             >
-              <img
+              <Image
                 src={character.avatar_url}
                 alt={`Avatar von ${character.name}`}
+                width={128}
+                height={128}
                 className="h-24 w-24 rounded-lg object-contain sm:h-32 sm:w-32"
               />
             </button>
@@ -799,7 +804,11 @@ export function CharacterSheet({
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-          <CharacterModeNav characterId={character.id} hasEpicItems={epicItems.length > 0} />
+          <CharacterModeNav
+            characterId={character.id}
+            hasEpicItems={epicItems.length > 0}
+            basePath={basePath}
+          />
           {isOwner && (
             <Button
               variant="outline"
@@ -811,7 +820,7 @@ export function CharacterSheet({
               <span className="hidden sm:inline">{ts("shareButton")}</span>
             </Button>
           )}
-          <Link href={`/characters/${character.id}/print`}>
+          <Link href={`${basePath}/${character.id}/print`}>
             <Button variant="outline" size="sm" data-testid="sheet-print-button">
               <Printer className="h-4 w-4 sm:mr-1" />
               <span className="hidden sm:inline">{tc("printView")}</span>
