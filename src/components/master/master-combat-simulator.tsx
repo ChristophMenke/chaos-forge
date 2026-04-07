@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, startTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Flame, Play, Loader2 } from "lucide-react";
 import { EntitySetup, type MonsterEntry } from "./combat-simulator/entity-setup";
@@ -49,22 +49,24 @@ export function MasterCombatSimulator({
   // Consume monsters passed from Bestiary tab
   useEffect(() => {
     if (initialMonsters && initialMonsters.length > 0) {
-      setMonsterEntries((prev) => {
-        const merged = [...prev];
-        for (const entry of initialMonsters) {
-          const existing = merged.findIndex((e) => e.monster.id === entry.monster.id);
-          if (existing >= 0) {
-            merged[existing] = {
-              ...merged[existing],
-              count: merged[existing].count + entry.count,
-            };
-          } else {
-            merged.push(entry);
+      startTransition(() => {
+        setMonsterEntries((prev) => {
+          const merged = [...prev];
+          for (const entry of initialMonsters) {
+            const existing = merged.findIndex((e) => e.monster.id === entry.monster.id);
+            if (existing >= 0) {
+              merged[existing] = {
+                ...merged[existing],
+                count: merged[existing].count + entry.count,
+              };
+            } else {
+              merged.push(entry);
+            }
           }
-        }
-        return merged;
+          return merged;
+        });
+        onMonstersConsumed?.();
       });
-      onMonstersConsumed?.();
     }
   }, [initialMonsters, onMonstersConsumed]);
 
