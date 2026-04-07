@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, lazy, Suspense } from "react";
 import { useTranslations } from "next-intl";
-import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
 import { Button } from "@/components/ui/button";
 import { AvatarDisplay } from "@/components/avatar-display";
 import { validateFile } from "@/lib/avatar/upload";
 import { uploadNpcAvatar, deleteNpcAvatar } from "@/lib/avatar/npc-upload";
 import type { CropArea } from "@/lib/avatar/resize";
+
+const Cropper = lazy(() => import("react-easy-crop"));
 
 interface NpcAvatarUploadProps {
   npcId: string;
@@ -143,15 +144,23 @@ export function NpcAvatarUpload({
             {previewUrl && selectedFile ? (
               <>
                 <div className="relative h-72 w-full overflow-hidden rounded-md bg-black">
-                  <Cropper
-                    image={previewUrl}
-                    crop={crop}
-                    zoom={zoom}
-                    aspect={1}
-                    onCropChange={setCrop}
-                    onZoomChange={setZoom}
-                    onCropComplete={onCropComplete}
-                  />
+                  <Suspense
+                    fallback={
+                      <div className="flex h-full items-center justify-center">
+                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                      </div>
+                    }
+                  >
+                    <Cropper
+                      image={previewUrl}
+                      crop={crop}
+                      zoom={zoom}
+                      aspect={1}
+                      onCropChange={setCrop}
+                      onZoomChange={setZoom}
+                      onCropComplete={onCropComplete}
+                    />
+                  </Suspense>
                 </div>
                 <div className="flex items-center gap-3">
                   <label htmlFor="npc-avatar-zoom" className="text-sm text-muted-foreground">

@@ -107,7 +107,7 @@ function DistributionPanel({
               <div className="distribution-bar flex-1">
                 <div
                   className={`distribution-bar-fill ${item.barClass ?? "hp-bar-priest"}`}
-                  style={{ width: `${pct}%` }}
+                  style={{ "--bar-ratio": pct / 100 } as React.CSSProperties}
                 />
               </div>
               <span className="w-4 text-right font-mono text-[0.6875rem] text-muted-foreground">
@@ -221,21 +221,6 @@ export default async function DashboardPage() {
     .map((s) => s.character_id)
     .filter((id) => !publicIds.has(id));
 
-  let sharedChars: CharacterRow[] = [];
-  if (sharedNonPublicIds.length > 0) {
-    const { data } = await supabase
-      .from("characters")
-      .select("*")
-      .in("id", sharedNonPublicIds)
-      .eq("is_active", true)
-      .returns<CharacterRow[]>();
-    sharedChars = data ?? [];
-  }
-
-  const partyOverviewCharacters = [...(publicCharacters ?? []), ...sharedChars].sort((a, b) =>
-    a.name.localeCompare(b.name)
-  );
-
   const charClassMap = new Map<string, CharacterClassRow[]>();
   for (const cc of allCharClasses ?? []) {
     const existing = charClassMap.get(cc.character_id) ?? [];
@@ -251,39 +236,56 @@ export default async function DashboardPage() {
       ? allQuotes[Math.floor(Math.random() * allQuotes.length)]
       : null;
 
-  // Dependent queries (need results from above)
-  const [{ data: quoteReactions }, { data: latestSessionTagRows }, { data: latestSessionEntries }] =
-    await Promise.all([
-      randomQuote
-        ? supabase
-            .from("chronicle_quote_reactions")
-            .select("*")
-            .eq("quote_id", randomQuote.id)
-            .returns<QuoteReactionRow[]>()
-        : Promise.resolve({ data: [] as QuoteReactionRow[] }),
-      latestSession
-        ? supabase
-            .from("session_tags")
-            .select("tag_id")
-            .eq("session_id", latestSession.id)
-            .returns<{ tag_id: string }[]>()
-        : Promise.resolve({ data: [] as { tag_id: string }[] }),
-      latestSession
-        ? supabase
-            .from("session_entries")
-            .select("id, character_id, content")
-            .eq("session_id", latestSession.id)
-            .order("created_at", { ascending: true })
-            .limit(10)
-            .returns<Pick<SessionEntryRow, "id" | "character_id" | "content">[]>()
-        : Promise.resolve({
-            data: [] as Pick<SessionEntryRow, "id" | "character_id" | "content">[],
-          }),
-    ]);
+  // Dependent queries — all run in parallel (including shared characters)
+  const [
+    { data: quoteReactions },
+    { data: latestSessionTagRows },
+    { data: latestSessionEntries },
+    { data: sharedCharsData },
+  ] = await Promise.all([
+    randomQuote
+      ? supabase
+          .from("chronicle_quote_reactions")
+          .select("*")
+          .eq("quote_id", randomQuote.id)
+          .returns<QuoteReactionRow[]>()
+      : Promise.resolve({ data: [] as QuoteReactionRow[] }),
+    latestSession
+      ? supabase
+          .from("session_tags")
+          .select("tag_id")
+          .eq("session_id", latestSession.id)
+          .returns<{ tag_id: string }[]>()
+      : Promise.resolve({ data: [] as { tag_id: string }[] }),
+    latestSession
+      ? supabase
+          .from("session_entries")
+          .select("id, character_id, content")
+          .eq("session_id", latestSession.id)
+          .order("created_at", { ascending: true })
+          .limit(10)
+          .returns<Pick<SessionEntryRow, "id" | "character_id" | "content">[]>()
+      : Promise.resolve({
+          data: [] as Pick<SessionEntryRow, "id" | "character_id" | "content">[],
+        }),
+    sharedNonPublicIds.length > 0
+      ? supabase
+          .from("characters")
+          .select("*")
+          .in("id", sharedNonPublicIds)
+          .eq("is_active", true)
+          .returns<CharacterRow[]>()
+      : Promise.resolve({ data: [] as CharacterRow[] }),
+  ]);
+
+  const partyOverviewCharacters = [...(publicCharacters ?? []), ...(sharedCharsData ?? [])].sort(
+    (a, b) => a.name.localeCompare(b.name)
+  );
 
   // ── Calculations ──────────────────────────────────────────
 
   const allCharacters = characters ?? [];
+  const charById = new Map(allCharacters.map((c) => [c.id, c]));
   const activeCharacters = allCharacters.filter((c) => c.is_active);
 
   const avgLevel = (() => {
@@ -349,7 +351,7 @@ export default async function DashboardPage() {
   }
   const xpRanking = [...xpTotals.entries()]
     .map(([charId, total]) => {
-      const char = characters?.find((c) => c.id === charId);
+      const char = charById.get(charId);
       if (!char) return null;
       return { id: charId, name: char.name, total };
     })
@@ -1077,7 +1079,7 @@ export default async function DashboardPage() {
               {latestSessionEntries && latestSessionEntries.length > 0 && (
                 <div className="mt-3 space-y-1.5 border-t border-border/50 pt-2">
                   {latestSessionEntries.map((entry) => {
-                    const char = characters?.find((c) => c.id === entry.character_id);
+                    const char = charById.get(entry.character_id);
                     return (
                       <div
                         key={entry.id}

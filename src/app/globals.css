@@ -10,7 +10,7 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-heading);
-  --font-heading-alt: var(--font-heading-alt);
+
   --font-serif: var(--font-serif);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -393,9 +393,11 @@
 }
 .distribution-bar-fill {
   height: 100%;
-  border-radius: 3px;
+  width: 100%;
   box-shadow: none; /* Override hp-bar-* glow (clipped by overflow:hidden anyway) */
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scaleX(var(--bar-ratio, 0));
+  transform-origin: left;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ─── Hexagonal Level Badge ──────────────────────────────────────────────── */
@@ -516,6 +518,17 @@
   }
   .glass-hover:hover {
     transform: none !important;
+  }
+  /* Disable expensive backdrop-filter for reduced-motion users */
+  .glass {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: oklch(0.96 0.008 80 / 0.97);
+  }
+  .dark .glass {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: oklch(0.16 0.025 285 / 0.85);
   }
 }
 

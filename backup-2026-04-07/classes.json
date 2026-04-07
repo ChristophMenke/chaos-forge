@@ -1,0 +1,192 @@
+[
+  {
+    "id": "fighter",
+    "name": "Kämpfer",
+    "class_group": "warrior",
+    "hit_die": 10,
+    "ability_requirements": { "str": 9 },
+    "prime_requisites": ["str"],
+    "exceptional_strength": true,
+    "name_en": "Fighter"
+  },
+  {
+    "id": "ranger",
+    "name": "Waldläufer",
+    "class_group": "warrior",
+    "hit_die": 10,
+    "ability_requirements": { "con": 14, "dex": 13, "str": 13, "wis": 14 },
+    "prime_requisites": ["str", "dex", "wis"],
+    "exceptional_strength": true,
+    "name_en": "Ranger"
+  },
+  {
+    "id": "paladin",
+    "name": "Paladin",
+    "class_group": "warrior",
+    "hit_die": 10,
+    "ability_requirements": { "cha": 17, "con": 9, "str": 12, "wis": 13 },
+    "prime_requisites": ["str", "cha"],
+    "exceptional_strength": true,
+    "name_en": "Paladin"
+  },
+  {
+    "id": "mage",
+    "name": "Magier",
+    "class_group": "wizard",
+    "hit_die": 4,
+    "ability_requirements": { "int": 9 },
+    "prime_requisites": ["int"],
+    "exceptional_strength": false,
+    "name_en": "Mage"
+  },
+  {
+    "id": "abjurer",
+    "name": "Bannzauberer",
+    "class_group": "wizard",
+    "hit_die": 4,
+    "ability_requirements": { "int": 9, "wis": 15 },
+    "prime_requisites": ["int"],
+    "exceptional_strength": false,
+    "name_en": "Abjurer"
+  },
+  {
+    "id": "conjurer",
+    "name": "Beschwörer",
+    "class_group": "wizard",
+    "hit_die": 4,
+    "ability_requirements": { "con": 15, "int": 9 },
+    "prime_requisites": ["int"],
+    "exceptional_strength": false,
+    "name_en": "Conjurer"
+  },
+  {
+    "id": "diviner",
+    "name": "Seher",
+    "class_group": "wizard",
+    "hit_die": 4,
+    "ability_requirements": { "int": 9, "wis": 16 },
+    "prime_requisites": ["int"],
+    "exceptional_strength": false,
+    "name_en": "Diviner"
+  },
+  {
+    "id": "enchanter",
+    "name": "Verzauberer",
+    "class_group": "wizard",
+    "hit_die": 4,
+    "ability_requirements": { "cha": 16, "int": 9 },
+    "prime_requisites": ["int"],
+    "exceptional_strength": false,
+    "name_en": "Enchanter"
+  },
+  {
+    "id": "illusionist",
+    "name": "Illusionist",
+    "class_group": "wizard",
+    "hit_die": 4,
+    "ability_requirements": { "dex": 16, "int": 9 },
+    "prime_requisites": ["int"],
+    "exceptional_strength": false,
+    "name_en": "Illusionist"
+  },
+  {
+    "id": "invoker",
+    "name": "Anrufer",
+    "class_group": "wizard",
+    "hit_die": 4,
+    "ability_requirements": { "con": 16, "int": 9 },
+    "prime_requisites": ["int"],
+    "exceptional_strength": false,
+    "name_en": "Invoker"
+  },
+  {
+    "id": "necromancer",
+    "name": "Nekromant",
+    "class_group": "wizard",
+    "hit_die": 4,
+    "ability_requirements": { "int": 9, "wis": 16 },
+    "prime_requisites": ["int"],
+    "exceptional_strength": false,
+    "name_en": "Necromancer"
+  },
+  {
+    "id": "transmuter",
+    "name": "Verwandler",
+    "class_group": "wizard",
+    "hit_die": 4,
+    "ability_requirements": { "dex": 15, "int": 9 },
+    "prime_requisites": ["int"],
+    "exceptional_strength": false,
+    "name_en": "Transmuter"
+  },
+  {
+    "id": "cleric",
+    "name": "Kleriker",
+    "class_group": "priest",
+    "hit_die": 8,
+    "ability_requirements": { "wis": 9 },
+    "prime_requisites": ["wis"],
+    "exceptional_strength": false,
+    "name_en": "Cleric"
+  },
+  {
+    "id": "druid",
+    "name": "Druide",
+    "class_group": "priest",
+    "hit_die": 8,
+    "ability_requirements": { "cha": 15, "wis": 12 },
+    "prime_requisites": ["wis", "cha"],
+    "exceptional_strength": false,
+    "name_en": "Druid"
+  },
+  {
+    "id": "thief",
+    "name": "Dieb",
+    "class_group": "rogue",
+    "hit_die": 6,
+    "ability_requirements": { "dex": 9 },
+    "prime_requisites": ["dex"],
+    "exceptional_strength": false,
+    "name_en": "Thief"
+  },
+  {
+    "id": "bard",
+    "name": "Barde",
+    "class_group": "rogue",
+    "hit_die": 6,
+    "ability_requirements": { "cha": 15, "dex": 12, "int": 13 },
+    "prime_requisites": ["dex", "cha"],
+    "exceptional_strength": false,
+    "name_en": "Bard"
+  },
+  {
+    "id": "crusader",
+    "name": "Kreuzritter",
+    "class_group": "priest",
+    "hit_die": 8,
+    "ability_requirements": { "cha": 12, "str": 12, "wis": 9 },
+    "prime_requisites": ["wis", "str"],
+    "exceptional_strength": false,
+    "name_en": null
+  },
+  {
+    "id": "monk",
+    "name": "Mönch",
+    "class_group": "priest",
+    "hit_die": 8,
+    "ability_requirements": { "con": 13, "int": 14, "wis": 15 },
+    "prime_requisites": ["wis", "int"],
+    "exceptional_strength": false,
+    "name_en": null
+  },
+  {
+    "id": "shaman",
+    "name": "Schamane",
+    "class_group": "priest",
+    "hit_die": 8,
+    "ability_requirements": { "con": 12, "wis": 12 },
+    "prime_requisites": ["wis"],
+    "exceptional_strength": false,
+    "name_en": null
+  }
+]

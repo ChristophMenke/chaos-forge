@@ -1,0 +1,90 @@
+[
+  {
+    "id": "4e9dffba-601c-4ecf-8162-b62e1be519ca",
+    "display_name": "Abenteurer",
+    "avatar_url": null,
+    "created_at": "2026-03-26T08:40:24.747661+00:00",
+    "updated_at": "2026-03-29T10:09:18.847792+00:00",
+    "email": "christoph.menke@gmail.com"
+  },
+  {
+    "id": "9bfb9103-144a-4efd-8005-2e671c7e42a7",
+    "display_name": "Testaccount",
+    "avatar_url": null,
+    "created_at": "2026-03-26T15:31:14.497759+00:00",
+    "updated_at": "2026-03-29T10:09:18.847792+00:00",
+    "email": "test@chaos-forge.de"
+  },
+  {
+    "id": "8c1355fd-0841-4763-ae74-608ef67b9ff7",
+    "display_name": "Abenteurer",
+    "avatar_url": null,
+    "created_at": "2026-03-26T15:44:35.728541+00:00",
+    "updated_at": "2026-03-29T10:09:18.847792+00:00",
+    "email": "christoph@chaos-forge.de"
+  },
+  {
+    "id": "084bf5c3-6f99-4815-8edf-57d2156f500d",
+    "display_name": "Abenteurer",
+    "avatar_url": null,
+    "created_at": "2026-03-28T14:15:31.260386+00:00",
+    "updated_at": "2026-03-29T10:09:18.847792+00:00",
+    "email": "carsten.tapken2@gmail.com"
+  },
+  {
+    "id": "63f16764-7bfe-4316-845e-191dfe383677",
+    "display_name": "Abenteurer",
+    "avatar_url": null,
+    "created_at": "2026-03-28T12:18:05.610954+00:00",
+    "updated_at": "2026-03-29T10:09:18.847792+00:00",
+    "email": "cathrin.tapken@gmail.com"
+  },
+  {
+    "id": "8be2ac1a-6d5a-4f60-9140-67149105cf6d",
+    "display_name": "share-e2e-1775550905864-17",
+    "avatar_url": null,
+    "created_at": "2026-04-07T08:35:06.397391+00:00",
+    "updated_at": "2026-04-07T08:35:06.397391+00:00",
+    "email": "share-e2e-1775550905864-17@chaos-forge.de"
+  },
+  {
+    "id": "98ea2b8f-b843-4f4d-99a9-2f876f74fdca",
+    "display_name": "share-e2e-1775550906152-15",
+    "avatar_url": null,
+    "created_at": "2026-04-07T08:35:06.96613+00:00",
+    "updated_at": "2026-04-07T08:35:06.96613+00:00",
+    "email": "share-e2e-1775550906152-15@chaos-forge.de"
+  },
+  {
+    "id": "34ff838a-3d58-4b17-8cca-b1b6e9b74d0d",
+    "display_name": "Abenteurer",
+    "avatar_url": null,
+    "created_at": "2026-04-05T19:06:33.666109+00:00",
+    "updated_at": "2026-04-05T19:06:33.666109+00:00",
+    "email": "christoph.menke@gmsil.com"
+  },
+  {
+    "id": "d299528f-4de9-4a7b-a3ee-bba0462af0cb",
+    "display_name": "Abenteurer",
+    "avatar_url": null,
+    "created_at": "2026-03-31T10:53:07.701544+00:00",
+    "updated_at": "2026-03-31T10:53:07.701544+00:00",
+    "email": "christophmenke@gmail.com"
+  },
+  {
+    "id": "0343f1be-55a1-4d2a-a3da-1c923589c2dd",
+    "display_name": "share-e2e-1775548011660-29",
+    "avatar_url": null,
+    "created_at": "2026-04-07T07:47:05.173436+00:00",
+    "updated_at": "2026-04-07T07:47:05.173436+00:00",
+    "email": "share-e2e-1775548011660-29@chaos-forge.de"
+  },
+  {
+    "id": "fbaafdb0-a19c-440c-8535-eff4f3ddbfcc",
+    "display_name": "Abenteurer",
+    "avatar_url": null,
+    "created_at": "2026-03-29T21:17:23.923169+00:00",
+    "updated_at": "2026-03-29T21:17:23.923169+00:00",
+    "email": "caynorn@googlemail.com"
+  }
+]

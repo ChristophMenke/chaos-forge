@@ -87,6 +87,7 @@ export function MasterDashboard({
   const setupRealtime = useCallback(() => {
     const supabase = createClient();
     const characterIds = partyData.map((p) => p.character.id);
+    if (characterIds.length === 0) return () => {};
     let fallbackTimeout: ReturnType<typeof setTimeout> | null = null;
 
     async function pollHp() {
@@ -113,16 +114,15 @@ export function MasterDashboard({
           event: "UPDATE",
           schema: "public",
           table: "characters",
+          filter: `id=in.(${characterIds.join(",")})`,
         },
         (payload) => {
           const updated = payload.new as { id: string; hp_current: number; hp_max: number };
-          if (characterIds.includes(updated.id)) {
-            setLiveHpMap((prev) => {
-              const next = new Map(prev);
-              next.set(updated.id, { current: updated.hp_current, max: updated.hp_max });
-              return next;
-            });
-          }
+          setLiveHpMap((prev) => {
+            const next = new Map(prev);
+            next.set(updated.id, { current: updated.hp_current, max: updated.hp_max });
+            return next;
+          });
         }
       )
       .subscribe((status) => {

@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, lazy, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
 import { Button } from "@/components/ui/button";
 import { AvatarDisplay } from "@/components/avatar-display";
 import { uploadAvatar, deleteAvatar, validateFile } from "@/lib/avatar/upload";
 import type { CropArea } from "@/lib/avatar/resize";
+
+const Cropper = lazy(() => import("react-easy-crop"));
 
 interface AvatarUploadProps {
   characterId: string;
@@ -174,15 +175,23 @@ export function AvatarUpload({
                   className="relative h-72 w-full overflow-hidden rounded-md bg-black"
                   data-testid="avatar-crop-area"
                 >
-                  <Cropper
-                    image={previewUrl}
-                    crop={crop}
-                    zoom={zoom}
-                    aspect={1}
-                    onCropChange={setCrop}
-                    onZoomChange={setZoom}
-                    onCropComplete={onCropComplete}
-                  />
+                  <Suspense
+                    fallback={
+                      <div className="flex h-full items-center justify-center">
+                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                      </div>
+                    }
+                  >
+                    <Cropper
+                      image={previewUrl}
+                      crop={crop}
+                      zoom={zoom}
+                      aspect={1}
+                      onCropChange={setCrop}
+                      onZoomChange={setZoom}
+                      onCropComplete={onCropComplete}
+                    />
+                  </Suspense>
                 </div>
 
                 {/* Zoom slider */}

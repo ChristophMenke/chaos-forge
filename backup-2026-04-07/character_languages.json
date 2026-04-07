@@ -1,0 +1,57 @@
+[
+  {
+    "id": "0651e719-02f3-4731-bde0-d9e94d1b3639",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "language_name": "Elfisch"
+  },
+  {
+    "id": "4efb847b-e834-41d4-a29e-f4f8e364ee56",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "language_name": "Zwergisch"
+  },
+  {
+    "id": "3f6965d6-da4c-40b1-ba21-28ad52924350",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "language_name": "Halblingisch"
+  },
+  {
+    "id": "e644a96c-9571-4bcd-983e-73f6188ed346",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "language_name": "Orkisch"
+  },
+  {
+    "id": "2c8c6736-392c-4384-8a29-4c7a5dbe68f6",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "language_name": "Koboldisch"
+  },
+  {
+    "id": "8efc42d5-89c4-4aac-a3da-7f26c1f44812",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "language_name": "Goblinisch"
+  },
+  {
+    "id": "86aa3919-6d16-4831-a38d-b401a46d643a",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "language_name": "High elf Dialekt"
+  },
+  {
+    "id": "fcf0ca16-54b8-49fd-832d-26a127078dc2",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "language_name": "Goblinisch"
+  },
+  {
+    "id": "695ace35-2deb-4dc1-90a5-ddcc27bad031",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "language_name": "Halblingisch"
+  },
+  {
+    "id": "996ba5c0-da93-44f5-a9b3-220046a26e80",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "language_name": "Koboldisch"
+  },
+  {
+    "id": "22990c40-5e3a-43b9-b061-ecdc52420fd7",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "language_name": "Gnomisch"
+  }
+]

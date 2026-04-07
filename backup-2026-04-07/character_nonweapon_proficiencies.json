@@ -1,0 +1,322 @@
+[
+  {
+    "id": "ade52c9c-1009-4fe0-9054-f131380f772c",
+    "character_id": "c60b6398-8d3a-4745-9a85-00cae7da4817",
+    "proficiency_id": "endurance"
+  },
+  {
+    "id": "b57808f9-cad6-4c19-8074-67474284d5c8",
+    "character_id": "c60b6398-8d3a-4745-9a85-00cae7da4817",
+    "proficiency_id": "running"
+  },
+  {
+    "id": "6928160d-4c28-45c8-b635-f58708bf0144",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "proficiency_id": "engineering"
+  },
+  {
+    "id": "48dd2136-44cf-4c55-ac0f-d592fc60f60e",
+    "character_id": "c60b6398-8d3a-4745-9a85-00cae7da4817",
+    "proficiency_id": "survival"
+  },
+  {
+    "id": "e2a4fa31-a60b-4d1c-a418-56838c50027a",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "proficiency_id": "appraising"
+  },
+  {
+    "id": "15ea4a52-8dac-4168-b458-60084588168d",
+    "character_id": "c60b6398-8d3a-4745-9a85-00cae7da4817",
+    "proficiency_id": "tracking"
+  },
+  {
+    "id": "ad2edb56-b5a5-4765-944a-8955850fcb3d",
+    "character_id": "fed30c29-856f-4793-a4c7-06aa3401180d",
+    "proficiency_id": "dancing"
+  },
+  {
+    "id": "798e0ddb-401c-4a88-8fd8-5dff0f01523e",
+    "character_id": "fed30c29-856f-4793-a4c7-06aa3401180d",
+    "proficiency_id": "etiquette"
+  },
+  {
+    "id": "28e9a637-36c2-49a7-bb04-36ee79970b61",
+    "character_id": "fed30c29-856f-4793-a4c7-06aa3401180d",
+    "proficiency_id": "gaming"
+  },
+  {
+    "id": "8e2f844e-57aa-4625-875d-18f232926bd0",
+    "character_id": "fed30c29-856f-4793-a4c7-06aa3401180d",
+    "proficiency_id": "local_history"
+  },
+  {
+    "id": "6d958462-9c28-47cd-a1f5-4c4954bffaf6",
+    "character_id": "fed30c29-856f-4793-a4c7-06aa3401180d",
+    "proficiency_id": "musical_instrument"
+  },
+  {
+    "id": "8e4b8f55-4435-443b-b8e3-b1d1ee53a425",
+    "character_id": "fed30c29-856f-4793-a4c7-06aa3401180d",
+    "proficiency_id": "reading_writing"
+  },
+  {
+    "id": "455954b9-c1b3-4a80-9fe9-b50cf351d988",
+    "character_id": "fed30c29-856f-4793-a4c7-06aa3401180d",
+    "proficiency_id": "singing"
+  },
+  {
+    "id": "7d814ddb-f143-4836-ab78-199b552fe296",
+    "character_id": "fed30c29-856f-4793-a4c7-06aa3401180d",
+    "proficiency_id": "swimming"
+  },
+  {
+    "id": "036ccccf-a577-49ad-80e6-40fe89d69f96",
+    "character_id": "d346836c-7c10-45ff-abfc-25edb12f33fd",
+    "proficiency_id": "direction_sense"
+  },
+  {
+    "id": "af6071ac-9cd4-4b27-9962-fd455bedbb98",
+    "character_id": "d346836c-7c10-45ff-abfc-25edb12f33fd",
+    "proficiency_id": "gaming"
+  },
+  {
+    "id": "5e134ba7-962f-4247-9726-dec55e20bb04",
+    "character_id": "d346836c-7c10-45ff-abfc-25edb12f33fd",
+    "proficiency_id": "riding_land"
+  },
+  {
+    "id": "3dc9dcb9-ff14-4e2b-ac62-65463d5ac942",
+    "character_id": "d346836c-7c10-45ff-abfc-25edb12f33fd",
+    "proficiency_id": "swimming"
+  },
+  {
+    "id": "c199e491-141b-443d-8d6b-2b6312e8c37f",
+    "character_id": "d346836c-7c10-45ff-abfc-25edb12f33fd",
+    "proficiency_id": "tumbling"
+  },
+  {
+    "id": "35abb6c8-b26d-452b-adc0-3c192956b44b",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "proficiency_id": "gem_cutting"
+  },
+  {
+    "id": "853ff32c-88e5-4048-a0e4-fb09ed5e55b3",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "proficiency_id": "locksmithing"
+  },
+  {
+    "id": "6d3c7bc0-bd9a-4287-be0b-9d8d9c50d65c",
+    "character_id": "b6e33efb-751b-4c38-9477-70cbda357743",
+    "proficiency_id": "animal_handling"
+  },
+  {
+    "id": "3e084ee4-5593-4eeb-b16c-15215c782cde",
+    "character_id": "b6e33efb-751b-4c38-9477-70cbda357743",
+    "proficiency_id": "animal_training"
+  },
+  {
+    "id": "07fdad26-25ee-4d99-a10c-7b8e31665d30",
+    "character_id": "b6e33efb-751b-4c38-9477-70cbda357743",
+    "proficiency_id": "reading_writing"
+  },
+  {
+    "id": "cf572118-2171-40d1-adac-061d0ee5ec8d",
+    "character_id": "b6e33efb-751b-4c38-9477-70cbda357743",
+    "proficiency_id": "riding_land"
+  },
+  {
+    "id": "78f03f73-ad5f-489c-abec-f0d7b6bfbdee",
+    "character_id": "b6e33efb-751b-4c38-9477-70cbda357743",
+    "proficiency_id": "spellcraft"
+  },
+  {
+    "id": "98950e22-3318-484b-bde3-547cec702af8",
+    "character_id": "b6e33efb-751b-4c38-9477-70cbda357743",
+    "proficiency_id": "swimming"
+  },
+  {
+    "id": "22c06ee3-d7c5-4759-b896-dc8c8cdf4937",
+    "character_id": "b6e33efb-751b-4c38-9477-70cbda357743",
+    "proficiency_id": "tumbling"
+  },
+  {
+    "id": "5a00b01f-aaa8-4348-ae39-596b41b7693f",
+    "character_id": "4c1faee2-9053-4b64-a2fd-27a15499b406",
+    "proficiency_id": "disguise"
+  },
+  {
+    "id": "7bfbc9db-3202-470d-90a0-5686abd40e40",
+    "character_id": "4c1faee2-9053-4b64-a2fd-27a15499b406",
+    "proficiency_id": "spellcraft"
+  },
+  {
+    "id": "86ed98e9-0076-4c2d-a717-9cc9ce6ce1ce",
+    "character_id": "4c1faee2-9053-4b64-a2fd-27a15499b406",
+    "proficiency_id": "swimming"
+  },
+  {
+    "id": "93914dbf-d4c8-4818-aae8-c88293951221",
+    "character_id": "4c1faee2-9053-4b64-a2fd-27a15499b406",
+    "proficiency_id": "languages_modern"
+  },
+  {
+    "id": "ae559b4e-1309-40ef-93f2-0fc98b3aa8be",
+    "character_id": "4c1faee2-9053-4b64-a2fd-27a15499b406",
+    "proficiency_id": "reading_writing"
+  },
+  {
+    "id": "98651c49-51ce-4939-968f-bbe23e4f4910",
+    "character_id": "ff83f89d-3db1-44d3-898e-3f57afa7e2ae",
+    "proficiency_id": "disguise"
+  },
+  {
+    "id": "88093314-9989-467d-a446-478a313d06cf",
+    "character_id": "ff83f89d-3db1-44d3-898e-3f57afa7e2ae",
+    "proficiency_id": "engineering"
+  },
+  {
+    "id": "36d1583c-25a4-4c57-a1b4-fb582951787d",
+    "character_id": "ff83f89d-3db1-44d3-898e-3f57afa7e2ae",
+    "proficiency_id": "forgery"
+  },
+  {
+    "id": "01930a9f-dd06-493c-a5ed-794bec0b7378",
+    "character_id": "ff83f89d-3db1-44d3-898e-3f57afa7e2ae",
+    "proficiency_id": "reading_lips"
+  },
+  {
+    "id": "ed3bd0d3-51a1-42c7-98be-aa793ec20187",
+    "character_id": "ff83f89d-3db1-44d3-898e-3f57afa7e2ae",
+    "proficiency_id": "swimming"
+  },
+  {
+    "id": "585b2813-704f-4b6a-8432-a370671814c7",
+    "character_id": "ff83f89d-3db1-44d3-898e-3f57afa7e2ae",
+    "proficiency_id": "tumbling"
+  },
+  {
+    "id": "96dbd5ef-f612-46d5-8161-c9fb83d1d483",
+    "character_id": "05c64a74-22a8-4d1f-99d0-a076e605ac2b",
+    "proficiency_id": "ancient_history"
+  },
+  {
+    "id": "3e27e4d1-fd40-4d09-a0a3-fdaef0d5104a",
+    "character_id": "05c64a74-22a8-4d1f-99d0-a076e605ac2b",
+    "proficiency_id": "animal_handling"
+  },
+  {
+    "id": "6e04fcfc-097f-4d95-9e00-d5c2a1e9c74a",
+    "character_id": "05c64a74-22a8-4d1f-99d0-a076e605ac2b",
+    "proficiency_id": "etiquette"
+  },
+  {
+    "id": "960ac15d-08de-4d87-8f43-a91a1335cfd1",
+    "character_id": "05c64a74-22a8-4d1f-99d0-a076e605ac2b",
+    "proficiency_id": "healing"
+  },
+  {
+    "id": "882bdeb5-a423-49c9-99c0-766799fbcb4f",
+    "character_id": "05c64a74-22a8-4d1f-99d0-a076e605ac2b",
+    "proficiency_id": "religion"
+  },
+  {
+    "id": "c5359860-f67d-4746-a5d4-3c9a04952dc2",
+    "character_id": "05c64a74-22a8-4d1f-99d0-a076e605ac2b",
+    "proficiency_id": "riding_land"
+  },
+  {
+    "id": "daa643ed-761e-40ec-8020-a9b563ba79dd",
+    "character_id": "05c64a74-22a8-4d1f-99d0-a076e605ac2b",
+    "proficiency_id": "survival"
+  },
+  {
+    "id": "9d97f027-9221-4b75-aeb6-771e572a0cc9",
+    "character_id": "05c64a74-22a8-4d1f-99d0-a076e605ac2b",
+    "proficiency_id": "swimming"
+  },
+  {
+    "id": "c9db8fd4-64c8-4f44-9d0c-b2daa3e63a61",
+    "character_id": "05c64a74-22a8-4d1f-99d0-a076e605ac2b",
+    "proficiency_id": "languages_modern"
+  },
+  {
+    "id": "49dde834-6989-4d5b-8c54-c38fa9407a46",
+    "character_id": "05c64a74-22a8-4d1f-99d0-a076e605ac2b",
+    "proficiency_id": "reading_writing"
+  },
+  {
+    "id": "890ca68d-6b29-48f4-bbf0-71cbf2f98778",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "proficiency_id": "dancing"
+  },
+  {
+    "id": "50444da0-6a7e-40a1-90c5-0b65975ce5da",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "proficiency_id": "etiquette"
+  },
+  {
+    "id": "e1f54bd4-7ad1-4ba5-a68c-80af277c16ea",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "proficiency_id": "healing"
+  },
+  {
+    "id": "cec3a296-2c23-4a5a-9682-679aa83894db",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "proficiency_id": "herbalism"
+  },
+  {
+    "id": "c6673bd0-69d3-4e96-b765-e53aa1393c74",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "proficiency_id": "direction_sense"
+  },
+  {
+    "id": "5d92c3d4-4abc-4858-839b-97f08f4ef1bc",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "proficiency_id": "riding_land"
+  },
+  {
+    "id": "0be181c3-2c7f-4dba-bc11-e4588e307a7a",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "proficiency_id": "reading_writing"
+  },
+  {
+    "id": "15b999e2-54de-417e-9202-afb452ffb4c3",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "proficiency_id": "spellcraft_wiz"
+  },
+  {
+    "id": "36c1c6c7-b6f2-4987-9268-52941fba6ba2",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "proficiency_id": "singing"
+  },
+  {
+    "id": "1fd770d4-a165-470f-9fdb-1d106bfcf836",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "proficiency_id": "rope_use"
+  },
+  {
+    "id": "763500ca-b062-42cf-b483-ec959ac8b023",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "proficiency_id": "survival"
+  },
+  {
+    "id": "be0aab88-4618-4d01-8e4a-ef5fe9f24860",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "proficiency_id": "swimming"
+  },
+  {
+    "id": "6caf22fb-3b77-4fa3-81fe-dcc5d9343736",
+    "character_id": "09ad6d65-f871-400b-9daa-5a9890bcc84b",
+    "proficiency_id": "riding_land"
+  },
+  {
+    "id": "3b976700-89af-49e4-aabc-e1a4b784a2ce",
+    "character_id": "09ad6d65-f871-400b-9daa-5a9890bcc84b",
+    "proficiency_id": "survival"
+  },
+  {
+    "id": "ab8f050c-9543-45d2-9f6d-e6e2e8d16ed6",
+    "character_id": "09ad6d65-f871-400b-9daa-5a9890bcc84b",
+    "proficiency_id": "swimming"
+  }
+]

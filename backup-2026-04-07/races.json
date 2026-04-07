@@ -1,0 +1,83 @@
+[
+  {
+    "id": "human",
+    "name": "Mensch",
+    "ability_adjustments": {},
+    "infravision": 0,
+    "ability_minimums": {},
+    "ability_maximums": {},
+    "name_en": "Human"
+  },
+  {
+    "id": "elf",
+    "name": "Elf",
+    "ability_adjustments": { "con": -1, "dex": 1 },
+    "infravision": 60,
+    "ability_minimums": { "dex": 6, "int": 8 },
+    "ability_maximums": { "con": 17 },
+    "name_en": "Elf"
+  },
+  {
+    "id": "half_elf",
+    "name": "Halbelf",
+    "ability_adjustments": {},
+    "infravision": 30,
+    "ability_minimums": { "con": 4, "int": 4 },
+    "ability_maximums": {},
+    "name_en": "Half-Elf"
+  },
+  {
+    "id": "dwarf",
+    "name": "Zwerg",
+    "ability_adjustments": { "cha": -1, "con": 1 },
+    "infravision": 60,
+    "ability_minimums": { "con": 11, "str": 8 },
+    "ability_maximums": { "cha": 16 },
+    "name_en": "Dwarf"
+  },
+  {
+    "id": "gnome",
+    "name": "Gnom",
+    "ability_adjustments": { "int": 1, "wis": -1 },
+    "infravision": 60,
+    "ability_minimums": { "con": 8, "int": 6 },
+    "ability_maximums": { "str": 17, "wis": 17 },
+    "name_en": "Gnome"
+  },
+  {
+    "id": "halfling",
+    "name": "Halbling",
+    "ability_adjustments": { "dex": 1, "str": -1 },
+    "infravision": 30,
+    "ability_minimums": { "con": 10, "dex": 7, "str": 7 },
+    "ability_maximums": { "str": 17, "wis": 17 },
+    "name_en": "Halfling"
+  },
+  {
+    "id": "half_orc",
+    "name": "Halb-Ork",
+    "ability_adjustments": { "cha": -2, "con": 1, "str": 1 },
+    "infravision": 60,
+    "ability_minimums": { "con": 13, "str": 6 },
+    "ability_maximums": { "cha": 12, "int": 17, "wis": 14 },
+    "name_en": "Half-Orc"
+  },
+  {
+    "id": "kobold",
+    "name": "Kobold",
+    "ability_adjustments": {},
+    "infravision": 0,
+    "ability_minimums": {},
+    "ability_maximums": {},
+    "name_en": "Kobold"
+  },
+  {
+    "id": "tiefling",
+    "name": "Tiefling",
+    "ability_adjustments": { "cha": -1, "int": 1 },
+    "infravision": 60,
+    "ability_minimums": {},
+    "ability_maximums": {},
+    "name_en": "Tiefling"
+  }
+]
