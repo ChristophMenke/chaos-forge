@@ -593,6 +593,8 @@
     "summaryPlaceholder": "Zusammenfassung der Session (Markdown)...",
     "preview": "Vorschau:",
     "noSummary": "Noch keine Zusammenfassung vorhanden.",
+    "generateMoodImage": "Stimmungsbild generieren",
+    "regenerateMoodImage": "Stimmungsbild neu generieren",
     "noCharactersHint": "Erstelle zuerst einen Charakter, um einen Beitrag zu schreiben.",
     "deleteTitle": "Session löschen",
     "deleteMessage": "Möchtest du \"{title}\" wirklich unwiderruflich löschen? Alle Beiträge gehen verloren.",

@@ -593,6 +593,8 @@
     "summaryPlaceholder": "Session summary (Markdown)...",
     "preview": "Preview:",
     "noSummary": "No summary available yet.",
+    "generateMoodImage": "Generate mood image",
+    "regenerateMoodImage": "Regenerate mood image",
     "noCharactersHint": "Create a character first to write an entry.",
     "deleteTitle": "Delete Session",
     "deleteMessage": "Do you really want to permanently delete \"{title}\"? All entries will be lost.",

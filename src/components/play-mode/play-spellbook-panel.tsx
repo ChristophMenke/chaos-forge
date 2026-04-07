@@ -555,13 +555,13 @@ export function PlaySpellbookPanel({
                           >
                             {spellName(spell)}
                           </span>
-                          {isPriest && spell.sphere && (
+                          {(spell.school ?? spell.sphere) && (
                             <Badge
                               variant="outline"
                               className="shrink-0 text-[9px] capitalize"
-                              data-testid={`play-spell-sphere-${spell.id}`}
+                              data-testid={`play-spell-school-${spell.id}`}
                             >
-                              {spell.sphere}
+                              {spell.school ?? spell.sphere}
                             </Badge>
                           )}
                           {spell.casting_time && /^[\d]|^Special/i.test(spell.casting_time) && (
