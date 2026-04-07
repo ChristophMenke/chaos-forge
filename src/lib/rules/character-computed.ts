@@ -29,6 +29,9 @@ import { hasThiefSkills, getBackstabMultiplier } from "./thief";
 import { getSingleWeaponStyleBonus } from "./fighting-styles";
 import { getClassGroup } from "./classes";
 import { getConBonusCap } from "./hitpoints";
+import { getAdjustedWeaponThac0, getAttacksPerRound } from "./combat";
+import { getNonproficiencyPenalty } from "./proficiencies";
+import { findWeaponProf } from "@/lib/utils/proficiency-match";
 
 export interface ThiefSkillValues {
   /** thief_pick_locks — "Open Locks" in AD&D 2e */
@@ -39,6 +42,19 @@ export interface ThiefSkillValues {
   detectNoise: number;
   climbWalls: number;
   readLanguages: number;
+}
+
+export interface PrimaryWeaponData {
+  /** Adjusted THAC0 for this weapon (incl. STR, proficiency, magic bonuses) */
+  adjustedThac0: number;
+  /** Base damage dice string, e.g. "1d8" */
+  damageDice: string;
+  /** Total damage bonus (STR + specialization + magic weapon bonus) */
+  damageBonus: number;
+  /** Attacks per round string, e.g. "2" or "3/2" */
+  attacksPerRound: string;
+  /** Weapon speed factor */
+  speed: number;
 }
 
 export interface CharacterCombatData {
@@ -66,6 +82,8 @@ export interface CharacterCombatData {
   magicPassiveAbilities: string[];
   /** Spell-like abilities from magic items */
   magicSpellAbilities: MagicSpellAbility[];
+  /** Primary equipped weapon data for combat simulation */
+  primaryWeapon: PrimaryWeaponData | null;
 }
 
 /**
@@ -263,6 +281,48 @@ export function computeCharacterCombatData(
       ? epicEffects.overclockAbility.poisonSavePenalty
       : 0;
 
+  // Primary weapon data for combat simulation
+  const equippedWeapon = equipment.find((e) => e.equipped && e.weapon);
+  let primaryWeapon: PrimaryWeaponData | null = null;
+  if (equippedWeapon?.weapon) {
+    const weapon = equippedWeapon.weapon;
+    const matchingProf = findWeaponProf(weaponProficiencies, weapon.name, weapon.name_en);
+    const isProficient = !!matchingProf;
+    const isSpecialized = matchingProf?.specialization ?? false;
+    const specHitBonus = isSpecialized ? 1 : 0;
+    const specDmgBonus = isSpecialized ? 2 : 0;
+    const profPenalty = isProficient ? 0 : getNonproficiencyPenalty(primaryClassGroup);
+
+    const adjusted = getAdjustedWeaponThac0(
+      thac0,
+      strMods.hitAdj + specHitBonus,
+      dexMods.missileAdj + specHitBonus,
+      weapon.weapon_type,
+      profPenalty,
+      equippedWeapon.hit_bonus
+    );
+
+    const warriorEntry = effectiveClassEntries.find(
+      (ce) => getClassGroup(ce.classId) === "warrior"
+    );
+    let apr: string;
+    if (warriorEntry) {
+      apr = getAttacksPerRound("warrior", warriorEntry.level, isSpecialized);
+    } else if (isSpecialized) {
+      apr = "3/2";
+    } else {
+      apr = "1";
+    }
+
+    primaryWeapon = {
+      adjustedThac0: adjusted.melee,
+      damageDice: weapon.damage_sm,
+      damageBonus: strMods.dmgAdj + specDmgBonus + equippedWeapon.damage_bonus,
+      attacksPerRound: apr,
+      speed: weapon.speed,
+    };
+  }
+
   return {
     thac0,
     ac,
@@ -282,5 +342,6 @@ export function computeCharacterCombatData(
     magicResistances: magicEffects.resistances,
     magicPassiveAbilities: magicEffects.passiveAbilities,
     magicSpellAbilities: magicEffects.spellAbilities,
+    primaryWeapon,
   };
 }

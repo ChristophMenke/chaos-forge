@@ -7,6 +7,9 @@ import { createClient } from "@/lib/supabase/client";
 import { MasterPartyPanel } from "./master-party-panel";
 import { MasterItemsPanel } from "./master-items-panel";
 import { MasterGoldPanel } from "./master-gold-panel";
+import { MasterNpcsPanel } from "./master-npcs-panel";
+import { MasterBestiaryPanel } from "./master-bestiary-panel";
+import { MasterCombatSimulator } from "./master-combat-simulator";
 import { RulebookChat } from "@/components/rulebook-chat/rulebook-chat";
 import { MasterBottomNav } from "./master-bottom-nav";
 import { MasterSidebar } from "./master-sidebar";
@@ -16,6 +19,9 @@ import type {
   WeaponRow,
   ArmorRow,
   GeneralItemRow,
+  ChronicleNpcRow,
+  MonsterRow,
+  SpellRow,
 } from "@/lib/supabase/types";
 import type { CharacterCombatData } from "@/lib/rules/character-computed";
 
@@ -30,16 +36,24 @@ interface MasterDashboardProps {
   weapons: WeaponRow[];
   armor: ArmorRow[];
   generalItems: GeneralItemRow[];
+  npcs: ChronicleNpcRow[];
+  monsters: MonsterRow[];
+  characterSpells: Map<string, SpellRow[]>;
+  userId: string;
   userEmail?: string;
 }
 
-type TabId = "party" | "items" | "gold" | "chat";
+export type TabId = "party" | "items" | "gold" | "chat" | "npcs" | "bestiary" | "combat";
 
 export function MasterDashboard({
   partyData,
   weapons,
   armor,
   generalItems,
+  npcs,
+  monsters,
+  characterSpells,
+  userId,
   userEmail,
 }: MasterDashboardProps) {
   const t = useTranslations("master");
@@ -50,6 +64,24 @@ export function MasterDashboard({
   );
   const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Shared state: monsters queued from Bestiary for the Combat Simulator
+  const [pendingCombatMonsters, setPendingCombatMonsters] = useState<
+    { monster: MonsterRow; count: number }[]
+  >([]);
+
+  const handleAddToCombatFromBestiary = useCallback((monster: MonsterRow, count: number) => {
+    setPendingCombatMonsters((prev) => {
+      const existing = prev.findIndex((e) => e.monster.id === monster.id);
+      if (existing >= 0) {
+        const next = [...prev];
+        next[existing] = { ...next[existing], count: next[existing].count + count };
+        return next;
+      }
+      return [...prev, { monster, count }];
+    });
+    setActiveTab("combat");
+  }, []);
 
   // Realtime subscription with fallback polling
   const setupRealtime = useCallback(() => {
@@ -244,6 +276,36 @@ export function MasterDashboard({
           />
         )}
         {activeTab === "gold" && <MasterGoldPanel characters={characters} />}
+        {activeTab === "npcs" && (
+          <MasterNpcsPanel
+            initialNpcs={npcs}
+            characters={partyData
+              .filter((p) => !p.character.is_npc)
+              .map((p) => ({
+                ...p.character,
+                level: p.combat.maxLevel,
+              }))}
+            npcCharacters={partyData
+              .filter((p) => p.character.is_npc)
+              .map((p) => ({
+                ...p.character,
+                level: p.combat.maxLevel,
+              }))}
+            gmUserId={userId}
+          />
+        )}
+        {activeTab === "bestiary" && (
+          <MasterBestiaryPanel monsters={monsters} onAddToCombat={handleAddToCombatFromBestiary} />
+        )}
+        {activeTab === "combat" && (
+          <MasterCombatSimulator
+            partyData={partyData}
+            monsters={monsters}
+            characterSpells={characterSpells}
+            initialMonsters={pendingCombatMonsters}
+            onMonstersConsumed={() => setPendingCombatMonsters([])}
+          />
+        )}
         {activeTab === "chat" && <RulebookChat />}
       </div>
 

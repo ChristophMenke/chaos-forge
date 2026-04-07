@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Users, Swords, Coins, BookOpen, LogOut } from "lucide-react";
+import { Users, Swords, Coins, BookOpen, LogOut, UserRound, Bug, Flame } from "lucide-react";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LocaleToggle } from "@/components/locale-toggle";
@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-type TabId = "party" | "items" | "gold" | "chat";
+import type { TabId } from "./master-dashboard";
 
 interface MasterSidebarProps {
   activeTab: TabId;
@@ -32,6 +32,9 @@ export function MasterSidebar({ activeTab, onTabChange, userEmail }: MasterSideb
     { id: "party", icon: Users, label: t("partyTab") },
     { id: "items", icon: Swords, label: t("itemsTab") },
     { id: "gold", icon: Coins, label: t("goldTab") },
+    { id: "npcs", icon: UserRound, label: t("npcsTab") },
+    { id: "bestiary", icon: Bug, label: t("bestiaryTab") },
+    { id: "combat", icon: Flame, label: t("combatTab") },
   ];
 
   return (

@@ -14,6 +14,9 @@ import type {
   WeaponRow,
   ArmorRow,
   GeneralItemRow,
+  ChronicleNpcRow,
+  MonsterRow,
+  SpellRow,
 } from "@/lib/supabase/types";
 
 export default async function MasterPage() {
@@ -40,6 +43,9 @@ export default async function MasterPage() {
     { data: weapons },
     { data: armor },
     { data: generalItems },
+    { data: npcs },
+    { data: monsters },
+    { data: allCharSpells },
   ] = await Promise.all([
     service.from("characters").select("*").order("name").returns<CharacterRow[]>(),
     service.from("character_classes").select("*").returns<CharacterClassRow[]>(),
@@ -56,6 +62,12 @@ export default async function MasterPage() {
     service.from("weapons").select("*").order("name").returns<WeaponRow[]>(),
     service.from("armor").select("*").order("name").returns<ArmorRow[]>(),
     service.from("general_items").select("*").order("name").returns<GeneralItemRow[]>(),
+    service.from("chronicle_npcs").select("*").order("name").returns<ChronicleNpcRow[]>(),
+    service.from("monsters").select("*").order("name").returns<MonsterRow[]>(),
+    service
+      .from("character_spells")
+      .select("character_id, spell:spells(*)")
+      .returns<{ character_id: string; spell: SpellRow }[]>(),
   ]);
 
   // Compute combat data for each character
@@ -78,12 +90,25 @@ export default async function MasterPage() {
     return { character: char, classes: charClasses, combat };
   });
 
+  // Build character spell map for combat simulator
+  const characterSpells = new Map<string, SpellRow[]>();
+  for (const entry of allCharSpells ?? []) {
+    if (!entry.spell) continue;
+    const existing = characterSpells.get(entry.character_id) ?? [];
+    existing.push(entry.spell);
+    characterSpells.set(entry.character_id, existing);
+  }
+
   return (
     <MasterDashboard
       partyData={partyData}
       weapons={weapons ?? []}
       armor={armor ?? []}
       generalItems={generalItems ?? []}
+      npcs={(npcs as ChronicleNpcRow[]) ?? []}
+      monsters={(monsters as MonsterRow[]) ?? []}
+      characterSpells={characterSpells}
+      userId={user.id}
       userEmail={user.email ?? ""}
     />
   );

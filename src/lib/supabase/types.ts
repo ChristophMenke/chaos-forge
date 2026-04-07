@@ -59,6 +59,8 @@ export interface CharacterRow {
   priesthood: string | null;
   is_public: boolean;
   is_active: boolean;
+  is_npc: boolean;
+  npc_visible_to_players: boolean;
   // Manual slot adjustments
   weapon_slots_adj: number;
   nwp_slots_adj: number;
@@ -423,6 +425,64 @@ export interface ChronicleNpcRow {
   description: string;
   avatar_url: string | null;
   created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  // Enhanced NPC fields
+  tier: "normal" | "advanced";
+  is_visible_to_players: boolean;
+  // Advanced tier fields (nullable)
+  race_id: string | null;
+  class_ids: string[];
+  level: number | null;
+  str: number | null;
+  dex: number | null;
+  con: number | null;
+  int: number | null;
+  wis: number | null;
+  cha: number | null;
+  hp_current: number | null;
+  hp_max: number | null;
+  ac: number | null;
+  thac0: number | null;
+  equipment_notes: string | null;
+  spell_notes: string | null;
+  notes: string;
+}
+
+export interface MonsterRow {
+  id: string;
+  name: string;
+  name_en: string | null;
+  climate_terrain: string | null;
+  frequency: string;
+  organization: string | null;
+  activity_cycle: string | null;
+  diet: string | null;
+  intelligence: string | null;
+  treasure: string | null;
+  alignment: string | null;
+  ac: number;
+  movement: string;
+  hit_dice: string;
+  hit_dice_value: number;
+  thac0: number;
+  attacks_per_round: string;
+  damage: string;
+  special_attacks: string | null;
+  special_defenses: string | null;
+  magic_resistance: number;
+  size: "T" | "S" | "M" | "L" | "H" | "G";
+  morale: string;
+  morale_value: number;
+  xp_value: number;
+  default_zone: "melee" | "ranged";
+  has_ranged_attack: boolean;
+  /** Spell names this monster can cast — matched against combat spell catalog */
+  typical_spells: string[];
+  image_url: string | null;
+  source_book: string;
+  description: string | null;
+  description_en: string | null;
   created_at: string;
   updated_at: string;
 }

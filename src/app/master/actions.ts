@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import crypto from "crypto";
 import { createServiceClient } from "@/lib/supabase/service";
 import { createNotification } from "@/lib/notifications";
-import type { MagicEffects } from "@/lib/supabase/types";
+import type { MagicEffects, ChronicleNpcRow, MonsterRow } from "@/lib/supabase/types";
 
 const COOKIE_NAME = "gm_session";
 const COOKIE_MAX_AGE = 60 * 60 * 24; // 24h
@@ -383,4 +383,257 @@ export async function injectMagicItemToParty(data: {
 
   if (error) return { success: false, error: error.message };
   return { success: true };
+}
+
+// ─── NPC Management ───────────────────────────────────────────────────
+
+export async function fetchNpcs(): Promise<ChronicleNpcRow[]> {
+  if (!(await checkGmSession())) return [];
+  const service = createServiceClient();
+  const { data } = await service
+    .from("chronicle_npcs")
+    .select("*")
+    .order("name", { ascending: true });
+  return (data as ChronicleNpcRow[]) ?? [];
+}
+
+export async function createNpc(
+  npc: Partial<ChronicleNpcRow>
+): Promise<{ success: boolean; id?: string; error?: string }> {
+  if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
+  const service = createServiceClient();
+  const { data, error } = await service
+    .from("chronicle_npcs")
+    .insert({
+      name: npc.name ?? "Unnamed NPC",
+      location: npc.location ?? "",
+      description: npc.description ?? "",
+      tier: npc.tier ?? "normal",
+      is_visible_to_players: npc.is_visible_to_players ?? false,
+      race_id: npc.race_id ?? null,
+      class_ids: npc.class_ids ?? [],
+      level: npc.level ?? null,
+      str: npc.str ?? null,
+      dex: npc.dex ?? null,
+      con: npc.con ?? null,
+      int: npc.int ?? null,
+      wis: npc.wis ?? null,
+      cha: npc.cha ?? null,
+      hp_current: npc.hp_current ?? null,
+      hp_max: npc.hp_max ?? null,
+      ac: npc.ac ?? null,
+      thac0: npc.thac0 ?? null,
+      equipment_notes: npc.equipment_notes ?? null,
+      spell_notes: npc.spell_notes ?? null,
+      notes: npc.notes ?? "",
+    })
+    .select("id")
+    .single();
+  if (error || !data) return { success: false, error: error?.message };
+  return { success: true, id: data.id };
+}
+
+export async function updateNpc(
+  id: string,
+  updates: Partial<ChronicleNpcRow>
+): Promise<{ success: boolean; error?: string }> {
+  if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
+  const service = createServiceClient();
+  const { error } = await service.from("chronicle_npcs").update(updates).eq("id", id);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function deleteNpc(id: string): Promise<{ success: boolean; error?: string }> {
+  if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
+  const service = createServiceClient();
+  const { error } = await service.from("chronicle_npcs").delete().eq("id", id);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+// ─── NPC from Character ───────────────────────────────────────────────
+
+export async function createNpcFromCharacter(
+  characterId: string,
+  gmUserId: string
+): Promise<{ success: boolean; id?: string; error?: string; warning?: string }> {
+  if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
+  const service = createServiceClient();
+
+  // Fetch source character
+  const { data: char, error: charErr } = await service
+    .from("characters")
+    .select("*")
+    .eq("id", characterId)
+    .single();
+  if (charErr || !char) return { success: false, error: charErr?.message ?? "Character not found" };
+
+  // Create a full character copy with is_npc = true
+  const { id: _id, created_at: _ca, updated_at: _ua, last_accessed_at: _la, ...charData } = char;
+  const { data: npcChar, error } = await service
+    .from("characters")
+    .insert({
+      ...charData,
+      name: `${char.name} (NPC)`,
+      user_id: gmUserId,
+      is_npc: true,
+      npc_visible_to_players: false,
+      is_active: false,
+      is_public: false,
+    })
+    .select("id")
+    .single();
+
+  if (error || !npcChar) return { success: false, error: error?.message };
+
+  const npcId = npcChar.id;
+
+  // Copy related data — generic helper strips id/character_id and re-assigns
+  const warnings: string[] = [];
+
+  async function copyRelated(table: string) {
+    const { data } = await service.from(table).select("*").eq("character_id", characterId);
+    if (!data || data.length === 0) return;
+
+    const rows = data.map((row: Record<string, unknown>) => {
+      const { id: _id, character_id: _cid, ...rest } = row;
+      return { ...rest, character_id: npcId };
+    });
+
+    const { error: err } = await service.from(table).insert(rows);
+    if (err) {
+      console.error(`NPC ${table} copy failed:`, err.message);
+      warnings.push(table);
+    }
+  }
+
+  await copyRelated("character_classes");
+  await copyRelated("character_equipment");
+  await copyRelated("character_spells");
+  await copyRelated("character_weapon_proficiencies");
+  await copyRelated("character_fighting_styles");
+  await copyRelated("epic_items");
+
+  return {
+    success: true,
+    id: npcId,
+    warning: warnings.length > 0 ? `Partial copy — failed: ${warnings.join(", ")}` : undefined,
+  };
+}
+
+/** Create a blank NPC character (for wizard/import flow) */
+export async function createBlankNpcCharacter(
+  gmUserId: string,
+  name: string
+): Promise<{ success: boolean; id?: string; error?: string }> {
+  if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
+  const service = createServiceClient();
+
+  const { data, error } = await service
+    .from("characters")
+    .insert({
+      user_id: gmUserId,
+      name,
+      level: 1,
+      is_npc: true,
+      npc_visible_to_players: false,
+      is_active: false,
+      is_public: false,
+      str: 10,
+      dex: 10,
+      con: 10,
+      int: 10,
+      wis: 10,
+      cha: 10,
+      hp_current: 4,
+      hp_max: 4,
+      alignment: "true_neutral",
+      notes: "",
+      xp_current: 0,
+      gold_pp: 0,
+      gold_gp: 0,
+      gold_ep: 0,
+      gold_sp: 0,
+      gold_cp: 0,
+      player_name: "GM",
+      gender: "",
+      hair_color: "",
+      eye_color: "",
+      thief_pick_locks: 0,
+      thief_find_traps: 0,
+      thief_move_silently: 0,
+      thief_hide_shadows: 0,
+      thief_climb_walls: 0,
+      thief_detect_noise: 0,
+      thief_read_languages: 0,
+    })
+    .select("id")
+    .single();
+
+  if (error || !data) return { success: false, error: error?.message };
+  return { success: true, id: data.id };
+}
+
+// ─── Monster Image Upload ─────────────────────────────────────────────
+
+export async function uploadMonsterImage(
+  monsterId: string,
+  formData: FormData
+): Promise<{ success: boolean; imageUrl?: string; error?: string }> {
+  if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
+  const service = createServiceClient();
+
+  const file = formData.get("file") as File | null;
+  if (!file) return { success: false, error: "No file provided" };
+
+  const ext = file.name.split(".").pop() ?? "png";
+  const path = `${monsterId}.${ext}`;
+
+  // Upload to storage (overwrite if exists)
+  const { error: uploadErr } = await service.storage
+    .from("monster-images")
+    .upload(path, file, { upsert: true });
+
+  if (uploadErr) return { success: false, error: uploadErr.message };
+
+  // Get public URL
+  const { data: urlData } = service.storage.from("monster-images").getPublicUrl(path);
+  const imageUrl = urlData.publicUrl;
+
+  // Update monster row
+  const { error: updateErr } = await service
+    .from("monsters")
+    .update({ image_url: imageUrl })
+    .eq("id", monsterId);
+
+  if (updateErr) return { success: false, error: updateErr.message };
+  return { success: true, imageUrl };
+}
+
+// ─── Monster Fetching ─────────────────────────────────────────────────
+
+export async function fetchMonsters(
+  search?: string,
+  filters?: { minHd?: number; maxHd?: number; size?: string }
+): Promise<MonsterRow[]> {
+  if (!(await checkGmSession())) return [];
+  const service = createServiceClient();
+  let query = service.from("monsters").select("*").order("name", { ascending: true });
+
+  if (search) {
+    query = query.or(`name.ilike.%${search}%,name_en.ilike.%${search}%`);
+  }
+  if (filters?.minHd !== undefined) {
+    query = query.gte("hit_dice_value", filters.minHd);
+  }
+  if (filters?.maxHd !== undefined) {
+    query = query.lte("hit_dice_value", filters.maxHd);
+  }
+  if (filters?.size) {
+    query = query.eq("size", filters.size);
+  }
+
+  const { data } = await query;
+  return (data as MonsterRow[]) ?? [];
 }

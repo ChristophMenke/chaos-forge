@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { AvatarDisplay } from "@/components/avatar-display";
 import { HpBar } from "@/components/hp-bar";
 import { LevelBadge } from "@/components/level-badge";
@@ -107,10 +108,11 @@ export function CharacterCard({
             <div className="relative h-[130px] w-[110px] overflow-hidden rounded-l-xl">
               {character.avatar_url ? (
                 <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src={character.avatar_url}
                     alt={character.name}
+                    width={110}
+                    height={130}
                     className="h-full w-full object-cover"
                     data-testid="character-card-avatar"
                   />

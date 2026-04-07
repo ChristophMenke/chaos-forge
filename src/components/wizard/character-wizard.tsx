@@ -30,7 +30,15 @@ const STEP_LABEL_KEYS = [
   "summary",
 ] as const;
 
-export function CharacterWizard() {
+interface CharacterWizardProps {
+  basePath?: string;
+  isNpc?: boolean;
+}
+
+export function CharacterWizard({
+  basePath = "/characters",
+  isNpc = false,
+}: CharacterWizardProps = {}) {
   const router = useRouter();
   const t = useTranslations("wizard");
   const tc = useTranslations("common");
@@ -124,6 +132,7 @@ export function CharacterWizard() {
         kit: state.kit,
         deity: state.deity.trim() || null,
         priesthood: state.priesthood,
+        ...(isNpc ? { is_npc: true, npc_visible_to_players: false, is_active: false } : {}),
       })
       .select("id")
       .single();
@@ -152,7 +161,7 @@ export function CharacterWizard() {
       }
     }
 
-    router.push(`/characters/${data.id}`);
+    router.push(`${basePath}/${data.id}/manage`);
   }
 
   const isLastStep = currentStep === WIZARD_STEPS.length - 1;

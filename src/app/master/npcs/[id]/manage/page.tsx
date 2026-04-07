@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/supabase/auth";
+import { checkGmSession } from "@/app/master/actions";
+import { createServiceClient } from "@/lib/supabase/service";
 import { CharacterSheet } from "@/components/character-sheet/character-sheet";
 import type {
   CharacterRow,
@@ -21,30 +22,27 @@ import type {
   EpicItemRow,
 } from "@/lib/supabase/types";
 
-interface CharacterPageProps {
+interface NpcManagePageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function CharacterPage({ params }: CharacterPageProps) {
+export default async function NpcManagePage({ params }: NpcManagePageProps) {
   const { id } = await params;
   const user = await requireAuth();
-  const supabase = await createClient();
+  const isGm = await checkGmSession();
+  if (!isGm) redirect("/master");
 
-  // Wave 1: Character (needed for notFound guard)
-  const { data: character } = await supabase
+  const service = createServiceClient();
+
+  // Wave 1: Character (needed for notFound guard + NPC validation)
+  const { data: character } = await service
     .from("characters")
     .select("*")
     .eq("id", id)
     .single<CharacterRow>();
 
-  if (!character) {
-    notFound();
-  }
-
-  // NPCs are managed via /master/npcs/
-  if (character.is_npc) {
-    redirect(`/master/npcs/${id}/manage`);
-  }
+  if (!character) notFound();
+  if (!character.is_npc) notFound();
 
   // Wave 2: All independent queries in parallel
   const [
@@ -64,58 +62,57 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
     { data: allNWPs },
     { data: allGeneralItems },
   ] = await Promise.all([
-    supabase
+    service
       .from("character_classes")
       .select("*")
       .eq("character_id", id)
       .returns<CharacterClassRow[]>(),
-    supabase
+    service
       .from("character_equipment")
       .select("*, weapon:weapons(*), armor:armor(*)")
       .eq("character_id", id),
-    supabase.from("character_spells").select("*, spell:spells(*)").eq("character_id", id),
-    supabase
+    service.from("character_spells").select("*, spell:spells(*)").eq("character_id", id),
+    service
       .from("character_weapon_proficiencies")
       .select("*")
       .eq("character_id", id)
       .returns<CharacterWeaponProficiencyRow[]>(),
-    supabase
+    service
       .from("character_nonweapon_proficiencies")
       .select("*, proficiency:nonweapon_proficiencies(*)")
       .eq("character_id", id),
-    supabase.from("character_inventory").select("*, item:general_items(*)").eq("character_id", id),
-    supabase
+    service.from("character_inventory").select("*, item:general_items(*)").eq("character_id", id),
+    service
       .from("character_languages")
       .select("*")
       .eq("character_id", id)
       .returns<CharacterLanguageRow[]>(),
-    supabase
+    service
       .from("character_fighting_styles")
       .select("*")
       .eq("character_id", character.id)
       .returns<CharacterFightingStyleRow[]>(),
-    supabase.from("epic_items").select("*").eq("character_id", id).returns<EpicItemRow[]>(),
-    supabase
+    service.from("epic_items").select("*").eq("character_id", id).returns<EpicItemRow[]>(),
+    service
       .from("xp_history")
       .select("*")
       .eq("character_id", id)
       .order("created_at", { ascending: false })
       .returns<XpHistoryRow[]>(),
-    supabase
+    service
       .from("sessions")
       .select("id, title, session_date")
       .order("session_date", { ascending: false })
       .limit(20)
       .returns<Pick<SessionRow, "id" | "title" | "session_date">[]>(),
-    // allSpells loaded lazily in TabSpells when learn dialog opens
-    supabase.from("weapons").select("*").order("name").returns<WeaponRow[]>(),
-    supabase.from("armor").select("*").order("ac", { ascending: false }).returns<ArmorRow[]>(),
-    supabase
+    service.from("weapons").select("*").order("name").returns<WeaponRow[]>(),
+    service.from("armor").select("*").order("ac", { ascending: false }).returns<ArmorRow[]>(),
+    service
       .from("nonweapon_proficiencies")
       .select("*")
       .order("name")
       .returns<NonweaponProficiencyRow[]>(),
-    supabase.from("general_items").select("*").order("name").returns<GeneralItemRow[]>(),
+    service.from("general_items").select("*").order("name").returns<GeneralItemRow[]>(),
   ]);
 
   return (
@@ -138,6 +135,7 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
       sessions={sessionsData ?? []}
       xpHistory={xpHistoryData ?? []}
       epicItems={epicItems ?? []}
+      basePath="/master/npcs"
     />
   );
 }

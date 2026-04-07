@@ -51,7 +51,8 @@ export default async function CharactersPage() {
     charClassMap.set(cc.character_id, existing);
   }
 
-  const allChars = characters ?? [];
+  // Exclude NPCs from the regular character list — they are managed via /master
+  const allChars = (characters ?? []).filter((c) => !c.is_npc);
 
   // Split into groups and sort
   const ownActive = allChars

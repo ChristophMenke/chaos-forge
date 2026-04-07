@@ -24,6 +24,7 @@ interface PlayHpBarProps {
   priesthoodName?: string | null;
   readOnly?: boolean;
   onHpChange: (newHp: number) => void;
+  basePath?: string;
 }
 
 export function PlayHpBar({
@@ -40,6 +41,7 @@ export function PlayHpBar({
   priesthoodName,
   readOnly = false,
   onHpChange,
+  basePath = "/characters",
 }: PlayHpBarProps) {
   const t = useTranslations("playMode");
   const [showDamageInput, setShowDamageInput] = useState(false);
@@ -229,7 +231,7 @@ export function PlayHpBar({
 
         {/* Manage Link */}
         <Link
-          href={`/characters/${characterId}/manage`}
+          href={`${basePath}/${characterId}/manage`}
           className="shrink-0 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
           data-testid="play-manage-link"
         >

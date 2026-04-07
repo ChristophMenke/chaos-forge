@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/supabase/auth";
+import { checkGmSession } from "@/app/master/actions";
+import { createServiceClient } from "@/lib/supabase/service";
 import { PlayMode } from "@/components/play-mode/play-mode";
 import { fetchAvailablePriestSpells } from "@/lib/supabase/priest-spells";
 import { isPriestCaster } from "@/lib/rules/magic";
@@ -17,30 +18,27 @@ import type {
   CharacterFightingStyleRow,
 } from "@/lib/supabase/types";
 
-interface PlayPageProps {
+interface NpcPlayPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function PlayPage({ params }: PlayPageProps) {
+export default async function NpcPlayPage({ params }: NpcPlayPageProps) {
   const { id } = await params;
   const user = await requireAuth();
-  const supabase = await createClient();
+  const isGm = await checkGmSession();
+  if (!isGm) redirect("/master");
 
-  // Wave 1: Character (needed for notFound guard)
-  const { data: character } = await supabase
+  const service = createServiceClient();
+
+  // Wave 1: Character (needed for notFound guard + NPC validation)
+  const { data: character } = await service
     .from("characters")
     .select("*")
     .eq("id", id)
     .single<CharacterRow>();
 
-  if (!character) {
-    notFound();
-  }
-
-  // NPCs are managed via /master/npcs/
-  if (character.is_npc) {
-    redirect(`/master/npcs/${id}/play`);
-  }
+  if (!character) notFound();
+  if (!character.is_npc) notFound();
 
   // Wave 2: All independent queries in parallel
   const [
@@ -53,28 +51,28 @@ export default async function PlayPage({ params }: PlayPageProps) {
     { data: epicItems },
     { data: fightingStyles },
   ] = await Promise.all([
-    supabase
+    service
       .from("character_classes")
       .select("*")
       .eq("character_id", id)
       .returns<CharacterClassRow[]>(),
-    supabase
+    service
       .from("character_equipment")
       .select("*, weapon:weapons(*), armor:armor(*)")
       .eq("character_id", id),
-    supabase.from("character_spells").select("*, spell:spells(*)").eq("character_id", id),
-    supabase
+    service.from("character_spells").select("*, spell:spells(*)").eq("character_id", id),
+    service
       .from("character_weapon_proficiencies")
       .select("*")
       .eq("character_id", id)
       .returns<CharacterWeaponProficiencyRow[]>(),
-    supabase
+    service
       .from("character_nonweapon_proficiencies")
       .select("*, proficiency:nonweapon_proficiencies(*)")
       .eq("character_id", id),
-    supabase.from("character_inventory").select("*, item:general_items(*)").eq("character_id", id),
-    supabase.from("epic_items").select("*").eq("character_id", id).returns<EpicItemRow[]>(),
-    supabase
+    service.from("character_inventory").select("*, item:general_items(*)").eq("character_id", id),
+    service.from("epic_items").select("*").eq("character_id", id).returns<EpicItemRow[]>(),
+    service
       .from("character_fighting_styles")
       .select("*")
       .eq("character_id", id)
@@ -86,7 +84,7 @@ export default async function PlayPage({ params }: PlayPageProps) {
     (cc) => cc.is_active && isPriestCaster(cc.class_id as ClassId)
   );
   const priestAvailableSpells = hasPriestClass
-    ? await fetchAvailablePriestSpells(supabase, character, characterClasses ?? [])
+    ? await fetchAvailablePriestSpells(service, character, characterClasses ?? [])
     : [];
 
   return (
@@ -102,6 +100,7 @@ export default async function PlayPage({ params }: PlayPageProps) {
       epicItems={epicItems ?? []}
       fightingStyles={fightingStyles ?? []}
       priestAvailableSpells={priestAvailableSpells}
+      basePath="/master/npcs"
     />
   );
 }
