@@ -6,10 +6,13 @@ import {
   TableRow,
   TableCell,
   TextRun,
+  ImageRun,
   HeadingLevel,
   WidthType,
   AlignmentType,
   BorderStyle,
+  ShadingType,
+  Footer,
 } from "docx";
 import { RACES } from "@/lib/rules/races";
 import { CLASSES, getClassGroup } from "@/lib/rules/classes";
@@ -87,6 +90,26 @@ const CELL_BORDERS = {
   right: BORDER,
 };
 
+const NO_BORDER = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
+const NO_BORDERS = {
+  top: NO_BORDER,
+  bottom: NO_BORDER,
+  left: NO_BORDER,
+  right: NO_BORDER,
+};
+
+const THICK_BORDER = { style: BorderStyle.SINGLE, size: 3, color: "333333" };
+const THICK_BORDERS = {
+  top: THICK_BORDER,
+  bottom: THICK_BORDER,
+  left: THICK_BORDER,
+  right: THICK_BORDER,
+};
+
+const HEADING_BG = "2C2C2C";
+const TABLE_HEADER_BG = "E8E8E8";
+const HEADING_FONT = "Georgia";
+
 function cell(
   text: string,
   opts?: {
@@ -96,12 +119,15 @@ function cell(
     font?: string;
     size?: number;
     columnSpan?: number;
+    thick?: boolean;
+    shading?: string;
   }
 ): TableCell {
   return new TableCell({
-    borders: CELL_BORDERS,
+    borders: opts?.thick ? THICK_BORDERS : CELL_BORDERS,
     width: opts?.width ? { size: opts.width, type: WidthType.PERCENTAGE } : undefined,
     columnSpan: opts?.columnSpan,
+    shading: opts?.shading ? { type: ShadingType.CLEAR, fill: opts.shading } : undefined,
     children: [
       new Paragraph({
         alignment: opts?.alignment ?? AlignmentType.LEFT,
@@ -123,21 +149,24 @@ function headerCell(
   opts?: {
     width?: number;
     alignment?: (typeof AlignmentType)[keyof typeof AlignmentType];
+    thick?: boolean;
   }
 ): TableCell {
-  return cell(text, { bold: true, ...opts });
+  return cell(text, { bold: true, shading: TABLE_HEADER_BG, ...opts });
 }
 
 function sectionHeading(text: string): Paragraph {
   return new Paragraph({
     heading: HeadingLevel.HEADING_2,
     spacing: { before: 240, after: 120 },
+    shading: { type: ShadingType.CLEAR, fill: HEADING_BG },
     children: [
       new TextRun({
-        text,
+        text: `  ${text}`,
         bold: true,
-        font: "Calibri",
+        font: HEADING_FONT,
         size: 26, // 13pt
+        color: "FFFFFF",
       }),
     ],
   });
@@ -145,6 +174,33 @@ function sectionHeading(text: string): Paragraph {
 
 function emptyParagraph(): Paragraph {
   return new Paragraph({ children: [] });
+}
+
+async function fetchAvatarData(
+  url: string
+): Promise<{ data: ArrayBuffer; type: "png" | "jpg" } | null> {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return null;
+    const contentType = response.headers.get("content-type") ?? "";
+    const type = contentType.includes("png") ? "png" : "jpg";
+    const data = await response.arrayBuffer();
+    return { data, type };
+  } catch {
+    return null;
+  }
+}
+
+function borderlessCell(
+  children: (Paragraph | Table)[],
+  opts?: { width?: number; verticalAlign?: "top" | "center" }
+): TableCell {
+  return new TableCell({
+    borders: NO_BORDERS,
+    width: opts?.width ? { size: opts.width, type: WidthType.PERCENTAGE } : undefined,
+    verticalAlign: opts?.verticalAlign === "center" ? "center" : undefined,
+    children,
+  });
 }
 
 // ─── i18n for DOCX headings ──────────────────────────────────────────────────
@@ -363,52 +419,128 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
     .filter(Boolean)
     .join(", ");
 
+  // ─── Avatar Fetch ──────────────────────────────────────────────────────────
+  const avatarData = character.avatar_url ? await fetchAvatarData(character.avatar_url) : null;
+
   // ─── Section Generators ───────────────────────────────────────────────────
 
   const sectionGenerators: Record<PrintSectionId, () => (Paragraph | Table)[]> = {
     // ── 1. Personal / Header ──────────────────────────────────────────────────
     personal: () => {
-      const result: Paragraph[] = [];
-
-      result.push(
-        new Paragraph({
-          heading: HeadingLevel.HEADING_1,
-          spacing: { after: 120 },
-          children: [
-            new TextRun({
-              text: character.name,
-              bold: true,
-              font: "Calibri",
-              size: 36, // 18pt
-            }),
-          ],
-        })
-      );
-
-      const headerLines: string[] = [
-        `${dt.race}: ${race ? localized(race.name, race.name_en, props.locale) : "—"}  |  ${dt.class}: ${classNames || "—"}  |  ${dt.level}: ${levelDisplay || character.level}`,
-        `${dt.hitDie}: ${hitDice || "—"}  |  ${dt.hp}: ${character.hp_current}/${character.hp_max}  |  ${dt.alignment}: ${getAlignmentLabel(character.alignment, props.locale)}`,
-        ...(kitDef ? [`${dt.kit}: ${localized(kitDef.name, kitDef.name_en, props.locale)}`] : []),
-        `${dt.xp}: ${xpDisplay}`,
-        `${dt.treasure}: ${treasureDisplay}`,
+      // Collect fields in Print Preview order
+      const fields: { label: string; value: string }[] = [
+        { label: dt.race, value: race ? localized(race.name, race.name_en, props.locale) : "—" },
+        { label: dt.class, value: classNames || "—" },
+        { label: dt.level, value: levelDisplay || String(character.level) },
+        { label: dt.hitDie, value: hitDice || "—" },
+        { label: dt.hp, value: `${character.hp_current}/${character.hp_max}` },
+        {
+          label: dt.alignment,
+          value: getAlignmentLabel(character.alignment, props.locale),
+        },
       ];
-      if (character.player_name) headerLines.push(`${dt.player}: ${character.player_name}`);
-      if (character.age != null) headerLines.push(`${dt.age}: ${character.age}`);
-      if (character.height_cm != null) headerLines.push(`${dt.height}: ${character.height_cm} cm`);
-      if (character.weight_kg != null) headerLines.push(`${dt.weight}: ${character.weight_kg} kg`);
+      if (kitDef) {
+        fields.push({
+          label: dt.kit,
+          value: localized(kitDef.name, kitDef.name_en, props.locale),
+        });
+      }
+      fields.push(
+        { label: dt.xp, value: xpDisplay },
+        { label: dt.treasure, value: treasureDisplay }
+      );
+      if (character.player_name) fields.push({ label: dt.player, value: character.player_name });
+      if (character.age != null) fields.push({ label: dt.age, value: String(character.age) });
+      if (character.height_cm != null)
+        fields.push({ label: dt.height, value: `${character.height_cm} cm` });
+      if (character.weight_kg != null)
+        fields.push({ label: dt.weight, value: `${character.weight_kg} kg` });
       if (character.gender)
-        headerLines.push(`${dt.gender}: ${translateGender(character.gender, props.locale)}`);
+        fields.push({
+          label: dt.gender,
+          value: translateGender(character.gender, props.locale),
+        });
 
-      for (const line of headerLines) {
-        result.push(
-          new Paragraph({
-            spacing: { after: 40 },
-            children: [new TextRun({ text: line, font: "Calibri", size: 20 })],
-          })
-        );
+      // Build 3-column grid rows
+      const gridRows: TableRow[] = [];
+      for (let i = 0; i < fields.length; i += 3) {
+        const rowCells: TableCell[] = [];
+        for (let col = 0; col < 3; col++) {
+          const f = fields[i + col];
+          rowCells.push(
+            borderlessCell(
+              [
+                new Paragraph({
+                  spacing: { after: 40 },
+                  children: f
+                    ? [
+                        new TextRun({
+                          text: `${f.label}: `,
+                          bold: true,
+                          font: "Calibri",
+                          size: 20,
+                        }),
+                        new TextRun({
+                          text: f.value,
+                          font: "Calibri",
+                          size: 20,
+                        }),
+                      ]
+                    : [],
+                }),
+              ],
+              { width: 33 }
+            )
+          );
+        }
+        gridRows.push(new TableRow({ children: rowCells }));
       }
 
-      return result;
+      const detailTable = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: gridRows,
+      });
+
+      const nameParagraph = new Paragraph({
+        heading: HeadingLevel.HEADING_1,
+        spacing: { after: 120 },
+        children: [
+          new TextRun({
+            text: character.name,
+            bold: true,
+            font: HEADING_FONT,
+            size: 36, // 18pt
+          }),
+        ],
+      });
+
+      if (avatarData) {
+        const avatarParagraph = new Paragraph({
+          children: [
+            new ImageRun({
+              data: avatarData.data,
+              type: avatarData.type,
+              transformation: { width: 72, height: 72 },
+            }),
+          ],
+        });
+
+        const outerTable = new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              children: [
+                borderlessCell([avatarParagraph], { width: 12, verticalAlign: "top" }),
+                borderlessCell([nameParagraph, detailTable], { width: 88 }),
+              ],
+            }),
+          ],
+        });
+
+        return [outerTable];
+      }
+
+      return [nameParagraph, detailTable];
     },
 
     // ── 2. Abilities Table ──────────────────────────────────────────────────
@@ -564,12 +696,12 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
             new TableRow({
               tableHeader: true,
               children: [
-                headerCell("THAC0", { alignment: AlignmentType.CENTER }),
-                headerCell("Armor Class", { alignment: AlignmentType.CENTER }),
-                headerCell("Hit Mod", { alignment: AlignmentType.CENTER }),
-                headerCell("Damage Mod", { alignment: AlignmentType.CENTER }),
-                headerCell("Attacks/Round", { alignment: AlignmentType.CENTER }),
-                headerCell("Initiative", { alignment: AlignmentType.CENTER }),
+                headerCell("THAC0", { alignment: AlignmentType.CENTER, thick: true }),
+                headerCell("Armor Class", { alignment: AlignmentType.CENTER, thick: true }),
+                headerCell("Hit Mod", { alignment: AlignmentType.CENTER, thick: true }),
+                headerCell("Damage Mod", { alignment: AlignmentType.CENTER, thick: true }),
+                headerCell("Attacks/Round", { alignment: AlignmentType.CENTER, thick: true }),
+                headerCell("Initiative", { alignment: AlignmentType.CENTER, thick: true }),
               ],
             }),
             new TableRow({
@@ -578,37 +710,43 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
                   alignment: AlignmentType.CENTER,
                   bold: true,
                   font: "Courier New",
-                  size: 24,
+                  size: 28,
+                  thick: true,
                 }),
                 cell(String(effectiveAC), {
                   alignment: AlignmentType.CENTER,
                   bold: true,
                   font: "Courier New",
-                  size: 24,
+                  size: 28,
+                  thick: true,
                 }),
                 cell(`${strMods.hitAdj >= 0 ? "+" : ""}${strMods.hitAdj}`, {
                   alignment: AlignmentType.CENTER,
                   bold: true,
                   font: "Courier New",
-                  size: 24,
+                  size: 28,
+                  thick: true,
                 }),
                 cell(`${strMods.dmgAdj >= 0 ? "+" : ""}${strMods.dmgAdj}`, {
                   alignment: AlignmentType.CENTER,
                   bold: true,
                   font: "Courier New",
-                  size: 24,
+                  size: 28,
+                  thick: true,
                 }),
                 cell(attacksDisplay, {
                   alignment: AlignmentType.CENTER,
                   bold: true,
                   font: "Courier New",
-                  size: 24,
+                  size: 28,
+                  thick: true,
                 }),
                 cell(`${dexMods.reactionAdj >= 0 ? "+" : ""}${dexMods.reactionAdj}`, {
                   alignment: AlignmentType.CENTER,
                   bold: true,
                   font: "Courier New",
-                  size: 24,
+                  size: 28,
+                  thick: true,
                 }),
               ],
             }),
@@ -1664,23 +1802,9 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
     children.push(...sectionGenerators[section.id]());
   }
 
-  // ── Footer (always appended) ──────────────────────────────────────────────
-  children.push(emptyParagraph());
-  children.push(
-    new Paragraph({
-      spacing: { before: 240 },
-      children: [
-        new TextRun({
-          text: `Chaos Forge — AD&D 2nd Edition Manager  |  Created ${new Date(character.created_at).toLocaleDateString(undefined, { day: "2-digit", month: "2-digit", year: "numeric" })}`,
-          font: "Calibri",
-          size: 16,
-          color: "999999",
-        }),
-      ],
-    })
-  );
-
   // ── Create Document ───────────────────────────────────────────────────────
+  const footerText = `Chaos Forge — AD&D 2nd Edition Manager  |  ${dt.createdAt} ${new Date(character.created_at).toLocaleDateString(undefined, { day: "2-digit", month: "2-digit", year: "numeric" })}`;
+
   const doc = new Document({
     sections: [
       {
@@ -1688,6 +1812,24 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
           page: {
             margin: { top: 720, bottom: 720, left: 720, right: 720 },
           },
+        },
+        footers: {
+          default: new Footer({
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({
+                    text: footerText,
+                    font: "Calibri",
+                    size: 16,
+                    color: "999999",
+                    italics: true,
+                  }),
+                ],
+              }),
+            ],
+          }),
         },
         children,
       },
