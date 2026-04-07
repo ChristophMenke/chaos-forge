@@ -270,7 +270,7 @@ function MonsterCard({
               <h4 className="truncate font-heading text-sm font-semibold text-foreground">
                 {displayName}
               </h4>
-              <span className="shrink-0 rounded bg-amber-900/30 px-1.5 py-0.5 text-[10px] font-medium text-amber-400">
+              <span className="shrink-0 rounded bg-amber-900/30 px-1.5 py-0.5 text-[10px] md:text-xs font-medium text-amber-400">
                 {t("monsterHD")} {monster.hit_dice}
               </span>
             </div>
@@ -300,7 +300,7 @@ function MonsterCard({
             </div>
 
             {/* Stat row 3: XP, MR, Size, Morale */}
-            <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-muted-foreground">
+            <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] md:text-xs text-muted-foreground">
               <span>
                 {t("monsterXP")} {monster.xp_value.toLocaleString()}
               </span>

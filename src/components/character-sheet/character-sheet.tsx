@@ -661,7 +661,16 @@ export function CharacterSheet({
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl p-4 sm:p-6" data-testid="character-sheet">
+    <div className="w-full p-4 sm:p-6" data-testid="character-sheet">
+      {/* Mode Navigation */}
+      <div className="mb-4">
+        <CharacterModeNav
+          characterId={character.id}
+          hasEpicItems={epicItems.length > 0}
+          basePath={basePath}
+        />
+      </div>
+
       {/* Header */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-3 sm:gap-4">
@@ -804,11 +813,6 @@ export function CharacterSheet({
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-          <CharacterModeNav
-            characterId={character.id}
-            hasEpicItems={epicItems.length > 0}
-            basePath={basePath}
-          />
           {isOwner && (
             <Button
               variant="outline"
@@ -1045,7 +1049,7 @@ export function CharacterSheet({
             </summary>
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
               <div className="flex flex-col gap-1">
-                <Label htmlFor="player-name" className="text-xs text-muted-foreground">
+                <Label htmlFor="player-name" className="text-xs md:text-sm text-muted-foreground">
                   {t("playerName")}
                 </Label>
                 <Input
@@ -1057,7 +1061,7 @@ export function CharacterSheet({
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor="age" className="text-xs text-muted-foreground">
+                <Label htmlFor="age" className="text-xs md:text-sm text-muted-foreground">
                   {t("age")}
                 </Label>
                 <Input
@@ -1075,7 +1079,7 @@ export function CharacterSheet({
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor="height-cm" className="text-xs text-muted-foreground">
+                <Label htmlFor="height-cm" className="text-xs md:text-sm text-muted-foreground">
                   {t("heightCm")}
                 </Label>
                 <Input
@@ -1093,7 +1097,7 @@ export function CharacterSheet({
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor="weight-kg" className="text-xs text-muted-foreground">
+                <Label htmlFor="weight-kg" className="text-xs md:text-sm text-muted-foreground">
                   {t("weightKg")}
                 </Label>
                 <Input
@@ -1111,7 +1115,7 @@ export function CharacterSheet({
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor="gender" className="text-xs text-muted-foreground">
+                <Label htmlFor="gender" className="text-xs md:text-sm text-muted-foreground">
                   {t("gender")}
                 </Label>
                 <Input
@@ -1123,7 +1127,7 @@ export function CharacterSheet({
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor="hair-color" className="text-xs text-muted-foreground">
+                <Label htmlFor="hair-color" className="text-xs md:text-sm text-muted-foreground">
                   {t("hairColor")}
                 </Label>
                 <Input
@@ -1135,7 +1139,7 @@ export function CharacterSheet({
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor="eye-color" className="text-xs text-muted-foreground">
+                <Label htmlFor="eye-color" className="text-xs md:text-sm text-muted-foreground">
                   {t("eyeColor")}
                 </Label>
                 <Input
@@ -1147,7 +1151,7 @@ export function CharacterSheet({
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor="kit-select" className="text-xs text-muted-foreground">
+                <Label htmlFor="kit-select" className="text-xs md:text-sm text-muted-foreground">
                   {t("kit")}
                 </Label>
                 <select
@@ -1272,7 +1276,10 @@ export function CharacterSheet({
                 const sub = subScoreMap[key];
                 return (
                   <div key={key} className="rounded-md border border-border p-3">
-                    <Label htmlFor={`sheet-${key}`} className="text-xs text-muted-foreground">
+                    <Label
+                      htmlFor={`sheet-${key}`}
+                      className="text-xs md:text-sm text-muted-foreground"
+                    >
                       {label}
                     </Label>
                     <Input
@@ -1288,12 +1295,12 @@ export function CharacterSheet({
                       className="mt-1 text-center font-mono text-lg"
                       data-testid={`sheet-ability-${key}`}
                     />
-                    <div className="mt-1 text-xs text-muted-foreground">{mods}</div>
+                    <div className="mt-1 text-xs md:text-sm text-muted-foreground">{mods}</div>
                     {key === "str" && character.str === 18 && hasExceptionalStr && (
                       <div className="mt-2 flex flex-col gap-1">
                         <Label
                           htmlFor="sheet-str-exceptional"
-                          className="text-xs text-muted-foreground"
+                          className="text-xs md:text-sm text-muted-foreground"
                         >
                           {t("exceptionalStr")}
                         </Label>
@@ -1324,14 +1331,14 @@ export function CharacterSheet({
                     )}
                     {sub && (
                       <details className="mt-2" data-testid={`sheet-subscores-${key}`}>
-                        <summary className="cursor-pointer text-xs text-muted-foreground">
+                        <summary className="cursor-pointer text-xs md:text-sm text-muted-foreground">
                           {t("subScores")}
                         </summary>
                         <div className="mt-1 flex gap-2">
                           <div className="flex flex-col gap-1">
                             <Label
                               htmlFor={`sheet-${sub.key1}`}
-                              className="text-xs text-muted-foreground"
+                              className="text-xs md:text-sm text-muted-foreground"
                             >
                               {sub.label1}
                             </Label>
@@ -1362,7 +1369,7 @@ export function CharacterSheet({
                           <div className="flex flex-col gap-1">
                             <Label
                               htmlFor={`sheet-${sub.key2}`}
-                              className="text-xs text-muted-foreground"
+                              className="text-xs md:text-sm text-muted-foreground"
                             >
                               {sub.label2}
                             </Label>
@@ -1405,7 +1412,7 @@ export function CharacterSheet({
             <h3 className="mb-3 font-heading text-lg">{t("hitPoints")}</h3>
             <div className="flex gap-4">
               <div className="flex flex-col gap-1">
-                <Label htmlFor="hp-current" className="text-xs text-muted-foreground">
+                <Label htmlFor="hp-current" className="text-xs md:text-sm text-muted-foreground">
                   {t("hpCurrent")}
                 </Label>
                 <Input
@@ -1420,7 +1427,7 @@ export function CharacterSheet({
               </div>
               <div className="flex items-end pb-2 text-lg text-muted-foreground">/</div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor="hp-max" className="text-xs text-muted-foreground">
+                <Label htmlFor="hp-max" className="text-xs md:text-sm text-muted-foreground">
                   {t("hpMax")}
                 </Label>
                 <Input
@@ -1496,7 +1503,9 @@ export function CharacterSheet({
                           </Badge>
                         )}
                         <div className="flex items-center gap-1">
-                          <Label className="text-xs text-muted-foreground">{tc("level")}</Label>
+                          <Label className="text-xs md:text-sm text-muted-foreground">
+                            {tc("level")}
+                          </Label>
                           <Input
                             type="number"
                             min={1}
@@ -1547,7 +1556,7 @@ export function CharacterSheet({
                         data-testid={`sheet-xp-input-${cc.class_id}`}
                       />
                       <div className="flex flex-1 flex-col gap-1">
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs md:text-sm text-muted-foreground">
                           {nextLevelXp
                             ? t("xpNextLevel", { xp: nextLevelXp.toLocaleString("de-DE") })
                             : t("xpMax")}
@@ -1616,11 +1625,13 @@ export function CharacterSheet({
                             {xh.xp_amount.toLocaleString()} XP
                           </span>
                           {xh.note && (
-                            <span className="text-xs text-muted-foreground">{xh.note}</span>
+                            <span className="text-xs md:text-sm text-muted-foreground">
+                              {xh.note}
+                            </span>
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="text-xs text-muted-foreground">
+                          <div className="text-xs md:text-sm text-muted-foreground">
                             {session && <span className="mr-2">{session.title}</span>}
                             {new Date(xh.created_at).toLocaleDateString(locale)}
                           </div>
@@ -1680,7 +1691,7 @@ export function CharacterSheet({
                 <div key={key} className="flex flex-col gap-1">
                   <Label
                     htmlFor={`sheet-${key}`}
-                    className="text-center text-xs text-muted-foreground"
+                    className="text-center text-xs md:text-sm text-muted-foreground"
                   >
                     {label}
                   </Label>
@@ -1810,19 +1821,19 @@ export function CharacterSheet({
         >
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
             <div className="rounded-md border border-border p-4 text-center">
-              <div className="text-xs text-muted-foreground">{t("thac0")}</div>
+              <div className="text-xs md:text-sm text-muted-foreground">{t("thac0")}</div>
               <div className="font-heading text-3xl text-primary" data-testid="sheet-thac0">
                 {thac0}
               </div>
             </div>
             <div className="rounded-md border border-border p-4 text-center">
-              <div className="text-xs text-muted-foreground">{t("armorClass")}</div>
+              <div className="text-xs md:text-sm text-muted-foreground">{t("armorClass")}</div>
               <div className="font-heading text-3xl text-primary" data-testid="sheet-ac">
                 {effectiveAC}
               </div>
             </div>
             <div className="rounded-md border border-border p-4 text-center">
-              <div className="text-xs text-muted-foreground">{t("hitDamage")}</div>
+              <div className="text-xs md:text-sm text-muted-foreground">{t("hitDamage")}</div>
               <div className="font-heading text-2xl text-primary">
                 {strMods.hitAdj >= 0 ? "+" : ""}
                 {strMods.hitAdj} / {strMods.dmgAdj >= 0 ? "+" : ""}
@@ -1833,7 +1844,7 @@ export function CharacterSheet({
 
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
             <div className="rounded-md border border-border p-4 text-center">
-              <div className="text-xs text-muted-foreground">{t("attacksPerRound")}</div>
+              <div className="text-xs md:text-sm text-muted-foreground">{t("attacksPerRound")}</div>
               <div className="font-heading text-2xl text-primary" data-testid="sheet-attacks">
                 {classEntries.length > 0
                   ? classEntries
@@ -1846,7 +1857,7 @@ export function CharacterSheet({
               </div>
             </div>
             <div className="rounded-md border border-border p-4 text-center">
-              <div className="text-xs text-muted-foreground">{t("initiative")}</div>
+              <div className="text-xs md:text-sm text-muted-foreground">{t("initiative")}</div>
               <div className="font-heading text-2xl text-primary" data-testid="sheet-initiative">
                 {dexMods.reactionAdj >= 0 ? "+" : ""}
                 {dexMods.reactionAdj}
@@ -1854,7 +1865,9 @@ export function CharacterSheet({
             </div>
             {showThiefSkills && (
               <div className="rounded-md border border-border p-4 text-center">
-                <div className="text-xs text-muted-foreground">{t("backstabMultiplier")}</div>
+                <div className="text-xs md:text-sm text-muted-foreground">
+                  {t("backstabMultiplier")}
+                </div>
                 <div className="font-heading text-2xl text-primary" data-testid="sheet-backstab">
                   x{getBackstabMultiplier(primaryLevel)}
                 </div>
@@ -1874,7 +1887,7 @@ export function CharacterSheet({
                   { label: t("saveSpell"), value: saves.spell },
                 ].map(({ label, value }) => (
                   <div key={label} className="rounded-md border border-border p-3 text-center">
-                    <div className="text-xs text-muted-foreground">{label}</div>
+                    <div className="text-xs md:text-sm text-muted-foreground">{label}</div>
                     <div className="font-mono text-xl">{value}</div>
                   </div>
                 ))}
@@ -2119,7 +2132,7 @@ function TraitSection({
                 <span className="font-medium">
                   {locale === "en" && entry.name_en ? entry.name_en : entry.name}
                 </span>
-                <Badge variant="outline" className="text-[10px]">
+                <Badge variant="outline" className="text-[10px] md:text-xs">
                   {t("cpCost", { cost: entry.cost })}
                 </Badge>
               </div>

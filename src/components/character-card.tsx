@@ -174,7 +174,9 @@ export function CharacterCard({
 
             {/* Shared by */}
             {!isOwner && sharedByLabel && (
-              <div className="mt-1 text-[10px] text-muted-foreground/60">{sharedByLabel}</div>
+              <div className="mt-1 text-[10px] md:text-xs text-muted-foreground/60">
+                {sharedByLabel}
+              </div>
             )}
           </div>
         </div>

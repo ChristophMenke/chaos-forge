@@ -227,14 +227,16 @@ export function PlayCombatPanel({
       >
         <div className="mb-1.5 flex items-center gap-2">
           <span className="font-medium">{weaponName}</span>
-          <Badge variant="outline" className="text-[10px]">
+          <Badge variant="outline" className="text-[10px] md:text-xs">
             {weapon.weapon_type === "melee"
               ? t("melee")
               : weapon.weapon_type === "ranged"
                 ? t("ranged")
                 : `${t("melee")}/${t("ranged")}`}
           </Badge>
-          {isSpecialized && <Badge className="bg-primary/20 text-[10px] text-primary">★</Badge>}
+          {isSpecialized && (
+            <Badge className="bg-primary/20 text-[10px] md:text-xs text-primary">★</Badge>
+          )}
         </div>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm sm:grid-cols-4">
           <div>
@@ -261,7 +263,9 @@ export function PlayCombatPanel({
           <div>
             <span className="text-xs text-muted-foreground">{t("attacksPerRound")}: </span>
             <span className="font-mono">{apr}</span>
-            {hasSpecAprBonus && <span className="ml-1 text-[10px] text-amber-400">★</span>}
+            {hasSpecAprBonus && (
+              <span className="ml-1 text-[10px] md:text-xs text-amber-400">★</span>
+            )}
           </div>
         </div>
         <div className="mt-1.5 flex flex-wrap items-center gap-2">
@@ -291,7 +295,7 @@ export function PlayCombatPanel({
           <Button
             variant="default"
             size="sm"
-            className="h-6 shrink-0 px-2 text-[10px]"
+            className="h-6 shrink-0 px-2 text-[10px] md:text-xs"
             onClick={() => setExpandedBreakdown((prev) => (prev === eq.id ? null : eq.id))}
             data-testid={`play-weapon-breakdown-toggle-${eq.id}`}
           >
@@ -301,7 +305,7 @@ export function PlayCombatPanel({
             <Button
               variant="default"
               size="sm"
-              className="ml-auto h-6 shrink-0 px-2 text-[10px]"
+              className="ml-auto h-6 shrink-0 px-2 text-[10px] md:text-xs"
               onClick={() => toggleEquip(eq.id, isEquipped)}
               data-testid={`play-${isEquipped ? "unequip" : "equip"}-${eq.id}`}
             >
@@ -318,7 +322,7 @@ export function PlayCombatPanel({
             {weapon.weapon_type !== "ranged" && (
               <div>
                 <div className="mb-1 font-medium text-muted-foreground">THAC0 {t("melee")}</div>
-                <div className="space-y-0.5 pl-2 font-mono text-[11px]">
+                <div className="space-y-0.5 pl-2 font-mono text-[11px] md:text-sm">
                   <div className="flex justify-between">
                     <span>{t("baseThac0")}</span>
                     <span>{thac0}</span>
@@ -370,7 +374,7 @@ export function PlayCombatPanel({
             {adjusted.ranged !== null && (
               <div>
                 <div className="mb-1 font-medium text-muted-foreground">THAC0 {t("ranged")}</div>
-                <div className="space-y-0.5 pl-2 font-mono text-[11px]">
+                <div className="space-y-0.5 pl-2 font-mono text-[11px] md:text-sm">
                   <div className="flex justify-between">
                     <span>{t("baseThac0")}</span>
                     <span>{thac0}</span>
@@ -423,7 +427,7 @@ export function PlayCombatPanel({
             {/* Damage Breakdown */}
             <div>
               <div className="mb-1 font-medium text-muted-foreground">{t("damage")}</div>
-              <div className="space-y-0.5 pl-2 font-mono text-[11px]">
+              <div className="space-y-0.5 pl-2 font-mono text-[11px] md:text-sm">
                 <div className="flex justify-between">
                   <span>{t("baseDamage")} (SM/L)</span>
                   <span>
@@ -479,7 +483,7 @@ export function PlayCombatPanel({
             {/* APR Breakdown */}
             <div>
               <div className="mb-1 font-medium text-muted-foreground">{t("attacksPerRound")}</div>
-              <div className="space-y-0.5 pl-2 font-mono text-[11px]">
+              <div className="space-y-0.5 pl-2 font-mono text-[11px] md:text-sm">
                 <div className="flex justify-between">
                   <span>{t("levelApr")}</span>
                   <span>{baseApr}</span>
@@ -500,7 +504,7 @@ export function PlayCombatPanel({
             {/* Speed */}
             <div>
               <div className="mb-1 font-medium text-muted-foreground">{t("weaponSpeed")}</div>
-              <div className="space-y-0.5 pl-2 font-mono text-[11px]">
+              <div className="space-y-0.5 pl-2 font-mono text-[11px] md:text-sm">
                 <div className="flex justify-between">
                   <span>{t("baseDamage").replace(/\(.*/, "").trim() || "Base"}</span>
                   <span>{weapon.speed}</span>
@@ -621,7 +625,9 @@ export function PlayCombatPanel({
           data-testid="play-ac-toggle"
         >
           AC <span className="font-mono font-bold">{ac}</span>
-          <span className="text-[10px] text-muted-foreground">{showAcBreakdown ? "▲" : "▼"}</span>
+          <span className="text-[10px] md:text-xs text-muted-foreground">
+            {showAcBreakdown ? "▲" : "▼"}
+          </span>
         </button>
         <div>
           <span className="text-xs text-muted-foreground">{t("movementRate")}: </span>

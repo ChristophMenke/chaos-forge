@@ -153,23 +153,27 @@ export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeS
           <Separator className="my-4" />
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-6" data-testid="blade-weapon-stats">
             <div>
-              <span className="text-[10px] text-muted-foreground">{t("damage")} (S/M)</span>
+              <span className="text-[10px] md:text-xs text-muted-foreground">
+                {t("damage")} (S/M)
+              </span>
               <div className="font-mono text-sm font-bold">{data.weapon_stats.damage_sm}</div>
             </div>
             <div>
-              <span className="text-[10px] text-muted-foreground">{t("damage")} (L)</span>
+              <span className="text-[10px] md:text-xs text-muted-foreground">
+                {t("damage")} (L)
+              </span>
               <div className="font-mono text-sm font-bold">{data.weapon_stats.damage_l}</div>
             </div>
             <div>
-              <span className="text-[10px] text-muted-foreground">Speed</span>
+              <span className="text-[10px] md:text-xs text-muted-foreground">Speed</span>
               <div className="font-mono text-sm font-bold">{data.weapon_stats.speed}</div>
             </div>
             <div>
-              <span className="text-[10px] text-muted-foreground">{t("type")}</span>
+              <span className="text-[10px] md:text-xs text-muted-foreground">{t("type")}</span>
               <div className="text-sm font-medium capitalize">{data.weapon_stats.weapon_type}</div>
             </div>
             <div>
-              <span className="text-[10px] text-muted-foreground">{t("range")}</span>
+              <span className="text-[10px] md:text-xs text-muted-foreground">{t("range")}</span>
               <div className="font-mono text-sm font-bold">
                 {feetToMeters(data.weapon_stats.range_short)}/
                 {feetToMeters(data.weapon_stats.range_medium)}/
@@ -177,7 +181,7 @@ export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeS
               </div>
             </div>
             <div>
-              <span className="text-[10px] text-muted-foreground">{t("weight")}</span>
+              <span className="text-[10px] md:text-xs text-muted-foreground">{t("weight")}</span>
               <div className="font-mono text-sm font-bold">{data.weapon_stats.weight} lbs</div>
             </div>
           </div>
@@ -260,7 +264,7 @@ export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeS
                             key={key}
                             disabled={m.count <= 0}
                             onClick={() => handleLoadBlade(blade.id, key)}
-                            className="rounded-full px-2 py-0.5 text-[10px] font-bold text-white transition-opacity disabled:opacity-30"
+                            className="rounded-full px-2 py-0.5 text-[10px] md:text-xs font-bold text-white transition-opacity disabled:opacity-30"
                             style={{ backgroundColor: m.color }}
                             data-testid={`blade-load-${blade.id}-${key}`}
                           >

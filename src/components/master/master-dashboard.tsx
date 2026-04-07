@@ -235,7 +235,7 @@ export function MasterDashboard({
         className={`pb-20 sm:pl-16 sm:pb-4 xl:pl-48 ${
           activeTab === "chat"
             ? "flex h-[calc(100vh-var(--header-height,140px))] flex-col sm:h-screen"
-            : "mx-auto w-full max-w-7xl p-3 sm:pr-4 sm:pt-4"
+            : "w-full p-3 sm:pr-4 sm:pt-4"
         }`}
         data-testid="gm-dashboard"
       >

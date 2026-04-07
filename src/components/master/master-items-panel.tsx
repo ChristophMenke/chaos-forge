@@ -361,7 +361,9 @@ export function MasterItemsPanel({
                 />
                 {/* Proficiency selector — which existing weapon category does this belong to? */}
                 <div className="relative">
-                  <span className="mb-1 block text-[10px] text-muted-foreground">Proficiency</span>
+                  <span className="mb-1 block text-[10px] md:text-xs text-muted-foreground">
+                    Proficiency
+                  </span>
                   <input
                     type="text"
                     placeholder={
@@ -414,7 +416,7 @@ export function MasterItemsPanel({
                   )}
                 </div>
                 <div>
-                  <span className="mb-1 block text-[10px] text-muted-foreground">
+                  <span className="mb-1 block text-[10px] md:text-xs text-muted-foreground">
                     {t("weaponType")}
                   </span>
                   <div className="flex gap-1">
@@ -472,7 +474,7 @@ export function MasterItemsPanel({
                   />
                 </div>
                 <div>
-                  <span className="mb-1 block text-[10px] text-muted-foreground">
+                  <span className="mb-1 block text-[10px] md:text-xs text-muted-foreground">
                     {t("magicBonus")}
                   </span>
                   <div className="flex gap-1">
@@ -513,7 +515,9 @@ export function MasterItemsPanel({
                 />
                 {/* Armor/Shield Proficiency selector */}
                 <div className="relative">
-                  <span className="mb-1 block text-[10px] text-muted-foreground">Proficiency</span>
+                  <span className="mb-1 block text-[10px] md:text-xs text-muted-foreground">
+                    Proficiency
+                  </span>
                   <input
                     type="text"
                     placeholder={
@@ -605,7 +609,7 @@ export function MasterItemsPanel({
                 </label>
                 {caIsShield && (
                   <div>
-                    <span className="mb-1 block text-[10px] text-muted-foreground">
+                    <span className="mb-1 block text-[10px] md:text-xs text-muted-foreground">
                       {t("shieldType")}
                     </span>
                     <div className="flex gap-1">
@@ -741,9 +745,11 @@ export function MasterItemsPanel({
                       {t("weight")}: {lbsToKg(w.weight)}
                     </span>
                   </div>
-                  <div className="mt-1 text-[10px] text-blue-400">Proficiency: {w.name}</div>
+                  <div className="mt-1 text-[10px] md:text-xs text-blue-400">
+                    Proficiency: {w.name}
+                  </div>
                 </div>
-                <Badge variant="outline" className="text-[10px]">
+                <Badge variant="outline" className="text-[10px] md:text-xs">
                   {w.weapon_type}
                 </Badge>
               </div>
@@ -768,13 +774,13 @@ export function MasterItemsPanel({
                     </span>
                   </div>
                   {a.is_shield && (
-                    <div className="mt-1 text-[10px] text-blue-400">
+                    <div className="mt-1 text-[10px] md:text-xs text-blue-400">
                       Proficiency: {a.name} ({a.shield_type})
                     </div>
                   )}
                 </div>
                 {a.is_shield && (
-                  <Badge variant="outline" className="text-[10px]">
+                  <Badge variant="outline" className="text-[10px] md:text-xs">
                     {a.shield_type ?? "shield"}
                   </Badge>
                 )}

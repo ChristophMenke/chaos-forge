@@ -916,12 +916,12 @@ export function TabEquipment({
                         </span>
                       )}
                       {item.weapon?.source_book && (
-                        <span className="ml-1 text-[9px] text-muted-foreground">
+                        <span className="ml-1 text-[9px] md:text-xs text-muted-foreground">
                           ({getBookAbbreviation(item.weapon.source_book)})
                         </span>
                       )}
                       {item.armor?.source_book && (
-                        <span className="ml-1 text-[9px] text-muted-foreground">
+                        <span className="ml-1 text-[9px] md:text-xs text-muted-foreground">
                           ({getBookAbbreviation(item.armor.source_book)})
                         </span>
                       )}
@@ -1705,7 +1705,7 @@ export function TabEquipment({
                             </span>
                           )}
                           {weapon.source_book && (
-                            <span className="ml-1 rounded bg-muted px-1 py-0.5 text-[9px] text-muted-foreground">
+                            <span className="ml-1 rounded bg-muted px-1 py-0.5 text-[9px] md:text-xs text-muted-foreground">
                               {getBookAbbreviation(weapon.source_book)}
                             </span>
                           )}
@@ -1842,7 +1842,7 @@ export function TabEquipment({
                           </span>
                         )}
                         {weapon.source_book && (
-                          <span className="ml-1 rounded bg-muted px-1 py-0.5 text-[9px] text-muted-foreground">
+                          <span className="ml-1 rounded bg-muted px-1 py-0.5 text-[9px] md:text-xs text-muted-foreground">
                             {getBookAbbreviation(weapon.source_book)}
                           </span>
                         )}
@@ -1977,7 +1977,7 @@ export function TabEquipment({
               {equippedArmor ? `${-(10 - equippedArmor.armor!.ac)}` : "—"}
             </div>
             {equippedArmor && (
-              <div className="mt-0.5 truncate text-[10px] text-muted-foreground">
+              <div className="mt-0.5 truncate text-[10px] md:text-xs text-muted-foreground">
                 {localized(equippedArmor.armor!.name, equippedArmor.armor!.name_en, locale)}
               </div>
             )}

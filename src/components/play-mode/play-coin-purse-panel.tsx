@@ -95,7 +95,9 @@ export function PlayCoinPursePanel({
       <div className="mb-2 grid grid-cols-5 gap-1 text-center" data-testid="play-coins">
         {coins.map((coin) => (
           <div key={coin.key} className="rounded-md border border-border px-1 py-1.5">
-            <div className="text-[10px] font-medium text-muted-foreground">{coin.label}</div>
+            <div className="text-[10px] md:text-xs font-medium text-muted-foreground">
+              {coin.label}
+            </div>
             <div className="font-mono text-lg font-bold" data-testid={`play-coin-${coin.key}`}>
               {coin.value}
             </div>
@@ -167,7 +169,9 @@ export function PlayCoinPursePanel({
             <div className="grid grid-cols-5 gap-2">
               {coins.map((coin) => (
                 <div key={coin.key} className="text-center">
-                  <label className="text-[10px] text-muted-foreground">{coin.label}</label>
+                  <label className="text-[10px] md:text-xs text-muted-foreground">
+                    {coin.label}
+                  </label>
                   <input
                     type="number"
                     min="0"

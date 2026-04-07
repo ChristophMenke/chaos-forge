@@ -62,7 +62,7 @@ export const SpellCard = memo(function SpellCard({
           {spell.school ?? spell.sphere}
         </Badge>
         {spell.source_book && (
-          <span className="hidden shrink-0 rounded bg-muted px-1 py-0.5 text-[9px] text-muted-foreground sm:inline">
+          <span className="hidden shrink-0 rounded bg-muted px-1 py-0.5 text-[9px] md:text-xs text-muted-foreground sm:inline">
             {getBookAbbreviation(spell.source_book)}
           </span>
         )}
