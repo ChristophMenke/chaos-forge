@@ -98,7 +98,7 @@ const NO_BORDERS = {
 };
 
 const HEADING_FONT = "Georgia";
-const SECTION_BORDER = { style: BorderStyle.SINGLE, size: 1, color: "999999" };
+const SECTION_BORDER = BORDER;
 
 function cell(
   text: string,
@@ -195,11 +195,32 @@ function boxCell(label: string, value: string): TableCell {
   });
 }
 
+/** Splits cells into rows of `columns`, padding the last row with empty cells */
+function boxGrid(cells: TableCell[], columns: number = 4): Table[] {
+  const tables: Table[] = [];
+  for (let i = 0; i < cells.length; i += columns) {
+    const rowCells = cells.slice(i, i + columns);
+    while (rowCells.length < columns) {
+      rowCells.push(new TableCell({ borders: NO_BORDERS, children: [emptyParagraph()] }));
+    }
+    tables.push(
+      new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [new TableRow({ children: rowCells })],
+      })
+    );
+  }
+  return tables;
+}
+
 async function fetchAvatarData(
   url: string
 ): Promise<{ data: ArrayBuffer; type: "png" | "jpg" } | null> {
   try {
-    const response = await fetch(url);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 5000);
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timer);
     if (!response.ok) return null;
     const contentType = response.headers.get("content-type") ?? "";
     const type = contentType.includes("png") ? "png" : "jpg";
@@ -732,20 +753,7 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
         },
       ];
 
-      // 4 columns per row (matching Print Preview grid-cols-4)
-      for (let i = 0; i < combatBoxes.length; i += 4) {
-        const rowCells = combatBoxes.slice(i, i + 4).map((b) => boxCell(b.label, b.value));
-        // Pad with empty cells if needed
-        while (rowCells.length < 4) {
-          rowCells.push(new TableCell({ borders: NO_BORDERS, children: [emptyParagraph()] }));
-        }
-        result.push(
-          new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE },
-            rows: [new TableRow({ children: rowCells })],
-          })
-        );
-      }
+      result.push(...boxGrid(combatBoxes.map((b) => boxCell(b.label, b.value))));
 
       return result;
     },
@@ -766,38 +774,26 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
         { label: dt.saveSpell, value: String(saves.spell) },
       ];
 
-      for (let i = 0; i < saveItems.length; i += 4) {
-        const rowCells = saveItems.slice(i, i + 4).map(
-          (s) =>
-            new TableCell({
-              borders: NO_BORDERS,
-              width: { size: 25, type: WidthType.PERCENTAGE },
-              children: [
-                new Paragraph({
-                  spacing: { after: 40 },
-                  children: [
-                    new TextRun({ text: `${s.label}: `, font: "Calibri", size: 20 }),
-                    new TextRun({
-                      text: s.value,
-                      bold: true,
-                      font: "Calibri",
-                      size: 20,
-                    }),
-                  ],
-                }),
-              ],
-            })
-        );
-        while (rowCells.length < 4) {
-          rowCells.push(new TableCell({ borders: NO_BORDERS, children: [emptyParagraph()] }));
-        }
-        result.push(
-          new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE },
-            rows: [new TableRow({ children: rowCells })],
-          })
-        );
-      }
+      result.push(
+        ...boxGrid(
+          saveItems.map(
+            (s) =>
+              new TableCell({
+                borders: NO_BORDERS,
+                width: { size: 25, type: WidthType.PERCENTAGE },
+                children: [
+                  new Paragraph({
+                    spacing: { after: 40 },
+                    children: [
+                      new TextRun({ text: `${s.label}: `, font: "Calibri", size: 20 }),
+                      new TextRun({ text: s.value, bold: true, font: "Calibri", size: 20 }),
+                    ],
+                  }),
+                ],
+              })
+          )
+        )
+      );
 
       return result;
     },
@@ -1080,13 +1076,12 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
       }
       parts.push({ label: dt.acFinal ?? "Final", value: String(effectiveAC) });
 
-      // Box-grid matching Print Preview flex-wrap layout
-      const acBoxes = parts.map((p) => boxCell(p.label, p.value));
+      // Single-row box-grid (variable column count matches number of AC parts)
       result.push(
-        new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          rows: [new TableRow({ children: acBoxes })],
-        })
+        ...boxGrid(
+          parts.map((p) => boxCell(p.label, p.value)),
+          parts.length
+        )
       );
 
       return result;
@@ -1112,19 +1107,7 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
         { label: "Read Languages", value: `${character.thief_read_languages}%` },
         { label: "Backstab", value: `x${getBackstabMultiplier(backstabLevel)}` },
       ];
-      // Box-grid matching Print Preview (4 columns per row)
-      for (let i = 0; i < thiefData.length; i += 4) {
-        const rowCells = thiefData.slice(i, i + 4).map((d) => boxCell(d.label, d.value));
-        while (rowCells.length < 4) {
-          rowCells.push(new TableCell({ borders: NO_BORDERS, children: [emptyParagraph()] }));
-        }
-        result.push(
-          new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE },
-            rows: [new TableRow({ children: rowCells })],
-          })
-        );
-      }
+      result.push(...boxGrid(thiefData.map((d) => boxCell(d.label, d.value))));
 
       return result;
     },
@@ -1664,8 +1647,6 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
           const styleDef = getFightingStyle(fs.style_id);
           if (!styleDef) continue;
           const styleName = localized(styleDef.name, styleDef.name_en, props.locale);
-          const benefit = styleDef.benefits.find((b) => b.slots <= fs.slots_invested);
-          // Find highest applicable benefit
           const applicableBenefit = styleDef.benefits
             .filter((b) => b.slots <= fs.slots_invested)
             .sort((a, b) => b.slots - a.slots)[0];
@@ -1675,9 +1656,7 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
                 applicableBenefit.description_en,
                 props.locale
               )
-            : benefit
-              ? localized(benefit.description, benefit.description_en, props.locale)
-              : "";
+            : "";
           result.push(
             new Paragraph({
               spacing: { after: 20 },
