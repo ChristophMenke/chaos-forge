@@ -93,7 +93,7 @@ function DistributionPanel({
   return (
     <div className="stat-card-frame glass glow-neutral rounded-lg p-3" data-testid={testId}>
       <span aria-hidden="true" className="stat-corner-tr" />
-      <h3 className="relative z-10 mb-2 text-[0.5625rem] font-medium uppercase tracking-[0.15em] text-muted-foreground">
+      <h3 className="relative z-10 mb-2 text-[0.5625rem] md:text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">
         {title}
       </h3>
       <div className="relative z-10 space-y-1.5">
@@ -139,7 +139,7 @@ function MiniStatCard({
       <div className="relative z-10 flex items-center gap-2.5">
         <Icon className="stat-icon-glow h-4 w-4 shrink-0 text-primary/70" aria-hidden="true" />
         <div className="min-w-0 flex-1">
-          <div className="text-[0.5625rem] font-medium uppercase tracking-[0.15em] text-muted-foreground">
+          <div className="text-[0.5625rem] md:text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">
             {label}
           </div>
           <div className="stat-glow-pulse truncate font-heading text-lg leading-tight text-primary">
@@ -885,13 +885,15 @@ export default async function DashboardPage() {
                 className="stat-card-frame glass glow-neutral rounded-lg p-3"
                 data-testid="stat-card-attr-averages"
               >
-                <h3 className="relative z-10 mb-2 text-[0.5625rem] font-medium uppercase tracking-[0.15em] text-muted-foreground">
+                <h3 className="relative z-10 mb-2 text-[0.5625rem] md:text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">
                   {t("attrAverages")}
                 </h3>
                 <div className="relative z-10 grid grid-cols-6 gap-1 text-center">
                   {attrAverages.map((a) => (
                     <div key={a.stat}>
-                      <div className="text-[0.5625rem] text-muted-foreground">{a.stat}</div>
+                      <div className="text-[0.5625rem] md:text-xs text-muted-foreground">
+                        {a.stat}
+                      </div>
                       <div className="font-heading text-base text-primary">{a.avg}</div>
                     </div>
                   ))}
@@ -904,7 +906,7 @@ export default async function DashboardPage() {
                   className="stat-card-frame glass glow-neutral rounded-lg p-3"
                   data-testid="stat-card-attr-extremes"
                 >
-                  <h3 className="relative z-10 mb-2 text-[0.5625rem] font-medium uppercase tracking-[0.15em] text-muted-foreground">
+                  <h3 className="relative z-10 mb-2 text-[0.5625rem] md:text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">
                     {t("attrExtremes")}
                   </h3>
                   <div className="relative z-10 space-y-1">
@@ -1069,7 +1071,7 @@ export default async function DashboardPage() {
                     <Badge
                       key={tag.id}
                       variant="secondary"
-                      className={`text-[10px] ${TAG_COLORS[tag.type] ?? ""}`}
+                      className={`text-[10px] md:text-xs ${TAG_COLORS[tag.type] ?? ""}`}
                     >
                       {tag.name}
                     </Badge>

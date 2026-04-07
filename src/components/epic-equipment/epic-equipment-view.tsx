@@ -107,14 +107,9 @@ export function EpicEquipmentView({ character, epicItems, isOwner }: EpicEquipme
   }
 
   return (
-    <div
-      className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 sm:p-6"
-      data-testid="epic-equipment-page"
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <CharacterModeNav characterId={character.id} hasEpicItems={true} />
-      </div>
+    <div className="flex w-full flex-col gap-6 p-4 sm:p-6" data-testid="epic-equipment-page">
+      {/* Mode Navigation */}
+      <CharacterModeNav characterId={character.id} hasEpicItems={true} />
 
       <div className="flex items-center gap-4">
         {character.avatar_url ? (

@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CharacterLoading() {
   return (
-    <div className="mx-auto w-full max-w-4xl p-6">
+    <div className="w-full p-6">
       <div className="mb-6 flex items-start gap-4">
         <Skeleton className="h-20 w-20 rounded-full" />
         <div className="flex-1">

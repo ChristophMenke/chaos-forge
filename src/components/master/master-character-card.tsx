@@ -93,13 +93,13 @@ export function MasterCharacterCard({
       {/* AC + THAC0 */}
       <div className="mb-3 grid grid-cols-2 gap-2">
         <div className="rounded-lg bg-background/30 p-2 text-center">
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          <div className="text-[10px] md:text-xs uppercase tracking-wider text-muted-foreground">
             {t("ac")}
           </div>
           <div className="font-mono text-xl font-bold text-foreground">{combat.ac}</div>
         </div>
         <div className="rounded-lg bg-background/30 p-2 text-center">
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          <div className="text-[10px] md:text-xs uppercase tracking-wider text-muted-foreground">
             {t("thac0")}
           </div>
           <div className="font-mono text-xl font-bold text-foreground">{combat.thac0}</div>
@@ -108,7 +108,7 @@ export function MasterCharacterCard({
 
       {/* Saving Throws */}
       <div className="mb-3">
-        <div className="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+        <div className="mb-1 text-[10px] md:text-xs uppercase tracking-wider text-muted-foreground">
           {t("saves")}
         </div>
         <div className="grid grid-cols-5 gap-1">
@@ -120,7 +120,7 @@ export function MasterCharacterCard({
             { label: t("saveSpell"), value: combat.saves.spell },
           ].map((save) => (
             <div key={save.label} className="rounded bg-background/20 px-1 py-0.5 text-center">
-              <div className="text-[8px] text-muted-foreground">{save.label}</div>
+              <div className="text-[8px] md:text-[10px] text-muted-foreground">{save.label}</div>
               <div className="font-mono text-sm font-semibold text-foreground">{save.value}</div>
             </div>
           ))}
@@ -136,7 +136,7 @@ export function MasterCharacterCard({
       {/* Thief Skills (only if character has them) */}
       {combat.thiefSkills && (
         <div>
-          <div className="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+          <div className="mb-1 text-[10px] md:text-xs uppercase tracking-wider text-muted-foreground">
             {t("thiefSkills")}
           </div>
           <div className="grid grid-cols-4 gap-1">
@@ -150,13 +150,13 @@ export function MasterCharacterCard({
               { label: t("readLanguages"), value: combat.thiefSkills.readLanguages },
             ].map((skill) => (
               <div key={skill.label} className="rounded bg-background/20 px-1 py-0.5 text-center">
-                <div className="text-[8px] text-muted-foreground">{skill.label}</div>
+                <div className="text-[8px] md:text-[10px] text-muted-foreground">{skill.label}</div>
                 <div className="font-mono text-sm text-foreground">{skill.value}</div>
               </div>
             ))}
             {combat.backstabMultiplier && (
               <div className="rounded bg-background/20 px-1 py-0.5 text-center">
-                <div className="text-[8px] text-muted-foreground">BS</div>
+                <div className="text-[8px] md:text-[10px] text-muted-foreground">BS</div>
                 <div className="font-mono text-sm text-foreground">
                   &times;{combat.backstabMultiplier}
                 </div>

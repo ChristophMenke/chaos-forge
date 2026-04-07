@@ -316,13 +316,15 @@ export function PlaySpellbookPanel({
       {isPointsMode ? (
         <div className="mb-3 flex items-center gap-3" data-testid="play-spell-points">
           <div className="rounded-lg border border-primary bg-primary/5 px-3 py-1.5 text-center">
-            <div className="text-[10px] text-muted-foreground">{t("spellPointsRemaining")}</div>
+            <div className="text-[10px] md:text-xs text-muted-foreground">
+              {t("spellPointsRemaining")}
+            </div>
             <div
               className={`font-heading text-xl font-bold ${pointsRemaining < totalPoints * 0.25 ? "text-destructive" : "text-primary"}`}
             >
               {pointsRemaining}
             </div>
-            <div className="text-[10px] text-muted-foreground">/ {totalPoints}</div>
+            <div className="text-[10px] md:text-xs text-muted-foreground">/ {totalPoints}</div>
           </div>
         </div>
       ) : (
@@ -339,7 +341,7 @@ export function PlaySpellbookPanel({
                 className="rounded-md border border-border px-2 py-1 text-center"
                 data-testid={`play-slot-level-${lvl}`}
               >
-                <div className="text-[10px] text-muted-foreground">L{lvl}</div>
+                <div className="text-[10px] md:text-xs text-muted-foreground">L{lvl}</div>
                 <div className="font-mono text-sm">
                   <span className={expended >= available ? "text-destructive" : "text-primary"}>
                     {expended}
@@ -399,11 +401,11 @@ export function PlaySpellbookPanel({
                     <span className="text-xs font-medium text-muted-foreground">
                       Level {level}
                       {isPointsMode && (
-                        <span className="ml-1 text-[10px]">
+                        <span className="ml-1 text-[10px] md:text-xs">
                           ({t("spellPointsCost")}: {getPriestSpellCost(level)})
                         </span>
                       )}
-                      <span className="ml-1 text-[10px]">({spells.length})</span>
+                      <span className="ml-1 text-[10px] md:text-xs">({spells.length})</span>
                     </span>
                     <span className="text-xs text-muted-foreground">{isLevelOpen ? "▾" : "▸"}</span>
                   </button>
@@ -436,7 +438,7 @@ export function PlaySpellbookPanel({
                               {spell.sphere && (
                                 <Badge
                                   variant="outline"
-                                  className="shrink-0 text-[9px] capitalize"
+                                  className="shrink-0 text-[9px] md:text-xs capitalize"
                                   data-testid={`play-spell-sphere-${spell.id}`}
                                 >
                                   {spell.sphere}
@@ -446,7 +448,7 @@ export function PlaySpellbookPanel({
                                 <Button
                                   size="sm"
                                   variant="default"
-                                  className="h-6 shrink-0 px-2 text-[10px]"
+                                  className="h-6 shrink-0 px-2 text-[10px] md:text-xs"
                                   disabled={!canCastThis}
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -517,7 +519,7 @@ export function PlaySpellbookPanel({
                 <div className="mb-1 text-xs font-medium text-muted-foreground">
                   Level {level}
                   {isPointsMode && (
-                    <span className="ml-1 text-[10px]">
+                    <span className="ml-1 text-[10px] md:text-xs">
                       ({t("spellPointsCost")}: {getSpellCost(level)})
                     </span>
                   )}
@@ -558,7 +560,7 @@ export function PlaySpellbookPanel({
                           {(spell.school ?? spell.sphere) && (
                             <Badge
                               variant="outline"
-                              className="shrink-0 text-[9px] capitalize"
+                              className="shrink-0 text-[9px] md:text-xs capitalize"
                               data-testid={`play-spell-school-${spell.id}`}
                             >
                               {spell.school ?? spell.sphere}
@@ -567,7 +569,7 @@ export function PlaySpellbookPanel({
                           {spell.casting_time && /^[\d]|^Special/i.test(spell.casting_time) && (
                             <Badge
                               variant="outline"
-                              className="shrink-0 gap-0.5 text-[10px]"
+                              className="shrink-0 gap-0.5 text-[10px] md:text-xs"
                               title={`${t("castingTime")}: ${spell.casting_time}`}
                               aria-label={`${t("castingTime")}: ${spell.casting_time}`}
                             >
@@ -586,7 +588,7 @@ export function PlaySpellbookPanel({
                             <Button
                               size="sm"
                               variant={isExpended ? "ghost" : "default"}
-                              className="h-6 shrink-0 px-2 text-[10px]"
+                              className="h-6 shrink-0 px-2 text-[10px] md:text-xs"
                               disabled={!canCast(charSpell)}
                               onClick={(e) => {
                                 e.stopPropagation();

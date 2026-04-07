@@ -160,7 +160,9 @@ export function MasterNpcsPanel({
             <Plus className="h-4 w-4" />
             {t("npcCreate")}
           </span>
-          <span className="pl-5.5 text-[10px] text-muted-foreground">{t("npcCreateDesc")}</span>
+          <span className="pl-5.5 text-[10px] md:text-xs text-muted-foreground">
+            {t("npcCreateDesc")}
+          </span>
         </button>
         <Link
           href="/master/npcs/new"
@@ -171,7 +173,7 @@ export function MasterNpcsPanel({
             <Shield className="h-4 w-4" />
             {t("npcAdvancedCreate")}
           </span>
-          <span className="pl-5.5 text-[10px] text-muted-foreground">
+          <span className="pl-5.5 text-[10px] md:text-xs text-muted-foreground">
             {t("npcAdvancedCreateDesc")}
           </span>
         </Link>
@@ -663,7 +665,7 @@ function NpcForm({
                 { label: "CHA", val: cha, set: setCha, tid: "gm-npc-cha" },
               ].map((a) => (
                 <div key={a.label} className="text-center">
-                  <span className="text-[10px] text-muted-foreground">{a.label}</span>
+                  <span className="text-[10px] md:text-xs text-muted-foreground">{a.label}</span>
                   <input
                     type="number"
                     value={a.val}

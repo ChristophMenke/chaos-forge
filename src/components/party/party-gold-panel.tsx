@@ -184,7 +184,9 @@ export function PartyGoldPanel({
       <div className="mb-2 grid grid-cols-5 gap-1 text-center" data-testid="party-gold-coins">
         {COINS.map((coin) => (
           <div key={coin.key} className="rounded-md border border-border px-1 py-1.5">
-            <div className="text-[10px] font-medium text-muted-foreground">{coin.label}</div>
+            <div className="text-[10px] md:text-xs font-medium text-muted-foreground">
+              {coin.label}
+            </div>
             <div className="font-mono text-lg font-bold" data-testid={`party-gold-${coin.key}`}>
               {gold[coin.key]}
             </div>
@@ -250,7 +252,9 @@ export function PartyGoldPanel({
             <div className="grid grid-cols-5 gap-2">
               {COINS.map((coin) => (
                 <div key={coin.key} className="text-center">
-                  <label className="text-[10px] text-muted-foreground">{coin.label}</label>
+                  <label className="text-[10px] md:text-xs text-muted-foreground">
+                    {coin.label}
+                  </label>
                   <input
                     type="number"
                     min="0"
@@ -315,7 +319,9 @@ export function PartyGoldPanel({
             <div className="grid grid-cols-5 gap-2">
               {COINS.map((coin) => (
                 <div key={coin.key} className="text-center">
-                  <label className="text-[10px] text-muted-foreground">{coin.label}</label>
+                  <label className="text-[10px] md:text-xs text-muted-foreground">
+                    {coin.label}
+                  </label>
                   <input
                     type="number"
                     min="0"

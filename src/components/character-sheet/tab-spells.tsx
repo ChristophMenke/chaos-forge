@@ -980,7 +980,7 @@ export function TabSpells({
                                 {spell.sphere}
                               </Badge>
                               {spell.source_book && (
-                                <span className="rounded bg-muted px-1 py-0.5 text-[9px] text-muted-foreground">
+                                <span className="rounded bg-muted px-1 py-0.5 text-[9px] md:text-xs text-muted-foreground">
                                   {getBookAbbreviation(spell.source_book)}
                                 </span>
                               )}
@@ -1087,7 +1087,7 @@ export function TabSpells({
                             spell.sphere &&
                             priestSphereMap[spell.sphere as PriestSphere] && (
                               <span
-                                className={`rounded px-1 py-0.5 text-[9px] ${
+                                className={`rounded px-1 py-0.5 text-[9px] md:text-xs ${
                                   priestSphereMap[spell.sphere as PriestSphere] === "major"
                                     ? "bg-primary/20 text-primary"
                                     : "bg-muted text-muted-foreground"
@@ -1109,7 +1109,7 @@ export function TabSpells({
                             </span>
                           )}
                           {spell.source_book && (
-                            <span className="rounded bg-muted px-1 py-0.5 text-[9px] text-muted-foreground">
+                            <span className="rounded bg-muted px-1 py-0.5 text-[9px] md:text-xs text-muted-foreground">
                               {getBookAbbreviation(spell.source_book)}
                             </span>
                           )}
@@ -1360,7 +1360,7 @@ export function TabSpells({
                             </span>
                           )}
                           {spell.source_book && (
-                            <span className="rounded bg-muted px-1 py-0.5 text-[9px] text-muted-foreground">
+                            <span className="rounded bg-muted px-1 py-0.5 text-[9px] md:text-xs text-muted-foreground">
                               {getBookAbbreviation(spell.source_book)}
                             </span>
                           )}

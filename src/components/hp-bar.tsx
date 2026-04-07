@@ -39,7 +39,7 @@ export function HpBar({ current, max, barClass, unconsciousLabel, deadLabel }: H
       </span>
       {status === "unconscious" && unconsciousLabel && (
         <span
-          className="flex-shrink-0 rounded-full border border-amber-500/50 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-400"
+          className="flex-shrink-0 rounded-full border border-amber-500/50 bg-amber-500/10 px-1.5 py-0.5 text-[10px] md:text-xs font-medium text-amber-400"
           data-testid="hp-status-unconscious"
         >
           {unconsciousLabel}
@@ -47,7 +47,7 @@ export function HpBar({ current, max, barClass, unconsciousLabel, deadLabel }: H
       )}
       {status === "dead" && deadLabel && (
         <span
-          className="flex-shrink-0 rounded-full border border-red-500/50 bg-red-500/10 px-1.5 py-0.5 text-[10px] font-medium text-red-400"
+          className="flex-shrink-0 rounded-full border border-red-500/50 bg-red-500/10 px-1.5 py-0.5 text-[10px] md:text-xs font-medium text-red-400"
           data-testid="hp-status-dead"
         >
           💀 {deadLabel}

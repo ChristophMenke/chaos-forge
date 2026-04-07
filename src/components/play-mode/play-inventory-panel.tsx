@@ -118,7 +118,7 @@ export function PlayInventoryPanel({
           <span className="font-mono font-medium text-foreground">{lbsToKg(totalWeight)} kg</span>
         </span>
         {!ignoreEncumbrance && (
-          <Badge variant="outline" className="text-[10px]">
+          <Badge variant="outline" className="text-[10px] md:text-xs">
             {getEncumbranceLabel(encumbrance)}
           </Badge>
         )}
@@ -170,7 +170,7 @@ export function PlayInventoryPanel({
             >
               <span className="min-w-0 flex-1 truncate text-sm">{itemName(item)}</span>
               {item.item?.weight ? (
-                <span className="shrink-0 text-[10px] text-muted-foreground">
+                <span className="shrink-0 text-[10px] md:text-xs text-muted-foreground">
                   {lbsToKg(item.item.weight * item.quantity)} kg
                 </span>
               ) : null}

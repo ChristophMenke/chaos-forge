@@ -174,7 +174,7 @@ export function SessionDetail({
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl p-6" data-testid="session-detail">
+    <div className="w-full p-6" data-testid="session-detail">
       {/* Header */}
       <div className="mb-6 flex items-start justify-between">
         <div className="flex-1">

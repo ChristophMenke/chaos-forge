@@ -103,7 +103,7 @@ export function PlayAbilitiesPanel({
                     {hasUses && (
                       <Badge
                         variant={used >= ability.usesPerDay! ? "secondary" : "outline"}
-                        className="shrink-0 text-[10px]"
+                        className="shrink-0 text-[10px] md:text-xs"
                         data-testid={`play-ability-uses-${key}`}
                       >
                         {t("usesRemaining", { used, total: ability.usesPerDay ?? 0 })}
@@ -113,7 +113,7 @@ export function PlayAbilitiesPanel({
                       <Button
                         size="sm"
                         variant={canUse ? "default" : "ghost"}
-                        className="h-6 shrink-0 px-2 text-[10px]"
+                        className="h-6 shrink-0 px-2 text-[10px] md:text-xs"
                         disabled={!canUse}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -179,7 +179,7 @@ export function PlayAbilitiesPanel({
                     {hasUses && (
                       <Badge
                         variant={used >= ability.usesPerDay! ? "secondary" : "outline"}
-                        className="shrink-0 text-[10px]"
+                        className="shrink-0 text-[10px] md:text-xs"
                         data-testid={`play-ability-uses-${key}`}
                       >
                         {t("usesRemaining", { used, total: ability.usesPerDay ?? 0 })}
@@ -189,7 +189,7 @@ export function PlayAbilitiesPanel({
                       <Button
                         size="sm"
                         variant={canUse ? "default" : "ghost"}
-                        className="h-6 shrink-0 px-2 text-[10px]"
+                        className="h-6 shrink-0 px-2 text-[10px] md:text-xs"
                         disabled={!canUse}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -252,14 +252,14 @@ export function PlayAbilitiesPanel({
                       {power.webResearched && <WebresearchBadge />}
                     </span>
                     {power.level > 1 && (
-                      <Badge variant="outline" className="shrink-0 text-[9px]">
+                      <Badge variant="outline" className="shrink-0 text-[9px] md:text-xs">
                         Lvl {power.level}+
                       </Badge>
                     )}
                     {hasUses && (
                       <Badge
                         variant={used >= power.mechanical!.usesPerDay! ? "secondary" : "outline"}
-                        className="shrink-0 text-[10px]"
+                        className="shrink-0 text-[10px] md:text-xs"
                         data-testid={`play-ability-uses-${key}`}
                       >
                         {t("usesRemaining", {
@@ -272,7 +272,7 @@ export function PlayAbilitiesPanel({
                       <Button
                         size="sm"
                         variant={canUse ? "default" : "ghost"}
-                        className="h-6 shrink-0 px-2 text-[10px]"
+                        className="h-6 shrink-0 px-2 text-[10px] md:text-xs"
                         disabled={!canUse}
                         onClick={(e) => {
                           e.stopPropagation();

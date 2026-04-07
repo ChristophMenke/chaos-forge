@@ -258,7 +258,7 @@ export function PlayChecksPanel({
         </h3>
         {epic.perceptionBonus > 0 && (
           <div
-            className="rounded-md border border-purple-500/50 bg-purple-500/5 px-2 py-1 text-[10px] text-purple-400"
+            className="rounded-md border border-purple-500/50 bg-purple-500/5 px-2 py-1 text-[10px] md:text-xs text-purple-400"
             data-testid="play-perception-bonus"
           >
             {t("perceptionBonus", { bonus: epic.perceptionBonus })}
@@ -326,19 +326,23 @@ export function PlayChecksPanel({
                 className={`rounded-md border px-1 py-1.5 ${hasPenalty ? "border-amber-500/50 bg-amber-500/5" : "border-border"}`}
                 data-testid={`play-save-${save.key}`}
               >
-                <div className="truncate text-[9px] text-muted-foreground">{save.label}</div>
+                <div className="truncate text-[9px] md:text-xs text-muted-foreground">
+                  {save.label}
+                </div>
                 <div
                   className={`font-mono text-lg font-bold ${hasPenalty ? "text-amber-400" : ""}`}
                 >
                   {effective}
                 </div>
-                {hasPenalty && <div className="text-[8px] text-amber-400/80">+{save.penalty}</div>}
+                {hasPenalty && (
+                  <div className="text-[8px] md:text-[10px] text-amber-400/80">+{save.penalty}</div>
+                )}
               </div>
             );
           })}
         </div>
         {wisMods.magicalDefenseAdj !== 0 && (
-          <div className="mt-1 text-[10px] text-muted-foreground">
+          <div className="mt-1 text-[10px] md:text-xs text-muted-foreground">
             {t("wisMagicalDefense")}: {wisMods.magicalDefenseAdj > 0 ? "+" : ""}
             {wisMods.magicalDefenseAdj}
           </div>
@@ -354,7 +358,9 @@ export function PlayChecksPanel({
               key={ab.name}
               className={`rounded-md border px-2 py-1.5 text-center ${ab.modified ? "border-purple-500/50 bg-purple-500/5" : "border-border"}`}
             >
-              <div className="text-[10px] font-medium text-muted-foreground">{ab.name}</div>
+              <div className="text-[10px] md:text-xs font-medium text-muted-foreground">
+                {ab.name}
+              </div>
               <div
                 className={`font-mono text-lg font-bold ${ab.modified ? "text-purple-400" : ""}`}
               >
@@ -365,7 +371,7 @@ export function PlayChecksPanel({
                   {ab.subScores.map(
                     (sub) =>
                       sub && (
-                        <div key={sub.name} className="text-[9px] text-muted-foreground">
+                        <div key={sub.name} className="text-[9px] md:text-xs text-muted-foreground">
                           {sub.name}: {sub.score}
                         </div>
                       )
@@ -384,7 +390,9 @@ export function PlayChecksPanel({
           className="rounded-md border border-border px-3 py-1.5 text-center"
           style={{ width: "fit-content" }}
         >
-          <div className="text-[10px] text-muted-foreground">{t("perceptionFormula")}</div>
+          <div className="text-[10px] md:text-xs text-muted-foreground">
+            {t("perceptionFormula")}
+          </div>
           <div className="font-mono text-lg font-bold">
             {Math.floor(((eo.int ?? character.int) + (eo.wis ?? character.wis)) / 2) +
               epic.perceptionBonus +
@@ -450,18 +458,22 @@ export function PlayChecksPanel({
                 <div className="flex items-center justify-between">
                   <div className="min-w-0 flex-1">
                     <span className="text-xs">{nwp.name}</span>
-                    <span className="ml-1 text-[10px] text-muted-foreground">
+                    <span className="ml-1 text-[10px] md:text-xs text-muted-foreground">
                       ({nwp.ability} {nwp.baseScore}
                       {nwp.modifier !== 0 ? ` ${nwp.modifier > 0 ? "+" : ""}${nwp.modifier}` : ""})
                     </span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-[10px] text-muted-foreground">{t("target")}:</span>
+                    <span className="text-[10px] md:text-xs text-muted-foreground">
+                      {t("target")}:
+                    </span>
                     <span className="font-mono text-sm font-bold">{nwp.target}</span>
                   </div>
                 </div>
                 {expandedNwp === nwp.name && nwp.description && (
-                  <p className="mt-1 pb-0.5 text-[10px] text-muted-foreground">{nwp.description}</p>
+                  <p className="mt-1 pb-0.5 text-[10px] md:text-xs text-muted-foreground">
+                    {nwp.description}
+                  </p>
                 )}
               </div>
             ))}
