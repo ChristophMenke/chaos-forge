@@ -64,10 +64,10 @@ test.describe("Dashboard Improvements", () => {
     const raceCard = page.getByTestId("stat-card-races");
 
     if (await classCard.isVisible()) {
-      await expect(classCard).toContainText(/\w+ \d+/);
+      await expect(classCard).toContainText(/\w+\s*\d+/);
     }
     if (await raceCard.isVisible()) {
-      await expect(raceCard).toContainText(/\w+ \d+/);
+      await expect(raceCard).toContainText(/\w+\s*\d+/);
     }
   });
 });

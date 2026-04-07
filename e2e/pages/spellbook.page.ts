@@ -33,7 +33,11 @@ export class SpellbookPage {
 
   async goto(characterId: string) {
     await this.page.goto(`/characters/${characterId}/spellbook`);
-    await this.page.waitForTimeout(3000);
+    // Wait for spellbook container or no-magic fallback
+    await Promise.race([
+      this.container.waitFor({ state: "visible", timeout: 15000 }),
+      this.noMagic.waitFor({ state: "visible", timeout: 15000 }),
+    ]);
   }
 
   spellCard(spellId: string) {

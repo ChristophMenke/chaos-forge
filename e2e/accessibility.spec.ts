@@ -40,9 +40,16 @@ test.describe("Accessibility — Light Mode (WCAG 2 AA)", () => {
   async function ensureLightMode(page: import("@playwright/test").Page) {
     await expect(page.locator("html.light")).toBeAttached({ timeout: 5000 });
     // Theme switch from SSR dark → client light requires a paint cycle for
-    // CSS custom properties to fully resolve. Without this, axe-core may
-    // compute intermediate background colors from the transitioning state.
-    await page.waitForTimeout(200);
+    // CSS custom properties to fully resolve. Wait for transition to settle.
+    await page
+      .waitForFunction(
+        () => {
+          const bg = getComputedStyle(document.body).backgroundColor;
+          return bg !== "" && bg !== "rgba(0, 0, 0, 0)";
+        },
+        { timeout: 3000 }
+      )
+      .catch(() => {});
   }
 
   test("landing page in light mode should have no accessibility violations", async ({ page }) => {
@@ -61,6 +68,7 @@ test.describe("Accessibility — Light Mode (WCAG 2 AA)", () => {
 
   test("404 page in light mode should have no accessibility violations", async ({ page }) => {
     await page.goto("/this-page-does-not-exist");
+    await page.waitForLoadState("networkidle");
     await ensureLightMode(page);
     const results = await createAxeBuilder(page).analyze();
     expect(results.violations).toEqual([]);

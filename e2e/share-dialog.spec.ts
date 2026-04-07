@@ -102,13 +102,18 @@ test.describe("Share Dialog", () => {
 
     // Toggle public visibility
     await toggle.click();
-    await page.waitForTimeout(1000);
+    await expect(async () => {
+      const newText = await toggle.textContent();
+      expect(newText).not.toBe(initialText);
+    }).toPass({ timeout: 5000 });
     const newText = await toggle.textContent();
-    expect(newText).not.toBe(initialText);
 
     // Restore original state
     await toggle.click();
-    await page.waitForTimeout(1000);
+    await expect(async () => {
+      const restoredText = await toggle.textContent();
+      expect(restoredText).toBe(initialText);
+    }).toPass({ timeout: 5000 });
     const restoredText = await toggle.textContent();
     expect(restoredText).toBe(initialText);
 

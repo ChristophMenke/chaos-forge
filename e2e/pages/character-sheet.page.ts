@@ -102,11 +102,19 @@ export class CharacterSheetPage {
     tab: "stats" | "combat" | "notes" | "equipment" | "spells" | "thief-skills" | "proficiencies"
   ) {
     await this.page.getByTestId(`tab-trigger-${tab}`).click();
-    await this.page.waitForTimeout(500);
+    await this.page.getByTestId(`tab-${tab}`).waitFor({ state: "visible", timeout: 5000 });
   }
 
   async save() {
     await this.saveButton.click();
-    await this.page.waitForTimeout(3000);
+    // Wait for save to complete by watching for the save response
+    await this.page
+      .waitForResponse(
+        (resp) => resp.url().includes("/characters/") && resp.request().method() === "PUT",
+        { timeout: 10000 }
+      )
+      .catch(() => {
+        /* save may have already completed */
+      });
   }
 }

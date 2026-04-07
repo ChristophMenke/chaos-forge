@@ -13,9 +13,9 @@ test.describe("Login Page", () => {
 
   test("authenticated user is redirected to characters", async ({ page }) => {
     await page.goto("/characters");
-    await page.waitForTimeout(3000);
+    await expect(page).not.toHaveURL(/\/login/, { timeout: 15000 });
+    await page.getByTestId("active-characters-grid").waitFor({ state: "visible", timeout: 15000 });
     expect(page.url()).toContain("/characters");
-    expect(page.url()).not.toContain("/login");
   });
 });
 
@@ -56,7 +56,6 @@ test.describe("Character Sheet — Owner", () => {
     const spellsTrigger = page.getByTestId("tab-trigger-spells");
     if (await spellsTrigger.isVisible({ timeout: 2000 }).catch(() => false)) {
       await spellsTrigger.click();
-      await page.waitForTimeout(1000);
       await expect(page.getByTestId("tab-spells")).toBeVisible({ timeout: 5000 });
     }
 
@@ -64,7 +63,6 @@ test.describe("Character Sheet — Owner", () => {
     const thiefTrigger = page.getByTestId("tab-trigger-thief-skills");
     if (await thiefTrigger.isVisible({ timeout: 2000 }).catch(() => false)) {
       await thiefTrigger.click();
-      await page.waitForTimeout(1000);
       await expect(sheet.thiefPickLocks).toBeVisible({ timeout: 5000 });
     }
 
@@ -150,8 +148,7 @@ test.describe("Print View", () => {
     await sheet.container.waitFor({ timeout: 30000 });
 
     await sheet.printButton.click();
-    await page.waitForTimeout(5000);
-    await expect(page.getByTestId("print-sheet")).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId("print-sheet")).toBeVisible({ timeout: 15000 });
     await expect(page.getByTestId("print-section-personal")).toBeVisible();
     await expect(page.getByTestId("print-section-abilities")).toBeVisible();
     await expect(page.getByTestId("print-section-combat")).toBeVisible();
