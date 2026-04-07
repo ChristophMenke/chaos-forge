@@ -1,0 +1,47 @@
+[
+  {
+    "id": "c73946a5-b038-4247-ac96-213060ffd985",
+    "user_id": "4e9dffba-601c-4ecf-8162-b62e1be519ca",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "type": "gm_gold_received",
+    "details": {
+      "cp": 0,
+      "ep": 0,
+      "gp": 0,
+      "pp": 10,
+      "sp": 0,
+      "character_name": "Sprocket 'Fixit' Tanglewire"
+    },
+    "is_read": true,
+    "created_at": "2026-04-04T18:58:24.024149+00:00"
+  },
+  {
+    "id": "e0a8edcc-0f72-491a-8048-604ebe4e518a",
+    "user_id": "4e9dffba-601c-4ecf-8162-b62e1be519ca",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "type": "gm_item_received",
+    "details": {
+      "quantity": 1,
+      "item_name": "Armschlinge",
+      "character_name": "Sprocket 'Fixit' Tanglewire"
+    },
+    "is_read": true,
+    "created_at": "2026-04-04T20:18:20.109272+00:00"
+  },
+  {
+    "id": "184ff5a0-47f2-477c-9268-045eee557c97",
+    "user_id": "4e9dffba-601c-4ecf-8162-b62e1be519ca",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "type": "gm_gold_received",
+    "details": {
+      "cp": 0,
+      "ep": 0,
+      "gp": 0,
+      "pp": 5,
+      "sp": 0,
+      "character_name": "Sprocket 'Fixit' Tanglewire"
+    },
+    "is_read": true,
+    "created_at": "2026-04-04T20:18:36.959961+00:00"
+  }
+]

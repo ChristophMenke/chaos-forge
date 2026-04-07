@@ -1,0 +1,23 @@
+[
+  {
+    "id": "92172de7-e79a-47c8-9489-fdd5abefe848",
+    "quote_id": "4c5d06f3-105b-49dd-8690-278b1997f070",
+    "user_id": "4e9dffba-601c-4ecf-8162-b62e1be519ca",
+    "emoji": "😂",
+    "created_at": "2026-03-30T21:50:09.02913+00:00"
+  },
+  {
+    "id": "9f6bcdfe-f2ee-454a-85d0-5d360012a457",
+    "quote_id": "ea3524bd-6309-4fee-b481-7c96e4bc4f93",
+    "user_id": "4e9dffba-601c-4ecf-8162-b62e1be519ca",
+    "emoji": "❤️",
+    "created_at": "2026-03-31T07:03:10.748119+00:00"
+  },
+  {
+    "id": "d024e26d-9f79-4057-bc0c-39621283afe5",
+    "quote_id": "4c5d06f3-105b-49dd-8690-278b1997f070",
+    "user_id": "4e9dffba-601c-4ecf-8162-b62e1be519ca",
+    "emoji": "💀",
+    "created_at": "2026-04-03T21:31:29.791855+00:00"
+  }
+]

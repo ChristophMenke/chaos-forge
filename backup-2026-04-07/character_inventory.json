@@ -1,0 +1,210 @@
+[
+  {
+    "id": "ed3169f8-0213-44ce-9815-35b5909c8a33",
+    "character_id": "b6e33efb-751b-4c38-9477-70cbda357743",
+    "item_id": null,
+    "custom_name": "Backpack",
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "59f0ccf2-dae3-4800-8c84-9df569cc9c85",
+    "character_id": "b6e33efb-751b-4c38-9477-70cbda357743",
+    "item_id": null,
+    "custom_name": "Spellbook",
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "ba689acc-6700-46d9-81b7-7945883d1b93",
+    "character_id": "b6e33efb-751b-4c38-9477-70cbda357743",
+    "item_id": null,
+    "custom_name": "Wineskin",
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "d6cc920c-9bff-447e-af74-c2fa6f4ea347",
+    "character_id": "b6e33efb-751b-4c38-9477-70cbda357743",
+    "item_id": null,
+    "custom_name": "Anhänger mit Asche der Ehefrau",
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "1dd05eef-b969-4a5b-8141-8e39a6cc0bd6",
+    "character_id": "b6e33efb-751b-4c38-9477-70cbda357743",
+    "item_id": null,
+    "custom_name": "Armschienen",
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "fb8f0e2f-f1ee-4ed4-8351-7332f45c1d88",
+    "character_id": "b6e33efb-751b-4c38-9477-70cbda357743",
+    "item_id": null,
+    "custom_name": "Panther \"Rasmur\"",
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "c7ba7b1c-38d2-4d56-941b-0326b738d3bb",
+    "character_id": "4c1faee2-9053-4b64-a2fd-27a15499b406",
+    "item_id": null,
+    "custom_name": "Amulet of Protection +1",
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "74663518-1fb9-47ba-86f2-82b078855730",
+    "character_id": "4c1faee2-9053-4b64-a2fd-27a15499b406",
+    "item_id": null,
+    "custom_name": "Bracers",
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "02d92f94-7160-4231-897c-c9b0905c98f0",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "item_id": null,
+    "custom_name": "Trank (Unsichtbarkeit - vom Assasinen in Berrybuck)",
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "9c790a65-6e75-4d32-9c44-fc9a1040ace7",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "item_id": null,
+    "custom_name": "Magischer Umhang (vom Assasinen in Berrybuck))",
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "369841cb-c254-4381-95ec-530b3ff30d26",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "item_id": "bb20044d-d5f1-4ffe-b151-03cee38178e9",
+    "custom_name": null,
+    "quantity": 3,
+    "notes": ""
+  },
+  {
+    "id": "a28719f4-b7bc-4c72-bccc-76326fad8e5a",
+    "character_id": "09ad6d65-f871-400b-9daa-5a9890bcc84b",
+    "item_id": null,
+    "custom_name": "Backpack",
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "fd911a82-6710-48df-8793-3872535f077b",
+    "character_id": "09ad6d65-f871-400b-9daa-5a9890bcc84b",
+    "item_id": null,
+    "custom_name": "Dry rations (1 week)",
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "bea0ecdf-2e4b-413d-82a0-ca1021bfaeda",
+    "character_id": "09ad6d65-f871-400b-9daa-5a9890bcc84b",
+    "item_id": null,
+    "custom_name": "Musical instrument (small)",
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "dd018032-e071-4bd9-b93d-299870d790c8",
+    "character_id": "09ad6d65-f871-400b-9daa-5a9890bcc84b",
+    "item_id": null,
+    "custom_name": "Torch x3",
+    "quantity": 3,
+    "notes": ""
+  },
+  {
+    "id": "19632185-3ff8-4d56-8011-f3cf901d9b84",
+    "character_id": "09ad6d65-f871-400b-9daa-5a9890bcc84b",
+    "item_id": null,
+    "custom_name": "Wineskin",
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "07b6dc08-3ffa-44c4-9eef-460de90bffe7",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "item_id": "0ce3fb7a-ee11-46d0-8d09-3f3820598133",
+    "custom_name": null,
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "3def009f-d94b-4945-b9e8-6dfc7810f491",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "item_id": "9385d34f-18ca-4820-84e3-57aa98cad69f",
+    "custom_name": null,
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "6fc35268-9400-4e4f-8ca6-91757e196d0d",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "item_id": "3bdc5b46-cc16-4ea5-9b01-7f0fcf643d8e",
+    "custom_name": null,
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "2c2d7cda-7e99-4592-847e-dd224c8b81f1",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "item_id": "493bab13-cd4a-42b9-9a2a-2fd6a958891b",
+    "custom_name": null,
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "cebc181e-d923-44f6-9180-2604fc34fe6b",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "item_id": "493df6c9-6ff7-4cc3-b065-f206bd36a409",
+    "custom_name": null,
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "c1af9b0d-fb3f-458f-9638-10143d2da3c2",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "item_id": "aa2c09e4-0bfd-4bba-a175-7fe683a81d40",
+    "custom_name": null,
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "7e730cbf-ea22-48b4-b0d6-b47276421111",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "item_id": "b7a9a538-e649-4ecc-ad6e-122f744f9f4a",
+    "custom_name": null,
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "8037d347-57f7-47a4-b222-7ac62e05e21d",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "item_id": "84578e30-5315-4898-b40c-2bb5e5822723",
+    "custom_name": null,
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "5fb795ac-3542-4589-94b8-53860eded769",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "item_id": "ec3763bc-b5e6-4b6f-91c6-18c78eaf654a",
+    "custom_name": null,
+    "quantity": 1,
+    "notes": ""
+  },
+  {
+    "id": "2ccb9d5c-84ad-4b71-80ec-151fe3bfd281",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "item_id": null,
+    "custom_name": "Handwagen mit Werkzeugen und Materialien",
+    "quantity": 1,
+    "notes": ""
+  }
+]

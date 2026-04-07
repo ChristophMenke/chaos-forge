@@ -1,0 +1,128 @@
+[
+  {
+    "id": "aaaa7452-1ca7-4e8c-a164-5b056110a805",
+    "character_id": "05c64a74-22a8-4d1f-99d0-a076e605ac2b",
+    "class_id": "crusader",
+    "level": 11,
+    "xp_current": 0,
+    "is_active": true,
+    "switch_level": null
+  },
+  {
+    "id": "967e2dd2-4b7d-49ae-ac7c-bf4e820e5f20",
+    "character_id": "ff83f89d-3db1-44d3-898e-3f57afa7e2ae",
+    "class_id": "thief",
+    "level": 9,
+    "xp_current": 126500,
+    "is_active": true,
+    "switch_level": null
+  },
+  {
+    "id": "0c7ab7c9-2553-42e2-a57c-e7af46fb7733",
+    "character_id": "3e75aed5-9ad1-495b-8743-e8a2b49be274",
+    "class_id": "crusader",
+    "level": 11,
+    "xp_current": 0,
+    "is_active": true,
+    "switch_level": null
+  },
+  {
+    "id": "75b445c1-e245-4f0f-b492-f018bb6d6a70",
+    "character_id": "b6e33efb-751b-4c38-9477-70cbda357743",
+    "class_id": "illusionist",
+    "level": 9,
+    "xp_current": 184850,
+    "is_active": true,
+    "switch_level": null
+  },
+  {
+    "id": "cd4e809f-8209-450a-bd25-844fcc195a9a",
+    "character_id": "d346836c-7c10-45ff-abfc-25edb12f33fd",
+    "class_id": "fighter",
+    "level": 4,
+    "xp_current": 8000,
+    "is_active": true,
+    "switch_level": null
+  },
+  {
+    "id": "db8c2f5f-3120-4cb3-bd10-5000f0e48a78",
+    "character_id": "d346836c-7c10-45ff-abfc-25edb12f33fd",
+    "class_id": "thief",
+    "level": 5,
+    "xp_current": 10330,
+    "is_active": true,
+    "switch_level": null
+  },
+  {
+    "id": "b1b56d2f-adf5-473d-8fb4-b05728db04dc",
+    "character_id": "c60b6398-8d3a-4745-9a85-00cae7da4817",
+    "class_id": "fighter",
+    "level": 9,
+    "xp_current": 262010,
+    "is_active": true,
+    "switch_level": null
+  },
+  {
+    "id": "bc51e7ae-1920-4b9e-aaa7-e71f476fd03e",
+    "character_id": "4c1faee2-9053-4b64-a2fd-27a15499b406",
+    "class_id": "mage",
+    "level": 4,
+    "xp_current": 14200,
+    "is_active": true,
+    "switch_level": null
+  },
+  {
+    "id": "1582e11e-79fd-4cdd-b623-2ce5a3150636",
+    "character_id": "fed30c29-856f-4793-a4c7-06aa3401180d",
+    "class_id": "bard",
+    "level": 1,
+    "xp_current": 0,
+    "is_active": true,
+    "switch_level": null
+  },
+  {
+    "id": "30617e25-c008-40f0-ae50-27d1c43b7020",
+    "character_id": "09ad6d65-f871-400b-9daa-5a9890bcc84b",
+    "class_id": "fighter",
+    "level": 9,
+    "xp_current": 262010,
+    "is_active": true,
+    "switch_level": null
+  },
+  {
+    "id": "a7f8e2cd-087a-4fa5-b403-135e0164f69a",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "class_id": "mage",
+    "level": 9,
+    "xp_current": 40000,
+    "is_active": true,
+    "switch_level": null
+  },
+  {
+    "id": "d8f492a0-e502-4bcd-8018-b6b82c2676e7",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "class_id": "thief",
+    "level": 7,
+    "xp_current": 40000,
+    "is_active": true,
+    "switch_level": null
+  },
+  {
+    "id": "18216d2f-1948-4f34-be7e-58be99289e65",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "class_id": "thief",
+    "level": 7,
+    "xp_current": 60000,
+    "is_active": true,
+    "switch_level": null
+  },
+  {
+    "id": "9bec2cc5-4239-40b6-90bc-2fa8cec90161",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "class_id": "illusionist",
+    "level": 8,
+    "xp_current": 104300,
+    "is_active": true,
+    "switch_level": null
+  }
+]

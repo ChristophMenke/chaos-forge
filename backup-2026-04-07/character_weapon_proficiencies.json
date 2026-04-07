@@ -1,0 +1,206 @@
+[
+  {
+    "id": "fa015811-fa2c-43eb-9bae-7123a9fe32a7",
+    "character_id": "fed30c29-856f-4793-a4c7-06aa3401180d",
+    "weapon_name": "Streitaxt",
+    "specialization": false
+  },
+  {
+    "id": "27ef2683-fb21-4f4e-b501-921e9117a580",
+    "character_id": "d346836c-7c10-45ff-abfc-25edb12f33fd",
+    "weapon_name": "Leichte Armbrust",
+    "specialization": false
+  },
+  {
+    "id": "9197f6da-79b7-4c6d-8b22-cb86bb478c57",
+    "character_id": "ff83f89d-3db1-44d3-898e-3f57afa7e2ae",
+    "weapon_name": "Leichte Armbrust",
+    "specialization": false
+  },
+  {
+    "id": "dcb04da6-8371-4025-bc04-52e6304596d2",
+    "character_id": "05c64a74-22a8-4d1f-99d0-a076e605ac2b",
+    "weapon_name": "Leichte Armbrust",
+    "specialization": false
+  },
+  {
+    "id": "208d9056-e01b-48cd-900f-81776539231a",
+    "character_id": "d346836c-7c10-45ff-abfc-25edb12f33fd",
+    "weapon_name": "Kurzschwert",
+    "specialization": true
+  },
+  {
+    "id": "14adfdef-d5d4-4f70-b94a-11467d8e76a0",
+    "character_id": "05c64a74-22a8-4d1f-99d0-a076e605ac2b",
+    "weapon_name": "Zweihänder",
+    "specialization": true
+  },
+  {
+    "id": "a257173d-99ba-4739-8764-148e18278ddb",
+    "character_id": "05c64a74-22a8-4d1f-99d0-a076e605ac2b",
+    "weapon_name": "Dolch",
+    "specialization": false
+  },
+  {
+    "id": "99acd578-241a-495f-b5fc-a606ebff8fc8",
+    "character_id": "fed30c29-856f-4793-a4c7-06aa3401180d",
+    "weapon_name": "Dolch",
+    "specialization": false
+  },
+  {
+    "id": "def7567f-e53f-4f84-b5eb-83924d32ef50",
+    "character_id": "d346836c-7c10-45ff-abfc-25edb12f33fd",
+    "weapon_name": "Dolch",
+    "specialization": false
+  },
+  {
+    "id": "cf0d10bb-eaf9-4b69-b2d2-f5c3c3a1728a",
+    "character_id": "b6e33efb-751b-4c38-9477-70cbda357743",
+    "weapon_name": "Dolch",
+    "specialization": false
+  },
+  {
+    "id": "f34654ee-1845-4dc2-a30e-14b9856e4559",
+    "character_id": "4c1faee2-9053-4b64-a2fd-27a15499b406",
+    "weapon_name": "Dolch",
+    "specialization": false
+  },
+  {
+    "id": "47ce3cf0-19ae-4179-b314-de77433a421d",
+    "character_id": "ff83f89d-3db1-44d3-898e-3f57afa7e2ae",
+    "weapon_name": "Dolch",
+    "specialization": false
+  },
+  {
+    "id": "e4eadfd9-4d46-40a8-b893-0dd8eb449585",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "weapon_name": "Kurzschwert",
+    "specialization": false
+  },
+  {
+    "id": "6a249fa5-3103-4004-b4cc-769a31b71e05",
+    "character_id": "05c64a74-22a8-4d1f-99d0-a076e605ac2b",
+    "weapon_name": "Wurfspeer",
+    "specialization": false
+  },
+  {
+    "id": "c67dac18-cb5f-4846-a89b-8422cae9e75c",
+    "character_id": "fed30c29-856f-4793-a4c7-06aa3401180d",
+    "weapon_name": "Langbogen",
+    "specialization": false
+  },
+  {
+    "id": "500e0e35-f485-4b53-99d9-45471f860173",
+    "character_id": "d346836c-7c10-45ff-abfc-25edb12f33fd",
+    "weapon_name": "Peitsche",
+    "specialization": false
+  },
+  {
+    "id": "17999e8c-4462-4105-aac1-d7b94e2d7e58",
+    "character_id": "b6e33efb-751b-4c38-9477-70cbda357743",
+    "weapon_name": "Kampfstab",
+    "specialization": false
+  },
+  {
+    "id": "2741884f-147c-427e-9f95-8ceae6290faa",
+    "character_id": "09ad6d65-f871-400b-9daa-5a9890bcc84b",
+    "weapon_name": "Axe, battle",
+    "specialization": true
+  },
+  {
+    "id": "c8cc7b6c-1255-48c3-82cd-2c53781b0926",
+    "character_id": "09ad6d65-f871-400b-9daa-5a9890bcc84b",
+    "weapon_name": "Kompositbogen (lang)",
+    "specialization": false
+  },
+  {
+    "id": "6b4473ea-ce45-4a61-bfac-4474e5aafbb3",
+    "character_id": "09ad6d65-f871-400b-9daa-5a9890bcc84b",
+    "weapon_name": "Dolch",
+    "specialization": false
+  },
+  {
+    "id": "0ecc48fb-4d8c-4ee0-b02e-921a5d517ba1",
+    "character_id": "09ad6d65-f871-400b-9daa-5a9890bcc84b",
+    "weapon_name": "Shield (medium)",
+    "specialization": false
+  },
+  {
+    "id": "d8b5afce-fe64-490d-aeed-08f3db7135e0",
+    "character_id": "09ad6d65-f871-400b-9daa-5a9890bcc84b",
+    "weapon_name": "Sword, long",
+    "specialization": true
+  },
+  {
+    "id": "17c07c4f-2915-426f-94bb-109644706e70",
+    "character_id": "09ad6d65-f871-400b-9daa-5a9890bcc84b",
+    "weapon_name": "Langschwert",
+    "specialization": true
+  },
+  {
+    "id": "5c4b1d85-ece0-402a-8bd1-9ed80613e2f5",
+    "character_id": "09ad6d65-f871-400b-9daa-5a9890bcc84b",
+    "weapon_name": "Mittlerer Schild",
+    "specialization": false
+  },
+  {
+    "id": "bd4809c0-cc35-4b7e-bac7-1be60c78a119",
+    "character_id": "3e75aed5-9ad1-495b-8743-e8a2b49be274",
+    "weapon_name": "Leichte Armbrust",
+    "specialization": false
+  },
+  {
+    "id": "d36d094e-99d4-40ab-8490-9da468b6a0ce",
+    "character_id": "3e75aed5-9ad1-495b-8743-e8a2b49be274",
+    "weapon_name": "Zweihänder",
+    "specialization": true
+  },
+  {
+    "id": "5925d187-39e5-4ff2-9370-89544db1c8bf",
+    "character_id": "3e75aed5-9ad1-495b-8743-e8a2b49be274",
+    "weapon_name": "Dolch",
+    "specialization": false
+  },
+  {
+    "id": "c9759c22-c485-49ea-8c38-5b7c4b6c5796",
+    "character_id": "3e75aed5-9ad1-495b-8743-e8a2b49be274",
+    "weapon_name": "Wurfspeer",
+    "specialization": false
+  },
+  {
+    "id": "fd617e6d-61c1-49f1-8d17-1a13b7c84e74",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "weapon_name": "Dolch",
+    "specialization": false
+  },
+  {
+    "id": "4bd9b76e-310a-451b-83b3-36331c1b1254",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "weapon_name": "Kampfstab",
+    "specialization": false
+  },
+  {
+    "id": "0c989d78-91b2-454a-b154-e1ee8615a826",
+    "character_id": "ff83f89d-3db1-44d3-898e-3f57afa7e2ae",
+    "weapon_name": "Kurzschwert",
+    "specialization": false
+  },
+  {
+    "id": "91eedf99-b929-4bf6-bbab-da708b1f26fe",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "weapon_name": "Kurzbogen",
+    "specialization": false
+  },
+  {
+    "id": "ed8552f7-6dbe-42fd-91d9-243b210fc927",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "weapon_name": "Dolch",
+    "specialization": false
+  },
+  {
+    "id": "91e73603-1a1b-40e7-acce-4d46c5415ad5",
+    "character_id": "58299456-112f-4455-8b12-60d7ed258150",
+    "weapon_name": "Kurzschwert",
+    "specialization": false
+  }
+]

@@ -1,0 +1,467 @@
+[
+  {
+    "id": "1e80b20c-5f4b-4ebb-9667-8029c4fa2453",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "slug": "sharpvision_goggles",
+    "name": "Scharfsicht-Brille",
+    "name_en": "Sharpvision Goggles",
+    "description": "Sprocket trägt diese Brille aus poliertem Messing und feinem Silberdraht fast immer. Sie ist nicht nur ein medizinisches Gerät, sondern ein Meisterwerk der optischen Ingenieurskunst, das an allen Ecken und Enden von winzigen Zahnrädern und magisch geschliffenen Prismen geschmückt ist. Bei der Konzentration summt die Brille leise, und in den Linsen fängt sich ein funkelndes Licht ein.",
+    "description_en": "Sprocket almost always wears these goggles made of polished brass and fine silver wire. They are not just a medical device, but a masterpiece of optical engineering, adorned with tiny gears and magically ground prisms at every corner. When concentrating, the goggles hum softly, and a sparkling light catches in the lenses.",
+    "icon": "glasses",
+    "equipped": true,
+    "damage_level": 0,
+    "max_damage_level": 0,
+    "damage_levels": {},
+    "simple_effects": {
+      "weakness": "Die filigranen Linsen und Mechanismen sind anfällig für Erschütterungen. Ein Schlag auf den Kopf oder ein Sturz könnte sie beschädigen.",
+      "description": "+2 auf sichtbedingte Wahrnehmungswürfe",
+      "weakness_en": "The delicate lenses and mechanisms are susceptible to shocks. A blow to the head or a fall could damage them.",
+      "description_en": "+2 to sight-based perception checks",
+      "perception_bonus": 2
+    },
+    "notes": "",
+    "created_at": "2026-03-29T22:39:09.89218+00:00",
+    "updated_at": "2026-03-29T22:39:09.89218+00:00"
+  },
+  {
+    "id": "2b3d97a7-9cbc-460a-9e70-12cd5c91a50f",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "slug": "mix-and-match-blades",
+    "name": "Mix-and-Match-Klingen",
+    "name_en": "Mix-and-Match Blades",
+    "description": "Ein Set kleiner, kunstvoll gearbeiteter Wurfmesser. Jede Klinge ist mit einem hohlen Kanal versehen, der mit einer alchemistischen Mixtur gefüllt werden kann.",
+    "description_en": "A set of small, intricately crafted throwing knives. Each blade has a hollow channel that can be filled with an alchemical mixture.",
+    "icon": "swords",
+    "equipped": true,
+    "damage_level": 0,
+    "max_damage_level": 0,
+    "damage_levels": {},
+    "simple_effects": {
+      "type": "blade_system",
+      "blades": [
+        { "id": 1, "status": "ready", "mixture": "red" },
+        { "id": 2, "status": "ready", "mixture": "blue" },
+        { "id": 3, "status": "ready", "mixture": "green" },
+        { "id": 4, "status": "ready", "mixture": "purple" }
+      ],
+      "mixtures": {
+        "red": {
+          "name": "Rauchbombe",
+          "color": "#ef4444",
+          "count": 4,
+          "effect": "Dichte rote Rauchwolke, behindert Sicht und lenkt Gegner ab.",
+          "name_en": "Smoke Bomb",
+          "duration": "1 Runde",
+          "effect_en": "Dense red smoke cloud, obstructs vision and distracts enemies.",
+          "duration_en": "1 round"
+        },
+        "blue": {
+          "name": "Gefrierbrand",
+          "color": "#3b82f6",
+          "count": 4,
+          "effect": "Komprimierte Flüssigkeit, die bei Kontakt verdampft und einen Kälteschock erzeugt. Nimmt dem Ziel kurzzeitig die Luft.",
+          "name_en": "Frostburn",
+          "duration": "1 Runde",
+          "effect_en": "Compressed liquid that evaporates on contact, causing a cold shock. Briefly takes the target's breath away.",
+          "duration_en": "1 round"
+        },
+        "green": {
+          "name": "Blenden",
+          "color": "#22c55e",
+          "count": 3,
+          "effect": "Klebriger, leuchtender Farbstoff, der die Sicht des Ziels massiv einschränkt oder es völlig blendet.",
+          "name_en": "Blinding Dye",
+          "duration": "1W4 Runden",
+          "effect_en": "Sticky, luminous dye that severely impairs the target's vision or completely blinds it.",
+          "duration_en": "1d4 rounds"
+        },
+        "purple": {
+          "name": "Narkose",
+          "color": "#a855f7",
+          "count": 3,
+          "effect": "Schnell wirkendes Narkosemittel. Bei Treffer an ungeschützten Stellen versetzt es das Ziel in Benommenheit.",
+          "name_en": "Narcosis",
+          "duration": "1W4 Runden",
+          "effect_en": "Fast-acting narcotic. On hit to unprotected areas, renders the target dazed.",
+          "duration_en": "1d4 rounds"
+        }
+      },
+      "max_prepared": 4,
+      "weapon_stats": {
+        "speed": 2,
+        "weight": 0.5,
+        "damage_l": "1d2",
+        "damage_sm": "1d3",
+        "range_long": 30,
+        "range_short": 10,
+        "weapon_type": "ranged",
+        "range_medium": 20
+      }
+    },
+    "notes": "",
+    "created_at": "2026-03-30T13:28:53.801888+00:00",
+    "updated_at": "2026-03-30T13:28:53.801888+00:00"
+  },
+  {
+    "id": "ba2794c9-4a8f-459c-b339-c7594e2d988e",
+    "character_id": "09ad6d65-f871-400b-9daa-5a9890bcc84b",
+    "slug": "klinge-des-wassers",
+    "name": "Klinge des Wassers",
+    "name_en": "Blade of Water",
+    "description": "Die Klinge des Wassers ist eine von vier Klingen, die vor Jahrhunderten von einem mächtigen Elementarmagier der inneren Ebenen geschaffen wurde. Die Klinge selbst scheint aus gefrorenem Wasser oder Kristall zu bestehen. Ihr Inneres ist durchzogen von silbernen Fäden.",
+    "description_en": "The Blade of Water is one of four blades forged centuries ago by a powerful Elemental Mage of the Inner Planes. The blade itself appears to be made of frozen water or crystal. Its interior is laced with silver threads.",
+    "icon": "swords",
+    "equipped": true,
+    "damage_level": 0,
+    "max_damage_level": 4,
+    "damage_levels": {
+      "0": {
+        "effects": [],
+        "description": "Basis: Die Klinge ruht. Ihre Geheimnisse sind noch verborgen.",
+        "description_en": "Base: The blade rests. Its secrets are still hidden."
+      },
+      "1": {
+        "effects": [],
+        "description": "Stufe 3-4: +1 Schwert. 1×/Tag Water Walk.",
+        "description_en": "Level 3-4: +1 sword. 1×/day Water Walk."
+      },
+      "2": {
+        "effects": [],
+        "description": "Stufe 5-6: +2 Schwert. 3×/Tag Water Walk, 1×/Tag Water Breathing.",
+        "description_en": "Level 5-6: +2 sword. 3×/day Water Walk, 1×/day Water Breathing."
+      },
+      "3": {
+        "effects": ["cold_damage_1d6"],
+        "description": "Stufe 7-8: +2 Schwert, +1d6 Kälteschaden. 3×/Tag Water Walk, 3×/Tag Water Breathing.",
+        "description_en": "Level 7-8: +2 sword, +1d6 cold damage. 3×/day Water Walk, 3×/day Water Breathing."
+      },
+      "4": {
+        "effects": ["cold_damage_1d6"],
+        "description": "Stufe 9-10: +3 Schwert, +1d6 Kälteschaden. 3×/Tag Water Walk, 3×/Tag Water Breathing, 1×/Woche Cone of Cold (10d4+10).",
+        "description_en": "Level 9-10: +3 sword, +1d6 cold damage. 3×/day Water Walk, 3×/day Water Breathing, 1×/week Cone of Cold (10d4+10)."
+      }
+    },
+    "simple_effects": {
+      "spell_abilities": [
+        {
+          "key": "water_walk",
+          "name": "Water Walk",
+          "effect": "Der Träger kann auf Wasser laufen, als wäre es fester Boden.",
+          "name_en": "Water Walk",
+          "effect_en": "The bearer can walk on water as if it were solid ground.",
+          "usesPerDay": 1,
+          "usesPerWeek": 0,
+          "unlock_level": 1
+        },
+        {
+          "key": "water_walk_3",
+          "name": "Water Walk",
+          "effect": "Der Träger kann auf Wasser laufen, als wäre es fester Boden.",
+          "name_en": "Water Walk",
+          "replaces": "water_walk",
+          "effect_en": "The bearer can walk on water as if it were solid ground.",
+          "usesPerDay": 3,
+          "usesPerWeek": 0,
+          "unlock_level": 2
+        },
+        {
+          "key": "water_breathing",
+          "name": "Water Breathing",
+          "effect": "Der Träger kann unter Wasser atmen.",
+          "name_en": "Water Breathing",
+          "effect_en": "The bearer can breathe underwater.",
+          "usesPerDay": 1,
+          "usesPerWeek": 0,
+          "unlock_level": 2
+        },
+        {
+          "key": "water_breathing_3",
+          "name": "Water Breathing",
+          "effect": "Der Träger kann unter Wasser atmen.",
+          "name_en": "Water Breathing",
+          "replaces": "water_breathing",
+          "effect_en": "The bearer can breathe underwater.",
+          "usesPerDay": 3,
+          "usesPerWeek": 0,
+          "unlock_level": 3
+        },
+        {
+          "key": "cone_of_cold",
+          "name": "Cone of Cold",
+          "effect": "Kältekegel: 10d4+10 Schaden. Rettungswurf gg. Zauber für halben Schaden.",
+          "name_en": "Cone of Cold",
+          "effect_en": "Cone of Cold: 10d4+10 damage. Save vs. Spell for half damage.",
+          "usesPerDay": 0,
+          "usesPerWeek": 1,
+          "unlock_level": 4
+        }
+      ],
+      "level_thresholds": [3, 5, 7, 9]
+    },
+    "notes": "",
+    "created_at": "2026-04-04T09:37:34.00063+00:00",
+    "updated_at": "2026-04-04T09:37:34.00063+00:00"
+  },
+  {
+    "id": "60c862dd-0cd9-4764-a37a-98eacfa9625f",
+    "character_id": "294c567c-5abb-4b6e-bc24-8d5105981ccf",
+    "slug": "constitution_condenser",
+    "name": "Konstitutions-Kondensator",
+    "name_en": "Constitution Condenser",
+    "description": "Dieses Gerät ist ein kompakter, runder Behälter aus Bronze und Glas, der wie ein kleiner mechanischer Herzschlag im Rhythmus pulsiert und an Sprockets Gürtel befestigt ist. Im Inneren leuchten rote, magische Kristalle, die durch eine Spirale aus Drähten miteinander verbunden sind.",
+    "description_en": "This device is a compact, round container of bronze and glass that pulses like a small mechanical heartbeat and is attached to Sprocket's belt. Inside, red magical crystals glow, connected by a spiral of wires.",
+    "icon": "heart-pulse",
+    "equipped": true,
+    "damage_level": 0,
+    "max_damage_level": 8,
+    "damage_levels": {
+      "0": {
+        "effects": [],
+        "description": "Voll funktionsfähig. Der Motor erhöht Sprockets Konstitution auf 18.",
+        "description_en": "Fully functional. The motor raises Sprocket's Constitution to 18.",
+        "stat_overrides": { "con": 18 }
+      },
+      "1": {
+        "effects": [],
+        "description": "Leichte Beschädigung. Konstitution sinkt auf 17.",
+        "description_en": "Minor damage. Constitution drops to 17.",
+        "stat_overrides": { "con": 17 }
+      },
+      "2": {
+        "effects": [],
+        "description": "Konstitution sinkt auf 16. Sprocket spürt eine wachsende emotionale Distanz.",
+        "description_en": "Constitution drops to 16. Sprocket feels a growing emotional distance.",
+        "stat_overrides": { "con": 16 }
+      },
+      "3": {
+        "effects": ["spell_failure_10"],
+        "description": "Konstitution sinkt auf 15. Zauber und Angriffe haben eine 10%-ige Fehlschlagwahrscheinlichkeit.",
+        "description_en": "Constitution drops to 15. Spells and attacks have a 10% failure chance.",
+        "stat_overrides": { "con": 15 }
+      },
+      "4": {
+        "effects": ["spell_failure_10", "thief_penalty_10"],
+        "description": "Konstitution sinkt auf 14. Sprocket leidet unter Erschöpfung: -10% auf Diebesfähigkeiten.",
+        "description_en": "Constitution drops to 14. Sprocket suffers from exhaustion: -10% on thief skills.",
+        "stat_overrides": { "con": 14 }
+      },
+      "5": {
+        "effects": ["spell_failure_10", "thief_disabled", "electric_damage_1"],
+        "description": "Konstitution sinkt auf 12. 1 Punkt elektrischer Schaden pro Runde. Diebesfähigkeiten nicht nutzbar.",
+        "description_en": "Constitution drops to 12. 1 point of electrical damage per round. Thief skills unusable.",
+        "stat_overrides": { "con": 12 }
+      },
+      "6": {
+        "effects": ["spell_failure_10", "thief_disabled", "electric_damage_1", "wild_magic_50"],
+        "description": "Konstitution sinkt auf 10. Zauber haben eine 50%-ige Wild-Magic-Chance.",
+        "description_en": "Constitution drops to 10. Spells have a 50% Wild Magic chance.",
+        "stat_overrides": { "con": 10 }
+      },
+      "7": {
+        "effects": [
+          "spell_failure_10",
+          "thief_disabled",
+          "electric_damage_1",
+          "wild_magic_50",
+          "save_vs_death"
+        ],
+        "description": "Konstitution sinkt auf 8. Mühsame Fortbewegung. Rettungswurf gg. Todesmagie pro Runde nötig.",
+        "description_en": "Constitution drops to 8. Labored movement. Save vs. Death Magic required each round.",
+        "stat_overrides": { "con": 8 }
+      },
+      "8": {
+        "effects": ["thief_disabled", "device_offline"],
+        "description": "Totalausfall. Die Konstitution sinkt auf Sprockets angeborenen Wert von 5. Das Gerät funktioniert nicht mehr.",
+        "description_en": "Total failure. Constitution drops to Sprocket's innate value of 5. The device no longer functions.",
+        "stat_overrides": { "con": 5 }
+      }
+    },
+    "simple_effects": {
+      "base_con": 5,
+      "fragility": {
+        "trigger_de": "Physischer Rettungswurf",
+        "trigger_en": "Physical saving throw",
+        "base_chance": 50,
+        "reduction_per_level": 2
+      },
+      "overclock": {
+        "name": "Übertakten",
+        "name_en": "Overclock",
+        "description": "Übertaktet den Kondensator für 1 Stunde. KON wird auf 20 gesetzt, Rettungswurf gg. Gift +1 (schlechter), heilt 1 TP pro Stunde. Erfordert erfolgreichen Ingenieurskunst-Wurf.",
+        "con_override": 20,
+        "description_en": "Overclocks the Condenser for 1 hour. CON becomes 20, Save vs. Poison +1 (worse), heals 1 HP per hour. Requires a successful Engineering check.",
+        "duration_hours": 1,
+        "heals_per_hour": 1,
+        "requires_check": "Ingenieurskunst",
+        "requires_check_en": "Engineering",
+        "poison_save_penalty": 1
+      },
+      "repair_time": "10 Minuten",
+      "elixir_bonus": 4,
+      "repair_skill": "Ingenieurskunst",
+      "damage_trigger": "Jeder physische Rettungswurf: 50% Chance auf Schadensstufe (-2% pro Klassenstufe). Natürliche 1: automatisch 2 Stufen.",
+      "elixir_cost_gp": 100,
+      "repair_time_en": "10 minutes",
+      "repair_skill_en": "Engineering",
+      "overclock_active": false,
+      "damage_trigger_en": "Each physical saving throw: 50% chance of damage level (-2% per class level). Natural 1: automatically 2 levels.",
+      "overclock_end_time": null
+    },
+    "notes": "",
+    "created_at": "2026-03-29T22:39:09.89218+00:00",
+    "updated_at": "2026-03-29T22:39:09.89218+00:00"
+  },
+  {
+    "id": "52a7a6fc-90c0-4513-b31e-8aa7bd315638",
+    "character_id": "c60b6398-8d3a-4745-9a85-00cae7da4817",
+    "slug": "totem-warrior",
+    "name": "Totem Warrior",
+    "name_en": "Totem Warrior",
+    "description": "Die Kräfte des Totem-Kriegers erwachen mit wachsender Stufe. Geschärfte Sinne und Gestaltwandlung.",
+    "description_en": "The Totem Warrior's powers awaken with growing level. Heightened senses and shapeshifting.",
+    "icon": "paw-print",
+    "equipped": true,
+    "damage_level": 3,
+    "max_damage_level": 3,
+    "damage_levels": {
+      "0": {
+        "effects": ["perception_bonus_2"],
+        "description": "Stufe 3-4: Ausgeprägter Geruchssinn (+2 auf Riechen). Tracking-Fähigkeit gratis.",
+        "description_en": "Level 3-4: Heightened sense of smell (+2 scent). Free Tracking proficiency.",
+        "stat_overrides": {}
+      },
+      "1": {
+        "effects": ["perception_bonus_2"],
+        "description": "Stufe 5-6: Wolfsverwandlung 1×/Tag (Willenskraftwurf).",
+        "description_en": "Level 5-6: Wolf shape 1×/day (Willpower check).",
+        "stat_overrides": {}
+      },
+      "2": {
+        "effects": ["perception_bonus_2"],
+        "description": "Stufe 7-8: Bärenverwandlung 1×/Tag (Willenskraftwurf).",
+        "description_en": "Level 7-8: Bear shape 1×/day (Willpower check).",
+        "stat_overrides": {}
+      },
+      "3": {
+        "effects": ["perception_bonus_2"],
+        "description": "Stufe 9-10: Wolfsverwandlung unbegrenzt häufig.",
+        "description_en": "Level 9-10: Wolf shape unlimited.",
+        "stat_overrides": {}
+      }
+    },
+    "simple_effects": {
+      "level_thresholds": [3, 5, 7, 9],
+      "shapeshift_forms": [
+        {
+          "key": "wolf",
+          "name": "Wolf",
+          "baseAC": 6,
+          "attacks": "1 Biss, 2d4 Schaden",
+          "name_en": "Wolf",
+          "movement": 20,
+          "attacks_en": "1 Bite, 2d4 damage",
+          "usesPerDay": 1,
+          "unlock_level": 1,
+          "requiresCheck": "Willenskraftwurf",
+          "requiresCheck_en": "Willpower check"
+        },
+        {
+          "key": "bear",
+          "name": "Bär",
+          "baseAC": 6,
+          "attacks": "2 Tatzen 1d6 + 1 Biss 1d8",
+          "hugRule": "Bei Treffer 18+: Umklammerung +2d8 Schaden",
+          "name_en": "Bear",
+          "movement": 12,
+          "attacks_en": "2 Claws 1d6 + 1 Bite 1d8",
+          "hugRule_en": "On hit 18+: Bear hug +2d8 damage",
+          "usesPerDay": 1,
+          "unlock_level": 2,
+          "requiresCheck": "Willenskraftwurf",
+          "requiresCheck_en": "Willpower check"
+        },
+        {
+          "key": "wolf_unlimited",
+          "name": "Wolf (unbegrenzt)",
+          "baseAC": 6,
+          "attacks": "1 Biss, 2d4 Schaden",
+          "name_en": "Wolf (unlimited)",
+          "movement": 20,
+          "attacks_en": "1 Bite, 2d4 damage",
+          "usesPerDay": -1,
+          "unlock_level": 3,
+          "requiresCheck": "Willenskraftwurf",
+          "requiresCheck_en": "Willpower check"
+        }
+      ]
+    },
+    "notes": "",
+    "created_at": "2026-04-07T09:31:33.964734+00:00",
+    "updated_at": "2026-04-07T09:31:33.964734+00:00"
+  },
+  {
+    "id": "f2e2227e-e09a-467a-a8c3-ccd82e07932f",
+    "character_id": "c60b6398-8d3a-4745-9a85-00cae7da4817",
+    "slug": "tattoo-totem-krieger",
+    "name": "Tattoo des Totem Kriegers",
+    "name_en": "Tattoo of the Totem Warrior",
+    "description": "Ein schamanistisches Meisterwerk. Es wechselt sein Aussehen mit der inneren Kraft des Trägers.",
+    "description_en": "A shamanistic masterwork. Its appearance changes with the inner strength of the bearer.",
+    "icon": "flame",
+    "equipped": true,
+    "damage_level": 3,
+    "max_damage_level": 3,
+    "damage_levels": {
+      "0": {
+        "effects": [],
+        "description": "Stufe 3-4: \"Schlag des Wolfes\" 1×/Tag.",
+        "description_en": "Level 3-4: \"Strike of the Wolf\" 1×/day.",
+        "stat_overrides": {}
+      },
+      "1": {
+        "effects": ["ac_bonus_2"],
+        "description": "Stufe 5-6: AC Bonus +2 (tierische Reflexe).",
+        "description_en": "Level 5-6: AC Bonus +2 (animal reflexes).",
+        "stat_overrides": {}
+      },
+      "2": {
+        "effects": ["ac_bonus_2", "str_override_20", "perception_bonus_2"],
+        "description": "Stufe 7-8: Stärke auf 20 (1 Kampf/Tag). Wahrnehmung +2.",
+        "description_en": "Level 7-8: STR to 20 (1 combat/day). Perception +2.",
+        "stat_overrides": {}
+      },
+      "3": {
+        "effects": ["ac_bonus_2", "str_override_20", "perception_bonus_2", "speak_with_animals"],
+        "description": "Stufe 9-10: Mit Tieren reden. \"Schlag des Bären\" 1×/Tag.",
+        "description_en": "Level 9-10: Speak with animals. \"Strike of the Bear\" 1×/day.",
+        "stat_overrides": {}
+      }
+    },
+    "simple_effects": {
+      "special_attacks": [
+        {
+          "key": "wolf_strike",
+          "name": "Schlag des Wolfes",
+          "effect": "Muss nur treffen → automatisch kritischer Treffer. Bei Miss: trifft trotzdem mit maximalem Schaden.",
+          "name_en": "Strike of the Wolf",
+          "effect_en": "Only needs to hit → automatic critical hit. On miss: still hits with maximum damage.",
+          "usesPerDay": 1,
+          "unlock_level": 0
+        },
+        {
+          "key": "bear_strike",
+          "name": "Schlag des Bären",
+          "effect": "Trifft automatisch kritisch mit maximalem Schaden.",
+          "name_en": "Strike of the Bear",
+          "effect_en": "Automatically hits critically with maximum damage.",
+          "usesPerDay": 1,
+          "unlock_level": 3
+        }
+      ],
+      "level_thresholds": [3, 5, 7, 9]
+    },
+    "notes": "",
+    "created_at": "2026-04-07T09:31:34.092671+00:00",
+    "updated_at": "2026-04-07T09:31:34.092671+00:00"
+  }
+]
