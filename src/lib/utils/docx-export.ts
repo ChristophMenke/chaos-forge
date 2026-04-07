@@ -6,10 +6,12 @@ import {
   TableRow,
   TableCell,
   TextRun,
+  ImageRun,
   HeadingLevel,
   WidthType,
   AlignmentType,
   BorderStyle,
+  Footer,
 } from "docx";
 import { RACES } from "@/lib/rules/races";
 import { CLASSES, getClassGroup } from "@/lib/rules/classes";
@@ -87,6 +89,17 @@ const CELL_BORDERS = {
   right: BORDER,
 };
 
+const NO_BORDER = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
+const NO_BORDERS = {
+  top: NO_BORDER,
+  bottom: NO_BORDER,
+  left: NO_BORDER,
+  right: NO_BORDER,
+};
+
+const HEADING_FONT = "Georgia";
+const SECTION_BORDER = BORDER;
+
 function cell(
   text: string,
   opts?: {
@@ -131,12 +144,15 @@ function headerCell(
 function sectionHeading(text: string): Paragraph {
   return new Paragraph({
     heading: HeadingLevel.HEADING_2,
-    spacing: { before: 240, after: 120 },
+    spacing: { before: 240, after: 80 },
+    border: {
+      bottom: SECTION_BORDER,
+    },
     children: [
       new TextRun({
         text,
         bold: true,
-        font: "Calibri",
+        font: HEADING_FONT,
         size: 26, // 13pt
       }),
     ],
@@ -145,6 +161,86 @@ function sectionHeading(text: string): Paragraph {
 
 function emptyParagraph(): Paragraph {
   return new Paragraph({ children: [] });
+}
+
+/** Box cell matching the Print Preview grid: small gray label on top, large bold value below */
+function boxCell(label: string, value: string): TableCell {
+  return new TableCell({
+    borders: CELL_BORDERS,
+    children: [
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 20 },
+        children: [
+          new TextRun({
+            text: label,
+            font: "Calibri",
+            size: 16, // 8pt — small label
+            color: "666666",
+          }),
+        ],
+      }),
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [
+          new TextRun({
+            text: value,
+            bold: true,
+            font: "Courier New",
+            size: 28, // 14pt — large value
+          }),
+        ],
+      }),
+    ],
+  });
+}
+
+/** Splits cells into rows of `columns`, padding the last row with empty cells */
+function boxGrid(cells: TableCell[], columns: number = 4): Table[] {
+  const tables: Table[] = [];
+  for (let i = 0; i < cells.length; i += columns) {
+    const rowCells = cells.slice(i, i + columns);
+    while (rowCells.length < columns) {
+      rowCells.push(new TableCell({ borders: NO_BORDERS, children: [emptyParagraph()] }));
+    }
+    tables.push(
+      new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [new TableRow({ children: rowCells })],
+      })
+    );
+  }
+  return tables;
+}
+
+async function fetchAvatarData(
+  url: string
+): Promise<{ data: ArrayBuffer; type: "png" | "jpg" } | null> {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 5000);
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timer);
+    if (!response.ok) return null;
+    const contentType = response.headers.get("content-type") ?? "";
+    const type = contentType.includes("png") ? "png" : "jpg";
+    const data = await response.arrayBuffer();
+    return { data, type };
+  } catch {
+    return null;
+  }
+}
+
+function borderlessCell(
+  children: (Paragraph | Table)[],
+  opts?: { width?: number; verticalAlign?: "top" | "center" }
+): TableCell {
+  return new TableCell({
+    borders: NO_BORDERS,
+    width: opts?.width ? { size: opts.width, type: WidthType.PERCENTAGE } : undefined,
+    verticalAlign: opts?.verticalAlign === "center" ? "center" : undefined,
+    children,
+  });
 }
 
 // ─── i18n for DOCX headings ──────────────────────────────────────────────────
@@ -363,52 +459,137 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
     .filter(Boolean)
     .join(", ");
 
+  // ─── Avatar Fetch ──────────────────────────────────────────────────────────
+  const avatarData = character.avatar_url ? await fetchAvatarData(character.avatar_url) : null;
+
   // ─── Section Generators ───────────────────────────────────────────────────
 
   const sectionGenerators: Record<PrintSectionId, () => (Paragraph | Table)[]> = {
     // ── 1. Personal / Header ──────────────────────────────────────────────────
     personal: () => {
-      const result: Paragraph[] = [];
-
-      result.push(
-        new Paragraph({
-          heading: HeadingLevel.HEADING_1,
-          spacing: { after: 120 },
-          children: [
-            new TextRun({
-              text: character.name,
-              bold: true,
-              font: "Calibri",
-              size: 36, // 18pt
-            }),
-          ],
-        })
-      );
-
-      const headerLines: string[] = [
-        `${dt.race}: ${race ? localized(race.name, race.name_en, props.locale) : "—"}  |  ${dt.class}: ${classNames || "—"}  |  ${dt.level}: ${levelDisplay || character.level}`,
-        `${dt.hitDie}: ${hitDice || "—"}  |  ${dt.hp}: ${character.hp_current}/${character.hp_max}  |  ${dt.alignment}: ${getAlignmentLabel(character.alignment, props.locale)}`,
-        ...(kitDef ? [`${dt.kit}: ${localized(kitDef.name, kitDef.name_en, props.locale)}`] : []),
-        `${dt.xp}: ${xpDisplay}`,
-        `${dt.treasure}: ${treasureDisplay}`,
+      // Collect fields in Print Preview order
+      const fields: { label: string; value: string }[] = [
+        { label: dt.race, value: race ? localized(race.name, race.name_en, props.locale) : "—" },
+        { label: dt.class, value: classNames || "—" },
+        { label: dt.level, value: levelDisplay || String(character.level) },
+        { label: dt.hitDie, value: hitDice || "—" },
+        { label: dt.hp, value: `${character.hp_current}/${character.hp_max}` },
+        {
+          label: dt.alignment,
+          value: getAlignmentLabel(character.alignment, props.locale),
+        },
       ];
-      if (character.player_name) headerLines.push(`${dt.player}: ${character.player_name}`);
-      if (character.age != null) headerLines.push(`${dt.age}: ${character.age}`);
-      if (character.height_cm != null) headerLines.push(`${dt.height}: ${character.height_cm} cm`);
-      if (character.weight_kg != null) headerLines.push(`${dt.weight}: ${character.weight_kg} kg`);
+      if (kitDef) {
+        fields.push({
+          label: dt.kit,
+          value: localized(kitDef.name, kitDef.name_en, props.locale),
+        });
+      }
+      fields.push(
+        { label: dt.xp, value: xpDisplay },
+        { label: dt.treasure, value: treasureDisplay }
+      );
+      if (character.player_name) fields.push({ label: dt.player, value: character.player_name });
+      if (character.age != null) fields.push({ label: dt.age, value: String(character.age) });
+      if (character.height_cm != null)
+        fields.push({ label: dt.height, value: `${character.height_cm} cm` });
+      if (character.weight_kg != null)
+        fields.push({ label: dt.weight, value: `${character.weight_kg} kg` });
       if (character.gender)
-        headerLines.push(`${dt.gender}: ${translateGender(character.gender, props.locale)}`);
+        fields.push({
+          label: dt.gender,
+          value: translateGender(character.gender, props.locale),
+        });
 
-      for (const line of headerLines) {
-        result.push(
-          new Paragraph({
-            spacing: { after: 40 },
-            children: [new TextRun({ text: line, font: "Calibri", size: 20 })],
-          })
-        );
+      // Build 3-column grid rows
+      const gridRows: TableRow[] = [];
+      for (let i = 0; i < fields.length; i += 3) {
+        const rowCells: TableCell[] = [];
+        for (let col = 0; col < 3; col++) {
+          const f = fields[i + col];
+          rowCells.push(
+            borderlessCell(
+              [
+                new Paragraph({
+                  spacing: { after: 40 },
+                  children: f
+                    ? [
+                        new TextRun({
+                          text: `${f.label}: `,
+                          bold: true,
+                          font: "Calibri",
+                          size: 20,
+                        }),
+                        new TextRun({
+                          text: f.value,
+                          font: "Calibri",
+                          size: 20,
+                        }),
+                      ]
+                    : [],
+                }),
+              ],
+              { width: 33 }
+            )
+          );
+        }
+        gridRows.push(new TableRow({ children: rowCells }));
       }
 
-      return result;
+      const detailTable = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: gridRows,
+      });
+
+      const nameParagraph = new Paragraph({
+        heading: HeadingLevel.HEADING_1,
+        spacing: { after: 120 },
+        children: [
+          new TextRun({
+            text: character.name,
+            bold: true,
+            font: HEADING_FONT,
+            size: 36, // 18pt
+          }),
+        ],
+      });
+
+      // Thick black bottom border matching Print Preview border-b-2 border-black
+      const personalSeparator = new Paragraph({
+        spacing: { before: 80 },
+        border: {
+          bottom: { style: BorderStyle.SINGLE, size: 3, color: "000000" },
+        },
+        children: [],
+      });
+
+      if (avatarData) {
+        const avatarParagraph = new Paragraph({
+          children: [
+            new ImageRun({
+              data: avatarData.data,
+              type: avatarData.type,
+              transformation: { width: 72, height: 72 },
+            }),
+          ],
+        });
+
+        const outerTable = new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              children: [
+                borderlessCell([avatarParagraph], { width: 12, verticalAlign: "top" }),
+                borderlessCell([nameParagraph, detailTable], { width: 88 }),
+              ],
+            }),
+          ],
+        });
+
+        return [outerTable, personalSeparator];
+      }
+
+      return [nameParagraph, detailTable, personalSeparator];
     },
 
     // ── 2. Abilities Table ──────────────────────────────────────────────────
@@ -557,64 +738,22 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
       const result: (Paragraph | Table)[] = [];
       result.push(sectionHeading(dt.combatValues));
 
-      result.push(
-        new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          rows: [
-            new TableRow({
-              tableHeader: true,
-              children: [
-                headerCell("THAC0", { alignment: AlignmentType.CENTER }),
-                headerCell("Armor Class", { alignment: AlignmentType.CENTER }),
-                headerCell("Hit Mod", { alignment: AlignmentType.CENTER }),
-                headerCell("Damage Mod", { alignment: AlignmentType.CENTER }),
-                headerCell("Attacks/Round", { alignment: AlignmentType.CENTER }),
-                headerCell("Initiative", { alignment: AlignmentType.CENTER }),
-              ],
-            }),
-            new TableRow({
-              children: [
-                cell(String(thac0), {
-                  alignment: AlignmentType.CENTER,
-                  bold: true,
-                  font: "Courier New",
-                  size: 24,
-                }),
-                cell(String(effectiveAC), {
-                  alignment: AlignmentType.CENTER,
-                  bold: true,
-                  font: "Courier New",
-                  size: 24,
-                }),
-                cell(`${strMods.hitAdj >= 0 ? "+" : ""}${strMods.hitAdj}`, {
-                  alignment: AlignmentType.CENTER,
-                  bold: true,
-                  font: "Courier New",
-                  size: 24,
-                }),
-                cell(`${strMods.dmgAdj >= 0 ? "+" : ""}${strMods.dmgAdj}`, {
-                  alignment: AlignmentType.CENTER,
-                  bold: true,
-                  font: "Courier New",
-                  size: 24,
-                }),
-                cell(attacksDisplay, {
-                  alignment: AlignmentType.CENTER,
-                  bold: true,
-                  font: "Courier New",
-                  size: 24,
-                }),
-                cell(`${dexMods.reactionAdj >= 0 ? "+" : ""}${dexMods.reactionAdj}`, {
-                  alignment: AlignmentType.CENTER,
-                  bold: true,
-                  font: "Courier New",
-                  size: 24,
-                }),
-              ],
-            }),
-          ],
-        })
-      );
+      const combatBoxes = [
+        { label: "THAC0", value: String(thac0) },
+        { label: "Armor Class", value: String(effectiveAC) },
+        { label: "Hit Mod", value: `${strMods.hitAdj >= 0 ? "+" : ""}${strMods.hitAdj}` },
+        {
+          label: "Damage Mod",
+          value: `${strMods.dmgAdj >= 0 ? "+" : ""}${strMods.dmgAdj}`,
+        },
+        { label: "Attacks/Round", value: attacksDisplay },
+        {
+          label: "Initiative",
+          value: `${dexMods.reactionAdj >= 0 ? "+" : ""}${dexMods.reactionAdj}`,
+        },
+      ];
+
+      result.push(...boxGrid(combatBoxes.map((b) => boxCell(b.label, b.value))));
 
       return result;
     },
@@ -625,56 +764,35 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
 
       const result: (Paragraph | Table)[] = [];
       result.push(sectionHeading(dt.savingThrows));
+
+      // Print Preview: 4-column grid with "Label: **value**" inline
+      const saveItems = [
+        { label: dt.savePara, value: String(saves.paralyzation) },
+        { label: dt.saveRod, value: String(saves.rod) },
+        { label: dt.savePetri, value: String(saves.petrification) },
+        { label: dt.saveBreath, value: String(saves.breath) },
+        { label: dt.saveSpell, value: String(saves.spell) },
+      ];
+
       result.push(
-        new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          rows: [
-            new TableRow({
-              tableHeader: true,
-              children: [
-                headerCell(dt.savePara, { alignment: AlignmentType.CENTER }),
-                headerCell(dt.saveRod, { alignment: AlignmentType.CENTER }),
-                headerCell(dt.savePetri, { alignment: AlignmentType.CENTER }),
-                headerCell(dt.saveBreath, { alignment: AlignmentType.CENTER }),
-                headerCell(dt.saveSpell, { alignment: AlignmentType.CENTER }),
-              ],
-            }),
-            new TableRow({
-              children: [
-                cell(String(saves.paralyzation), {
-                  alignment: AlignmentType.CENTER,
-                  bold: true,
-                  font: "Courier New",
-                  size: 24,
-                }),
-                cell(String(saves.rod), {
-                  alignment: AlignmentType.CENTER,
-                  bold: true,
-                  font: "Courier New",
-                  size: 24,
-                }),
-                cell(String(saves.petrification), {
-                  alignment: AlignmentType.CENTER,
-                  bold: true,
-                  font: "Courier New",
-                  size: 24,
-                }),
-                cell(String(saves.breath), {
-                  alignment: AlignmentType.CENTER,
-                  bold: true,
-                  font: "Courier New",
-                  size: 24,
-                }),
-                cell(String(saves.spell), {
-                  alignment: AlignmentType.CENTER,
-                  bold: true,
-                  font: "Courier New",
-                  size: 24,
-                }),
-              ],
-            }),
-          ],
-        })
+        ...boxGrid(
+          saveItems.map(
+            (s) =>
+              new TableCell({
+                borders: NO_BORDERS,
+                width: { size: 25, type: WidthType.PERCENTAGE },
+                children: [
+                  new Paragraph({
+                    spacing: { after: 40 },
+                    children: [
+                      new TextRun({ text: `${s.label}: `, font: "Calibri", size: 20 }),
+                      new TextRun({ text: s.value, bold: true, font: "Calibri", size: 20 }),
+                    ],
+                  }),
+                ],
+              })
+          )
+        )
       );
 
       return result;
@@ -958,26 +1076,12 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
       }
       parts.push({ label: dt.acFinal ?? "Final", value: String(effectiveAC) });
 
+      // Single-row box-grid (variable column count matches number of AC parts)
       result.push(
-        new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          rows: [
-            new TableRow({
-              tableHeader: true,
-              children: parts.map((p) => headerCell(p.label, { alignment: AlignmentType.CENTER })),
-            }),
-            new TableRow({
-              children: parts.map((p) =>
-                cell(p.value, {
-                  alignment: AlignmentType.CENTER,
-                  bold: true,
-                  font: "Courier New",
-                  size: 24,
-                })
-              ),
-            }),
-          ],
-        })
+        ...boxGrid(
+          parts.map((p) => boxCell(p.label, p.value)),
+          parts.length
+        )
       );
 
       return result;
@@ -1003,29 +1107,7 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
         { label: "Read Languages", value: `${character.thief_read_languages}%` },
         { label: "Backstab", value: `x${getBackstabMultiplier(backstabLevel)}` },
       ];
-      result.push(
-        new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          rows: [
-            new TableRow({
-              tableHeader: true,
-              children: thiefData.map((d) =>
-                headerCell(d.label, { alignment: AlignmentType.CENTER })
-              ),
-            }),
-            new TableRow({
-              children: thiefData.map((d) =>
-                cell(d.value, {
-                  alignment: AlignmentType.CENTER,
-                  bold: true,
-                  font: "Courier New",
-                  size: 24,
-                })
-              ),
-            }),
-          ],
-        })
-      );
+      result.push(...boxGrid(thiefData.map((d) => boxCell(d.label, d.value))));
 
       return result;
     },
@@ -1565,8 +1647,6 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
           const styleDef = getFightingStyle(fs.style_id);
           if (!styleDef) continue;
           const styleName = localized(styleDef.name, styleDef.name_en, props.locale);
-          const benefit = styleDef.benefits.find((b) => b.slots <= fs.slots_invested);
-          // Find highest applicable benefit
           const applicableBenefit = styleDef.benefits
             .filter((b) => b.slots <= fs.slots_invested)
             .sort((a, b) => b.slots - a.slots)[0];
@@ -1576,9 +1656,7 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
                 applicableBenefit.description_en,
                 props.locale
               )
-            : benefit
-              ? localized(benefit.description, benefit.description_en, props.locale)
-              : "";
+            : "";
           result.push(
             new Paragraph({
               spacing: { after: 20 },
@@ -1664,23 +1742,9 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
     children.push(...sectionGenerators[section.id]());
   }
 
-  // ── Footer (always appended) ──────────────────────────────────────────────
-  children.push(emptyParagraph());
-  children.push(
-    new Paragraph({
-      spacing: { before: 240 },
-      children: [
-        new TextRun({
-          text: `Chaos Forge — AD&D 2nd Edition Manager  |  Created ${new Date(character.created_at).toLocaleDateString(undefined, { day: "2-digit", month: "2-digit", year: "numeric" })}`,
-          font: "Calibri",
-          size: 16,
-          color: "999999",
-        }),
-      ],
-    })
-  );
-
   // ── Create Document ───────────────────────────────────────────────────────
+  const footerText = `Chaos Forge — AD&D 2nd Edition Manager  |  ${dt.createdAt} ${new Date(character.created_at).toLocaleDateString(undefined, { day: "2-digit", month: "2-digit", year: "numeric" })}`;
+
   const doc = new Document({
     sections: [
       {
@@ -1688,6 +1752,24 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
           page: {
             margin: { top: 720, bottom: 720, left: 720, right: 720 },
           },
+        },
+        footers: {
+          default: new Footer({
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({
+                    text: footerText,
+                    font: "Calibri",
+                    size: 16,
+                    color: "999999",
+                    italics: true,
+                  }),
+                ],
+              }),
+            ],
+          }),
         },
         children,
       },
