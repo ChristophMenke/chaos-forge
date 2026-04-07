@@ -70,13 +70,30 @@ export default async function MasterPage() {
       .returns<{ character_id: string; spell: SpellRow }[]>(),
   ]);
 
+  // Build lookup maps for O(1) access per character
+  function buildGroupMap<T extends { character_id: string }>(rows: T[] | null): Map<string, T[]> {
+    const map = new Map<string, T[]>();
+    for (const row of rows ?? []) {
+      const existing = map.get(row.character_id);
+      if (existing) existing.push(row);
+      else map.set(row.character_id, [row]);
+    }
+    return map;
+  }
+
+  const classMap = buildGroupMap(allClasses);
+  const equipmentMap = buildGroupMap(allEquipment);
+  const epicItemMap = buildGroupMap(allEpicItems);
+  const weaponProfMap = buildGroupMap(allWeaponProfs);
+  const fightingStyleMap = buildGroupMap(allFightingStyles);
+
   // Compute combat data for each character
   const partyData = (characters ?? []).map((char) => {
-    const charClasses = (allClasses ?? []).filter((c) => c.character_id === char.id);
-    const charEquipment = (allEquipment ?? []).filter((e) => e.character_id === char.id);
-    const charEpicItems = (allEpicItems ?? []).filter((e) => e.character_id === char.id);
-    const charWeaponProfs = (allWeaponProfs ?? []).filter((p) => p.character_id === char.id);
-    const charFightingStyles = (allFightingStyles ?? []).filter((f) => f.character_id === char.id);
+    const charClasses = classMap.get(char.id) ?? [];
+    const charEquipment = equipmentMap.get(char.id) ?? [];
+    const charEpicItems = epicItemMap.get(char.id) ?? [];
+    const charWeaponProfs = weaponProfMap.get(char.id) ?? [];
+    const charFightingStyles = fightingStyleMap.get(char.id) ?? [];
 
     const combat = computeCharacterCombatData(
       char,

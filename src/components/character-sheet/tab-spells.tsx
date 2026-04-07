@@ -179,22 +179,16 @@ export function TabSpells({
     if (allSpellsLoaded) return;
     setLoadingSpells(true);
     const supabase = createClient();
-    const all: SpellRow[] = [];
-    let from = 0;
-    const PAGE = 1000;
-    while (true) {
-      const { data } = await supabase
-        .from("spells")
-        .select("*")
-        .order("level")
-        .order("name")
-        .range(from, from + PAGE - 1);
-      if (!data || data.length === 0) break;
-      all.push(...(data as SpellRow[]));
-      if (data.length < PAGE) break;
-      from += PAGE;
-    }
-    setAllSpellsLoaded(all);
+    // Pre-filter by spell type on the server to reduce payload
+    const spellType = isPriestCaster(classId as ClassId) ? "priest" : "wizard";
+    const { data } = await supabase
+      .from("spells")
+      .select("*")
+      .eq("spell_type", spellType)
+      .order("level")
+      .order("name")
+      .limit(5000);
+    setAllSpellsLoaded((data as SpellRow[]) ?? []);
     setLoadingSpells(false);
   }
 

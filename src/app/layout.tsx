@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cinzel, Crimson_Text, Geist, Geist_Mono, Marcellus } from "next/font/google";
+import { Cinzel, Crimson_Text, Geist, Geist_Mono } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
 import { NextIntlClientProvider } from "next-intl";
@@ -26,13 +26,6 @@ const crimsonText = Crimson_Text({
 const geistSans = Geist({
   variable: "--font-sans",
   subsets: ["latin"],
-  display: "swap",
-});
-
-const marcellus = Marcellus({
-  variable: "--font-heading-alt",
-  subsets: ["latin"],
-  weight: "400",
   display: "swap",
 });
 
@@ -78,7 +71,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${geistSans.variable} ${cinzel.variable} ${marcellus.variable} ${crimsonText.variable} ${geistMono.variable} h-full antialiased dark`}
+      className={`${geistSans.variable} ${cinzel.variable} ${crimsonText.variable} ${geistMono.variable} h-full antialiased dark`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col overflow-x-hidden">
