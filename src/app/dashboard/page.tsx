@@ -203,6 +203,7 @@ export default async function DashboardPage() {
     supabase
       .from("chronicle_npcs")
       .select("*")
+      .eq("is_visible_to_players", true)
       .order("created_at", { ascending: false })
       .limit(5)
       .returns<ChronicleNpcRow[]>(),
