@@ -2,16 +2,18 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { MarkdownRenderer as ReactMarkdown } from "@/components/markdown-renderer";
 import remarkBreaks from "remark-breaks";
-import { Pencil, Check, X } from "lucide-react";
+import { Pencil, Check, X, ImageIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Spinner } from "@/components/ui/spinner";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { SessionEntryForm } from "./session-entry-form";
 import { SessionEntryCard } from "./session-entry-card";
@@ -73,12 +75,17 @@ export function SessionDetail({
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState(session.title);
   const [savingTitle, setSavingTitle] = useState(false);
+  const [imageUrl, setImageUrl] = useState(session.image_url);
+  const [imageGeneratedAt, setImageGeneratedAt] = useState(session.image_generated_at);
+  const [generatingImage, setGeneratingImage] = useState(false);
+  const [localUpdatedAt, setLocalUpdatedAt] = useState(session.updated_at);
 
   async function handleSaveTitle() {
     if (!titleValue.trim()) return;
     setSavingTitle(true);
     const supabase = createClient();
     await supabase.from("sessions").update({ title: titleValue.trim() }).eq("id", session.id);
+    setLocalUpdatedAt(new Date().toISOString());
     setSavingTitle(false);
     setEditingTitle(false);
   }
@@ -106,6 +113,7 @@ export function SessionDetail({
     setSavingSummary(true);
     const supabase = createClient();
     await supabase.from("sessions").update({ summary }).eq("id", session.id);
+    setLocalUpdatedAt(new Date().toISOString());
     setSavingSummary(false);
     setSummaryDirty(false);
   }
@@ -140,6 +148,29 @@ export function SessionDetail({
     }
 
     setGeneratingSummary(false);
+  }
+
+  const canRegenerate = !imageGeneratedAt || new Date(localUpdatedAt) > new Date(imageGeneratedAt);
+
+  async function handleGenerateImage() {
+    setGeneratingImage(true);
+    try {
+      const res = await fetch("/api/generate-session-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId: session.id }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        alert(data.error);
+      } else {
+        setImageUrl(data.imageUrl);
+        setImageGeneratedAt(new Date().toISOString());
+      }
+    } catch {
+      alert("Bildgenerierung fehlgeschlagen.");
+    }
+    setGeneratingImage(false);
   }
 
   return (
@@ -215,6 +246,35 @@ export function SessionDetail({
           </Button>
         )}
       </div>
+
+      {/* Mood image */}
+      {imageUrl && (
+        <div className="relative mb-4 h-48 w-full overflow-hidden rounded-xl">
+          <Image
+            src={imageUrl}
+            alt={session.title}
+            fill
+            className="object-cover"
+            data-testid="session-mood-image"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+        </div>
+      )}
+
+      {/* Generate mood image button */}
+      <div className="mb-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleGenerateImage}
+          disabled={generatingImage || !canRegenerate}
+          data-testid="session-generate-image"
+        >
+          {generatingImage ? <Spinner className="mr-2" /> : <ImageIcon className="mr-2 h-4 w-4" />}
+          {imageUrl ? t("regenerateMoodImage") : t("generateMoodImage")}
+        </Button>
+      </div>
+
       <div className="mb-6">
         {tagsState.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1">
@@ -275,7 +335,7 @@ export function SessionDetail({
             sessionId={session.id}
             userId={userId}
             userCharacters={userCharacters}
-            onEntryCreated={(newEntry) =>
+            onEntryCreated={(newEntry) => {
               setEntries((prev) => [
                 ...prev,
                 {
@@ -284,8 +344,9 @@ export function SessionDetail({
                   audio_transcription: null,
                   created_at: new Date().toISOString(),
                 } as SessionEntryRow,
-              ])
-            }
+              ]);
+              setLocalUpdatedAt(new Date().toISOString());
+            }}
           />
         )}
 

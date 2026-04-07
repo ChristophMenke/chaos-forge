@@ -1,19 +1,31 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { localized } from "@/lib/utils/localize";
-import {
-  getAllClasses,
-  meetsAbilityRequirements,
-  getAbilityRequirementFailures,
-} from "@/lib/rules/classes";
+import { getAllClasses, getAbilityRequirementFailures } from "@/lib/rules/classes";
 import { canPlayClass, getLevelLimit } from "@/lib/rules/races";
 import { isRuleCompliantMulticlass } from "@/lib/rules/multiclass";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckSquare, Square } from "lucide-react";
 import type { WizardState } from "./wizard-types";
 import type { ClassId, AbilityName } from "@/lib/rules/types";
+
+const CLASS_IMAGE_MAP: Record<string, string> = {
+  abjurer: "mage",
+  conjurer: "mage",
+  diviner: "mage",
+  enchanter: "mage",
+  illusionist: "mage",
+  invoker: "mage",
+  necromancer: "mage",
+  transmuter: "mage",
+};
+
+function classImage(classId: string): string {
+  return `/images/classes/${CLASS_IMAGE_MAP[classId] ?? classId}.webp`;
+}
 
 interface StepClassProps {
   state: WizardState;
@@ -90,41 +102,55 @@ export function StepClass({ state, onChange }: StepClassProps) {
           return (
             <Card
               key={cls.id}
-              className={`cursor-pointer transition-colors ${
+              className={`cursor-pointer overflow-hidden transition-colors ${
                 isSelected ? "border-primary bg-primary/5" : "hover:border-primary/30"
               }`}
               onClick={() => toggleClass(cls.id)}
               data-testid={`wizard-class-${cls.id}`}
             >
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  {isSelected ? (
-                    <CheckSquare className="h-5 w-5 text-primary" />
-                  ) : (
-                    <Square className="h-5 w-5 text-muted-foreground" />
-                  )}
-                  {localized(cls.name, cls.name_en, locale)}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-1">
-                <div className="flex flex-wrap gap-1">
-                  <Badge variant="outline">{cls.group}</Badge>
-                  <Badge variant="outline">d{cls.hitDie}</Badge>
-                  {levelLimit && (
-                    <Badge variant="secondary">
-                      {t("maxLevel")} {levelLimit}
-                    </Badge>
-                  )}
+              <div className="flex">
+                {/* Class illustration */}
+                <div className="relative h-[120px] w-[90px] shrink-0 overflow-hidden rounded-l-xl">
+                  <Image
+                    src={classImage(cls.id)}
+                    alt={localized(cls.name, cls.name_en, locale)}
+                    width={90}
+                    height={120}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 shadow-[inset_-12px_0_20px_-8px_rgba(0,0,0,0.4)]" />
                 </div>
-                {warnings.length > 0 && (
-                  <div className="mt-1 flex items-center gap-1">
-                    <Badge className="bg-yellow-800/50 text-yellow-200" variant="secondary">
-                      {t("warning")}
-                    </Badge>
-                    <span className="text-xs text-yellow-400">{warnings.join(". ")}</span>
+                {/* Content */}
+                <div className="flex flex-1 flex-col gap-1 py-2 pr-3">
+                  <div className="flex items-center gap-2 px-3 text-lg font-semibold">
+                    {isSelected ? (
+                      <CheckSquare className="h-5 w-5 shrink-0 text-primary" />
+                    ) : (
+                      <Square className="h-5 w-5 shrink-0 text-muted-foreground" />
+                    )}
+                    {localized(cls.name, cls.name_en, locale)}
                   </div>
-                )}
-              </CardContent>
+                  <div className="flex flex-col gap-1 px-3">
+                    <div className="flex flex-wrap gap-1">
+                      <Badge variant="outline">{cls.group}</Badge>
+                      <Badge variant="outline">d{cls.hitDie}</Badge>
+                      {levelLimit && (
+                        <Badge variant="secondary">
+                          {t("maxLevel")} {levelLimit}
+                        </Badge>
+                      )}
+                    </div>
+                    {warnings.length > 0 && (
+                      <div className="mt-1 flex items-center gap-1">
+                        <Badge className="bg-yellow-800/50 text-yellow-200" variant="secondary">
+                          {t("warning")}
+                        </Badge>
+                        <span className="text-xs text-yellow-400">{warnings.join(". ")}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </Card>
           );
         })}

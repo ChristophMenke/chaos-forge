@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -108,8 +109,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center px-6" data-testid="login-page">
-      <div className="glass glow-neutral rounded-xl p-6 w-full max-w-md" data-testid="login-card">
+    <div className="relative flex flex-1 items-center justify-center px-6" data-testid="login-page">
+      <Image
+        src="/images/login-bg.webp"
+        alt=""
+        fill
+        className="object-cover opacity-[0.12]"
+        priority
+      />
+      <div
+        className="glass glow-neutral relative z-10 rounded-xl p-6 w-full max-w-md"
+        data-testid="login-card"
+      >
         <div className="text-center mb-4">
           <h2 className="font-heading text-2xl text-primary">{t("title")}</h2>
           <p className="text-sm text-muted-foreground mt-1">
