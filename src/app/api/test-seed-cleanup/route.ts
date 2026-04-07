@@ -36,13 +36,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ deleted: 0 });
   }
 
-  // Delete test characters by name, owned by test users
-  const { data: deleted } = await supabaseAdmin
+  // Delete seeded test characters by exact name
+  const { data: deletedByName } = await supabaseAdmin
     .from("characters")
     .delete()
     .in("user_id", testUserIds)
     .in("name", TEST_CHARACTER_NAMES)
     .select("id");
+
+  // Delete all QA-* characters (dynamically generated test data)
+  const { data: deletedByPrefix } = await supabaseAdmin
+    .from("characters")
+    .delete()
+    .in("user_id", testUserIds)
+    .like("name", "QA-%")
+    .select("id");
+
+  const deleted = [...(deletedByName ?? []), ...(deletedByPrefix ?? [])];
 
   // Clean up party loot test data: reset gold to 0, clear log + items created by test users
   await supabaseAdmin
