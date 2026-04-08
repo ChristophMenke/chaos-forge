@@ -44,7 +44,7 @@ export async function verifyPin(pin: string): Promise<{ success: boolean; locked
   const cookieStore = await cookies();
   cookieStore.set(COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production" && !process.env.CI,
     sameSite: "lax",
     maxAge: COOKIE_MAX_AGE,
     path: "/master",
