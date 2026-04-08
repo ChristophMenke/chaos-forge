@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect, useRef, memo, useTransition } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef, memo } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
@@ -109,8 +109,7 @@ export function MasterNpcsPanel({
   const [npcs, setNpcs] = useState(initialNpcs);
   const [npcChars, setNpcChars] = useState(npcCharacters);
 
-  // Filter / Sort / View — wrapped in transition for non-blocking UI updates
-  const [, startFilterTransition] = useTransition();
+  // Filter / Sort / View
   const [search, setSearch] = useState("");
   const [tierFilter, setTierFilter] = useState<"" | "simple" | "full">("");
   const [locationFilter, setLocationFilter] = useState<string>("");
@@ -281,11 +280,8 @@ export function MasterNpcsPanel({
         <select
           value={tierFilter}
           onChange={(e) => {
-            const val = e.target.value as typeof tierFilter;
-            startFilterTransition(() => {
-              setTierFilter(val);
-              setPage(0);
-            });
+            setTierFilter(e.target.value as typeof tierFilter);
+            setPage(0);
           }}
           className="rounded-lg border border-border bg-background/50 px-3 py-2 text-sm"
           data-testid="gm-npc-tier-filter"
@@ -300,11 +296,8 @@ export function MasterNpcsPanel({
           <select
             value={locationFilter}
             onChange={(e) => {
-              const val = e.target.value;
-              startFilterTransition(() => {
-                setLocationFilter(val);
-                setPage(0);
-              });
+              setLocationFilter(e.target.value);
+              setPage(0);
             }}
             className="rounded-lg border border-border bg-background/50 px-3 py-2 text-sm"
             data-testid="gm-npc-location-filter"
@@ -325,10 +318,8 @@ export function MasterNpcsPanel({
             value={`${sortKey}-${sortDir}`}
             onChange={(e) => {
               const [k, d] = e.target.value.split("-") as [NpcSortKey, SortDir];
-              startFilterTransition(() => {
-                setSortKey(k);
-                setSortDir(d);
-              });
+              setSortKey(k);
+              setSortDir(d);
             }}
             className="rounded-lg border border-border bg-background/50 px-2 py-2 text-sm"
             data-testid="gm-npc-sort"
