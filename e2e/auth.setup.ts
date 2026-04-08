@@ -52,9 +52,10 @@ setup("authenticate", async ({ page }) => {
   await expect(page).not.toHaveURL(/\/login/, { timeout: 15000 });
   await page.getByTestId("active-characters-grid").waitFor({ state: "visible", timeout: 15000 });
 
-  // Save state for all workers to reuse
-  await page.context().storageState({ path: AUTH_FILE });
-
-  // Clean up the temporary character
-  await deleteTestCharacter(page.request, charId);
+  // Save state for all workers to reuse, then clean up temp character
+  try {
+    await page.context().storageState({ path: AUTH_FILE });
+  } finally {
+    await deleteTestCharacter(page.request, charId);
+  }
 });

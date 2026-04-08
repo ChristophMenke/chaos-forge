@@ -11,6 +11,9 @@ const TEST_DOMAIN = "@chaos-forge.de";
  * Only works for @chaos-forge.de test users. Idempotent — skips if characters already exist.
  */
 export async function POST(request: Request) {
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -166,6 +169,9 @@ export async function POST(request: Request) {
  * Only works for @chaos-forge.de test users.
  */
 export async function PUT(request: Request) {
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -250,6 +256,9 @@ export async function PUT(request: Request) {
  * Deletes a test character by ID. Only works for characters owned by @chaos-forge.de users.
  */
 export async function DELETE(request: Request) {
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 

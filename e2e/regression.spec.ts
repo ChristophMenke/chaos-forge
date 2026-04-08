@@ -47,14 +47,10 @@ test.describe("Login Page", () => {
 test.describe("Character Sheet — Owner", () => {
   test("shows character name and all tabs (read-only smoke)", async ({ page }) => {
     test.setTimeout(90000);
-    await page.goto("/characters");
     const sheet = new CharacterSheetPage(page);
 
-    // Navigate to first own character → choice page → manage
-    const activeGrid = page.getByTestId("active-characters-grid");
-    await expect(activeGrid).toBeVisible({ timeout: 10000 });
-    const firstCard = activeGrid.locator("a").first();
-    await firstCard.click();
+    // Navigate directly to seeded character
+    await page.goto(`/characters/${charId}`);
     await expect(page.getByTestId("character-choice-page")).toBeVisible({ timeout: 15000 });
     await page.getByTestId("character-manage-link").click();
     await sheet.container.waitFor({ timeout: 30000 });
@@ -133,12 +129,9 @@ test.describe("Loading & Navigation", () => {
 test.describe("Character Choice Page", () => {
   test("shows manage and play options, both navigate correctly", async ({ page }) => {
     test.setTimeout(60000);
-    await page.goto("/characters");
 
-    // Navigate to first own character
-    const activeGrid = page.getByTestId("active-characters-grid");
-    await expect(activeGrid).toBeVisible({ timeout: 10000 });
-    await activeGrid.locator("a").first().click();
+    // Navigate directly to seeded character
+    await page.goto(`/characters/${charId}`);
 
     // Choice page loads with both options
     await expect(page.getByTestId("character-choice-page")).toBeVisible({ timeout: 15000 });
@@ -162,12 +155,10 @@ test.describe("Character Choice Page", () => {
 test.describe("Print View", () => {
   test("print view loads with all sections", async ({ page }) => {
     test.setTimeout(60000);
-    await page.goto("/characters");
     const sheet = new CharacterSheetPage(page);
 
-    const activeGrid = page.getByTestId("active-characters-grid");
-    await expect(activeGrid).toBeVisible({ timeout: 10000 });
-    await activeGrid.locator("a").first().click();
+    // Navigate directly to seeded character
+    await page.goto(`/characters/${charId}`);
     await expect(page.getByTestId("character-choice-page")).toBeVisible({ timeout: 15000 });
     await page.getByTestId("character-manage-link").click();
     await sheet.container.waitFor({ timeout: 30000 });

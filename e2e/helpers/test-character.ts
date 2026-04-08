@@ -67,9 +67,10 @@ export async function deleteTestCharacter(
   request: APIRequestContext,
   characterId: string
 ): Promise<void> {
-  await fetch(`${BASE_URL}/api/test-seed`, {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: TEST_EMAIL, character_id: characterId }),
-  }).catch(() => {});
+  const resp = await request.delete(`${BASE_URL}/api/test-seed`, {
+    data: { email: TEST_EMAIL, character_id: characterId },
+  });
+  if (!resp.ok()) {
+    console.warn(`deleteTestCharacter: failed for ${characterId} (status ${resp.status()})`);
+  }
 }
