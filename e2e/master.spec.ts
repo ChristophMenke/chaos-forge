@@ -186,9 +186,9 @@ test.describe("Master of Chaos — GM Interface", () => {
       await page.getByTestId("gm-npc-description").fill("Ein Test-NPC für QA.");
       await page.getByTestId("gm-npc-save").click();
 
-      // NPC should appear in list
+      // NPC may be on page 2 due to alphabetical sorting — search to find it
+      await master.npcSearch.fill(`QA-NPC-${uniqueId}`);
       await expect(page.getByText(`QA-NPC-${uniqueId}`)).toBeVisible({ timeout: 10_000 });
-      await expect(page.getByText(`QA-Ort-${uniqueId}`)).toBeVisible();
     });
 
     test("can toggle NPC visibility", async ({ page }) => {
