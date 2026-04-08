@@ -36,8 +36,11 @@ export function SimpleEpicCard({ item, locale, isOwner, onToggleEquip }: SimpleE
     "damage_trigger",
     "damage_trigger_en",
   ];
+  // If a description exists, it already explains the numeric effects — hide them to avoid duplication
+  const hasDescription = typeof simpleEffects.description === "string";
   const effectEntries = Object.entries(simpleEffects).filter(
-    ([key]) => !EXCLUDED_KEYS.includes(key)
+    ([key, value]) =>
+      !EXCLUDED_KEYS.includes(key) && !(hasDescription && typeof value === "number")
   );
   const weakness = simpleEffects.weakness as string | undefined;
   const weaknessEn = simpleEffects.weakness_en as string | undefined;
@@ -71,21 +74,21 @@ export function SimpleEpicCard({ item, locale, isOwner, onToggleEquip }: SimpleE
       </div>
 
       {/* Effects */}
-      {effectEntries.length > 0 && (
+      {(hasDescription || effectEntries.length > 0) && (
         <>
           <Separator className="my-3" />
           <div data-testid={`epic-effects-${item.slug}`}>
             <p className="mb-2 text-sm font-medium text-muted-foreground">{t("activeEffects")}</p>
             <div className="flex flex-wrap gap-2">
               {/* Description effect as localized badge */}
-              {typeof simpleEffects.description === "string" && (
+              {hasDescription && (
                 <Badge
                   variant="outline"
                   className="border-green-500/50 text-green-400"
                   data-testid={`epic-simple-effect-${item.slug}-desc`}
                 >
                   {localized(
-                    simpleEffects.description,
+                    simpleEffects.description as string,
                     (simpleEffects.description_en as string) ?? null,
                     locale
                   )}
