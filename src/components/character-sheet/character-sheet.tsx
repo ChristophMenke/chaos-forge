@@ -154,23 +154,17 @@ export function CharacterSheet({
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showAvatarLightbox, setShowAvatarLightbox] = useState(false);
   const [pendingRaceChange, setPendingRaceChange] = useState<RaceId | null>(null);
-  const [xpDialogOpen, setXpDialogOpen] = useState(false);
-  const [payDialogOpen, setPayDialogOpen] = useState(false);
-  const [addClassId, setAddClassId] = useState("");
-
-  const isOwner = character.user_id === userId;
-
   // Auto-open XP dialog from URL params (e.g. from notification click)
   const openXpParam = searchParams.get("openXp");
   const initialSessionId = searchParams.get("sessionId") ?? undefined;
   const xpAmountParam = searchParams.get("xpAmount");
   const initialXpAmount = xpAmountParam ? parseInt(xpAmountParam, 10) : undefined;
 
-  useEffect(() => {
-    if (openXpParam === "1") {
-      setXpDialogOpen(true);
-    }
-  }, [openXpParam]);
+  const [xpDialogOpen, setXpDialogOpen] = useState(openXpParam === "1");
+  const [payDialogOpen, setPayDialogOpen] = useState(false);
+  const [addClassId, setAddClassId] = useState("");
+
+  const isOwner = character.user_id === userId;
 
   // Derive multiclass data
   const activeClasses = charClasses.filter((cc) => cc.is_active);

@@ -24,10 +24,11 @@ export function MasterPartyPanel({ partyData, liveHpMap, onViewCharacter }: Mast
   const tm = useTranslations("master");
   const [showInactive, setShowInactive] = useState(false);
 
-  const active = partyData.filter((p) => p.character.is_active);
-  const inactive = partyData.filter((p) => !p.character.is_active);
+  const nonNpcData = partyData.filter((p) => !p.character.is_npc);
+  const active = nonNpcData.filter((p) => p.character.is_active);
+  const inactive = nonNpcData.filter((p) => !p.character.is_active);
 
-  if (partyData.length === 0) {
+  if (nonNpcData.length === 0) {
     return (
       <p className="py-12 text-center text-sm text-muted-foreground" data-testid="gm-party-empty">
         {tm("noCharactersFound")}

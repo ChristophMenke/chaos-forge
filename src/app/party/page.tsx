@@ -7,6 +7,8 @@ import type {
   PartyLootItemWithDetails,
   PartyLootLogRow,
   GeneralItemRow,
+  WeaponRow,
+  ArmorRow,
 } from "@/lib/supabase/types";
 
 interface CharacterOption {
@@ -55,6 +57,12 @@ export default async function PartyPage() {
     supabase.from("general_items").select("*").order("name").returns<GeneralItemRow[]>(),
   ]);
 
+  // Fetch weapons and armor for loot search
+  const [{ data: weapons }, { data: armor }] = await Promise.all([
+    supabase.from("weapons").select("*").order("name").returns<WeaponRow[]>(),
+    supabase.from("armor").select("*").order("name").returns<ArmorRow[]>(),
+  ]);
+
   const userMap: Record<string, string> = {};
   for (const p of profiles ?? []) {
     userMap[p.id] = p.display_name;
@@ -89,6 +97,8 @@ export default async function PartyPage() {
         characterMap={characterMap}
         userId={user.id}
         allGeneralItems={generalItems ?? []}
+        allWeapons={weapons ?? []}
+        allArmor={armor ?? []}
       />
     </div>
   );

@@ -13,7 +13,7 @@ interface MasterGoldPanelProps {
   characters: CharacterRow[];
 }
 
-const COIN_TYPES = ["pp", "gp", "ep", "sp", "cp"] as const;
+const COIN_TYPES = ["pp", "gp", "sp", "cp"] as const;
 
 export function MasterGoldPanel({ characters }: MasterGoldPanelProps) {
   const t = useTranslations("master");
@@ -70,7 +70,7 @@ export function MasterGoldPanel({ characters }: MasterGoldPanelProps) {
           <span className="font-heading text-sm text-foreground">{t("goldDistribute")}</span>
         </div>
 
-        <div className="mb-4 grid grid-cols-5 gap-2">
+        <div className="mb-4 grid grid-cols-4 gap-2">
           {COIN_TYPES.map((coin) => (
             <div key={coin} className="text-center">
               <label className="mb-1 block text-xs font-semibold text-muted-foreground">

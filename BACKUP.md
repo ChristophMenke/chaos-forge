@@ -153,20 +153,20 @@ find backup-$(date +%F)/storage -type f | wc -l
 
 **Erwartete Richtwerte (Stand April 2026):**
 
-| Tabelle | ca. Einträge |
-|---------|-------------|
-| spells | 3.200+ |
-| rulebook_chunks | 3.400+ |
-| monsters | 170+ |
-| general_items | 140+ |
-| weapons | 100+ |
-| characters | 10+ |
+| Tabelle         | ca. Einträge |
+| --------------- | ------------ |
+| spells          | 3.200+       |
+| rulebook_chunks | 3.400+       |
+| monsters        | 170+         |
+| general_items   | 140+         |
+| weapons         | 100+         |
+| characters      | 10+          |
 
 | Storage-Bucket | ca. Dateien |
-|----------------|------------|
-| avatars | 25+ |
-| npc-avatars | 25+ |
-| monster-images | 340+ |
+| -------------- | ----------- |
+| avatars        | 25+         |
+| npc-avatars    | 25+         |
+| monster-images | 340+        |
 
 ---
 

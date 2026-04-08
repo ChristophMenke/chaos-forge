@@ -394,9 +394,7 @@ export function PlayChecksPanel({
             {t("perceptionFormula")}
           </div>
           <div className="font-mono text-lg font-bold">
-            {Math.floor(((eo.int ?? character.int) + (eo.wis ?? character.wis)) / 2) +
-              epic.perceptionBonus +
-              magicPerceptionBonus}
+            {Math.floor(((eo.int ?? character.int) + (eo.wis ?? character.wis)) / 2)}
           </div>
         </div>
       </div>

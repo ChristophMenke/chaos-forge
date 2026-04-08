@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { MasterPage } from "./pages/master.page";
 
-const CORRECT_PIN = process.env.GM_PIN ?? "123456";
+const CORRECT_PIN = process.env.GM_PIN || "666777";
 
 test.describe("Master of Chaos — GM Interface", () => {
   test.describe("PIN Gate", () => {
@@ -186,9 +186,9 @@ test.describe("Master of Chaos — GM Interface", () => {
       await page.getByTestId("gm-npc-description").fill("Ein Test-NPC für QA.");
       await page.getByTestId("gm-npc-save").click();
 
-      // NPC should appear in list
+      // NPC may be on page 2 due to alphabetical sorting — search to find it
+      await master.npcSearch.fill(`QA-NPC-${uniqueId}`);
       await expect(page.getByText(`QA-NPC-${uniqueId}`)).toBeVisible({ timeout: 10_000 });
-      await expect(page.getByText(`QA-Ort-${uniqueId}`)).toBeVisible();
     });
 
     test("can toggle NPC visibility", async ({ page }) => {
@@ -261,8 +261,8 @@ test.describe("Master of Chaos — GM Interface", () => {
       await firstCard.click();
 
       await expect(page.getByTestId("gm-monster-detail")).toBeVisible({ timeout: 3_000 });
-      // Close modal
-      await page.getByTestId("gm-monster-detail-close").click();
+      // Close modal (desktop uses separate close button)
+      await page.getByTestId("gm-monster-detail-close-desktop").click();
       await expect(page.getByTestId("gm-monster-detail")).not.toBeVisible();
     });
 

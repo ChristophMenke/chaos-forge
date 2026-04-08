@@ -78,7 +78,6 @@ export function PlayCoinPursePanel({
   const coins = [
     { key: "pp" as const, label: "PP", value: coinPurse.pp },
     { key: "gp" as const, label: "GP", value: coinPurse.gp },
-    { key: "ep" as const, label: "EP", value: coinPurse.ep },
     { key: "sp" as const, label: "SP", value: coinPurse.sp },
     { key: "cp" as const, label: "CP", value: coinPurse.cp },
   ];
@@ -92,7 +91,7 @@ export function PlayCoinPursePanel({
       </h3>
 
       {/* Coin display */}
-      <div className="mb-2 grid grid-cols-5 gap-1 text-center" data-testid="play-coins">
+      <div className="mb-2 grid grid-cols-4 gap-1 text-center" data-testid="play-coins">
         {coins.map((coin) => (
           <div key={coin.key} className="rounded-md border border-border px-1 py-1.5">
             <div className="text-[10px] md:text-xs font-medium text-muted-foreground">
@@ -166,7 +165,7 @@ export function PlayCoinPursePanel({
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="font-heading text-lg text-primary">{t("receiveTitle")}</h3>
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               {coins.map((coin) => (
                 <div key={coin.key} className="text-center">
                   <label className="text-[10px] md:text-xs text-muted-foreground">

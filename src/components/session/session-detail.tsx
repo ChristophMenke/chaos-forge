@@ -92,6 +92,7 @@ export function SessionDetail({
   const [imageGeneratedAt, setImageGeneratedAt] = useState(session.image_generated_at);
   const [generatingImage, setGeneratingImage] = useState(false);
   const [localUpdatedAt, setLocalUpdatedAt] = useState(session.updated_at);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [participantsState, setParticipantsState] = useState(initialParticipants);
   const [externalState, setExternalState] = useState(initialExternal);
 
@@ -153,13 +154,14 @@ export function SessionDetail({
       const data = await res.json();
 
       if (data.error) {
-        alert(data.error);
+        setErrorMessage(data.error);
       } else {
         setSummary(data.summary);
         setSummaryDirty(true);
+        setErrorMessage(null);
       }
     } catch {
-      alert("Zusammenfassung fehlgeschlagen.");
+      setErrorMessage("Zusammenfassung fehlgeschlagen.");
     }
 
     setGeneratingSummary(false);
@@ -177,13 +179,14 @@ export function SessionDetail({
       });
       const data = await res.json();
       if (data.error) {
-        alert(data.error);
+        setErrorMessage(data.error);
       } else {
         setImageUrl(data.imageUrl);
         setImageGeneratedAt(new Date().toISOString());
+        setErrorMessage(null);
       }
     } catch {
-      alert("Bildgenerierung fehlgeschlagen.");
+      setErrorMessage("Bildgenerierung fehlgeschlagen.");
     }
     setGeneratingImage(false);
   }
@@ -289,6 +292,19 @@ export function SessionDetail({
           {imageUrl ? t("regenerateMoodImage") : t("generateMoodImage")}
         </Button>
       </div>
+
+      {errorMessage && (
+        <div
+          className="mb-4 rounded-md border border-destructive/50 bg-destructive/10 px-4 py-2 text-sm text-destructive"
+          role="alert"
+          data-testid="session-error-message"
+        >
+          {errorMessage}
+          <button className="ml-2 text-xs underline" onClick={() => setErrorMessage(null)}>
+            {tc("close")}
+          </button>
+        </div>
+      )}
 
       <div className="mb-6">
         {tagsState.length > 0 && (

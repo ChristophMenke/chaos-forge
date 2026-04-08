@@ -579,6 +579,14 @@ export function TabEquipment({
     setLoading(false);
   }
 
+  async function updateEquipmentQuantity(id: string, quantity: number) {
+    setLoading(true);
+    const supabase = createClient();
+    await supabase.from("character_equipment").update({ quantity }).eq("id", id);
+    onEquipmentChange(equipment.map((e) => (e.id === id ? { ...e, quantity } : e)));
+    setLoading(false);
+  }
+
   async function updateEquipmentBonus(
     id: string,
     field: "hit_bonus" | "damage_bonus",
@@ -932,7 +940,25 @@ export function TabEquipment({
                     <td className="py-2 pr-4 text-right font-mono">
                       {lbsToKg(getItemWeight(item))} kg
                     </td>
-                    <td className="py-2 pr-4 text-right font-mono">{item.quantity}</td>
+                    <td className="py-2 pr-4 text-right font-mono">
+                      {!readOnly ? (
+                        <input
+                          type="number"
+                          min={1}
+                          value={item.quantity}
+                          onChange={(e) =>
+                            updateEquipmentQuantity(
+                              item.id,
+                              Math.max(1, parseInt(e.target.value) || 1)
+                            )
+                          }
+                          className="w-14 rounded border border-border bg-transparent px-1 py-0.5 text-right text-sm"
+                          data-testid={`equipment-qty-${item.id}`}
+                        />
+                      ) : (
+                        item.quantity
+                      )}
+                    </td>
                     <td className="py-2 pr-4 text-center">
                       {!readOnly ? (
                         <Button

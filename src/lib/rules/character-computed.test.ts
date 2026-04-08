@@ -231,8 +231,8 @@ describe("computeCharacterCombatData", () => {
     ];
 
     const result = computeCharacterCombatData(char, classes, [], epicItems, []);
-    // floor((14+16)/2) + 3 = 15 + 3 = 18
-    expect(result.perception).toBe(18);
+    // floor((14+16)/2) = 15 (perception_bonus is situational, not added to base)
+    expect(result.perception).toBe(15);
   });
 
   it("computes shield proficiency bonus", () => {
@@ -791,17 +791,17 @@ describe("computeCharacterCombatData", () => {
       expect(result.saves.paralyzation).toBe(10);
     });
 
-    it("magic item perception bonus is added", () => {
+    it("magic item perception bonus is situational and not added to base", () => {
       const char = makeCharacter({ int: 14, wis: 16 });
       const classes = [makeClass("fighter", 5)];
       const goggles = makeMagicEquip({ perception_bonus: 3 }, "Goggles of Perception");
 
       const result = computeCharacterCombatData(char, classes, [goggles], [], []);
-      // floor((14+16)/2) + 3 = 15 + 3 = 18
-      expect(result.perception).toBe(18);
+      // floor((14+16)/2) = 15 (perception bonuses are situational)
+      expect(result.perception).toBe(15);
     });
 
-    it("magic item perception stacks with epic perception", () => {
+    it("epic perception bonus is situational and not added to base", () => {
       const char = makeCharacter({ int: 14, wis: 16 });
       const classes = [makeClass("fighter", 5)];
       const goggles = makeMagicEquip({ perception_bonus: 2 }, "Goggles");
@@ -827,8 +827,8 @@ describe("computeCharacterCombatData", () => {
       ];
 
       const result = computeCharacterCombatData(char, classes, [goggles], epicItems, []);
-      // floor((14+16)/2) + 3 (epic) + 2 (magic) = 15 + 5 = 20
-      expect(result.perception).toBe(20);
+      // floor((14+16)/2) = 15 (perception bonuses are situational)
+      expect(result.perception).toBe(15);
     });
 
     it("magic item thief skill bonuses are applied", () => {

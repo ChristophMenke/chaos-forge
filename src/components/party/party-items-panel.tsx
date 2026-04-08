@@ -7,7 +7,12 @@ import { Button } from "@/components/ui/button";
 import { DistributeItemDialog } from "@/components/party/distribute-item-dialog";
 import { createClient } from "@/lib/supabase/client";
 import { localized } from "@/lib/utils/localize";
-import type { PartyLootItemWithDetails, GeneralItemRow } from "@/lib/supabase/types";
+import type {
+  PartyLootItemWithDetails,
+  GeneralItemRow,
+  WeaponRow,
+  ArmorRow,
+} from "@/lib/supabase/types";
 
 interface CharacterOption {
   id: string;
@@ -15,11 +20,20 @@ interface CharacterOption {
   user_id: string;
 }
 
+interface CatalogItem {
+  id: string;
+  name: string;
+  name_en: string | null;
+  type: "item" | "weapon" | "armor";
+}
+
 interface PartyItemsPanelProps {
   items: PartyLootItemWithDetails[];
   userId: string;
   characters: CharacterOption[];
   allGeneralItems: GeneralItemRow[];
+  allWeapons?: WeaponRow[];
+  allArmor?: ArmorRow[];
   activeCharacterName?: string;
 }
 
@@ -28,6 +42,8 @@ export function PartyItemsPanel({
   userId,
   characters,
   allGeneralItems,
+  allWeapons = [],
+  allArmor = [],
   activeCharacterName = "",
 }: PartyItemsPanelProps) {
   const t = useTranslations("party");
@@ -41,14 +57,30 @@ export function PartyItemsPanel({
   const [savingId, setSavingId] = useState<string | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
-  const filteredGeneralItems = searchQuery.trim()
-    ? allGeneralItems
-        .filter(
-          (gi) =>
-            gi.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (gi.name_en?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
-        )
-        .slice(0, 10)
+  const filteredCatalog: CatalogItem[] = searchQuery.trim()
+    ? [
+        ...allGeneralItems
+          .filter(
+            (gi) =>
+              gi.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              (gi.name_en?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
+          )
+          .map((gi) => ({ id: gi.id, name: gi.name, name_en: gi.name_en, type: "item" as const })),
+        ...allWeapons
+          .filter(
+            (w) =>
+              w.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              (w.name_en?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
+          )
+          .map((w) => ({ id: w.id, name: w.name, name_en: w.name_en, type: "weapon" as const })),
+        ...allArmor
+          .filter(
+            (a) =>
+              a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              (a.name_en?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
+          )
+          .map((a) => ({ id: a.id, name: a.name, name_en: a.name_en, type: "armor" as const })),
+      ].slice(0, 15)
     : [];
 
   function itemName(item: PartyLootItemWithDetails): string {
@@ -57,24 +89,29 @@ export function PartyItemsPanel({
     return "???";
   }
 
-  async function addFromCatalog(generalItem: GeneralItemRow) {
+  async function addFromCatalog(catalogItem: CatalogItem) {
     if (savingId) return;
     setSavingId("add");
 
+    const isGeneralItem = catalogItem.type === "item";
+    const insertData = isGeneralItem
+      ? { item_id: catalogItem.id, quantity: 1, added_by: userId }
+      : {
+          custom_name: localized(catalogItem.name, catalogItem.name_en, locale),
+          quantity: 1,
+          added_by: userId,
+        };
+
     const { data, error } = await supabase
       .from("party_loot_items")
-      .insert({
-        item_id: generalItem.id,
-        quantity: 1,
-        added_by: userId,
-      })
+      .insert(insertData)
       .select("*, item:general_items(*)")
       .single();
 
     setSavingId(null);
     if (error || !data) return;
 
-    const name = localized(generalItem.name, generalItem.name_en, locale);
+    const name = localized(catalogItem.name, catalogItem.name_en, locale);
     await supabase.from("party_loot_log").insert({
       action: "add_item",
       user_id: userId,
@@ -205,16 +242,19 @@ export function PartyItemsPanel({
         {/* Search results dropdown */}
         {showSearch && searchQuery.trim() && (
           <div className="max-h-48 overflow-y-auto rounded-md border border-border bg-background">
-            {filteredGeneralItems.length > 0 ? (
-              filteredGeneralItems.map((gi) => (
+            {filteredCatalog.length > 0 ? (
+              filteredCatalog.map((ci) => (
                 <button
-                  key={gi.id}
+                  key={`${ci.type}-${ci.id}`}
                   type="button"
-                  className="w-full px-3 py-1.5 text-left text-sm hover:bg-accent"
-                  onClick={() => addFromCatalog(gi)}
-                  data-testid={`party-items-catalog-${gi.id}`}
+                  className="flex w-full items-center justify-between px-3 py-1.5 text-left text-sm hover:bg-accent"
+                  onClick={() => addFromCatalog(ci)}
+                  data-testid={`party-items-catalog-${ci.type}-${ci.id}`}
                 >
-                  {localized(gi.name, gi.name_en, locale)}
+                  <span>{localized(ci.name, ci.name_en, locale)}</span>
+                  <span className="text-[10px] uppercase text-muted-foreground">
+                    {ci.type === "weapon" ? "⚔" : ci.type === "armor" ? "🛡" : "📦"}
+                  </span>
                 </button>
               ))
             ) : (
@@ -233,7 +273,7 @@ export function PartyItemsPanel({
                 </button>
               </div>
             )}
-            {filteredGeneralItems.length > 0 && (
+            {filteredCatalog.length > 0 && (
               <div className="border-t border-border px-3 py-1.5">
                 <button
                   type="button"

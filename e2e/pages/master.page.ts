@@ -1,4 +1,4 @@
-import type { Page, Locator } from "@playwright/test";
+import { type Page, type Locator, expect } from "@playwright/test";
 
 export class MasterPage {
   readonly page: Page;
@@ -121,40 +121,27 @@ export class MasterPage {
   }
 
   async enterPin(pin: string) {
-    // Focus first input and paste the full PIN to trigger the handlePaste handler
-    // which reliably sets all digits and auto-submits when complete
-    const firstInput = this.page.getByTestId("gm-pin-digit-0");
-    await firstInput.focus();
-
-    // Use clipboard paste which triggers the onPaste handler for reliable 6-digit entry
-    await this.page.evaluate((p) => {
-      const dt = new DataTransfer();
-      dt.setData("text/plain", p);
-      const event = new ClipboardEvent("paste", { clipboardData: dt, bubbles: true });
-      document.activeElement?.dispatchEvent(event);
-    }, pin);
-  }
-
-  async submitPin() {
-    // PIN gate auto-submits when all 6 digits are filled via paste.
-    // If the button is still enabled, click it as fallback.
-    if (await this.pinSubmit.isEnabled().catch(() => false)) {
-      await this.pinSubmit.click();
+    // Fill each digit individually and wait for React to process
+    // the state update before proceeding to the next digit.
+    // This avoids stale closure issues with the digits state array.
+    for (let i = 0; i < pin.length; i++) {
+      const input = this.page.getByTestId(`gm-pin-digit-${i}`);
+      await input.click();
+      await input.pressSequentially(pin[i]);
+      // Wait for React to commit the state update
+      await expect(input).toHaveValue(pin[i], { timeout: 2000 });
     }
-    // Wait for dashboard to appear (PIN was accepted)
-    await this.dashboard.waitFor({ state: "visible", timeout: 10000 });
   }
 
   async enterAndSubmitPin(pin: string) {
     await this.enterPin(pin);
-    // Auto-submit triggers from paste handler — wait for dashboard or error
+    // Auto-submit triggers when 6th digit is entered via handleChange.
+    // If auto-submit didn't fire, click the button as fallback.
     try {
       await this.dashboard.waitFor({ state: "visible", timeout: 10000 });
     } catch {
-      // If auto-submit didn't work, try manual submit
       if (await this.pinSubmit.isEnabled().catch(() => false)) {
         await this.pinSubmit.click();
-        await this.dashboard.waitFor({ state: "visible", timeout: 10000 });
       }
     }
   }
