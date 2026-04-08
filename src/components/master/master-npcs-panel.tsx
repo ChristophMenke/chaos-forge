@@ -181,7 +181,7 @@ export function MasterNpcsPanel({
       return sortDir === "asc" ? cmp : -cmp;
     });
     return result;
-  }, [unified, search, tierFilter, sortKey, sortDir]);
+  }, [unified, search, tierFilter, locationFilter, sortKey, sortDir]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const safePage = Math.min(page, Math.max(0, totalPages - 1));
