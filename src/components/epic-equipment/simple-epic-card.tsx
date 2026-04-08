@@ -36,9 +36,8 @@ export function SimpleEpicCard({ item, locale, isOwner, onToggleEquip }: SimpleE
     "damage_trigger",
     "damage_trigger_en",
   ];
-  const DISPLAY_EXCLUDED = [...EXCLUDED_KEYS, "description", "description_en"];
   const effectEntries = Object.entries(simpleEffects).filter(
-    ([key]) => !DISPLAY_EXCLUDED.includes(key)
+    ([key]) => !EXCLUDED_KEYS.includes(key)
   );
   const weakness = simpleEffects.weakness as string | undefined;
   const weaknessEn = simpleEffects.weakness_en as string | undefined;
@@ -101,7 +100,11 @@ export function SimpleEpicCard({ item, locale, isOwner, onToggleEquip }: SimpleE
                     className="border-green-500/50 text-green-400"
                     data-testid={`epic-simple-effect-${item.slug}-${key}`}
                   >
-                    {typeof value === "number" ? `${label} +${value}` : String(value)}
+                    {typeof value === "number"
+                      ? value >= 0
+                        ? `${label} +${value}`
+                        : `${label} ${value}`
+                      : String(value)}
                   </Badge>
                 );
               })}

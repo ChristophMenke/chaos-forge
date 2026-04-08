@@ -270,18 +270,20 @@ function MonsterCard({
           <div className="grid grid-cols-3 gap-2 text-center text-xs">
             <div className="rounded border border-border/50 px-1 py-1.5">
               <div className="text-[9px] uppercase tracking-wider text-muted-foreground">
-                Armor Class
+                {t("ac")}
               </div>
               <div className="font-mono text-sm font-bold">{monster.ac}</div>
             </div>
             <div className="rounded border border-border/50 px-1 py-1.5">
               <div className="text-[9px] uppercase tracking-wider text-muted-foreground">
-                Hit Dice
+                {t("monsterHD")}
               </div>
               <div className="font-mono text-sm font-bold">{monster.hit_dice}</div>
             </div>
             <div className="rounded border border-border/50 px-1 py-1.5">
-              <div className="text-[9px] uppercase tracking-wider text-muted-foreground">THAC0</div>
+              <div className="text-[9px] uppercase tracking-wider text-muted-foreground">
+                {t("thac0")}
+              </div>
               <div className="font-mono text-sm font-bold">{monster.thac0}</div>
             </div>
           </div>
@@ -362,30 +364,43 @@ function MonsterDetailModal({
     [monster.id]
   );
 
-  const rows: { label: string; value: string | number | null }[] = [
-    { label: t("ac"), value: monster.ac },
-    { label: t("monsterMovement"), value: monster.movement },
-    { label: t("monsterHD"), value: monster.hit_dice },
-    { label: t("thac0"), value: monster.thac0 },
-    { label: t("monsterAttacks"), value: monster.attacks_per_round },
-    { label: t("monsterDamage"), value: monster.damage },
-    { label: t("monsterSpecialAttacks"), value: monster.special_attacks },
-    { label: t("monsterSpecialDefenses"), value: monster.special_defenses },
+  // Keys promoted to the core/combat stat grids — excluded from the secondary table
+  const PROMOTED_KEYS = new Set([
+    "ac",
+    "movement",
+    "hd",
+    "thac0",
+    "attacks",
+    "damage",
+    "specialAttacks",
+    "specialDefenses",
+  ]);
+
+  const rows: { key: string; label: string; value: string | number | null }[] = [
+    { key: "ac", label: t("ac"), value: monster.ac },
+    { key: "movement", label: t("monsterMovement"), value: monster.movement },
+    { key: "hd", label: t("monsterHD"), value: monster.hit_dice },
+    { key: "thac0", label: t("thac0"), value: monster.thac0 },
+    { key: "attacks", label: t("monsterAttacks"), value: monster.attacks_per_round },
+    { key: "damage", label: t("monsterDamage"), value: monster.damage },
+    { key: "specialAttacks", label: t("monsterSpecialAttacks"), value: monster.special_attacks },
+    { key: "specialDefenses", label: t("monsterSpecialDefenses"), value: monster.special_defenses },
     {
+      key: "mr",
       label: t("monsterMagicResistance"),
       value: monster.magic_resistance > 0 ? `${monster.magic_resistance}%` : null,
     },
-    { label: t("monsterSize"), value: t(`size${monster.size}`) },
-    { label: t("monsterMorale"), value: monster.morale },
-    { label: t("monsterAlignment"), value: monster.alignment },
-    { label: t("monsterXP"), value: monster.xp_value.toLocaleString() },
-    { label: t("monsterClimate"), value: monster.climate_terrain },
-    { label: t("monsterFrequency"), value: monster.frequency },
-    { label: t("monsterOrganization"), value: monster.organization },
-    { label: t("monsterActivityCycle"), value: monster.activity_cycle },
-    { label: t("monsterDiet"), value: monster.diet },
-    { label: t("monsterIntelligence"), value: monster.intelligence },
-    { label: t("monsterTreasure"), value: monster.treasure },
+    { key: "size", label: t("monsterSize"), value: t(`size${monster.size}`) },
+    { key: "morale", label: t("monsterMorale"), value: monster.morale },
+    { key: "alignment", label: t("monsterAlignment"), value: monster.alignment },
+    { key: "xp", label: t("monsterXP"), value: monster.xp_value.toLocaleString() },
+    { key: "climate", label: t("monsterClimate"), value: monster.climate_terrain },
+    { key: "frequency", label: t("monsterFrequency"), value: monster.frequency },
+    { key: "organization", label: t("monsterOrganization"), value: monster.organization },
+    { key: "activity", label: t("monsterActivityCycle"), value: monster.activity_cycle },
+    { key: "diet", label: t("monsterDiet"), value: monster.diet },
+    { key: "intelligence", label: t("monsterIntelligence"), value: monster.intelligence },
+    { key: "treasure", label: t("monsterTreasure"), value: monster.treasure },
   ];
 
   // Close on Escape key
@@ -405,7 +420,7 @@ function MonsterDetailModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
       role="dialog"
       aria-modal="true"
-      aria-label={displayName}
+      aria-labelledby="monster-detail-title"
       onClick={onClose}
       data-testid="gm-monster-detail-overlay"
     >
@@ -474,7 +489,10 @@ function MonsterDetailModal({
           </button>
           {/* Name overlay on image */}
           <div className="absolute bottom-3 left-4 right-4">
-            <h2 className="font-heading text-2xl font-bold text-foreground drop-shadow-lg">
+            <h2
+              id="monster-detail-title"
+              className="font-heading text-2xl font-bold text-foreground drop-shadow-lg"
+            >
               {displayName}
             </h2>
             {monster.name !== monster.name_en && monster.name_en && (
@@ -515,10 +533,10 @@ function MonsterDetailModal({
           {/* Core stats — Monster Manual style block */}
           <div className="mb-4 grid grid-cols-4 gap-2">
             {[
-              { label: "Armor Class", value: monster.ac },
-              { label: "Hit Dice", value: monster.hit_dice },
-              { label: "THAC0", value: monster.thac0 },
-              { label: "Movement", value: monster.movement },
+              { label: t("ac"), value: monster.ac },
+              { label: t("monsterHD"), value: monster.hit_dice },
+              { label: t("thac0"), value: monster.thac0 },
+              { label: t("monsterMovement"), value: monster.movement },
             ].map((s) => (
               <div
                 key={s.label}
@@ -551,24 +569,10 @@ function MonsterDetailModal({
               ))}
           </div>
 
-          {/* Secondary stat table */}
+          {/* Secondary stat table — excludes stats already shown in core/combat grids */}
           <div className="space-y-1">
             {rows
-              .filter(
-                (r) =>
-                  r.value !== null &&
-                  r.value !== "" &&
-                  ![
-                    t("ac"),
-                    t("monsterMovement"),
-                    t("monsterHD"),
-                    t("thac0"),
-                    t("monsterAttacks"),
-                    t("monsterDamage"),
-                    t("monsterSpecialAttacks"),
-                    t("monsterSpecialDefenses"),
-                  ].includes(r.label)
-              )
+              .filter((r) => !PROMOTED_KEYS.has(r.key) && r.value !== null && r.value !== "")
               .map((r) => (
                 <div
                   key={r.label}
