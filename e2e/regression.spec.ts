@@ -1,6 +1,31 @@
 import { test, expect } from "@playwright/test";
 import { CharacterSheetPage } from "./pages/character-sheet.page";
 import { LoginPage } from "./pages/login.page";
+import { createTestCharacter, deleteTestCharacter } from "./helpers/test-character";
+
+let charId: string;
+
+test.beforeAll(async ({ request }) => {
+  charId = await createTestCharacter(request, {
+    name: "QA-Regression",
+    race_id: "human",
+    class_id: "fighter",
+    level: 5,
+    str: 17,
+    dex: 12,
+    con: 15,
+    int: 10,
+    wis: 9,
+    cha: 11,
+    hp_current: 45,
+    hp_max: 45,
+    alignment: "chaotic_good",
+  });
+});
+
+test.afterAll(async ({ request }) => {
+  if (charId) await deleteTestCharacter(request, charId);
+});
 
 test.describe("Login Page", () => {
   test("shows email input and code send button", async ({ page }) => {

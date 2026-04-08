@@ -1,23 +1,40 @@
 import { test, expect } from "@playwright/test";
 import { PartyPage } from "./pages/party.page";
+import { createTestCharacter, deleteTestCharacter } from "./helpers/test-character";
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
 const TEST_EMAIL = "christoph@chaos-forge.de";
 
-test.describe("Party Inventory Page", () => {
-  // Clean up party state after all tests: reset gold and remove test items
-  test.afterAll(async () => {
-    try {
-      await fetch(`${BASE_URL}/api/test-seed-cleanup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: TEST_EMAIL }),
-      });
-    } catch {
-      /* server may be shutting down */
-    }
-  });
+let charId: string;
 
+test.beforeAll(async ({ request }) => {
+  charId = await createTestCharacter(request, {
+    name: "QA-Party",
+    race_id: "human",
+    class_id: "fighter",
+    level: 3,
+    hp_current: 25,
+    hp_max: 25,
+  });
+});
+
+test.afterAll(async ({ request }) => {
+  // Clean up party state (gold, items, log) — NOT characters
+  try {
+    await fetch(`${BASE_URL}/api/test-party-cleanup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: TEST_EMAIL }),
+    }).catch(() => {});
+  } catch {
+    /* server may be shutting down */
+  }
+
+  // Delete test character
+  if (charId) await deleteTestCharacter(request, charId);
+});
+
+test.describe("Party Inventory Page", () => {
   test("shows party page with gold pool, items panel, and log", async ({ page }) => {
     test.setTimeout(30000);
     const party = new PartyPage(page);
@@ -28,10 +45,9 @@ test.describe("Party Inventory Page", () => {
     await expect(party.itemsPanel).toBeVisible();
     await expect(party.logPanel).toBeVisible();
 
-    // Gold panel shows all 5 coin types
+    // Gold panel shows coin types (EP removed)
     await expect(party.goldPP).toBeVisible();
     await expect(party.goldGP).toBeVisible();
-    await expect(party.goldEP).toBeVisible();
     await expect(party.goldSP).toBeVisible();
     await expect(party.goldCP).toBeVisible();
 

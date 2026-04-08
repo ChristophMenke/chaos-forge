@@ -1,9 +1,34 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { createTestCharacter, deleteTestCharacter } from "./helpers/test-character";
 
 // ─── Mobile Responsive Tests (iPhone 13 viewport) ──────────────────────────
 
 const MOBILE_VIEWPORT = { width: 390, height: 844 };
+
+let charId: string;
+
+test.beforeAll(async ({ request }) => {
+  charId = await createTestCharacter(request, {
+    name: "QA-ResponsiveA11y",
+    race_id: "elf",
+    class_id: "mage",
+    level: 3,
+    str: 8,
+    dex: 15,
+    con: 12,
+    int: 18,
+    wis: 14,
+    cha: 13,
+    hp_current: 12,
+    hp_max: 12,
+    alignment: "neutral_good",
+  });
+});
+
+test.afterAll(async ({ request }) => {
+  if (charId) await deleteTestCharacter(request, charId);
+});
 
 test.describe("Mobile Responsive (iPhone 13)", () => {
   test("character cards render without overflow on mobile", async ({ page }) => {

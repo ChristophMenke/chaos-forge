@@ -1,9 +1,27 @@
 import { test, expect } from "@playwright/test";
+import { createTestCharacter, deleteTestCharacter } from "./helpers/test-character";
 
 /**
  * Mobile-specific tests that run in an iPhone device context.
  * These tests require a real mobile viewport (not setViewportSize on Desktop Chrome).
  */
+
+let charId: string;
+
+test.beforeAll(async ({ request }) => {
+  charId = await createTestCharacter(request, {
+    name: "QA-Mobile",
+    race_id: "human",
+    class_id: "fighter",
+    level: 3,
+    hp_current: 25,
+    hp_max: 25,
+  });
+});
+
+test.afterAll(async ({ request }) => {
+  if (charId) await deleteTestCharacter(request, charId);
+});
 
 test.describe("Mobile Navigation", () => {
   test("characters page — mobile nav has more menu", async ({ page }) => {
