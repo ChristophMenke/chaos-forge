@@ -39,8 +39,7 @@ export function SimpleEpicCard({ item, locale, isOwner, onToggleEquip }: SimpleE
   // If a description exists, it already explains the numeric effects — hide them to avoid duplication
   const hasDescription = typeof simpleEffects.description === "string";
   const effectEntries = Object.entries(simpleEffects).filter(
-    ([key, value]) =>
-      !EXCLUDED_KEYS.includes(key) && !(hasDescription && typeof value === "number")
+    ([key, value]) => !EXCLUDED_KEYS.includes(key) && !(hasDescription && typeof value === "number")
   );
   const weakness = simpleEffects.weakness as string | undefined;
   const weaknessEn = simpleEffects.weakness_en as string | undefined;
