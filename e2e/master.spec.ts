@@ -261,8 +261,8 @@ test.describe("Master of Chaos — GM Interface", () => {
       await firstCard.click();
 
       await expect(page.getByTestId("gm-monster-detail")).toBeVisible({ timeout: 3_000 });
-      // Close modal
-      await page.getByTestId("gm-monster-detail-close").click();
+      // Close modal (desktop uses separate close button)
+      await page.getByTestId("gm-monster-detail-close-desktop").click();
       await expect(page.getByTestId("gm-monster-detail")).not.toBeVisible();
     });
 

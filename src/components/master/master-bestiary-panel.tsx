@@ -429,7 +429,13 @@ function MonsterCard({
         {/* Image — square aspect ratio */}
         <div className="relative aspect-square w-full bg-black/40">
           {monster.image_url ? (
-            <Image src={monster.image_url} alt={displayName} fill className="object-cover" />
+            <Image
+              src={monster.image_url}
+              alt={displayName}
+              fill
+              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
+              className="object-cover"
+            />
           ) : (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
@@ -841,6 +847,7 @@ function MonsterDetailModal({
                   src={imageUrl}
                   alt={displayName}
                   fill
+                  sizes="(max-width: 1024px) 100vw, 40vw"
                   className="object-contain"
                   data-testid="gm-monster-detail-image"
                 />
