@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Search,
   Plus,
@@ -60,6 +61,10 @@ function getUnifiedVisible(u: UnifiedNpc): boolean {
   if (u.kind === "normal") return u.npc.is_visible_to_players;
   return u.char.npc_visible_to_players ?? false;
 }
+function getUnifiedAvatarUrl(u: UnifiedNpc): string | null {
+  if (u.kind === "normal") return u.npc.avatar_url;
+  return u.char.avatar_url ?? null;
+}
 
 const TIER_ICON: Record<string, typeof User> = {
   normal: User,
@@ -69,8 +74,14 @@ const TIER_ICON: Record<string, typeof User> = {
 
 const TIER_COLOR: Record<string, string> = {
   normal: "bg-zinc-700/60 text-zinc-300",
-  advanced: "bg-amber-900/60 text-amber-300",
+  advanced: "bg-zinc-700/60 text-zinc-300",
   character: "bg-purple-900/60 text-purple-300",
+};
+
+const TIER_LABEL: Record<string, string> = {
+  normal: "npcCreate", // "Einfacher NPC" / "Simple NPC"
+  advanced: "npcCreate", // same — simple NPCs with extra stats
+  character: "npcAdvancedCreate", // "Vollständiger NPC" / "Full NPC"
 };
 
 // ─── Props ───────────────────────────────────────────────────────────
@@ -100,7 +111,8 @@ export function MasterNpcsPanel({
 
   // Filter / Sort / View
   const [search, setSearch] = useState("");
-  const [tierFilter, setTierFilter] = useState<"" | "normal" | "advanced" | "character">("");
+  const [tierFilter, setTierFilter] = useState<"" | "simple" | "full">("");
+  const [locationFilter, setLocationFilter] = useState<string>("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortKey, setSortKey] = useState<NpcSortKey>("name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
@@ -124,6 +136,16 @@ export function MasterNpcsPanel({
     return items;
   }, [npcs, npcChars]);
 
+  // Unique locations for filter dropdown
+  const locations = useMemo(() => {
+    const locs = new Set<string>();
+    unified.forEach((u) => {
+      const loc = getUnifiedLocation(u);
+      if (loc) locs.add(loc);
+    });
+    return [...locs].sort();
+  }, [unified]);
+
   const filtered = useMemo(() => {
     let result = unified;
     if (search) {
@@ -135,7 +157,12 @@ export function MasterNpcsPanel({
       );
     }
     if (tierFilter) {
-      result = result.filter((u) => getUnifiedTier(u) === tierFilter);
+      result = result.filter((u) =>
+        tierFilter === "simple" ? u.kind === "normal" : u.kind === "character"
+      );
+    }
+    if (locationFilter) {
+      result = result.filter((u) => getUnifiedLocation(u) === locationFilter);
     }
     // Sort
     result = [...result].sort((a, b) => {
@@ -260,10 +287,29 @@ export function MasterNpcsPanel({
           data-testid="gm-npc-tier-filter"
         >
           <option value="">{t("npcTier")}</option>
-          <option value="normal">{t("npcNormal")}</option>
-          <option value="advanced">{t("npcAdvanced")}</option>
-          <option value="character">{t("npcAdvancedCreate")}</option>
+          <option value="simple">{t("npcCreate")}</option>
+          <option value="full">{t("npcAdvancedCreate")}</option>
         </select>
+
+        {/* Location Filter */}
+        {locations.length > 0 && (
+          <select
+            value={locationFilter}
+            onChange={(e) => {
+              setLocationFilter(e.target.value);
+              setPage(0);
+            }}
+            className="rounded-lg border border-border bg-background/50 px-3 py-2 text-sm"
+            data-testid="gm-npc-location-filter"
+          >
+            <option value="">{t("npcLocation")}</option>
+            {locations.map((loc) => (
+              <option key={loc} value={loc}>
+                {loc}
+              </option>
+            ))}
+          </select>
+        )}
 
         {/* Sort */}
         <div className="flex items-center gap-1">
@@ -499,7 +545,8 @@ function NpcGridCard({
 }) {
   const name = getUnifiedName(u);
   const tier = getUnifiedTier(u);
-  const avatarUri = npcAvatar(name, tier as "normal" | "advanced" | "character");
+  const imageUrl = getUnifiedAvatarUrl(u);
+  const fallbackAvatar = npcAvatar(name, tier as "normal" | "advanced" | "character");
   const location = getUnifiedLocation(u);
   const visible = getUnifiedVisible(u);
   const level = getUnifiedLevel(u);
@@ -551,8 +598,18 @@ function NpcGridCard({
 
         {/* Avatar — square aspect ratio */}
         <div className="relative aspect-square w-full bg-black/40">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={avatarUri} alt={name} className="h-full w-full object-contain" />
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={name}
+              fill
+              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
+              className="object-cover"
+            />
+          ) : (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={fallbackAvatar} alt={name} className="h-full w-full object-contain" />
+          )}
           <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background to-transparent" />
           <div className="absolute bottom-1.5 left-2 right-2">
             <h4 className="font-heading text-sm font-semibold leading-tight text-foreground drop-shadow-lg">
@@ -603,9 +660,7 @@ function NpcGridCard({
               className={`inline-flex items-center gap-0.5 rounded px-1 py-0.5 ${TIER_COLOR[tier]}`}
             >
               <TierIcon className="h-2.5 w-2.5" />
-              {tier === "character"
-                ? t("npcAdvanced")
-                : t(tier === "advanced" ? "npcAdvanced" : "npcNormal")}
+              {t(TIER_LABEL[tier] ?? "npcCreate")}
             </span>
             {location && (
               <span className="flex items-center gap-0.5">
@@ -686,7 +741,8 @@ function NpcListView({
             const name = getUnifiedName(u);
             const tier = getUnifiedTier(u);
             const TierIcon = TIER_ICON[tier] ?? User;
-            const avatarUri = npcAvatar(name, tier as "normal" | "advanced" | "character");
+            const imageUrl = getUnifiedAvatarUrl(u);
+            const fallbackAvatar = npcAvatar(name, tier as "normal" | "advanced" | "character");
             const ac = u.kind === "normal" ? u.npc.ac : null;
             const hpMax =
               u.kind === "normal" ? u.npc.hp_max : u.kind === "character" ? u.char.hp_max : null;
@@ -715,8 +771,12 @@ function NpcListView({
                 <td className="px-2 py-2">
                   <div className="flex items-center gap-2">
                     <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded bg-black/30">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={avatarUri} alt="" className="h-full w-full object-contain" />
+                      {imageUrl ? (
+                        <Image src={imageUrl} alt="" fill className="object-cover" sizes="32px" />
+                      ) : (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img src={fallbackAvatar} alt="" className="h-full w-full object-contain" />
+                      )}
                     </div>
                     <span className="font-heading font-medium">{name}</span>
                   </div>
@@ -774,7 +834,8 @@ function NpcDetailModal({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const name = getUnifiedName(u);
   const tier = getUnifiedTier(u);
-  const avatarUri = npcAvatar(name, tier as "normal" | "advanced" | "character");
+  const imageUrl = getUnifiedAvatarUrl(u);
+  const fallbackAvatar = npcAvatar(name, tier as "normal" | "advanced" | "character");
   const visible = getUnifiedVisible(u);
   const TierIcon = TIER_ICON[tier] ?? User;
 
@@ -789,9 +850,13 @@ function NpcDetailModal({
           {/* Header with avatar */}
           <div className="relative">
             <div className="flex items-start gap-4 p-6 pb-4">
-              <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-black/40">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={avatarUri} alt={name} className="h-full w-full object-contain" />
+              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-black/40">
+                {imageUrl ? (
+                  <Image src={imageUrl} alt={name} fill className="object-cover" sizes="80px" />
+                ) : (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img src={fallbackAvatar} alt={name} className="h-full w-full object-contain" />
+                )}
               </div>
               <div className="flex-1">
                 <h2 className="font-heading text-xl font-bold text-foreground">{name}</h2>
