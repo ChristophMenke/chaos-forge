@@ -100,7 +100,7 @@ export default async function SessionsPage() {
       <h1 className="font-heading text-3xl text-primary">{t("title")}</h1>
 
       {/* 3-column layout: Sessions | Quotes | NPCs */}
-      <div className="grid gap-6 lg:grid-cols-[1fr_300px_300px]">
+      <div className="grid gap-6 lg:grid-cols-3">
         {/* Column 1: Sessions */}
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">

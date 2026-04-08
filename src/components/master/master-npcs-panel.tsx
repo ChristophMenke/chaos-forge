@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import {
@@ -10,31 +10,81 @@ import {
   EyeOff,
   Pencil,
   Trash2,
-  ChevronDown,
-  ChevronUp,
   Shield,
   Heart,
   Copy,
   Loader2,
   Check,
+  X,
+  Crosshair,
+  MapPin,
+  LayoutGrid,
+  List,
+  ArrowUpDown,
+  ChevronLeft,
+  ChevronRight,
+  Crown,
+  User,
+  Swords,
 } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
-import {
-  createNpc,
-  updateNpc,
-  deleteNpc,
-  createNpcFromCharacter,
-  createBlankNpcCharacter,
-} from "@/app/master/actions";
+import { npcAvatar } from "@/lib/utils/svg-avatar";
+import { createNpc, updateNpc, deleteNpc, createNpcFromCharacter } from "@/app/master/actions";
 import type { ChronicleNpcRow, CharacterRow } from "@/lib/supabase/types";
+
+// ─── Types ───────────────────────────────────────────────────────────
+
+type NpcSortKey = "name" | "location" | "level";
+type SortDir = "asc" | "desc";
+
+/** Unified wrapper so normal NPCs and character NPCs can be sorted/filtered together */
+type UnifiedNpc =
+  | { kind: "normal"; id: string; npc: ChronicleNpcRow }
+  | { kind: "character"; id: string; char: CharacterRow };
+
+function getUnifiedName(u: UnifiedNpc): string {
+  return u.kind === "normal" ? u.npc.name : u.char.name;
+}
+function getUnifiedLocation(u: UnifiedNpc): string {
+  return u.kind === "normal" ? (u.npc.location ?? "") : "";
+}
+function getUnifiedLevel(u: UnifiedNpc): number {
+  if (u.kind === "normal") return u.npc.level ?? 0;
+  return u.char.level ?? 0;
+}
+function getUnifiedTier(u: UnifiedNpc): string {
+  if (u.kind === "character") return "character";
+  return u.npc.tier;
+}
+function getUnifiedVisible(u: UnifiedNpc): boolean {
+  if (u.kind === "normal") return u.npc.is_visible_to_players;
+  return u.char.npc_visible_to_players ?? false;
+}
+
+const TIER_ICON: Record<string, typeof User> = {
+  normal: User,
+  advanced: Swords,
+  character: Crown,
+};
+
+const TIER_COLOR: Record<string, string> = {
+  normal: "bg-zinc-700/60 text-zinc-300",
+  advanced: "bg-amber-900/60 text-amber-300",
+  character: "bg-purple-900/60 text-purple-300",
+};
+
+// ─── Props ───────────────────────────────────────────────────────────
 
 interface MasterNpcsPanelProps {
   initialNpcs: ChronicleNpcRow[];
   characters: CharacterRow[];
-  /** Characters with is_npc = true — shown as Advanced NPCs */
   npcCharacters: CharacterRow[];
   gmUserId: string;
 }
+
+const PAGE_SIZE = 24;
+
+// ─── Main Component ──────────────────────────────────────────────────
 
 export function MasterNpcsPanel({
   initialNpcs,
@@ -43,32 +93,77 @@ export function MasterNpcsPanel({
   gmUserId,
 }: MasterNpcsPanelProps) {
   const t = useTranslations("master");
+
+  // Data
   const [npcs, setNpcs] = useState(initialNpcs);
   const [npcChars, setNpcChars] = useState(npcCharacters);
+
+  // Filter / Sort / View
   const [search, setSearch] = useState("");
+  const [tierFilter, setTierFilter] = useState<"" | "normal" | "advanced" | "character">("");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [sortKey, setSortKey] = useState<NpcSortKey>("name");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [page, setPage] = useState(0);
+
+  // UI state
+  const [selectedNpc, setSelectedNpc] = useState<UnifiedNpc | null>(null);
   const [editingNpc, setEditingNpc] = useState<ChronicleNpcRow | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [showCopyPicker, setShowCopyPicker] = useState(false);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [copyingCharId, setCopyingCharId] = useState<string | null>(null);
   const [copiedCharName, setCopiedCharName] = useState<string | null>(null);
 
-  const filtered = npcs.filter(
-    (npc) =>
-      npc.name.toLowerCase().includes(search.toLowerCase()) ||
-      npc.location.toLowerCase().includes(search.toLowerCase())
-  );
+  // ─── Unified list ────────────────────────────────────────────────
 
-  const normalNpcs = filtered.filter((n) => n.tier === "normal");
+  const unified = useMemo<UnifiedNpc[]>(() => {
+    const items: UnifiedNpc[] = [
+      ...npcs.map((npc): UnifiedNpc => ({ kind: "normal", id: npc.id, npc })),
+      ...npcChars.map((char): UnifiedNpc => ({ kind: "character", id: char.id, char })),
+    ];
+    return items;
+  }, [npcs, npcChars]);
 
-  const filteredNpcChars = npcChars.filter((c) =>
-    c.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = useMemo(() => {
+    let result = unified;
+    if (search) {
+      const q = search.toLowerCase();
+      result = result.filter(
+        (u) =>
+          getUnifiedName(u).toLowerCase().includes(q) ||
+          getUnifiedLocation(u).toLowerCase().includes(q)
+      );
+    }
+    if (tierFilter) {
+      result = result.filter((u) => getUnifiedTier(u) === tierFilter);
+    }
+    // Sort
+    result = [...result].sort((a, b) => {
+      let cmp = 0;
+      switch (sortKey) {
+        case "name":
+          cmp = getUnifiedName(a).localeCompare(getUnifiedName(b));
+          break;
+        case "location":
+          cmp = getUnifiedLocation(a).localeCompare(getUnifiedLocation(b));
+          break;
+        case "level":
+          cmp = getUnifiedLevel(a) - getUnifiedLevel(b);
+          break;
+      }
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+    return result;
+  }, [unified, search, tierFilter, sortKey, sortDir]);
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const safePage = Math.min(page, Math.max(0, totalPages - 1));
+  const paged = filtered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE);
+
+  // ─── CRUD Handlers ───────────────────────────────────────────────
 
   const handleToggleVisibility = useCallback(async (npc: ChronicleNpcRow) => {
-    const res = await updateNpc(npc.id, {
-      is_visible_to_players: !npc.is_visible_to_players,
-    });
+    const res = await updateNpc(npc.id, { is_visible_to_players: !npc.is_visible_to_players });
     if (res.success) {
       setNpcs((prev) =>
         prev.map((n) =>
@@ -82,48 +177,49 @@ export function MasterNpcsPanel({
     const res = await deleteNpc(id);
     if (res.success) {
       setNpcs((prev) => prev.filter((n) => n.id !== id));
+      setSelectedNpc(null);
     }
   }, []);
 
   const handleSave = useCallback(
-    async (npc: Partial<ChronicleNpcRow>, isNew: boolean) => {
+    async (data: Partial<ChronicleNpcRow>, isNew: boolean) => {
       if (isNew) {
-        const res = await createNpc(npc);
+        const res = await createNpc(data);
         if (res.success && res.id) {
           const temp: ChronicleNpcRow = {
             id: res.id,
-            name: npc.name ?? "",
-            location: npc.location ?? "",
-            description: npc.description ?? "",
+            name: data.name ?? "",
+            location: data.location ?? "",
+            description: data.description ?? "",
             avatar_url: null,
             created_by: null,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
-            tier: npc.tier ?? "normal",
-            is_visible_to_players: npc.is_visible_to_players ?? false,
-            race_id: npc.race_id ?? null,
-            class_ids: npc.class_ids ?? [],
-            level: npc.level ?? null,
-            str: npc.str ?? null,
-            dex: npc.dex ?? null,
-            con: npc.con ?? null,
-            int: npc.int ?? null,
-            wis: npc.wis ?? null,
-            cha: npc.cha ?? null,
-            hp_current: npc.hp_current ?? null,
-            hp_max: npc.hp_max ?? null,
-            ac: npc.ac ?? null,
-            thac0: npc.thac0 ?? null,
-            equipment_notes: npc.equipment_notes ?? null,
-            spell_notes: npc.spell_notes ?? null,
-            notes: npc.notes ?? "",
+            tier: data.tier ?? "normal",
+            is_visible_to_players: data.is_visible_to_players ?? false,
+            race_id: data.race_id ?? null,
+            class_ids: data.class_ids ?? [],
+            level: data.level ?? null,
+            str: data.str ?? null,
+            dex: data.dex ?? null,
+            con: data.con ?? null,
+            int: data.int ?? null,
+            wis: data.wis ?? null,
+            cha: data.cha ?? null,
+            hp_current: data.hp_current ?? null,
+            hp_max: data.hp_max ?? null,
+            ac: data.ac ?? null,
+            thac0: data.thac0 ?? null,
+            equipment_notes: data.equipment_notes ?? null,
+            spell_notes: data.spell_notes ?? null,
+            notes: data.notes ?? "",
           };
           setNpcs((prev) => [...prev, temp].sort((a, b) => a.name.localeCompare(b.name)));
         }
       } else if (editingNpc) {
-        const res = await updateNpc(editingNpc.id, npc);
+        const res = await updateNpc(editingNpc.id, data);
         if (res.success) {
-          setNpcs((prev) => prev.map((n) => (n.id === editingNpc.id ? { ...n, ...npc } : n)));
+          setNpcs((prev) => prev.map((n) => (n.id === editingNpc.id ? { ...n, ...data } : n)));
         }
       }
       setIsCreating(false);
@@ -132,54 +228,109 @@ export function MasterNpcsPanel({
     [editingNpc]
   );
 
+  // ─── Render ──────────────────────────────────────────────────────
+
   return (
     <div className="space-y-4" data-testid="gm-npcs-panel">
-      {/* Header */}
-      <div className="flex items-center gap-3">
+      {/* ── Filter Bar ─────────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-center gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(0);
+            }}
             placeholder={t("npcSearch")}
             className="w-full rounded-lg border border-border bg-background/50 py-2 pl-10 pr-3 text-sm"
             data-testid="gm-npc-search"
           />
         </div>
+
+        {/* Tier Filter */}
+        <select
+          value={tierFilter}
+          onChange={(e) => {
+            setTierFilter(e.target.value as typeof tierFilter);
+            setPage(0);
+          }}
+          className="rounded-lg border border-border bg-background/50 px-3 py-2 text-sm"
+          data-testid="gm-npc-tier-filter"
+        >
+          <option value="">{t("npcTier")}</option>
+          <option value="normal">{t("npcNormal")}</option>
+          <option value="advanced">{t("npcAdvanced")}</option>
+          <option value="character">{t("npcAdvancedCreate")}</option>
+        </select>
+
+        {/* Sort */}
+        <div className="flex items-center gap-1">
+          <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+          <select
+            value={`${sortKey}-${sortDir}`}
+            onChange={(e) => {
+              const [k, d] = e.target.value.split("-") as [NpcSortKey, SortDir];
+              setSortKey(k);
+              setSortDir(d);
+            }}
+            className="rounded-lg border border-border bg-background/50 px-2 py-2 text-sm"
+            data-testid="gm-npc-sort"
+          >
+            <option value="name-asc">{t("name")} ↑</option>
+            <option value="name-desc">{t("name")} ↓</option>
+            <option value="location-asc">{t("npcLocation")} ↑</option>
+            <option value="location-desc">{t("npcLocation")} ↓</option>
+            <option value="level-asc">{t("npcLevel")} ↑</option>
+            <option value="level-desc">{t("npcLevel")} ↓</option>
+          </select>
+        </div>
+
+        {/* View Toggle */}
+        <div className="flex rounded-lg border border-border">
+          <button
+            onClick={() => setViewMode("grid")}
+            className={`rounded-l-lg p-2 ${viewMode === "grid" ? "bg-primary/20 text-primary" : "text-muted-foreground hover:bg-accent/30"}`}
+            aria-pressed={viewMode === "grid"}
+            data-testid="gm-npc-view-grid"
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setViewMode("list")}
+            className={`rounded-r-lg p-2 ${viewMode === "list" ? "bg-primary/20 text-primary" : "text-muted-foreground hover:bg-accent/30"}`}
+            aria-pressed={viewMode === "list"}
+            data-testid="gm-npc-view-list"
+          >
+            <List className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Create Buttons */}
         <button
           onClick={() => {
             setIsCreating(true);
             setEditingNpc(null);
             setShowCopyPicker(false);
           }}
-          className="flex flex-col items-start rounded-lg bg-primary/10 px-3 py-2 text-left hover:bg-primary/20"
+          className="flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/20"
           data-testid="gm-npc-create"
         >
-          <span className="flex items-center gap-1.5 text-sm font-medium text-primary">
-            <Plus className="h-4 w-4" />
-            {t("npcCreate")}
-          </span>
-          <span className="pl-5.5 text-[10px] md:text-xs text-muted-foreground">
-            {t("npcCreateDesc")}
-          </span>
+          <Plus className="h-4 w-4" />
+          {t("npcCreate")}
         </button>
         <Link
           href="/master/npcs/new"
-          className="flex flex-col items-start rounded-lg bg-green-600/10 px-3 py-2 text-left hover:bg-green-600/20"
+          className="flex items-center gap-1.5 rounded-lg bg-green-600/10 px-3 py-2 text-sm font-medium text-green-400 hover:bg-green-600/20"
           data-testid="gm-npc-create-advanced"
         >
-          <span className="flex items-center gap-1.5 text-sm font-medium text-green-400">
-            <Shield className="h-4 w-4" />
-            {t("npcAdvancedCreate")}
-          </span>
-          <span className="pl-5.5 text-[10px] md:text-xs text-muted-foreground">
-            {t("npcAdvancedCreateDesc")}
-          </span>
+          <Shield className="h-4 w-4" />
+          {t("npcAdvancedCreate")}
         </Link>
         <button
           onClick={() => setShowCopyPicker(!showCopyPicker)}
-          className="flex items-center gap-2 rounded-lg bg-amber-600/10 px-3 py-2 text-sm font-medium text-amber-400 hover:bg-amber-600/20"
+          className="flex items-center gap-1.5 rounded-lg bg-amber-600/10 px-3 py-2 text-sm font-medium text-amber-400 hover:bg-amber-600/20"
           data-testid="gm-npc-copy-from-char"
         >
           <Copy className="h-4 w-4" />
@@ -187,73 +338,42 @@ export function MasterNpcsPanel({
         </button>
       </div>
 
-      {/* Copy from Character Picker */}
+      {/* ── Copy Picker ────────────────────────────────────────────── */}
       {showCopyPicker && (
-        <GlassCard className="p-3" data-testid="gm-npc-copy-picker">
-          <p className="mb-2 text-xs font-medium text-muted-foreground">
-            {t("npcSelectCharacter")}
-          </p>
-
-          {/* Success banner */}
-          {copiedCharName && (
-            <div className="mb-2 flex items-center gap-2 rounded-lg bg-green-900/20 px-3 py-2 text-sm text-green-400">
-              <Check className="h-4 w-4 shrink-0" />
-              {copiedCharName} (NPC) {t("npcCreated")}
-            </div>
-          )}
-
-          <div className="grid gap-1 sm:grid-cols-2 lg:grid-cols-3">
-            {characters.map((char) => {
-              const isCopying = copyingCharId === char.id;
-              return (
-                <button
-                  key={char.id}
-                  disabled={!!copyingCharId}
-                  onClick={async () => {
-                    setCopyingCharId(char.id);
-                    setCopiedCharName(null);
-                    const res = await createNpcFromCharacter(char.id, gmUserId);
-                    if (res.success && res.id) {
-                      const npcCopy: CharacterRow = {
-                        ...char,
-                        id: res.id,
-                        name: `${char.name} (NPC)`,
-                        is_npc: true,
-                        npc_visible_to_players: false,
-                        is_active: false,
-                        user_id: gmUserId,
-                      };
-                      setNpcChars((prev) =>
-                        [...prev, npcCopy].sort((a, b) => a.name.localeCompare(b.name))
-                      );
-                      setCopiedCharName(char.name);
-                    }
-                    setCopyingCharId(null);
-                  }}
-                  className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
-                    isCopying
-                      ? "bg-primary/10 text-primary"
-                      : copyingCharId
-                        ? "opacity-40"
-                        : "text-muted-foreground hover:bg-accent/30"
-                  }`}
-                  data-testid={`gm-npc-copy-char-${char.id}`}
-                >
-                  {isCopying ? (
-                    <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" />
-                  ) : null}
-                  <span className="truncate font-medium text-foreground">{char.name}</span>
-                  <span className="shrink-0 text-xs">Lv {char.level}</span>
-                </button>
+        <CopyPicker
+          characters={characters}
+          gmUserId={gmUserId}
+          copyingCharId={copyingCharId}
+          copiedCharName={copiedCharName}
+          onCopy={async (charId) => {
+            setCopyingCharId(charId);
+            setCopiedCharName(null);
+            const char = characters.find((c) => c.id === charId);
+            const res = await createNpcFromCharacter(charId, gmUserId);
+            if (res.success && res.id && char) {
+              const npcCopy: CharacterRow = {
+                ...char,
+                id: res.id,
+                name: `${char.name} (NPC)`,
+                is_npc: true,
+                npc_visible_to_players: false,
+                is_active: false,
+                user_id: gmUserId,
+              };
+              setNpcChars((prev) =>
+                [...prev, npcCopy].sort((a, b) => a.name.localeCompare(b.name))
               );
-            })}
-          </div>
-        </GlassCard>
+              setCopiedCharName(char.name);
+            }
+            setCopyingCharId(null);
+          }}
+          t={t}
+        />
       )}
 
-      {/* Create / Edit Form */}
+      {/* ── Create/Edit Modal ──────────────────────────────────────── */}
       {(isCreating || editingNpc) && (
-        <NpcForm
+        <NpcFormModal
           npc={editingNpc ?? undefined}
           onSave={(data) => handleSave(data, isCreating)}
           onCancel={() => {
@@ -263,226 +383,709 @@ export function MasterNpcsPanel({
         />
       )}
 
-      {/* NPC List */}
+      {/* ── Results Count ──────────────────────────────────────────── */}
+      <p className="text-xs text-muted-foreground">
+        {filtered.length > PAGE_SIZE
+          ? `${safePage * PAGE_SIZE + 1}–${Math.min((safePage + 1) * PAGE_SIZE, filtered.length)} / ${filtered.length}`
+          : `${filtered.length} NPCs`}
+      </p>
+
+      {/* ── Empty State ────────────────────────────────────────────── */}
       {filtered.length === 0 && !isCreating && (
         <p className="py-8 text-center text-sm text-muted-foreground" data-testid="gm-npc-empty">
           {t("npcNoResults")}
         </p>
       )}
 
-      {/* Advanced NPCs (full character sheets) — shown first */}
-      {filteredNpcChars.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {t("npcAdvanced")} ({filteredNpcChars.length})
-          </h3>
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredNpcChars.map((char) => (
-              <GlassCard key={char.id} className="p-3" data-testid={`gm-npc-char-${char.id}`}>
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <h4 className="font-heading text-sm font-semibold text-foreground">
-                      {char.name}
-                    </h4>
-                    <p className="text-xs text-muted-foreground">
-                      Lv {char.level} — HP {char.hp_current}/{char.hp_max}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Link
-                      href={`/master/npcs/${char.id}/manage`}
-                      className="rounded px-2 py-1 text-xs font-medium text-primary hover:bg-primary/10"
-                      data-testid={`gm-npc-char-manage-${char.id}`}
-                    >
-                      {t("npcManage")}
-                    </Link>
-                    <Link
-                      href={`/master/npcs/${char.id}/play`}
-                      className="rounded px-2 py-1 text-xs font-medium text-green-400 hover:bg-green-900/10"
-                      data-testid={`gm-npc-char-play-${char.id}`}
-                    >
-                      {t("npcPlay")}
-                    </Link>
-                  </div>
-                </div>
-              </GlassCard>
-            ))}
-          </div>
-        </div>
+      {/* ── Grid / List ────────────────────────────────────────────── */}
+      {filtered.length > 0 && (
+        <>
+          {viewMode === "grid" ? (
+            <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+              {paged.map((u) => (
+                <NpcGridCard
+                  key={u.id}
+                  npc={u}
+                  onSelect={() => setSelectedNpc(u)}
+                  onToggleVisibility={
+                    u.kind === "normal" ? () => handleToggleVisibility(u.npc) : undefined
+                  }
+                  t={t}
+                />
+              ))}
+            </div>
+          ) : (
+            <NpcListView
+              npcs={paged}
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onSort={(key) => {
+                if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+                else {
+                  setSortKey(key);
+                  setSortDir("asc");
+                }
+              }}
+              onSelect={setSelectedNpc}
+              t={t}
+            />
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={safePage === 0}
+                className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent/50 disabled:opacity-30"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                {t("paginationPrev")}
+              </button>
+              <span className="text-xs text-muted-foreground">
+                {t("paginationPage", { current: safePage + 1, total: totalPages })}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                disabled={safePage >= totalPages - 1}
+                className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent/50 disabled:opacity-30"
+              >
+                {t("paginationNext")}
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+        </>
       )}
 
-      {/* Normal NPCs (metadata only) */}
-      {normalNpcs.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {t("npcNormal")} ({normalNpcs.length})
-          </h3>
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {normalNpcs.map((npc) => (
-              <NpcCard
-                key={npc.id}
-                npc={npc}
-                isExpanded={expandedId === npc.id}
-                onToggleExpand={() => setExpandedId(expandedId === npc.id ? null : npc.id)}
-                onEdit={() => setEditingNpc(npc)}
-                onDelete={() => handleDelete(npc.id)}
-                onToggleVisibility={() => handleToggleVisibility(npc)}
-              />
-            ))}
-          </div>
-        </div>
+      {/* ── Detail Modal ───────────────────────────────────────────── */}
+      {selectedNpc && (
+        <NpcDetailModal
+          npc={selectedNpc}
+          onClose={() => setSelectedNpc(null)}
+          onEdit={
+            selectedNpc.kind === "normal"
+              ? () => {
+                  setEditingNpc(selectedNpc.npc);
+                  setSelectedNpc(null);
+                }
+              : undefined
+          }
+          onDelete={selectedNpc.kind === "normal" ? () => handleDelete(selectedNpc.id) : undefined}
+          onToggleVisibility={
+            selectedNpc.kind === "normal"
+              ? () => handleToggleVisibility(selectedNpc.npc)
+              : undefined
+          }
+          t={t}
+        />
       )}
     </div>
   );
 }
 
-// ─── NPC Card ─────────────────────────────────────────────────────────
+// ─── NPC Grid Card ───────────────────────────────────────────────────
 
-function NpcCard({
-  npc,
-  isExpanded,
-  onToggleExpand,
+function NpcGridCard({
+  npc: u,
+  onSelect,
+  onToggleVisibility,
+  t,
+}: {
+  npc: UnifiedNpc;
+  onSelect: () => void;
+  onToggleVisibility?: () => void;
+  t: ReturnType<typeof useTranslations<"master">>;
+}) {
+  const name = getUnifiedName(u);
+  const tier = getUnifiedTier(u);
+  const avatarUri = npcAvatar(name, tier as "normal" | "advanced" | "character");
+  const location = getUnifiedLocation(u);
+  const visible = getUnifiedVisible(u);
+  const level = getUnifiedLevel(u);
+
+  // Stats for advanced/character NPCs
+  const ac = u.kind === "normal" ? u.npc.ac : null;
+  const hpCurrent =
+    u.kind === "normal" ? u.npc.hp_current : u.kind === "character" ? u.char.hp_current : null;
+  const hpMax = u.kind === "normal" ? u.npc.hp_max : u.kind === "character" ? u.char.hp_max : null;
+  const hasStats = tier !== "normal" && (ac !== null || hpMax !== null || level > 0);
+
+  const TierIcon = TIER_ICON[tier] ?? User;
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onSelect}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect();
+        }
+      }}
+      className="w-full cursor-pointer text-left"
+    >
+      <GlassCard
+        className="relative overflow-hidden p-0 transition-all hover:scale-[1.01]"
+        data-testid={`gm-npc-card-${u.id}`}
+      >
+        {/* Visibility indicator */}
+        {onToggleVisibility && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleVisibility();
+            }}
+            className="absolute right-2 top-2 z-10 rounded-full bg-black/60 p-1.5 hover:bg-black/80"
+            title={visible ? t("npcVisibleToPlayers") : t("npcHidden")}
+            data-testid={`gm-npc-visibility-${u.id}`}
+          >
+            {visible ? (
+              <Eye className="h-3.5 w-3.5 text-green-400" />
+            ) : (
+              <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
+            )}
+          </button>
+        )}
+
+        {/* Avatar — square aspect ratio */}
+        <div className="relative aspect-square w-full bg-black/40">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={avatarUri} alt={name} className="h-full w-full object-contain" />
+          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background to-transparent" />
+          <div className="absolute bottom-1.5 left-2 right-2">
+            <h4 className="font-heading text-sm font-semibold leading-tight text-foreground drop-shadow-lg">
+              {name}
+            </h4>
+          </div>
+        </div>
+
+        <div className="p-2">
+          {/* Stats row — only for advanced/character */}
+          {hasStats && (
+            <div className="flex justify-between gap-1 text-center text-[10px]">
+              {ac !== null && (
+                <div>
+                  <div className="flex items-center justify-center gap-0.5 text-muted-foreground">
+                    <Shield className="h-2.5 w-2.5 text-amber-400" />
+                    {t("ac")}
+                  </div>
+                  <div className="font-mono text-sm font-bold text-amber-300">{ac}</div>
+                </div>
+              )}
+              {hpMax !== null && (
+                <div>
+                  <div className="flex items-center justify-center gap-0.5 text-muted-foreground">
+                    <Heart className="h-2.5 w-2.5 text-red-400" />
+                    HP
+                  </div>
+                  <div className="font-mono text-sm font-bold text-red-300">
+                    {hpCurrent ?? hpMax}/{hpMax}
+                  </div>
+                </div>
+              )}
+              {level > 0 && (
+                <div>
+                  <div className="flex items-center justify-center gap-0.5 text-muted-foreground">
+                    <Crosshair className="h-2.5 w-2.5 text-sky-400" />
+                    Lv
+                  </div>
+                  <div className="font-mono text-sm font-bold text-sky-300">{level}</div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Location + Tier badge */}
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-muted-foreground">
+            <span
+              className={`inline-flex items-center gap-0.5 rounded px-1 py-0.5 ${TIER_COLOR[tier]}`}
+            >
+              <TierIcon className="h-2.5 w-2.5" />
+              {tier === "character"
+                ? t("npcAdvanced")
+                : t(tier === "advanced" ? "npcAdvanced" : "npcNormal")}
+            </span>
+            {location && (
+              <span className="flex items-center gap-0.5">
+                <MapPin className="h-2.5 w-2.5" />
+                {location}
+              </span>
+            )}
+          </div>
+        </div>
+      </GlassCard>
+    </div>
+  );
+}
+
+// ─── NPC List View ───────────────────────────────────────────────────
+
+function NpcListView({
+  npcs,
+  sortKey,
+  sortDir,
+  onSort,
+  onSelect,
+  t,
+}: {
+  npcs: UnifiedNpc[];
+  sortKey: NpcSortKey;
+  sortDir: SortDir;
+  onSort: (key: NpcSortKey) => void;
+  onSelect: (npc: UnifiedNpc) => void;
+  t: ReturnType<typeof useTranslations<"master">>;
+}) {
+  const sortIndicator = (key: NpcSortKey) =>
+    sortKey === key ? (sortDir === "asc" ? " ↑" : " ↓") : "";
+
+  const headerClass =
+    "cursor-pointer select-none px-2 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors";
+
+  return (
+    <div className="overflow-x-auto" data-testid="gm-npc-list">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-border/50">
+            <th className={headerClass} onClick={() => onSort("name")}>
+              {t("name")}
+              {sortIndicator("name")}
+            </th>
+            <th className={headerClass} onClick={() => onSort("location")}>
+              <span className="inline-flex items-center gap-1">
+                <MapPin className="h-3 w-3 text-muted-foreground" />
+                {t("npcLocation")}
+                {sortIndicator("location")}
+              </span>
+            </th>
+            <th className={`${headerClass} text-center`}>{t("npcTier")}</th>
+            <th className={`${headerClass} text-center`} onClick={() => onSort("level")}>
+              {t("npcLevel")}
+              {sortIndicator("level")}
+            </th>
+            <th className={`${headerClass} text-center hidden sm:table-cell`}>
+              <span className="inline-flex items-center gap-1">
+                <Shield className="h-3 w-3 text-amber-400" />
+                {t("ac")}
+              </span>
+            </th>
+            <th className={`${headerClass} text-center hidden sm:table-cell`}>
+              <span className="inline-flex items-center gap-1">
+                <Heart className="h-3 w-3 text-red-400" />
+                HP
+              </span>
+            </th>
+            <th className={`${headerClass} text-center`}>
+              <Eye className="inline h-3 w-3" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {npcs.map((u) => {
+            const name = getUnifiedName(u);
+            const tier = getUnifiedTier(u);
+            const TierIcon = TIER_ICON[tier] ?? User;
+            const avatarUri = npcAvatar(name, tier as "normal" | "advanced" | "character");
+            const ac = u.kind === "normal" ? u.npc.ac : null;
+            const hpMax =
+              u.kind === "normal" ? u.npc.hp_max : u.kind === "character" ? u.char.hp_max : null;
+            const hpCurrent =
+              u.kind === "normal"
+                ? u.npc.hp_current
+                : u.kind === "character"
+                  ? u.char.hp_current
+                  : null;
+
+            return (
+              <tr
+                key={u.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => onSelect(u)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onSelect(u);
+                  }
+                }}
+                className="cursor-pointer border-b border-border/20 transition-colors hover:bg-accent/20"
+                data-testid={`gm-npc-row-${u.id}`}
+              >
+                <td className="px-2 py-2">
+                  <div className="flex items-center gap-2">
+                    <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded bg-black/30">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={avatarUri} alt="" className="h-full w-full object-contain" />
+                    </div>
+                    <span className="font-heading font-medium">{name}</span>
+                  </div>
+                </td>
+                <td className="px-2 py-2 text-muted-foreground">{getUnifiedLocation(u) || "—"}</td>
+                <td className="px-2 py-2 text-center">
+                  <span
+                    className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-xs ${TIER_COLOR[tier]}`}
+                  >
+                    <TierIcon className="h-3 w-3" />
+                  </span>
+                </td>
+                <td className="px-2 py-2 text-center font-mono">
+                  {getUnifiedLevel(u) > 0 ? getUnifiedLevel(u) : "—"}
+                </td>
+                <td className="px-2 py-2 text-center font-mono hidden sm:table-cell text-amber-300">
+                  {ac ?? "—"}
+                </td>
+                <td className="px-2 py-2 text-center font-mono hidden sm:table-cell text-red-300">
+                  {hpMax !== null ? `${hpCurrent ?? hpMax}/${hpMax}` : "—"}
+                </td>
+                <td className="px-2 py-2 text-center">
+                  {getUnifiedVisible(u) ? (
+                    <Eye className="inline h-3.5 w-3.5 text-green-400" />
+                  ) : (
+                    <EyeOff className="inline h-3.5 w-3.5 text-muted-foreground/50" />
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// ─── Detail Modal ────────────────────────────────────────────────────
+
+function NpcDetailModal({
+  npc: u,
+  onClose,
   onEdit,
   onDelete,
   onToggleVisibility,
+  t,
 }: {
-  npc: ChronicleNpcRow;
-  isExpanded: boolean;
-  onToggleExpand: () => void;
-  onEdit: () => void;
-  onDelete: () => void;
-  onToggleVisibility: () => void;
+  npc: UnifiedNpc;
+  onClose: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  onToggleVisibility?: () => void;
+  t: ReturnType<typeof useTranslations<"master">>;
 }) {
-  const t = useTranslations("master");
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const name = getUnifiedName(u);
+  const tier = getUnifiedTier(u);
+  const avatarUri = npcAvatar(name, tier as "normal" | "advanced" | "character");
+  const visible = getUnifiedVisible(u);
+  const TierIcon = TIER_ICON[tier] ?? User;
 
   return (
-    <GlassCard className="p-3" data-testid={`gm-npc-card-${npc.id}`}>
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <button
-            onClick={onToggleExpand}
-            className="flex w-full items-center gap-1 text-left"
-            data-testid={`gm-npc-expand-${npc.id}`}
-          >
-            <h4 className="truncate font-heading text-sm font-semibold text-foreground">
-              {npc.name}
-            </h4>
-            {isExpanded ? (
-              <ChevronUp className="h-3 w-3 shrink-0 text-muted-foreground" />
-            ) : (
-              <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      onClick={onClose}
+      data-testid="gm-npc-detail"
+    >
+      <div onClick={(e) => e.stopPropagation()}>
+        <GlassCard className="w-full max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+          {/* Header with avatar */}
+          <div className="relative">
+            <div className="flex items-start gap-4 p-6 pb-4">
+              <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-black/40">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={avatarUri} alt={name} className="h-full w-full object-contain" />
+              </div>
+              <div className="flex-1">
+                <h2 className="font-heading text-xl font-bold text-foreground">{name}</h2>
+                <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
+                  <span
+                    className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs ${TIER_COLOR[tier]}`}
+                  >
+                    <TierIcon className="h-3 w-3" />
+                    {tier === "character"
+                      ? t("npcAdvancedCreate")
+                      : t(tier === "advanced" ? "npcAdvanced" : "npcNormal")}
+                  </span>
+                  {u.kind === "normal" && u.npc.location && (
+                    <span className="flex items-center gap-1 text-muted-foreground">
+                      <MapPin className="h-3.5 w-3.5" />
+                      {u.npc.location}
+                    </span>
+                  )}
+                  <span className="flex items-center gap-1 text-muted-foreground">
+                    {visible ? (
+                      <Eye className="h-3.5 w-3.5 text-green-400" />
+                    ) : (
+                      <EyeOff className="h-3.5 w-3.5" />
+                    )}
+                    {visible ? t("npcVisibleToPlayers") : t("npcHidden")}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={onClose}
+                className="shrink-0 rounded-full p-1.5 text-muted-foreground hover:bg-accent/50"
+                data-testid="gm-npc-detail-close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-4 px-6 pb-6">
+            {/* Stats grid */}
+            {u.kind === "normal" && u.npc.tier === "advanced" && (
+              <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+                {u.npc.ac !== null && (
+                  <StatBlock icon={Shield} color="amber" label={t("ac")} value={u.npc.ac} />
+                )}
+                {u.npc.hp_max !== null && (
+                  <StatBlock
+                    icon={Heart}
+                    color="red"
+                    label="HP"
+                    value={`${u.npc.hp_current ?? u.npc.hp_max}/${u.npc.hp_max}`}
+                  />
+                )}
+                {u.npc.thac0 !== null && (
+                  <StatBlock icon={Crosshair} color="sky" label={t("thac0")} value={u.npc.thac0} />
+                )}
+                {u.npc.level !== null && (
+                  <StatBlock
+                    icon={Crown}
+                    color="purple"
+                    label={t("npcLevel")}
+                    value={u.npc.level}
+                  />
+                )}
+              </div>
             )}
-          </button>
-          {npc.location && <p className="truncate text-xs text-muted-foreground">{npc.location}</p>}
-        </div>
-        <div className="flex shrink-0 items-center gap-1">
-          <button
-            onClick={onToggleVisibility}
-            className="rounded p-1 text-muted-foreground hover:bg-accent/50 hover:text-foreground"
-            title={npc.is_visible_to_players ? t("npcVisibleToPlayers") : t("npcHidden")}
-            data-testid={`gm-npc-visibility-${npc.id}`}
-          >
-            {npc.is_visible_to_players ? (
-              <Eye className="h-3.5 w-3.5 text-green-400" />
-            ) : (
-              <EyeOff className="h-3.5 w-3.5" />
+
+            {u.kind === "character" && (
+              <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+                <StatBlock icon={Crown} color="purple" label={t("npcLevel")} value={u.char.level} />
+                <StatBlock
+                  icon={Heart}
+                  color="red"
+                  label="HP"
+                  value={`${u.char.hp_current}/${u.char.hp_max}`}
+                />
+              </div>
             )}
-          </button>
-          <button
-            onClick={onEdit}
-            className="rounded p-1 text-muted-foreground hover:bg-accent/50 hover:text-foreground"
-            data-testid={`gm-npc-edit-${npc.id}`}
-          >
-            <Pencil className="h-3.5 w-3.5" />
-          </button>
-          {confirmDelete ? (
-            <button
-              onClick={() => {
-                onDelete();
-                setConfirmDelete(false);
-              }}
-              className="rounded bg-destructive/10 px-2 py-0.5 text-xs text-destructive hover:bg-destructive/20"
-              data-testid={`gm-npc-confirm-delete-${npc.id}`}
-            >
-              {t("npcDelete")}
-            </button>
-          ) : (
-            <button
-              onClick={() => setConfirmDelete(true)}
-              className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-              data-testid={`gm-npc-delete-${npc.id}`}
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
-          )}
-        </div>
+
+            {/* Abilities */}
+            {u.kind === "normal" && u.npc.str !== null && (
+              <div className="grid grid-cols-6 gap-2 text-center text-xs">
+                {(["str", "dex", "con", "int", "wis", "cha"] as const).map((attr) => (
+                  <div key={attr} className="rounded-lg border border-border/50 p-2">
+                    <div className="text-[10px] uppercase text-muted-foreground">{attr}</div>
+                    <div className="font-mono text-sm font-bold">{u.npc[attr] ?? "—"}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Description & Notes */}
+            {u.kind === "normal" && u.npc.description && (
+              <div>
+                <h4 className="text-xs font-medium uppercase text-muted-foreground">
+                  {t("npcDescription")}
+                </h4>
+                <p className="mt-1 text-sm">{u.npc.description}</p>
+              </div>
+            )}
+            {u.kind === "normal" && u.npc.equipment_notes && (
+              <div>
+                <h4 className="text-xs font-medium uppercase text-muted-foreground">
+                  {t("npcEquipmentNotes")}
+                </h4>
+                <p className="mt-1 text-sm">{u.npc.equipment_notes}</p>
+              </div>
+            )}
+            {u.kind === "normal" && u.npc.spell_notes && (
+              <div>
+                <h4 className="text-xs font-medium uppercase text-muted-foreground">
+                  {t("npcSpellNotes")}
+                </h4>
+                <p className="mt-1 text-sm">{u.npc.spell_notes}</p>
+              </div>
+            )}
+            {u.kind === "normal" && u.npc.notes && (
+              <div>
+                <h4 className="text-xs font-medium uppercase text-muted-foreground">
+                  {t("npcNotes")}
+                </h4>
+                <p className="mt-1 text-sm">{u.npc.notes}</p>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex flex-wrap items-center gap-2 border-t border-border/50 pt-4">
+              {onToggleVisibility && (
+                <button
+                  onClick={onToggleVisibility}
+                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent/50"
+                  data-testid={`gm-npc-modal-visibility-${u.id}`}
+                >
+                  {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {visible ? t("npcHidden") : t("npcVisibleToPlayers")}
+                </button>
+              )}
+              {onEdit && (
+                <button
+                  onClick={onEdit}
+                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-primary hover:bg-primary/10"
+                  data-testid={`gm-npc-modal-edit-${u.id}`}
+                >
+                  <Pencil className="h-4 w-4" />
+                  {t("npcEdit")}
+                </button>
+              )}
+              {u.kind === "character" && (
+                <>
+                  <Link
+                    href={`/master/npcs/${u.id}/manage`}
+                    className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-primary hover:bg-primary/10"
+                    data-testid={`gm-npc-char-manage-${u.id}`}
+                  >
+                    <Pencil className="h-4 w-4" />
+                    {t("npcManage")}
+                  </Link>
+                  <Link
+                    href={`/master/npcs/${u.id}/play`}
+                    className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-green-400 hover:bg-green-900/10"
+                    data-testid={`gm-npc-char-play-${u.id}`}
+                  >
+                    <Swords className="h-4 w-4" />
+                    {t("npcPlay")}
+                  </Link>
+                </>
+              )}
+              {onDelete && (
+                <>
+                  {confirmDelete ? (
+                    <button
+                      onClick={() => {
+                        onDelete();
+                        setConfirmDelete(false);
+                      }}
+                      className="flex items-center gap-1.5 rounded-lg bg-destructive/10 px-3 py-1.5 text-sm text-destructive hover:bg-destructive/20"
+                      data-testid={`gm-npc-confirm-delete-${u.id}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      {t("npcDeleteConfirm")}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmDelete(true)}
+                      className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-destructive/70 hover:bg-destructive/10 hover:text-destructive"
+                      data-testid={`gm-npc-delete-${u.id}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      {t("npcDelete")}
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </GlassCard>
       </div>
+    </div>
+  );
+}
 
-      {/* Advanced stats preview */}
-      {npc.tier === "advanced" && npc.ac !== null && (
-        <div className="mt-2 flex flex-wrap gap-2 text-xs">
-          <span className="flex items-center gap-1 text-muted-foreground">
-            <Shield className="h-3 w-3" />
-            {t("ac")} {npc.ac}
-          </span>
-          {npc.hp_max !== null && (
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <Heart className="h-3 w-3" />
-              {npc.hp_current ?? npc.hp_max}/{npc.hp_max}
-            </span>
-          )}
-          {npc.thac0 !== null && (
-            <span className="text-muted-foreground">
-              {t("thac0")} {npc.thac0}
-            </span>
-          )}
-          {npc.level !== null && (
-            <span className="text-muted-foreground">
-              {t("npcLevel")} {npc.level}
-            </span>
-          )}
+// ─── Stat Block (for Detail Modal) ──────────────────────────────────
+
+function StatBlock({
+  icon: Icon,
+  color,
+  label,
+  value,
+}: {
+  icon: typeof Shield;
+  color: string;
+  label: string;
+  value: string | number;
+}) {
+  const colorMap: Record<string, string> = {
+    amber: "text-amber-400",
+    red: "text-red-400",
+    sky: "text-sky-400",
+    purple: "text-purple-400",
+  };
+  const valueColorMap: Record<string, string> = {
+    amber: "text-amber-300",
+    red: "text-red-300",
+    sky: "text-sky-300",
+    purple: "text-purple-300",
+  };
+  return (
+    <div className="rounded-lg border border-border/50 p-2 text-center">
+      <div className="flex items-center justify-center gap-1 text-[10px] text-muted-foreground">
+        <Icon className={`h-3 w-3 ${colorMap[color]}`} />
+        {label}
+      </div>
+      <div className={`font-mono text-lg font-bold ${valueColorMap[color]}`}>{value}</div>
+    </div>
+  );
+}
+
+// ─── Copy Picker ─────────────────────────────────────────────────────
+
+function CopyPicker({
+  characters,
+  gmUserId: _gmUserId,
+  copyingCharId,
+  copiedCharName,
+  onCopy,
+  t,
+}: {
+  characters: CharacterRow[];
+  gmUserId: string;
+  copyingCharId: string | null;
+  copiedCharName: string | null;
+  onCopy: (charId: string) => void;
+  t: ReturnType<typeof useTranslations<"master">>;
+}) {
+  return (
+    <GlassCard className="p-3" data-testid="gm-npc-copy-picker">
+      <p className="mb-2 text-xs font-medium text-muted-foreground">{t("npcSelectCharacter")}</p>
+      {copiedCharName && (
+        <div className="mb-2 flex items-center gap-2 rounded-lg bg-green-900/20 px-3 py-2 text-sm text-green-400">
+          <Check className="h-4 w-4 shrink-0" />
+          {copiedCharName} (NPC) {t("npcCreated")}
         </div>
       )}
-
-      {/* Expanded details */}
-      {isExpanded && (
-        <div className="mt-2 space-y-1 border-t border-border/50 pt-2 text-xs text-muted-foreground">
-          {npc.description && <p>{npc.description}</p>}
-          {npc.tier === "advanced" && (
-            <>
-              {npc.str !== null && (
-                <p>
-                  {t("npcAbilities")}: STR {npc.str}, DEX {npc.dex}, CON {npc.con}, INT {npc.int},
-                  WIS {npc.wis}, CHA {npc.cha}
-                </p>
-              )}
-              {npc.equipment_notes && (
-                <p>
-                  {t("npcEquipmentNotes")}: {npc.equipment_notes}
-                </p>
-              )}
-              {npc.spell_notes && (
-                <p>
-                  {t("npcSpellNotes")}: {npc.spell_notes}
-                </p>
-              )}
-              {npc.notes && (
-                <p>
-                  {t("npcNotes")}: {npc.notes}
-                </p>
-              )}
-            </>
-          )}
-        </div>
-      )}
+      <div className="grid gap-1 sm:grid-cols-2 lg:grid-cols-3">
+        {characters.map((char) => {
+          const isCopying = copyingCharId === char.id;
+          return (
+            <button
+              key={char.id}
+              disabled={!!copyingCharId}
+              onClick={() => onCopy(char.id)}
+              className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                isCopying
+                  ? "bg-primary/10 text-primary"
+                  : copyingCharId
+                    ? "opacity-40"
+                    : "text-muted-foreground hover:bg-accent/30"
+              }`}
+              data-testid={`gm-npc-copy-char-${char.id}`}
+            >
+              {isCopying && <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" />}
+              <span className="truncate font-medium text-foreground">{char.name}</span>
+              <span className="shrink-0 text-xs">Lv {char.level}</span>
+            </button>
+          );
+        })}
+      </div>
     </GlassCard>
   );
 }
 
-// ─── NPC Form ─────────────────────────────────────────────────────────
+// ─── NPC Form Modal ──────────────────────────────────────────────────
 
-function NpcForm({
+function NpcFormModal({
   npc,
   onSave,
   onCancel,
@@ -497,7 +1100,6 @@ function NpcForm({
   const [location, setLocation] = useState(npc?.location ?? "");
   const [description, setDescription] = useState(npc?.description ?? "");
   const [isVisible, setIsVisible] = useState(npc?.is_visible_to_players ?? false);
-  // Advanced fields
   const [level, setLevel] = useState(npc?.level?.toString() ?? "");
   const [str, setStr] = useState(npc?.str?.toString() ?? "");
   const [dex, setDex] = useState(npc?.dex?.toString() ?? "");
@@ -546,216 +1148,235 @@ function NpcForm({
   const labelClass = "text-xs font-medium text-muted-foreground";
 
   return (
-    <GlassCard className="space-y-3 p-4" data-testid="gm-npc-form">
-      <h3 className="font-heading text-sm font-semibold">{npc ? t("npcEdit") : t("npcCreate")}</h3>
-
-      {/* Tier toggle */}
-      <div className="flex gap-2">
-        <button
-          onClick={() => setTier("normal")}
-          className={`rounded-md px-3 py-1 text-xs font-medium ${
-            tier === "normal" ? "bg-primary/10 text-primary" : "text-muted-foreground"
-          }`}
-          data-testid="gm-npc-tier-normal"
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      onClick={onCancel}
+    >
+      <div onClick={(e) => e.stopPropagation()}>
+        <GlassCard
+          className="w-full max-w-lg max-h-[90vh] overflow-y-auto space-y-3 p-4"
+          data-testid="gm-npc-form"
         >
-          {t("npcNormal")}
-        </button>
-        <button
-          onClick={() => setTier("advanced")}
-          className={`rounded-md px-3 py-1 text-xs font-medium ${
-            tier === "advanced" ? "bg-primary/10 text-primary" : "text-muted-foreground"
-          }`}
-          data-testid="gm-npc-tier-advanced"
-        >
-          {t("npcAdvanced")}
-        </button>
-      </div>
+          <div className="flex items-center justify-between">
+            <h3 className="font-heading text-sm font-semibold">
+              {npc ? t("npcEdit") : t("npcCreate")}
+            </h3>
+            <button
+              onClick={onCancel}
+              className="rounded-full p-1 text-muted-foreground hover:bg-accent/50"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
 
-      {/* Common fields */}
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <label className={labelClass}>{t("name")}</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className={inputClass}
-            data-testid="gm-npc-name"
-          />
-        </div>
-        <div>
-          <label className={labelClass}>{t("npcLocation")}</label>
-          <input
-            type="text"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            className={inputClass}
-            data-testid="gm-npc-location"
-          />
-        </div>
-      </div>
+          {/* Tier toggle */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setTier("normal")}
+              className={`rounded-md px-3 py-1 text-xs font-medium ${
+                tier === "normal" ? "bg-primary/10 text-primary" : "text-muted-foreground"
+              }`}
+              data-testid="gm-npc-tier-normal"
+            >
+              {t("npcNormal")}
+            </button>
+            <button
+              onClick={() => setTier("advanced")}
+              className={`rounded-md px-3 py-1 text-xs font-medium ${
+                tier === "advanced" ? "bg-primary/10 text-primary" : "text-muted-foreground"
+              }`}
+              data-testid="gm-npc-tier-advanced"
+            >
+              {t("npcAdvanced")}
+            </button>
+          </div>
 
-      <div>
-        <label className={labelClass}>{t("npcDescription")}</label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={2}
-          className={inputClass}
-          data-testid="gm-npc-description"
-        />
-      </div>
-
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          checked={isVisible}
-          onChange={(e) => setIsVisible(e.target.checked)}
-          data-testid="gm-npc-visible"
-        />
-        {t("npcVisibleToPlayers")}
-      </label>
-
-      {/* Advanced fields */}
-      {tier === "advanced" && (
-        <>
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+          {/* Common fields */}
+          <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className={labelClass}>{t("npcLevel")}</label>
+              <label className={labelClass}>{t("name")}</label>
               <input
-                type="number"
-                value={level}
-                onChange={(e) => setLevel(e.target.value)}
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className={inputClass}
-                data-testid="gm-npc-level"
+                data-testid="gm-npc-name"
               />
             </div>
             <div>
-              <label className={labelClass}>{t("ac")}</label>
+              <label className={labelClass}>{t("npcLocation")}</label>
               <input
-                type="number"
-                value={ac}
-                onChange={(e) => setAc(e.target.value)}
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
                 className={inputClass}
-                data-testid="gm-npc-ac"
-              />
-            </div>
-            <div>
-              <label className={labelClass}>{t("thac0")}</label>
-              <input
-                type="number"
-                value={thac0}
-                onChange={(e) => setThac0(e.target.value)}
-                className={inputClass}
-                data-testid="gm-npc-thac0"
+                data-testid="gm-npc-location"
               />
             </div>
           </div>
 
-          {/* Abilities */}
           <div>
-            <label className={labelClass}>{t("npcAbilities")}</label>
-            <div className="grid grid-cols-6 gap-1">
-              {[
-                { label: "STR", val: str, set: setStr, tid: "gm-npc-str" },
-                { label: "DEX", val: dex, set: setDex, tid: "gm-npc-dex" },
-                { label: "CON", val: con, set: setCon, tid: "gm-npc-con" },
-                { label: "INT", val: int, set: setInt, tid: "gm-npc-int" },
-                { label: "WIS", val: wis, set: setWis, tid: "gm-npc-wis" },
-                { label: "CHA", val: cha, set: setCha, tid: "gm-npc-cha" },
-              ].map((a) => (
-                <div key={a.label} className="text-center">
-                  <span className="text-[10px] md:text-xs text-muted-foreground">{a.label}</span>
-                  <input
-                    type="number"
-                    value={a.val}
-                    onChange={(e) => a.set(e.target.value)}
-                    className="w-full rounded border border-border bg-background/50 px-1 py-1 text-center text-xs"
-                    data-testid={a.tid}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* HP */}
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className={labelClass}>{t("npcHp")} (Max)</label>
-              <input
-                type="number"
-                value={hpMax}
-                onChange={(e) => setHpMax(e.target.value)}
-                className={inputClass}
-                data-testid="gm-npc-hp-max"
-              />
-            </div>
-            <div>
-              <label className={labelClass}>{t("npcHp")} (Aktuell)</label>
-              <input
-                type="number"
-                value={hpCurrent}
-                onChange={(e) => setHpCurrent(e.target.value)}
-                className={inputClass}
-                data-testid="gm-npc-hp-current"
-              />
-            </div>
-          </div>
-
-          {/* Notes */}
-          <div className="grid gap-2 sm:grid-cols-2">
-            <div>
-              <label className={labelClass}>{t("npcEquipmentNotes")}</label>
-              <textarea
-                value={equipmentNotes}
-                onChange={(e) => setEquipmentNotes(e.target.value)}
-                rows={2}
-                className={inputClass}
-                data-testid="gm-npc-equipment-notes"
-              />
-            </div>
-            <div>
-              <label className={labelClass}>{t("npcSpellNotes")}</label>
-              <textarea
-                value={spellNotes}
-                onChange={(e) => setSpellNotes(e.target.value)}
-                rows={2}
-                className={inputClass}
-                data-testid="gm-npc-spell-notes"
-              />
-            </div>
-          </div>
-          <div>
-            <label className={labelClass}>{t("npcNotes")}</label>
+            <label className={labelClass}>{t("npcDescription")}</label>
             <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               rows={2}
               className={inputClass}
-              data-testid="gm-npc-notes"
+              data-testid="gm-npc-description"
             />
           </div>
-        </>
-      )}
 
-      {/* Actions */}
-      <div className="flex justify-end gap-2">
-        <button
-          onClick={onCancel}
-          className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent/50"
-          data-testid="gm-npc-cancel"
-        >
-          {t("cancel")}
-        </button>
-        <button
-          onClick={handleSubmit}
-          disabled={!name.trim()}
-          className="rounded-lg bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary hover:bg-primary/20 disabled:opacity-50"
-          data-testid="gm-npc-save"
-        >
-          {npc ? t("npcEdit") : t("npcCreate")}
-        </button>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={isVisible}
+              onChange={(e) => setIsVisible(e.target.checked)}
+              data-testid="gm-npc-visible"
+            />
+            {t("npcVisibleToPlayers")}
+          </label>
+
+          {/* Advanced fields */}
+          {tier === "advanced" && (
+            <>
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                <div>
+                  <label className={labelClass}>{t("npcLevel")}</label>
+                  <input
+                    type="number"
+                    value={level}
+                    onChange={(e) => setLevel(e.target.value)}
+                    className={inputClass}
+                    data-testid="gm-npc-level"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>{t("ac")}</label>
+                  <input
+                    type="number"
+                    value={ac}
+                    onChange={(e) => setAc(e.target.value)}
+                    className={inputClass}
+                    data-testid="gm-npc-ac"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>{t("thac0")}</label>
+                  <input
+                    type="number"
+                    value={thac0}
+                    onChange={(e) => setThac0(e.target.value)}
+                    className={inputClass}
+                    data-testid="gm-npc-thac0"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClass}>{t("npcAbilities")}</label>
+                <div className="grid grid-cols-6 gap-1">
+                  {[
+                    { label: "STR", val: str, set: setStr, tid: "gm-npc-str" },
+                    { label: "DEX", val: dex, set: setDex, tid: "gm-npc-dex" },
+                    { label: "CON", val: con, set: setCon, tid: "gm-npc-con" },
+                    { label: "INT", val: int, set: setInt, tid: "gm-npc-int" },
+                    { label: "WIS", val: wis, set: setWis, tid: "gm-npc-wis" },
+                    { label: "CHA", val: cha, set: setCha, tid: "gm-npc-cha" },
+                  ].map((a) => (
+                    <div key={a.label} className="text-center">
+                      <span className="text-[10px] md:text-xs text-muted-foreground">
+                        {a.label}
+                      </span>
+                      <input
+                        type="number"
+                        value={a.val}
+                        onChange={(e) => a.set(e.target.value)}
+                        className="w-full rounded border border-border bg-background/50 px-1 py-1 text-center text-xs"
+                        data-testid={a.tid}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className={labelClass}>{t("npcHp")} (Max)</label>
+                  <input
+                    type="number"
+                    value={hpMax}
+                    onChange={(e) => setHpMax(e.target.value)}
+                    className={inputClass}
+                    data-testid="gm-npc-hp-max"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>{t("npcHp")} (Aktuell)</label>
+                  <input
+                    type="number"
+                    value={hpCurrent}
+                    onChange={(e) => setHpCurrent(e.target.value)}
+                    className={inputClass}
+                    data-testid="gm-npc-hp-current"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div>
+                  <label className={labelClass}>{t("npcEquipmentNotes")}</label>
+                  <textarea
+                    value={equipmentNotes}
+                    onChange={(e) => setEquipmentNotes(e.target.value)}
+                    rows={2}
+                    className={inputClass}
+                    data-testid="gm-npc-equipment-notes"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>{t("npcSpellNotes")}</label>
+                  <textarea
+                    value={spellNotes}
+                    onChange={(e) => setSpellNotes(e.target.value)}
+                    rows={2}
+                    className={inputClass}
+                    data-testid="gm-npc-spell-notes"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className={labelClass}>{t("npcNotes")}</label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={2}
+                  className={inputClass}
+                  data-testid="gm-npc-notes"
+                />
+              </div>
+            </>
+          )}
+
+          {/* Actions */}
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={onCancel}
+              className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent/50"
+              data-testid="gm-npc-cancel"
+            >
+              {t("cancel")}
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={!name.trim()}
+              className="rounded-lg bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary hover:bg-primary/20 disabled:opacity-50"
+              data-testid="gm-npc-save"
+            >
+              {npc ? t("npcEdit") : t("npcCreate")}
+            </button>
+          </div>
+        </GlassCard>
       </div>
-    </GlassCard>
+    </div>
   );
 }

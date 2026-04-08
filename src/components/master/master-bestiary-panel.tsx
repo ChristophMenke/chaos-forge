@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
 import { localized } from "@/lib/utils/localize";
+import { monsterAvatar } from "@/lib/utils/svg-avatar";
 import { uploadMonsterImage } from "@/app/master/actions";
 import type { MonsterRow } from "@/lib/supabase/types";
 
@@ -39,47 +40,6 @@ const HD_RANGES = [
 type SortKey = "name" | "ac" | "hd" | "thac0" | "xp";
 type SortDir = "asc" | "desc";
 
-// Generate a unique hue from a string (deterministic hash)
-function nameToHue(name: string): number {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return Math.abs(hash) % 360;
-}
-
-// Size-based silhouette icons (simple SVG paths)
-const SIZE_ICONS: Record<string, string> = {
-  T: "M40 22c-3 0-5 2-5 5v3l-4 6v8l4 3v5h2v4h6v-4h2v-5l4-3v-8l-4-6v-3c0-3-2-5-5-5z",
-  S: "M40 18c-6 0-10 4-10 9 0 3 2 6 4 8l-2 10 8 5 8-5-2-10c2-2 4-5 4-8 0-5-4-9-10-9z",
-  M: "M28 50l4-14c-3-2-5-6-5-10 0-7 6-12 13-12s13 5 13 12c0 4-2 8-5 10l4 14h-4l-1 6h-14l-1-6h-4z",
-  L: "M20 42c0-8 4-14 8-18 2-2 5-4 8-4h8c3 0 6 2 8 4 4 4 8 10 8 18v4l-4 6-6 2v4h-20v-4l-6-2-4-6v-4z",
-  H: "M16 38c0-10 6-18 12-22 3-2 7-2 10 0l6 4 6-4c3-2 7-2 10 0 6 4 12 12 12 22v6l-8 8h-8v6h-24v-6h-8l-8-8v-6z",
-  G: "M12 36c0-12 8-22 16-26 4-2 8-2 12 0 8 4 16 14 16 26v8l-6 6-4 2v4l-4 4h-16l-4-4v-4l-4-2-6-6v-8z",
-};
-
-function monsterAvatar(name: string, size: string): string {
-  const hue = nameToHue(name);
-  const letter = name.charAt(0).toUpperCase();
-  const path = SIZE_ICONS[size] ?? SIZE_ICONS.M;
-  const c1 = `hsl(${hue}, 60%, 25%)`;
-  const c2 = `hsl(${hue}, 70%, 40%)`;
-  const c3 = `hsl(${hue}, 50%, 55%)`;
-
-  return `data:image/svg+xml,${encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">` +
-      `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">` +
-      `<stop offset="0%" stop-color="${c1}"/>` +
-      `<stop offset="100%" stop-color="${c2}"/>` +
-      `</linearGradient></defs>` +
-      `<rect width="80" height="80" rx="12" fill="url(#g)"/>` +
-      `<path d="${path}" fill="${c3}" opacity="0.4"/>` +
-      `<text x="40" y="42" text-anchor="middle" dominant-baseline="central" ` +
-      `font-family="serif" font-size="32" font-weight="bold" fill="white" opacity="0.95">${letter}</text>` +
-      `</svg>`
-  )}`;
-}
-
 function getSortValue(m: MonsterRow, key: SortKey): string | number {
   switch (key) {
     case "name":
@@ -93,19 +53,6 @@ function getSortValue(m: MonsterRow, key: SortKey): string | number {
     case "xp":
       return m.xp_value;
   }
-}
-
-// Module-level avatar cache — avoids re-computing SVG data URIs on every render
-const avatarCache = new Map<string, string>();
-
-function getCachedAvatar(name: string, size: string): string {
-  const key = `${name}::${size}`;
-  let uri = avatarCache.get(key);
-  if (!uri) {
-    uri = monsterAvatar(name, size);
-    avatarCache.set(key, uri);
-  }
-  return uri;
 }
 
 // Keys promoted to the core/combat stat grids — excluded from the secondary table
@@ -439,7 +386,7 @@ function MonsterCard({
           ) : (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
-              src={getCachedAvatar(displayName, monster.size)}
+              src={monsterAvatar(displayName, monster.size)}
               alt={displayName}
               className="h-full w-full object-contain"
             />
@@ -632,7 +579,7 @@ function MonsterListView({
                       ) : (
                         /* eslint-disable-next-line @next/next/no-img-element */
                         <img
-                          src={getCachedAvatar(displayName, m.size)}
+                          src={monsterAvatar(displayName, m.size)}
                           alt=""
                           className="h-full w-full object-contain"
                         />
@@ -854,7 +801,7 @@ function MonsterDetailModal({
               ) : (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
-                  src={getCachedAvatar(displayName, monster.size)}
+                  src={monsterAvatar(displayName, monster.size)}
                   alt={displayName}
                   className="h-full w-full object-contain p-8"
                   data-testid="gm-monster-detail-image"
