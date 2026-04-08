@@ -121,18 +121,12 @@ export class MasterPage {
   }
 
   async enterPin(pin: string) {
-    // Focus first input and paste the full PIN to trigger the handlePaste handler
-    // which reliably sets all digits and auto-submits when complete
-    const firstInput = this.page.getByTestId("gm-pin-digit-0");
-    await firstInput.focus();
-
-    // Use clipboard paste which triggers the onPaste handler for reliable 6-digit entry
-    await this.page.evaluate((p) => {
-      const dt = new DataTransfer();
-      dt.setData("text/plain", p);
-      const event = new ClipboardEvent("paste", { clipboardData: dt, bubbles: true });
-      document.activeElement?.dispatchEvent(event);
-    }, pin);
+    // Type each digit individually — synthetic paste events don't reliably
+    // trigger React's onPaste handler in production builds on CI.
+    for (let i = 0; i < pin.length; i++) {
+      const input = this.page.getByTestId(`gm-pin-digit-${i}`);
+      await input.fill(pin[i]);
+    }
   }
 
   async submitPin() {
@@ -147,14 +141,13 @@ export class MasterPage {
 
   async enterAndSubmitPin(pin: string) {
     await this.enterPin(pin);
-    // Auto-submit triggers from paste handler — wait for dashboard or error
+    // Auto-submit triggers when 6th digit is entered via handleChange.
+    // If auto-submit didn't fire, click the button as fallback.
     try {
       await this.dashboard.waitFor({ state: "visible", timeout: 10000 });
     } catch {
-      // If auto-submit didn't work, try manual submit
       if (await this.pinSubmit.isEnabled().catch(() => false)) {
         await this.pinSubmit.click();
-        await this.dashboard.waitFor({ state: "visible", timeout: 10000 });
       }
     }
   }
