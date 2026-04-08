@@ -30,8 +30,11 @@ test.describe("Mobile Navigation", () => {
     await expect(page.getByTestId("app-nav-mobile")).toBeVisible({ timeout: 10000 });
     const moreTrigger = page.getByTestId("mobile-more-trigger");
     await expect(moreTrigger).toBeVisible();
-    await moreTrigger.click();
-    await expect(page.getByTestId("mobile-more-panel")).toBeVisible({ timeout: 5000 });
+    // Retry click — on CI the hydration may not be complete when the first click fires
+    await expect(async () => {
+      await moreTrigger.click();
+      await expect(page.getByTestId("mobile-more-panel")).toBeVisible();
+    }).toPass({ timeout: 10000 });
   });
 
   test("notification bell is visible in mobile more panel", async ({ page }) => {
@@ -39,8 +42,11 @@ test.describe("Mobile Navigation", () => {
     await page.waitForLoadState("networkidle");
     await page.getByTestId("dashboard-page").waitFor({ timeout: 15000 });
     await expect(page.getByTestId("app-nav-mobile")).toBeVisible({ timeout: 10000 });
-    await page.getByTestId("mobile-more-trigger").click();
-    await page.getByTestId("mobile-more-panel").waitFor({ timeout: 5000 });
+    // Retry click — on CI the hydration may not be complete when the first click fires
+    await expect(async () => {
+      await page.getByTestId("mobile-more-trigger").click();
+      await expect(page.getByTestId("mobile-more-panel")).toBeVisible();
+    }).toPass({ timeout: 10000 });
     const panel = page.getByTestId("mobile-more-panel");
     const bell = panel.getByTestId("notification-bell");
     await expect(bell).toBeVisible({ timeout: 10000 });
