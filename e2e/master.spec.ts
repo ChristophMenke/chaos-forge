@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { MasterPage } from "./pages/master.page";
 
-const CORRECT_PIN = process.env.GM_PIN ?? "123456";
+const CORRECT_PIN = process.env.GM_PIN || "666777";
 
 test.describe("Master of Chaos — GM Interface", () => {
   test.describe("PIN Gate", () => {
