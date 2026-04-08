@@ -121,11 +121,13 @@ export class MasterPage {
   }
 
   async enterPin(pin: string) {
-    // Type each digit individually — synthetic paste events don't reliably
-    // trigger React's onPaste handler in production builds on CI.
-    for (let i = 0; i < pin.length; i++) {
-      const input = this.page.getByTestId(`gm-pin-digit-${i}`);
-      await input.fill(pin[i]);
+    // Click first input, then press each digit key sequentially.
+    // handleChange auto-advances focus to the next input after each digit.
+    // Using keyboard presses ensures React processes each state update.
+    const firstInput = this.page.getByTestId("gm-pin-digit-0");
+    await firstInput.click();
+    for (const digit of pin) {
+      await this.page.keyboard.press(digit);
     }
   }
 
