@@ -242,101 +242,84 @@ function MonsterCard({
       className="w-full cursor-pointer text-left"
     >
       <GlassCard
-        className="p-3 transition-all hover:scale-[1.01]"
+        className="overflow-hidden p-0 transition-all hover:scale-[1.01]"
         data-testid={`gm-monster-card-${monster.id}`}
       >
-        <div className="flex items-start gap-3">
-          {/* Larger image */}
+        {/* Prominent image */}
+        <div className="relative h-36 w-full">
           {monster.image_url ? (
-            <Image
-              src={monster.image_url}
-              alt={displayName}
-              width={64}
-              height={64}
-              className="h-16 w-16 shrink-0 rounded-lg object-cover"
-            />
+            <Image src={monster.image_url} alt={displayName} fill className="object-cover" />
           ) : (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
               src={monsterAvatar(displayName, monster.size)}
               alt={displayName}
-              className="h-16 w-16 shrink-0 rounded-lg object-cover"
+              className="h-full w-full object-cover"
             />
           )}
-
-          <div className="min-w-0 flex-1">
-            {/* Name + HD badge */}
-            <div className="flex items-start justify-between gap-1">
-              <h4 className="truncate font-heading text-sm font-semibold text-foreground">
-                {displayName}
-              </h4>
-              <span className="shrink-0 rounded bg-amber-900/30 px-1.5 py-0.5 text-[10px] md:text-xs font-medium text-amber-400">
-                {t("monsterHD")} {monster.hit_dice}
-              </span>
-            </div>
-
-            {/* Stat row 1: AC, THAC0, Movement */}
-            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <Shield className="h-3 w-3" />
-                {t("ac")} {monster.ac}
-              </span>
-              <span>
-                {t("thac0")} {monster.thac0}
-              </span>
-              <span className="flex items-center gap-1">
-                <Footprints className="h-3 w-3" />
-                {monster.movement}
-              </span>
-            </div>
-
-            {/* Stat row 2: Attacks, Damage */}
-            <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <Swords className="h-3 w-3" />
-                {monster.attacks_per_round}
-              </span>
-              <span className="truncate">{monster.damage}</span>
-            </div>
-
-            {/* Stat row 3: XP, MR, Size, Morale */}
-            <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] md:text-xs text-muted-foreground">
-              <span>
-                {t("monsterXP")} {monster.xp_value.toLocaleString()}
-              </span>
-              {monster.magic_resistance > 0 && (
-                <span className="flex items-center gap-0.5 text-purple-400">
-                  <Zap className="h-2.5 w-2.5" />
-                  {monster.magic_resistance}%
-                </span>
-              )}
-              <span>{t(`size${monster.size}`)}</span>
-              <span>
-                {t("monsterMorale")} {monster.morale}
-              </span>
-            </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
+          <div className="absolute bottom-2 left-3 right-3">
+            <h4 className="font-heading text-base font-semibold text-foreground drop-shadow-lg">
+              {displayName}
+            </h4>
           </div>
         </div>
 
-        {/* Description preview */}
-        {description && (
-          <p className="mt-2 line-clamp-2 text-xs text-muted-foreground/70">{description}</p>
-        )}
+        <div className="p-3">
+          {/* Key stats grid — Monster Manual style */}
+          <div className="grid grid-cols-3 gap-2 text-center text-xs">
+            <div className="rounded border border-border/50 px-1 py-1.5">
+              <div className="text-[9px] uppercase tracking-wider text-muted-foreground">
+                Armor Class
+              </div>
+              <div className="font-mono text-sm font-bold">{monster.ac}</div>
+            </div>
+            <div className="rounded border border-border/50 px-1 py-1.5">
+              <div className="text-[9px] uppercase tracking-wider text-muted-foreground">
+                Hit Dice
+              </div>
+              <div className="font-mono text-sm font-bold">{monster.hit_dice}</div>
+            </div>
+            <div className="rounded border border-border/50 px-1 py-1.5">
+              <div className="text-[9px] uppercase tracking-wider text-muted-foreground">THAC0</div>
+              <div className="font-mono text-sm font-bold">{monster.thac0}</div>
+            </div>
+          </div>
 
-        {/* Add to combat */}
-        {onAddToCombat && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddToCombat(monster, 1);
-            }}
-            className="mt-2 flex w-full items-center justify-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary hover:bg-primary/20"
-            data-testid={`gm-monster-add-${monster.id}`}
-          >
-            <Plus className="h-3 w-3" />
-            {t("monsterAddToCombat")}
-          </button>
-        )}
+          {/* Secondary stats */}
+          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-muted-foreground">
+            <span>
+              {t("monsterXP")} {monster.xp_value.toLocaleString()}
+            </span>
+            <span>{t(`size${monster.size}`)}</span>
+            {monster.magic_resistance > 0 && (
+              <span className="flex items-center gap-0.5 text-purple-400">
+                <Zap className="h-2.5 w-2.5" />
+                {monster.magic_resistance}%
+              </span>
+            )}
+          </div>
+
+          {/* Description preview */}
+          {description && (
+            <p className="mt-2 line-clamp-2 text-xs text-muted-foreground/70">{description}</p>
+          )}
+
+          {/* Add to combat */}
+          {onAddToCombat && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddToCombat(monster, 1);
+              }}
+              className="mt-2 flex w-full items-center justify-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary hover:bg-primary/20"
+              data-testid={`gm-monster-add-${monster.id}`}
+            >
+              <Plus className="h-3 w-3" />
+              {t("monsterAddToCombat")}
+            </button>
+          )}
+        </div>
       </GlassCard>
     </div>
   );
@@ -427,7 +410,7 @@ function MonsterDetailModal({
       data-testid="gm-monster-detail-overlay"
     >
       <div
-        className="glass max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-xl border border-border p-4"
+        className="glass max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-border p-0"
         onClick={(e) => e.stopPropagation()}
         data-testid="gm-monster-detail"
       >
@@ -454,15 +437,14 @@ function MonsterDetailModal({
           </div>
         )}
 
-        {/* Monster image */}
-        <div className="relative mb-3">
+        {/* Prominent monster image — hero section */}
+        <div className="relative h-64 w-full">
           {imageUrl ? (
             <Image
               src={imageUrl}
               alt={displayName}
-              width={600}
-              height={192}
-              className="h-48 w-full rounded-lg object-cover"
+              fill
+              className="object-cover"
               data-testid="gm-monster-detail-image"
             />
           ) : (
@@ -470,113 +452,168 @@ function MonsterDetailModal({
             <img
               src={monsterAvatar(displayName, monster.size)}
               alt={displayName}
-              className="h-48 w-full rounded-lg object-cover"
+              className="h-full w-full object-cover"
               data-testid="gm-monster-detail-image"
             />
           )}
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
           <button
             onClick={() => setFullscreen(true)}
-            className="absolute bottom-2 right-2 rounded-md bg-black/60 p-1.5 text-white hover:bg-black/80"
+            className="absolute right-3 top-3 rounded-md bg-black/60 p-1.5 text-white hover:bg-black/80"
             title="Fullscreen"
             data-testid="gm-monster-fullscreen-btn"
           >
             <Maximize2 className="h-4 w-4" />
           </button>
-        </div>
-
-        {/* Image upload */}
-        <div className="mb-3 flex items-center gap-2">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleImageUpload}
-            data-testid="gm-monster-image-input"
-          />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
-            className="flex items-center gap-1 rounded-md bg-accent/30 px-2 py-1 text-xs text-muted-foreground hover:bg-accent/50"
-            data-testid="gm-monster-image-upload"
-          >
-            <Upload className="h-3 w-3" />
-            {imageUrl ? t("monsterChangeImage") : t("monsterUploadImage")}
-          </button>
-        </div>
-
-        {/* Header */}
-        <div className="mb-3 flex items-start justify-between">
-          <div>
-            <h2 className="font-heading text-lg font-bold text-foreground">{displayName}</h2>
-            {monster.name !== monster.name_en && monster.name_en && (
-              <p className="text-xs text-muted-foreground">{monster.name_en}</p>
-            )}
-          </div>
           <button
             onClick={onClose}
-            className="rounded p-1 text-muted-foreground hover:bg-accent/50"
+            className="absolute left-3 top-3 rounded-md bg-black/60 p-1.5 text-white hover:bg-black/80"
             data-testid="gm-monster-detail-close"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
-        </div>
-
-        {/* Description */}
-        {monster.description && (
-          <p className="mb-3 text-sm text-muted-foreground">
-            {localized(monster.description, monster.description_en, locale)}
-          </p>
-        )}
-
-        {/* Stat table */}
-        <div className="space-y-1">
-          {rows
-            .filter((r) => r.value !== null && r.value !== "")
-            .map((r) => (
-              <div
-                key={r.label}
-                className="flex justify-between border-b border-border/30 py-1 text-sm"
-              >
-                <span className="font-medium text-muted-foreground">{r.label}</span>
-                <span className="text-right text-foreground">{r.value}</span>
-              </div>
-            ))}
-        </div>
-
-        {/* Typical spells */}
-        {monster.typical_spells.length > 0 && (
-          <div className="mt-3">
-            <p className="text-xs font-medium text-muted-foreground">{t("npcSpellNotes")}:</p>
-            <p className="text-sm text-foreground">{monster.typical_spells.join(", ")}</p>
+          {/* Name overlay on image */}
+          <div className="absolute bottom-3 left-4 right-4">
+            <h2 className="font-heading text-2xl font-bold text-foreground drop-shadow-lg">
+              {displayName}
+            </h2>
+            {monster.name !== monster.name_en && monster.name_en && (
+              <p className="text-sm text-muted-foreground drop-shadow-lg">{monster.name_en}</p>
+            )}
           </div>
-        )}
+        </div>
 
-        {/* Add to combat */}
-        {onAddToCombat && (
-          <div className="mt-4 flex items-center gap-2">
+        <div className="p-5">
+          {/* Image upload */}
+          <div className="mb-4 flex items-center gap-2">
             <input
-              type="number"
-              min={1}
-              max={99}
-              value={count}
-              onChange={(e) => setCount(Math.max(1, parseInt(e.target.value) || 1))}
-              className="w-16 rounded-md border border-border bg-background/50 px-2 py-1.5 text-center text-sm"
-              data-testid="gm-monster-detail-count"
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageUpload}
+              data-testid="gm-monster-image-input"
             />
             <button
-              onClick={() => {
-                onAddToCombat(monster, count);
-                onClose();
-              }}
-              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20"
-              data-testid="gm-monster-detail-add"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="flex items-center gap-1 rounded-md bg-accent/30 px-2 py-1 text-xs text-muted-foreground hover:bg-accent/50"
+              data-testid="gm-monster-image-upload"
             >
-              <Skull className="h-4 w-4" />
-              {count}x {t("monsterAddToCombat")}
+              <Upload className="h-3 w-3" />
+              {imageUrl ? t("monsterChangeImage") : t("monsterUploadImage")}
             </button>
           </div>
-        )}
+
+          {/* Description */}
+          {monster.description && (
+            <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+              {localized(monster.description, monster.description_en, locale)}
+            </p>
+          )}
+
+          {/* Core stats — Monster Manual style block */}
+          <div className="mb-4 grid grid-cols-4 gap-2">
+            {[
+              { label: "Armor Class", value: monster.ac },
+              { label: "Hit Dice", value: monster.hit_dice },
+              { label: "THAC0", value: monster.thac0 },
+              { label: "Movement", value: monster.movement },
+            ].map((s) => (
+              <div
+                key={s.label}
+                className="rounded-lg border border-border/50 px-2 py-2 text-center"
+              >
+                <div className="text-[9px] uppercase tracking-wider text-muted-foreground">
+                  {s.label}
+                </div>
+                <div className="font-mono text-lg font-bold">{s.value}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Combat stats */}
+          <div className="mb-4 grid grid-cols-2 gap-2">
+            {[
+              { label: t("monsterAttacks"), value: monster.attacks_per_round },
+              { label: t("monsterDamage"), value: monster.damage },
+              { label: t("monsterSpecialAttacks"), value: monster.special_attacks },
+              { label: t("monsterSpecialDefenses"), value: monster.special_defenses },
+            ]
+              .filter((s) => s.value)
+              .map((s) => (
+                <div key={s.label} className="rounded border border-border/30 px-3 py-2">
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    {s.label}
+                  </div>
+                  <div className="text-sm">{s.value}</div>
+                </div>
+              ))}
+          </div>
+
+          {/* Secondary stat table */}
+          <div className="space-y-1">
+            {rows
+              .filter(
+                (r) =>
+                  r.value !== null &&
+                  r.value !== "" &&
+                  ![
+                    t("ac"),
+                    t("monsterMovement"),
+                    t("monsterHD"),
+                    t("thac0"),
+                    t("monsterAttacks"),
+                    t("monsterDamage"),
+                    t("monsterSpecialAttacks"),
+                    t("monsterSpecialDefenses"),
+                  ].includes(r.label)
+              )
+              .map((r) => (
+                <div
+                  key={r.label}
+                  className="flex justify-between border-b border-border/30 py-1 text-sm"
+                >
+                  <span className="font-medium text-muted-foreground">{r.label}</span>
+                  <span className="text-right text-foreground">{r.value}</span>
+                </div>
+              ))}
+          </div>
+
+          {/* Typical spells */}
+          {monster.typical_spells.length > 0 && (
+            <div className="mt-3">
+              <p className="text-xs font-medium text-muted-foreground">{t("npcSpellNotes")}:</p>
+              <p className="text-sm text-foreground">{monster.typical_spells.join(", ")}</p>
+            </div>
+          )}
+
+          {/* Add to combat */}
+          {onAddToCombat && (
+            <div className="mt-4 flex items-center gap-2">
+              <input
+                type="number"
+                min={1}
+                max={99}
+                value={count}
+                onChange={(e) => setCount(Math.max(1, parseInt(e.target.value) || 1))}
+                className="w-16 rounded-md border border-border bg-background/50 px-2 py-1.5 text-center text-sm"
+                data-testid="gm-monster-detail-count"
+              />
+              <button
+                onClick={() => {
+                  onAddToCombat(monster, count);
+                  onClose();
+                }}
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20"
+                data-testid="gm-monster-detail-add"
+              >
+                <Skull className="h-4 w-4" />
+                {count}x {t("monsterAddToCombat")}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

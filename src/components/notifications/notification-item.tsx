@@ -54,13 +54,11 @@ export function NotificationItem({ notification, onMarkRead }: NotificationItemP
   if (notification.type.includes("gold") && !notification.type.includes("item")) {
     const pp = (details.pp as number) ?? 0;
     const gp = (details.gp as number) ?? 0;
-    const ep = (details.ep as number) ?? 0;
     const sp = (details.sp as number) ?? 0;
     const cp = (details.cp as number) ?? 0;
     const parts = [];
     if (pp > 0) parts.push(`${pp} PP`);
     if (gp > 0) parts.push(`${gp} GP`);
-    if (ep > 0) parts.push(`${ep} EP`);
     if (sp > 0) parts.push(`${sp} SP`);
     if (cp > 0) parts.push(`${cp} CP`);
     subtitle = parts.join(", ");

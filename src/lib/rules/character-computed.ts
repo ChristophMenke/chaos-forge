@@ -223,11 +223,8 @@ export function computeCharacterCombatData(
     shieldProficiencyBonus,
   });
 
-  // Perception (House Rule) — epic + magic bonuses stack
-  const perception =
-    Math.floor((effectiveInt + effectiveWis) / 2) +
-    epicEffects.perceptionBonus +
-    magicEffects.perceptionBonus;
+  // Perception (House Rule) — base only, epic/magic bonuses are situational (e.g. sight-based)
+  const perception = Math.floor((effectiveInt + effectiveWis) / 2);
 
   // Saving throw bonuses from magic items (lower is better → subtract)
   const msb = magicEffects.saveBonuses;

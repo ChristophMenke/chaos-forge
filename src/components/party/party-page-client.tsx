@@ -10,6 +10,8 @@ import type {
   PartyLootItemWithDetails,
   PartyLootLogRow,
   GeneralItemRow,
+  WeaponRow,
+  ArmorRow,
 } from "@/lib/supabase/types";
 
 interface CharacterOption {
@@ -27,6 +29,8 @@ interface PartyPageClientProps {
   characterMap: Record<string, string>;
   userId: string;
   allGeneralItems: GeneralItemRow[];
+  allWeapons: WeaponRow[];
+  allArmor: ArmorRow[];
 }
 
 export function PartyPageClient({
@@ -38,6 +42,8 @@ export function PartyPageClient({
   characterMap,
   userId,
   allGeneralItems,
+  allWeapons,
+  allArmor,
 }: PartyPageClientProps) {
   const t = useTranslations("party");
 
@@ -86,6 +92,8 @@ export function PartyPageClient({
           userId={userId}
           characters={characters}
           allGeneralItems={allGeneralItems}
+          allWeapons={allWeapons}
+          allArmor={allArmor}
           activeCharacterName={activeCharacterName}
         />
       </div>

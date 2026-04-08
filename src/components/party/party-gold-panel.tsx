@@ -181,7 +181,7 @@ export function PartyGoldPanel({
       </h3>
 
       {/* Coin display */}
-      <div className="mb-2 grid grid-cols-5 gap-1 text-center" data-testid="party-gold-coins">
+      <div className="mb-2 grid grid-cols-4 gap-1 text-center" data-testid="party-gold-coins">
         {COINS.map((coin) => (
           <div key={coin.key} className="rounded-md border border-border px-1 py-1.5">
             <div className="text-[10px] md:text-xs font-medium text-muted-foreground">
@@ -249,7 +249,7 @@ export function PartyGoldPanel({
             <h3 id="add-gold-dialog-title" className="font-heading text-lg text-primary">
               {t("addGoldTitle")}
             </h3>
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               {COINS.map((coin) => (
                 <div key={coin.key} className="text-center">
                   <label className="text-[10px] md:text-xs text-muted-foreground">
@@ -316,7 +316,7 @@ export function PartyGoldPanel({
             <h3 id="remove-gold-dialog-title" className="font-heading text-lg text-primary">
               {t("removeGoldTitle")}
             </h3>
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               {COINS.map((coin) => (
                 <div key={coin.key} className="text-center">
                   <label className="text-[10px] md:text-xs text-muted-foreground">

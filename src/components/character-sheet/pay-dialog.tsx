@@ -87,8 +87,8 @@ export function PayDialog({ purse, onPay, onClose }: PayDialogProps) {
 
         {/* Advanced mode: all coin types */}
         {mode === "advanced" && (
-          <div className="grid grid-cols-5 gap-2">
-            {(["pp", "gp", "ep", "sp", "cp"] as const).map((coin) => (
+          <div className="grid grid-cols-4 gap-2">
+            {(["pp", "gp", "sp", "cp"] as const).map((coin) => (
               <div key={coin} className="flex flex-col gap-1">
                 <Label className="text-center text-xs">{coin.toUpperCase()}</Label>
                 <Input
