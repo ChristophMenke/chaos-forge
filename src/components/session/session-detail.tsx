@@ -18,6 +18,8 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { SessionEntryForm } from "./session-entry-form";
 import { SessionEntryCard } from "./session-entry-card";
 import { TagManager } from "./tag-manager";
+import { SessionParticipants } from "./session-participants";
+import { SessionXpDistribute } from "./session-xp-distribute";
 import type {
   SessionRow,
   SessionEntryRow,
@@ -33,6 +35,11 @@ const TAG_COLORS: Record<string, string> = {
   quest: "bg-purple-900/50 text-purple-200",
 };
 
+type ParticipantCharacter = Pick<
+  CharacterRow,
+  "id" | "name" | "avatar_url" | "race_id" | "class_id"
+>;
+
 interface SessionDetailProps {
   session: SessionRow;
   entries: SessionEntryRow[];
@@ -47,6 +54,9 @@ interface SessionDetailProps {
     string,
     Pick<CharacterRow, "id" | "name" | "avatar_url" | "race_id" | "class_id">
   >;
+  participants: ParticipantCharacter[];
+  externalParticipants: string[];
+  allActiveCharacters: ParticipantCharacter[];
 }
 
 export function SessionDetail({
@@ -60,6 +70,9 @@ export function SessionDetail({
   isCreator,
   xpHistory,
   entryCharacterMap,
+  participants: initialParticipants,
+  externalParticipants: initialExternal,
+  allActiveCharacters,
 }: SessionDetailProps) {
   const router = useRouter();
   const t = useTranslations("sessions");
@@ -79,6 +92,8 @@ export function SessionDetail({
   const [imageGeneratedAt, setImageGeneratedAt] = useState(session.image_generated_at);
   const [generatingImage, setGeneratingImage] = useState(false);
   const [localUpdatedAt, setLocalUpdatedAt] = useState(session.updated_at);
+  const [participantsState, setParticipantsState] = useState(initialParticipants);
+  const [externalState, setExternalState] = useState(initialExternal);
 
   async function handleSaveTitle() {
     if (!titleValue.trim()) return;
@@ -296,6 +311,30 @@ export function SessionDetail({
             allTags={allTagsState}
             onTagsChange={setTags}
             onAllTagsChange={setAllTags}
+          />
+        </div>
+      )}
+
+      {/* Participants */}
+      <div className="mb-6">
+        <SessionParticipants
+          sessionId={session.id}
+          participants={participantsState}
+          externalParticipants={externalState}
+          allActiveCharacters={allActiveCharacters}
+          isCreator={isCreator}
+          onParticipantsChange={setParticipantsState}
+          onExternalChange={setExternalState}
+        />
+      </div>
+
+      {/* XP Distribution (creator only) */}
+      {isCreator && (
+        <div className="mb-6">
+          <SessionXpDistribute
+            sessionId={session.id}
+            currentXpAwarded={session.xp_awarded}
+            participantCount={participantsState.length}
           />
         </div>
       )}

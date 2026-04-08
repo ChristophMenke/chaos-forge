@@ -614,7 +614,20 @@
     "transcribing": "Transkription wird erstellt...",
     "transcription": "Transkription",
     "transcriptionFailed": "Transkription fehlgeschlagen",
-    "xpEarned": "Erfahrungspunkte"
+    "xpEarned": "Erfahrungspunkte",
+    "participants": "Teilnehmer",
+    "addParticipant": "Charakter hinzufügen",
+    "removeParticipant": "Entfernen",
+    "noParticipants": "Noch keine Teilnehmer hinzugefügt.",
+    "externalParticipants": "Externe Spieler",
+    "externalParticipantsPlaceholder": "Name eingeben und Enter drücken...",
+    "distributeXp": "EP verteilen",
+    "xpAmount": "EP pro Charakter",
+    "xpDistributed": "EP an {count} Charaktere verteilt",
+    "xpAlreadyDistributed": "Bereits verteilt: {xp} EP",
+    "xpUpdateDistribution": "Aktualisieren",
+    "noParticipantsWarning": "Füge zuerst Teilnehmer hinzu, bevor du EP verteilst.",
+    "searchCharacters": "Charakter suchen..."
   },
   "tagTypes": {
     "npc": "NPC",
@@ -1487,6 +1500,7 @@
     "timeJustNow": "gerade eben",
     "timeMinutes": "vor {count} Min",
     "timeHours": "vor {count} Std",
-    "timeDays": "vor {count} Tagen"
+    "timeDays": "vor {count} Tagen",
+    "sessionXpAwarded": "{character} hat {xp} EP aus \"{sessionTitle}\" erhalten"
   }
 }

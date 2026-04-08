@@ -336,6 +336,15 @@ export interface SessionRow {
   updated_at: string;
   image_url: string | null;
   image_generated_at: string | null;
+  external_participants: string[];
+  xp_awarded: number | null;
+}
+
+export interface SessionParticipantRow {
+  id: string;
+  session_id: string;
+  character_id: string;
+  created_at: string;
 }
 
 export interface SessionEntryRow {
@@ -541,7 +550,8 @@ export type NotificationType =
   | "party_item_received"
   | "party_gold_received"
   | "trade_item_received"
-  | "trade_gold_received";
+  | "trade_gold_received"
+  | "session_xp_awarded";
 
 export interface NotificationRow {
   id: string;
