@@ -10,11 +10,18 @@ import { QuoteSection } from "@/components/session/quote-section";
 import type {
   SessionRow,
   TagRow,
-  CharacterRow,
   ChronicleNpcRow,
   ChronicleQuoteRow,
   QuoteReactionRow,
 } from "@/lib/supabase/types";
+
+type EntryWithChar = {
+  id: string;
+  session_id: string;
+  character_id: string;
+  content: string;
+  characters: { id: string; name: string; avatar_url: string | null } | null;
+};
 
 const TAG_COLORS: Record<string, string> = {
   npc: "bg-red-900/50 text-red-200",
@@ -69,21 +76,10 @@ export default async function SessionsPage() {
       .returns<QuoteReactionRow[]>(),
     supabase
       .from("session_entries")
-      .select("id, session_id, character_id, content")
+      .select("id, session_id, character_id, content, characters(id, name, avatar_url)")
       .in("session_id", sessionIds.length > 0 ? sessionIds : ["none"])
       .order("created_at", { ascending: true }),
   ]);
-
-  // Wave 3: Character data for entry previews
-  const entryCharIds = [...new Set(allEntries?.map((e) => e.character_id) ?? [])];
-  const { data: entryChars } =
-    entryCharIds.length > 0
-      ? await supabase
-          .from("characters")
-          .select("id, name, avatar_url")
-          .in("id", entryCharIds)
-          .returns<Pick<CharacterRow, "id" | "name" | "avatar_url">[]>()
-      : { data: [] as Pick<CharacterRow, "id" | "name" | "avatar_url">[] };
 
   // Group tags and entries by session
   const tagsBySession: Record<string, TagRow[]> = {};
@@ -93,14 +89,11 @@ export default async function SessionsPage() {
     if (st.tags) tagsBySession[st.session_id].push(st.tags as TagRow);
   });
 
-  const entriesBySession: Record<string, { id: string; character_id: string; content: string }[]> =
-    {};
-  allEntries?.forEach((e) => {
+  const entriesBySession: Record<string, EntryWithChar[]> = {};
+  ((allEntries as EntryWithChar[] | null) ?? []).forEach((e) => {
     if (!entriesBySession[e.session_id]) entriesBySession[e.session_id] = [];
     entriesBySession[e.session_id].push(e);
   });
-
-  const entryCharMap = new Map((entryChars ?? []).map((c) => [c.id, c]));
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6" data-testid="sessions-page">
@@ -168,24 +161,24 @@ export default async function SessionsPage() {
                     {sessionEntries.length > 0 && (
                       <div className="mt-3 space-y-1.5 border-t border-border/50 pt-2">
                         {sessionEntries.slice(0, 3).map((entry) => {
-                          const char = entryCharMap.get(entry.character_id);
+                          const char = entry.characters;
                           return (
                             <div
                               key={entry.id}
                               className="flex items-start gap-2 text-xs text-muted-foreground"
                             >
-                              <AvatarDisplay
-                                name={char?.name ?? "?"}
-                                avatarUrl={char?.avatar_url ?? null}
-                                size={20}
-                              />
-                              <div className="min-w-0">
+                              <span aria-hidden="true" className="shrink-0">
+                                <AvatarDisplay
+                                  name={char?.name ?? "?"}
+                                  avatarUrl={char?.avatar_url ?? null}
+                                  size={20}
+                                />
+                              </span>
+                              <div className="line-clamp-2 min-w-0">
                                 <span className="font-medium text-foreground/80">
                                   {char?.name ?? "?"}:
                                 </span>{" "}
-                                {entry.content.length > 120
-                                  ? entry.content.slice(0, 120) + "\u2026"
-                                  : entry.content}
+                                {entry.content}
                               </div>
                             </div>
                           );
