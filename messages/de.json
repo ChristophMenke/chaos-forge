@@ -1411,6 +1411,7 @@
     "npcLevel": "Stufe",
     "npcAbilities": "Attribute",
     "npcHp": "Trefferpunkte",
+    "npcHpCurrent": "Aktuell",
     "npcCopyFromCharacter": "Charakter kopieren",
     "npcSelectCharacter": "Charakter als NPC kopieren:",
     "npcManage": "Verwalten",

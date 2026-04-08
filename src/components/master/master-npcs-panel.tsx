@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
@@ -388,7 +388,6 @@ export function MasterNpcsPanel({
       {showCopyPicker && (
         <CopyPicker
           characters={characters}
-          gmUserId={gmUserId}
           copyingCharId={copyingCharId}
           copiedCharName={copiedCharName}
           onCopy={async (charId) => {
@@ -479,22 +478,27 @@ export function MasterNpcsPanel({
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-3 pt-2">
+            <div
+              className="flex items-center justify-center gap-3 pt-2"
+              data-testid="gm-npc-pagination"
+            >
               <button
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
                 disabled={safePage === 0}
                 className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent/50 disabled:opacity-30"
+                data-testid="gm-npc-prev"
               >
                 <ChevronLeft className="h-4 w-4" />
                 {t("paginationPrev")}
               </button>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-muted-foreground" data-testid="gm-npc-page-info">
                 {t("paginationPage", { current: safePage + 1, total: totalPages })}
               </span>
               <button
                 onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                 disabled={safePage >= totalPages - 1}
                 className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent/50 disabled:opacity-30"
+                data-testid="gm-npc-next"
               >
                 {t("paginationNext")}
                 <ChevronRight className="h-4 w-4" />
@@ -832,6 +836,7 @@ function NpcDetailModal({
   t: ReturnType<typeof useTranslations<"master">>;
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const closeRef = useRef<HTMLButtonElement>(null);
   const name = getUnifiedName(u);
   const tier = getUnifiedTier(u);
   const imageUrl = getUnifiedAvatarUrl(u);
@@ -839,9 +844,24 @@ function NpcDetailModal({
   const visible = getUnifiedVisible(u);
   const TierIcon = TIER_ICON[tier] ?? User;
 
+  useEffect(() => {
+    closeRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="npc-detail-title"
       onClick={onClose}
       data-testid="gm-npc-detail"
     >
@@ -859,7 +879,12 @@ function NpcDetailModal({
                 )}
               </div>
               <div className="flex-1">
-                <h2 className="font-heading text-xl font-bold text-foreground">{name}</h2>
+                <h2
+                  id="npc-detail-title"
+                  className="font-heading text-xl font-bold text-foreground"
+                >
+                  {name}
+                </h2>
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
                   <span
                     className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs ${TIER_COLOR[tier]}`}
@@ -886,6 +911,7 @@ function NpcDetailModal({
                 </div>
               </div>
               <button
+                ref={closeRef}
                 onClick={onClose}
                 className="shrink-0 rounded-full p-1.5 text-muted-foreground hover:bg-accent/50"
                 data-testid="gm-npc-detail-close"
@@ -1098,14 +1124,12 @@ function StatBlock({
 
 function CopyPicker({
   characters,
-  gmUserId: _gmUserId,
   copyingCharId,
   copiedCharName,
   onCopy,
   t,
 }: {
   characters: CharacterRow[];
-  gmUserId: string;
   copyingCharId: string | null;
   copiedCharName: string | null;
   onCopy: (charId: string) => void;
@@ -1160,6 +1184,15 @@ function NpcFormModal({
   onCancel: () => void;
 }) {
   const t = useTranslations("master");
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onCancel();
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onCancel]);
+
   const [tier, setTier] = useState<"normal" | "advanced">(npc?.tier ?? "normal");
   const [name, setName] = useState(npc?.name ?? "");
   const [location, setLocation] = useState(npc?.location ?? "");
@@ -1215,6 +1248,9 @@ function NpcFormModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="npc-form-title"
       onClick={onCancel}
     >
       <div onClick={(e) => e.stopPropagation()}>
@@ -1223,7 +1259,7 @@ function NpcFormModal({
           data-testid="gm-npc-form"
         >
           <div className="flex items-center justify-between">
-            <h3 className="font-heading text-sm font-semibold">
+            <h3 id="npc-form-title" className="font-heading text-sm font-semibold">
               {npc ? t("npcEdit") : t("npcCreate")}
             </h3>
             <button
@@ -1376,7 +1412,9 @@ function NpcFormModal({
                   />
                 </div>
                 <div>
-                  <label className={labelClass}>{t("npcHp")} (Aktuell)</label>
+                  <label className={labelClass}>
+                    {t("npcHp")} ({t("npcHpCurrent")})
+                  </label>
                   <input
                     type="number"
                     value={hpCurrent}

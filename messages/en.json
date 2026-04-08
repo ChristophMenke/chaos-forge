@@ -1411,6 +1411,7 @@
     "npcLevel": "Level",
     "npcAbilities": "Abilities",
     "npcHp": "Hit Points",
+    "npcHpCurrent": "Current",
     "npcCopyFromCharacter": "Copy Character",
     "npcSelectCharacter": "Copy character as NPC:",
     "npcManage": "Manage",
