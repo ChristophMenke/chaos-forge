@@ -177,6 +177,7 @@ export default async function DashboardPage() {
       .from("characters")
       .select("*")
       .eq("user_id", user.id)
+      .neq("is_npc", true)
       .order("last_accessed_at", { ascending: false })
       .returns<CharacterRow[]>(),
     supabase
