@@ -8,9 +8,6 @@ const TEST_DOMAIN = "@chaos-forge.de";
  * Does NOT delete characters. Only works for @chaos-forge.de test users.
  */
 export async function POST(request: Request) {
-  if (process.env.NODE_ENV === "production") {
-    return NextResponse.json({ error: "not_found" }, { status: 404 });
-  }
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
