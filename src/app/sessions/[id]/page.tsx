@@ -8,6 +8,7 @@ import type {
   TagRow,
   CharacterRow,
   XpHistoryRow,
+  SessionParticipantRow,
 } from "@/lib/supabase/types";
 
 interface SessionPageProps {
@@ -75,6 +76,32 @@ export default async function SessionPage({ params }: SessionPageProps) {
     .order("created_at", { ascending: false })
     .returns<XpHistoryRow[]>();
 
+  // Fetch session participants
+  const { data: participantRows } = await supabase
+    .from("session_participants")
+    .select("*")
+    .eq("session_id", id)
+    .returns<SessionParticipantRow[]>();
+
+  const participantCharIds = (participantRows ?? []).map((p) => p.character_id);
+  const { data: participantChars } =
+    participantCharIds.length > 0
+      ? await supabase
+          .from("characters")
+          .select("id, name, avatar_url, race_id, class_id")
+          .in("id", participantCharIds)
+          .returns<Pick<CharacterRow, "id" | "name" | "avatar_url" | "race_id" | "class_id">[]>()
+      : { data: [] as Pick<CharacterRow, "id" | "name" | "avatar_url" | "race_id" | "class_id">[] };
+
+  // Fetch all active non-NPC characters for the participant picker
+  const { data: allActiveChars } = await supabase
+    .from("characters")
+    .select("id, name, avatar_url, race_id, class_id")
+    .eq("is_active", true)
+    .neq("is_npc", true)
+    .order("name")
+    .returns<Pick<CharacterRow, "id" | "name" | "avatar_url" | "race_id" | "class_id">[]>();
+
   return (
     <SessionDetail
       session={session}
@@ -87,6 +114,9 @@ export default async function SessionPage({ params }: SessionPageProps) {
       isCreator={session.created_by === user.id}
       xpHistory={sessionXpHistory ?? []}
       entryCharacterMap={Object.fromEntries((entryCharacters ?? []).map((c) => [c.id, c]))}
+      participants={participantChars ?? []}
+      externalParticipants={session.external_participants}
+      allActiveCharacters={allActiveChars ?? []}
     />
   );
 }

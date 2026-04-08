@@ -1,7 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Package, Coins, ArrowRightLeft } from "lucide-react";
+import { Package, Coins, ArrowRightLeft, Sparkles } from "lucide-react";
 import type { NotificationRow } from "@/lib/supabase/types";
 
 interface NotificationItemProps {
@@ -25,6 +26,7 @@ function getRelativeTime(
 
 export function NotificationItem({ notification, onMarkRead }: NotificationItemProps) {
   const t = useTranslations("notifications");
+  const router = useRouter();
   const details = notification.details;
 
   const character = (details.character_name as string) ?? "";
@@ -39,6 +41,11 @@ export function NotificationItem({ notification, onMarkRead }: NotificationItemP
     party_gold_received: t("partyGoldReceived", { character }),
     trade_item_received: t("tradeItemReceived", { character, from, item }),
     trade_gold_received: t("tradeGoldReceived", { character, from }),
+    session_xp_awarded: t("sessionXpAwarded", {
+      character,
+      xp: ((details.xp_amount as number) ?? 0).toLocaleString(),
+      sessionTitle: (details.session_title as string) ?? "",
+    }),
   };
 
   const message = messageMap[notification.type] ?? notification.type;
@@ -57,27 +64,49 @@ export function NotificationItem({ notification, onMarkRead }: NotificationItemP
     if (sp > 0) parts.push(`${sp} SP`);
     if (cp > 0) parts.push(`${cp} CP`);
     subtitle = parts.join(", ");
-  } else if (quantity > 1) {
+  } else if (notification.type !== "session_xp_awarded" && quantity > 1) {
     subtitle = t("quantityDetail", { count: quantity });
   }
 
   const iconClassName = `mt-0.5 h-4 w-4 shrink-0 ${
     notification.is_read ? "text-muted-foreground" : "text-primary"
   }`;
-  const icon = notification.type.includes("gold") ? (
-    <Coins className={iconClassName} />
-  ) : notification.type.includes("trade") ? (
-    <ArrowRightLeft className={iconClassName} />
-  ) : (
-    <Package className={iconClassName} />
-  );
+
+  const icon =
+    notification.type === "session_xp_awarded" ? (
+      <Sparkles className={iconClassName} />
+    ) : notification.type.includes("gold") ? (
+      <Coins className={iconClassName} />
+    ) : notification.type.includes("trade") ? (
+      <ArrowRightLeft className={iconClassName} />
+    ) : (
+      <Package className={iconClassName} />
+    );
+
+  function handleClick() {
+    if (!notification.is_read) {
+      onMarkRead(notification.id);
+    }
+
+    // Navigate to XP dialog for session_xp_awarded notifications
+    if (notification.type === "session_xp_awarded" && notification.character_id) {
+      const xpAmount = (details.xp_amount as number) ?? 0;
+      const sessionId = (details.session_id as string) ?? "";
+      const params = new URLSearchParams({
+        openXp: "1",
+        ...(sessionId && { sessionId }),
+        ...(xpAmount > 0 && { xpAmount: xpAmount.toString() }),
+      });
+      router.push(`/characters/${notification.character_id}/manage?${params.toString()}`);
+    }
+  }
 
   return (
     <button
       className={`flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-left transition-colors hover:bg-accent/30 ${
         notification.is_read ? "opacity-60" : ""
       }`}
-      onClick={() => !notification.is_read && onMarkRead(notification.id)}
+      onClick={handleClick}
       data-testid={`notification-item-${notification.id}`}
     >
       {icon}

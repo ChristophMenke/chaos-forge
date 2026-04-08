@@ -25,6 +25,8 @@ interface XpAddDialogProps {
   sessions: Pick<SessionRow, "id" | "title" | "session_date">[];
   onClose: () => void;
   onClassesChange: (classes: CharacterClassRow[]) => void;
+  initialSessionId?: string;
+  initialAmount?: number;
 }
 
 export function XpAddDialog({
@@ -34,12 +36,14 @@ export function XpAddDialog({
   sessions,
   onClose,
   onClassesChange,
+  initialSessionId,
+  initialAmount,
 }: XpAddDialogProps) {
   const t = useTranslations("sheet");
   const tc = useTranslations("common");
   const locale = useLocale();
-  const [xpAmount, setXpAmount] = useState<string>("");
-  const [selectedSessionId, setSelectedSessionId] = useState<string>("");
+  const [xpAmount, setXpAmount] = useState<string>(initialAmount ? initialAmount.toString() : "");
+  const [selectedSessionId, setSelectedSessionId] = useState<string>(initialSessionId ?? "");
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
 

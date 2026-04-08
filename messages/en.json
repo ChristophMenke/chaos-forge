@@ -614,7 +614,20 @@
     "transcribing": "Transcribing...",
     "transcription": "Transcription",
     "transcriptionFailed": "Transcription failed",
-    "xpEarned": "Experience Points"
+    "xpEarned": "Experience Points",
+    "participants": "Participants",
+    "addParticipant": "Add character",
+    "removeParticipant": "Remove",
+    "noParticipants": "No participants added yet.",
+    "externalParticipants": "External Players",
+    "externalParticipantsPlaceholder": "Enter name and press Enter...",
+    "distributeXp": "Distribute XP",
+    "xpAmount": "XP per character",
+    "xpDistributed": "XP distributed to {count} characters",
+    "xpAlreadyDistributed": "Already distributed: {xp} XP",
+    "xpUpdateDistribution": "Update",
+    "noParticipantsWarning": "Add participants first before distributing XP.",
+    "searchCharacters": "Search character..."
   },
   "tagTypes": {
     "npc": "NPC",
@@ -1487,6 +1500,7 @@
     "timeJustNow": "just now",
     "timeMinutes": "{count}m ago",
     "timeHours": "{count}h ago",
-    "timeDays": "{count}d ago"
+    "timeDays": "{count}d ago",
+    "sessionXpAwarded": "{character} received {xp} XP from \"{sessionTitle}\""
   }
 }

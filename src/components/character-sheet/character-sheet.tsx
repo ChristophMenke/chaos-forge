@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useCallback, useMemo, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { localized } from "@/lib/utils/localize";
@@ -129,6 +129,7 @@ export function CharacterSheet({
   basePath = "/characters",
 }: CharacterSheetProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const locale = useLocale();
   const t = useTranslations("sheet");
   const tc = useTranslations("characters");
@@ -158,6 +159,18 @@ export function CharacterSheet({
   const [addClassId, setAddClassId] = useState("");
 
   const isOwner = character.user_id === userId;
+
+  // Auto-open XP dialog from URL params (e.g. from notification click)
+  const openXpParam = searchParams.get("openXp");
+  const initialSessionId = searchParams.get("sessionId") ?? undefined;
+  const xpAmountParam = searchParams.get("xpAmount");
+  const initialXpAmount = xpAmountParam ? parseInt(xpAmountParam, 10) : undefined;
+
+  useEffect(() => {
+    if (openXpParam === "1") {
+      setXpDialogOpen(true);
+    }
+  }, [openXpParam]);
 
   // Derive multiclass data
   const activeClasses = charClasses.filter((cc) => cc.is_active);
@@ -1662,6 +1675,8 @@ export function CharacterSheet({
             sessions={sessions}
             onClose={() => setXpDialogOpen(false)}
             onClassesChange={setCharClasses}
+            initialSessionId={initialSessionId}
+            initialAmount={initialXpAmount}
           />
 
           <Separator />
