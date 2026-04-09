@@ -10,6 +10,8 @@ import {
   Plus,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
   Sparkles,
 } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
@@ -23,8 +25,10 @@ import {
   injectItemToParty,
   createCustomWeaponGm,
   createCustomArmorGm,
+  createMagicItem,
 } from "@/app/master/actions";
 import { MasterMagicItemsTab } from "./master-magic-items-tab";
+import { MagicItemForm } from "@/components/shared/magic-item-form";
 import { BookmarkToggle } from "./bookmark-toggle";
 import type {
   CharacterRow,
@@ -56,6 +60,8 @@ interface MasterItemsPanelProps {
 
 type ItemTab = "weapons" | "armor" | "items" | "magic";
 
+const PAGE_SIZE = 10;
+
 export function MasterItemsPanel({
   weapons,
   armor,
@@ -72,9 +78,11 @@ export function MasterItemsPanel({
   const locale = useLocale();
   const [search, setSearch] = useState("");
   const [itemTab, setItemTab] = useState<ItemTab>("weapons");
+  const [page, setPage] = useState(1);
   const [injectingKey, setInjectingKey] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [showMagicCreate, setShowMagicCreate] = useState(false);
   const [createType, setCreateType] = useState<"weapon" | "armor" | "item">("weapon");
   const [creating, setCreating] = useState(false);
 
@@ -221,34 +229,47 @@ export function MasterItemsPanel({
 
   // Filter items by search
   const filteredWeapons = useMemo(() => {
-    if (!search.trim()) return weapons.slice(0, 30);
+    if (!search.trim()) return weapons;
     const q = search.toLowerCase();
-    return weapons
-      .filter(
-        (w) => w.name.toLowerCase().includes(q) || (w.name_en?.toLowerCase().includes(q) ?? false)
-      )
-      .slice(0, 30);
+    return weapons.filter(
+      (w) => w.name.toLowerCase().includes(q) || (w.name_en?.toLowerCase().includes(q) ?? false)
+    );
   }, [weapons, search]);
 
   const filteredArmor = useMemo(() => {
-    if (!search.trim()) return armor.slice(0, 30);
+    if (!search.trim()) return armor;
     const q = search.toLowerCase();
-    return armor
-      .filter(
-        (a) => a.name.toLowerCase().includes(q) || (a.name_en?.toLowerCase().includes(q) ?? false)
-      )
-      .slice(0, 30);
+    return armor.filter(
+      (a) => a.name.toLowerCase().includes(q) || (a.name_en?.toLowerCase().includes(q) ?? false)
+    );
   }, [armor, search]);
 
   const filteredItems = useMemo(() => {
-    if (!search.trim()) return generalItems.slice(0, 30);
+    if (!search.trim()) return generalItems;
     const q = search.toLowerCase();
-    return generalItems
-      .filter(
-        (i) => i.name.toLowerCase().includes(q) || (i.name_en?.toLowerCase().includes(q) ?? false)
-      )
-      .slice(0, 30);
+    return generalItems.filter(
+      (i) => i.name.toLowerCase().includes(q) || (i.name_en?.toLowerCase().includes(q) ?? false)
+    );
   }, [generalItems, search]);
+
+  const [magicItemFilteredCount, setMagicItemFilteredCount] = useState(magicItems.length);
+
+  // Current tab's total count for pagination
+  const currentTabTotal =
+    itemTab === "weapons"
+      ? filteredWeapons.length
+      : itemTab === "armor"
+        ? filteredArmor.length
+        : itemTab === "items"
+          ? filteredItems.length
+          : magicItemFilteredCount;
+  const totalPages = Math.max(1, Math.ceil(currentTabTotal / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+
+  // Paginated slices for non-magic tabs
+  const pagedWeapons = filteredWeapons.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const pagedArmor = filteredArmor.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const pagedItems = filteredItems.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   async function handleInjectToCharacter(
     characterId: string,
@@ -328,19 +349,42 @@ export function MasterItemsPanel({
 
   return (
     <div data-testid="gm-items-panel">
-      {/* Create Custom Item */}
-      <div className="mb-3">
-        <button
-          onClick={() => setShowCreate(!showCreate)}
-          className="flex w-full items-center justify-between rounded-lg bg-primary/10 px-3 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
-          data-testid="gm-create-toggle"
-        >
-          <span className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            {t("createCustom")}
-          </span>
-          {showCreate ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-        </button>
+      {/* Create Buttons */}
+      <div className="mb-3 space-y-2">
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              setShowCreate(!showCreate);
+              setShowMagicCreate(false);
+            }}
+            className="flex flex-1 items-center justify-between rounded-lg bg-primary/10 px-3 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
+            data-testid="gm-create-toggle"
+          >
+            <span className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              {t("createCustom")}
+            </span>
+            {showCreate ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </button>
+          <button
+            onClick={() => {
+              setShowMagicCreate(!showMagicCreate);
+              setShowCreate(false);
+            }}
+            className="flex flex-1 items-center justify-between rounded-lg bg-primary/10 px-3 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
+            data-testid="gm-magic-create-toggle"
+          >
+            <span className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4" />
+              {t("createMagicItem")}
+            </span>
+            {showMagicCreate ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </button>
+        </div>
 
         {showCreate && (
           <GlassCard hover={false} className="mt-2 p-3" data-testid="gm-create-form">
@@ -378,7 +422,7 @@ export function MasterItemsPanel({
                 {/* Proficiency selector — which existing weapon category does this belong to? */}
                 <div className="relative">
                   <span className="mb-1 block text-[10px] md:text-xs text-muted-foreground">
-                    Proficiency
+                    {t("proficiency")}
                   </span>
                   <input
                     type="text"
@@ -386,9 +430,7 @@ export function MasterItemsPanel({
                       wf.profSelected
                         ? (proficiencyEntries.find((e) => e.name === wf.profSelected)?.label ??
                           wf.profSelected)
-                        : locale === "de"
-                          ? "z.B. Langschwert..."
-                          : "e.g. Long Sword..."
+                        : t("proficiencyPlaceholderWeapon")
                     }
                     value={wf.profSearch}
                     onChange={(e) => setWf({ profSearch: e.target.value, profSelected: null })}
@@ -523,7 +565,7 @@ export function MasterItemsPanel({
                 {/* Armor/Shield Proficiency selector */}
                 <div className="relative">
                   <span className="mb-1 block text-[10px] md:text-xs text-muted-foreground">
-                    Proficiency
+                    {t("proficiency")}
                   </span>
                   <input
                     type="text"
@@ -531,9 +573,7 @@ export function MasterItemsPanel({
                       af.profSelected
                         ? (armorProfEntries.find((e) => e.name === af.profSelected)?.label ??
                           af.profSelected)
-                        : locale === "de"
-                          ? "z.B. Kettenpanzer..."
-                          : "e.g. Chain Mail..."
+                        : t("proficiencyPlaceholderArmor")
                     }
                     value={af.profSearch}
                     onChange={(e) => setAf({ profSearch: e.target.value, profSelected: null })}
@@ -688,6 +728,27 @@ export function MasterItemsPanel({
             )}
           </GlassCard>
         )}
+
+        {showMagicCreate && (
+          <GlassCard hover={false} className="p-3" data-testid="gm-magic-item-create">
+            <MagicItemForm
+              onSubmit={async (formData) => {
+                const result = await createMagicItem({
+                  name: formData.name,
+                  name_en: formData.nameEn || undefined,
+                  category: formData.category || undefined,
+                  magic_effects: formData.effects,
+                });
+                if (result.success) {
+                  setShowMagicCreate(false);
+                  onMagicItemsChange();
+                }
+              }}
+              submitLabel={t("createAndDistribute")}
+              loading={false}
+            />
+          </GlassCard>
+        )}
       </div>
 
       {/* Search */}
@@ -695,7 +756,10 @@ export function MasterItemsPanel({
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
           placeholder={t("searchItems")}
           className="pl-10"
           data-testid="gm-item-search"
@@ -709,7 +773,10 @@ export function MasterItemsPanel({
             key={tab.id}
             role="tab"
             aria-selected={itemTab === tab.id}
-            onClick={() => setItemTab(tab.id)}
+            onClick={() => {
+              setItemTab(tab.id);
+              setPage(1);
+            }}
             className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 text-xs font-medium transition-colors ${
               itemTab === tab.id
                 ? "bg-primary/20 text-primary"
@@ -726,7 +793,7 @@ export function MasterItemsPanel({
       {/* Item List */}
       <div className="space-y-2">
         {itemTab === "weapons" &&
-          filteredWeapons.map((w) => (
+          pagedWeapons.map((w) => (
             <GlassCard key={w.id} hover={false} className="p-3" data-testid={`gm-weapon-${w.id}`}>
               <div className="flex items-center justify-between">
                 <div>
@@ -766,7 +833,7 @@ export function MasterItemsPanel({
           ))}
 
         {itemTab === "armor" &&
-          filteredArmor.map((a) => (
+          pagedArmor.map((a) => (
             <GlassCard key={a.id} hover={false} className="p-3" data-testid={`gm-armor-${a.id}`}>
               <div className="flex items-center justify-between">
                 <div>
@@ -807,7 +874,7 @@ export function MasterItemsPanel({
           ))}
 
         {itemTab === "items" &&
-          filteredItems.map((item) => (
+          pagedItems.map((item) => (
             <GlassCard
               key={item.id}
               hover={false}
@@ -842,6 +909,12 @@ export function MasterItemsPanel({
             userId={userId}
             onBookmarkToggle={onBookmarkToggle}
             onMagicItemsChange={onMagicItemsChange}
+            search={search}
+            page={safePage}
+            pageSize={PAGE_SIZE}
+            onPageChange={setPage}
+            onToast={showToastMsg}
+            onFilteredCountChange={setMagicItemFilteredCount}
           />
         )}
 
@@ -851,6 +924,36 @@ export function MasterItemsPanel({
           <p className="py-8 text-center text-sm text-muted-foreground">{t("noResults")}</p>
         )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div
+          className="mt-3 flex items-center justify-center gap-2"
+          data-testid="gm-items-pagination"
+        >
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={safePage <= 1}
+            onClick={() => setPage(safePage - 1)}
+            data-testid="gm-items-page-prev"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            {safePage} / {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={safePage >= totalPages}
+            onClick={() => setPage(safePage + 1)}
+            data-testid="gm-items-page-next"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
 
       {/* Toast */}
       {toast && (

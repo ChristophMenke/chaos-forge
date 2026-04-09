@@ -33,11 +33,14 @@ import type {
   ArmorRow,
   CharacterInventoryWithDetails,
   GeneralItemRow,
+  MagicItemRow,
   CharacterClassRow,
   CharacterWeaponProficiencyRow,
 } from "@/lib/supabase/types";
 import { MagicItemForm, type MagicItemFormData } from "@/components/shared/magic-item-form";
 import { MagicEffectBadges } from "@/components/shared/magic-effect-badges";
+import { UseConsumableDialog } from "./use-consumable-dialog";
+import { isConsumable, canUseConsumable, getConsumableType } from "@/lib/rules/consumables";
 
 interface TabEquipmentProps {
   characterId: string;
@@ -49,6 +52,7 @@ interface TabEquipmentProps {
   dexDefenseAdj: number;
   inventory: CharacterInventoryWithDetails[];
   allGeneralItems: GeneralItemRow[];
+  allMagicItems?: MagicItemRow[];
   baseMovement: number;
   readOnly?: boolean;
   strHitAdj: number;
@@ -59,6 +63,9 @@ interface TabEquipmentProps {
   ignoreEncumbrance?: boolean;
   characterKit?: string | null;
   epicAcBonus?: number;
+  hpCurrent?: number;
+  hpMax?: number;
+  onHpChange?: (newHp: number) => void;
   onEquipmentChange: (equipment: CharacterEquipmentWithDetails[]) => void;
   onInventoryChange: (inventory: CharacterInventoryWithDetails[]) => void;
   onIgnoreEncumbranceChange: (value: boolean) => void;
@@ -79,6 +86,7 @@ export function TabEquipment({
   dexDefenseAdj,
   inventory,
   allGeneralItems,
+  allMagicItems = [],
   baseMovement,
   readOnly = false,
   strHitAdj,
@@ -89,6 +97,9 @@ export function TabEquipment({
   ignoreEncumbrance = true,
   characterKit,
   epicAcBonus = 0,
+  hpCurrent = 0,
+  hpMax = 0,
+  onHpChange,
   onEquipmentChange,
   onInventoryChange,
   onIgnoreEncumbranceChange,
@@ -195,6 +206,7 @@ export function TabEquipment({
   });
 
   const [editingMagicItemId, setEditingMagicItemId] = useState<string | null>(null);
+  const [usingConsumableId, setUsingConsumableId] = useState<string | null>(null);
 
   const [showAddInventory, setShowAddInventory] = useState(false);
   const inventorySearchRef = useRef<HTMLInputElement>(null);
@@ -290,6 +302,45 @@ export function TabEquipment({
     setLoading(false);
   }
 
+  async function handleUseConsumable(
+    item: CharacterEquipmentWithDetails,
+    result: { hpHealed?: number; chargesUsed?: number }
+  ) {
+    const consumableType = getConsumableType(item);
+    if (!consumableType) return;
+
+    setLoading(true);
+    const supabase = createClient();
+    try {
+      if (consumableType === "potion") {
+        if (result.hpHealed && onHpChange) {
+          onHpChange(Math.min(hpMax, hpCurrent + result.hpHealed));
+        }
+        await supabase.from("character_equipment").delete().eq("id", item.id);
+        onEquipmentChange(equipment.filter((e) => e.id !== item.id));
+      } else if (consumableType === "scroll") {
+        await supabase.from("character_equipment").delete().eq("id", item.id);
+        onEquipmentChange(equipment.filter((e) => e.id !== item.id));
+      } else if (consumableType === "charged" && result.chargesUsed) {
+        const newCharges = Math.max(
+          0,
+          (item.magic_effects?.current_charges ?? 0) - result.chargesUsed
+        );
+        const updatedEffects = { ...item.magic_effects, current_charges: newCharges };
+        await supabase
+          .from("character_equipment")
+          .update({ magic_effects: updatedEffects })
+          .eq("id", item.id);
+        onEquipmentChange(
+          equipment.map((e) => (e.id === item.id ? { ...e, magic_effects: updatedEffects } : e))
+        );
+      }
+      setUsingConsumableId(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function addItem(type: "weapon" | "armor", id: string) {
     setLoading(true);
     const supabase = createClient();
@@ -332,6 +383,49 @@ export function TabEquipment({
       (a) => a.name.toLowerCase().includes(q) || (a.name_en ?? "").toLowerCase().includes(q)
     );
   }, [allArmor, searchQuery]);
+
+  const filteredMagicItems = useMemo(() => {
+    const q = searchQuery.toLowerCase();
+    if (!q) return allMagicItems;
+    return allMagicItems.filter(
+      (m) =>
+        m.name.toLowerCase().includes(q) ||
+        (m.name_en ?? "").toLowerCase().includes(q) ||
+        (m.category ?? "").toLowerCase().includes(q)
+    );
+  }, [allMagicItems, searchQuery]);
+
+  const [showMagicItemCreate, setShowMagicItemCreate] = useState(false);
+
+  async function addMagicItemFromCatalog(item: MagicItemRow) {
+    setLoading(true);
+    const supabase = createClient();
+    try {
+      const label = item.category ? `${item.name} (${item.category})` : item.name;
+      const { data } = await supabase
+        .from("character_equipment")
+        .insert({
+          character_id: characterId,
+          weapon_id: null,
+          armor_id: null,
+          quantity: 1,
+          equipped: false,
+          hit_bonus: 0,
+          damage_bonus: 0,
+          magic_effects: item.magic_effects,
+          custom_label: label,
+          magic_item_id: item.id,
+        })
+        .select("*, weapon:weapons(*), armor:armor(*)")
+        .single();
+      if (data) {
+        onEquipmentChange([...equipment, data as CharacterEquipmentWithDetails]);
+        setShowAddDialog(false);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function createCustomWeapon() {
     if (!customWeapon.name.trim() || !weaponProfSelected) return;
@@ -797,6 +891,17 @@ export function TabEquipment({
                     )}
                   </div>
                   <div className="flex items-center gap-1">
+                    {!readOnly && canUseConsumable(item) && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        disabled={loading}
+                        onClick={() => setUsingConsumableId(item.id)}
+                        data-testid={`use-consumable-btn-${item.id}`}
+                      >
+                        {t("useItem")}
+                      </Button>
+                    )}
                     {!readOnly && !item.weapon_id && !item.armor_id && item.custom_label && (
                       <Button
                         variant="ghost"
@@ -1103,40 +1208,8 @@ export function TabEquipment({
             <div className="max-h-[50vh] overflow-y-auto p-4">
               {addTab === "weapons" && (
                 <div className="flex flex-col gap-2">
-                  {filteredWeapons.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">{t("noWeapons")}</p>
-                  ) : (
-                    filteredWeapons.map((weapon) => (
-                      <div
-                        key={weapon.id}
-                        className="flex items-center justify-between rounded-md border border-border p-3"
-                        data-testid={`add-weapon-${weapon.id}`}
-                      >
-                        <div>
-                          <div className="font-medium">
-                            {localized(weapon.name, weapon.name_en, locale)}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {t("damage")}: {weapon.damage_sm}/{weapon.damage_l} | {t("speed")}:{" "}
-                            {weapon.speed} | {t("weight")}: {lbsToKg(weapon.weight)} kg |{" "}
-                            {t("cost")}: {weapon.cost_gp} GP
-                          </div>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={loading}
-                          onClick={() => addItem("weapon", weapon.id)}
-                          data-testid={`add-weapon-btn-${weapon.id}`}
-                        >
-                          {t("addItem")}
-                        </Button>
-                      </div>
-                    ))
-                  )}
-
-                  {/* Custom weapon creation */}
-                  <div className="mt-2 border-t border-border pt-3">
+                  {/* Custom weapon creation — at top */}
+                  <div className="border-b border-border pb-2">
                     {!showCustomWeaponForm ? (
                       <Button
                         variant="outline"
@@ -1166,7 +1239,7 @@ export function TabEquipment({
                         {/* Proficiency Autocomplete */}
                         <div className="relative">
                           <span className="mb-1 block text-xs text-muted-foreground">
-                            Proficiency
+                            {t("proficiency")}
                           </span>
                           <input
                             type="text"
@@ -1174,9 +1247,7 @@ export function TabEquipment({
                               weaponProfSelected
                                 ? (weaponProfEntries.find((e) => e.name === weaponProfSelected)
                                     ?.label ?? weaponProfSelected)
-                                : locale === "de"
-                                  ? "z.B. Langschwert..."
-                                  : "e.g. Long Sword..."
+                                : t("proficiencyPlaceholderWeapon")
                             }
                             value={weaponProfSearch}
                             onChange={(e) => {
@@ -1389,43 +1460,45 @@ export function TabEquipment({
                       </div>
                     )}
                   </div>
-                </div>
-              )}
-              {addTab === "armor" && (
-                <div className="flex flex-col gap-2">
-                  {filteredArmor.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">{t("noArmorAvailable")}</p>
+
+                  {/* Weapons catalog list */}
+                  {filteredWeapons.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">{t("noWeapons")}</p>
                   ) : (
-                    filteredArmor.map((armor) => (
+                    filteredWeapons.map((weapon) => (
                       <div
-                        key={armor.id}
+                        key={weapon.id}
                         className="flex items-center justify-between rounded-md border border-border p-3"
-                        data-testid={`add-armor-${armor.id}`}
+                        data-testid={`add-weapon-${weapon.id}`}
                       >
                         <div>
                           <div className="font-medium">
-                            {localized(armor.name, armor.name_en, locale)}
+                            {localized(weapon.name, weapon.name_en, locale)}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {t("acValue")}: {armor.ac} | {t("weight")}: {lbsToKg(armor.weight)} kg |{" "}
-                            {t("cost")}: {armor.cost_gp} GP
+                            {t("damage")}: {weapon.damage_sm}/{weapon.damage_l} | {t("speed")}:{" "}
+                            {weapon.speed} | {t("weight")}: {lbsToKg(weapon.weight)} kg |{" "}
+                            {t("cost")}: {weapon.cost_gp} GP
                           </div>
                         </div>
                         <Button
                           variant="outline"
                           size="sm"
                           disabled={loading}
-                          onClick={() => addItem("armor", armor.id)}
-                          data-testid={`add-armor-btn-${armor.id}`}
+                          onClick={() => addItem("weapon", weapon.id)}
+                          data-testid={`add-weapon-btn-${weapon.id}`}
                         >
                           {t("addItem")}
                         </Button>
                       </div>
                     ))
                   )}
-
-                  {/* Custom armor creation */}
-                  <div className="mt-2 border-t border-border pt-3">
+                </div>
+              )}
+              {addTab === "armor" && (
+                <div className="flex flex-col gap-2">
+                  {/* Custom armor creation — at top */}
+                  <div className="border-b border-border pb-2">
                     {!showCustomArmorForm ? (
                       <Button
                         variant="outline"
@@ -1453,7 +1526,7 @@ export function TabEquipment({
                         {/* Armor/Shield Proficiency Autocomplete */}
                         <div className="relative">
                           <span className="mb-1 block text-xs text-muted-foreground">
-                            Proficiency
+                            {t("proficiency")}
                           </span>
                           <input
                             type="text"
@@ -1461,9 +1534,7 @@ export function TabEquipment({
                               armorProfSelected
                                 ? (armorProfEntries.find((e) => e.name === armorProfSelected)
                                     ?.label ?? armorProfSelected)
-                                : locale === "de"
-                                  ? "z.B. Kettenpanzer..."
-                                  : "e.g. Chain Mail..."
+                                : t("proficiencyPlaceholderArmor")
                             }
                             value={armorProfSearch}
                             onChange={(e) => {
@@ -1648,11 +1719,108 @@ export function TabEquipment({
                       </div>
                     )}
                   </div>
+
+                  {/* Armor catalog list */}
+                  {filteredArmor.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">{t("noArmorAvailable")}</p>
+                  ) : (
+                    filteredArmor.map((armor) => (
+                      <div
+                        key={armor.id}
+                        className="flex items-center justify-between rounded-md border border-border p-3"
+                        data-testid={`add-armor-${armor.id}`}
+                      >
+                        <div>
+                          <div className="font-medium">
+                            {localized(armor.name, armor.name_en, locale)}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {t("acValue")}: {armor.ac} | {t("weight")}: {lbsToKg(armor.weight)} kg |{" "}
+                            {t("cost")}: {armor.cost_gp} GP
+                          </div>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={loading}
+                          onClick={() => addItem("armor", armor.id)}
+                          data-testid={`add-armor-btn-${armor.id}`}
+                        >
+                          {t("addItem")}
+                        </Button>
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
               {addTab === "magic" && (
-                <div className="max-h-[60vh] overflow-y-auto p-2">
-                  <MagicItemForm onSubmit={createMagicItem} loading={loading} />
+                <div className="flex flex-col gap-2">
+                  {/* Create custom magic item — collapsible at top */}
+                  <div className="border-b border-border pb-2">
+                    {!showMagicItemCreate ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => setShowMagicItemCreate(true)}
+                        data-testid="create-magic-item-toggle"
+                      >
+                        {t("createMagicItem")}
+                      </Button>
+                    ) : (
+                      <div className="rounded-md border border-border p-3">
+                        <div className="mb-2 flex items-center justify-between">
+                          <span className="text-sm font-medium">{t("createMagicItem")}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setShowMagicItemCreate(false)}
+                          >
+                            X
+                          </Button>
+                        </div>
+                        <div className="max-h-[50vh] overflow-y-auto">
+                          <MagicItemForm onSubmit={createMagicItem} loading={loading} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Magic items catalog list */}
+                  {filteredMagicItems.length === 0 ? (
+                    <p className="py-4 text-center text-sm text-muted-foreground">{t("noItems")}</p>
+                  ) : (
+                    filteredMagicItems.map((mi) => (
+                      <div
+                        key={mi.id}
+                        className="flex items-start justify-between gap-2 rounded-md border border-border p-3"
+                        data-testid={`add-magic-${mi.id}`}
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">
+                              {localized(mi.name, mi.name_en, locale)}
+                            </span>
+                            {mi.category && (
+                              <Badge variant="outline" className="text-xs">
+                                {mi.category}
+                              </Badge>
+                            )}
+                          </div>
+                          <MagicEffectBadges effects={mi.magic_effects} />
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={loading}
+                          onClick={() => addMagicItemFromCatalog(mi)}
+                          data-testid={`add-magic-btn-${mi.id}`}
+                        >
+                          {t("addItem")}
+                        </Button>
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
             </div>
@@ -2187,6 +2355,23 @@ export function TabEquipment({
         }}
         onCancel={() => setDeleteConfirm(null)}
       />
+
+      {usingConsumableId &&
+        (() => {
+          const item = equipment.find((e) => e.id === usingConsumableId);
+          const consumableType = item ? getConsumableType(item) : null;
+          if (!item || !consumableType) return null;
+          return (
+            <UseConsumableDialog
+              item={item}
+              consumableType={consumableType}
+              hpCurrent={hpCurrent}
+              hpMax={hpMax}
+              onUse={(result) => handleUseConsumable(item, result)}
+              onCancel={() => setUsingConsumableId(null)}
+            />
+          );
+        })()}
     </div>
   );
 }

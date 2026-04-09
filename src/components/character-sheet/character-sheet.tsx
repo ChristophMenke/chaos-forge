@@ -60,6 +60,7 @@ import type {
   SessionRow,
   XpHistoryRow,
   TraitEntry,
+  MagicItemRow,
 } from "@/lib/supabase/types";
 import { TabEquipment } from "./tab-equipment";
 import { TabSpells } from "./tab-spells";
@@ -98,6 +99,7 @@ interface CharacterSheetProps {
   nonweaponProficiencies: CharacterNWPWithDetails[];
   inventory: CharacterInventoryWithDetails[];
   allGeneralItems: GeneralItemRow[];
+  allMagicItems?: MagicItemRow[];
   allNonweaponProficiencies: NonweaponProficiencyRow[];
   languages: CharacterLanguageRow[];
   fightingStyles: CharacterFightingStyleRow[];
@@ -121,6 +123,7 @@ export function CharacterSheet({
   allNonweaponProficiencies,
   inventory,
   allGeneralItems,
+  allMagicItems = [],
   languages,
   fightingStyles,
   sessions,
@@ -1960,6 +1963,7 @@ export function CharacterSheet({
             dexDefenseAdj={dexMods.defensiveAdj}
             inventory={inventoryState}
             allGeneralItems={allGeneralItems}
+            allMagicItems={allMagicItems}
             baseMovement={race?.baseMovement ?? 12}
             readOnly={!isOwner}
             strHitAdj={strMods.hitAdj}
@@ -1970,6 +1974,9 @@ export function CharacterSheet({
             ignoreEncumbrance={character.ignore_encumbrance}
             characterKit={character.kit}
             epicAcBonus={epicEffects.acBonus}
+            hpCurrent={character.hp_current}
+            hpMax={character.hp_max}
+            onHpChange={(newHp) => update("hp_current", newHp)}
             onEquipmentChange={setEquipment}
             onInventoryChange={setInventory}
             onIgnoreEncumbranceChange={handleIgnoreEncumbranceChange}
