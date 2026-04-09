@@ -32,6 +32,10 @@ export function getMagicEffectBadgeList(fx: MagicEffects): string[] {
   fx.spell_abilities?.forEach((s) =>
     badges.push(`${s.name} (${s.uses_per_day > 0 ? `${s.uses_per_day}/day` : "at-will"})`)
   );
+  // Show description as badge if no other mechanical badges were generated
+  if (badges.length === 0 && (fx.description || fx.description_en)) {
+    badges.push(fx.description ?? fx.description_en ?? "");
+  }
   return badges;
 }
 

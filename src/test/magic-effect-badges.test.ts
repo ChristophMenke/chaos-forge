@@ -82,4 +82,21 @@ describe("getMagicEffectBadgeList", () => {
     });
     expect(badges).toHaveLength(5);
   });
+
+  it("shows description as fallback when no mechanical badges exist", () => {
+    const badges = getMagicEffectBadgeList({
+      description: "Heals 1d8+1 HP",
+      description_en: "Heals 1d8+1 HP",
+    });
+    expect(badges).toEqual(["Heals 1d8+1 HP"]);
+  });
+
+  it("does not show description when mechanical badges exist", () => {
+    const badges = getMagicEffectBadgeList({
+      str: 19,
+      description: "Grants giant strength",
+    });
+    expect(badges).toEqual(["STR +19"]);
+    expect(badges).not.toContain("Grants giant strength");
+  });
 });
