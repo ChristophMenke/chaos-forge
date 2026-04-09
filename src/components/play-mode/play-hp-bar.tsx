@@ -215,26 +215,26 @@ function PlayHpBarInner({
         {/* AC + THAC0 with tooltips */}
         <div className="flex shrink-0 gap-2 text-center sm:gap-3">
           <Tooltip>
-            <TooltipTrigger>
-              <div className="cursor-help" data-testid="play-ac-tooltip">
-                <div className="text-[10px] md:text-xs uppercase text-muted-foreground">AC</div>
-                <div className="font-heading text-lg font-bold" data-testid="play-ac">
-                  {ac}
-                </div>
-              </div>
+            <TooltipTrigger className="cursor-help text-center" data-testid="play-ac-tooltip">
+              <span className="block text-[10px] md:text-xs uppercase text-muted-foreground">
+                AC
+              </span>
+              <span className="block font-heading text-lg font-bold" data-testid="play-ac">
+                {ac}
+              </span>
             </TooltipTrigger>
             <TooltipContent side="bottom" className="max-w-xs">
               <p className="text-xs">{t("acTooltip")}</p>
             </TooltipContent>
           </Tooltip>
           <Tooltip>
-            <TooltipTrigger>
-              <div className="cursor-help" data-testid="play-thac0-tooltip">
-                <div className="text-[10px] md:text-xs uppercase text-muted-foreground">THAC0</div>
-                <div className="font-heading text-lg font-bold" data-testid="play-thac0">
-                  {thac0}
-                </div>
-              </div>
+            <TooltipTrigger className="cursor-help text-center" data-testid="play-thac0-tooltip">
+              <span className="block text-[10px] md:text-xs uppercase text-muted-foreground">
+                THAC0
+              </span>
+              <span className="block font-heading text-lg font-bold" data-testid="play-thac0">
+                {thac0}
+              </span>
             </TooltipTrigger>
             <TooltipContent side="bottom" className="max-w-xs">
               <p className="text-xs">{t("thac0Tooltip")}</p>

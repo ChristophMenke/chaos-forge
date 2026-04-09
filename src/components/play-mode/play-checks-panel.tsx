@@ -311,10 +311,11 @@ function PlayChecksPanelInner({
       {/* Saving Throws */}
       <div className="mb-4" data-testid="play-saving-throws">
         <Tooltip>
-          <TooltipTrigger>
-            <h4 className="mb-1.5 cursor-help text-xs font-medium text-muted-foreground">
-              {t("savingThrows")}
-            </h4>
+          <TooltipTrigger
+            render={<h4 />}
+            className="mb-1.5 cursor-help text-xs font-medium text-muted-foreground"
+          >
+            {t("savingThrows")}
           </TooltipTrigger>
           <TooltipContent className="max-w-xs">
             <p className="text-xs">{t("savingThrowsTooltip")}</p>
@@ -419,10 +420,11 @@ function PlayChecksPanelInner({
       {/* Perception Check (house rule: (INT + WIS) / 2 rounded down) */}
       <div className="mb-4" data-testid="play-perception">
         <Tooltip>
-          <TooltipTrigger>
-            <h4 className="mb-1.5 cursor-help text-xs font-medium text-muted-foreground">
-              {t("perception")}
-            </h4>
+          <TooltipTrigger
+            render={<h4 />}
+            className="mb-1.5 cursor-help text-xs font-medium text-muted-foreground"
+          >
+            {t("perception")}
           </TooltipTrigger>
           <TooltipContent className="max-w-xs">
             <p className="text-xs">{t("perceptionTooltip")}</p>

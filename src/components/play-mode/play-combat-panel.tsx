@@ -644,11 +644,9 @@ function PlayCombatPanelInner({
         )}
         {backstabMultiplier && (
           <Tooltip>
-            <TooltipTrigger>
-              <div className="cursor-help" data-testid="play-backstab">
-                <span className="text-xs text-muted-foreground">{t("backstabMultiplier")}: </span>
-                <span className="font-mono font-bold text-primary">x{backstabMultiplier}</span>
-              </div>
+            <TooltipTrigger render={<span />} className="cursor-help" data-testid="play-backstab">
+              <span className="text-xs text-muted-foreground">{t("backstabMultiplier")}: </span>
+              <span className="font-mono font-bold text-primary">x{backstabMultiplier}</span>
             </TooltipTrigger>
             <TooltipContent className="max-w-xs">
               <p className="text-xs">{t("backstabTooltip")}</p>
