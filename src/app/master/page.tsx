@@ -17,6 +17,8 @@ import type {
   ChronicleNpcRow,
   MonsterRow,
   SpellRow,
+  MagicItemRow,
+  GmBookmarkRow,
 } from "@/lib/supabase/types";
 
 export default async function MasterPage() {
@@ -46,6 +48,8 @@ export default async function MasterPage() {
     { data: npcs },
     { data: monsters },
     { data: allCharSpells },
+    { data: magicItems },
+    { data: gmBookmarks },
   ] = await Promise.all([
     service.from("characters").select("*").order("name").returns<CharacterRow[]>(),
     service.from("character_classes").select("*").returns<CharacterClassRow[]>(),
@@ -68,6 +72,13 @@ export default async function MasterPage() {
       .from("character_spells")
       .select("character_id, spell:spells(*)")
       .returns<{ character_id: string; spell: SpellRow }[]>(),
+    service.from("magic_items").select("*").order("name").returns<MagicItemRow[]>(),
+    service
+      .from("gm_bookmarks")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .returns<GmBookmarkRow[]>(),
   ]);
 
   // Build lookup maps for O(1) access per character
@@ -125,6 +136,8 @@ export default async function MasterPage() {
       npcs={(npcs as ChronicleNpcRow[]) ?? []}
       monsters={(monsters as MonsterRow[]) ?? []}
       characterSpells={characterSpells}
+      initialMagicItems={(magicItems as MagicItemRow[]) ?? []}
+      initialBookmarks={(gmBookmarks as GmBookmarkRow[]) ?? []}
       userId={user.id}
       userEmail={user.email ?? ""}
     />

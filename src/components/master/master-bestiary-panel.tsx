@@ -25,6 +25,7 @@ import { GlassCard } from "@/components/glass-card";
 import { localized } from "@/lib/utils/localize";
 import { monsterAvatar } from "@/lib/utils/svg-avatar";
 import { uploadMonsterImage } from "@/app/master/actions";
+import { BookmarkToggle } from "./bookmark-toggle";
 import type { MonsterRow } from "@/lib/supabase/types";
 
 const SIZE_ORDER = ["T", "S", "M", "L", "H", "G"] as const;
@@ -70,11 +71,23 @@ const PROMOTED_KEYS = new Set([
 interface MasterBestiaryPanelProps {
   monsters: MonsterRow[];
   onAddToCombat?: (monster: MonsterRow, count: number) => void;
+  bookmarkSet?: Set<string>;
+  userId?: string;
+  onBookmarkToggle?: (
+    entityType: import("@/lib/supabase/types").BookmarkEntityType,
+    entityId: string
+  ) => void;
 }
 
 const PAGE_SIZE = 24;
 
-export function MasterBestiaryPanel({ monsters, onAddToCombat }: MasterBestiaryPanelProps) {
+export function MasterBestiaryPanel({
+  monsters,
+  onAddToCombat,
+  bookmarkSet,
+  userId,
+  onBookmarkToggle,
+}: MasterBestiaryPanelProps) {
   const t = useTranslations("master");
   const locale = useLocale();
   const [search, setSearch] = useState("");
@@ -262,6 +275,9 @@ export function MasterBestiaryPanel({ monsters, onAddToCombat }: MasterBestiaryP
                   locale={locale}
                   onSelect={() => setSelectedMonster(m)}
                   onAddToCombat={onAddToCombat}
+                  isBookmarked={bookmarkSet?.has(`monster:${m.id}`)}
+                  userId={userId}
+                  onBookmarkToggle={onBookmarkToggle}
                 />
               ))}
             </div>
@@ -329,11 +345,20 @@ function MonsterCard({
   locale,
   onSelect,
   onAddToCombat,
+  isBookmarked,
+  userId: cardUserId,
+  onBookmarkToggle: cardOnBookmarkToggle,
 }: {
   monster: MonsterRow;
   locale: string;
   onSelect: () => void;
   onAddToCombat?: (monster: MonsterRow, count: number) => void;
+  isBookmarked?: boolean;
+  userId?: string;
+  onBookmarkToggle?: (
+    entityType: import("@/lib/supabase/types").BookmarkEntityType,
+    entityId: string
+  ) => void;
 }) {
   const t = useTranslations("master");
   const displayName = localized(monster.name, monster.name_en, locale);
@@ -358,20 +383,37 @@ function MonsterCard({
         className="relative overflow-hidden p-0 transition-all hover:scale-[1.01]"
         data-testid={`gm-monster-card-${monster.id}`}
       >
-        {/* Add to combat — compact icon button in corner */}
-        {onAddToCombat && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddToCombat(monster, 1);
-            }}
-            className="absolute right-2 top-2 z-10 rounded-full bg-black/60 p-1.5 text-primary hover:bg-black/80"
-            title={t("monsterAddToCombat")}
-            data-testid={`gm-monster-add-${monster.id}`}
-          >
-            <Plus className="h-4 w-4" />
-          </button>
-        )}
+        {/* Bookmark + Add to combat buttons in corner */}
+        <div className="absolute right-2 top-2 z-10 flex gap-1">
+          {cardUserId && cardOnBookmarkToggle && (
+            <div
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+              className="rounded-full bg-black/60 hover:bg-black/80"
+            >
+              <BookmarkToggle
+                entityType="monster"
+                entityId={monster.id}
+                isBookmarked={isBookmarked ?? false}
+                userId={cardUserId}
+                onToggle={cardOnBookmarkToggle}
+              />
+            </div>
+          )}
+          {onAddToCombat && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddToCombat(monster, 1);
+              }}
+              className="rounded-full bg-black/60 p-1.5 text-primary hover:bg-black/80"
+              title={t("monsterAddToCombat")}
+              data-testid={`gm-monster-add-${monster.id}`}
+            >
+              <Plus className="h-4 w-4" />
+            </button>
+          )}
+        </div>
 
         {/* Image — square aspect ratio */}
         <div className="relative aspect-square w-full bg-black/40">

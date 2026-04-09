@@ -13,6 +13,7 @@ import { MasterCombatSimulator } from "./master-combat-simulator";
 import { RulebookChat } from "@/components/rulebook-chat/rulebook-chat";
 import { MasterBottomNav } from "./master-bottom-nav";
 import { MasterSidebar } from "./master-sidebar";
+import { MasterBookmarksPanel } from "./master-bookmarks-panel";
 import type {
   CharacterRow,
   CharacterClassRow,
@@ -22,8 +23,12 @@ import type {
   ChronicleNpcRow,
   MonsterRow,
   SpellRow,
+  MagicItemRow,
+  GmBookmarkRow,
+  BookmarkEntityType,
 } from "@/lib/supabase/types";
 import type { CharacterCombatData } from "@/lib/rules/character-computed";
+import { fetchMagicItems, fetchMagicItemDistribution } from "@/app/master/actions";
 
 interface PartyMember {
   character: CharacterRow;
@@ -39,11 +44,21 @@ interface MasterDashboardProps {
   npcs: ChronicleNpcRow[];
   monsters: MonsterRow[];
   characterSpells: Map<string, SpellRow[]>;
+  initialMagicItems: MagicItemRow[];
+  initialBookmarks: GmBookmarkRow[];
   userId: string;
   userEmail?: string;
 }
 
-export type TabId = "party" | "items" | "gold" | "chat" | "npcs" | "bestiary" | "combat";
+export type TabId =
+  | "party"
+  | "items"
+  | "gold"
+  | "chat"
+  | "npcs"
+  | "bestiary"
+  | "combat"
+  | "bookmarks";
 
 export function MasterDashboard({
   partyData,
@@ -53,6 +68,8 @@ export function MasterDashboard({
   npcs,
   monsters,
   characterSpells,
+  initialMagicItems,
+  initialBookmarks,
   userId,
   userEmail,
 }: MasterDashboardProps) {
@@ -64,6 +81,60 @@ export function MasterDashboard({
   );
   const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Magic Items state (refreshable)
+  const [magicItems, setMagicItems] = useState<MagicItemRow[]>(initialMagicItems);
+  const [magicItemDistribution, setMagicItemDistribution] = useState<
+    Map<
+      string,
+      {
+        owners: { characterId: string; characterName: string; equipped: boolean }[];
+        inPartyLoot: boolean;
+      }
+    >
+  >(new Map());
+
+  // Bookmarks state
+  const [bookmarks, setBookmarks] = useState<GmBookmarkRow[]>(initialBookmarks);
+  const bookmarkSet = useMemo(
+    () => new Set(bookmarks.map((b) => `${b.entity_type}:${b.entity_id}`)),
+    [bookmarks]
+  );
+
+  const handleBookmarkToggle = useCallback(
+    (entityType: BookmarkEntityType, entityId: string) => {
+      const key = `${entityType}:${entityId}`;
+      setBookmarks((prev) => {
+        if (prev.some((b) => `${b.entity_type}:${b.entity_id}` === key)) {
+          return prev.filter((b) => `${b.entity_type}:${b.entity_id}` !== key);
+        }
+        return [
+          ...prev,
+          {
+            // Client-side placeholder — bookmarkSet is keyed by entity_type:entity_id, not by id
+            id: crypto.randomUUID(),
+            user_id: userId,
+            entity_type: entityType,
+            entity_id: entityId,
+            created_at: new Date().toISOString(),
+          },
+        ];
+      });
+    },
+    [userId]
+  );
+
+  const refreshMagicItems = useCallback(async () => {
+    const [items, dist] = await Promise.all([fetchMagicItems(), fetchMagicItemDistribution()]);
+    setMagicItems(items);
+    setMagicItemDistribution(dist);
+  }, []);
+
+  // Load magic item distribution on mount (items already come from SSR)
+  useEffect(() => {
+    void refreshMagicItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Shared state: monsters queued from Bestiary for the Combat Simulator
   const [pendingCombatMonsters, setPendingCombatMonsters] = useState<
@@ -220,6 +291,7 @@ export function MasterDashboard({
             setViewingCharacterId(null);
             setActiveTab(tab);
           }}
+          userEmail={userEmail}
         />
       </>
     );
@@ -273,6 +345,12 @@ export function MasterDashboard({
             armor={armor}
             generalItems={generalItems}
             characters={characters}
+            magicItems={magicItems}
+            magicItemDistribution={magicItemDistribution}
+            bookmarkSet={bookmarkSet}
+            userId={userId}
+            onBookmarkToggle={handleBookmarkToggle}
+            onMagicItemsChange={refreshMagicItems}
           />
         )}
         {activeTab === "gold" && <MasterGoldPanel characters={characters} />}
@@ -292,10 +370,18 @@ export function MasterDashboard({
                 level: p.combat.maxLevel,
               }))}
             gmUserId={userId}
+            bookmarkSet={bookmarkSet}
+            onBookmarkToggle={handleBookmarkToggle}
           />
         )}
         {activeTab === "bestiary" && (
-          <MasterBestiaryPanel monsters={monsters} onAddToCombat={handleAddToCombatFromBestiary} />
+          <MasterBestiaryPanel
+            monsters={monsters}
+            onAddToCombat={handleAddToCombatFromBestiary}
+            bookmarkSet={bookmarkSet}
+            userId={userId}
+            onBookmarkToggle={handleBookmarkToggle}
+          />
         )}
         {activeTab === "combat" && (
           <MasterCombatSimulator
@@ -306,11 +392,26 @@ export function MasterDashboard({
             onMonstersConsumed={() => setPendingCombatMonsters([])}
           />
         )}
+        {activeTab === "bookmarks" && (
+          <MasterBookmarksPanel
+            bookmarks={bookmarks}
+            weapons={weapons}
+            armor={armor}
+            generalItems={generalItems}
+            magicItems={magicItems}
+            npcs={npcs}
+            monsters={monsters}
+            characters={characters}
+            onBookmarkToggle={handleBookmarkToggle}
+            userId={userId}
+            onAddToCombat={handleAddToCombatFromBestiary}
+          />
+        )}
         {activeTab === "chat" && <RulebookChat />}
       </div>
 
       {/* Mobile Bottom Nav with tab switching */}
-      <MasterBottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+      <MasterBottomNav activeTab={activeTab} onTabChange={setActiveTab} userEmail={userEmail} />
     </>
   );
 }

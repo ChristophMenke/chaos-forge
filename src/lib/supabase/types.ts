@@ -111,6 +111,36 @@ export interface MagicSpellAbility {
   description_en?: string;
 }
 
+export interface MagicItemRow {
+  id: string;
+  name: string;
+  name_en: string | null;
+  category: string | null;
+  magic_effects: MagicEffects;
+  weight: number;
+  source_book: string;
+  is_custom: boolean;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type BookmarkEntityType =
+  | "weapon"
+  | "armor"
+  | "general_item"
+  | "magic_item"
+  | "npc"
+  | "monster";
+
+export interface GmBookmarkRow {
+  id: string;
+  user_id: string;
+  entity_type: BookmarkEntityType;
+  entity_id: string;
+  created_at: string;
+}
+
 export interface MagicEffects {
   // Attribute (additive bonuses, NOT overrides like epic items)
   str?: number;
@@ -179,6 +209,7 @@ export interface CharacterEquipmentRow {
   damage_bonus: number;
   magic_effects: MagicEffects;
   custom_label: string | null;
+  magic_item_id?: string | null;
 }
 
 export interface CharacterSpellRow {
@@ -536,6 +567,9 @@ export interface PartyLootItemRow {
   added_by: string;
   created_at: string;
   updated_at: string;
+  magic_effects?: MagicEffects;
+  custom_label?: string | null;
+  magic_item_id?: string | null;
 }
 
 export interface PartyLootItemWithDetails extends PartyLootItemRow {

@@ -19,6 +19,7 @@ import type {
   SessionRow,
   XpHistoryRow,
   EpicItemRow,
+  MagicItemRow,
 } from "@/lib/supabase/types";
 
 interface CharacterPageProps {
@@ -63,6 +64,7 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
     { data: allArmor },
     { data: allNWPs },
     { data: allGeneralItems },
+    { data: allMagicItems },
   ] = await Promise.all([
     supabase
       .from("character_classes")
@@ -116,6 +118,7 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
       .order("name")
       .returns<NonweaponProficiencyRow[]>(),
     supabase.from("general_items").select("*").order("name").returns<GeneralItemRow[]>(),
+    supabase.from("magic_items").select("*").order("name").returns<MagicItemRow[]>(),
   ]);
 
   return (
@@ -132,6 +135,7 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
       nonweaponProficiencies={(nwProfs as CharacterNWPWithDetails[]) ?? []}
       inventory={(inventoryData as CharacterInventoryWithDetails[]) ?? []}
       allGeneralItems={allGeneralItems ?? []}
+      allMagicItems={allMagicItems ?? []}
       allNonweaponProficiencies={allNWPs ?? []}
       languages={languages ?? []}
       fightingStyles={fightingStyles ?? []}

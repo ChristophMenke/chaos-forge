@@ -31,6 +31,7 @@ import {
 import { GlassCard } from "@/components/glass-card";
 import { npcAvatar } from "@/lib/utils/svg-avatar";
 import { createNpc, updateNpc, deleteNpc, createNpcFromCharacter } from "@/app/master/actions";
+import { BookmarkToggle } from "./bookmark-toggle";
 import type { ChronicleNpcRow, CharacterRow } from "@/lib/supabase/types";
 
 // ─── Types ───────────────────────────────────────────────────────────
@@ -91,6 +92,11 @@ interface MasterNpcsPanelProps {
   characters: CharacterRow[];
   npcCharacters: CharacterRow[];
   gmUserId: string;
+  bookmarkSet?: Set<string>;
+  onBookmarkToggle?: (
+    entityType: import("@/lib/supabase/types").BookmarkEntityType,
+    entityId: string
+  ) => void;
 }
 
 const PAGE_SIZE = 24;
@@ -102,6 +108,8 @@ export function MasterNpcsPanel({
   characters,
   npcCharacters,
   gmUserId,
+  bookmarkSet,
+  onBookmarkToggle,
 }: MasterNpcsPanelProps) {
   const t = useTranslations("master");
 
@@ -456,6 +464,9 @@ export function MasterNpcsPanel({
                     u.kind === "normal" ? () => handleToggleVisibility(u.npc) : undefined
                   }
                   t={t}
+                  isBookmarked={bookmarkSet?.has(`npc:${u.id}`)}
+                  userId={gmUserId}
+                  onBookmarkToggle={onBookmarkToggle}
                 />
               ))}
             </div>
@@ -541,11 +552,20 @@ const NpcGridCard = memo(function NpcGridCard({
   onSelect,
   onToggleVisibility,
   t,
+  isBookmarked,
+  userId: cardUserId,
+  onBookmarkToggle: cardOnBookmarkToggle,
 }: {
   npc: UnifiedNpc;
   onSelect: () => void;
   onToggleVisibility?: () => void;
   t: ReturnType<typeof useTranslations<"master">>;
+  isBookmarked?: boolean;
+  userId?: string;
+  onBookmarkToggle?: (
+    entityType: import("@/lib/supabase/types").BookmarkEntityType,
+    entityId: string
+  ) => void;
 }) {
   const name = getUnifiedName(u);
   const tier = getUnifiedTier(u);
@@ -581,24 +601,41 @@ const NpcGridCard = memo(function NpcGridCard({
         className="relative overflow-hidden p-0 transition-all hover:scale-[1.01]"
         data-testid={`gm-npc-card-${u.id}`}
       >
-        {/* Visibility indicator */}
-        {onToggleVisibility && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleVisibility();
-            }}
-            className="absolute right-2 top-2 z-10 rounded-full bg-black/60 p-1.5 hover:bg-black/80"
-            title={visible ? t("npcVisibleToPlayers") : t("npcHidden")}
-            data-testid={`gm-npc-visibility-${u.id}`}
-          >
-            {visible ? (
-              <Eye className="h-3.5 w-3.5 text-green-400" />
-            ) : (
-              <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
-            )}
-          </button>
-        )}
+        {/* Top-right action buttons */}
+        <div className="absolute right-2 top-2 z-10 flex gap-1">
+          {cardUserId && cardOnBookmarkToggle && (
+            <div
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+              className="rounded-full bg-black/60 hover:bg-black/80"
+            >
+              <BookmarkToggle
+                entityType="npc"
+                entityId={u.id}
+                isBookmarked={isBookmarked ?? false}
+                userId={cardUserId}
+                onToggle={cardOnBookmarkToggle}
+              />
+            </div>
+          )}
+          {onToggleVisibility && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleVisibility();
+              }}
+              className="rounded-full bg-black/60 p-1.5 hover:bg-black/80"
+              title={visible ? t("npcVisibleToPlayers") : t("npcHidden")}
+              data-testid={`gm-npc-visibility-${u.id}`}
+            >
+              {visible ? (
+                <Eye className="h-3.5 w-3.5 text-green-400" />
+              ) : (
+                <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
+              )}
+            </button>
+          )}
+        </div>
 
         {/* Avatar — square aspect ratio */}
         <div className="relative aspect-square w-full bg-black/40">

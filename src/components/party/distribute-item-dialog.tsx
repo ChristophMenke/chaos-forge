@@ -72,8 +72,29 @@ export function DistributeItemDialog({
         }
       }
 
-      // Add to character inventory
-      if (item.item_id) {
+      // Magic item → goes to character_equipment (not inventory)
+      const hasMagicEffects =
+        item.magic_item_id || (item.magic_effects && Object.keys(item.magic_effects).length > 0);
+
+      if (hasMagicEffects) {
+        const label = item.custom_label || item.custom_name || name;
+        const { error: insError } = await supabase.from("character_equipment").insert({
+          character_id: selectedCharacterId,
+          weapon_id: null,
+          armor_id: null,
+          quantity: 1,
+          equipped: false,
+          hit_bonus: 0,
+          damage_bonus: 0,
+          magic_effects: item.magic_effects || {},
+          custom_label: label,
+          magic_item_id: item.magic_item_id || null,
+        });
+        if (insError) {
+          setError(insError.message);
+          return;
+        }
+      } else if (item.item_id) {
         // Check if character already has this catalog item
         const { data: existing } = await supabase
           .from("character_inventory")

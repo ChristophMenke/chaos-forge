@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Users, Swords, Coins, BookOpen, LogOut, UserRound, Bug, Flame } from "lucide-react";
+import { Users, Swords, Coins, BookOpen, LogOut, UserRound, Bug, Flame, Star } from "lucide-react";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LocaleToggle } from "@/components/locale-toggle";
@@ -34,6 +34,7 @@ export function MasterSidebar({ activeTab, onTabChange, userEmail }: MasterSideb
     { id: "gold", icon: Coins, label: t("goldTab") },
     { id: "npcs", icon: UserRound, label: t("npcsTab") },
     { id: "bestiary", icon: Bug, label: t("bestiaryTab") },
+    { id: "bookmarks", icon: Star, label: t("bookmarksTab") },
     { id: "combat", icon: Flame, label: t("combatTab") },
   ];
 
