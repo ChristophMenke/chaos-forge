@@ -34,8 +34,8 @@ export function MasterSidebar({ activeTab, onTabChange, userEmail }: MasterSideb
     { id: "gold", icon: Coins, label: t("goldTab") },
     { id: "npcs", icon: UserRound, label: t("npcsTab") },
     { id: "bestiary", icon: Bug, label: t("bestiaryTab") },
-    { id: "combat", icon: Flame, label: t("combatTab") },
     { id: "bookmarks", icon: Star, label: t("bookmarksTab") },
+    { id: "combat", icon: Flame, label: t("combatTab") },
   ];
 
   return (

@@ -60,9 +60,7 @@ describe("MagicItemRow type", () => {
         magic_resistance: 15,
         resistances: ["Cold", "Fire"],
         passive_abilities: ["Water Breathing"],
-        spell_abilities: [
-          { name: "Cone of Cold", uses_per_day: 1, description: "Frost blast" },
-        ],
+        spell_abilities: [{ name: "Cone of Cold", uses_per_day: 1, description: "Frost blast" }],
       },
       weight: 3,
       source_book: "Custom",

@@ -181,7 +181,7 @@ export function MasterMagicItemsTab({
             className="h-6 px-2 text-xs"
             data-testid={`gm-magic-inject-${item.id}-${char.id}`}
           >
-            {t("injectTo", { name: char.name })}
+            {t("injectToCharacter", { name: char.name })}
           </Button>
         ))}
         <Button
