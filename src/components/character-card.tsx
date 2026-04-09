@@ -126,6 +126,9 @@ export function CharacterCard({
                   avatarUrl={null}
                   size={110}
                   className="h-full w-full rounded-none text-2xl"
+                  raceId={character.race_id ?? undefined}
+                  classGroup={classGroup}
+                  variant="square"
                 />
               )}
             </div>

@@ -7,6 +7,10 @@ interface AvatarDisplayProps {
   className?: string;
   /** "circle" for lists/cards, "square" for the character sheet header. */
   variant?: "circle" | "square";
+  /** Race ID for silhouette fallback */
+  raceId?: string;
+  /** Class group for silhouette fallback: "warrior" | "priest" | "rogue" | "wizard" */
+  classGroup?: string;
 }
 
 function getInitials(name: string): string {
@@ -24,6 +28,8 @@ export function AvatarDisplay({
   size = 80,
   className = "",
   variant = "circle",
+  raceId,
+  classGroup,
 }: AvatarDisplayProps) {
   const borderRadius = variant === "circle" ? "rounded-full" : "rounded-lg";
 
@@ -37,6 +43,28 @@ export function AvatarDisplay({
         className={`${borderRadius} object-cover ${className}`}
         style={{ width: size, height: size }}
         data-testid="avatar-image"
+      />
+    );
+  }
+
+  // Silhouette fallback: race + class group
+  if (raceId && classGroup) {
+    const silhouettePath = `/images/avatars/${raceId}-${classGroup}.webp`;
+    return (
+      <Image
+        src={silhouettePath}
+        alt={`${name} silhouette`}
+        width={size}
+        height={size}
+        className={`${borderRadius} object-cover ${className}`}
+        style={{ width: size, height: size }}
+        data-testid="avatar-silhouette"
+        onError={(e) => {
+          // Fallback to initials if silhouette not found
+          const target = e.currentTarget;
+          target.style.display = "none";
+          target.parentElement?.querySelector("[data-fallback]")?.removeAttribute("hidden");
+        }}
       />
     );
   }
