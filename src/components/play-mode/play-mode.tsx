@@ -822,6 +822,7 @@ export function PlayMode({
         characterId={character.id}
         name={character.name}
         avatarUrl={character.avatar_url}
+        raceId={character.race_id ?? undefined}
         hpCurrent={effectiveHpCurrent}
         hpMax={effectiveHpMax}
         ac={ac}

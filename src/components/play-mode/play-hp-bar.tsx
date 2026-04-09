@@ -4,6 +4,7 @@ import { memo, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { AvatarDisplay } from "@/components/avatar-display";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { ClassGroup } from "@/lib/rules/types";
@@ -14,6 +15,7 @@ interface PlayHpBarProps {
   characterId: string;
   name: string;
   avatarUrl: string | null;
+  raceId?: string;
   hpCurrent: number;
   hpMax: number;
   ac: number;
@@ -30,6 +32,7 @@ function PlayHpBarInner({
   characterId,
   name,
   avatarUrl,
+  raceId,
   hpCurrent,
   hpMax,
   ac,
@@ -92,22 +95,13 @@ function PlayHpBarInner({
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Avatar */}
         <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-border sm:h-12 sm:w-12">
-          {avatarUrl ? (
-            <Image
-              src={avatarUrl}
-              alt={name}
-              width={48}
-              height={48}
-              priority
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div
-              className={`flex h-full w-full items-center justify-center ${colors.badge} text-sm font-bold`}
-            >
-              {name.charAt(0)}
-            </div>
-          )}
+          <AvatarDisplay
+            name={name}
+            avatarUrl={avatarUrl}
+            size={48}
+            raceId={raceId}
+            classGroup={classGroup}
+          />
         </div>
 
         {/* Name + HP controls */}

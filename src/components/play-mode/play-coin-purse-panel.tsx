@@ -77,10 +77,30 @@ function PlayCoinPursePanelInner({
   }
 
   const coins = [
-    { key: "pp" as const, label: "PP", value: coinPurse.pp },
-    { key: "gp" as const, label: "GP", value: coinPurse.gp },
-    { key: "sp" as const, label: "SP", value: coinPurse.sp },
-    { key: "cp" as const, label: "CP", value: coinPurse.cp },
+    {
+      key: "pp" as const,
+      label: "PP",
+      value: coinPurse.pp,
+      color: "border-blue-400/40 text-blue-300",
+    },
+    {
+      key: "gp" as const,
+      label: "GP",
+      value: coinPurse.gp,
+      color: "border-amber-400/40 text-amber-300",
+    },
+    {
+      key: "sp" as const,
+      label: "SP",
+      value: coinPurse.sp,
+      color: "border-zinc-400/40 text-zinc-300",
+    },
+    {
+      key: "cp" as const,
+      label: "CP",
+      value: coinPurse.cp,
+      color: "border-orange-400/40 text-orange-300",
+    },
   ];
 
   const canTrade = !readOnly && tradeCharacters && tradeCharacters.length > 0;
@@ -94,10 +114,8 @@ function PlayCoinPursePanelInner({
       {/* Coin display */}
       <div className="mb-2 grid grid-cols-4 gap-1 text-center" data-testid="play-coins">
         {coins.map((coin) => (
-          <div key={coin.key} className="rounded-md border border-border px-1 py-1.5">
-            <div className="text-[10px] md:text-xs font-medium text-muted-foreground">
-              {coin.label}
-            </div>
+          <div key={coin.key} className={`rounded-md border px-1 py-1.5 ${coin.color}`}>
+            <div className="text-[10px] md:text-xs font-medium opacity-70">{coin.label}</div>
             <div className="font-mono text-lg font-bold" data-testid={`play-coin-${coin.key}`}>
               {coin.value}
             </div>

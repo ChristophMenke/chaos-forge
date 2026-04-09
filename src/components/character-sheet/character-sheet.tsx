@@ -739,7 +739,14 @@ export function CharacterSheet({
               />
             </button>
           ) : (
-            <AvatarDisplay name={character.name} avatarUrl={null} size={80} variant="square" />
+            <AvatarDisplay
+              name={character.name}
+              avatarUrl={null}
+              size={80}
+              variant="square"
+              raceId={character.race_id ?? undefined}
+              classGroup={primaryClassGroup}
+            />
           )}
           <div className="min-w-0 flex-1">
             {isOwner ? (
