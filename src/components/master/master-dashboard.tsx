@@ -132,8 +132,9 @@ export function MasterDashboard({
 
   // Load magic item distribution on mount (items already come from SSR)
   useEffect(() => {
-    refreshMagicItems();
-  }, [refreshMagicItems]);
+    void refreshMagicItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Shared state: monsters queued from Bestiary for the Combat Simulator
   const [pendingCombatMonsters, setPendingCombatMonsters] = useState<
