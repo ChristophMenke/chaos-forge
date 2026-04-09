@@ -57,12 +57,12 @@ export interface AggregatedMagicEffects {
 }
 
 /** Check if an equipment entry is a magic item (no weapon/armor reference) */
-function isMagicItem(eq: CharacterEquipmentWithDetails): boolean {
+export function isMagicItem(eq: CharacterEquipmentWithDetails): boolean {
   return eq.weapon_id == null && eq.armor_id == null && eq.custom_label != null;
 }
 
 /** Check if a charged item is depleted (max_charges=0 is treated as no-charge item) */
-function isDepleted(effects: MagicEffects): boolean {
+export function isDepleted(effects: MagicEffects): boolean {
   return (
     effects.max_charges != null && effects.max_charges > 0 && (effects.current_charges ?? 0) <= 0
   );
