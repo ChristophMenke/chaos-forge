@@ -931,29 +931,35 @@ export function MasterItemsPanel({
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => {
-                          setEditingId(w.id);
-                          setEditForm({
-                            name: w.name,
-                            damage_sm: w.damage_sm,
-                            damage_l: w.damage_l,
-                            speed: w.speed,
-                            weight: w.weight,
-                          });
-                        }}
-                        className="rounded p-1 text-muted-foreground hover:text-foreground"
-                        data-testid={`gm-edit-weapon-${w.id}`}
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        onClick={() => setDeleteConfirm({ id: w.id, type: "weapon", name: w.name })}
-                        className="rounded p-1 text-muted-foreground hover:text-red-400"
-                        data-testid={`gm-delete-weapon-${w.id}`}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                      {w.is_custom && (
+                        <>
+                          <button
+                            onClick={() => {
+                              setEditingId(w.id);
+                              setEditForm({
+                                name: w.name,
+                                damage_sm: w.damage_sm,
+                                damage_l: w.damage_l,
+                                speed: w.speed,
+                                weight: w.weight,
+                              });
+                            }}
+                            className="rounded p-1 text-muted-foreground hover:text-foreground"
+                            data-testid={`gm-edit-weapon-${w.id}`}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={() =>
+                              setDeleteConfirm({ id: w.id, type: "weapon", name: w.name })
+                            }
+                            className="rounded p-1 text-muted-foreground hover:text-red-400"
+                            data-testid={`gm-delete-weapon-${w.id}`}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </>
+                      )}
                       <BookmarkToggle
                         entityType="weapon"
                         entityId={w.id}
@@ -1040,23 +1046,29 @@ export function MasterItemsPanel({
                       )}
                     </div>
                     <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => {
-                          setEditingId(a.id);
-                          setEditForm({ name: a.name, ac: a.ac, weight: a.weight });
-                        }}
-                        className="rounded p-1 text-muted-foreground hover:text-foreground"
-                        data-testid={`gm-edit-armor-${a.id}`}
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        onClick={() => setDeleteConfirm({ id: a.id, type: "armor", name: a.name })}
-                        className="rounded p-1 text-muted-foreground hover:text-red-400"
-                        data-testid={`gm-delete-armor-${a.id}`}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                      {a.is_custom && (
+                        <>
+                          <button
+                            onClick={() => {
+                              setEditingId(a.id);
+                              setEditForm({ name: a.name, ac: a.ac, weight: a.weight });
+                            }}
+                            className="rounded p-1 text-muted-foreground hover:text-foreground"
+                            data-testid={`gm-edit-armor-${a.id}`}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={() =>
+                              setDeleteConfirm({ id: a.id, type: "armor", name: a.name })
+                            }
+                            className="rounded p-1 text-muted-foreground hover:text-red-400"
+                            data-testid={`gm-delete-armor-${a.id}`}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </>
+                      )}
                       <BookmarkToggle
                         entityType="armor"
                         entityId={a.id}
@@ -1124,29 +1136,33 @@ export function MasterItemsPanel({
                       {localized(item.name, item.name_en, locale)}
                     </span>
                     <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => {
-                          setEditingId(item.id);
-                          setEditForm({ name: item.name, weight: item.weight });
-                        }}
-                        className="rounded p-1 text-muted-foreground hover:text-foreground"
-                        data-testid={`gm-edit-item-${item.id}`}
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        onClick={() =>
-                          setDeleteConfirm({
-                            id: item.id,
-                            type: "general",
-                            name: item.name,
-                          })
-                        }
-                        className="rounded p-1 text-muted-foreground hover:text-red-400"
-                        data-testid={`gm-delete-item-${item.id}`}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                      {item.is_custom && (
+                        <>
+                          <button
+                            onClick={() => {
+                              setEditingId(item.id);
+                              setEditForm({ name: item.name, weight: item.weight });
+                            }}
+                            className="rounded p-1 text-muted-foreground hover:text-foreground"
+                            data-testid={`gm-edit-item-${item.id}`}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={() =>
+                              setDeleteConfirm({
+                                id: item.id,
+                                type: "general",
+                                name: item.name,
+                              })
+                            }
+                            className="rounded p-1 text-muted-foreground hover:text-red-400"
+                            data-testid={`gm-delete-item-${item.id}`}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </>
+                      )}
                       <BookmarkToggle
                         entityType="general_item"
                         entityId={item.id}

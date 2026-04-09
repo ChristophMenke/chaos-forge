@@ -205,8 +205,9 @@ export function MasterBestiaryPanel({
       showToast(t("monsterImportSuccess"), "success");
     } catch {
       showToast(t("monsterImportFailed"), "error");
+    } finally {
+      setImporting(false);
     }
-    setImporting(false);
   }
 
   async function handleDeleteMonster(id: string) {

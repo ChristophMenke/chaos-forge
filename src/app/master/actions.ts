@@ -335,7 +335,7 @@ export async function updateWeaponGm(
 ): Promise<{ success: boolean; error?: string }> {
   if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
   const service = createServiceClient();
-  const { error } = await service.from("weapons").update(data).eq("id", id);
+  const { error } = await service.from("weapons").update(data).eq("id", id).eq("is_custom", true);
   if (error) return { success: false, error: error.message };
   return { success: true };
 }
@@ -362,7 +362,7 @@ export async function deleteWeaponGm(
     };
   }
 
-  const { error } = await service.from("weapons").delete().eq("id", id);
+  const { error } = await service.from("weapons").delete().eq("id", id).eq("is_custom", true);
   if (error) return { success: false, error: error.message };
   return { success: true };
 }
@@ -383,7 +383,7 @@ export async function updateArmorGm(
 ): Promise<{ success: boolean; error?: string }> {
   if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
   const service = createServiceClient();
-  const { error } = await service.from("armor").update(data).eq("id", id);
+  const { error } = await service.from("armor").update(data).eq("id", id).eq("is_custom", true);
   if (error) return { success: false, error: error.message };
   return { success: true };
 }
@@ -409,7 +409,7 @@ export async function deleteArmorGm(
     };
   }
 
-  const { error } = await service.from("armor").delete().eq("id", id);
+  const { error } = await service.from("armor").delete().eq("id", id).eq("is_custom", true);
   if (error) return { success: false, error: error.message };
   return { success: true };
 }
@@ -453,7 +453,7 @@ export async function updateGeneralItemGm(
 ): Promise<{ success: boolean; error?: string }> {
   if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
   const service = createServiceClient();
-  const { error } = await service.from("general_items").update(data).eq("id", id);
+  const { error } = await service.from("general_items").update(data).eq("id", id).eq("is_custom", true);
   if (error) return { success: false, error: error.message };
   return { success: true };
 }
@@ -488,7 +488,7 @@ export async function deleteGeneralItemGm(
     return { success: false, error: "item_in_use", usedBy };
   }
 
-  const { error } = await service.from("general_items").delete().eq("id", id);
+  const { error } = await service.from("general_items").delete().eq("id", id).eq("is_custom", true);
   if (error) return { success: false, error: error.message };
   return { success: true };
 }
@@ -1107,7 +1107,11 @@ export async function updateMonsterGm(
 ): Promise<{ success: boolean; error?: string }> {
   if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
   const service = createServiceClient();
-  const { error } = await service.from("monsters").update(monsterData).eq("id", id);
+  const { error } = await service
+    .from("monsters")
+    .update(monsterData)
+    .eq("id", id)
+    .eq("is_custom", true);
   if (error) return { success: false, error: error.message };
   return { success: true };
 }

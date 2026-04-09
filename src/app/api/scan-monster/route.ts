@@ -72,7 +72,14 @@ export async function POST(request: NextRequest) {
       | { type: "image"; source: { type: "base64"; media_type: ImageMediaType; data: string } }
     > = [];
 
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB per file
     for (const file of allFiles) {
+      if (file.size > MAX_FILE_SIZE) {
+        return NextResponse.json(
+          { error: `Datei "${file.name}" ist zu groß (max. 10 MB).` },
+          { status: 400 }
+        );
+      }
       const bytes = Buffer.from(await file.arrayBuffer());
       const isPdf = file.type === "application/pdf";
 
