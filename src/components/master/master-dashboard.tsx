@@ -304,29 +304,42 @@ export function MasterDashboard({
 
       {/* Main Content — offset for sidebar on desktop */}
       <div
-        className={`pb-20 sm:pl-16 sm:pb-4 xl:pl-48 ${
+        className={`sm:pl-16 xl:pl-48 ${
           activeTab === "chat"
-            ? "flex h-[calc(100vh-var(--header-height,140px))] flex-col sm:h-screen"
-            : "w-full p-3 sm:pr-4 sm:pt-4"
+            ? "flex h-[calc(100dvh-5rem)] flex-col sm:h-dvh sm:pb-0"
+            : "w-full p-3 pb-20 sm:pr-4 sm:pt-4 sm:pb-4"
         }`}
         data-testid="gm-dashboard"
       >
         {/* Header — hidden on chat tab for max space */}
         {activeTab !== "chat" && (
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Shield className="h-6 w-6 text-amber-400" />
-              <h1 className="font-heading text-xl text-foreground sm:text-2xl">{t("title")}</h1>
-            </div>
-            <div className="flex items-center gap-1.5" data-testid="gm-live-indicator">
-              <Zap
-                className={`h-3.5 w-3.5 ${isRealtimeConnected ? "text-green-400" : "text-yellow-400"}`}
-              />
-              <span
-                className={`text-xs ${isRealtimeConnected ? "text-green-400" : "text-yellow-400"}`}
+          <div className="relative mb-6 overflow-hidden rounded-xl border border-amber-500/20 bg-gradient-to-r from-amber-950/40 via-background/60 to-red-950/30 px-4 py-4 sm:px-6 sm:py-5">
+            {/* Decorative glow */}
+            <div className="pointer-events-none absolute -left-20 -top-20 h-40 w-40 rounded-full bg-amber-500/10 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-10 -right-10 h-32 w-32 rounded-full bg-red-500/10 blur-3xl" />
+            <div className="relative flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/20 shadow-lg shadow-amber-500/10">
+                  <Shield className="h-6 w-6 text-amber-400" />
+                </div>
+                <div>
+                  <h1 className="font-heading text-xl text-foreground sm:text-2xl">{t("title")}</h1>
+                  <p className="text-xs text-amber-400/60">AD&D 2nd Edition — Game Master</p>
+                </div>
+              </div>
+              <div
+                className="flex items-center gap-1.5 rounded-full bg-background/30 px-2.5 py-1"
+                data-testid="gm-live-indicator"
               >
-                {t("liveIndicator")}
-              </span>
+                <Zap
+                  className={`h-3.5 w-3.5 ${isRealtimeConnected ? "text-green-400" : "text-yellow-400"}`}
+                />
+                <span
+                  className={`text-xs font-medium ${isRealtimeConnected ? "text-green-400" : "text-yellow-400"}`}
+                >
+                  {t("liveIndicator")}
+                </span>
+              </div>
             </div>
           </div>
         )}

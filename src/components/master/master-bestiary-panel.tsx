@@ -20,11 +20,23 @@ import {
   Crosshair,
   ArrowUpDown,
   Eye,
+  Pencil,
+  Trash2,
+  FileUp,
+  Loader2,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
+import { Button } from "@/components/ui/button";
 import { localized } from "@/lib/utils/localize";
 import { monsterAvatar } from "@/lib/utils/svg-avatar";
-import { uploadMonsterImage } from "@/app/master/actions";
+import {
+  uploadMonsterImage,
+  createMonsterGm,
+  updateMonsterGm,
+  deleteMonsterGm,
+} from "@/app/master/actions";
 import { BookmarkToggle } from "./bookmark-toggle";
 import type { MonsterRow } from "@/lib/supabase/types";
 
@@ -98,6 +110,115 @@ export function MasterBestiaryPanel({
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [showCreate, setShowCreate] = useState(false);
+  const [createMode, setCreateMode] = useState<"manual" | "ai">("manual");
+  const [importing, setImporting] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [monsterForm, setMonsterForm] = useState<Partial<MonsterRow>>({
+    name: "",
+    name_en: "",
+    ac: 10,
+    hit_dice: "1",
+    hit_dice_value: 1,
+    thac0: 20,
+    attacks_per_round: "1",
+    damage: "1d4",
+    size: "M",
+    morale_value: 10,
+    xp_value: 0,
+    movement: "12",
+  });
+
+  function showToast(message: string, type: "success" | "error") {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  }
+
+  async function handleCreateMonster() {
+    if (!monsterForm.name?.trim()) return;
+    const result = await createMonsterGm(monsterForm);
+    if (result.success) {
+      showToast(t("monsterCreated"), "success");
+      setShowCreate(false);
+      setMonsterForm({
+        name: "",
+        ac: 10,
+        hit_dice: "1",
+        hit_dice_value: 1,
+        thac0: 20,
+        attacks_per_round: "1",
+        damage: "1d4",
+        size: "M",
+        morale_value: 10,
+        xp_value: 0,
+        movement: "12",
+      });
+      window.location.reload();
+    } else {
+      showToast(result.error ?? t("monsterImportFailed"), "error");
+    }
+  }
+
+  async function handleAIImport(files: FileList) {
+    setImporting(true);
+    try {
+      const formData = new FormData();
+      for (const file of files) {
+        formData.append("files", file);
+      }
+      const res = await fetch("/api/scan-monster", { method: "POST", body: formData });
+      if (!res.ok) {
+        const err = await res.json();
+        showToast(err.error ?? t("monsterImportFailed"), "error");
+        setImporting(false);
+        return;
+      }
+      const data = await res.json();
+      setMonsterForm({
+        name: data.name ?? "",
+        name_en: data.name_en ?? "",
+        ac: data.ac ?? 10,
+        movement: data.movement ?? "12",
+        hit_dice: data.hit_dice ?? "1",
+        hit_dice_value: data.hit_dice_value ?? 1,
+        thac0: data.thac0 ?? 20,
+        attacks_per_round: String(data.attacks_per_round ?? 1),
+        damage: data.damage ?? "1d4",
+        special_attacks: data.special_attacks ?? null,
+        special_defenses: data.special_defenses ?? null,
+        magic_resistance: data.magic_resistance ?? null,
+        size: data.size ?? "M",
+        morale: data.morale ?? null,
+        morale_value: data.morale_value ?? 10,
+        xp_value: data.xp_value ?? 0,
+        description: data.description ?? null,
+        climate_terrain: data.climate_terrain ?? null,
+        frequency: data.frequency ?? null,
+        organization: data.organization ?? null,
+        intelligence: data.intelligence ?? null,
+        alignment: data.alignment ?? null,
+        has_ranged_attack: data.has_ranged_attack ?? false,
+        default_zone: data.default_zone ?? "melee",
+      });
+      setCreateMode("manual"); // Switch to manual so user can review/edit
+      showToast(t("monsterImportSuccess"), "success");
+    } catch {
+      showToast(t("monsterImportFailed"), "error");
+    }
+    setImporting(false);
+  }
+
+  async function handleDeleteMonster(id: string) {
+    const result = await deleteMonsterGm(id);
+    if (result.success) {
+      showToast(t("monsterDeleted"), "success");
+      setDeleteConfirmId(null);
+      window.location.reload();
+    } else {
+      showToast(result.error ?? t("monsterImportFailed"), "error");
+    }
+  }
 
   const handleSort = useCallback(
     (key: SortKey) => {
@@ -149,6 +270,264 @@ export function MasterBestiaryPanel({
 
   return (
     <div className="space-y-4" data-testid="gm-bestiary-panel">
+      {/* Create Monster */}
+      <div className="space-y-2">
+        <button
+          onClick={() => setShowCreate(!showCreate)}
+          className="flex w-full items-center justify-between rounded-lg bg-primary/10 px-3 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
+          data-testid="gm-monster-create-toggle"
+        >
+          <span className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            {t("createMonster")}
+          </span>
+          {showCreate ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        </button>
+
+        {showCreate && (
+          <GlassCard hover={false} className="p-3" data-testid="gm-monster-create-form">
+            {/* Mode Toggle */}
+            <div className="mb-3 flex gap-1 rounded-lg bg-background/20 p-0.5">
+              <button
+                onClick={() => setCreateMode("manual")}
+                className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${createMode === "manual" ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                data-testid="gm-monster-mode-manual"
+              >
+                <Pencil className="h-3 w-3" />
+                {t("monsterManualEntry")}
+              </button>
+              <button
+                onClick={() => setCreateMode("ai")}
+                className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${createMode === "ai" ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                data-testid="gm-monster-mode-ai"
+              >
+                <FileUp className="h-3 w-3" />
+                {t("monsterAIImport")}
+              </button>
+            </div>
+
+            {createMode === "ai" && (
+              <div className="mb-3">
+                <label className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed border-border/50 bg-background/20 p-6 transition-colors hover:border-primary/50">
+                  {importing ? (
+                    <>
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                      <span className="text-sm text-muted-foreground">{t("monsterImporting")}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-8 w-8 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">{t("monsterAIImport")}</span>
+                      <span className="text-xs text-muted-foreground/60">PDF, JPG, PNG</span>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*,application/pdf"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => e.target.files && handleAIImport(e.target.files)}
+                    disabled={importing}
+                    data-testid="gm-monster-ai-upload"
+                  />
+                </label>
+              </div>
+            )}
+
+            {/* Monster Form (Manual or post-AI-import review) */}
+            {(createMode === "manual" || monsterForm.name) && (
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    placeholder={t("monsterName")}
+                    value={monsterForm.name ?? ""}
+                    onChange={(e) => setMonsterForm((f) => ({ ...f, name: e.target.value }))}
+                    className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm"
+                    data-testid="gm-monster-name"
+                  />
+                  <input
+                    type="text"
+                    placeholder={t("monsterNameEn")}
+                    value={monsterForm.name_en ?? ""}
+                    onChange={(e) => setMonsterForm((f) => ({ ...f, name_en: e.target.value }))}
+                    className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm"
+                  />
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  <div>
+                    <span className="mb-0.5 block text-[10px] text-muted-foreground">
+                      {t("monsterAC")}
+                    </span>
+                    <input
+                      type="number"
+                      value={monsterForm.ac ?? 10}
+                      onChange={(e) =>
+                        setMonsterForm((f) => ({ ...f, ac: Number(e.target.value) }))
+                      }
+                      className="w-full rounded-md border border-border bg-background/50 px-2 py-1 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <span className="mb-0.5 block text-[10px] text-muted-foreground">
+                      {t("monsterTHAC0")}
+                    </span>
+                    <input
+                      type="number"
+                      value={monsterForm.thac0 ?? 20}
+                      onChange={(e) =>
+                        setMonsterForm((f) => ({ ...f, thac0: Number(e.target.value) }))
+                      }
+                      className="w-full rounded-md border border-border bg-background/50 px-2 py-1 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <span className="mb-0.5 block text-[10px] text-muted-foreground">
+                      {t("monsterHD")}
+                    </span>
+                    <input
+                      type="text"
+                      value={monsterForm.hit_dice ?? "1"}
+                      onChange={(e) =>
+                        setMonsterForm((f) => ({
+                          ...f,
+                          hit_dice: e.target.value,
+                          hit_dice_value: parseFloat(e.target.value) || 1,
+                        }))
+                      }
+                      className="w-full rounded-md border border-border bg-background/50 px-2 py-1 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <span className="mb-0.5 block text-[10px] text-muted-foreground">
+                      {t("monsterXP")}
+                    </span>
+                    <input
+                      type="number"
+                      value={monsterForm.xp_value ?? 0}
+                      onChange={(e) =>
+                        setMonsterForm((f) => ({ ...f, xp_value: Number(e.target.value) }))
+                      }
+                      className="w-full rounded-md border border-border bg-background/50 px-2 py-1 text-sm"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <span className="mb-0.5 block text-[10px] text-muted-foreground">
+                      {t("monsterMovement")}
+                    </span>
+                    <input
+                      type="text"
+                      value={monsterForm.movement ?? ""}
+                      onChange={(e) => setMonsterForm((f) => ({ ...f, movement: e.target.value }))}
+                      className="w-full rounded-md border border-border bg-background/50 px-2 py-1 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <span className="mb-0.5 block text-[10px] text-muted-foreground">
+                      {t("monsterAttacks")}
+                    </span>
+                    <input
+                      type="text"
+                      value={monsterForm.attacks_per_round ?? "1"}
+                      onChange={(e) =>
+                        setMonsterForm((f) => ({ ...f, attacks_per_round: e.target.value }))
+                      }
+                      className="w-full rounded-md border border-border bg-background/50 px-2 py-1 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <span className="mb-0.5 block text-[10px] text-muted-foreground">
+                      {t("monsterDamage")}
+                    </span>
+                    <input
+                      type="text"
+                      value={monsterForm.damage ?? ""}
+                      onChange={(e) => setMonsterForm((f) => ({ ...f, damage: e.target.value }))}
+                      className="w-full rounded-md border border-border bg-background/50 px-2 py-1 text-sm"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <span className="mb-0.5 block text-[10px] text-muted-foreground">
+                      {t("monsterSize")}
+                    </span>
+                    <select
+                      value={monsterForm.size ?? "M"}
+                      onChange={(e) =>
+                        setMonsterForm((f) => ({
+                          ...f,
+                          size: e.target.value as MonsterRow["size"],
+                        }))
+                      }
+                      className="w-full rounded-md border border-border bg-background/50 px-2 py-1 text-sm"
+                    >
+                      {SIZE_ORDER.map((s) => (
+                        <option key={s} value={s}>
+                          {t(`size${s}`)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <span className="mb-0.5 block text-[10px] text-muted-foreground">
+                      {t("monsterMoralValue")}
+                    </span>
+                    <input
+                      type="number"
+                      value={monsterForm.morale_value ?? 10}
+                      onChange={(e) =>
+                        setMonsterForm((f) => ({ ...f, morale_value: Number(e.target.value) }))
+                      }
+                      className="w-full rounded-md border border-border bg-background/50 px-2 py-1 text-sm"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    placeholder={t("monsterSpecialAttacks")}
+                    value={monsterForm.special_attacks ?? ""}
+                    onChange={(e) =>
+                      setMonsterForm((f) => ({ ...f, special_attacks: e.target.value || null }))
+                    }
+                    className="rounded-md border border-border bg-background/50 px-2 py-1 text-sm"
+                  />
+                  <input
+                    type="text"
+                    placeholder={t("monsterSpecialDefenses")}
+                    value={monsterForm.special_defenses ?? ""}
+                    onChange={(e) =>
+                      setMonsterForm((f) => ({ ...f, special_defenses: e.target.value || null }))
+                    }
+                    className="rounded-md border border-border bg-background/50 px-2 py-1 text-sm"
+                  />
+                </div>
+                <textarea
+                  placeholder={t("monsterDescription")}
+                  value={monsterForm.description ?? ""}
+                  onChange={(e) =>
+                    setMonsterForm((f) => ({ ...f, description: e.target.value || null }))
+                  }
+                  rows={2}
+                  className="w-full rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm"
+                />
+                <Button
+                  className="w-full"
+                  disabled={!monsterForm.name?.trim()}
+                  onClick={handleCreateMonster}
+                  data-testid="gm-monster-create-submit"
+                >
+                  {t("monsterSave")}
+                </Button>
+              </div>
+            )}
+          </GlassCard>
+        )}
+      </div>
+
       {/* Search, Filters & View Toggle */}
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative flex-1">
@@ -332,7 +711,51 @@ export function MasterBestiaryPanel({
           locale={locale}
           onClose={() => setSelectedMonster(null)}
           onAddToCombat={onAddToCombat}
+          onDelete={(id) => {
+            setSelectedMonster(null);
+            setDeleteConfirmId(id);
+          }}
         />
+      )}
+
+      {/* Delete Monster Confirmation */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="mx-4 w-full max-w-sm rounded-lg border border-border bg-card p-4 shadow-xl">
+            <h3 className="mb-2 font-heading text-lg text-foreground">{t("confirmDelete")}</h3>
+            <p className="mb-3 text-sm text-muted-foreground">
+              {t("deleteMonsterConfirm", {
+                name: monsters.find((m) => m.id === deleteConfirmId)?.name ?? "",
+              })}
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => handleDeleteMonster(deleteConfirmId)}
+              >
+                <Trash2 className="mr-1 h-3 w-3" />
+                {t("deleteMonster")}
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setDeleteConfirmId(null)}>
+                {t("cancel")}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <div
+          className={`fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-lg px-4 py-2 text-sm font-medium shadow-lg sm:bottom-4 ${
+            toast.type === "success"
+              ? "bg-green-900/90 text-green-200"
+              : "bg-red-900/90 text-red-200"
+          }`}
+        >
+          {toast.message}
+        </div>
       )}
     </div>
   );
@@ -685,11 +1108,13 @@ function MonsterDetailModal({
   locale,
   onClose,
   onAddToCombat,
+  onDelete,
 }: {
   monster: MonsterRow;
   locale: string;
   onClose: () => void;
   onAddToCombat?: (monster: MonsterRow, count: number) => void;
+  onDelete?: (id: string) => void;
 }) {
   const t = useTranslations("master");
   const [count, setCount] = useState(1);
@@ -1055,6 +1480,18 @@ function MonsterDetailModal({
                   {count}x {t("monsterAddToCombat")}
                 </button>
               </div>
+            )}
+
+            {/* Delete Button */}
+            {onDelete && (
+              <button
+                onClick={() => onDelete(monster.id)}
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-red-900/20 px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-900/40"
+                data-testid="gm-monster-detail-delete"
+              >
+                <Trash2 className="h-4 w-4" />
+                {t("deleteMonster")}
+              </button>
             )}
           </div>
         </div>

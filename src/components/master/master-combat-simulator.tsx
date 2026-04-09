@@ -164,11 +164,20 @@ export function MasterCombatSimulator({
   const canRun = selectedParty.size > 0 && hasOpposition;
 
   return (
-    <div className="space-y-4" data-testid="gm-combat-simulator">
-      {/* Header */}
-      <div className="flex items-center gap-2">
-        <Flame className="h-5 w-5 text-amber-400" />
-        <h2 className="font-heading text-lg font-bold text-foreground">{t("combatTitle")}</h2>
+    <div className="space-y-6" data-testid="gm-combat-simulator">
+      {/* Epic Header */}
+      <div className="relative overflow-hidden rounded-xl border border-red-500/20 bg-gradient-to-r from-red-950/40 via-background/60 to-amber-950/30 px-4 py-4 sm:px-6">
+        <div className="pointer-events-none absolute -left-16 -top-16 h-32 w-32 rounded-full bg-red-500/15 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-8 -right-8 h-24 w-24 rounded-full bg-amber-500/15 blur-3xl" />
+        <div className="relative flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/20 shadow-lg shadow-red-500/10">
+            <Flame className="h-6 w-6 text-amber-400" />
+          </div>
+          <div>
+            <h2 className="font-heading text-lg font-bold text-foreground">{t("combatTitle")}</h2>
+            <p className="text-xs text-red-400/60">{t("combatSetup")}</p>
+          </div>
+        </div>
       </div>
 
       {/* Setup */}
@@ -185,35 +194,36 @@ export function MasterCombatSimulator({
         onToggleOppositionChar={handleToggleOppositionChar}
       />
 
-      {/* Run button */}
-      <div className="flex justify-center">
+      {/* Epic Run Button */}
+      <div className="flex flex-col items-center gap-2">
         <button
           onClick={handleRunSimulation}
           disabled={!canRun || isRunning}
-          className="flex items-center gap-2 rounded-lg bg-amber-600/20 px-6 py-2.5 font-heading text-sm font-semibold text-amber-400 transition-all hover:bg-amber-600/30 disabled:opacity-50"
+          className="group relative flex items-center gap-2 overflow-hidden rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-600/20 via-red-600/20 to-amber-600/20 px-8 py-3 font-heading text-sm font-semibold text-amber-400 shadow-lg shadow-amber-500/10 transition-all hover:border-amber-500/50 hover:shadow-amber-500/20 disabled:opacity-50"
           data-testid="gm-combat-run"
         >
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-amber-500/0 via-amber-500/10 to-amber-500/0 opacity-0 transition-opacity group-hover:opacity-100" />
           {isRunning ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-5 w-5 animate-spin" />
               {t("combatRunning")}
             </>
           ) : (
             <>
-              <Play className="h-4 w-4" />
+              <Play className="h-5 w-5" />
               {t("combatRun")}
             </>
           )}
         </button>
-      </div>
 
-      {/* Validation messages */}
-      {selectedParty.size === 0 && (
-        <p className="text-center text-xs text-muted-foreground">{t("combatNoParty")}</p>
-      )}
-      {!hasOpposition && (
-        <p className="text-center text-xs text-muted-foreground">{t("combatNoOpposition")}</p>
-      )}
+        {/* Validation messages */}
+        {selectedParty.size === 0 && (
+          <p className="text-center text-xs text-muted-foreground">{t("combatNoParty")}</p>
+        )}
+        {!hasOpposition && (
+          <p className="text-center text-xs text-muted-foreground">{t("combatNoOpposition")}</p>
+        )}
+      </div>
 
       {/* Results */}
       {result && (

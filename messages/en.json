@@ -1571,7 +1571,35 @@
     "monsterHDFull": "Hit Dice",
     "monsterAttacksFull": "Attacks per round",
     "monsterDamageFull": "Damage per attack",
-    "monsterImageUploadFailed": "Image upload failed"
+    "monsterImageUploadFailed": "Image upload failed",
+    "confirmDelete": "Confirm deletion",
+    "confirmDeleteItem": "Really delete \"{name}\"?",
+    "itemInUse": "Item is still used by:",
+    "deleteItem": "Delete",
+    "itemDeleted": "Item deleted!",
+    "itemUpdated": "Item updated!",
+    "createMonster": "Create Monster",
+    "importMonster": "Import Monster",
+    "monsterCreated": "Monster created!",
+    "monsterUpdated": "Monster updated!",
+    "monsterDeleted": "Monster deleted!",
+    "editMonster": "Edit",
+    "deleteMonster": "Delete",
+    "deleteMonsterConfirm": "Really delete monster \"{name}\"?",
+    "monsterName": "Monster name",
+    "monsterNameEn": "Name (EN)",
+    "monsterDescription": "Description",
+    "monsterAC": "Armor Class",
+    "monsterTHAC0": "THAC0",
+    "monsterHP": "Hit Points",
+    "monsterXPValue": "XP Value",
+    "monsterMoralValue": "Morale value",
+    "monsterManualEntry": "Manual entry",
+    "monsterAIImport": "AI Import (Photo/PDF)",
+    "monsterImporting": "Analyzing monster...",
+    "monsterImportSuccess": "Monster imported successfully!",
+    "monsterImportFailed": "Import failed.",
+    "monsterSave": "Save Monster"
   },
   "notifications": {
     "title": "Notifications",
@@ -1589,6 +1617,8 @@
     "timeMinutes": "{count}m ago",
     "timeHours": "{count}h ago",
     "timeDays": "{count}d ago",
-    "sessionXpAwarded": "{character} received {xp} XP from \"{sessionTitle}\""
+    "sessionXpAwarded": "{character} received {xp} XP from \"{sessionTitle}\"",
+    "delete": "Delete",
+    "deleteAll": "Delete all"
   }
 }

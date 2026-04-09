@@ -73,9 +73,15 @@ export function EntitySetup({
   );
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2" data-testid="gm-combat-setup">
+    <div className="relative grid gap-4 lg:grid-cols-2" data-testid="gm-combat-setup">
+      {/* VS Divider (desktop) */}
+      <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 lg:block">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full border border-amber-500/30 bg-background/80 shadow-lg shadow-amber-500/10 backdrop-blur-sm">
+          <span className="font-heading text-sm font-bold text-amber-400">VS</span>
+        </div>
+      </div>
       {/* Party Side */}
-      <GlassCard className="p-4" data-testid="gm-combat-party-setup">
+      <GlassCard glow="warrior" className="p-4" data-testid="gm-combat-party-setup">
         <h3 className="mb-3 flex items-center gap-2 font-heading text-sm font-semibold text-foreground">
           <Users className="h-4 w-4 text-green-400" />
           {t("combatParty")}

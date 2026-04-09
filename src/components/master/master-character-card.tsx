@@ -64,7 +64,13 @@ export function MasterCharacterCard({
         className="mb-2 flex w-full items-center gap-3 rounded-lg text-left transition-colors hover:bg-background/20"
         data-testid={`gm-view-character-${character.id}`}
       >
-        <AvatarDisplay name={character.name} avatarUrl={character.avatar_url} size={40} />
+        <AvatarDisplay
+          name={character.name}
+          avatarUrl={character.avatar_url}
+          size={40}
+          raceId={character.race_id ?? undefined}
+          classGroup={combat.primaryClassGroup}
+        />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="truncate font-heading text-base text-foreground">

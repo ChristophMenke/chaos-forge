@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { Bell, CheckCheck } from "lucide-react";
+import { Bell, CheckCheck, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { NotificationItem } from "./notification-item";
 import type { NotificationRow } from "@/lib/supabase/types";
@@ -109,6 +109,22 @@ export function NotificationBell({
     }
   }
 
+  async function deleteNotification(id: string) {
+    const supabase = createClient();
+    const { error } = await supabase.from("notifications").delete().eq("id", id);
+    if (!error) {
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+    }
+  }
+
+  async function deleteAllNotifications() {
+    const supabase = createClient();
+    const { error } = await supabase.from("notifications").delete().eq("user_id", userId);
+    if (!error) {
+      setNotifications([]);
+    }
+  }
+
   const isMobile = variant === "mobile";
 
   return (
@@ -175,19 +191,31 @@ export function NotificationBell({
             <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {t("title")}
             </h3>
-            {unreadCount > 0 && (
-              <button
-                onClick={markAllAsRead}
-                className="flex items-center gap-1 text-[10px] text-muted-foreground transition-colors hover:text-primary"
-                data-testid="notification-mark-all-read"
-              >
-                <CheckCheck className="h-3 w-3" />
-                {t("markAllRead")}
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              {unreadCount > 0 && (
+                <button
+                  onClick={markAllAsRead}
+                  className="flex items-center gap-1 text-[10px] text-muted-foreground transition-colors hover:text-primary"
+                  data-testid="notification-mark-all-read"
+                >
+                  <CheckCheck className="h-3 w-3" />
+                  {t("markAllRead")}
+                </button>
+              )}
+              {notifications.length > 0 && (
+                <button
+                  onClick={deleteAllNotifications}
+                  className="flex items-center gap-1 text-[10px] text-muted-foreground transition-colors hover:text-red-400"
+                  data-testid="notification-delete-all"
+                >
+                  <Trash2 className="h-3 w-3" />
+                  {t("deleteAll")}
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className="max-h-80 overflow-y-auto">
+          <div className="max-h-80 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent">
             {notifications.length === 0 ? (
               <p className="px-3 py-6 text-center text-sm text-muted-foreground">{t("empty")}</p>
             ) : (
@@ -196,6 +224,7 @@ export function NotificationBell({
                   key={notification.id}
                   notification={notification}
                   onMarkRead={markAsRead}
+                  onDelete={deleteNotification}
                 />
               ))
             )}

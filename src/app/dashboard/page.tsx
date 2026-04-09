@@ -1022,7 +1022,13 @@ export default async function DashboardPage() {
                   className={`flex items-center gap-3 rounded-lg border p-2 transition-colors hover:bg-accent/30 ${colors.glow}`}
                   data-testid={`party-char-${char.id}`}
                 >
-                  <AvatarDisplay name={char.name} avatarUrl={char.avatar_url} size={32} />
+                  <AvatarDisplay
+                    name={char.name}
+                    avatarUrl={char.avatar_url}
+                    size={32}
+                    raceId={char.race_id ?? undefined}
+                    classGroup={primaryGroup}
+                  />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="truncate font-medium text-sm">{char.name}</span>

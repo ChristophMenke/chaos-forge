@@ -1571,7 +1571,35 @@
     "monsterHDFull": "Trefferwürfel",
     "monsterAttacksFull": "Angriffe pro Runde",
     "monsterDamageFull": "Schaden pro Angriff",
-    "monsterImageUploadFailed": "Bild-Upload fehlgeschlagen"
+    "monsterImageUploadFailed": "Bild-Upload fehlgeschlagen",
+    "confirmDelete": "Löschen bestätigen",
+    "confirmDeleteItem": "\u201E{name}\u201C wirklich löschen?",
+    "itemInUse": "Item wird noch verwendet von:",
+    "deleteItem": "Löschen",
+    "itemDeleted": "Item gelöscht!",
+    "itemUpdated": "Item aktualisiert!",
+    "createMonster": "Monster erstellen",
+    "importMonster": "Monster importieren",
+    "monsterCreated": "Monster erstellt!",
+    "monsterUpdated": "Monster aktualisiert!",
+    "monsterDeleted": "Monster gelöscht!",
+    "editMonster": "Bearbeiten",
+    "deleteMonster": "Löschen",
+    "deleteMonsterConfirm": "Monster \u201E{name}\u201C wirklich löschen?",
+    "monsterName": "Monstername",
+    "monsterNameEn": "Name (EN)",
+    "monsterDescription": "Beschreibung",
+    "monsterAC": "Rüstungsklasse",
+    "monsterTHAC0": "ETW0",
+    "monsterHP": "Trefferpunkte",
+    "monsterXPValue": "EP-Wert",
+    "monsterMoralValue": "Moralwert",
+    "monsterManualEntry": "Manuell eingeben",
+    "monsterAIImport": "KI-Import (Foto/PDF)",
+    "monsterImporting": "Monster wird analysiert...",
+    "monsterImportSuccess": "Monster erfolgreich importiert!",
+    "monsterImportFailed": "Import fehlgeschlagen.",
+    "monsterSave": "Monster speichern"
   },
   "notifications": {
     "title": "Benachrichtigungen",
@@ -1589,6 +1617,8 @@
     "timeMinutes": "vor {count} Min",
     "timeHours": "vor {count} Std",
     "timeDays": "vor {count} Tagen",
-    "sessionXpAwarded": "{character} hat {xp} EP aus \"{sessionTitle}\" erhalten"
+    "sessionXpAwarded": "{character} hat {xp} EP aus \"{sessionTitle}\" erhalten",
+    "delete": "Löschen",
+    "deleteAll": "Alle löschen"
   }
 }
