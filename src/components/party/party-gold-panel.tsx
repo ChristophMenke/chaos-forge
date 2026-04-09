@@ -192,9 +192,9 @@ export function PartyGoldPanel({
             <Image
               src={coin.icon}
               alt=""
-              width={32}
-              height={32}
-              className="absolute right-0 bottom-0 opacity-15"
+              fill
+              sizes="80px"
+              className="object-cover object-center opacity-20"
               aria-hidden="true"
             />
             <div className="relative text-[10px] md:text-xs font-medium opacity-70">

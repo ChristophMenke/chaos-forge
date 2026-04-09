@@ -100,22 +100,22 @@ const COINS: CoinDef[] = [
   {
     name: "pp",
     prompt:
-      "A single platinum coin seen from slightly above at an angle, silver-bluish metallic sheen, engraved crown or diamond symbol on the face, slightly worn edges showing age, dark fantasy style. Coin rests on a very dark background (nearly black with subtle purple tint). Photorealistic rendering, dramatic lighting with a cool bluish highlight. Sharp detail suitable for a 64x64 pixel icon. No text, no words, no letters, no watermarks.",
+      "A single ancient platinum coin photographed perfectly straight-on from directly above, face side up, the coin is centered and fills the entire square image edge to edge. Cool silver-blue metallic surface with a faint blue iridescence, deeply engraved geometric diamond pattern on the face, slightly worn raised rim. Pure macro photography, dramatic cool overhead lighting with subtle rim glow. Very dark near-black background. No people, no human figures, no faces, no silhouettes, no text, no letters, no words, no watermarks.",
   },
   {
     name: "gp",
     prompt:
-      "A single gold coin seen from slightly above at an angle, warm rich golden tone, engraved sun or dragon symbol on the face, slightly worn edges showing age, dark fantasy style. Coin rests on a very dark background (nearly black with subtle purple tint). Photorealistic rendering, dramatic lighting with a warm golden highlight. Sharp detail suitable for a 64x64 pixel icon. No text, no words, no letters, no watermarks.",
+      "A single ancient gold coin photographed perfectly straight-on from directly above, face side up, the coin is centered and fills the entire square image edge to edge. Rich warm golden metallic surface, deeply engraved sun or dragon crest on the face, slightly worn raised rim with aged patina. Pure macro photography, dramatic warm overhead lighting with golden rim glow. Very dark near-black background. No people, no human figures, no faces, no silhouettes, no text, no letters, no words, no watermarks.",
   },
   {
     name: "sp",
     prompt:
-      "A single silver coin seen from slightly above at an angle, matte silver sheen, engraved crescent moon or star symbol on the face, slightly worn edges showing age, dark fantasy style. Coin rests on a very dark background (nearly black with subtle purple tint). Photorealistic rendering, dramatic lighting with a cool silver highlight. Sharp detail suitable for a 64x64 pixel icon. No text, no words, no letters, no watermarks.",
+      "A single ancient silver coin photographed perfectly straight-on from directly above, face side up, the coin is centered and fills the entire square image edge to edge. Matte cool silver metallic surface, deeply engraved crescent moon or star on the face, slightly worn raised rim. Pure macro photography, dramatic cool silver overhead lighting with subtle highlight. Very dark near-black background. No people, no human figures, no faces, no silhouettes, no text, no letters, no words, no watermarks.",
   },
   {
     name: "cp",
     prompt:
-      "A single copper coin seen from slightly above at an angle, reddish-brown copper tone with green patina spots, engraved shield or hammer symbol on the face, noticeably worn and aged with patina, dark fantasy style. Coin rests on a very dark background (nearly black with subtle purple tint). Photorealistic rendering, dramatic lighting with a warm reddish highlight. Sharp detail suitable for a 64x64 pixel icon. No text, no words, no letters, no watermarks.",
+      "A single ancient copper coin photographed perfectly straight-on from directly above, face side up, the coin is centered and fills the entire square image edge to edge. Reddish-brown copper surface with green verdigris patina in the crevices, deeply engraved shield or hammer on the face, heavily worn raised rim. Pure macro photography, dramatic warm reddish overhead lighting. Very dark near-black background. No people, no human figures, no faces, no silhouettes, no text, no letters, no words, no watermarks.",
   },
 ];
 
