@@ -11,6 +11,7 @@ import { PlayInventoryPanel } from "./play-inventory-panel";
 import { PlayCoinPursePanel } from "./play-coin-purse-panel";
 import { PlayTurnUndeadPanel } from "./play-turn-undead-panel";
 import { PlayAbilitiesPanel } from "./play-abilities-panel";
+import { PlayMagicItemsPanel } from "./play-magic-items-panel";
 import { PlayOverclockBanner } from "./play-overclock-banner";
 import { RACES } from "@/lib/rules/races";
 import { getActivePowers } from "@/lib/rules/priesthoods";
@@ -40,7 +41,7 @@ import { getConBonusCap, getDeathThreshold } from "@/lib/rules/hitpoints";
 import { CLASSES, getClassGroup } from "@/lib/rules/classes";
 import { getEpicEffects, scaleSubStat } from "@/lib/rules/epic-items";
 import type { EpicEffects } from "@/lib/rules/epic-items";
-import { getMagicItemEffects } from "@/lib/rules/magic-items";
+import { getMagicItemEffects, isMagicItem } from "@/lib/rules/magic-items";
 import { getClassGroupColors } from "@/lib/utils/class-colors";
 import { getKit } from "@/lib/rules/kits";
 import {
@@ -81,6 +82,24 @@ function SwordIcon({ className }: { className?: string }) {
       <line x1="13" y1="19" x2="19" y2="13" />
       <line x1="16" y1="16" x2="20" y2="20" />
       <line x1="19" y1="21" x2="21" y2="19" />
+    </svg>
+  );
+}
+
+function WandIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m15 4-1 1 4 4 1-1a2.83 2.83 0 1 0-4-4z" />
+      <path d="m13 6-8.5 8.5a2.12 2.12 0 1 0 3 3L16 9" />
+      <path d="m8 16 1.5-1.5" />
     </svg>
   );
 }
@@ -160,6 +179,7 @@ type PanelId =
   | "spellbook"
   | "turnUndead"
   | "abilities"
+  | "magicItems"
   | "checks"
   | "inventory"
   | "coinPurse";
@@ -228,6 +248,7 @@ export function PlayMode({
     [epicItems, characterLevel]
   );
   const magicEffects = useMemo(() => getMagicItemEffects(equipment), [equipment]);
+  const hasMagicItems = useMemo(() => equipment.some(isMagicItem), [equipment]);
   const mb = magicEffects.statBonuses;
   // Overclock state — read from epicItems simple_effects (persisted in DB via Epic Equipment page)
   // Plain function — React Compiler handles memoization automatically
@@ -690,7 +711,7 @@ export function PlayMode({
     },
     {
       id: "turnUndead",
-      label: locale === "de" ? "Untote" : "Undead",
+      label: t("turnUndead"),
       icon: <TargetIcon className="h-4 w-4" />,
       show: turnUndeadInfo.show,
     },
@@ -699,6 +720,12 @@ export function PlayMode({
       label: t("abilities"),
       icon: <SparklesIcon className="h-4 w-4" />,
       show: showAbilities,
+    },
+    {
+      id: "magicItems",
+      label: t("magicItems"),
+      icon: <WandIcon className="h-4 w-4" />,
+      show: hasMagicItems,
     },
     { id: "checks", label: t("checks"), icon: <TargetIcon className="h-4 w-4" />, show: true },
     {
@@ -711,6 +738,13 @@ export function PlayMode({
   ];
 
   const visiblePanels = panels.filter((p) => p.show);
+
+  // Reset mobile panel if the active panel is no longer visible (e.g. last magic item removed)
+  useEffect(() => {
+    if (!visiblePanels.some((p) => p.id === activePanel)) {
+      setActivePanel("combat");
+    }
+  }, [visiblePanels, activePanel]);
 
   return (
     <div className="w-full" data-testid="play-mode">
@@ -849,6 +883,16 @@ export function PlayMode({
             poisonSavePenalty={poisonSavePenalty}
             magicPerceptionBonus={magicEffects.perceptionBonus}
           />
+          {hasMagicItems && (
+            <PlayMagicItemsPanel
+              equipment={equipment}
+              hpCurrent={effectiveHpCurrent}
+              hpMax={effectiveHpMax}
+              readOnly={!isOwner}
+              onEquipmentChange={setEquipment}
+              onHpChange={handleHpChange}
+            />
+          )}
           <PlayCoinPursePanel
             characterId={character.id}
             characterName={character.name}
@@ -930,6 +974,16 @@ export function PlayMode({
             classIds={classIds}
             priesthoodId={character.priesthood}
             priestLevel={priestClassForAbilities?.level ?? 1}
+          />
+        )}
+        {activePanel === "magicItems" && hasMagicItems && (
+          <PlayMagicItemsPanel
+            equipment={equipment}
+            hpCurrent={effectiveHpCurrent}
+            hpMax={effectiveHpMax}
+            readOnly={!isOwner}
+            onEquipmentChange={setEquipment}
+            onHpChange={handleHpChange}
           />
         )}
         {activePanel === "checks" && (

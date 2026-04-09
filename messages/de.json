@@ -1179,7 +1179,18 @@
     "toCharacter": "An",
     "selectCharacter": "Charakter wählen...",
     "sendConfirm": "Senden",
-    "insufficientFunds": "Nicht genug Münzen"
+    "insufficientFunds": "Nicht genug Münzen",
+    "magicItems": "Magische Gegenstände",
+    "noMagicItems": "Keine magischen Gegenstände",
+    "depleted": "Erschöpft",
+    "charges": "{current}/{max} Ladungen",
+    "use": "Benutzen",
+    "remove": "Entfernen",
+    "removeItemTitle": "Gegenstand wegwerfen",
+    "removeItemMessage": "\"{name}\" wirklich wegwerfen?",
+    "equipped": "Angelegt",
+    "unequipped": "Abgelegt",
+    "turnUndead": "Untote"
   },
   "epic": {
     "title": "Epische Ausrüstung",

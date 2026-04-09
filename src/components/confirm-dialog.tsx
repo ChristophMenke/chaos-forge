@@ -30,13 +30,19 @@ export function ConfirmDialog({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
       onClick={onCancel}
+      onKeyDown={(e) => e.key === "Escape" && onCancel()}
       data-testid="confirm-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirm-dialog-title"
     >
       <div
         className="mx-4 flex w-full max-w-sm flex-col gap-4 rounded-lg border border-border bg-card p-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="font-heading text-xl text-primary">{title}</h3>
+        <h3 id="confirm-dialog-title" className="font-heading text-xl text-primary">
+          {title}
+        </h3>
         <p className="text-sm text-muted-foreground">{message}</p>
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={onCancel} data-testid="confirm-cancel">

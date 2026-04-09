@@ -1179,7 +1179,18 @@
     "toCharacter": "To",
     "selectCharacter": "Choose character...",
     "sendConfirm": "Send",
-    "insufficientFunds": "Insufficient funds"
+    "insufficientFunds": "Insufficient funds",
+    "magicItems": "Magic Items",
+    "noMagicItems": "No magic items",
+    "depleted": "Depleted",
+    "charges": "{current}/{max} charges",
+    "use": "Use",
+    "remove": "Remove",
+    "removeItemTitle": "Discard Item",
+    "removeItemMessage": "Discard \"{name}\"?",
+    "equipped": "Equipped",
+    "unequipped": "Unequipped",
+    "turnUndead": "Undead"
   },
   "epic": {
     "title": "Epic Equipment",
