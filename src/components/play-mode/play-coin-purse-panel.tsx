@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
@@ -82,24 +83,28 @@ function PlayCoinPursePanelInner({
       label: "PP",
       value: coinPurse.pp,
       color: "border-blue-400/40 text-blue-300",
+      icon: "/images/coins/pp.webp",
     },
     {
       key: "gp" as const,
       label: "GP",
       value: coinPurse.gp,
       color: "border-amber-400/40 text-amber-300",
+      icon: "/images/coins/gp.webp",
     },
     {
       key: "sp" as const,
       label: "SP",
       value: coinPurse.sp,
       color: "border-zinc-400/40 text-zinc-300",
+      icon: "/images/coins/sp.webp",
     },
     {
       key: "cp" as const,
       label: "CP",
       value: coinPurse.cp,
       color: "border-orange-400/40 text-orange-300",
+      icon: "/images/coins/cp.webp",
     },
   ];
 
@@ -114,9 +119,25 @@ function PlayCoinPursePanelInner({
       {/* Coin display */}
       <div className="mb-2 grid grid-cols-4 gap-1 text-center" data-testid="play-coins">
         {coins.map((coin) => (
-          <div key={coin.key} className={`rounded-md border px-1 py-1.5 ${coin.color}`}>
-            <div className="text-[10px] md:text-xs font-medium opacity-70">{coin.label}</div>
-            <div className="font-mono text-lg font-bold" data-testid={`play-coin-${coin.key}`}>
+          <div
+            key={coin.key}
+            className={`relative overflow-hidden rounded-md border px-1 py-1.5 ${coin.color}`}
+          >
+            <Image
+              src={coin.icon}
+              alt=""
+              width={32}
+              height={32}
+              className="absolute right-0 bottom-0 opacity-15"
+              aria-hidden="true"
+            />
+            <div className="relative text-[10px] md:text-xs font-medium opacity-70">
+              {coin.label}
+            </div>
+            <div
+              className="relative font-mono text-lg font-bold"
+              data-testid={`play-coin-${coin.key}`}
+            >
               {coin.value}
             </div>
           </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
@@ -184,9 +185,25 @@ export function PartyGoldPanel({
       {/* Coin display */}
       <div className="mb-2 grid grid-cols-4 gap-1 text-center" data-testid="party-gold-coins">
         {COINS.map((coin) => (
-          <div key={coin.key} className={`rounded-md border px-1 py-1.5 ${coin.color}`}>
-            <div className="text-[10px] md:text-xs font-medium opacity-70">{coin.label}</div>
-            <div className="font-mono text-lg font-bold" data-testid={`party-gold-${coin.key}`}>
+          <div
+            key={coin.key}
+            className={`relative overflow-hidden rounded-md border px-1 py-1.5 ${coin.color}`}
+          >
+            <Image
+              src={coin.icon}
+              alt=""
+              width={32}
+              height={32}
+              className="absolute right-0 bottom-0 opacity-15"
+              aria-hidden="true"
+            />
+            <div className="relative text-[10px] md:text-xs font-medium opacity-70">
+              {coin.label}
+            </div>
+            <div
+              className="relative font-mono text-lg font-bold"
+              data-testid={`party-gold-${coin.key}`}
+            >
               {gold[coin.key]}
             </div>
           </div>
