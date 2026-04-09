@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { Trash2 } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { createClient } from "@/lib/supabase/client";
 import type { PartyLootLogRow } from "@/lib/supabase/types";
 
@@ -117,49 +118,40 @@ export function PartyLogPanel({ log: initialLog, userMap, characterMap }: PartyL
       )}
 
       {/* Delete Confirmation Dialog */}
-      {confirmDeleteId && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-          onClick={() => setConfirmDeleteId(null)}
-          onKeyDown={(e) => e.key === "Escape" && setConfirmDeleteId(null)}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="delete-log-dialog-title"
-          tabIndex={-1}
-          data-testid="party-log-delete-dialog"
-        >
-          <div
-            className="mx-4 flex w-full max-w-sm flex-col gap-3 rounded-lg border border-border bg-card p-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 id="delete-log-dialog-title" className="font-heading text-lg text-destructive">
-              {t("deleteLogTitle")}
-            </h3>
-            <p className="text-sm text-muted-foreground">{t("deleteLogConfirm")}</p>
-            <div className="flex gap-2">
-              <Button
-                variant="destructive"
-                size="sm"
-                className="flex-1"
-                onClick={() => handleDelete(confirmDeleteId)}
-                disabled={deletingId === confirmDeleteId}
-                data-testid="party-log-delete-confirm"
-              >
-                {deletingId === confirmDeleteId ? tc("saving") : t("deleteLogEntry")}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="flex-1"
-                onClick={() => setConfirmDeleteId(null)}
-                data-testid="party-log-delete-cancel"
-              >
-                {tc("cancel")}
-              </Button>
-            </div>
+      <Dialog
+        open={confirmDeleteId !== null}
+        onOpenChange={(open) => {
+          if (!open) setConfirmDeleteId(null);
+        }}
+      >
+        <DialogContent showCloseButton={false} data-testid="party-log-delete-dialog">
+          <DialogTitle className="font-heading text-lg text-destructive">
+            {t("deleteLogTitle")}
+          </DialogTitle>
+          <p className="text-sm text-muted-foreground">{t("deleteLogConfirm")}</p>
+          <div className="flex gap-2">
+            <Button
+              variant="destructive"
+              size="sm"
+              className="flex-1"
+              onClick={() => confirmDeleteId && handleDelete(confirmDeleteId)}
+              disabled={deletingId === confirmDeleteId}
+              data-testid="party-log-delete-confirm"
+            >
+              {deletingId === confirmDeleteId ? tc("saving") : t("deleteLogEntry")}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex-1"
+              onClick={() => setConfirmDeleteId(null)}
+              data-testid="party-log-delete-cancel"
+            >
+              {tc("cancel")}
+            </Button>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </GlassCard>
   );
 }
