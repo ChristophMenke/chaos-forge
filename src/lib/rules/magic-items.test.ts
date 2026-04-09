@@ -380,6 +380,97 @@ describe("getMagicItemEffects", () => {
     expect(result.acBonus).toBe(0);
   });
 
+  // ── Stat Overrides ──
+  it("aggregates stat_overrides from a single item", () => {
+    const belt = makeMagicItem({ stat_overrides: { str: 19 } }, true, "Belt of Giant Strength");
+    const result = getMagicItemEffects([belt]);
+    expect(result.statOverrides).toEqual({ str: 19 });
+    expect(result.statBonuses).toEqual({}); // no additive bonus
+  });
+
+  it("takes max when multiple items override the same stat", () => {
+    const belt = makeMagicItem({ stat_overrides: { str: 19 } }, true, "Belt of Giant Strength");
+    const gauntlets = makeMagicItem(
+      { stat_overrides: { str: 18 } },
+      true,
+      "Gauntlets of Ogre Power"
+    );
+    const result = getMagicItemEffects([belt, gauntlets]);
+    expect(result.statOverrides.str).toBe(19); // max(19, 18)
+  });
+
+  it("aggregates str_exceptional override", () => {
+    const gauntlets = makeMagicItem(
+      { stat_overrides: { str: 18, str_exceptional: 100 } },
+      true,
+      "Gauntlets of Ogre Power"
+    );
+    const result = getMagicItemEffects([gauntlets]);
+    expect(result.statOverrides.str).toBe(18);
+    expect(result.strExceptionalOverride).toBe(100);
+  });
+
+  it("handles stat_overrides and additive bonuses on different stats", () => {
+    const belt = makeMagicItem(
+      { stat_overrides: { str: 19 }, dex: 1 },
+      true,
+      "Belt of Giant Strength"
+    );
+    const result = getMagicItemEffects([belt]);
+    expect(result.statOverrides.str).toBe(19);
+    expect(result.statBonuses.dex).toBe(1);
+    expect(result.statBonuses.str).toBeUndefined(); // no additive STR bonus
+  });
+
+  it("ignores stat_overrides from unequipped items", () => {
+    const belt = makeMagicItem({ stat_overrides: { str: 19 } }, false, "Belt of Giant Strength");
+    const result = getMagicItemEffects([belt]);
+    expect(result.statOverrides).toEqual({});
+  });
+
+  it("ignores stat_overrides from depleted items", () => {
+    const item = makeMagicItem({
+      stat_overrides: { str: 19 },
+      max_charges: 10,
+      current_charges: 0,
+    });
+    const result = getMagicItemEffects([item]);
+    expect(result.statOverrides).toEqual({});
+  });
+
+  it("returns empty statOverrides and null strExceptionalOverride by default", () => {
+    const ring = makeMagicItem({ ac_bonus: -1 });
+    const result = getMagicItemEffects([ring]);
+    expect(result.statOverrides).toEqual({});
+    expect(result.strExceptionalOverride).toBeNull();
+  });
+
+  it("takes max regardless of item order (lower first, higher second)", () => {
+    const gauntlets = makeMagicItem(
+      { stat_overrides: { str: 18 } },
+      true,
+      "Gauntlets of Ogre Power"
+    );
+    const belt = makeMagicItem({ stat_overrides: { str: 19 } }, true, "Belt of Giant Strength");
+    const result = getMagicItemEffects([gauntlets, belt]); // reversed order
+    expect(result.statOverrides.str).toBe(19);
+  });
+
+  it("override and additive bonus on the SAME stat coexist separately", () => {
+    const belt = makeMagicItem({ stat_overrides: { str: 19 } }, true, "Belt of Giant Strength");
+    const gloves = makeMagicItem({ str: 2 }, true, "Gloves of Strength");
+    const result = getMagicItemEffects([belt, gloves]);
+    expect(result.statOverrides.str).toBe(19);
+    expect(result.statBonuses.str).toBe(2);
+  });
+
+  it("handles multiple different stat overrides from different items", () => {
+    const belt = makeMagicItem({ stat_overrides: { str: 19 } }, true, "Belt");
+    const gloves = makeMagicItem({ stat_overrides: { dex: 18 } }, true, "Gauntlets of Dexterity");
+    const result = getMagicItemEffects([belt, gloves]);
+    expect(result.statOverrides).toEqual({ str: 19, dex: 18 });
+  });
+
   it("multiple save types stack correctly", () => {
     const ring = makeMagicItem({ save_all: 1, save_vs_spell: 2, save_vs_poison: 3 });
     const result = getMagicItemEffects([ring]);

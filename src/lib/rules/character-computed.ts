@@ -133,40 +133,52 @@ export function computeCharacterCombatData(
   const epicEffects = getEpicEffects(epicItems, character.level);
   const eo = epicEffects.statOverrides;
 
-  // Magic item effects (additive bonuses)
+  // Magic item effects (additive bonuses + stat overrides)
   const magicEffects = getMagicItemEffects(equipment);
   const mb = magicEffects.statBonuses;
+  const mo = magicEffects.statOverrides;
 
-  // Effective stats: epic overrides first, then magic additive bonuses (capped at 25 per AD&D)
+  // Effective stats: max(base, epicOverride, magicOverride) + magic additive bonuses (capped at 25)
   const MAX_STAT = 25;
-  const effectiveStr = Math.min((eo.str ?? character.str) + (mb.str ?? 0), MAX_STAT);
-  const effectiveDex = Math.min((eo.dex ?? character.dex) + (mb.dex ?? 0), MAX_STAT);
-  const effectiveInt = Math.min((eo.int ?? character.int) + (mb.int ?? 0), MAX_STAT);
-  const effectiveWis = Math.min((eo.wis ?? character.wis) + (mb.wis ?? 0), MAX_STAT);
+  const resolve = (base: number, epic?: number, magic?: number): number =>
+    Math.max(base, epic ?? 0, magic ?? 0);
+  const effectiveStr = Math.min(resolve(character.str, eo.str, mo.str) + (mb.str ?? 0), MAX_STAT);
+  const effectiveDex = Math.min(resolve(character.dex, eo.dex, mo.dex) + (mb.dex ?? 0), MAX_STAT);
+  const effectiveInt = Math.min(resolve(character.int, eo.int, mo.int) + (mb.int ?? 0), MAX_STAT);
+  const effectiveWis = Math.min(resolve(character.wis, eo.wis, mo.wis) + (mb.wis ?? 0), MAX_STAT);
+
+  // Is STR overridden by any item?
+  const strOverridden = eo.str != null || mo.str != null;
+  // For exceptional STR: use magic override if magic item provides the winning STR override
+  const strExceptional =
+    mo.str != null && mo.str >= (eo.str ?? 0) && magicEffects.strExceptionalOverride != null
+      ? magicEffects.strExceptionalOverride
+      : (character.str_exceptional ?? undefined);
 
   // Modifiers (only STR and DEX needed for AC calc)
   const strMods = getStrengthModifiers(
     effectiveStr,
-    character.str_exceptional ?? undefined,
-    eo.str != null
+    strExceptional,
+    strOverridden
       ? (scaleSubStat(character.str, character.str_muscle, effectiveStr) ?? undefined)
       : (character.str_muscle ?? undefined),
-    eo.str != null
+    strOverridden
       ? (scaleSubStat(character.str, character.str_stamina, effectiveStr) ?? undefined)
       : (character.str_stamina ?? undefined)
   );
+  const dexOverridden = eo.dex != null || mo.dex != null;
   const dexMods = getDexterityModifiers(
     effectiveDex,
-    eo.dex != null
+    dexOverridden
       ? (scaleSubStat(character.dex, character.dex_aim, effectiveDex) ?? undefined)
       : (character.dex_aim ?? undefined),
-    eo.dex != null
+    dexOverridden
       ? (scaleSubStat(character.dex, character.dex_balance, effectiveDex) ?? undefined)
       : (character.dex_balance ?? undefined)
   );
 
   // CON adjustment for HP (same logic as play-mode.tsx)
-  const effectiveCon = Math.min((eo.con ?? character.con) + (mb.con ?? 0), MAX_STAT);
+  const effectiveCon = Math.min(resolve(character.con, eo.con, mo.con) + (mb.con ?? 0), MAX_STAT);
   const conMods = getConstitutionModifiers(effectiveCon);
   const baseConMods = getConstitutionModifiers(character.con);
 

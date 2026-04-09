@@ -16,6 +16,7 @@ import type {
 import type { CharacterRow, CharacterNWPWithDetails } from "@/lib/supabase/types";
 import { applyThiefPenalty, scaleSubStat } from "@/lib/rules/epic-items";
 import type { EpicEffects } from "@/lib/rules/epic-items";
+import type { ThiefSkillBonuses } from "@/lib/rules/magic-items";
 import { localized } from "@/lib/utils/localize";
 
 interface PlayChecksPanelProps {
@@ -33,7 +34,9 @@ interface PlayChecksPanelProps {
   poisonSavePenalty?: number;
   magicPerceptionBonus?: number;
   magicSaveBonuses?: Partial<SavingThrows>;
-  magicThiefBonuses?: Record<string, number>;
+  magicThiefBonuses?: ThiefSkillBonuses;
+  magicStatOverrides?: Partial<Record<"str" | "dex" | "con" | "int" | "wis" | "cha", number>>;
+  magicStatBonuses?: Partial<Record<"str" | "dex" | "con" | "int" | "wis" | "cha", number>>;
 }
 
 export function PlayChecksPanel({
@@ -52,6 +55,8 @@ export function PlayChecksPanel({
   magicPerceptionBonus = 0,
   magicSaveBonuses = {},
   magicThiefBonuses = {},
+  magicStatOverrides = {},
+  magicStatBonuses = {},
 }: PlayChecksPanelProps) {
   const t = useTranslations("playMode");
   const te = useTranslations("epic");
@@ -79,157 +84,175 @@ export function PlayChecksPanel({
   );
   const epic = epicEffects ?? defaultEpic;
   const eo = epic.statOverrides;
+  const mo = magicStatOverrides;
+  const mb = magicStatBonuses;
 
-  // Helper: scale sub-stat if main stat is overridden
-  function sub(base: number, baseSub: number | null, override: number | undefined): number | null {
+  // Resolve effective stat: max(base, epicOverride, magicOverride) + magicBonus
+  function eff(base: number, stat: "str" | "dex" | "con" | "int" | "wis" | "cha"): number {
+    return Math.max(base, eo[stat] ?? 0, mo[stat] ?? 0) + (mb[stat] ?? 0);
+  }
+
+  // Is a stat modified by any override or bonus?
+  function isModified(base: number, stat: "str" | "dex" | "con" | "int" | "wis" | "cha"): boolean {
+    return eff(base, stat) !== base;
+  }
+
+  // Helper: scale sub-stat if main stat is overridden by any source
+  function sub(
+    base: number,
+    baseSub: number | null,
+    stat: "str" | "dex" | "con" | "int" | "wis" | "cha"
+  ): number | null {
     if (baseSub == null) return null;
-    if (override != null) return scaleSubStat(base, baseSub, override);
+    const effective = eff(base, stat);
+    if (effective !== base) return scaleSubStat(base, baseSub, effective);
     return baseSub;
   }
 
-  // Ability scores with names (using effective stats from epic overrides)
+  // Ability scores with names (using effective stats from epic + magic overrides + bonuses)
   const abilities = useMemo(
     () => [
       {
         name: "STR",
-        score: eo.str ?? character.str,
-        modified: eo.str != null,
+        score: eff(character.str, "str"),
+        modified: isModified(character.str, "str"),
         subScores: [
           character.str_muscle != null
-            ? { name: ts("muscle"), score: sub(character.str, character.str_muscle, eo.str) }
+            ? { name: ts("muscle"), score: sub(character.str, character.str_muscle, "str") }
             : null,
           character.str_stamina != null
-            ? { name: ts("stamina"), score: sub(character.str, character.str_stamina, eo.str) }
+            ? { name: ts("stamina"), score: sub(character.str, character.str_stamina, "str") }
             : null,
         ].filter(Boolean),
       },
       {
         name: "DEX",
-        score: eo.dex ?? character.dex,
-        modified: eo.dex != null,
+        score: eff(character.dex, "dex"),
+        modified: isModified(character.dex, "dex"),
         subScores: [
           character.dex_aim != null
-            ? { name: ts("aim"), score: sub(character.dex, character.dex_aim, eo.dex) }
+            ? { name: ts("aim"), score: sub(character.dex, character.dex_aim, "dex") }
             : null,
           character.dex_balance != null
-            ? { name: ts("balance"), score: sub(character.dex, character.dex_balance, eo.dex) }
+            ? { name: ts("balance"), score: sub(character.dex, character.dex_balance, "dex") }
             : null,
         ].filter(Boolean),
       },
       {
         name: "CON",
-        score: eo.con ?? character.con,
-        modified: eo.con != null,
+        score: eff(character.con, "con"),
+        modified: isModified(character.con, "con"),
         subScores: [
           character.con_health != null
-            ? { name: ts("health"), score: sub(character.con, character.con_health, eo.con) }
+            ? { name: ts("health"), score: sub(character.con, character.con_health, "con") }
             : null,
           character.con_fitness != null
-            ? { name: ts("fitness"), score: sub(character.con, character.con_fitness, eo.con) }
+            ? { name: ts("fitness"), score: sub(character.con, character.con_fitness, "con") }
             : null,
         ].filter(Boolean),
       },
       {
         name: "INT",
-        score: eo.int ?? character.int,
-        modified: eo.int != null,
+        score: eff(character.int, "int"),
+        modified: isModified(character.int, "int"),
         subScores: [
           character.int_knowledge != null
-            ? { name: ts("knowledge"), score: sub(character.int, character.int_knowledge, eo.int) }
+            ? { name: ts("knowledge"), score: sub(character.int, character.int_knowledge, "int") }
             : null,
           character.int_reason != null
-            ? { name: ts("reason"), score: sub(character.int, character.int_reason, eo.int) }
+            ? { name: ts("reason"), score: sub(character.int, character.int_reason, "int") }
             : null,
         ].filter(Boolean),
       },
       {
         name: "WIS",
-        score: eo.wis ?? character.wis,
-        modified: eo.wis != null,
+        score: eff(character.wis, "wis"),
+        modified: isModified(character.wis, "wis"),
         subScores: [
           character.wis_intuition != null
-            ? { name: ts("intuition"), score: sub(character.wis, character.wis_intuition, eo.wis) }
+            ? { name: ts("intuition"), score: sub(character.wis, character.wis_intuition, "wis") }
             : null,
           character.wis_willpower != null
-            ? { name: ts("willpower"), score: sub(character.wis, character.wis_willpower, eo.wis) }
+            ? { name: ts("willpower"), score: sub(character.wis, character.wis_willpower, "wis") }
             : null,
         ].filter(Boolean),
       },
       {
         name: "CHA",
-        score: eo.cha ?? character.cha,
-        modified: eo.cha != null,
+        score: eff(character.cha, "cha"),
+        modified: isModified(character.cha, "cha"),
         subScores: [
           character.cha_leadership != null
             ? {
                 name: ts("leadership"),
-                score: sub(character.cha, character.cha_leadership, eo.cha),
+                score: sub(character.cha, character.cha_leadership, "cha"),
               }
             : null,
           character.cha_appearance != null
             ? {
                 name: ts("appearance"),
-                score: sub(character.cha, character.cha_appearance, eo.cha),
+                score: sub(character.cha, character.cha_appearance, "cha"),
               }
             : null,
         ].filter(Boolean),
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [character, ts, eo]
+    [character, ts, eo, mo, mb]
   );
 
-  // Thief skills (using existing sheet i18n keys)
+  // Thief skills (epic penalties + magic item bonuses)
+  const mt = magicThiefBonuses;
   const thiefSkills = useMemo(() => {
     if (!showThiefSkills) return [];
     return [
       {
         name: ts("pickLocks"),
         base: character.thief_pick_locks,
-        value: applyThiefPenalty(character.thief_pick_locks, epic),
+        value: applyThiefPenalty(character.thief_pick_locks, epic) + (mt.openLocks ?? 0),
       },
       {
         name: ts("findTraps"),
         base: character.thief_find_traps,
-        value: applyThiefPenalty(character.thief_find_traps, epic),
+        value: applyThiefPenalty(character.thief_find_traps, epic) + (mt.findTraps ?? 0),
       },
       {
         name: ts("moveSilently"),
         base: character.thief_move_silently,
-        value: applyThiefPenalty(character.thief_move_silently, epic),
+        value: applyThiefPenalty(character.thief_move_silently, epic) + (mt.moveSilently ?? 0),
       },
       {
         name: ts("hideInShadows"),
         base: character.thief_hide_shadows,
-        value: applyThiefPenalty(character.thief_hide_shadows, epic),
+        value: applyThiefPenalty(character.thief_hide_shadows, epic) + (mt.hideInShadows ?? 0),
       },
       {
         name: ts("climbWalls"),
         base: character.thief_climb_walls,
-        value: applyThiefPenalty(character.thief_climb_walls, epic),
+        value: applyThiefPenalty(character.thief_climb_walls, epic) + (mt.climbWalls ?? 0),
       },
       {
         name: ts("detectNoise"),
         base: character.thief_detect_noise,
-        value: applyThiefPenalty(character.thief_detect_noise, epic),
+        value: applyThiefPenalty(character.thief_detect_noise, epic) + (mt.detectNoise ?? 0),
       },
       {
         name: ts("readLanguages"),
         base: character.thief_read_languages,
-        value: applyThiefPenalty(character.thief_read_languages, epic),
+        value: applyThiefPenalty(character.thief_read_languages, epic) + (mt.readLanguages ?? 0),
       },
     ];
-  }, [showThiefSkills, character, ts, epic]);
+  }, [showThiefSkills, character, ts, epic, mt]);
 
-  // NWP checks with target numbers (using effective stats from epic overrides)
+  // NWP checks with target numbers (using effective stats from epic + magic overrides + bonuses)
   const nwpChecks = useMemo(() => {
     const abilityMap: Record<string, number> = {
-      str: eo.str ?? character.str,
-      dex: eo.dex ?? character.dex,
-      con: eo.con ?? character.con,
-      int: eo.int ?? character.int,
-      wis: eo.wis ?? character.wis,
-      cha: eo.cha ?? character.cha,
+      str: eff(character.str, "str"),
+      dex: eff(character.dex, "dex"),
+      con: eff(character.con, "con"),
+      int: eff(character.int, "int"),
+      wis: eff(character.wis, "wis"),
+      cha: eff(character.cha, "cha"),
     };
     return nonweaponProficiencies.map((nwp) => {
       const ability = nwp.proficiency.ability.toLowerCase();
@@ -246,7 +269,7 @@ export function PlayChecksPanel({
           : null,
       };
     });
-  }, [nonweaponProficiencies, character, locale, eo]);
+  }, [nonweaponProficiencies, character, locale, eo, mo, mb]);
 
   const [expandedNwp, setExpandedNwp] = useState<string | null>(null);
 
@@ -394,7 +417,7 @@ export function PlayChecksPanel({
             {t("perceptionFormula")}
           </div>
           <div className="font-mono text-lg font-bold">
-            {Math.floor(((eo.int ?? character.int) + (eo.wis ?? character.wis)) / 2)}
+            {Math.floor((eff(character.int, "int") + eff(character.wis, "wis")) / 2)}
           </div>
         </div>
       </div>

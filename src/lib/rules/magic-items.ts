@@ -13,6 +13,7 @@ import type {
   CharacterEquipmentWithDetails,
   MagicEffects,
   MagicSpellAbility,
+  MagicStatOverrides,
 } from "@/lib/supabase/types";
 import type { SavingThrows } from "./types";
 
@@ -54,6 +55,10 @@ export interface AggregatedMagicEffects {
   resistances: string[];
   /** Deduplicated passive abilities */
   passiveAbilities: string[];
+  /** Stat overrides from magic items (max wins when multiple items override same stat) */
+  statOverrides: Partial<Record<"str" | "dex" | "con" | "int" | "wis" | "cha", number>>;
+  /** Exceptional strength override (e.g. 100 = 18/00 from Gauntlets of Ogre Power) */
+  strExceptionalOverride: number | null;
 }
 
 /** Check if an equipment entry is a magic item (no weapon/armor reference) */
@@ -90,6 +95,8 @@ export function getMagicItemEffects(
     spellAbilities: [],
     resistances: [],
     passiveAbilities: [],
+    statOverrides: {},
+    strExceptionalOverride: null,
   };
 
   const resistanceSet = new Set<string>();
@@ -106,6 +113,22 @@ export function getMagicItemEffects(
     for (const stat of ["str", "dex", "con", "int", "wis", "cha"] as const) {
       if (fx[stat] != null) {
         result.statBonuses[stat] = (result.statBonuses[stat] ?? 0) + fx[stat]!;
+      }
+    }
+
+    // Stat overrides (max wins — AD&D: highest override takes precedence)
+    if (fx.stat_overrides) {
+      for (const stat of ["str", "dex", "con", "int", "wis", "cha"] as const) {
+        const val = fx.stat_overrides[stat];
+        if (val != null) {
+          result.statOverrides[stat] = Math.max(result.statOverrides[stat] ?? 0, val);
+        }
+      }
+      if (fx.stat_overrides.str_exceptional != null) {
+        result.strExceptionalOverride = Math.max(
+          result.strExceptionalOverride ?? 0,
+          fx.stat_overrides.str_exceptional
+        );
       }
     }
 
