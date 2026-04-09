@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
@@ -112,9 +113,16 @@ export default async function SessionsPage() {
 
           {!sessions || sessions.length === 0 ? (
             <div
-              className="flex flex-1 flex-col items-center justify-center gap-4 text-center"
+              className="flex flex-1 flex-col items-center justify-center gap-4 py-12 text-center"
               data-testid="no-sessions"
             >
+              <Image
+                src="/images/empty-states/chronicle.webp"
+                alt=""
+                width={200}
+                height={150}
+                className="opacity-60"
+              />
               <p className="text-lg text-muted-foreground">{t("noSessions")}</p>
               <Link href="/sessions/new">
                 <Button size="lg">{t("createFirst")}</Button>

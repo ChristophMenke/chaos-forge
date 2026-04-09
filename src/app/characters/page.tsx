@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/supabase/auth";
@@ -112,9 +113,16 @@ export default async function CharactersPage() {
       sharedWithMe.length === 0 &&
       publicChars.length === 0 ? (
         <div
-          className="flex flex-1 flex-col items-center justify-center gap-4 text-center"
+          className="flex flex-1 flex-col items-center justify-center gap-4 py-12 text-center"
           data-testid="no-characters"
         >
+          <Image
+            src="/images/empty-states/forge.webp"
+            alt=""
+            width={200}
+            height={150}
+            className="opacity-60"
+          />
           <p className="text-lg text-muted-foreground">{t("noCharacters")}</p>
           <Link href="/characters/new">
             <Button size="lg">{t("createFirst")}</Button>
