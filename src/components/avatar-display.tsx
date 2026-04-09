@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 
 interface AvatarDisplayProps {
@@ -31,6 +34,7 @@ export function AvatarDisplay({
   raceId,
   classGroup,
 }: AvatarDisplayProps) {
+  const [silhouetteFailed, setSilhouetteFailed] = useState(false);
   const borderRadius = variant === "circle" ? "rounded-full" : "rounded-lg";
 
   if (avatarUrl) {
@@ -48,7 +52,7 @@ export function AvatarDisplay({
   }
 
   // Silhouette fallback: race + class group
-  if (raceId && classGroup) {
+  if (raceId && classGroup && !silhouetteFailed) {
     const silhouettePath = `/images/avatars/${raceId}-${classGroup}.webp`;
     return (
       <Image
@@ -59,12 +63,7 @@ export function AvatarDisplay({
         className={`${borderRadius} object-cover ${className}`}
         style={{ width: size, height: size }}
         data-testid="avatar-silhouette"
-        onError={(e) => {
-          // Fallback to initials if silhouette not found
-          const target = e.currentTarget;
-          target.style.display = "none";
-          target.parentElement?.querySelector("[data-fallback]")?.removeAttribute("hidden");
-        }}
+        onError={() => setSilhouetteFailed(true)}
       />
     );
   }

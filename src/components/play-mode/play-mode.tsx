@@ -784,6 +784,9 @@ export function PlayMode({
 
   // Swipe gesture for mobile panel switching
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const prefersReducedMotionRef = useRef(
+    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
   }, []);
@@ -795,8 +798,7 @@ export function PlayMode({
       touchStartRef.current = null;
       // Require min 50px horizontal swipe, max 30px vertical drift
       if (Math.abs(dx) < 50 || Math.abs(dy) > 30) return;
-      // Respect prefers-reduced-motion
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (prefersReducedMotionRef.current) return;
       const currentIdx = visiblePanels.findIndex((p) => p.id === effectivePanel);
       if (dx < 0 && currentIdx < visiblePanels.length - 1) {
         setActivePanel(visiblePanels[currentIdx + 1].id);
@@ -856,6 +858,7 @@ export function PlayMode({
             aria-selected={effectivePanel === panel.id}
             aria-controls={`panel-${panel.id}`}
             id={`tab-${panel.id}`}
+            tabIndex={effectivePanel === panel.id ? 0 : -1}
             onClick={() => setActivePanel(panel.id)}
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
               effectivePanel === panel.id

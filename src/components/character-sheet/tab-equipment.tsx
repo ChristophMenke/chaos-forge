@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useMemo, useEffect, useCallback } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -119,7 +119,7 @@ export function TabEquipment({
   const [showCustomWeaponForm, setShowCustomWeaponForm] = useState(false);
   const [showCustomArmorForm, setShowCustomArmorForm] = useState(false);
 
-  // Lazy-loading catalogs: use props if provided, otherwise fetch on demand
+  // Lazy-loading catalogs: use props if provided, otherwise fetch on mount
   const [lazyWeapons, setLazyWeapons] = useState<WeaponRow[] | null>(
     allWeapons.length > 0 ? allWeapons : null
   );
@@ -133,36 +133,29 @@ export function TabEquipment({
     allMagicItems.length > 0 ? allMagicItems : null
   );
   const [loadingCatalogs, setLoadingCatalogs] = useState(false);
+  const catalogsLoadedRef = useRef(false);
 
-  const loadCatalogs = useCallback(async () => {
-    if (lazyWeapons && lazyArmor && lazyGeneralItems && lazyMagicItems) return;
+  // Load catalogs once on mount (component is dynamically imported, so this fires when tab opens)
+  useEffect(() => {
+    if (catalogsLoadedRef.current) return;
+    if (allWeapons.length > 0 && allArmor.length > 0) return; // already have data via props
+    catalogsLoadedRef.current = true;
     setLoadingCatalogs(true);
     const supabase = createClient();
-    const [w, a, g, m] = await Promise.all([
-      lazyWeapons
-        ? Promise.resolve({ data: null })
-        : supabase.from("weapons").select("*").order("name"),
-      lazyArmor
-        ? Promise.resolve({ data: null })
-        : supabase.from("armor").select("*").order("ac", { ascending: false }),
-      lazyGeneralItems
-        ? Promise.resolve({ data: null })
-        : supabase.from("general_items").select("*").order("name"),
-      lazyMagicItems
-        ? Promise.resolve({ data: null })
-        : supabase.from("magic_items").select("*").order("name"),
-    ]);
-    if (w.data) setLazyWeapons(w.data as WeaponRow[]);
-    if (a.data) setLazyArmor(a.data as ArmorRow[]);
-    if (g.data) setLazyGeneralItems(g.data as GeneralItemRow[]);
-    if (m.data) setLazyMagicItems(m.data as MagicItemRow[]);
-    setLoadingCatalogs(false);
-  }, [lazyWeapons, lazyArmor, lazyGeneralItems, lazyMagicItems]);
-
-  // Load catalogs on mount (component is dynamically imported, so this only fires when tab opens)
-  useEffect(() => {
-    loadCatalogs();
-  }, [loadCatalogs]);
+    Promise.all([
+      supabase.from("weapons").select("*").order("name"),
+      supabase.from("armor").select("*").order("ac", { ascending: false }),
+      supabase.from("general_items").select("*").order("name"),
+      supabase.from("magic_items").select("*").order("name"),
+    ])
+      .then(([w, a, g, m]) => {
+        if (w.data) setLazyWeapons(w.data as WeaponRow[]);
+        if (a.data) setLazyArmor(a.data as ArmorRow[]);
+        if (g.data) setLazyGeneralItems(g.data as GeneralItemRow[]);
+        if (m.data) setLazyMagicItems(m.data as MagicItemRow[]);
+      })
+      .finally(() => setLoadingCatalogs(false));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Use lazy-loaded data (falls back to empty arrays while loading)
   const weapons = lazyWeapons ?? [];

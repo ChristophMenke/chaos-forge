@@ -103,9 +103,9 @@ export default async function RootLayout({
                 {children}
               </main>
             </TooltipProvider>
+            <Toaster richColors position="bottom-right" />
           </ThemeProvider>
         </NextIntlClientProvider>
-        <Toaster richColors position="bottom-right" />
         <SpeedInsights />
       </body>
     </html>
