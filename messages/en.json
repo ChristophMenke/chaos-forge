@@ -1190,7 +1190,28 @@
     "removeItemMessage": "Discard \"{name}\"?",
     "equipped": "Equipped",
     "unequipped": "Unequipped",
-    "turnUndead": "Undead"
+    "turnUndead": "Undead",
+    "saveFailed": "Failed to save changes. Please try again.",
+    "spellCastFailed": "Failed to mark spell as expended.",
+    "restFailed": "Failed to reset spell slots.",
+    "restSuccess": "All spell resources restored.",
+    "panelNavigation": "Panel navigation",
+    "thac0Tooltip": "To Hit Armor Class 0. Roll d20 — result ≥ THAC0 − target AC = hit.",
+    "acTooltip": "Armor Class. Lower is better protected.",
+    "savingThrowsTooltip": "Saving throw — roll d20, result ≥ target = success.",
+    "paralyzationTooltip": "Against paralysis, poison, and death magic.",
+    "rodTooltip": "Against rod, staff, and wand effects.",
+    "petrificationTooltip": "Against petrification and polymorph.",
+    "breathTooltip": "Against dragon breath and area effects.",
+    "spellSaveTooltip": "Against direct spell effects.",
+    "perceptionTooltip": "House rule: ⌊(INT + WIS) / 2⌋. Roll d20, result ≤ value = success.",
+    "backstabTooltip": "Backstab damage multiplier on surprise attacks."
+  },
+  "error": {
+    "title": "Something went wrong",
+    "message": "An unexpected error occurred. This should not have happened.",
+    "retry": "Try again",
+    "backToDashboard": "Back to Dashboard"
   },
   "epic": {
     "title": "Epic Equipment",

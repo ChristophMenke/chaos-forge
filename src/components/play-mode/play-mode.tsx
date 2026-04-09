@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { PlayHpBar } from "./play-hp-bar";
@@ -65,6 +65,7 @@ import type {
 } from "@/lib/supabase/types";
 import type { CoinPurse } from "@/lib/rules/equipment";
 import { getSingleWeaponStyleBonus } from "@/lib/rules/fighting-styles";
+import { toast } from "sonner";
 
 // Icons as simple SVG components
 function SwordIcon({ className }: { className?: string }) {
@@ -645,60 +646,68 @@ export function PlayMode({
       setCharacter((prev) => ({ ...prev, ...updates }));
       const supabase = createClient();
       const { error } = await supabase.from("characters").update(updates).eq("id", character.id);
-      if (error) console.error("Failed to update character:", error);
+      if (error) toast.error(t("saveFailed"));
     },
-    [character.id]
+    [character.id, t]
   );
 
-  function handleHpChange(newEffectiveHp: number) {
-    // Inverse of asymmetric formula: effective = base + min(0, delta)
-    // => base = effective - min(0, delta)
-    // HP can go negative (down to -maxHP = death threshold)
-    const baseHp = newEffectiveHp - Math.min(0, hpDelta);
-    const clampedBaseHp = Math.max(-character.hp_max, Math.min(character.hp_max, baseHp));
-    updateCharacter({ hp_current: clampedBaseHp });
-  }
+  const handleHpChange = useCallback(
+    (newEffectiveHp: number) => {
+      // Inverse of asymmetric formula: effective = base + min(0, delta)
+      // => base = effective - min(0, delta)
+      // HP can go negative (down to -maxHP = death threshold)
+      const baseHp = newEffectiveHp - Math.min(0, hpDelta);
+      const clampedBaseHp = Math.max(-character.hp_max, Math.min(character.hp_max, baseHp));
+      updateCharacter({ hp_current: clampedBaseHp });
+    },
+    [hpDelta, character.hp_max, updateCharacter]
+  );
 
-  function handleCoinChange(newPurse: CoinPurse) {
-    updateCharacter({
-      gold_pp: newPurse.pp,
-      gold_gp: newPurse.gp,
-      gold_ep: newPurse.ep,
-      gold_sp: newPurse.sp,
-      gold_cp: newPurse.cp,
-    });
-  }
+  const handleCoinChange = useCallback(
+    (newPurse: CoinPurse) => {
+      updateCharacter({
+        gold_pp: newPurse.pp,
+        gold_gp: newPurse.gp,
+        gold_ep: newPurse.ep,
+        gold_sp: newPurse.sp,
+        gold_cp: newPurse.cp,
+      });
+    },
+    [updateCharacter]
+  );
 
-  async function handleCastSpell(spellId: string, pointsCost: number) {
-    if (character.spell_system === "points") {
-      const newUsed = character.spell_points_used + pointsCost;
-      updateCharacter({ spell_points_used: newUsed });
-    } else {
-      // Slots mode: mark first non-expended instance as expended
-      let marked = false;
-      setSpells((prev) =>
-        prev.map((s) => {
-          if (!marked && s.spell_id === spellId && s.prepared && !s.expended) {
-            marked = true;
-            return { ...s, expended: true };
-          }
-          return s;
-        })
-      );
-      const supabase = createClient();
-      // Only mark one row — use prepared=true and expended=false filter with limit
-      const { error } = await supabase
-        .from("character_spells")
-        .update({ expended: true })
-        .eq("character_id", character.id)
-        .eq("spell_id", spellId)
-        .eq("prepared", true)
-        .eq("expended", false);
-      if (error) console.error("Failed to mark spell as expended:", error);
-    }
-  }
+  const handleCastSpell = useCallback(
+    async (spellId: string, pointsCost: number) => {
+      if (character.spell_system === "points") {
+        const newUsed = character.spell_points_used + pointsCost;
+        updateCharacter({ spell_points_used: newUsed });
+      } else {
+        // Slots mode: mark first non-expended instance as expended
+        let marked = false;
+        setSpells((prev) =>
+          prev.map((s) => {
+            if (!marked && s.spell_id === spellId && s.prepared && !s.expended) {
+              marked = true;
+              return { ...s, expended: true };
+            }
+            return s;
+          })
+        );
+        const supabase = createClient();
+        const { error } = await supabase
+          .from("character_spells")
+          .update({ expended: true })
+          .eq("character_id", character.id)
+          .eq("spell_id", spellId)
+          .eq("prepared", true)
+          .eq("expended", false);
+        if (error) toast.error(t("spellCastFailed"));
+      }
+    },
+    [character.id, character.spell_system, character.spell_points_used, updateCharacter, t]
+  );
 
-  async function handleRest() {
+  const handleRest = useCallback(async () => {
     if (character.spell_system === "points") {
       updateCharacter({ spell_points_used: 0 });
     } else {
@@ -709,50 +718,96 @@ export function PlayMode({
         .update({ expended: false })
         .eq("character_id", character.id)
         .eq("prepared", true);
-      if (error) console.error("Failed to reset spell slots:", error);
+      if (error) toast.error(t("restFailed"));
+      else toast.success(t("restSuccess"));
     }
-  }
+  }, [character.id, character.spell_system, updateCharacter, t]);
 
-  const panels: { id: PanelId; label: string; icon: React.ReactNode; show: boolean }[] = [
-    { id: "combat", label: t("combat"), icon: <SwordIcon className="h-4 w-4" />, show: true },
-    {
-      id: "spellbook",
-      label: t("spellbook"),
-      icon: <SparklesIcon className="h-4 w-4" />,
-      show: showSpells,
-    },
-    {
-      id: "turnUndead",
-      label: t("turnUndead"),
-      icon: <TargetIcon className="h-4 w-4" />,
-      show: turnUndeadInfo.show,
-    },
-    {
-      id: "abilities",
-      label: t("abilities"),
-      icon: <SparklesIcon className="h-4 w-4" />,
-      show: showAbilities,
-    },
-    {
-      id: "magicItems",
-      label: t("magicItems"),
-      icon: <WandIcon className="h-4 w-4" />,
-      show: hasMagicItems,
-    },
-    { id: "checks", label: t("checks"), icon: <TargetIcon className="h-4 w-4" />, show: true },
-    {
-      id: "inventory",
-      label: t("inventory"),
-      icon: <BackpackIcon className="h-4 w-4" />,
-      show: true,
-    },
-    { id: "coinPurse", label: t("coinPurse"), icon: <CoinsIcon className="h-4 w-4" />, show: true },
-  ];
+  const panels = useMemo(
+    () => [
+      {
+        id: "combat" as PanelId,
+        label: t("combat"),
+        icon: <SwordIcon className="h-4 w-4" />,
+        show: true,
+      },
+      {
+        id: "spellbook" as PanelId,
+        label: t("spellbook"),
+        icon: <SparklesIcon className="h-4 w-4" />,
+        show: showSpells,
+      },
+      {
+        id: "turnUndead" as PanelId,
+        label: t("turnUndead"),
+        icon: <TargetIcon className="h-4 w-4" />,
+        show: turnUndeadInfo.show,
+      },
+      {
+        id: "abilities" as PanelId,
+        label: t("abilities"),
+        icon: <SparklesIcon className="h-4 w-4" />,
+        show: showAbilities,
+      },
+      {
+        id: "magicItems" as PanelId,
+        label: t("magicItems"),
+        icon: <WandIcon className="h-4 w-4" />,
+        show: hasMagicItems,
+      },
+      {
+        id: "checks" as PanelId,
+        label: t("checks"),
+        icon: <TargetIcon className="h-4 w-4" />,
+        show: true,
+      },
+      {
+        id: "inventory" as PanelId,
+        label: t("inventory"),
+        icon: <BackpackIcon className="h-4 w-4" />,
+        show: true,
+      },
+      {
+        id: "coinPurse" as PanelId,
+        label: t("coinPurse"),
+        icon: <CoinsIcon className="h-4 w-4" />,
+        show: true,
+      },
+    ],
+    [t, showSpells, turnUndeadInfo.show, showAbilities, hasMagicItems]
+  );
 
-  const visiblePanels = panels.filter((p) => p.show);
+  const visiblePanels = useMemo(() => panels.filter((p) => p.show), [panels]);
 
   // Fallback to combat if the active panel is no longer visible (e.g. last magic item removed)
   const effectivePanel = visiblePanels.some((p) => p.id === activePanel) ? activePanel : "combat";
+
+  // Swipe gesture for mobile panel switching
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const prefersReducedMotionRef = useRef(
+    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }, []);
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (!touchStartRef.current) return;
+      const dx = e.changedTouches[0].clientX - touchStartRef.current.x;
+      const dy = e.changedTouches[0].clientY - touchStartRef.current.y;
+      touchStartRef.current = null;
+      // Require min 50px horizontal swipe, max 30px vertical drift
+      if (Math.abs(dx) < 50 || Math.abs(dy) > 30) return;
+      if (prefersReducedMotionRef.current) return;
+      const currentIdx = visiblePanels.findIndex((p) => p.id === effectivePanel);
+      if (dx < 0 && currentIdx < visiblePanels.length - 1) {
+        setActivePanel(visiblePanels[currentIdx + 1].id);
+      } else if (dx > 0 && currentIdx > 0) {
+        setActivePanel(visiblePanels[currentIdx - 1].id);
+      }
+    },
+    [visiblePanels, effectivePanel]
+  );
 
   return (
     <div className="w-full" data-testid="play-mode">
@@ -767,6 +822,7 @@ export function PlayMode({
         characterId={character.id}
         name={character.name}
         avatarUrl={character.avatar_url}
+        raceId={character.race_id ?? undefined}
         hpCurrent={effectiveHpCurrent}
         hpMax={effectiveHpMax}
         ac={ac}
@@ -789,14 +845,21 @@ export function PlayMode({
         </div>
       )}
 
-      {/* Mobile: Pill navigation */}
+      {/* Mobile: Pill navigation with ARIA tabs */}
       <div
         className="sticky top-[72px] z-20 flex flex-wrap justify-center gap-1 bg-background/80 px-2 py-2 backdrop-blur-sm sm:hidden"
+        role="tablist"
+        aria-label={t("panelNavigation")}
         data-testid="play-panel-nav"
       >
         {visiblePanels.map((panel) => (
           <button
             key={panel.id}
+            role="tab"
+            aria-selected={effectivePanel === panel.id}
+            aria-controls={`panel-${panel.id}`}
+            id={`tab-${panel.id}`}
+            tabIndex={effectivePanel === panel.id ? 0 : -1}
             onClick={() => setActivePanel(panel.id)}
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
               effectivePanel === panel.id
@@ -927,8 +990,15 @@ export function PlayMode({
         </div>
       </div>
 
-      {/* Mobile: Single panel view */}
-      <div className="p-3 sm:hidden">
+      {/* Mobile: Single panel view with swipe support */}
+      <div
+        className="p-3 sm:hidden"
+        role="tabpanel"
+        id={`panel-${effectivePanel}`}
+        aria-labelledby={`tab-${effectivePanel}`}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {effectivePanel === "combat" && (
           <PlayCombatPanel
             equipment={equipment}

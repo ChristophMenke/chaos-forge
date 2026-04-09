@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ interface PlayAbilitiesPanelProps {
   priestLevel?: number;
 }
 
-export function PlayAbilitiesPanel({
+function PlayAbilitiesPanelInner({
   raceId,
   classIds = [],
   priesthoodId,
@@ -113,7 +113,7 @@ export function PlayAbilitiesPanel({
                       <Button
                         size="sm"
                         variant={canUse ? "default" : "ghost"}
-                        className="h-6 shrink-0 px-2 text-[10px] md:text-xs"
+                        className="h-8 shrink-0 px-2.5 text-xs"
                         disabled={!canUse}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -189,7 +189,7 @@ export function PlayAbilitiesPanel({
                       <Button
                         size="sm"
                         variant={canUse ? "default" : "ghost"}
-                        className="h-6 shrink-0 px-2 text-[10px] md:text-xs"
+                        className="h-8 shrink-0 px-2.5 text-xs"
                         disabled={!canUse}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -272,7 +272,7 @@ export function PlayAbilitiesPanel({
                       <Button
                         size="sm"
                         variant={canUse ? "default" : "ghost"}
-                        className="h-6 shrink-0 px-2 text-[10px] md:text-xs"
+                        className="h-8 shrink-0 px-2.5 text-xs"
                         disabled={!canUse}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -301,5 +301,4 @@ export function PlayAbilitiesPanel({
   );
 }
 
-/** Expose reset function for parent components */
-PlayAbilitiesPanel.resetKey = "play-abilities-reset";
+export const PlayAbilitiesPanel = memo(PlayAbilitiesPanelInner);

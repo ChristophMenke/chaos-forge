@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CharactersLoading() {
   return (
-    <div className="flex flex-1 flex-col gap-6 p-6">
+    <div className="flex flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6">
       <div className="flex items-center justify-between">
         <Skeleton className="h-10 w-64" />
         <Skeleton className="h-10 w-40" />

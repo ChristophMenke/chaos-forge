@@ -62,8 +62,16 @@ import type {
   TraitEntry,
   MagicItemRow,
 } from "@/lib/supabase/types";
-import { TabEquipment } from "./tab-equipment";
-import { TabSpells } from "./tab-spells";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const TabEquipment = dynamic(
+  () => import("./tab-equipment").then((m) => ({ default: m.TabEquipment })),
+  { loading: () => <Skeleton className="h-96 w-full rounded-lg" /> }
+);
+const TabSpells = dynamic(() => import("./tab-spells").then((m) => ({ default: m.TabSpells })), {
+  loading: () => <Skeleton className="h-96 w-full rounded-lg" />,
+});
 import { TabThiefSkills } from "./tab-thief-skills";
 import { TabProficiencies } from "./tab-proficiencies";
 import { XpAddDialog } from "./xp-add-dialog";
@@ -731,7 +739,14 @@ export function CharacterSheet({
               />
             </button>
           ) : (
-            <AvatarDisplay name={character.name} avatarUrl={null} size={80} variant="square" />
+            <AvatarDisplay
+              name={character.name}
+              avatarUrl={null}
+              size={80}
+              variant="square"
+              raceId={character.race_id ?? undefined}
+              classGroup={primaryClassGroup}
+            />
           )}
           <div className="min-w-0 flex-1">
             {isOwner ? (

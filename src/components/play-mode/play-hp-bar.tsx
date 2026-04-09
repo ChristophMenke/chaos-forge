@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { memo, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { AvatarDisplay } from "@/components/avatar-display";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { ClassGroup } from "@/lib/rules/types";
 import { getClassGroupColors } from "@/lib/utils/class-colors";
 import { getHpStatus, getDeathThreshold } from "@/lib/rules/hitpoints";
@@ -13,6 +15,7 @@ interface PlayHpBarProps {
   characterId: string;
   name: string;
   avatarUrl: string | null;
+  raceId?: string;
   hpCurrent: number;
   hpMax: number;
   ac: number;
@@ -25,10 +28,11 @@ interface PlayHpBarProps {
   onHpChange: (newHp: number) => void;
 }
 
-export function PlayHpBar({
+function PlayHpBarInner({
   characterId,
   name,
   avatarUrl,
+  raceId,
   hpCurrent,
   hpMax,
   ac,
@@ -91,21 +95,13 @@ export function PlayHpBar({
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Avatar */}
         <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-border sm:h-12 sm:w-12">
-          {avatarUrl ? (
-            <Image
-              src={avatarUrl}
-              alt={name}
-              width={48}
-              height={48}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div
-              className={`flex h-full w-full items-center justify-center ${colors.badge} text-sm font-bold`}
-            >
-              {name.charAt(0)}
-            </div>
-          )}
+          <AvatarDisplay
+            name={name}
+            avatarUrl={avatarUrl}
+            size={48}
+            raceId={raceId}
+            classGroup={classGroup}
+          />
         </div>
 
         {/* Name + HP controls */}
@@ -210,20 +206,34 @@ export function PlayHpBar({
           </div>
         </div>
 
-        {/* AC + THAC0 */}
+        {/* AC + THAC0 with tooltips */}
         <div className="flex shrink-0 gap-2 text-center sm:gap-3">
-          <div>
-            <div className="text-[10px] md:text-xs uppercase text-muted-foreground">AC</div>
-            <div className="font-heading text-lg font-bold" data-testid="play-ac">
-              {ac}
-            </div>
-          </div>
-          <div>
-            <div className="text-[10px] md:text-xs uppercase text-muted-foreground">THAC0</div>
-            <div className="font-heading text-lg font-bold" data-testid="play-thac0">
-              {thac0}
-            </div>
-          </div>
+          <Tooltip>
+            <TooltipTrigger className="cursor-help text-center" data-testid="play-ac-tooltip">
+              <span className="block text-[10px] md:text-xs uppercase text-muted-foreground">
+                AC
+              </span>
+              <span className="block font-heading text-lg font-bold" data-testid="play-ac">
+                {ac}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="max-w-xs">
+              <p className="text-xs">{t("acTooltip")}</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger className="cursor-help text-center" data-testid="play-thac0-tooltip">
+              <span className="block text-[10px] md:text-xs uppercase text-muted-foreground">
+                THAC0
+              </span>
+              <span className="block font-heading text-lg font-bold" data-testid="play-thac0">
+                {thac0}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="max-w-xs">
+              <p className="text-xs">{t("thac0Tooltip")}</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
 
@@ -275,3 +285,5 @@ export function PlayHpBar({
     </div>
   );
 }
+
+export const PlayHpBar = memo(PlayHpBarInner);

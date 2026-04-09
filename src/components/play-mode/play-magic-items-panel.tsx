@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { memo, useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
@@ -23,7 +23,7 @@ interface PlayMagicItemsPanelProps {
   onHpChange: (newHp: number) => void;
 }
 
-export function PlayMagicItemsPanel({
+function PlayMagicItemsPanelInner({
   equipment,
   hpCurrent,
   hpMax,
@@ -248,3 +248,5 @@ export function PlayMagicItemsPanel({
     </GlassCard>
   );
 }
+
+export const PlayMagicItemsPanel = memo(PlayMagicItemsPanelInner);

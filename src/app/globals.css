@@ -149,10 +149,24 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring;
   }
   body {
     @apply bg-background text-foreground;
+  }
+  /* Subtle ambient texture for dark mode — dungeon stone noise */
+  @media not (prefers-reduced-motion: reduce) {
+    .dark body {
+      background-image:
+        repeating-conic-gradient(oklch(0.18 0.01 285 / 0.04) 0% 25%, transparent 0% 50%),
+        repeating-conic-gradient(oklch(0.14 0.02 280 / 0.03) 0% 25%, transparent 0% 50%);
+      background-size:
+        6px 6px,
+        10px 10px;
+      background-position:
+        0 0,
+        3px 3px;
+    }
   }
   html {
     @apply font-sans;

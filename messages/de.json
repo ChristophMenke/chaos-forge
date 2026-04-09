@@ -1190,7 +1190,28 @@
     "removeItemMessage": "\"{name}\" wirklich wegwerfen?",
     "equipped": "Angelegt",
     "unequipped": "Abgelegt",
-    "turnUndead": "Untote"
+    "turnUndead": "Untote",
+    "saveFailed": "Änderung konnte nicht gespeichert werden. Bitte erneut versuchen.",
+    "spellCastFailed": "Zauber konnte nicht als verbraucht markiert werden.",
+    "restFailed": "Zauberslots konnten nicht zurückgesetzt werden.",
+    "restSuccess": "Alle Zauberressourcen wiederhergestellt.",
+    "panelNavigation": "Panel-Navigation",
+    "thac0Tooltip": "To Hit Armor Class 0. Würfle d20 — Ergebnis ≥ ETW0 − Gegner-RK = Treffer.",
+    "acTooltip": "Rüstungsklasse. Je niedriger, desto besser geschützt.",
+    "savingThrowsTooltip": "Rettungswurf — würfle d20, Ergebnis ≥ Zielwert = Erfolg.",
+    "paralyzationTooltip": "Gegen Lähmung, Gift und Todesmagie.",
+    "rodTooltip": "Gegen Stab-, Ruten- und Zauberstab-Effekte.",
+    "petrificationTooltip": "Gegen Versteinerung und Verwandlung.",
+    "breathTooltip": "Gegen Drachenodem und Flächeneffekte.",
+    "spellSaveTooltip": "Gegen direkte Zauberspruch-Effekte.",
+    "perceptionTooltip": "Hausregel: ⌊(INT + WIS) / 2⌋. Würfle d20, Ergebnis ≤ Wert = Erfolg.",
+    "backstabTooltip": "Hinterhalt-Schadensmultiplikator bei Überraschungsangriffen."
+  },
+  "error": {
+    "title": "Etwas ist schiefgelaufen",
+    "message": "Ein unerwarteter Fehler ist aufgetreten. Das sollte nicht passieren.",
+    "retry": "Erneut versuchen",
+    "backToDashboard": "Zurück zum Dashboard"
   },
   "epic": {
     "title": "Epische Ausrüstung",

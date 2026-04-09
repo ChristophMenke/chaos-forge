@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 
 interface AvatarDisplayProps {
@@ -7,6 +10,10 @@ interface AvatarDisplayProps {
   className?: string;
   /** "circle" for lists/cards, "square" for the character sheet header. */
   variant?: "circle" | "square";
+  /** Race ID for silhouette fallback */
+  raceId?: string;
+  /** Class group for silhouette fallback: "warrior" | "priest" | "rogue" | "wizard" */
+  classGroup?: string;
 }
 
 function getInitials(name: string): string {
@@ -24,7 +31,10 @@ export function AvatarDisplay({
   size = 80,
   className = "",
   variant = "circle",
+  raceId,
+  classGroup,
 }: AvatarDisplayProps) {
+  const [silhouetteFailed, setSilhouetteFailed] = useState(false);
   const borderRadius = variant === "circle" ? "rounded-full" : "rounded-lg";
 
   if (avatarUrl) {
@@ -37,6 +47,23 @@ export function AvatarDisplay({
         className={`${borderRadius} object-cover ${className}`}
         style={{ width: size, height: size }}
         data-testid="avatar-image"
+      />
+    );
+  }
+
+  // Silhouette fallback: race + class group
+  if (raceId && classGroup && !silhouetteFailed) {
+    const silhouettePath = `/images/avatars/${raceId}-${classGroup}.webp`;
+    return (
+      <Image
+        src={silhouettePath}
+        alt={`${name} silhouette`}
+        width={size}
+        height={size}
+        className={`${borderRadius} object-cover ${className}`}
+        style={{ width: size, height: size }}
+        data-testid="avatar-silhouette"
+        onError={() => setSilhouetteFailed(true)}
       />
     );
   }

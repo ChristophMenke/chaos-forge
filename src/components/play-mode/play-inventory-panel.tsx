@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Send } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
@@ -32,7 +32,7 @@ interface PlayInventoryPanelProps {
   onInventoryChange: (inventory: CharacterInventoryWithDetails[]) => void;
 }
 
-export function PlayInventoryPanel({
+function PlayInventoryPanelInner({
   characterId,
   characterName = "",
   inventory,
@@ -179,7 +179,7 @@ export function PlayInventoryPanel({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-6 w-6 p-0 text-xs"
+                    className="h-8 w-8 p-0 text-sm"
                     onClick={() => updateQuantity(item.id, item.quantity - 1)}
                     aria-label={`${itemName(item)} −1`}
                     data-testid={`play-inventory-minus-${item.id}`}
@@ -190,7 +190,7 @@ export function PlayInventoryPanel({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-6 w-6 p-0 text-xs"
+                    className="h-8 w-8 p-0 text-sm"
                     aria-label={`${itemName(item)} +1`}
                     onClick={() => updateQuantity(item.id, item.quantity + 1)}
                     data-testid={`play-inventory-plus-${item.id}`}
@@ -230,3 +230,5 @@ export function PlayInventoryPanel({
     </GlassCard>
   );
 }
+
+export const PlayInventoryPanel = memo(PlayInventoryPanelInner);

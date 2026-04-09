@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { memo, useState, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,7 @@ function rollDice(sides: number, count: number): number {
   return total;
 }
 
-export function PlayTurnUndeadPanel({
+function PlayTurnUndeadPanelInner({
   clericLevel,
   isPaladin = false,
   isEvil = false,
@@ -211,3 +211,5 @@ export function PlayTurnUndeadPanel({
     </GlassCard>
   );
 }
+
+export const PlayTurnUndeadPanel = memo(PlayTurnUndeadPanelInner);

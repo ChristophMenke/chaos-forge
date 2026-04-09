@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
@@ -325,9 +326,16 @@ export function PartyItemsPanel({
 
       {/* Item list */}
       {items.length === 0 ? (
-        <p className="text-sm text-muted-foreground" data-testid="party-items-empty">
-          {t("noItems")}
-        </p>
+        <div className="flex flex-col items-center gap-3 py-6" data-testid="party-items-empty">
+          <Image
+            src="/images/empty-states/treasure-chest.webp"
+            alt=""
+            width={160}
+            height={120}
+            className="opacity-50"
+          />
+          <p className="text-sm text-muted-foreground">{t("noItems")}</p>
+        </div>
       ) : (
         <div className="space-y-1" data-testid="party-items-list">
           {items.map((item) => (

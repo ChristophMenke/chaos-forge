@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -301,7 +302,9 @@ export function NpcManager({ npcs: initialNpcs }: NpcManagerProps) {
                   >
                     <span className="font-medium">{npc.name}</span>
                     {npc.location && (
-                      <span className="ml-2 text-sm text-muted-foreground">— {npc.location}</span>
+                      <Badge variant="secondary" className="ml-2 text-[10px] md:text-xs">
+                        {npc.location}
+                      </Badge>
                     )}
                   </div>
 

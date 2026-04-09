@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { memo, useState, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { MarkdownRenderer as ReactMarkdown } from "@/components/markdown-renderer";
 import { localized } from "@/lib/utils/localize";
@@ -48,7 +48,7 @@ interface PlaySpellbookPanelProps {
   priestAvailableSpells?: SpellRow[];
 }
 
-export function PlaySpellbookPanel({
+function PlaySpellbookPanelInner({
   spells,
   character,
   classGroups,
@@ -448,7 +448,7 @@ export function PlaySpellbookPanel({
                                 <Button
                                   size="sm"
                                   variant="default"
-                                  className="h-6 shrink-0 px-2 text-[10px] md:text-xs"
+                                  className="h-8 shrink-0 px-2.5 text-xs"
                                   disabled={!canCastThis}
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -588,7 +588,7 @@ export function PlaySpellbookPanel({
                             <Button
                               size="sm"
                               variant={isExpended ? "ghost" : "default"}
-                              className="h-6 shrink-0 px-2 text-[10px] md:text-xs"
+                              className="h-8 shrink-0 px-2.5 text-xs"
                               disabled={!canCast(charSpell)}
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -640,3 +640,5 @@ export function PlaySpellbookPanel({
     </GlassCard>
   );
 }
+
+export const PlaySpellbookPanel = memo(PlaySpellbookPanelInner);

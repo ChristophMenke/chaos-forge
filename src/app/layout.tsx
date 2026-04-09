@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SkipToMain } from "@/components/skip-to-main";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const cinzel = Cinzel({
@@ -102,6 +103,7 @@ export default async function RootLayout({
                 {children}
               </main>
             </TooltipProvider>
+            <Toaster richColors position="bottom-right" />
           </ThemeProvider>
         </NextIntlClientProvider>
         <SpeedInsights />

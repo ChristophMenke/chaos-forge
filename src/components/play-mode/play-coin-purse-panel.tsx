@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { PayDialog } from "@/components/character-sheet/pay-dialog";
 import { SendGoldDialog } from "./send-gold-dialog";
 import { purseTotalInCP, type CoinPurse } from "@/lib/rules/equipment";
@@ -23,7 +25,7 @@ interface PlayCoinPursePanelProps {
   onCoinChange: (purse: CoinPurse) => void;
 }
 
-export function PlayCoinPursePanel({
+function PlayCoinPursePanelInner({
   characterId,
   characterName = "",
   coinPurse,
@@ -76,10 +78,34 @@ export function PlayCoinPursePanel({
   }
 
   const coins = [
-    { key: "pp" as const, label: "PP", value: coinPurse.pp },
-    { key: "gp" as const, label: "GP", value: coinPurse.gp },
-    { key: "sp" as const, label: "SP", value: coinPurse.sp },
-    { key: "cp" as const, label: "CP", value: coinPurse.cp },
+    {
+      key: "pp" as const,
+      label: "PP",
+      value: coinPurse.pp,
+      color: "border-blue-400/40 text-blue-300",
+      icon: "/images/coins/pp.webp",
+    },
+    {
+      key: "gp" as const,
+      label: "GP",
+      value: coinPurse.gp,
+      color: "border-amber-400/40 text-amber-300",
+      icon: "/images/coins/gp.webp",
+    },
+    {
+      key: "sp" as const,
+      label: "SP",
+      value: coinPurse.sp,
+      color: "border-zinc-400/40 text-zinc-300",
+      icon: "/images/coins/sp.webp",
+    },
+    {
+      key: "cp" as const,
+      label: "CP",
+      value: coinPurse.cp,
+      color: "border-orange-400/40 text-orange-300",
+      icon: "/images/coins/cp.webp",
+    },
   ];
 
   const canTrade = !readOnly && tradeCharacters && tradeCharacters.length > 0;
@@ -93,11 +119,25 @@ export function PlayCoinPursePanel({
       {/* Coin display */}
       <div className="mb-2 grid grid-cols-4 gap-1 text-center" data-testid="play-coins">
         {coins.map((coin) => (
-          <div key={coin.key} className="rounded-md border border-border px-1 py-1.5">
-            <div className="text-[10px] md:text-xs font-medium text-muted-foreground">
+          <div
+            key={coin.key}
+            className={`relative overflow-hidden rounded-md border px-1 py-1.5 ${coin.color}`}
+          >
+            <Image
+              src={coin.icon}
+              alt=""
+              fill
+              sizes="80px"
+              className="object-cover object-center opacity-20"
+              aria-hidden="true"
+            />
+            <div className="relative text-[10px] md:text-xs font-medium opacity-70">
               {coin.label}
             </div>
-            <div className="font-mono text-lg font-bold" data-testid={`play-coin-${coin.key}`}>
+            <div
+              className="relative font-mono text-lg font-bold"
+              data-testid={`play-coin-${coin.key}`}
+            >
               {coin.value}
             </div>
           </div>
@@ -150,66 +190,53 @@ export function PlayCoinPursePanel({
       )}
 
       {/* Receive dialog */}
-      {showReceiveDialog && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-          onClick={() => setShowReceiveDialog(false)}
-          onKeyDown={(e) => e.key === "Escape" && setShowReceiveDialog(false)}
-          role="dialog"
-          aria-modal="true"
-          aria-label={t("receiveTitle")}
-          data-testid="play-receive-dialog"
-        >
-          <div
-            className="mx-4 flex w-full max-w-sm flex-col gap-3 rounded-lg border border-border bg-card p-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="font-heading text-lg text-primary">{t("receiveTitle")}</h3>
-            <div className="grid grid-cols-4 gap-2">
-              {coins.map((coin) => (
-                <div key={coin.key} className="text-center">
-                  <label className="text-[10px] md:text-xs text-muted-foreground">
-                    {coin.label}
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={receiveAmounts[coin.key] || ""}
-                    onChange={(e) =>
-                      setReceiveAmounts((prev) => ({
-                        ...prev,
-                        [coin.key]: parseInt(e.target.value, 10) || 0,
-                      }))
-                    }
-                    className="w-full rounded-md border border-border bg-background px-1 py-1 text-center text-sm"
-                    aria-label={coin.label}
-                    data-testid={`play-receive-${coin.key}`}
-                  />
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                className="flex-1"
-                onClick={handleReceive}
-                data-testid="play-receive-confirm"
-              >
-                {t("apply")}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="flex-1"
-                onClick={() => setShowReceiveDialog(false)}
-                data-testid="play-receive-cancel"
-              >
-                {t("cancel")}
-              </Button>
-            </div>
+      <Dialog open={showReceiveDialog} onOpenChange={setShowReceiveDialog}>
+        <DialogContent showCloseButton={false} data-testid="play-receive-dialog">
+          <DialogTitle className="font-heading text-lg text-primary">
+            {t("receiveTitle")}
+          </DialogTitle>
+          <div className="grid grid-cols-4 gap-2">
+            {coins.map((coin) => (
+              <div key={coin.key} className="text-center">
+                <label className="text-[10px] md:text-xs text-muted-foreground">{coin.label}</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={receiveAmounts[coin.key] || ""}
+                  onChange={(e) =>
+                    setReceiveAmounts((prev) => ({
+                      ...prev,
+                      [coin.key]: parseInt(e.target.value, 10) || 0,
+                    }))
+                  }
+                  className="w-full rounded-md border border-border bg-background px-1 py-1 text-center text-sm"
+                  aria-label={coin.label}
+                  data-testid={`play-receive-${coin.key}`}
+                />
+              </div>
+            ))}
           </div>
-        </div>
-      )}
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              className="flex-1"
+              onClick={handleReceive}
+              data-testid="play-receive-confirm"
+            >
+              {t("apply")}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex-1"
+              onClick={() => setShowReceiveDialog(false)}
+              data-testid="play-receive-cancel"
+            >
+              {t("cancel")}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Send gold dialog */}
       {showSendDialog && tradeCharacters && (
@@ -225,3 +252,5 @@ export function PlayCoinPursePanel({
     </GlassCard>
   );
 }
+
+export const PlayCoinPursePanel = memo(PlayCoinPursePanelInner);

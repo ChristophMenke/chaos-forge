@@ -214,14 +214,20 @@ export function QuoteSection({
             return (
               <div
                 key={quote.id}
-                className="rounded-lg border border-border bg-card/30 p-4"
+                className="relative rounded-lg border border-amber-500/20 bg-amber-950/10 p-4"
                 data-testid={`quote-card-${quote.id}`}
               >
-                <blockquote className="border-l-2 border-primary/40 pl-3 italic text-foreground">
-                  &ldquo;{quote.content}&rdquo;
+                <span
+                  className="absolute -top-2 left-2 font-serif text-3xl leading-none text-primary/30"
+                  aria-hidden="true"
+                >
+                  &#x275D;
+                </span>
+                <blockquote className="pl-4 pt-1 font-serif text-sm italic text-foreground/90">
+                  {quote.content}
                 </blockquote>
                 {quote.attributed_to && (
-                  <p className="mt-1 text-right text-sm text-muted-foreground">
+                  <p className="mt-2 text-right text-sm font-medium text-primary/70">
                     — {quote.attributed_to}
                   </p>
                 )}
