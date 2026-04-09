@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Snowflake, Swords } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -56,7 +57,7 @@ interface PlayCombatPanelProps {
   equippedShieldName?: string | null;
 }
 
-export function PlayCombatPanel({
+function PlayCombatPanelInner({
   equipment,
   weaponProficiencies,
   thac0,
@@ -295,7 +296,7 @@ export function PlayCombatPanel({
           <Button
             variant="default"
             size="sm"
-            className="h-6 shrink-0 px-2 text-[10px] md:text-xs"
+            className="h-8 shrink-0 px-2.5 text-xs"
             onClick={() => setExpandedBreakdown((prev) => (prev === eq.id ? null : eq.id))}
             data-testid={`play-weapon-breakdown-toggle-${eq.id}`}
           >
@@ -642,10 +643,17 @@ export function PlayCombatPanel({
           </div>
         )}
         {backstabMultiplier && (
-          <div data-testid="play-backstab">
-            <span className="text-xs text-muted-foreground">{t("backstabMultiplier")}: </span>
-            <span className="font-mono font-bold text-primary">x{backstabMultiplier}</span>
-          </div>
+          <Tooltip>
+            <TooltipTrigger>
+              <div className="cursor-help" data-testid="play-backstab">
+                <span className="text-xs text-muted-foreground">{t("backstabMultiplier")}: </span>
+                <span className="font-mono font-bold text-primary">x{backstabMultiplier}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs">
+              <p className="text-xs">{t("backstabTooltip")}</p>
+            </TooltipContent>
+          </Tooltip>
         )}
       </div>
 
@@ -859,3 +867,5 @@ export function PlayCombatPanel({
     </GlassCard>
   );
 }
+
+export const PlayCombatPanel = memo(PlayCombatPanelInner);

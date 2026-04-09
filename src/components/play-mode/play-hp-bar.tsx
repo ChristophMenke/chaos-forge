@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { memo, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { ClassGroup } from "@/lib/rules/types";
 import { getClassGroupColors } from "@/lib/utils/class-colors";
 import { getHpStatus, getDeathThreshold } from "@/lib/rules/hitpoints";
@@ -25,7 +26,7 @@ interface PlayHpBarProps {
   onHpChange: (newHp: number) => void;
 }
 
-export function PlayHpBar({
+function PlayHpBarInner({
   characterId,
   name,
   avatarUrl,
@@ -97,6 +98,7 @@ export function PlayHpBar({
               alt={name}
               width={48}
               height={48}
+              priority
               className="h-full w-full object-cover"
             />
           ) : (
@@ -210,20 +212,34 @@ export function PlayHpBar({
           </div>
         </div>
 
-        {/* AC + THAC0 */}
+        {/* AC + THAC0 with tooltips */}
         <div className="flex shrink-0 gap-2 text-center sm:gap-3">
-          <div>
-            <div className="text-[10px] md:text-xs uppercase text-muted-foreground">AC</div>
-            <div className="font-heading text-lg font-bold" data-testid="play-ac">
-              {ac}
-            </div>
-          </div>
-          <div>
-            <div className="text-[10px] md:text-xs uppercase text-muted-foreground">THAC0</div>
-            <div className="font-heading text-lg font-bold" data-testid="play-thac0">
-              {thac0}
-            </div>
-          </div>
+          <Tooltip>
+            <TooltipTrigger>
+              <div className="cursor-help" data-testid="play-ac-tooltip">
+                <div className="text-[10px] md:text-xs uppercase text-muted-foreground">AC</div>
+                <div className="font-heading text-lg font-bold" data-testid="play-ac">
+                  {ac}
+                </div>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="max-w-xs">
+              <p className="text-xs">{t("acTooltip")}</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger>
+              <div className="cursor-help" data-testid="play-thac0-tooltip">
+                <div className="text-[10px] md:text-xs uppercase text-muted-foreground">THAC0</div>
+                <div className="font-heading text-lg font-bold" data-testid="play-thac0">
+                  {thac0}
+                </div>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="max-w-xs">
+              <p className="text-xs">{t("thac0Tooltip")}</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
 
@@ -275,3 +291,5 @@ export function PlayHpBar({
     </div>
   );
 }
+
+export const PlayHpBar = memo(PlayHpBarInner);

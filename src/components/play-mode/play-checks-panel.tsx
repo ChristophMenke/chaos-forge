@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { GlassCard } from "@/components/glass-card";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type {
   SavingThrows,
   StrengthModifiers,
@@ -39,7 +40,7 @@ interface PlayChecksPanelProps {
   magicStatBonuses?: Partial<Record<"str" | "dex" | "con" | "int" | "wis" | "cha", number>>;
 }
 
-export function PlayChecksPanel({
+function PlayChecksPanelInner({
   saves,
   character,
   strMods,
@@ -309,7 +310,16 @@ export function PlayChecksPanel({
 
       {/* Saving Throws */}
       <div className="mb-4" data-testid="play-saving-throws">
-        <h4 className="mb-1.5 text-xs font-medium text-muted-foreground">{t("savingThrows")}</h4>
+        <Tooltip>
+          <TooltipTrigger>
+            <h4 className="mb-1.5 cursor-help text-xs font-medium text-muted-foreground">
+              {t("savingThrows")}
+            </h4>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-xs">
+            <p className="text-xs">{t("savingThrowsTooltip")}</p>
+          </TooltipContent>
+        </Tooltip>
         <div className="grid grid-cols-4 gap-1 text-center">
           {[
             {
@@ -408,7 +418,16 @@ export function PlayChecksPanel({
 
       {/* Perception Check (house rule: (INT + WIS) / 2 rounded down) */}
       <div className="mb-4" data-testid="play-perception">
-        <h4 className="mb-1.5 text-xs font-medium text-muted-foreground">{t("perception")}</h4>
+        <Tooltip>
+          <TooltipTrigger>
+            <h4 className="mb-1.5 cursor-help text-xs font-medium text-muted-foreground">
+              {t("perception")}
+            </h4>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-xs">
+            <p className="text-xs">{t("perceptionTooltip")}</p>
+          </TooltipContent>
+        </Tooltip>
         <div
           className="rounded-md border border-border px-3 py-1.5 text-center"
           style={{ width: "fit-content" }}
@@ -535,3 +554,5 @@ export function PlayChecksPanel({
     </GlassCard>
   );
 }
+
+export const PlayChecksPanel = memo(PlayChecksPanelInner);

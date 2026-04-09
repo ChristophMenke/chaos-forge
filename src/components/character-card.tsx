@@ -113,6 +113,7 @@ export function CharacterCard({
                     alt={character.name}
                     width={110}
                     height={130}
+                    priority
                     className="h-full w-full object-cover"
                     data-testid="character-card-avatar"
                   />

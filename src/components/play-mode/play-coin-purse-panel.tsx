@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ interface PlayCoinPursePanelProps {
   onCoinChange: (purse: CoinPurse) => void;
 }
 
-export function PlayCoinPursePanel({
+function PlayCoinPursePanelInner({
   characterId,
   characterName = "",
   coinPurse,
@@ -225,3 +225,5 @@ export function PlayCoinPursePanel({
     </GlassCard>
   );
 }
+
+export const PlayCoinPursePanel = memo(PlayCoinPursePanelInner);
