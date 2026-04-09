@@ -2,12 +2,26 @@
 
 import { useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { Star, Swords, ShieldIcon, Package, Sparkles, UserRound, Bug } from "lucide-react";
+import Image from "next/image";
+import {
+  Star,
+  Swords,
+  ShieldIcon,
+  Package,
+  Sparkles,
+  UserRound,
+  Bug,
+  Shield,
+  Heart,
+  Crosshair,
+  Plus,
+} from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { localized } from "@/lib/utils/localize";
 import { lbsToKg } from "@/lib/utils/units";
+import { monsterAvatar } from "@/lib/utils/svg-avatar";
+import { npcAvatar } from "@/lib/utils/svg-avatar";
 import { MagicEffectBadges } from "@/components/shared/magic-effect-badges";
 import { BookmarkToggle } from "./bookmark-toggle";
 import type {
@@ -78,7 +92,6 @@ export function MasterBookmarksPanel({
   const t = useTranslations("master");
   const locale = useLocale();
 
-  // Build lookup maps
   const lookupMaps = useMemo(() => {
     const toMap = <T extends { id: string }>(arr: T[]) => new Map(arr.map((x) => [x.id, x]));
     return {
@@ -91,7 +104,6 @@ export function MasterBookmarksPanel({
     };
   }, [weapons, armor, generalItems, magicItems, npcs, monsters]);
 
-  // Group bookmarks by type and resolve entity data — no JSX here
   const sections = useMemo<BookmarkSection[]>(() => {
     const grouped: Record<BookmarkEntityType, GmBookmarkRow[]> = {
       monster: [],
@@ -138,42 +150,25 @@ export function MasterBookmarksPanel({
         const SectionIcon = section.icon;
         return (
           <div key={section.type}>
-            <h3 className="mb-2 flex items-center gap-2 font-heading text-sm text-muted-foreground">
+            <h3 className="mb-3 flex items-center gap-2 font-heading text-sm uppercase tracking-wider text-muted-foreground">
               <SectionIcon className="h-4 w-4" />
               {section.label}
               <Badge variant="secondary" className="text-xs">
                 {section.items.length}
               </Badge>
             </h3>
-            <div className="space-y-2">
+            <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
               {section.items.map((item) => (
-                <GlassCard
+                <BookmarkCard
                   key={item.id}
-                  hover={false}
-                  className="p-3"
-                  data-testid={`bookmark-card-${section.type}-${item.id}`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <span className="font-medium text-foreground">{item.name}</span>
-                      <div className="mt-1">
-                        <BookmarkDetail
-                          item={item}
-                          t={t}
-                          locale={locale}
-                          onAddToCombat={onAddToCombat}
-                        />
-                      </div>
-                    </div>
-                    <BookmarkToggle
-                      entityType={section.type}
-                      entityId={item.id}
-                      isBookmarked={true}
-                      userId={userId}
-                      onToggle={onBookmarkToggle}
-                    />
-                  </div>
-                </GlassCard>
+                  item={item}
+                  sectionType={section.type}
+                  userId={userId}
+                  onBookmarkToggle={onBookmarkToggle}
+                  onAddToCombat={onAddToCombat}
+                  t={t}
+                  locale={locale}
+                />
               ))}
             </div>
           </div>
@@ -183,47 +178,189 @@ export function MasterBookmarksPanel({
   );
 }
 
-function BookmarkDetail({
+// ─── Bookmark Grid Card ─────────────────────────────────────────────
+
+function BookmarkCard({
   item,
+  sectionType,
+  userId,
+  onBookmarkToggle,
+  onAddToCombat,
   t,
   locale,
-  onAddToCombat,
+}: {
+  item: ResolvedBookmark;
+  sectionType: BookmarkEntityType;
+  userId: string;
+  onBookmarkToggle: (entityType: BookmarkEntityType, entityId: string) => void;
+  onAddToCombat: (monster: MonsterRow, count: number) => void;
+  t: ReturnType<typeof useTranslations<"master">>;
+  locale: string;
+}) {
+  return (
+    <GlassCard
+      className="relative overflow-hidden p-0 transition-all hover:scale-[1.01]"
+      data-testid={`bookmark-card-${sectionType}-${item.id}`}
+    >
+      {/* Top-right actions */}
+      <div className="absolute right-1.5 top-1.5 z-10 flex gap-1">
+        <div className="rounded-full bg-black/60 hover:bg-black/80">
+          <BookmarkToggle
+            entityType={sectionType}
+            entityId={item.id}
+            isBookmarked={true}
+            userId={userId}
+            onToggle={onBookmarkToggle}
+          />
+        </div>
+        {sectionType === "monster" && (
+          <button
+            onClick={() => onAddToCombat(item.data as MonsterRow, 1)}
+            className="rounded-full bg-black/60 p-1.5 text-primary hover:bg-black/80"
+            title={t("addToCombat")}
+            data-testid={`bookmark-combat-${item.id}`}
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
+      {/* Image / Avatar area */}
+      <div className="relative aspect-square w-full bg-black/40">
+        <CardImage item={item} locale={locale} />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background to-transparent" />
+        <div className="absolute bottom-1.5 left-2 right-2">
+          <h4 className="font-heading text-sm font-semibold leading-tight text-foreground drop-shadow-lg">
+            {item.name}
+          </h4>
+        </div>
+      </div>
+
+      {/* Stats area */}
+      <div className="p-2">
+        <CardStats item={item} t={t} locale={locale} />
+      </div>
+    </GlassCard>
+  );
+}
+
+// ─── Card Image (type-specific) ─────────────────────────────────────
+
+function CardImage({ item, locale }: { item: ResolvedBookmark; locale: string }) {
+  switch (item.entityType) {
+    case "monster": {
+      const m = item.data as MonsterRow;
+      if (m.image_url) {
+        return (
+          <Image
+            src={m.image_url}
+            alt={item.name}
+            fill
+            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
+            className="object-cover"
+          />
+        );
+      }
+      return (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={monsterAvatar(item.name, m.size)}
+          alt={item.name}
+          className="h-full w-full object-contain"
+        />
+      );
+    }
+    case "npc": {
+      const n = item.data as ChronicleNpcRow;
+      if (n.avatar_url) {
+        return (
+          <Image
+            src={n.avatar_url}
+            alt={item.name}
+            fill
+            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
+            className="object-cover"
+          />
+        );
+      }
+      return (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={npcAvatar(item.name, (n.tier as "normal" | "advanced" | "character") ?? "normal")}
+          alt={item.name}
+          className="h-full w-full object-contain"
+        />
+      );
+    }
+    default: {
+      // Items use a centered icon
+      const IconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+        magic_item: Sparkles,
+        weapon: Swords,
+        armor: ShieldIcon,
+        general_item: Package,
+      };
+      const Icon = IconMap[item.entityType] ?? Package;
+      return (
+        <div className="flex h-full w-full items-center justify-center">
+          <Icon className="h-16 w-16 text-muted-foreground/20" />
+        </div>
+      );
+    }
+  }
+}
+
+// ─── Card Stats (type-specific) ─────────────────────────────────────
+
+function CardStats({
+  item,
+  t,
 }: {
   item: ResolvedBookmark;
   t: ReturnType<typeof useTranslations<"master">>;
   locale: string;
-  onAddToCombat: (monster: MonsterRow, count: number) => void;
 }) {
   switch (item.entityType) {
     case "monster": {
       const m = item.data as MonsterRow;
       return (
-        <div className="flex items-center justify-between">
-          <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-            <span>AC {m.ac}</span>
-            <span>HD {m.hit_dice}</span>
-            <span>THAC0 {m.thac0}</span>
-            <span>XP {m.xp_value}</span>
+        <>
+          <div className="flex justify-between gap-1 text-center text-[10px]">
+            <div>
+              <div className="flex items-center justify-center gap-0.5 text-muted-foreground">
+                <Shield className="h-2.5 w-2.5 text-amber-400" />
+                {t("ac")}
+              </div>
+              <div className="font-mono text-sm font-bold text-amber-300">{m.ac}</div>
+            </div>
+            <div>
+              <div className="flex items-center justify-center gap-0.5 text-muted-foreground">
+                <Heart className="h-2.5 w-2.5 text-red-400" />
+                {t("monsterHD")}
+              </div>
+              <div className="font-mono text-sm font-bold text-red-300">{m.hit_dice}</div>
+            </div>
+            <div>
+              <div className="flex items-center justify-center gap-0.5 text-muted-foreground">
+                <Crosshair className="h-2.5 w-2.5 text-sky-400" />
+                {t("thac0")}
+              </div>
+              <div className="font-mono text-sm font-bold text-sky-300">{m.thac0}</div>
+            </div>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-6 px-2 text-xs"
-            onClick={() => onAddToCombat(m, 1)}
-            data-testid={`bookmark-combat-${m.id}`}
-          >
-            {t("addToCombat")}
-          </Button>
-        </div>
+          <div className="mt-1 text-center text-[10px] text-muted-foreground">
+            XP {m.xp_value?.toLocaleString()}
+          </div>
+        </>
       );
     }
     case "npc": {
       const n = item.data as ChronicleNpcRow;
       return (
-        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-          {n.location && <span>{n.location}</span>}
+        <div className="flex flex-wrap items-center gap-1 text-[10px] text-muted-foreground">
+          {n.location && <span className="truncate">{n.location}</span>}
           {n.level != null && <span>Lvl {n.level}</span>}
-          <Badge variant="outline" className="text-[10px]">
+          <Badge variant="outline" className="text-[9px]">
             {n.tier ?? "normal"}
           </Badge>
         </div>
@@ -234,7 +371,7 @@ function BookmarkDetail({
       return (
         <div>
           {mi.category && (
-            <Badge variant="outline" className="mb-1 text-xs">
+            <Badge variant="outline" className="mb-1 text-[10px]">
               {mi.category}
             </Badge>
           )}
@@ -245,27 +382,35 @@ function BookmarkDetail({
     case "weapon": {
       const w = item.data as WeaponRow;
       return (
-        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+        <div className="flex flex-wrap gap-1.5 text-[10px] text-muted-foreground">
           <span>
             {w.damage_sm}/{w.damage_l}
           </span>
           <span>Spd {w.speed}</span>
           <span>{lbsToKg(w.weight)}</span>
+          <Badge variant="outline" className="text-[9px]">
+            {w.weapon_type}
+          </Badge>
         </div>
       );
     }
     case "armor": {
       const a = item.data as ArmorRow;
       return (
-        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+        <div className="flex flex-wrap gap-1.5 text-[10px] text-muted-foreground">
           <span>AC {a.ac}</span>
           <span>{lbsToKg(a.weight)}</span>
+          {a.is_shield && (
+            <Badge variant="outline" className="text-[9px]">
+              {a.shield_type ?? "shield"}
+            </Badge>
+          )}
         </div>
       );
     }
     case "general_item": {
       const gi = item.data as GeneralItemRow;
-      return <span className="text-xs text-muted-foreground">{lbsToKg(gi.weight)}</span>;
+      return <span className="text-[10px] text-muted-foreground">{lbsToKg(gi.weight)}</span>;
     }
   }
 }
