@@ -250,6 +250,7 @@ export function PlayMode({
   const magicEffects = useMemo(() => getMagicItemEffects(equipment), [equipment]);
   const hasMagicItems = useMemo(() => equipment.some(isMagicItem), [equipment]);
   const mb = magicEffects.statBonuses;
+  const mo = magicEffects.statOverrides;
   // Overclock state — read from epicItems simple_effects (persisted in DB via Epic Equipment page)
   // Plain function — React Compiler handles memoization automatically
   let overclockState = { active: false, endTime: null as number | null };
@@ -268,15 +269,17 @@ export function PlayMode({
   // Overclock is only effective when the ability exists and is active
   const overclockEffective = overclockActive && epicEffects.overclockAbility != null;
 
-  // Effective stats (with epic overrides + magic bonuses + overclock)
-  const effectiveStr = (eo.str ?? character.str) + (mb.str ?? 0);
-  const effectiveDex = (eo.dex ?? character.dex) + (mb.dex ?? 0);
+  // Effective stats: max(base, epicOverride, magicOverride) + magic additive bonuses + overclock
+  const resolve = (base: number, epic?: number, magic?: number): number =>
+    Math.max(base, epic ?? 0, magic ?? 0);
+  const effectiveStr = resolve(character.str, eo.str, mo.str) + (mb.str ?? 0);
+  const effectiveDex = resolve(character.dex, eo.dex, mo.dex) + (mb.dex ?? 0);
   const effectiveCon = overclockEffective
     ? epicEffects.overclockAbility!.conOverride
-    : (eo.con ?? character.con) + (mb.con ?? 0);
-  const effectiveInt = (eo.int ?? character.int) + (mb.int ?? 0);
-  const effectiveWis = (eo.wis ?? character.wis) + (mb.wis ?? 0);
-  const effectiveCha = (eo.cha ?? character.cha) + (mb.cha ?? 0);
+    : resolve(character.con, eo.con, mo.con) + (mb.con ?? 0);
+  const effectiveInt = resolve(character.int, eo.int, mo.int) + (mb.int ?? 0);
+  const effectiveWis = resolve(character.wis, eo.wis, mo.wis) + (mb.wis ?? 0);
+  const effectiveCha = resolve(character.cha, eo.cha, mo.cha) + (mb.cha ?? 0);
 
   // Derived rules engine values
   const activeClasses = useMemo(
@@ -326,41 +329,47 @@ export function PlayMode({
     [baseSaves, msb]
   );
 
+  const strOverridden = eo.str != null || mo.str != null;
+  const strExceptional =
+    mo.str != null && mo.str >= (eo.str ?? 0) && magicEffects.strExceptionalOverride != null
+      ? magicEffects.strExceptionalOverride
+      : (character.str_exceptional ?? undefined);
   const strMods = useMemo(
     () =>
       getStrengthModifiers(
         effectiveStr,
-        character.str_exceptional ?? undefined,
-        eo.str != null
+        strExceptional,
+        strOverridden
           ? (scaleSubStat(character.str, character.str_muscle, effectiveStr) ?? undefined)
           : (character.str_muscle ?? undefined),
-        eo.str != null
+        strOverridden
           ? (scaleSubStat(character.str, character.str_stamina, effectiveStr) ?? undefined)
           : (character.str_stamina ?? undefined)
       ),
     [
       effectiveStr,
       character.str,
-      character.str_exceptional,
+      strExceptional,
       character.str_muscle,
       character.str_stamina,
-      eo.str,
+      strOverridden,
     ]
   );
+  const dexOverridden = eo.dex != null || mo.dex != null;
   const dexMods = useMemo(
     () =>
       getDexterityModifiers(
         effectiveDex,
-        eo.dex != null
+        dexOverridden
           ? (scaleSubStat(character.dex, character.dex_aim, effectiveDex) ?? undefined)
           : (character.dex_aim ?? undefined),
-        eo.dex != null
+        dexOverridden
           ? (scaleSubStat(character.dex, character.dex_balance, effectiveDex) ?? undefined)
           : (character.dex_balance ?? undefined)
       ),
-    [effectiveDex, character.dex, character.dex_aim, character.dex_balance, eo.dex]
+    [effectiveDex, character.dex, character.dex_aim, character.dex_balance, dexOverridden]
   );
-  const conIsOverridden = overclockEffective || eo.con != null;
+  const conIsOverridden = overclockEffective || eo.con != null || mo.con != null;
   const conMods = useMemo(
     () =>
       getConstitutionModifiers(
@@ -374,44 +383,47 @@ export function PlayMode({
       ),
     [effectiveCon, character.con, character.con_health, character.con_fitness, conIsOverridden]
   );
+  const intOverridden = eo.int != null || mo.int != null;
   const intMods = useMemo(
     () =>
       getIntelligenceModifiers(
         effectiveInt,
-        eo.int != null
+        intOverridden
           ? (scaleSubStat(character.int, character.int_knowledge, effectiveInt) ?? undefined)
           : (character.int_knowledge ?? undefined),
-        eo.int != null
+        intOverridden
           ? (scaleSubStat(character.int, character.int_reason, effectiveInt) ?? undefined)
           : (character.int_reason ?? undefined)
       ),
-    [effectiveInt, character.int, character.int_knowledge, character.int_reason, eo.int]
+    [effectiveInt, character.int, character.int_knowledge, character.int_reason, intOverridden]
   );
+  const wisOverridden = eo.wis != null || mo.wis != null;
   const wisMods = useMemo(
     () =>
       getWisdomModifiers(
         effectiveWis,
-        eo.wis != null
+        wisOverridden
           ? (scaleSubStat(character.wis, character.wis_intuition, effectiveWis) ?? undefined)
           : (character.wis_intuition ?? undefined),
-        eo.wis != null
+        wisOverridden
           ? (scaleSubStat(character.wis, character.wis_willpower, effectiveWis) ?? undefined)
           : (character.wis_willpower ?? undefined)
       ),
-    [effectiveWis, character.wis, character.wis_intuition, character.wis_willpower, eo.wis]
+    [effectiveWis, character.wis, character.wis_intuition, character.wis_willpower, wisOverridden]
   );
+  const chaOverridden = eo.cha != null || mo.cha != null;
   const chaMods = useMemo(
     () =>
       getCharismaModifiers(
         effectiveCha,
-        eo.cha != null
+        chaOverridden
           ? (scaleSubStat(character.cha, character.cha_leadership, effectiveCha) ?? undefined)
           : (character.cha_leadership ?? undefined),
-        eo.cha != null
+        chaOverridden
           ? (scaleSubStat(character.cha, character.cha_appearance, effectiveCha) ?? undefined)
           : (character.cha_appearance ?? undefined)
       ),
-    [effectiveCha, character.cha, character.cha_leadership, character.cha_appearance, eo.cha]
+    [effectiveCha, character.cha, character.cha_leadership, character.cha_appearance, chaOverridden]
   );
 
   // HP adjustment from epic CON overrides
@@ -878,6 +890,10 @@ export function PlayMode({
             epicEffects={epicEffects}
             poisonSavePenalty={poisonSavePenalty}
             magicPerceptionBonus={magicEffects.perceptionBonus}
+            magicSaveBonuses={magicEffects.saveBonuses}
+            magicThiefBonuses={magicEffects.thiefSkillBonuses}
+            magicStatOverrides={magicEffects.statOverrides}
+            magicStatBonuses={magicEffects.statBonuses}
           />
           {hasMagicItems && (
             <PlayMagicItemsPanel
@@ -997,6 +1013,10 @@ export function PlayMode({
             epicEffects={epicEffects}
             poisonSavePenalty={poisonSavePenalty}
             magicPerceptionBonus={magicEffects.perceptionBonus}
+            magicSaveBonuses={magicEffects.saveBonuses}
+            magicThiefBonuses={magicEffects.thiefSkillBonuses}
+            magicStatOverrides={magicEffects.statOverrides}
+            magicStatBonuses={magicEffects.statBonuses}
           />
         )}
         {effectivePanel === "inventory" && (

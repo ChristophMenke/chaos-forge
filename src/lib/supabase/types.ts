@@ -141,14 +141,29 @@ export interface GmBookmarkRow {
   created_at: string;
 }
 
-export interface MagicEffects {
-  // Attribute (additive bonuses, NOT overrides like epic items)
+export interface MagicStatOverrides {
   str?: number;
   dex?: number;
   con?: number;
   int?: number;
   wis?: number;
   cha?: number;
+  /** Exceptional STR override (e.g. 100 = 18/00 from Gauntlets of Ogre Power) */
+  str_exceptional?: number;
+}
+
+export interface MagicEffects {
+  // Attribute (additive bonuses, e.g. STR +2)
+  str?: number;
+  dex?: number;
+  con?: number;
+  int?: number;
+  wis?: number;
+  cha?: number;
+
+  // Stat overrides — set attribute to fixed value (e.g. Belt of Giant Strength STR=19)
+  // When multiple items override the same stat, highest wins (max)
+  stat_overrides?: MagicStatOverrides;
 
   // Combat
   ac_bonus?: number; // Negative = better AC (AD&D descending)
