@@ -57,14 +57,16 @@ test.describe("Magic Items", () => {
     await page.goto(`/characters/${charId}/manage`);
     await page.getByTestId("character-sheet").waitFor({ timeout: 15000 });
 
-    // Open Equipment tab
+    // Open Equipment tab (dynamically imported — wait for it to load)
     await page.getByTestId("tab-trigger-equipment").click();
+    await page.getByTestId("add-item-btn").waitFor({ timeout: 15000 });
 
     // Click Add Item
     await page.getByTestId("add-item-btn").click();
 
-    // Switch to Magic Items tab
+    // Switch to Magic Items tab and open create form
     await page.getByTestId("add-dialog-tab-magic").click();
+    await page.getByTestId("create-magic-item-toggle").click();
 
     // Fill in basic info
     await page.getByTestId("magic-item-name").fill("Ring of Protection +1");
@@ -96,8 +98,10 @@ test.describe("Magic Items", () => {
     await page.getByTestId("character-sheet").waitFor({ timeout: 15000 });
 
     await page.getByTestId("tab-trigger-equipment").click();
+    await page.getByTestId("add-item-btn").waitFor({ timeout: 15000 });
     await page.getByTestId("add-item-btn").click();
     await page.getByTestId("add-dialog-tab-magic").click();
+    await page.getByTestId("create-magic-item-toggle").click();
 
     // Basic info
     await page.getByTestId("magic-item-name").fill("Robe of the Archmagi");
@@ -108,10 +112,11 @@ test.describe("Magic Items", () => {
     await page.getByTestId("magic-resistance-input").fill("Fire Resistance");
     await page.getByTestId("magic-resistance-input").press("Enter");
 
-    // Verify tag appears
-    await expect(page.getByText("Fire Resistance")).toBeVisible();
+    // Verify tag appears in form
+    await expect(page.getByTestId("magic-item-form").getByText("Fire Resistance")).toBeVisible();
 
     // Open Spell Abilities section and add one
+    await page.getByTestId("magic-section-spell-abilities").scrollIntoViewIfNeeded();
     await page.getByTestId("magic-section-spell-abilities").click();
     await page.getByTestId("magic-add-spell-ability").click();
     await page.getByTestId("magic-spell-ability-name-0").fill("Detect Magic");
@@ -134,8 +139,10 @@ test.describe("Magic Items", () => {
     await page.getByTestId("character-sheet").waitFor({ timeout: 15000 });
 
     await page.getByTestId("tab-trigger-equipment").click();
+    await page.getByTestId("add-item-btn").waitFor({ timeout: 15000 });
     await page.getByTestId("add-item-btn").click();
     await page.getByTestId("add-dialog-tab-magic").click();
+    await page.getByTestId("create-magic-item-toggle").click();
 
     // Basic info with cursed flag
     await page.getByTestId("magic-item-name").fill("Cursed Ring of Weakness");
@@ -160,8 +167,10 @@ test.describe("Magic Items", () => {
     await page.getByTestId("character-sheet").waitFor({ timeout: 15000 });
 
     await page.getByTestId("tab-trigger-equipment").click();
+    await page.getByTestId("add-item-btn").waitFor({ timeout: 15000 });
     await page.getByTestId("add-item-btn").click();
     await page.getByTestId("add-dialog-tab-magic").click();
+    await page.getByTestId("create-magic-item-toggle").click();
 
     // Create item
     await page.getByTestId("magic-item-name").fill("Gauntlets of STR");
@@ -174,6 +183,7 @@ test.describe("Magic Items", () => {
     await page.reload();
     await page.getByTestId("character-sheet").waitFor({ timeout: 15000 });
     await page.getByTestId("tab-trigger-equipment").click();
+    await page.getByTestId("add-item-btn").waitFor({ timeout: 15000 });
 
     // Verify item and effects still visible
     await expect(page.getByText("Gauntlets of STR").first()).toBeVisible({ timeout: 5000 });
