@@ -290,6 +290,7 @@ export function MasterDashboard({
             setViewingCharacterId(null);
             setActiveTab(tab);
           }}
+          userEmail={userEmail}
         />
       </>
     );
@@ -409,7 +410,7 @@ export function MasterDashboard({
       </div>
 
       {/* Mobile Bottom Nav with tab switching */}
-      <MasterBottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+      <MasterBottomNav activeTab={activeTab} onTabChange={setActiveTab} userEmail={userEmail} />
     </>
   );
 }
