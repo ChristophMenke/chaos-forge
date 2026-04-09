@@ -8,9 +8,6 @@ import type {
   CharacterEquipmentWithDetails,
   CharacterSpellWithDetails,
   CharacterInventoryWithDetails,
-  GeneralItemRow,
-  WeaponRow,
-  ArmorRow,
   CharacterWeaponProficiencyRow,
   CharacterNWPWithDetails,
   NonweaponProficiencyRow,
@@ -19,7 +16,6 @@ import type {
   SessionRow,
   XpHistoryRow,
   EpicItemRow,
-  MagicItemRow,
 } from "@/lib/supabase/types";
 
 interface CharacterPageProps {
@@ -60,11 +56,7 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
     { data: epicItems },
     { data: xpHistoryData },
     { data: sessionsData },
-    { data: allWeapons },
-    { data: allArmor },
     { data: allNWPs },
-    { data: allGeneralItems },
-    { data: allMagicItems },
   ] = await Promise.all([
     supabase
       .from("character_classes")
@@ -110,15 +102,12 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
       .limit(20)
       .returns<Pick<SessionRow, "id" | "title" | "session_date">[]>(),
     // allSpells loaded lazily in TabSpells when learn dialog opens
-    supabase.from("weapons").select("*").order("name").returns<WeaponRow[]>(),
-    supabase.from("armor").select("*").order("ac", { ascending: false }).returns<ArmorRow[]>(),
+    // allWeapons, allArmor, allGeneralItems, allMagicItems loaded lazily in TabEquipment
     supabase
       .from("nonweapon_proficiencies")
       .select("*")
       .order("name")
       .returns<NonweaponProficiencyRow[]>(),
-    supabase.from("general_items").select("*").order("name").returns<GeneralItemRow[]>(),
-    supabase.from("magic_items").select("*").order("name").returns<MagicItemRow[]>(),
   ]);
 
   return (
@@ -128,14 +117,14 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
       userId={user.id}
       equipment={(equipment as CharacterEquipmentWithDetails[]) ?? []}
       spells={(spells as CharacterSpellWithDetails[]) ?? []}
-      allWeapons={allWeapons ?? []}
-      allArmor={allArmor ?? []}
+      allWeapons={[]}
+      allArmor={[]}
       allSpells={[]}
       weaponProficiencies={weaponProfs ?? []}
       nonweaponProficiencies={(nwProfs as CharacterNWPWithDetails[]) ?? []}
       inventory={(inventoryData as CharacterInventoryWithDetails[]) ?? []}
-      allGeneralItems={allGeneralItems ?? []}
-      allMagicItems={allMagicItems ?? []}
+      allGeneralItems={[]}
+      allMagicItems={[]}
       allNonweaponProficiencies={allNWPs ?? []}
       languages={languages ?? []}
       fightingStyles={fightingStyles ?? []}

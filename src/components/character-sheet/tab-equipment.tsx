@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect, useCallback } from "react";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -119,6 +119,57 @@ export function TabEquipment({
   const [showCustomWeaponForm, setShowCustomWeaponForm] = useState(false);
   const [showCustomArmorForm, setShowCustomArmorForm] = useState(false);
 
+  // Lazy-loading catalogs: use props if provided, otherwise fetch on demand
+  const [lazyWeapons, setLazyWeapons] = useState<WeaponRow[] | null>(
+    allWeapons.length > 0 ? allWeapons : null
+  );
+  const [lazyArmor, setLazyArmor] = useState<ArmorRow[] | null>(
+    allArmor.length > 0 ? allArmor : null
+  );
+  const [lazyGeneralItems, setLazyGeneralItems] = useState<GeneralItemRow[] | null>(
+    allGeneralItems.length > 0 ? allGeneralItems : null
+  );
+  const [lazyMagicItems, setLazyMagicItems] = useState<MagicItemRow[] | null>(
+    allMagicItems.length > 0 ? allMagicItems : null
+  );
+  const [loadingCatalogs, setLoadingCatalogs] = useState(false);
+
+  const loadCatalogs = useCallback(async () => {
+    if (lazyWeapons && lazyArmor && lazyGeneralItems && lazyMagicItems) return;
+    setLoadingCatalogs(true);
+    const supabase = createClient();
+    const [w, a, g, m] = await Promise.all([
+      lazyWeapons
+        ? Promise.resolve({ data: null })
+        : supabase.from("weapons").select("*").order("name"),
+      lazyArmor
+        ? Promise.resolve({ data: null })
+        : supabase.from("armor").select("*").order("ac", { ascending: false }),
+      lazyGeneralItems
+        ? Promise.resolve({ data: null })
+        : supabase.from("general_items").select("*").order("name"),
+      lazyMagicItems
+        ? Promise.resolve({ data: null })
+        : supabase.from("magic_items").select("*").order("name"),
+    ]);
+    if (w.data) setLazyWeapons(w.data as WeaponRow[]);
+    if (a.data) setLazyArmor(a.data as ArmorRow[]);
+    if (g.data) setLazyGeneralItems(g.data as GeneralItemRow[]);
+    if (m.data) setLazyMagicItems(m.data as MagicItemRow[]);
+    setLoadingCatalogs(false);
+  }, [lazyWeapons, lazyArmor, lazyGeneralItems, lazyMagicItems]);
+
+  // Load catalogs on mount (component is dynamically imported, so this only fires when tab opens)
+  useEffect(() => {
+    loadCatalogs();
+  }, [loadCatalogs]);
+
+  // Use lazy-loaded data (falls back to empty arrays while loading)
+  const weapons = lazyWeapons ?? [];
+  const armors = lazyArmor ?? [];
+  const generalItems = lazyGeneralItems ?? [];
+  const magicItems = lazyMagicItems ?? [];
+
   // Proficiency autocomplete for custom items
   const [weaponProfSearch, setWeaponProfSearch] = useState("");
   const [weaponProfSelected, setWeaponProfSelected] = useState<string | null>(null);
@@ -128,7 +179,7 @@ export function TabEquipment({
   const weaponProfEntries = useMemo(() => {
     const seen = new Set<string>();
     const entries: { name: string; name_en: string | null; label: string }[] = [];
-    for (const w of allWeapons) {
+    for (const w of weapons) {
       if (!w.is_custom && !seen.has(w.name)) {
         seen.add(w.name);
         entries.push({
@@ -139,12 +190,12 @@ export function TabEquipment({
       }
     }
     return entries.sort((a, b) => a.label.localeCompare(b.label));
-  }, [allWeapons, locale]);
+  }, [weapons, locale]);
 
   const armorProfEntries = useMemo(() => {
     const seen = new Set<string>();
     const entries: { name: string; name_en: string | null; label: string }[] = [];
-    for (const a of allArmor) {
+    for (const a of armors) {
       if (!a.is_custom && !seen.has(a.name)) {
         seen.add(a.name);
         entries.push({
@@ -155,7 +206,7 @@ export function TabEquipment({
       }
     }
     return entries.sort((a, b) => a.label.localeCompare(b.label));
-  }, [allArmor, locale]);
+  }, [armors, locale]);
 
   const filteredWeaponProfs = useMemo(() => {
     if (!weaponProfSearch.trim()) return weaponProfEntries.slice(0, 10);
@@ -368,32 +419,32 @@ export function TabEquipment({
 
   const filteredWeapons = useMemo(() => {
     const q = searchQuery.toLowerCase();
-    return allWeapons.filter((w) => {
+    return weapons.filter((w) => {
       const matchesSearch =
         w.name.toLowerCase().includes(q) || (w.name_en ?? "").toLowerCase().includes(q);
       const matchesCategory =
         weaponCategoryFilter === "all" || w.weapon_type === weaponCategoryFilter;
       return matchesSearch && matchesCategory;
     });
-  }, [allWeapons, searchQuery, weaponCategoryFilter]);
+  }, [weapons, searchQuery, weaponCategoryFilter]);
 
   const filteredArmor = useMemo(() => {
     const q = searchQuery.toLowerCase();
-    return allArmor.filter(
+    return armors.filter(
       (a) => a.name.toLowerCase().includes(q) || (a.name_en ?? "").toLowerCase().includes(q)
     );
-  }, [allArmor, searchQuery]);
+  }, [armors, searchQuery]);
 
   const filteredMagicItems = useMemo(() => {
     const q = searchQuery.toLowerCase();
-    if (!q) return allMagicItems;
-    return allMagicItems.filter(
+    if (!q) return magicItems;
+    return magicItems.filter(
       (m) =>
         m.name.toLowerCase().includes(q) ||
         (m.name_en ?? "").toLowerCase().includes(q) ||
         (m.category ?? "").toLowerCase().includes(q)
     );
-  }, [allMagicItems, searchQuery]);
+  }, [magicItems, searchQuery]);
 
   const [showMagicItemCreate, setShowMagicItemCreate] = useState(false);
 
@@ -2284,7 +2335,7 @@ export function TabEquipment({
               data-testid="inventory-search"
             />
             <div className="mb-3 max-h-48 overflow-y-auto">
-              {allGeneralItems
+              {generalItems
                 .filter(
                   (item) =>
                     item.name.toLowerCase().includes(inventorySearch.toLowerCase()) ||
