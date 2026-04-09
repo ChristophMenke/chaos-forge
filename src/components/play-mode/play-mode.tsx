@@ -739,12 +739,8 @@ export function PlayMode({
 
   const visiblePanels = panels.filter((p) => p.show);
 
-  // Reset mobile panel if the active panel is no longer visible (e.g. last magic item removed)
-  useEffect(() => {
-    if (!visiblePanels.some((p) => p.id === activePanel)) {
-      setActivePanel("combat");
-    }
-  }, [visiblePanels, activePanel]);
+  // Fallback to combat if the active panel is no longer visible (e.g. last magic item removed)
+  const effectivePanel = visiblePanels.some((p) => p.id === activePanel) ? activePanel : "combat";
 
   return (
     <div className="w-full" data-testid="play-mode">
@@ -791,7 +787,7 @@ export function PlayMode({
             key={panel.id}
             onClick={() => setActivePanel(panel.id)}
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-              activePanel === panel.id
+              effectivePanel === panel.id
                 ? `${colors.badge}`
                 : "bg-muted text-muted-foreground hover:bg-accent"
             }`}
@@ -917,7 +913,7 @@ export function PlayMode({
 
       {/* Mobile: Single panel view */}
       <div className="p-3 sm:hidden">
-        {activePanel === "combat" && (
+        {effectivePanel === "combat" && (
           <PlayCombatPanel
             equipment={equipment}
             weaponProficiencies={weaponProficiencies}
@@ -944,7 +940,7 @@ export function PlayMode({
             equippedShieldName={equippedShieldName}
           />
         )}
-        {activePanel === "spellbook" && showSpells && (
+        {effectivePanel === "spellbook" && showSpells && (
           <PlaySpellbookPanel
             spells={spells}
             character={character}
@@ -961,14 +957,14 @@ export function PlayMode({
             priestAvailableSpells={priestAvailableSpells}
           />
         )}
-        {activePanel === "turnUndead" && turnUndeadInfo.show && (
+        {effectivePanel === "turnUndead" && turnUndeadInfo.show && (
           <PlayTurnUndeadPanel
             clericLevel={turnUndeadInfo.level}
             isPaladin={turnUndeadInfo.isPaladin}
             isEvil={turnUndeadInfo.isEvil}
           />
         )}
-        {activePanel === "abilities" && showAbilities && (
+        {effectivePanel === "abilities" && showAbilities && (
           <PlayAbilitiesPanel
             raceId={character.race_id ?? "human"}
             classIds={classIds}
@@ -976,7 +972,7 @@ export function PlayMode({
             priestLevel={priestClassForAbilities?.level ?? 1}
           />
         )}
-        {activePanel === "magicItems" && hasMagicItems && (
+        {effectivePanel === "magicItems" && hasMagicItems && (
           <PlayMagicItemsPanel
             equipment={equipment}
             hpCurrent={effectiveHpCurrent}
@@ -986,7 +982,7 @@ export function PlayMode({
             onHpChange={handleHpChange}
           />
         )}
-        {activePanel === "checks" && (
+        {effectivePanel === "checks" && (
           <PlayChecksPanel
             saves={saves}
             character={character}
@@ -1003,7 +999,7 @@ export function PlayMode({
             magicPerceptionBonus={magicEffects.perceptionBonus}
           />
         )}
-        {activePanel === "inventory" && (
+        {effectivePanel === "inventory" && (
           <PlayInventoryPanel
             characterId={character.id}
             characterName={character.name}
@@ -1016,7 +1012,7 @@ export function PlayMode({
             onInventoryChange={setInventory}
           />
         )}
-        {activePanel === "coinPurse" && (
+        {effectivePanel === "coinPurse" && (
           <PlayCoinPursePanel
             characterId={character.id}
             characterName={character.name}
