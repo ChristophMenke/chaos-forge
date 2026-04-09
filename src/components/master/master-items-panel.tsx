@@ -23,17 +23,35 @@ import {
   injectItemToParty,
   createCustomWeaponGm,
   createCustomArmorGm,
-  injectMagicItemToCharacter,
-  injectMagicItemToParty,
 } from "@/app/master/actions";
-import { MagicItemForm, type MagicItemFormData } from "@/components/shared/magic-item-form";
-import type { CharacterRow, WeaponRow, ArmorRow, GeneralItemRow } from "@/lib/supabase/types";
+import { MasterMagicItemsTab } from "./master-magic-items-tab";
+import { BookmarkToggle } from "./bookmark-toggle";
+import type {
+  CharacterRow,
+  WeaponRow,
+  ArmorRow,
+  GeneralItemRow,
+  MagicItemRow,
+  BookmarkEntityType,
+} from "@/lib/supabase/types";
 
 interface MasterItemsPanelProps {
   weapons: WeaponRow[];
   armor: ArmorRow[];
   generalItems: GeneralItemRow[];
   characters: CharacterRow[];
+  magicItems: MagicItemRow[];
+  magicItemDistribution: Map<
+    string,
+    {
+      owners: { characterId: string; characterName: string; equipped: boolean }[];
+      inPartyLoot: boolean;
+    }
+  >;
+  bookmarkSet: Set<string>;
+  userId: string;
+  onBookmarkToggle: (entityType: BookmarkEntityType, entityId: string) => void;
+  onMagicItemsChange: () => void;
 }
 
 type ItemTab = "weapons" | "armor" | "items" | "magic";
@@ -43,6 +61,12 @@ export function MasterItemsPanel({
   armor,
   generalItems,
   characters,
+  magicItems,
+  magicItemDistribution,
+  bookmarkSet,
+  userId,
+  onBookmarkToggle,
+  onMagicItemsChange,
 }: MasterItemsPanelProps) {
   const t = useTranslations("master");
   const locale = useLocale();
@@ -53,20 +77,24 @@ export function MasterItemsPanel({
   const [showCreate, setShowCreate] = useState(false);
   const [createType, setCreateType] = useState<"weapon" | "armor" | "item">("weapon");
   const [creating, setCreating] = useState(false);
-  const [showMagicInject, setShowMagicInject] = useState(false);
-  const [magicFormData, setMagicFormData] = useState<MagicItemFormData | null>(null);
 
   // Custom weapon form
-  const [cwName, setCwName] = useState("");
-  const [cwNameEn, setCwNameEn] = useState("");
-  const [cwWeaponType, setCwWeaponType] = useState<"melee" | "ranged" | "both">("melee");
-  const [cwDamageSm, setCwDamageSm] = useState("");
-  const [cwDamageLg, setCwDamageLg] = useState("");
-  const [cwSpeed, setCwSpeed] = useState("");
-  const [cwWeight, setCwWeight] = useState("");
-  const [cwMagicBonus, setCwMagicBonus] = useState(0);
-  const [cwProfSearch, setCwProfSearch] = useState("");
-  const [cwProfSelected, setCwProfSelected] = useState<string | null>(null);
+  const INITIAL_WEAPON_FORM = {
+    name: "",
+    nameEn: "",
+    weaponType: "melee" as "melee" | "ranged" | "both",
+    damageSm: "",
+    damageLg: "",
+    speed: "",
+    weight: "",
+    magicBonus: 0,
+    profSearch: "",
+    profSelected: null as string | null,
+  };
+  const [weaponForm, setWeaponForm] = useState(INITIAL_WEAPON_FORM);
+  const wf = weaponForm;
+  const setWf = (patch: Partial<typeof INITIAL_WEAPON_FORM>) =>
+    setWeaponForm((prev) => ({ ...prev, ...patch }));
 
   // Unique weapon proficiency entries (name + name_en for bilingual display/search)
   const proficiencyEntries = useMemo(() => {
@@ -86,8 +114,8 @@ export function MasterItemsPanel({
   }, [weapons, locale]);
 
   const filteredProfEntries = useMemo(() => {
-    if (!cwProfSearch.trim()) return proficiencyEntries.slice(0, 10);
-    const q = cwProfSearch.toLowerCase();
+    if (!wf.profSearch.trim()) return proficiencyEntries.slice(0, 10);
+    const q = wf.profSearch.toLowerCase();
     return proficiencyEntries
       .filter(
         (e) =>
@@ -96,11 +124,11 @@ export function MasterItemsPanel({
           e.label.toLowerCase().includes(q)
       )
       .slice(0, 10);
-  }, [proficiencyEntries, cwProfSearch]);
+  }, [proficiencyEntries, wf.profSearch]);
 
   // Custom general item form
-  const [ciName, setCiName] = useState("");
-  const [ciWeight, setCiWeight] = useState("");
+  const INITIAL_ITEM_FORM = { name: "", weight: "" };
+  const [itemForm, setItemForm] = useState(INITIAL_ITEM_FORM);
 
   // Armor proficiency entries (bilingual)
   const armorProfEntries = useMemo(() => {
@@ -118,11 +146,25 @@ export function MasterItemsPanel({
     }
     return entries.sort((a, b) => a.label.localeCompare(b.label));
   }, [armor, locale]);
-  const [caProfSearch, setCaProfSearch] = useState("");
-  const [caProfSelected, setCaProfSelected] = useState<string | null>(null);
+  // Custom armor form
+  const INITIAL_ARMOR_FORM = {
+    name: "",
+    ac: "",
+    weight: "",
+    isShield: false,
+    shieldType: "small" as "buckler" | "small" | "medium" | "large",
+    isMagical: false,
+    profSearch: "",
+    profSelected: null as string | null,
+  };
+  const [armorForm, setArmorForm] = useState(INITIAL_ARMOR_FORM);
+  const af = armorForm;
+  const setAf = (patch: Partial<typeof INITIAL_ARMOR_FORM>) =>
+    setArmorForm((prev) => ({ ...prev, ...patch }));
+
   const filteredArmorProfEntries = useMemo(() => {
-    if (!caProfSearch.trim()) return armorProfEntries.slice(0, 10);
-    const q = caProfSearch.toLowerCase();
+    if (!af.profSearch.trim()) return armorProfEntries.slice(0, 10);
+    const q = af.profSearch.toLowerCase();
     return armorProfEntries
       .filter(
         (e) =>
@@ -131,73 +173,47 @@ export function MasterItemsPanel({
           e.label.toLowerCase().includes(q)
       )
       .slice(0, 10);
-  }, [armorProfEntries, caProfSearch]);
-
-  // Custom armor form
-  const [caName, setCaName] = useState("");
-  const [caAc, setCaAc] = useState("");
-  const [caWeight, setCaWeight] = useState("");
-  const [caIsShield, setCaIsShield] = useState(false);
-  const [caShieldType, setCaShieldType] = useState<"buckler" | "small" | "medium" | "large">(
-    "small"
-  );
-  const [caIsMagical, setCaIsMagical] = useState(false);
+  }, [armorProfEntries, af.profSearch]);
 
   async function handleCreateWeapon() {
-    if (!cwName.trim() || !cwProfSelected) return;
+    if (!wf.name.trim() || !wf.profSelected) return;
     setCreating(true);
-    const profName = cwProfSelected;
     const result = await createCustomWeaponGm({
-      name: profName,
-      name_en: cwNameEn.trim() || undefined,
-      weapon_type: cwWeaponType,
-      damage_sm: cwDamageSm || "1d4",
-      damage_l: cwDamageLg || "1d4",
-      speed: cwSpeed ? Number(cwSpeed) : 0,
-      weight: cwWeight ? Number(cwWeight) : 0,
-      hit_bonus: cwMagicBonus,
-      damage_bonus: cwMagicBonus,
+      name: wf.profSelected,
+      name_en: wf.nameEn.trim() || undefined,
+      weapon_type: wf.weaponType,
+      damage_sm: wf.damageSm || "1d4",
+      damage_l: wf.damageLg || "1d4",
+      speed: wf.speed ? Number(wf.speed) : 0,
+      weight: wf.weight ? Number(wf.weight) : 0,
+      hit_bonus: wf.magicBonus,
+      damage_bonus: wf.magicBonus,
     });
     setCreating(false);
     if (result.success && result.weaponId) {
       showToastMsg(t("customWeaponCreated"), "success");
-      setCwName("");
-      setCwNameEn("");
-      setCwDamageSm("");
-      setCwDamageLg("");
-      setCwSpeed("");
-      setCwWeight("");
-      setCwMagicBonus(0);
-      setCwWeaponType("melee");
-      setCwProfSearch("");
-      setCwProfSelected(null);
+      setWeaponForm(INITIAL_WEAPON_FORM);
     } else {
       showToastMsg(t("injectFailed"), "error");
     }
   }
 
   async function handleCreateArmor() {
-    if (!caName.trim() || !caProfSelected) return;
+    if (!af.name.trim() || !af.profSelected) return;
     setCreating(true);
     const result = await createCustomArmorGm({
-      name: caProfSelected,
-      name_en: caName.trim() !== caProfSelected ? caName.trim() : undefined,
-      ac: caAc ? Number(caAc) : 10,
-      weight: caWeight ? Number(caWeight) : 0,
-      is_shield: caIsShield,
-      shield_type: caIsShield ? caShieldType : null,
-      is_magical_protection: caIsMagical,
+      name: af.profSelected,
+      name_en: af.name.trim() !== af.profSelected ? af.name.trim() : undefined,
+      ac: af.ac ? Number(af.ac) : 10,
+      weight: af.weight ? Number(af.weight) : 0,
+      is_shield: af.isShield,
+      shield_type: af.isShield ? af.shieldType : null,
+      is_magical_protection: af.isMagical,
     });
     setCreating(false);
     if (result.success) {
       showToastMsg(t("customArmorCreated"), "success");
-      setCaName("");
-      setCaAc("");
-      setCaWeight("");
-      setCaIsShield(false);
-      setCaIsMagical(false);
-      setCaProfSearch("");
-      setCaProfSelected(null);
+      setArmorForm(INITIAL_ARMOR_FORM);
     } else {
       showToastMsg(t("injectFailed"), "error");
     }
@@ -354,8 +370,8 @@ export function MasterItemsPanel({
                 <input
                   type="text"
                   placeholder={t("name")}
-                  value={cwName}
-                  onChange={(e) => setCwName(e.target.value)}
+                  value={wf.name}
+                  onChange={(e) => setWf({ name: e.target.value })}
                   className="w-full rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   data-testid="gm-create-weapon-name"
                 />
@@ -367,33 +383,27 @@ export function MasterItemsPanel({
                   <input
                     type="text"
                     placeholder={
-                      cwProfSelected
-                        ? (proficiencyEntries.find((e) => e.name === cwProfSelected)?.label ??
-                          cwProfSelected)
+                      wf.profSelected
+                        ? (proficiencyEntries.find((e) => e.name === wf.profSelected)?.label ??
+                          wf.profSelected)
                         : locale === "de"
                           ? "z.B. Langschwert..."
                           : "e.g. Long Sword..."
                     }
-                    value={cwProfSearch}
-                    onChange={(e) => {
-                      setCwProfSearch(e.target.value);
-                      setCwProfSelected(null);
-                    }}
+                    value={wf.profSearch}
+                    onChange={(e) => setWf({ profSearch: e.target.value, profSelected: null })}
                     className={`w-full rounded-md border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${
-                      cwProfSelected ? "border-primary text-primary" : "border-border"
+                      wf.profSelected ? "border-primary text-primary" : "border-border"
                     }`}
                     data-testid="gm-create-weapon-prof"
                   />
-                  {cwProfSearch && !cwProfSelected && filteredProfEntries.length > 0 && (
+                  {wf.profSearch && !wf.profSelected && filteredProfEntries.length > 0 && (
                     <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded-md border border-border bg-background shadow-lg">
                       {filteredProfEntries.map((entry) => (
                         <button
                           key={entry.name}
                           type="button"
-                          onClick={() => {
-                            setCwProfSelected(entry.name);
-                            setCwProfSearch("");
-                          }}
+                          onClick={() => setWf({ profSelected: entry.name, profSearch: "" })}
                           className="w-full px-3 py-1.5 text-left text-sm hover:bg-accent/50"
                           data-testid={`gm-prof-option-${entry.name}`}
                         >
@@ -402,13 +412,10 @@ export function MasterItemsPanel({
                       ))}
                     </div>
                   )}
-                  {cwProfSelected && (
+                  {wf.profSelected && (
                     <button
                       type="button"
-                      onClick={() => {
-                        setCwProfSelected(null);
-                        setCwProfSearch("");
-                      }}
+                      onClick={() => setWf({ profSelected: null, profSearch: "" })}
                       className="absolute right-2 top-6 text-xs text-muted-foreground hover:text-foreground"
                     >
                       ✕
@@ -424,9 +431,9 @@ export function MasterItemsPanel({
                       <button
                         key={wt}
                         type="button"
-                        onClick={() => setCwWeaponType(wt)}
+                        onClick={() => setWf({ weaponType: wt })}
                         className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
-                          cwWeaponType === wt
+                          wf.weaponType === wt
                             ? "bg-primary text-primary-foreground"
                             : "bg-muted text-muted-foreground"
                         }`}
@@ -441,16 +448,16 @@ export function MasterItemsPanel({
                   <input
                     type="text"
                     placeholder={t("damageSm")}
-                    value={cwDamageSm}
-                    onChange={(e) => setCwDamageSm(e.target.value)}
+                    value={wf.damageSm}
+                    onChange={(e) => setWf({ damageSm: e.target.value })}
                     className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     data-testid="gm-create-weapon-dmg-sm"
                   />
                   <input
                     type="text"
                     placeholder={t("damageLg")}
-                    value={cwDamageLg}
-                    onChange={(e) => setCwDamageLg(e.target.value)}
+                    value={wf.damageLg}
+                    onChange={(e) => setWf({ damageLg: e.target.value })}
                     className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     data-testid="gm-create-weapon-dmg-lg"
                   />
@@ -459,16 +466,16 @@ export function MasterItemsPanel({
                   <input
                     type="number"
                     placeholder={t("speed")}
-                    value={cwSpeed}
-                    onChange={(e) => setCwSpeed(e.target.value)}
+                    value={wf.speed}
+                    onChange={(e) => setWf({ speed: e.target.value })}
                     className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     data-testid="gm-create-weapon-speed"
                   />
                   <input
                     type="number"
                     placeholder={t("weight")}
-                    value={cwWeight}
-                    onChange={(e) => setCwWeight(e.target.value)}
+                    value={wf.weight}
+                    onChange={(e) => setWf({ weight: e.target.value })}
                     className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     data-testid="gm-create-weapon-weight"
                   />
@@ -482,8 +489,8 @@ export function MasterItemsPanel({
                       <button
                         key={b}
                         type="button"
-                        onClick={() => setCwMagicBonus(b)}
-                        className={`rounded-md px-2 py-1 text-xs font-medium ${cwMagicBonus === b ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+                        onClick={() => setWf({ magicBonus: b })}
+                        className={`rounded-md px-2 py-1 text-xs font-medium ${wf.magicBonus === b ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
                         data-testid={`gm-create-weapon-magic-${b}`}
                       >
                         {b === 0 ? "—" : `+${b}`}
@@ -493,7 +500,7 @@ export function MasterItemsPanel({
                 </div>
                 <Button
                   className="w-full"
-                  disabled={creating || !cwName.trim() || !cwProfSelected}
+                  disabled={creating || !wf.name.trim() || !wf.profSelected}
                   onClick={handleCreateWeapon}
                   data-testid="gm-create-weapon-submit"
                 >
@@ -508,8 +515,8 @@ export function MasterItemsPanel({
                 <input
                   type="text"
                   placeholder={t("name")}
-                  value={caName}
-                  onChange={(e) => setCaName(e.target.value)}
+                  value={af.name}
+                  onChange={(e) => setAf({ name: e.target.value })}
                   className="w-full rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   data-testid="gm-create-armor-name"
                 />
@@ -521,33 +528,27 @@ export function MasterItemsPanel({
                   <input
                     type="text"
                     placeholder={
-                      caProfSelected
-                        ? (armorProfEntries.find((e) => e.name === caProfSelected)?.label ??
-                          caProfSelected)
+                      af.profSelected
+                        ? (armorProfEntries.find((e) => e.name === af.profSelected)?.label ??
+                          af.profSelected)
                         : locale === "de"
                           ? "z.B. Kettenpanzer..."
                           : "e.g. Chain Mail..."
                     }
-                    value={caProfSearch}
-                    onChange={(e) => {
-                      setCaProfSearch(e.target.value);
-                      setCaProfSelected(null);
-                    }}
+                    value={af.profSearch}
+                    onChange={(e) => setAf({ profSearch: e.target.value, profSelected: null })}
                     className={`w-full rounded-md border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${
-                      caProfSelected ? "border-primary text-primary" : "border-border"
+                      af.profSelected ? "border-primary text-primary" : "border-border"
                     }`}
                     data-testid="gm-create-armor-prof"
                   />
-                  {caProfSearch && !caProfSelected && filteredArmorProfEntries.length > 0 && (
+                  {af.profSearch && !af.profSelected && filteredArmorProfEntries.length > 0 && (
                     <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded-md border border-border bg-background shadow-lg">
                       {filteredArmorProfEntries.map((entry) => (
                         <button
                           key={entry.name}
                           type="button"
-                          onClick={() => {
-                            setCaProfSelected(entry.name);
-                            setCaProfSearch("");
-                          }}
+                          onClick={() => setAf({ profSelected: entry.name, profSearch: "" })}
                           className="w-full px-3 py-1.5 text-left text-sm hover:bg-accent/50"
                         >
                           {entry.label}
@@ -555,13 +556,10 @@ export function MasterItemsPanel({
                       ))}
                     </div>
                   )}
-                  {caProfSelected && (
+                  {af.profSelected && (
                     <button
                       type="button"
-                      onClick={() => {
-                        setCaProfSelected(null);
-                        setCaProfSearch("");
-                      }}
+                      onClick={() => setAf({ profSelected: null, profSearch: "" })}
                       className="absolute right-2 top-6 text-xs text-muted-foreground hover:text-foreground"
                     >
                       ✕
@@ -572,16 +570,16 @@ export function MasterItemsPanel({
                   <input
                     type="number"
                     placeholder={`${t("ac")} (10)`}
-                    value={caAc}
-                    onChange={(e) => setCaAc(e.target.value)}
+                    value={af.ac}
+                    onChange={(e) => setAf({ ac: e.target.value })}
                     className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     data-testid="gm-create-armor-ac"
                   />
                   <input
                     type="number"
                     placeholder={t("weight")}
-                    value={caWeight}
-                    onChange={(e) => setCaWeight(e.target.value)}
+                    value={af.weight}
+                    onChange={(e) => setAf({ weight: e.target.value })}
                     className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     data-testid="gm-create-armor-weight"
                   />
@@ -589,8 +587,8 @@ export function MasterItemsPanel({
                 <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
                   <input
                     type="checkbox"
-                    checked={caIsMagical}
-                    onChange={(e) => setCaIsMagical(e.target.checked)}
+                    checked={af.isMagical}
+                    onChange={(e) => setAf({ isMagical: e.target.checked })}
                     data-testid="gm-create-armor-magical"
                   />
                   {t("isMagicalProtection")}
@@ -598,16 +596,18 @@ export function MasterItemsPanel({
                 <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
                   <input
                     type="checkbox"
-                    checked={caIsShield}
-                    onChange={(e) => {
-                      setCaIsShield(e.target.checked);
-                      if (e.target.checked && !caShieldType) setCaShieldType("small");
-                    }}
+                    checked={af.isShield}
+                    onChange={(e) =>
+                      setAf({
+                        isShield: e.target.checked,
+                        ...(e.target.checked && !af.shieldType ? { shieldType: "small" } : {}),
+                      })
+                    }
                     data-testid="gm-create-armor-is-shield"
                   />
                   {t("isShield")}
                 </label>
-                {caIsShield && (
+                {af.isShield && (
                   <div>
                     <span className="mb-1 block text-[10px] md:text-xs text-muted-foreground">
                       {t("shieldType")}
@@ -617,8 +617,8 @@ export function MasterItemsPanel({
                         <button
                           key={st}
                           type="button"
-                          onClick={() => setCaShieldType(st)}
-                          className={`rounded-md px-2 py-1 text-xs font-medium ${caShieldType === st ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+                          onClick={() => setAf({ shieldType: st })}
+                          className={`rounded-md px-2 py-1 text-xs font-medium ${af.shieldType === st ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
                           data-testid={`gm-create-armor-shield-${st}`}
                         >
                           {t(
@@ -637,7 +637,7 @@ export function MasterItemsPanel({
                 )}
                 <Button
                   className="w-full"
-                  disabled={creating || !caName.trim() || !caProfSelected}
+                  disabled={creating || !af.name.trim() || !af.profSelected}
                   onClick={handleCreateArmor}
                   data-testid="gm-create-armor-submit"
                 >
@@ -652,31 +652,30 @@ export function MasterItemsPanel({
                 <input
                   type="text"
                   placeholder={t("name")}
-                  value={ciName}
-                  onChange={(e) => setCiName(e.target.value)}
+                  value={itemForm.name}
+                  onChange={(e) => setItemForm((f) => ({ ...f, name: e.target.value }))}
                   className="w-full rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   data-testid="gm-create-item-name"
                 />
                 <input
                   type="number"
                   placeholder={t("weight")}
-                  value={ciWeight}
-                  onChange={(e) => setCiWeight(e.target.value)}
+                  value={itemForm.weight}
+                  onChange={(e) => setItemForm((f) => ({ ...f, weight: e.target.value }))}
                   className="w-full rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   data-testid="gm-create-item-weight"
                 />
                 <Button
                   className="w-full"
-                  disabled={creating || !ciName.trim()}
+                  disabled={creating || !itemForm.name.trim()}
                   onClick={async () => {
-                    if (!ciName.trim()) return;
+                    if (!itemForm.name.trim()) return;
                     setCreating(true);
-                    const result = await injectItemToParty("general", "", ciName.trim());
+                    const result = await injectItemToParty("general", "", itemForm.name.trim());
                     setCreating(false);
                     if (result.success) {
                       showToastMsg(t("customItemCreated"), "success");
-                      setCiName("");
-                      setCiWeight("");
+                      setItemForm(INITIAL_ITEM_FORM);
                     } else {
                       showToastMsg(t("injectFailed"), "error");
                     }
@@ -749,9 +748,18 @@ export function MasterItemsPanel({
                     Proficiency: {w.name}
                   </div>
                 </div>
-                <Badge variant="outline" className="text-[10px] md:text-xs">
-                  {w.weapon_type}
-                </Badge>
+                <div className="flex items-center gap-1">
+                  <BookmarkToggle
+                    entityType="weapon"
+                    entityId={w.id}
+                    isBookmarked={bookmarkSet.has(`weapon:${w.id}`)}
+                    userId={userId}
+                    onToggle={onBookmarkToggle}
+                  />
+                  <Badge variant="outline" className="text-[10px] md:text-xs">
+                    {w.weapon_type}
+                  </Badge>
+                </div>
               </div>
               {renderInjectButtons("weapon", w.id, w.name)}
             </GlassCard>
@@ -779,11 +787,20 @@ export function MasterItemsPanel({
                     </div>
                   )}
                 </div>
-                {a.is_shield && (
-                  <Badge variant="outline" className="text-[10px] md:text-xs">
-                    {a.shield_type ?? "shield"}
-                  </Badge>
-                )}
+                <div className="flex items-center gap-1">
+                  <BookmarkToggle
+                    entityType="armor"
+                    entityId={a.id}
+                    isBookmarked={bookmarkSet.has(`armor:${a.id}`)}
+                    userId={userId}
+                    onToggle={onBookmarkToggle}
+                  />
+                  {a.is_shield && (
+                    <Badge variant="outline" className="text-[10px] md:text-xs">
+                      {a.shield_type ?? "shield"}
+                    </Badge>
+                  )}
+                </div>
               </div>
               {renderInjectButtons("armor", a.id, a.name)}
             </GlassCard>
@@ -801,109 +818,31 @@ export function MasterItemsPanel({
                 <span className="font-medium text-foreground">
                   {localized(item.name, item.name_en, locale)}
                 </span>
-                <span className="text-xs text-muted-foreground">{lbsToKg(item.weight)}</span>
+                <div className="flex items-center gap-1">
+                  <BookmarkToggle
+                    entityType="general_item"
+                    entityId={item.id}
+                    isBookmarked={bookmarkSet.has(`general_item:${item.id}`)}
+                    userId={userId}
+                    onToggle={onBookmarkToggle}
+                  />
+                  <span className="text-xs text-muted-foreground">{lbsToKg(item.weight)}</span>
+                </div>
               </div>
               {renderInjectButtons("general", item.id, item.name)}
             </GlassCard>
           ))}
 
         {itemTab === "magic" && (
-          <GlassCard hover={false} className="p-4" data-testid="gm-magic-item-create">
-            <MagicItemForm
-              onSubmit={(formData: MagicItemFormData) => {
-                setMagicFormData(formData);
-                setShowMagicInject(true);
-              }}
-              submitLabel={t("createAndDistribute")}
-              loading={creating}
-            />
-          </GlassCard>
-        )}
-
-        {/* Magic item inject dialog */}
-        {showMagicInject && magicFormData && (
-          <GlassCard hover={false} className="mt-2 p-4" data-testid="gm-magic-inject-targets">
-            <div className="mb-2 text-sm font-medium">
-              {t("distributeItem")}: {magicFormData.name}
-              {magicFormData.category ? ` (${magicFormData.category})` : ""}
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {characters
-                .filter((c) => c.is_active)
-                .map((char) => (
-                  <Button
-                    key={char.id}
-                    variant="outline"
-                    size="sm"
-                    disabled={injectingKey === `magic-${char.id}`}
-                    onClick={async () => {
-                      setInjectingKey(`magic-${char.id}`);
-                      try {
-                        const result = await injectMagicItemToCharacter(char.id, {
-                          name: magicFormData.name,
-                          category: magicFormData.category || undefined,
-                          magic_effects: magicFormData.effects,
-                        });
-                        if (result.success) {
-                          showToastMsg(t("injectedTo", { name: char.name }), "success");
-                        } else {
-                          showToastMsg(t("injectFailed"), "error");
-                        }
-                        setShowMagicInject(false);
-                        setMagicFormData(null);
-                      } catch {
-                        showToastMsg(t("injectFailed"), "error");
-                      } finally {
-                        setInjectingKey(null);
-                      }
-                    }}
-                    data-testid={`gm-magic-inject-${char.id}`}
-                  >
-                    {char.name}
-                  </Button>
-                ))}
-              <Button
-                variant="secondary"
-                size="sm"
-                disabled={injectingKey === "magic-party"}
-                onClick={async () => {
-                  setInjectingKey("magic-party");
-                  try {
-                    const result = await injectMagicItemToParty({
-                      name: magicFormData.name,
-                      category: magicFormData.category || undefined,
-                      magic_effects: magicFormData.effects,
-                    });
-                    if (result.success) {
-                      showToastMsg(t("injectedToParty"), "success");
-                    } else {
-                      showToastMsg(t("injectFailed"), "error");
-                    }
-                    setShowMagicInject(false);
-                    setMagicFormData(null);
-                  } catch {
-                    showToastMsg(t("injectFailed"), "error");
-                  } finally {
-                    setInjectingKey(null);
-                  }
-                }}
-                className="bg-amber-700/30 text-amber-300 hover:bg-amber-700/50"
-                data-testid="gm-magic-inject-party"
-              >
-                {t("injectToParty")}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setShowMagicInject(false);
-                  setMagicFormData(null);
-                }}
-              >
-                {t("cancel")}
-              </Button>
-            </div>
-          </GlassCard>
+          <MasterMagicItemsTab
+            magicItems={magicItems}
+            characters={characters}
+            distribution={magicItemDistribution}
+            bookmarkSet={bookmarkSet}
+            userId={userId}
+            onBookmarkToggle={onBookmarkToggle}
+            onMagicItemsChange={onMagicItemsChange}
+          />
         )}
 
         {((itemTab === "weapons" && filteredWeapons.length === 0) ||

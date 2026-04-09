@@ -37,6 +37,7 @@ import type {
   CharacterWeaponProficiencyRow,
 } from "@/lib/supabase/types";
 import { MagicItemForm, type MagicItemFormData } from "@/components/shared/magic-item-form";
+import { MagicEffectBadges } from "@/components/shared/magic-effect-badges";
 
 interface TabEquipmentProps {
   characterId: string;
@@ -63,37 +64,9 @@ interface TabEquipmentProps {
   onIgnoreEncumbranceChange: (value: boolean) => void;
 }
 
-function MagicEffectBadges({ item }: { item: CharacterEquipmentWithDetails }) {
+function EquipmentMagicEffectBadges({ item }: { item: CharacterEquipmentWithDetails }) {
   if (item.weapon_id || item.armor_id || !item.custom_label) return null;
-  const fx = item.magic_effects;
-  if (!fx || Object.keys(fx).length === 0) return null;
-  const badges: string[] = [];
-  for (const stat of ["str", "dex", "con", "int", "wis", "cha"] as const) {
-    const v = fx[stat];
-    if (v != null) badges.push(`${stat.toUpperCase()} ${v > 0 ? "+" : ""}${v}`);
-  }
-  if (fx.ac_bonus != null) badges.push(`AC ${fx.ac_bonus}`);
-  if (fx.attack_bonus != null) badges.push(`Atk +${fx.attack_bonus}`);
-  if (fx.damage_bonus != null) badges.push(`Dmg +${fx.damage_bonus}`);
-  if (fx.save_all != null) badges.push(`Saves +${fx.save_all}`);
-  if (fx.perception_bonus != null) badges.push(`Perception +${fx.perception_bonus}`);
-  if (fx.magic_resistance != null) badges.push(`MR ${fx.magic_resistance}%`);
-  if (fx.max_charges != null) badges.push(`${fx.current_charges ?? 0}/${fx.max_charges} charges`);
-  fx.resistances?.forEach((r) => badges.push(r));
-  fx.passive_abilities?.forEach((p) => badges.push(p));
-  fx.spell_abilities?.forEach((s) =>
-    badges.push(`${s.name} (${s.uses_per_day > 0 ? `${s.uses_per_day}/day` : "at-will"})`)
-  );
-  if (badges.length === 0) return null;
-  return (
-    <div className="flex flex-wrap gap-1 pt-1" data-testid={`magic-effects-${item.id}`}>
-      {badges.map((b, i) => (
-        <Badge key={`${i}-${b}`} variant="secondary" className="text-xs">
-          {b}
-        </Badge>
-      ))}
-    </div>
-  );
+  return <MagicEffectBadges effects={item.magic_effects} id={item.id} />;
 }
 
 export function TabEquipment({
@@ -851,7 +824,7 @@ export function TabEquipment({
                   </div>
                 </div>
                 {/* Magic item effect badges */}
-                <MagicEffectBadges item={item} />
+                <EquipmentMagicEffectBadges item={item} />
                 {/* Edit form inline */}
                 {editingMagicItemId === item.id && (
                   <div className="mt-2 max-h-[50vh] overflow-y-auto rounded border border-border/50 p-2">

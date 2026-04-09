@@ -11,6 +11,7 @@ import {
   UserRound,
   Bug,
   Flame,
+  Star,
 } from "lucide-react";
 import type { TabId } from "./master-dashboard";
 
@@ -19,7 +20,7 @@ interface MasterBottomNavProps {
   onTabChange: (tab: TabId) => void;
 }
 
-const MORE_TABS: TabId[] = ["npcs", "bestiary", "combat"];
+const MORE_TABS: TabId[] = ["npcs", "bestiary", "combat", "bookmarks"];
 
 export function MasterBottomNav({ activeTab, onTabChange }: MasterBottomNavProps) {
   const t = useTranslations("master");
@@ -50,6 +51,7 @@ export function MasterBottomNav({ activeTab, onTabChange }: MasterBottomNavProps
     { id: "npcs", icon: <UserRound className="h-5 w-5" />, label: t("npcsTab") },
     { id: "bestiary", icon: <Bug className="h-5 w-5" />, label: t("bestiaryTab") },
     { id: "combat", icon: <Flame className="h-5 w-5" />, label: t("combatTab") },
+    { id: "bookmarks", icon: <Star className="h-5 w-5" />, label: t("bookmarksTab") },
   ];
 
   const isMoreActive = MORE_TABS.includes(activeTab);

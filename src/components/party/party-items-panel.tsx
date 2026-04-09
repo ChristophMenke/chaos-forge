@@ -6,7 +6,9 @@ import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { DistributeItemDialog } from "@/components/party/distribute-item-dialog";
 import { createClient } from "@/lib/supabase/client";
+import { Sparkles } from "lucide-react";
 import { localized } from "@/lib/utils/localize";
+import { MagicEffectBadges } from "@/components/shared/magic-effect-badges";
 import type {
   PartyLootItemWithDetails,
   GeneralItemRow,
@@ -84,9 +86,17 @@ export function PartyItemsPanel({
     : [];
 
   function itemName(item: PartyLootItemWithDetails): string {
+    if (item.custom_label) return item.custom_label;
     if (item.custom_name) return item.custom_name;
     if (item.item) return localized(item.item.name, item.item.name_en, locale);
     return "???";
+  }
+
+  function isMagicItem(item: PartyLootItemWithDetails): boolean {
+    return !!(
+      item.magic_item_id ||
+      (item.magic_effects && Object.keys(item.magic_effects).length > 0)
+    );
   }
 
   async function addFromCatalog(catalogItem: CatalogItem) {
@@ -323,61 +333,71 @@ export function PartyItemsPanel({
           {items.map((item) => (
             <div
               key={item.id}
-              className="flex items-center gap-2 rounded-md border border-border px-2 py-1"
+              className="rounded-md border border-border px-2 py-1"
               data-testid={`party-item-${item.id}`}
             >
-              <span className="min-w-0 flex-1 truncate text-sm">{itemName(item)}</span>
+              <div className="flex items-center gap-2">
+                <span className="min-w-0 flex-1 truncate text-sm">
+                  {isMagicItem(item) && (
+                    <Sparkles className="mr-1 inline-block h-3 w-3 text-amber-400" />
+                  )}
+                  {itemName(item)}
+                </span>
 
-              {/* Quantity controls */}
-              <div className="flex shrink-0 items-center gap-0.5">
+                {/* Quantity controls */}
+                <div className="flex shrink-0 items-center gap-0.5">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 text-xs"
+                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                    disabled={savingId === item.id}
+                    aria-label={`${itemName(item)} −1`}
+                    data-testid={`party-item-minus-${item.id}`}
+                  >
+                    −
+                  </Button>
+                  <span className="w-6 text-center font-mono text-sm">{item.quantity}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 text-xs"
+                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                    disabled={savingId === item.id}
+                    aria-label={`${itemName(item)} +1`}
+                    data-testid={`party-item-plus-${item.id}`}
+                  >
+                    +
+                  </Button>
+                </div>
+
+                {/* Distribute button */}
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
-                  className="h-6 w-6 p-0 text-xs"
-                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                  disabled={savingId === item.id}
-                  aria-label={`${itemName(item)} −1`}
-                  data-testid={`party-item-minus-${item.id}`}
+                  className="h-6 shrink-0 px-2 text-xs"
+                  onClick={() => setDistributeItem(item)}
+                  data-testid={`party-item-distribute-${item.id}`}
                 >
-                  −
+                  {t("distributeItem")}
                 </Button>
-                <span className="w-6 text-center font-mono text-sm">{item.quantity}</span>
+
+                {/* Remove button */}
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 w-6 p-0 text-xs"
-                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                  className="h-6 w-6 shrink-0 p-0 text-xs text-muted-foreground hover:text-red-400"
+                  onClick={() => removeItem(item)}
                   disabled={savingId === item.id}
-                  aria-label={`${itemName(item)} +1`}
-                  data-testid={`party-item-plus-${item.id}`}
+                  aria-label={t("removeItem", { item: itemName(item) })}
+                  data-testid={`party-item-remove-${item.id}`}
                 >
-                  +
+                  ×
                 </Button>
               </div>
-
-              {/* Distribute button */}
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-6 shrink-0 px-2 text-xs"
-                onClick={() => setDistributeItem(item)}
-                data-testid={`party-item-distribute-${item.id}`}
-              >
-                {t("distributeItem")}
-              </Button>
-
-              {/* Remove button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 shrink-0 p-0 text-xs text-muted-foreground hover:text-red-400"
-                onClick={() => removeItem(item)}
-                disabled={savingId === item.id}
-                aria-label={t("removeItem", { item: itemName(item) })}
-                data-testid={`party-item-remove-${item.id}`}
-              >
-                ×
-              </Button>
+              {isMagicItem(item) && item.magic_effects && (
+                <MagicEffectBadges effects={item.magic_effects} id={item.id} />
+              )}
             </div>
           ))}
         </div>

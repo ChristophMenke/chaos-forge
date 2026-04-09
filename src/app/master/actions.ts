@@ -4,7 +4,14 @@ import { cookies } from "next/headers";
 import crypto from "crypto";
 import { createServiceClient } from "@/lib/supabase/service";
 import { createNotification } from "@/lib/notifications";
-import type { MagicEffects, ChronicleNpcRow, MonsterRow } from "@/lib/supabase/types";
+import type {
+  MagicEffects,
+  MagicItemRow,
+  ChronicleNpcRow,
+  MonsterRow,
+  GmBookmarkRow,
+  BookmarkEntityType,
+} from "@/lib/supabase/types";
 
 const COOKIE_NAME = "gm_session";
 const COOKIE_MAX_AGE = 60 * 60 * 24; // 24h
@@ -312,21 +319,173 @@ export async function createCustomArmorGm(data: {
   return { success: true, armorId: armor.id };
 }
 
-// ─── Magic Item Creation & Distribution (GM) ──────────────────────────
+// ─── Magic Item Catalog (CRUD) ───────────────────────────────────────
+
+export async function fetchMagicItems(): Promise<MagicItemRow[]> {
+  if (!(await checkGmSession())) return [];
+  const service = createServiceClient();
+  const { data } = await service.from("magic_items").select("*").order("name", { ascending: true });
+  return (data as MagicItemRow[]) ?? [];
+}
+
+export async function createMagicItem(data: {
+  name: string;
+  name_en?: string;
+  category?: string;
+  magic_effects: MagicEffects;
+  weight?: number;
+}): Promise<{ success: boolean; id?: string; item?: MagicItemRow; error?: string }> {
+  if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
+  const service = createServiceClient();
+
+  const { data: item, error } = await service
+    .from("magic_items")
+    .insert({
+      name: data.name,
+      name_en: data.name_en || null,
+      category: data.category || null,
+      magic_effects: data.magic_effects,
+      weight: data.weight ?? 0,
+      is_custom: true,
+    })
+    .select("*")
+    .single();
+
+  if (error || !item) return { success: false, error: error?.message };
+  return { success: true, id: item.id, item: item as MagicItemRow };
+}
+
+export async function updateMagicItem(
+  id: string,
+  data: {
+    name?: string;
+    name_en?: string;
+    category?: string;
+    magic_effects?: MagicEffects;
+    weight?: number;
+  }
+): Promise<{ success: boolean; error?: string }> {
+  if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
+  const service = createServiceClient();
+  const { error } = await service.from("magic_items").update(data).eq("id", id);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function deleteMagicItem(id: string): Promise<{ success: boolean; error?: string }> {
+  if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
+  const service = createServiceClient();
+
+  // Check for active instances
+  const { count: equipCount } = await service
+    .from("character_equipment")
+    .select("id", { count: "exact", head: true })
+    .eq("magic_item_id", id);
+
+  const { count: partyCount } = await service
+    .from("party_loot_items")
+    .select("id", { count: "exact", head: true })
+    .eq("magic_item_id", id);
+
+  if ((equipCount ?? 0) > 0 || (partyCount ?? 0) > 0) {
+    return { success: false, error: "Item is still in use" };
+  }
+
+  const { error } = await service.from("magic_items").delete().eq("id", id);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+/** Fetch which characters/party have instances of each magic item */
+export async function fetchMagicItemDistribution(): Promise<
+  Map<
+    string,
+    {
+      owners: { characterId: string; characterName: string; equipped: boolean }[];
+      inPartyLoot: boolean;
+    }
+  >
+> {
+  if (!(await checkGmSession())) return new Map();
+  const service = createServiceClient();
+  const result = new Map<
+    string,
+    {
+      owners: { characterId: string; characterName: string; equipped: boolean }[];
+      inPartyLoot: boolean;
+    }
+  >();
+
+  // Character instances
+  const { data: equipRows } = await service
+    .from("character_equipment")
+    .select("magic_item_id, character_id, equipped, character:characters(name)")
+    .not("magic_item_id", "is", null);
+
+  if (equipRows) {
+    for (const row of equipRows) {
+      const mid = row.magic_item_id as string;
+      if (!result.has(mid)) result.set(mid, { owners: [], inPartyLoot: false });
+      const entry = result.get(mid)!;
+      const charData = row.character as unknown as { name: string } | null;
+      entry.owners.push({
+        characterId: row.character_id,
+        characterName: charData?.name ?? "Unknown",
+        equipped: row.equipped,
+      });
+    }
+  }
+
+  // Party loot instances
+  const { data: partyRows } = await service
+    .from("party_loot_items")
+    .select("magic_item_id")
+    .not("magic_item_id", "is", null);
+
+  if (partyRows) {
+    for (const row of partyRows) {
+      const mid = row.magic_item_id as string;
+      if (!result.has(mid)) result.set(mid, { owners: [], inPartyLoot: false });
+      result.get(mid)!.inPartyLoot = true;
+    }
+  }
+
+  return result;
+}
+
+// ─── Magic Item Distribution (GM) ───────────────────────────────────
 
 export async function injectMagicItemToCharacter(
   characterId: string,
   data: {
     name: string;
+    name_en?: string;
     category?: string;
     magic_effects: MagicEffects;
+    magic_item_id?: string;
   }
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; catalogId?: string; error?: string }> {
   if (!(await checkGmSession())) {
     return { success: false, error: "Unauthorized" };
   }
 
   const service = createServiceClient();
+  let catalogId = data.magic_item_id;
+
+  // If no catalog entry exists yet, create one
+  if (!catalogId) {
+    const catalogResult = await createMagicItem({
+      name: data.name,
+      name_en: data.name_en,
+      category: data.category,
+      magic_effects: data.magic_effects,
+    });
+    if (!catalogResult.success || !catalogResult.id) {
+      return { success: false, error: catalogResult.error ?? "Failed to create catalog entry" };
+    }
+    catalogId = catalogResult.id;
+  }
+
   const label = data.category ? `${data.name} (${data.category})` : data.name;
 
   const { error } = await service.from("character_equipment").insert({
@@ -339,6 +498,7 @@ export async function injectMagicItemToCharacter(
     damage_bonus: 0,
     magic_effects: data.magic_effects,
     custom_label: label,
+    magic_item_id: catalogId,
   });
 
   if (error) return { success: false, error: error.message };
@@ -359,19 +519,37 @@ export async function injectMagicItemToCharacter(
     });
   }
 
-  return { success: true };
+  return { success: true, catalogId };
 }
 
 export async function injectMagicItemToParty(data: {
   name: string;
+  name_en?: string;
   category?: string;
-  magic_effects: object;
-}): Promise<{ success: boolean; error?: string }> {
+  magic_effects: MagicEffects;
+  magic_item_id?: string;
+}): Promise<{ success: boolean; catalogId?: string; error?: string }> {
   if (!(await checkGmSession())) {
     return { success: false, error: "Unauthorized" };
   }
 
   const service = createServiceClient();
+  let catalogId = data.magic_item_id;
+
+  // If no catalog entry exists yet, create one
+  if (!catalogId) {
+    const catalogResult = await createMagicItem({
+      name: data.name,
+      name_en: data.name_en,
+      category: data.category,
+      magic_effects: data.magic_effects,
+    });
+    if (!catalogResult.success || !catalogResult.id) {
+      return { success: false, error: catalogResult.error ?? "Failed to create catalog entry" };
+    }
+    catalogId = catalogResult.id;
+  }
+
   const label = data.category ? `${data.name} (${data.category})` : data.name;
 
   const { error } = await service.from("party_loot_items").insert({
@@ -379,10 +557,59 @@ export async function injectMagicItemToParty(data: {
     quantity: 1,
     magic_effects: data.magic_effects,
     custom_label: label,
+    magic_item_id: catalogId,
   });
 
   if (error) return { success: false, error: error.message };
-  return { success: true };
+  return { success: true, catalogId };
+}
+
+// ─── GM Bookmarks ────────────────────────────────────────────────────
+
+export async function fetchBookmarks(userId: string): Promise<GmBookmarkRow[]> {
+  if (!(await checkGmSession())) return [];
+  const service = createServiceClient();
+  const { data } = await service
+    .from("gm_bookmarks")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+  return (data as GmBookmarkRow[]) ?? [];
+}
+
+export async function toggleBookmark(
+  userId: string,
+  entityType: BookmarkEntityType,
+  entityId: string
+): Promise<{ success: boolean; bookmarked: boolean; error?: string }> {
+  if (!(await checkGmSession()))
+    return { success: false, bookmarked: false, error: "Unauthorized" };
+  const service = createServiceClient();
+
+  // Check if bookmark exists
+  const { data: existing } = await service
+    .from("gm_bookmarks")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("entity_type", entityType)
+    .eq("entity_id", entityId)
+    .maybeSingle();
+
+  if (existing) {
+    // Remove bookmark
+    const { error } = await service.from("gm_bookmarks").delete().eq("id", existing.id);
+    if (error) return { success: false, bookmarked: true, error: error.message };
+    return { success: true, bookmarked: false };
+  } else {
+    // Add bookmark
+    const { error } = await service.from("gm_bookmarks").insert({
+      user_id: userId,
+      entity_type: entityType,
+      entity_id: entityId,
+    });
+    if (error) return { success: false, bookmarked: false, error: error.message };
+    return { success: true, bookmarked: true };
+  }
 }
 
 // ─── NPC Management ───────────────────────────────────────────────────
