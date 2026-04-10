@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { createNotification } from "@/lib/notifications";
@@ -20,7 +22,7 @@ interface DistributeGoldDialogProps {
   characters: CharacterOption[];
   userId: string;
   activeCharacterName?: string;
-  onDistribute: (updatedGold: PartyLootGoldRow) => void;
+  onDistribute: () => void;
   onClose: () => void;
 }
 
@@ -47,6 +49,7 @@ export function DistributeGoldDialog({
 
     setIsSaving(true);
     setError("");
+    const toastId = toast.loading(t("goldDistributeLoading"));
 
     try {
       // Atomic deduct from party gold via RPC (returns false if insufficient)
@@ -61,11 +64,13 @@ export function DistributeGoldDialog({
 
       if (deductError) {
         setError(deductError.message);
+        toast.error(t("goldDistributeError"), { id: toastId });
         return;
       }
 
       if (!success) {
         setError(t("insufficientGold"));
+        toast.error(t("goldDistributeError"), { id: toastId });
         return;
       }
 
@@ -81,6 +86,7 @@ export function DistributeGoldDialog({
 
       if (charError) {
         setError(charError.message);
+        toast.error(t("goldDistributeError"), { id: toastId });
         return;
       }
 
@@ -106,15 +112,8 @@ export function DistributeGoldDialog({
         });
       }
 
-      const updatedGold: PartyLootGoldRow = {
-        ...gold,
-        pp: gold.pp - amounts.pp,
-        gp: gold.gp - amounts.gp,
-        ep: gold.ep - amounts.ep,
-        sp: gold.sp - amounts.sp,
-        cp: gold.cp - amounts.cp,
-      };
-      onDistribute(updatedGold);
+      toast.success(t("goldDistributeSuccess"), { id: toastId });
+      onDistribute();
     } finally {
       setIsSaving(false);
     }
@@ -158,7 +157,7 @@ export function DistributeGoldDialog({
         </div>
 
         {/* Coin inputs */}
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
           {COINS.map((coin) => (
             <div key={coin.key} className="text-center">
               <label className="text-[10px] md:text-xs text-muted-foreground">
@@ -201,6 +200,7 @@ export function DistributeGoldDialog({
             disabled={!selectedCharacterId || !hasAny || exceeds || isSaving}
             data-testid="party-distribute-gold-confirm"
           >
+            {isSaving && <Loader2 className="mr-1.5 size-4 animate-spin" />}
             {isSaving ? t("saving") : t("distribute")}
           </Button>
           <Button

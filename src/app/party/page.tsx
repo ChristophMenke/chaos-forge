@@ -2,13 +2,14 @@ import { requireAuth } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
 import { PartyPageClient } from "@/components/party/party-page-client";
+import { collectOwnedItems } from "@/lib/party-loot/owned-items";
 import type {
   PartyLootGoldRow,
   PartyLootItemWithDetails,
   PartyLootLogRow,
-  GeneralItemRow,
-  WeaponRow,
-  ArmorRow,
+  CharacterRow,
+  CharacterInventoryWithDetails,
+  CharacterEquipmentWithDetails,
 } from "@/lib/supabase/types";
 
 interface CharacterOption {
@@ -33,7 +34,7 @@ export default async function PartyPage() {
     { data: log },
     { data: characters },
     { data: profiles },
-    { data: generalItems },
+    { data: ownCharacters },
   ] = await Promise.all([
     supabase.from("party_loot_gold").select("*").limit(1).returns<PartyLootGoldRow[]>(),
     supabase
@@ -54,14 +55,46 @@ export default async function PartyPage() {
       .order("name")
       .returns<CharacterOption[]>(),
     supabase.from("profiles").select("id, display_name").returns<ProfileOption[]>(),
-    supabase.from("general_items").select("*").order("name").returns<GeneralItemRow[]>(),
+    supabase
+      .from("characters")
+      .select("id, name, avatar_url, gold_pp, gold_gp, gold_ep, gold_sp, gold_cp")
+      .eq("user_id", user.id)
+      .eq("is_active", true)
+      .order("name")
+      .returns<
+        Pick<
+          CharacterRow,
+          "id" | "name" | "avatar_url" | "gold_pp" | "gold_gp" | "gold_ep" | "gold_sp" | "gold_cp"
+        >[]
+      >(),
   ]);
 
-  // Fetch weapons and armor for loot search
-  const [{ data: weapons }, { data: armor }] = await Promise.all([
-    supabase.from("weapons").select("*").order("name").returns<WeaponRow[]>(),
-    supabase.from("armor").select("*").order("name").returns<ArmorRow[]>(),
-  ]);
+  const ownCharacterIds = (ownCharacters ?? []).map((c) => c.id);
+
+  const [{ data: inventory }, { data: equipment }] =
+    ownCharacterIds.length > 0
+      ? await Promise.all([
+          supabase
+            .from("character_inventory")
+            .select("*, item:general_items(*)")
+            .in("character_id", ownCharacterIds)
+            .returns<CharacterInventoryWithDetails[]>(),
+          supabase
+            .from("character_equipment")
+            .select("*, weapon:weapons(*), armor:armor(*)")
+            .in("character_id", ownCharacterIds)
+            .returns<CharacterEquipmentWithDetails[]>(),
+        ])
+      : [
+          { data: [] as CharacterInventoryWithDetails[] },
+          { data: [] as CharacterEquipmentWithDetails[] },
+        ];
+
+  const ownedItemGroups = collectOwnedItems({
+    characters: ownCharacters ?? [],
+    inventory: inventory ?? [],
+    equipment: equipment ?? [],
+  });
 
   const userMap: Record<string, string> = {};
   for (const p of profiles ?? []) {
@@ -96,9 +129,8 @@ export default async function PartyPage() {
         userMap={userMap}
         characterMap={characterMap}
         userId={user.id}
-        allGeneralItems={generalItems ?? []}
-        allWeapons={weapons ?? []}
-        allArmor={armor ?? []}
+        ownedItemGroups={ownedItemGroups}
+        ownCharacters={ownCharacters ?? []}
       />
     </div>
   );

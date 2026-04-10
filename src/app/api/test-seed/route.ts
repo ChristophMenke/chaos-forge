@@ -243,6 +243,52 @@ export async function PUT(request: Request) {
     );
   }
 
+  // Optional inventory seeding for party-loot tests
+  const inventoryEntries: Array<{ custom_name?: string; item_id?: string; quantity?: number }> =
+    characterData.inventory ?? [];
+  for (const inv of inventoryEntries) {
+    const { error: invErr } = await supabaseAdmin.from("character_inventory").insert({
+      character_id: char.id,
+      item_id: inv.item_id ?? null,
+      custom_name: inv.custom_name ?? null,
+      quantity: inv.quantity ?? 1,
+      notes: "",
+    });
+    if (invErr) {
+      return NextResponse.json(
+        { error: `inventory_seed_failed: ${invErr.message}`, character_id: char.id },
+        { status: 500 }
+      );
+    }
+  }
+
+  // Optional equipment seeding for party-loot tests
+  const equipmentEntries: Array<{
+    weapon_id?: string;
+    armor_id?: string;
+    custom_label?: string;
+    equipped?: boolean;
+  }> = characterData.equipment ?? [];
+  for (const eq of equipmentEntries) {
+    const { error: eqErr } = await supabaseAdmin.from("character_equipment").insert({
+      character_id: char.id,
+      weapon_id: eq.weapon_id ?? null,
+      armor_id: eq.armor_id ?? null,
+      quantity: 1,
+      equipped: eq.equipped ?? false,
+      hit_bonus: 0,
+      damage_bonus: 0,
+      magic_effects: {},
+      custom_label: eq.custom_label ?? null,
+    });
+    if (eqErr) {
+      return NextResponse.json(
+        { error: `equipment_seed_failed: ${eqErr.message}`, character_id: char.id },
+        { status: 500 }
+      );
+    }
+  }
+
   return NextResponse.json({ character_id: char.id });
 }
 

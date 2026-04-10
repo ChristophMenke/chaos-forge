@@ -5,6 +5,7 @@ import { requireAuth } from "@/lib/supabase/auth";
 import { getTranslations, getLocale } from "next-intl/server";
 import { GlassCard } from "@/components/glass-card";
 import { CharacterCard } from "@/components/character-card";
+import { RealtimeRefresh } from "@/components/realtime-refresh";
 import { QuoteReactionBar } from "@/components/session/quote-reaction-bar";
 import { AvatarDisplay } from "@/components/avatar-display";
 import { HpBar } from "@/components/hp-bar";
@@ -685,6 +686,14 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6" data-testid="dashboard-page">
+      <RealtimeRefresh
+        channelName="dashboard"
+        bindings={[
+          { table: "characters" },
+          { table: "chronicle_quotes" },
+          { table: "chronicle_npcs" },
+        ]}
+      />
       <h1 className="font-heading text-3xl text-primary">{t("title")}</h1>
 
       {/* ── Character Grid (Hero Section — top) ──────────── */}
