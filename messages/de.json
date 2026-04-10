@@ -1395,6 +1395,7 @@
     "goldTreasuryTitle": "Schatzkammer des Chaos",
     "goldTreasurySubtitle": "Verteilung an die Helden",
     "goldTotalValue": "Gesamtwert",
+    "goldTotalPerHero": "{per} GP × {count} Helden",
     "goldRecipients": "Empfänger",
     "goldMultiSelectHint": "Mehrere wählbar",
     "goldMintTitle": "Münzprägerei",

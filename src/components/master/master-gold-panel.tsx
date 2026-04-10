@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Coins, Sparkles, Users, ArrowRight, CircleDollarSign } from "lucide-react";
 import { AvatarDisplay } from "@/components/avatar-display";
@@ -79,10 +79,7 @@ export function MasterGoldPanel({ characters }: MasterGoldPanelProps) {
   const t = useTranslations("master");
   const locale = useLocale();
 
-  const activeCharacters = useMemo(
-    () => characters.filter((c) => c.is_active && !c.is_npc),
-    [characters]
-  );
+  const activeCharacters = characters.filter((c) => c.is_active && !c.is_npc);
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(
     () => new Set(activeCharacters[0] ? [activeCharacters[0].id] : [])
@@ -95,23 +92,28 @@ export function MasterGoldPanel({ characters }: MasterGoldPanelProps) {
   const hasCoins = COIN_ORDER.some((c) => coins[c] > 0);
   const selectedCount = selectedIds.size;
 
-  // Total converted to gold pieces for display
-  const totalGoldValue = useMemo(
-    () => COIN_ORDER.reduce((sum, c) => sum + coins[c] * COIN_META[c].relativeToGp, 0),
-    [coins]
+  // Value of one "share" (what a single character receives) in GP
+  const perCharacterGpValue = COIN_ORDER.reduce(
+    (sum, c) => sum + coins[c] * COIN_META[c].relativeToGp,
+    0
   );
 
-  // If split mode is on and multiple selected, what each receives
-  const splitValues = useMemo(() => {
-    if (!splitMode || selectedCount < 2) return coins;
-    const n = selectedCount;
-    return {
-      pp: Math.floor(coins.pp / n),
-      gp: Math.floor(coins.gp / n),
-      sp: Math.floor(coins.sp / n),
-      cp: Math.floor(coins.cp / n),
-    };
-  }, [coins, splitMode, selectedCount]);
+  // Actual total leaving the treasury:
+  // - split mode: the entered amount is split — treasury loses exactly the entered amount
+  // - normal mode: each selected hero receives the full amount — treasury loses amount × heroes
+  const multiplier = splitMode ? 1 : Math.max(1, selectedCount);
+  const totalGoldValue = perCharacterGpValue * multiplier;
+
+  // Per-character values when split mode is active
+  const splitValues =
+    splitMode && selectedCount >= 2
+      ? {
+          pp: Math.floor(coins.pp / selectedCount),
+          gp: Math.floor(coins.gp / selectedCount),
+          sp: Math.floor(coins.sp / selectedCount),
+          cp: Math.floor(coins.cp / selectedCount),
+        }
+      : coins;
 
   function toggleCharacter(id: string) {
     setSelectedIds((prev) => {
@@ -194,15 +196,27 @@ export function MasterGoldPanel({ characters }: MasterGoldPanelProps) {
               </p>
             </div>
           </div>
-          {/* Live total */}
-          <div className="hidden items-center gap-2 rounded-full border border-amber-400/40 bg-amber-950/40 px-4 py-2 backdrop-blur-sm sm:flex">
+          {/* Live total — shows real amount leaving the treasury */}
+          <div
+            className="hidden items-center gap-2 rounded-full border border-amber-400/40 bg-amber-950/40 px-4 py-2 backdrop-blur-sm sm:flex"
+            data-testid="gm-gold-total"
+          >
             <CircleDollarSign className="h-4 w-4 text-amber-300" />
-            <span className="font-mono text-sm font-semibold text-amber-200">
-              {totalGoldValue.toLocaleString(locale, { maximumFractionDigits: 2 })}
-            </span>
-            <span className="text-[10px] uppercase tracking-wider text-amber-400/70">
-              {t("goldTotalValue")}
-            </span>
+            <div className="flex flex-col items-end leading-tight">
+              <span className="font-mono text-sm font-semibold text-amber-200">
+                {totalGoldValue.toLocaleString(locale, { maximumFractionDigits: 2 })} GP
+              </span>
+              <span className="text-[9px] uppercase tracking-wider text-amber-400/70">
+                {selectedCount > 1 && !splitMode && perCharacterGpValue > 0
+                  ? t("goldTotalPerHero", {
+                      per: perCharacterGpValue.toLocaleString(locale, {
+                        maximumFractionDigits: 2,
+                      }),
+                      count: selectedCount,
+                    })
+                  : t("goldTotalValue")}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -374,6 +388,7 @@ export function MasterGoldPanel({ characters }: MasterGoldPanelProps) {
                       {/* Input */}
                       <input
                         type="number"
+                        inputMode="numeric"
                         min={0}
                         value={value || ""}
                         onChange={(e) =>
@@ -382,7 +397,7 @@ export function MasterGoldPanel({ characters }: MasterGoldPanelProps) {
                             [coin]: Math.max(0, Number(e.target.value) || 0),
                           }))
                         }
-                        className={`w-full bg-transparent text-center font-heading text-2xl font-bold tracking-tight outline-none transition-colors ${
+                        className={`w-full appearance-none bg-transparent text-center font-heading text-2xl font-bold tracking-tight outline-none transition-colors [-moz-appearance:textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none ${
                           hasValue ? meta.color : "text-foreground/40"
                         } placeholder:text-foreground/20`}
                         placeholder="0"

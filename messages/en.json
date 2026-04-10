@@ -1395,6 +1395,7 @@
     "goldTreasuryTitle": "Treasury of Chaos",
     "goldTreasurySubtitle": "Bestow upon the Heroes",
     "goldTotalValue": "Total Value",
+    "goldTotalPerHero": "{per} GP × {count} heroes",
     "goldRecipients": "Recipients",
     "goldMultiSelectHint": "Multi-select",
     "goldMintTitle": "The Mint",
