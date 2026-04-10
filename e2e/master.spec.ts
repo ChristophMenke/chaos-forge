@@ -98,8 +98,9 @@ test.describe("Master of Chaos — GM Interface", () => {
       // Should contain HP bar
       await expect(firstCard.getByTestId("hp-bar")).toBeVisible();
 
-      // Should contain level badge
-      await expect(firstCard.getByTestId("level-badge")).toBeVisible();
+      // Should contain level badge (gm-char-level-{id} pattern in redesigned card)
+      const levelBadge = firstCard.locator("[data-testid^='gm-char-level-']");
+      await expect(levelBadge).toBeVisible();
     });
 
     test("shows live indicator", async ({ page }) => {
