@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { AudioRecorder } from "@/lib/utils/audio-recorder";
@@ -40,6 +40,14 @@ export function SessionEntryForm({
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const recorderRef = useRef<AudioRecorder | null>(null);
+
+  // Memoized object URL for the audio blob — recreated only when blob changes.
+  const audioUrl = useMemo(() => (audioBlob ? URL.createObjectURL(audioBlob) : null), [audioBlob]);
+  // Cleanup effect: revoke previous URL when it changes or on unmount.
+  useEffect(() => {
+    if (!audioUrl) return;
+    return () => URL.revokeObjectURL(audioUrl);
+  }, [audioUrl]);
 
   async function startRecording() {
     const recorder = new AudioRecorder();
@@ -192,9 +200,9 @@ export function SessionEntryForm({
                 {t("stopRecording")}
               </Button>
             )}
-            {audioBlob && !isRecording && (
+            {audioBlob && audioUrl && !isRecording && (
               <div className="flex items-center gap-2" data-testid="audio-preview">
-                <audio controls src={URL.createObjectURL(audioBlob)} className="h-8" />
+                <audio controls src={audioUrl} className="h-8" />
                 <Button type="button" variant="ghost" size="sm" onClick={() => setAudioBlob(null)}>
                   {t("removeRecording")}
                 </Button>

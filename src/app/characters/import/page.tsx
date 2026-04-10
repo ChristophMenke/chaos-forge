@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -98,6 +98,23 @@ export default function ImportCharacterPage({
   const [scanned, setScanned] = useState<ScannedCharacter | null>(null);
   const [filePreviews, setFilePreviews] = useState<FilePreview[]>([]);
   const [preciseMode, setPreciseMode] = useState(false);
+
+  // Keep a ref to the latest filePreviews so the unmount cleanup can access them
+  // without re-running the effect on every change. Ref is synced inside an effect
+  // to comply with React Compiler rules.
+  const filePreviewsRef = useRef(filePreviews);
+  useEffect(() => {
+    filePreviewsRef.current = filePreviews;
+  }, [filePreviews]);
+
+  // Revoke any remaining preview object URLs on unmount
+  useEffect(() => {
+    return () => {
+      for (const fp of filePreviewsRef.current) {
+        if (fp.previewUrl) URL.revokeObjectURL(fp.previewUrl);
+      }
+    };
+  }, []);
 
   const validateFiles = useCallback(
     (files: File[]): string | null => {

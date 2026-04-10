@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, lazy, Suspense } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo, lazy, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { Area } from "react-easy-crop";
@@ -39,23 +39,29 @@ export function AvatarUpload({
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Crop state
+  // Crop state — previewUrl is derived from selectedFile (useMemo + cleanup effect)
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<CropArea | null>(null);
+
+  // Derived object URL — only recreated when selectedFile changes
+  const previewUrl = useMemo(
+    () => (selectedFile ? URL.createObjectURL(selectedFile) : null),
+    [selectedFile]
+  );
+  // Revoke the URL when it changes or the component unmounts
+  useEffect(() => {
+    if (!previewUrl) return;
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
 
   const onCropComplete = useCallback((_croppedArea: Area, croppedPixels: Area) => {
     setCroppedAreaPixels(croppedPixels);
   }, []);
 
   function resetCropState() {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
     setSelectedFile(null);
-    setPreviewUrl(null);
     setCrop({ x: 0, y: 0 });
     setZoom(1);
     setCroppedAreaPixels(null);
@@ -67,27 +73,17 @@ export function AvatarUpload({
     setIsOpen(false);
   }
 
-  const handleFileSelected = useCallback(
-    (file: File) => {
-      setError(null);
-      const validationError = validateFile(file);
-      if (validationError) {
-        setError(validationError);
-        return;
-      }
-
-      // Clean up previous preview
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-
-      setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
-      setCrop({ x: 0, y: 0 });
-      setZoom(1);
-    },
-    [previewUrl]
-  );
+  const handleFileSelected = useCallback((file: File) => {
+    setError(null);
+    const validationError = validateFile(file);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    setSelectedFile(file);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+  }, []);
 
   async function handleSaveCrop() {
     if (!selectedFile || !croppedAreaPixels) return;
