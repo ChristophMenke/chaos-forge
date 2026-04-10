@@ -43,19 +43,23 @@ import type { MonsterRow } from "@/lib/supabase/types";
 
 const SIZE_ORDER = ["T", "S", "M", "L", "H", "G"] as const;
 
-/** Parse AD&D hit dice notation: "3+3" → 3, "1/2" → 0.5, "8" → 8 */
+/** Parse AD&D hit dice notation: "3+3" → 3, "1/2" → 0.5, "1/4" → 0.25, "8" → 8 */
 function parseHitDiceValue(hd: string): number {
   const trimmed = hd.trim();
   if (!trimmed) return 1;
-  // Handle fractional notation like "1/2" or "1/4"
+  // Fractional notation: "1/2" → 0.5, "1/4" → 0.25
   if (trimmed.includes("/")) {
-    const [num, denom] = trimmed.split("/").map((s) => parseFloat(s));
+    const [num, denom] = trimmed.split("/").map(Number);
     if (num && denom) return num / denom;
     return 0.5;
   }
-  // Handle "3+3" → 3
-  const parsed = parseFloat(trimmed);
-  return parsed > 0 ? parsed : 1;
+  // Leading numeric part: "3+3" → 3, "8+8" → 8
+  const match = trimmed.match(/^(\d+(?:\.\d+)?)/);
+  if (match) {
+    const val = parseFloat(match[1]);
+    return val > 0 ? val : 1;
+  }
+  return 1;
 }
 
 const HD_RANGES = [

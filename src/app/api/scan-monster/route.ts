@@ -177,7 +177,15 @@ Notes:
     const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/) ?? [null, responseText];
     const jsonString = (jsonMatch[1] ?? responseText).trim();
 
-    const parsed = JSON.parse(jsonString);
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(jsonString);
+    } catch {
+      return NextResponse.json(
+        { error: "KI-Antwort konnte nicht verarbeitet werden — bitte erneut versuchen." },
+        { status: 422 }
+      );
+    }
     return NextResponse.json(parsed);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unbekannter Fehler";

@@ -1596,6 +1596,7 @@
     "monsterHP": "Trefferpunkte",
     "monsterXPValue": "EP-Wert",
     "monsterMoralValue": "Moralwert",
+    "monstersLabel": "Monster",
     "monsterManualEntry": "Manuell eingeben",
     "monsterAIImport": "KI-Import (Foto/PDF)",
     "preciseMode": "Präziser Modus",

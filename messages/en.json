@@ -1596,6 +1596,7 @@
     "monsterHP": "Hit Points",
     "monsterXPValue": "XP Value",
     "monsterMoralValue": "Morale value",
+    "monstersLabel": "Monsters",
     "monsterManualEntry": "Manual entry",
     "monsterAIImport": "AI Import (Photo/PDF)",
     "preciseMode": "Precise mode",

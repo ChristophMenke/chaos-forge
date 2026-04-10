@@ -148,7 +148,7 @@ export function EntitySetup({
             }`}
             data-testid="gm-combat-opp-monsters"
           >
-            Monster
+            {t("monstersLabel")}
           </button>
           <button
             onClick={() => setOppSource("characters")}

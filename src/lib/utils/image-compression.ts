@@ -62,11 +62,13 @@ export async function compressImageIfNeeded(
 
   if (!blob) return file;
 
-  // If still too large, retry with lower quality
-  if (blob.size > maxSizeBytes && quality > 0.5) {
+  // If still too large, retry with lower quality (floor at 0.3)
+  // Steps: 0.85 → 0.70 → 0.55 → 0.40 → 0.30, then stop.
+  // If still oversized at 0.3, the API's per-file cap will surface a clear error.
+  if (blob.size > maxSizeBytes && quality > 0.3) {
     return compressImageIfNeeded(file, {
       ...options,
-      quality: quality - 0.15,
+      quality: Math.max(0.3, quality - 0.15),
     });
   }
 

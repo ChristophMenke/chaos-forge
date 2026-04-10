@@ -224,6 +224,7 @@ export function MasterItemsPanel({
     if (result.success && result.weaponId) {
       showToastMsg(t("customWeaponCreated"), "success");
       setWeaponForm(INITIAL_WEAPON_FORM);
+      onItemsChange?.();
     } else {
       showToastMsg(t("injectFailed"), "error");
     }
@@ -232,6 +233,8 @@ export function MasterItemsPanel({
   async function handleCreateArmor() {
     if (!af.name.trim() || !af.profSelected) return;
     setCreating(true);
+    // For armor, `name` must match an existing proficiency entry (used for AC/prof lookup),
+    // while `name_en` carries the user-provided display name if it differs.
     const result = await createCustomArmorGm({
       name: af.profSelected,
       name_en: af.name.trim() !== af.profSelected ? af.name.trim() : undefined,
@@ -245,6 +248,7 @@ export function MasterItemsPanel({
     if (result.success) {
       showToastMsg(t("customArmorCreated"), "success");
       setArmorForm(INITIAL_ARMOR_FORM);
+      onItemsChange?.();
     } else {
       showToastMsg(t("injectFailed"), "error");
     }
@@ -769,6 +773,7 @@ export function MasterItemsPanel({
                     if (result.success) {
                       showToastMsg(t("customItemCreated"), "success");
                       setItemForm(INITIAL_ITEM_FORM);
+                      onItemsChange?.();
                     } else {
                       showToastMsg(t("injectFailed"), "error");
                     }

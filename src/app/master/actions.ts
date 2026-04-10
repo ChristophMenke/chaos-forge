@@ -11,6 +11,9 @@ import type {
   MonsterRow,
   GmBookmarkRow,
   BookmarkEntityType,
+  WeaponRow,
+  ArmorRow,
+  GeneralItemRow,
 } from "@/lib/supabase/types";
 
 const COOKIE_NAME = "gm_session";
@@ -1121,30 +1124,28 @@ export async function fetchMonstersGm(): Promise<MonsterRow[]> {
   return (data as MonsterRow[]) ?? [];
 }
 
-export async function fetchWeaponsGm(): Promise<import("@/lib/supabase/types").WeaponRow[]> {
+export async function fetchWeaponsGm(): Promise<WeaponRow[]> {
   if (!(await checkGmSession())) return [];
   const service = createServiceClient();
   const { data } = await service.from("weapons").select("*").order("name", { ascending: true });
-  return (data as import("@/lib/supabase/types").WeaponRow[]) ?? [];
+  return (data as WeaponRow[]) ?? [];
 }
 
-export async function fetchArmorGm(): Promise<import("@/lib/supabase/types").ArmorRow[]> {
+export async function fetchArmorGm(): Promise<ArmorRow[]> {
   if (!(await checkGmSession())) return [];
   const service = createServiceClient();
   const { data } = await service.from("armor").select("*").order("name", { ascending: true });
-  return (data as import("@/lib/supabase/types").ArmorRow[]) ?? [];
+  return (data as ArmorRow[]) ?? [];
 }
 
-export async function fetchGeneralItemsGm(): Promise<
-  import("@/lib/supabase/types").GeneralItemRow[]
-> {
+export async function fetchGeneralItemsGm(): Promise<GeneralItemRow[]> {
   if (!(await checkGmSession())) return [];
   const service = createServiceClient();
   const { data } = await service
     .from("general_items")
     .select("*")
     .order("name", { ascending: true });
-  return (data as import("@/lib/supabase/types").GeneralItemRow[]) ?? [];
+  return (data as GeneralItemRow[]) ?? [];
 }
 
 export async function deleteMonsterGm(id: string): Promise<{ success: boolean; error?: string }> {
