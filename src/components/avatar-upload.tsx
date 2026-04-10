@@ -155,13 +155,19 @@ export function AvatarUpload({
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
           onClick={handleClose}
+          role="presentation"
           data-testid="avatar-upload-modal"
         >
           <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="avatar-upload-title"
             className="mx-4 flex w-full max-w-md flex-col gap-4 rounded-lg border border-border bg-card p-6"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="font-heading text-xl text-primary">{t("uploadTitle")}</h3>
+            <h3 id="avatar-upload-title" className="font-heading text-xl text-primary">
+              {t("uploadTitle")}
+            </h3>
 
             {/* Show cropper when a file is selected, otherwise show drop zone */}
             {previewUrl && selectedFile ? (

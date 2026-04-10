@@ -1211,11 +1211,17 @@ export function TabSpells({
       {learnDialogOpen && !readOnly && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          role="presentation"
           data-testid="learn-spell-dialog"
         >
-          <div className="mx-4 flex max-h-[80vh] w-full max-w-2xl flex-col rounded-xl bg-card ring-1 ring-foreground/10">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="learn-spell-dialog-title"
+            className="mx-4 flex max-h-[80vh] w-full max-w-2xl flex-col rounded-xl bg-card ring-1 ring-foreground/10"
+          >
             <div className="flex items-center justify-between border-b p-4">
-              <h2 className="font-heading text-lg">
+              <h2 id="learn-spell-dialog-title" className="font-heading text-lg">
                 {usesSphereSpells ? t("browseAndPrepareTitle") : t("learnSpellTitle")}
               </h2>
               <Button

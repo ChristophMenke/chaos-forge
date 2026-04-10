@@ -954,14 +954,20 @@ export function CharacterSheet({
       {showDuplicateDialog && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          role="presentation"
           data-testid="duplicate-dialog"
           onClick={() => !duplicating && setShowDuplicateDialog(false)}
         >
           <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="duplicate-dialog-title"
             className="glass mx-4 w-full max-w-md rounded-xl p-6"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="font-heading text-lg text-primary">{tc("duplicateTitle")}</h3>
+            <h3 id="duplicate-dialog-title" className="font-heading text-lg text-primary">
+              {tc("duplicateTitle")}
+            </h3>
             <p className="mt-2 text-sm text-muted-foreground">{tc("duplicateMessage")}</p>
             <Input
               className="mt-3"
