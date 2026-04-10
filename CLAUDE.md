@@ -25,17 +25,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Befehle
 
-| Befehl                 | Beschreibung                       |
-| ---------------------- | ---------------------------------- |
-| `npm run dev`          | Dev-Server starten (Turbopack)     |
-| `npm run build`        | Production Build                   |
-| `npm run lint`         | ESLint ausführen                   |
-| `npm run format`       | Prettier: alle Dateien formatieren |
-| `npm run format:check` | Prettier: Formatierung prüfen      |
-| `npm test`             | Unit-Tests einmalig ausführen      |
-| `npm run test:watch`   | Unit-Tests im Watch-Modus          |
-| `npm run test:e2e`     | Playwright E2E-Tests ausführen     |
-| `npm run test:e2e:ui`  | Playwright im UI-Modus             |
+| Befehl                 | Beschreibung                               |
+| ---------------------- | ------------------------------------------ |
+| `npm run dev`          | Dev-Server starten (Turbopack)             |
+| `npm run build`        | Production Build                           |
+| `npm run lint`         | ESLint ausführen                           |
+| `npm run typecheck`    | TypeScript Type-Check (`tsc --noEmit`)     |
+| `npm run format`       | Prettier: alle Dateien formatieren         |
+| `npm run format:check` | Prettier: Formatierung prüfen              |
+| `npm test`             | Unit-Tests einmalig ausführen              |
+| `npm run test:watch`   | Unit-Tests im Watch-Modus                  |
+| `npm run test:e2e`     | Playwright E2E-Tests ausführen             |
+| `npm run test:e2e:ui`  | Playwright im UI-Modus                     |
+| `npm run verify`       | **CI lokal spiegeln** (alle obigen Checks) |
+
+**Wichtig:** Vor jedem Commit/Push `npm run verify` ausführen — dieser Befehl spiegelt exakt die CI-Pipeline (`format:check`, `lint`, `typecheck`, `test`, `build`). `npm run build` allein reicht nicht, weil Turbopack keine `*.test.ts` Dateien kompiliert, `tsc --noEmit` im CI aber schon.
 
 ## Projektstruktur
 
