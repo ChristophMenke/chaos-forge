@@ -1355,7 +1355,9 @@
     "addGoldNeedsCharacter": "You need an active character to add gold to the pool.",
     "insufficientCharacterGold": "Your character doesn't have enough gold.",
     "chronicleTitle": "Chronicle of Loot",
-    "chronicleSubtitle": "Deeds of the party"
+    "chronicleSubtitle": "Deeds of the party",
+    "loadMoreEntries": "Load older entries",
+    "loadingMore": "Loading..."
   },
   "master": {
     "title": "Master of Chaos",

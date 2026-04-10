@@ -1355,7 +1355,9 @@
     "addGoldNeedsCharacter": "Du brauchst einen aktiven Charakter, um Gold in die Kasse einzulegen.",
     "insufficientCharacterGold": "Dein Charakter hat nicht genug Gold.",
     "chronicleTitle": "Chronik der Beute",
-    "chronicleSubtitle": "Taten der Gefährten"
+    "chronicleSubtitle": "Taten der Gefährten",
+    "loadMoreEntries": "Ältere Einträge laden",
+    "loadingMore": "Lädt..."
   },
   "master": {
     "title": "Master of Chaos",

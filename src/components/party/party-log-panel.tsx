@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import {
   ArrowDownToLine,
@@ -13,7 +13,11 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
+import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/client";
 import type { PartyLootLogRow } from "@/lib/supabase/types";
+
+const PAGE_SIZE = 50;
 
 interface PartyLogPanelProps {
   log: PartyLootLogRow[];
@@ -133,15 +137,52 @@ const FALLBACK_STYLE: ActionStyle = {
 export function PartyLogPanel({ log, userMap, characterMap }: PartyLogPanelProps) {
   const t = useTranslations("party");
   const locale = useLocale();
+  const [olderEntries, setOlderEntries] = useState<PartyLootLogRow[]>([]);
+  const [hasMore, setHasMore] = useState(log.length >= PAGE_SIZE);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const allEntries = useMemo(() => {
+    if (olderEntries.length === 0) return log;
+    const seen = new Set(log.map((e) => e.id));
+    return [...log, ...olderEntries.filter((e) => !seen.has(e.id))];
+  }, [log, olderEntries]);
 
   const groups = useMemo(
     () =>
-      groupByDay(log, locale, {
+      groupByDay(allEntries, locale, {
         today: t("today"),
         yesterday: t("yesterday"),
       }),
-    [log, locale, t]
+    [allEntries, locale, t]
   );
+
+  async function loadMore() {
+    if (loadingMore || !hasMore) return;
+    const oldest = allEntries[allEntries.length - 1];
+    if (!oldest) return;
+
+    setLoadingMore(true);
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("party_loot_log")
+        .select("*")
+        .lt("created_at", oldest.created_at)
+        .order("created_at", { ascending: false })
+        .limit(PAGE_SIZE)
+        .returns<PartyLootLogRow[]>();
+
+      if (error || !data || data.length === 0) {
+        setHasMore(false);
+        return;
+      }
+
+      setOlderEntries((prev) => [...prev, ...data]);
+      if (data.length < PAGE_SIZE) setHasMore(false);
+    } finally {
+      setLoadingMore(false);
+    }
+  }
 
   function resolveActor(entry: PartyLootLogRow): string {
     const details = entry.details;
@@ -261,6 +302,20 @@ export function PartyLogPanel({ log, userMap, characterMap }: PartyLogPanelProps
               </ol>
             </section>
           ))}
+
+          {hasMore && (
+            <div className="flex justify-center pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={loadMore}
+                disabled={loadingMore}
+                data-testid="party-log-load-more"
+              >
+                {loadingMore ? t("loadingMore") : t("loadMoreEntries")}
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </GlassCard>
