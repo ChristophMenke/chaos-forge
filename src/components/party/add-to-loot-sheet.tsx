@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useTransition } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Package, Shield, AlertTriangle, Minus, Plus } from "lucide-react";
+import { ArrowLeft, Package, Shield, AlertTriangle, Minus, Plus, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { createClient } from "@/lib/supabase/client";
@@ -43,7 +44,9 @@ export function AddToLootSheet({
   const [quantity, setQuantity] = useState(1);
   const [search, setSearch] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const busy = isSaving || isPending;
 
   const selectedGroup = useMemo(
     () => ownedItemGroups.find((g) => g.character.id === characterId),
@@ -92,10 +95,11 @@ export function AddToLootSheet({
   }
 
   async function handleConfirm() {
-    if (!selectedItem || isSaving) return;
+    if (!selectedItem || busy) return;
     setIsSaving(true);
     setError("");
 
+    const toastId = toast.loading(t("moveLoading"));
     try {
       const { error: rpcError } = await supabase.rpc("move_to_party_loot", {
         p_character_id: selectedItem.characterId,
@@ -105,11 +109,15 @@ export function AddToLootSheet({
       });
 
       if (rpcError) {
+        toast.error(t("moveError"), { id: toastId });
         setError(rpcError.message);
         return;
       }
 
-      router.refresh();
+      toast.success(t("moveSuccess"), { id: toastId });
+      startTransition(() => {
+        router.refresh();
+      });
       handleClose(false);
     } finally {
       setIsSaving(false);
@@ -328,10 +336,11 @@ export function AddToLootSheet({
             <Button
               className="flex-1"
               onClick={handleConfirm}
-              disabled={isSaving}
+              disabled={busy}
               data-testid="add-loot-confirm"
             >
-              {isSaving ? t("saving") : t("confirm")}
+              {busy && <Loader2 className="mr-1.5 size-4 animate-spin" />}
+              {busy ? t("saving") : t("confirm")}
             </Button>
           </div>
         )}

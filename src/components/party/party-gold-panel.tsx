@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -59,7 +61,9 @@ export function PartyGoldPanel({
   });
   const [removeReason, setRemoveReason] = useState<RemoveReason>("expense");
   const [isSaving, setIsSaving] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [saveError, setSaveError] = useState<string | null>(null);
+  const busy = isSaving || isPending;
 
   const purse: CoinPurse = { pp: gold.pp, gp: gold.gp, ep: gold.ep, sp: gold.sp, cp: gold.cp };
   const totalGP = (purseTotalInCP(purse) / 100).toFixed(1);
@@ -78,7 +82,7 @@ export function PartyGoldPanel({
 
   async function handleAddGold() {
     const hasAny = COINS.some((c) => addAmounts[c.key] > 0);
-    if (!hasAny || isSaving || !activeCharacter || !characterPurse) return;
+    if (!hasAny || busy || !activeCharacter || !characterPurse) return;
 
     const exceeds = COINS.some((c) => addAmounts[c.key] > characterPurse[c.key]);
     if (exceeds) {
@@ -88,6 +92,7 @@ export function PartyGoldPanel({
 
     setIsSaving(true);
     setSaveError(null);
+    const toastId = toast.loading(t("goldAddLoading"));
 
     try {
       const { error } = await supabase.rpc("give_character_gold_to_party", {
@@ -100,9 +105,11 @@ export function PartyGoldPanel({
       });
 
       if (error) {
-        setSaveError(
-          error.message.includes("insufficient") ? t("insufficientCharacterGold") : error.message
-        );
+        const msg = error.message.includes("insufficient")
+          ? t("insufficientCharacterGold")
+          : error.message;
+        setSaveError(msg);
+        toast.error(t("goldAddError"), { id: toastId });
         return;
       }
 
@@ -117,9 +124,12 @@ export function PartyGoldPanel({
         details: { coins: { ...addAmounts }, amount: parts.join(", "), actor: logUser },
       });
 
+      toast.success(t("goldAddSuccess"), { id: toastId });
       setAddAmounts({ pp: 0, gp: 0, ep: 0, sp: 0, cp: 0 });
       setShowAddDialog(false);
-      router.refresh();
+      startTransition(() => {
+        router.refresh();
+      });
     } finally {
       setIsSaving(false);
     }
@@ -127,7 +137,7 @@ export function PartyGoldPanel({
 
   async function handleRemoveGold() {
     const hasAny = COINS.some((c) => removeAmounts[c.key] > 0);
-    if (!hasAny || isSaving) return;
+    if (!hasAny || busy) return;
 
     // Check sufficient gold
     const exceeds = COINS.some((c) => removeAmounts[c.key] > gold[c.key]);
@@ -138,6 +148,7 @@ export function PartyGoldPanel({
 
     setIsSaving(true);
     setSaveError(null);
+    const toastId = toast.loading(t("goldRemoveLoading"));
 
     try {
       const { data: success, error } = await supabase.rpc("deduct_party_gold", {
@@ -151,6 +162,7 @@ export function PartyGoldPanel({
 
       if (error || !success) {
         setSaveError(t("insufficientGold"));
+        toast.error(t("goldRemoveError"), { id: toastId });
         return;
       }
 
@@ -177,10 +189,13 @@ export function PartyGoldPanel({
         },
       });
 
+      toast.success(t("goldRemoveSuccess"), { id: toastId });
       setRemoveAmounts({ pp: 0, gp: 0, ep: 0, sp: 0, cp: 0 });
       setRemoveReason("expense");
       setShowRemoveDialog(false);
-      router.refresh();
+      startTransition(() => {
+        router.refresh();
+      });
     } finally {
       setIsSaving(false);
     }
@@ -188,7 +203,9 @@ export function PartyGoldPanel({
 
   function handleDistributed() {
     setShowDistributeDialog(false);
-    router.refresh();
+    startTransition(() => {
+      router.refresh();
+    });
   }
 
   return (
@@ -312,10 +329,11 @@ export function PartyGoldPanel({
               size="sm"
               className="flex-1"
               onClick={handleAddGold}
-              disabled={isSaving || !activeCharacter}
+              disabled={busy || !activeCharacter}
               data-testid="party-add-gold-confirm"
             >
-              {isSaving ? t("saving") : t("apply")}
+              {busy && <Loader2 className="mr-1.5 size-4 animate-spin" />}
+              {busy ? t("saving") : t("apply")}
             </Button>
             <Button
               variant="ghost"
@@ -376,10 +394,11 @@ export function PartyGoldPanel({
               size="sm"
               className="flex-1"
               onClick={handleRemoveGold}
-              disabled={isSaving}
+              disabled={busy}
               data-testid="party-remove-gold-confirm"
             >
-              {isSaving ? t("saving") : t("apply")}
+              {busy && <Loader2 className="mr-1.5 size-4 animate-spin" />}
+              {busy ? t("saving") : t("apply")}
             </Button>
             <Button
               variant="ghost"

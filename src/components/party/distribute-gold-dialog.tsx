@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { createNotification } from "@/lib/notifications";
@@ -47,6 +49,7 @@ export function DistributeGoldDialog({
 
     setIsSaving(true);
     setError("");
+    const toastId = toast.loading(t("goldDistributeLoading"));
 
     try {
       // Atomic deduct from party gold via RPC (returns false if insufficient)
@@ -61,11 +64,13 @@ export function DistributeGoldDialog({
 
       if (deductError) {
         setError(deductError.message);
+        toast.error(t("goldDistributeError"), { id: toastId });
         return;
       }
 
       if (!success) {
         setError(t("insufficientGold"));
+        toast.error(t("goldDistributeError"), { id: toastId });
         return;
       }
 
@@ -81,6 +86,7 @@ export function DistributeGoldDialog({
 
       if (charError) {
         setError(charError.message);
+        toast.error(t("goldDistributeError"), { id: toastId });
         return;
       }
 
@@ -106,6 +112,7 @@ export function DistributeGoldDialog({
         });
       }
 
+      toast.success(t("goldDistributeSuccess"), { id: toastId });
       onDistribute();
     } finally {
       setIsSaving(false);
@@ -193,6 +200,7 @@ export function DistributeGoldDialog({
             disabled={!selectedCharacterId || !hasAny || exceeds || isSaving}
             data-testid="party-distribute-gold-confirm"
           >
+            {isSaving && <Loader2 className="mr-1.5 size-4 animate-spin" />}
             {isSaving ? t("saving") : t("distribute")}
           </Button>
           <Button

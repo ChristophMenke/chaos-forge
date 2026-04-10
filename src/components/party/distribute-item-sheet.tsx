@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { Minus, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Minus, Plus, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { createClient } from "@/lib/supabase/client";
@@ -36,10 +38,13 @@ export function DistributeItemSheet({
   const t = useTranslations("party");
   const locale = useLocale();
   const supabase = createClient();
+  const router = useRouter();
   const [selectedCharacterId, setSelectedCharacterId] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [isSaving, setIsSaving] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const busy = isSaving || isPending;
 
   const name = item.custom_label
     ? item.custom_label
@@ -53,10 +58,11 @@ export function DistributeItemSheet({
   const maxQty = isEquipmentSource ? 1 : item.quantity;
 
   async function handleDistribute() {
-    if (!selectedCharacterId || quantity < 1 || quantity > item.quantity || isSaving) return;
+    if (!selectedCharacterId || quantity < 1 || quantity > item.quantity || busy) return;
 
     setIsSaving(true);
     setError("");
+    const toastId = toast.loading(t("distributeLoading"));
 
     try {
       // Step 1: Grant item to recipient. Do this BEFORE touching party_loot_items
@@ -78,6 +84,7 @@ export function DistributeItemSheet({
           magic_item_id: item.magic_item_id ?? null,
         });
         if (insError) {
+          toast.error(t("distributeError"), { id: toastId });
           setError(insError.message);
           return;
         }
@@ -95,6 +102,7 @@ export function DistributeItemSheet({
             p_delta: quantity,
           });
           if (incError) {
+            toast.error(t("distributeError"), { id: toastId });
             setError(incError.message);
             return;
           }
@@ -124,6 +132,7 @@ export function DistributeItemSheet({
             p_delta: quantity,
           });
           if (incError) {
+            toast.error(t("distributeError"), { id: toastId });
             setError(incError.message);
             return;
           }
@@ -151,6 +160,7 @@ export function DistributeItemSheet({
           .delete()
           .eq("id", item.id);
         if (delError) {
+          toast.error(t("distributeError"), { id: toastId });
           setError(delError.message);
           return;
         }
@@ -160,6 +170,7 @@ export function DistributeItemSheet({
           .update({ quantity: remaining })
           .eq("id", item.id);
         if (updError) {
+          toast.error(t("distributeError"), { id: toastId });
           setError(updError.message);
           return;
         }
@@ -186,6 +197,10 @@ export function DistributeItemSheet({
         });
       }
 
+      toast.success(t("distributeSuccess"), { id: toastId });
+      startTransition(() => {
+        router.refresh();
+      });
       onDistribute(item.id, quantity);
     } finally {
       setIsSaving(false);
@@ -283,10 +298,11 @@ export function DistributeItemSheet({
           <Button
             className="flex-1"
             onClick={handleDistribute}
-            disabled={!selectedCharacterId || quantity < 1 || isSaving}
+            disabled={!selectedCharacterId || quantity < 1 || busy}
             data-testid="party-distribute-item-confirm"
           >
-            {isSaving ? t("saving") : t("distribute")}
+            {busy && <Loader2 className="mr-1.5 size-4 animate-spin" />}
+            {busy ? t("saving") : t("distribute")}
           </Button>
         </div>
       </DialogContent>

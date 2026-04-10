@@ -4,7 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
-import { Sparkles, Plus, Trash2, Send } from "lucide-react";
+import { Sparkles, Plus, Trash2, Send, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { DistributeItemSheet } from "@/components/party/distribute-item-sheet";
@@ -70,10 +71,11 @@ export function PartyItemsPanel({
   async function removeItem(item: PartyLootItemWithDetails) {
     if (removingId) return;
     setRemovingId(item.id);
+    const toastId = toast.loading(t("removeLoading"));
     try {
       const { error } = await supabase.from("party_loot_items").delete().eq("id", item.id);
       if (error) {
-        console.error("removeItem failed:", error.message);
+        toast.error(t("removeError"), { id: toastId });
         return;
       }
       await supabase.from("party_loot_log").insert({
@@ -85,6 +87,7 @@ export function PartyItemsPanel({
           actor: activeCharacterName,
         },
       });
+      toast.success(t("removeSuccess"), { id: toastId });
       router.refresh();
     } finally {
       setRemovingId(null);
@@ -195,7 +198,11 @@ export function PartyItemsPanel({
                       aria-label={t("removeItem", { item: name })}
                       data-testid={`party-item-remove-${item.id}`}
                     >
-                      <Trash2 className="size-3.5" />
+                      {removingId === item.id ? (
+                        <Loader2 className="size-3.5 animate-spin" />
+                      ) : (
+                        <Trash2 className="size-3.5" />
+                      )}
                     </Button>
                   </div>
                 </div>
