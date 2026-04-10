@@ -3,7 +3,17 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
-import { Trash2 } from "lucide-react";
+import {
+  Trash2,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  HandCoins,
+  PackagePlus,
+  Send,
+  PackageX,
+  ScrollText,
+  type LucideIcon,
+} from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -72,6 +82,59 @@ function groupByDay(
   return Array.from(groups.values());
 }
 
+type ActionStyle = {
+  icon: LucideIcon;
+  ring: string;
+  tint: string;
+  accent: string;
+};
+
+const ACTION_STYLES: Record<string, ActionStyle> = {
+  add_gold: {
+    icon: ArrowDownToLine,
+    ring: "border-amber-400/50 bg-amber-500/15 text-amber-200 shadow-[0_0_12px_-4px_rgba(251,191,36,0.6)]",
+    tint: "hover:border-amber-400/30 hover:bg-amber-500/5",
+    accent: "text-amber-200",
+  },
+  remove_gold: {
+    icon: ArrowUpFromLine,
+    ring: "border-rose-400/50 bg-rose-500/15 text-rose-200 shadow-[0_0_12px_-4px_rgba(244,63,94,0.5)]",
+    tint: "hover:border-rose-400/30 hover:bg-rose-500/5",
+    accent: "text-rose-200",
+  },
+  distribute_gold: {
+    icon: HandCoins,
+    ring: "border-amber-400/50 bg-amber-500/15 text-amber-200 shadow-[0_0_12px_-4px_rgba(251,191,36,0.6)]",
+    tint: "hover:border-amber-400/30 hover:bg-amber-500/5",
+    accent: "text-amber-200",
+  },
+  add_item: {
+    icon: PackagePlus,
+    ring: "border-teal-400/50 bg-teal-500/15 text-teal-200 shadow-[0_0_12px_-4px_rgba(45,212,191,0.5)]",
+    tint: "hover:border-teal-400/30 hover:bg-teal-500/5",
+    accent: "text-teal-200",
+  },
+  distribute_item: {
+    icon: Send,
+    ring: "border-teal-400/50 bg-teal-500/15 text-teal-200 shadow-[0_0_12px_-4px_rgba(45,212,191,0.5)]",
+    tint: "hover:border-teal-400/30 hover:bg-teal-500/5",
+    accent: "text-teal-200",
+  },
+  remove_item: {
+    icon: PackageX,
+    ring: "border-zinc-400/50 bg-zinc-500/15 text-zinc-200",
+    tint: "hover:border-zinc-400/30 hover:bg-zinc-500/5",
+    accent: "text-zinc-300",
+  },
+};
+
+const FALLBACK_STYLE: ActionStyle = {
+  icon: ScrollText,
+  ring: "border-border bg-muted text-muted-foreground",
+  tint: "hover:bg-muted/40",
+  accent: "text-muted-foreground",
+};
+
 export function PartyLogPanel({ log, userMap, characterMap }: PartyLogPanelProps) {
   const t = useTranslations("party");
   const tc = useTranslations("common");
@@ -137,49 +200,75 @@ export function PartyLogPanel({ log, userMap, characterMap }: PartyLogPanelProps
 
   return (
     <GlassCard hover={false} data-testid="party-log-panel">
-      <h3 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-        {t("log")}
-      </h3>
+      {/* Ornate header */}
+      <div className="mb-4 flex items-center gap-2 border-b border-primary/15 pb-3">
+        <div className="rounded-full border border-primary/30 bg-primary/10 p-1.5 text-primary">
+          <ScrollText className="size-3.5" />
+        </div>
+        <h3 className="font-heading text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+          {t("chronicleTitle")}
+        </h3>
+        <div className="ml-auto text-[10px] uppercase tracking-widest text-muted-foreground/60">
+          {t("chronicleSubtitle")}
+        </div>
+      </div>
 
       {log.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t("noLog")}</p>
+        <div className="flex flex-col items-center gap-2 py-8 text-center">
+          <ScrollText className="size-10 text-muted-foreground/30" />
+          <p className="text-sm italic text-muted-foreground">{t("noLog")}</p>
+        </div>
       ) : (
-        <div className="space-y-4" data-testid="party-log-entries">
+        <div className="space-y-5" data-testid="party-log-entries">
           {groups.map((group) => (
             <section key={group.key}>
-              <h4 className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80">
-                {group.label}
-              </h4>
-              <ol className="relative space-y-2 border-l border-border pl-4">
+              {/* Ornamental day divider */}
+              <div className="relative mb-3 flex items-center gap-3">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent to-primary/30" />
+                <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.25em] text-primary/80">
+                  {group.label}
+                </span>
+                <div className="h-px flex-1 bg-gradient-to-l from-transparent to-primary/30" />
+              </div>
+
+              <ol className="space-y-1.5">
                 {group.entries.map((entry) => {
                   const time = new Date(entry.created_at).toLocaleTimeString(locale, {
                     hour: "2-digit",
                     minute: "2-digit",
                   });
+                  const style = ACTION_STYLES[entry.action] ?? FALLBACK_STYLE;
+                  const Icon = style.icon;
                   return (
                     <li
                       key={entry.id}
-                      className="group relative"
+                      className={`group relative flex items-start gap-3 rounded-lg border border-transparent p-2 transition-all ${style.tint}`}
                       data-testid={`party-log-entry-${entry.id}`}
                     >
-                      <span
-                        className="absolute -left-[1.3rem] top-1.5 size-1.5 rounded-full bg-primary"
+                      <div
+                        className={`mt-0.5 shrink-0 rounded-full border p-1.5 ${style.ring}`}
                         aria-hidden="true"
-                      />
-                      <div className="flex items-start gap-2 text-sm">
-                        <span className="shrink-0 font-mono text-xs text-muted-foreground">
-                          {time}
-                        </span>
-                        <span className="flex-1 text-foreground/85">{formatEntry(entry)}</span>
-                        <button
-                          onClick={() => setConfirmDeleteId(entry.id)}
-                          className="shrink-0 rounded p-0.5 text-muted-foreground/50 transition-opacity hover:text-destructive sm:opacity-0 sm:group-hover:opacity-100"
-                          aria-label={t("deleteLogEntry")}
-                          data-testid={`party-log-delete-${entry.id}`}
-                        >
-                          <Trash2 className="size-3.5" />
-                        </button>
+                      >
+                        <Icon className="size-3.5" />
                       </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm leading-snug text-foreground/90">
+                          {formatEntry(entry)}
+                        </p>
+                        <p
+                          className={`mt-0.5 font-mono text-[10px] uppercase tracking-wider opacity-70 ${style.accent}`}
+                        >
+                          {time}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setConfirmDeleteId(entry.id)}
+                        className="mt-0.5 shrink-0 rounded p-1 text-muted-foreground/40 transition-opacity hover:text-destructive sm:opacity-0 sm:group-hover:opacity-100"
+                        aria-label={t("deleteLogEntry")}
+                        data-testid={`party-log-delete-${entry.id}`}
+                      >
+                        <Trash2 className="size-3.5" />
+                      </button>
                     </li>
                   );
                 })}

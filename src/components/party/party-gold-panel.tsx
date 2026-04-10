@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { GlassCard } from "@/components/glass-card";
@@ -206,21 +205,12 @@ export function PartyGoldPanel({
         {COINS.map((coin) => (
           <div
             key={coin.key}
-            className={`relative overflow-hidden rounded-md border px-1 py-1.5 ${coin.color}`}
+            className={`rounded-md border px-2 py-1.5 ${coin.border} ${coin.text} ${coin.bg} shadow-inner`}
           >
-            <div
-              className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-15"
-              aria-hidden="true"
-            >
-              <Image src={coin.icon} alt="" width={36} height={36} />
-            </div>
-            <div className="relative text-[10px] font-medium opacity-70 md:text-xs">
+            <div className="text-[10px] font-semibold uppercase tracking-wider opacity-80 md:text-xs">
               {coin.label}
             </div>
-            <div
-              className="relative font-mono text-lg font-bold"
-              data-testid={`party-gold-${coin.key}`}
-            >
+            <div className="font-mono text-lg font-bold" data-testid={`party-gold-${coin.key}`}>
               {gold[coin.key]}
             </div>
           </div>
