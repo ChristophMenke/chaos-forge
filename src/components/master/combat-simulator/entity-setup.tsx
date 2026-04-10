@@ -73,42 +73,70 @@ export function EntitySetup({
   );
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2" data-testid="gm-combat-setup">
+    <div className="relative grid gap-4 lg:grid-cols-2" data-testid="gm-combat-setup">
+      {/* VS Divider (desktop) */}
+      <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 lg:block">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full border border-amber-500/30 bg-background/80 shadow-lg shadow-amber-500/10 backdrop-blur-sm">
+          <span className="font-heading text-sm font-bold text-amber-400">VS</span>
+        </div>
+      </div>
       {/* Party Side */}
-      <GlassCard className="p-4" data-testid="gm-combat-party-setup">
-        <h3 className="mb-3 flex items-center gap-2 font-heading text-sm font-semibold text-foreground">
+      <GlassCard
+        className="relative overflow-hidden border-green-500/20 p-4"
+        hover={false}
+        data-testid="gm-combat-party-setup"
+      >
+        <div className="pointer-events-none absolute -left-8 -top-8 h-20 w-20 rounded-full bg-green-500/10 blur-2xl" />
+        <h3 className="relative mb-3 flex items-center gap-2 font-heading text-sm font-semibold text-foreground">
           <Users className="h-4 w-4 text-green-400" />
-          {t("combatParty")}
+          <span className="tracking-wide uppercase">{t("combatParty")}</span>
+          <span className="ml-auto rounded-full bg-green-900/30 px-2 py-0.5 text-[10px] text-green-300">
+            {selectedParty.size} / {playerMembers.length}
+          </span>
         </h3>
-        <div className="space-y-1">
-          {playerMembers.map((p) => {
-            const selected = selectedParty.has(p.character.id);
-            return (
-              <button
-                key={p.character.id}
-                onClick={() => onTogglePartyMember(p.character.id)}
-                className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors ${
-                  selected
-                    ? "bg-green-900/20 text-green-400"
-                    : "text-muted-foreground hover:bg-accent/30"
-                }`}
-                data-testid={`gm-combat-party-${p.character.id}`}
-              >
-                <span className="truncate font-medium">{p.character.name}</span>
-                <span className="shrink-0 text-xs">
-                  {t("ac")} {p.combat.ac} / HP {p.character.hp_max}
-                </span>
-              </button>
-            );
-          })}
+        <div className="relative space-y-1">
+          {playerMembers.length === 0 ? (
+            <p className="py-6 text-center text-xs text-muted-foreground/60">
+              {t("noCharactersFound")}
+            </p>
+          ) : (
+            playerMembers.map((p) => {
+              const selected = selectedParty.has(p.character.id);
+              return (
+                <button
+                  key={p.character.id}
+                  onClick={() => onTogglePartyMember(p.character.id)}
+                  className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm transition-all ${
+                    selected
+                      ? "border-green-500/40 bg-green-900/30 text-green-300 shadow-sm shadow-green-500/10"
+                      : "border-transparent text-muted-foreground hover:border-border/50 hover:bg-accent/20"
+                  }`}
+                  data-testid={`gm-combat-party-${p.character.id}`}
+                >
+                  <span className="truncate font-medium">{p.character.name}</span>
+                  <span className="shrink-0 text-xs font-mono">
+                    {t("ac")} {p.combat.ac} / HP {p.character.hp_max}
+                  </span>
+                </button>
+              );
+            })
+          )}
         </div>
       </GlassCard>
 
       {/* Opposition Side */}
-      <GlassCard className="p-4" data-testid="gm-combat-opposition-setup">
-        <h3 className="mb-3 flex items-center gap-2 font-heading text-sm font-semibold text-foreground">
+      <GlassCard
+        className="relative overflow-hidden border-red-500/20 p-4"
+        hover={false}
+        data-testid="gm-combat-opposition-setup"
+      >
+        <div className="pointer-events-none absolute -right-8 -top-8 h-20 w-20 rounded-full bg-red-500/10 blur-2xl" />
+        <h3 className="relative mb-3 flex items-center gap-2 font-heading text-sm font-semibold text-foreground">
           <Skull className="h-4 w-4 text-red-400" />
-          {t("combatOpposition")}
+          <span className="tracking-wide uppercase">{t("combatOpposition")}</span>
+          <span className="ml-auto rounded-full bg-red-900/30 px-2 py-0.5 text-[10px] text-red-300">
+            {monsterEntries.reduce((sum, e) => sum + e.count, 0) + selectedOppositionChars.size}
+          </span>
         </h3>
 
         {/* Source toggle: Monsters vs Characters */}
@@ -120,7 +148,7 @@ export function EntitySetup({
             }`}
             data-testid="gm-combat-opp-monsters"
           >
-            Monster
+            {t("monstersLabel")}
           </button>
           <button
             onClick={() => setOppSource("characters")}

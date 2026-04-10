@@ -28,7 +28,14 @@ import type {
   BookmarkEntityType,
 } from "@/lib/supabase/types";
 import type { CharacterCombatData } from "@/lib/rules/character-computed";
-import { fetchMagicItems, fetchMagicItemDistribution } from "@/app/master/actions";
+import {
+  fetchMagicItems,
+  fetchMagicItemDistribution,
+  fetchMonstersGm,
+  fetchWeaponsGm,
+  fetchArmorGm,
+  fetchGeneralItemsGm,
+} from "@/app/master/actions";
 
 interface PartyMember {
   character: CharacterRow;
@@ -62,11 +69,11 @@ export type TabId =
 
 export function MasterDashboard({
   partyData,
-  weapons,
-  armor,
-  generalItems,
+  weapons: initialWeapons,
+  armor: initialArmor,
+  generalItems: initialGeneralItems,
   npcs,
-  monsters,
+  monsters: initialMonsters,
   characterSpells,
   initialMagicItems,
   initialBookmarks,
@@ -81,6 +88,22 @@ export function MasterDashboard({
   );
   const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Refreshable catalog state
+  const [weapons, setWeapons] = useState<WeaponRow[]>(initialWeapons);
+  const [armor, setArmor] = useState<ArmorRow[]>(initialArmor);
+  const [generalItems, setGeneralItems] = useState<GeneralItemRow[]>(initialGeneralItems);
+  const [monsters, setMonsters] = useState<MonsterRow[]>(initialMonsters);
+
+  const refreshMonsters = useCallback(async () => {
+    setMonsters(await fetchMonstersGm());
+  }, []);
+  const refreshAllItems = useCallback(async () => {
+    const [w, a, g] = await Promise.all([fetchWeaponsGm(), fetchArmorGm(), fetchGeneralItemsGm()]);
+    setWeapons(w);
+    setArmor(a);
+    setGeneralItems(g);
+  }, []);
 
   // Magic Items state (refreshable)
   const [magicItems, setMagicItems] = useState<MagicItemRow[]>(initialMagicItems);
@@ -304,29 +327,60 @@ export function MasterDashboard({
 
       {/* Main Content — offset for sidebar on desktop */}
       <div
-        className={`pb-20 sm:pl-16 sm:pb-4 xl:pl-48 ${
+        className={
           activeTab === "chat"
-            ? "flex h-[calc(100vh-var(--header-height,140px))] flex-col sm:h-screen"
-            : "w-full p-3 sm:pr-4 sm:pt-4"
-        }`}
+            ? // Fixed to viewport so body doesn't scroll; offsets for sidebar (desktop) and bottom nav (mobile)
+              "fixed inset-0 bottom-16 flex flex-col sm:bottom-0 sm:pl-16 xl:pl-48"
+            : "w-full p-3 pb-20 sm:pl-16 sm:pr-4 sm:pt-4 sm:pb-4 xl:pl-48"
+        }
         data-testid="gm-dashboard"
       >
         {/* Header — hidden on chat tab for max space */}
         {activeTab !== "chat" && (
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Shield className="h-6 w-6 text-amber-400" />
-              <h1 className="font-heading text-xl text-foreground sm:text-2xl">{t("title")}</h1>
-            </div>
-            <div className="flex items-center gap-1.5" data-testid="gm-live-indicator">
-              <Zap
-                className={`h-3.5 w-3.5 ${isRealtimeConnected ? "text-green-400" : "text-yellow-400"}`}
-              />
-              <span
-                className={`text-xs ${isRealtimeConnected ? "text-green-400" : "text-yellow-400"}`}
+          <div className="relative mb-6 overflow-hidden rounded-xl border border-amber-500/20 bg-gradient-to-br from-amber-950/50 via-background/70 to-red-950/40 px-4 py-4 shadow-2xl shadow-amber-950/20 sm:px-6 sm:py-5">
+            {/* Decorative radial glows */}
+            <div className="pointer-events-none absolute -left-20 -top-20 h-40 w-40 rounded-full bg-amber-500/15 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-10 -right-10 h-32 w-32 rounded-full bg-red-500/15 blur-3xl" />
+            {/* Subtle pattern overlay */}
+            <div
+              className="pointer-events-none absolute inset-0 opacity-[0.04]"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 1px 1px, rgba(251, 191, 36, 0.5) 1px, transparent 0)",
+                backgroundSize: "24px 24px",
+              }}
+            />
+            {/* Top gold accent line */}
+            <div className="pointer-events-none absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
+
+            <div className="relative flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="relative flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500/30 to-amber-700/20 shadow-lg shadow-amber-500/20 ring-1 ring-amber-500/30">
+                  <Shield className="h-6 w-6 text-amber-300" />
+                  <div className="pointer-events-none absolute inset-0 rounded-lg bg-amber-400/10 blur-md" />
+                </div>
+                <div>
+                  <h1 className="font-heading text-xl leading-tight text-foreground sm:text-2xl">
+                    {t("title")}
+                  </h1>
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-amber-400/70">
+                    AD&D 2nd Edition · Game Master
+                  </p>
+                </div>
+              </div>
+              <div
+                className="flex items-center gap-1.5 rounded-full border border-border/40 bg-background/40 px-2.5 py-1 backdrop-blur-sm"
+                data-testid="gm-live-indicator"
               >
-                {t("liveIndicator")}
-              </span>
+                <Zap
+                  className={`h-3.5 w-3.5 ${isRealtimeConnected ? "text-green-400" : "text-yellow-400"}`}
+                />
+                <span
+                  className={`text-xs font-medium ${isRealtimeConnected ? "text-green-400" : "text-yellow-400"}`}
+                >
+                  {t("liveIndicator")}
+                </span>
+              </div>
             </div>
           </div>
         )}
@@ -351,6 +405,7 @@ export function MasterDashboard({
             userId={userId}
             onBookmarkToggle={handleBookmarkToggle}
             onMagicItemsChange={refreshMagicItems}
+            onItemsChange={refreshAllItems}
           />
         )}
         {activeTab === "gold" && <MasterGoldPanel characters={characters} />}
@@ -381,6 +436,7 @@ export function MasterDashboard({
             bookmarkSet={bookmarkSet}
             userId={userId}
             onBookmarkToggle={handleBookmarkToggle}
+            onMonstersChange={refreshMonsters}
           />
         )}
         {activeTab === "combat" && (

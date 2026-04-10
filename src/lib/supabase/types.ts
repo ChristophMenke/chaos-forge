@@ -250,6 +250,7 @@ export interface WeaponRow {
   source_book: string;
   is_custom: boolean;
   created_by: string | null;
+  proficiency_name: string | null;
 }
 
 export interface ArmorRow {
@@ -535,7 +536,7 @@ export interface MonsterRow {
   default_zone: "melee" | "ranged";
   has_ranged_attack: boolean;
   /** Spell names this monster can cast — matched against combat spell catalog */
-  typical_spells: string[];
+  typical_spells: string[] | null;
   image_url: string | null;
   source_book: string;
   description: string | null;

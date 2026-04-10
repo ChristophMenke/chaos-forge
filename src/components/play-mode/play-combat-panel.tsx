@@ -25,7 +25,6 @@ import type {
   CharacterWeaponProficiencyRow,
 } from "@/lib/supabase/types";
 import { localized } from "@/lib/utils/localize";
-import { lbsToKg } from "@/lib/utils/units";
 import { findWeaponProf } from "@/lib/utils/proficiency-match";
 import type { EpicEffects } from "@/lib/rules/epic-items";
 import { getKit, getKitArmorWarning } from "@/lib/rules/kits";
@@ -55,6 +54,24 @@ interface PlayCombatPanelProps {
   singleWeaponStyleBonus?: number;
   shieldProficiencyBonus?: number;
   equippedShieldName?: string | null;
+}
+
+/** Parse AD&D APR string ("1", "3/2", "2", "5/2", ...) to a decimal number. */
+function aprToDecimal(apr: string): number {
+  if (apr.includes("/")) {
+    const [num, denom] = apr.split("/").map(Number);
+    return denom !== 0 ? num / denom : Number(num);
+  }
+  return Number(apr);
+}
+
+/** Format the delta between two APR values as "+1/2", "+1", etc. */
+function formatAprDelta(from: string, to: string): string {
+  const delta = aprToDecimal(to) - aprToDecimal(from);
+  if (delta === 0.5) return "+1/2";
+  if (Number.isInteger(delta)) return `+${delta}`;
+  // Fallback for any other fractional delta
+  return `+${delta.toFixed(1)}`;
 }
 
 function PlayCombatPanelInner({
@@ -169,366 +186,6 @@ function PlayCombatPanelInner({
   const warriorEntry = classEntries.find(
     (ce) => getClassGroup(ce.classId as ClassId) === "warrior"
   );
-
-  function renderWeaponCard(eq: CharacterEquipmentWithDetails, isEquipped: boolean) {
-    const weapon = eq.weapon!;
-    const weaponName = eq.custom_label || localized(weapon.name, weapon.name_en, locale);
-    const isEpicWeapon = !!eq.custom_label;
-    const matchingProf = findWeaponProf(weaponProficiencies, weapon.name, weapon.name_en);
-    const isProficient = !!matchingProf;
-    const isSpecialized = matchingProf?.specialization ?? false;
-    const firstGroup = classGroups[0] ?? "warrior";
-    const profPenalty = isProficient ? 0 : getNonproficiencyPenalty(firstGroup);
-
-    const specHitBonus = isSpecialized ? 1 : 0;
-    const specDmgBonus = isSpecialized ? 2 : 0;
-
-    const adjusted = getAdjustedWeaponThac0(
-      thac0,
-      strMods.hitAdj + specHitBonus,
-      dexMods.missileAdj + specHitBonus,
-      weapon.weapon_type,
-      profPenalty,
-      eq.hit_bonus
-    );
-
-    const damageSM = formatDamageWithBonus(
-      weapon.damage_sm,
-      strMods.dmgAdj + specDmgBonus,
-      eq.damage_bonus
-    );
-    const damageL = formatDamageWithBonus(
-      weapon.damage_l,
-      strMods.dmgAdj + specDmgBonus,
-      eq.damage_bonus
-    );
-
-    // Warriors: PHB APR table, Non-warriors with S&P spec: +1/2 APR (1 → 3/2)
-    let apr: string;
-    let baseApr: string;
-    let hasSpecAprBonus = false;
-    if (warriorEntry) {
-      apr = getAttacksPerRound("warrior", warriorEntry.level, isSpecialized);
-      baseApr = getAttacksPerRound("warrior", warriorEntry.level, false);
-      hasSpecAprBonus = isSpecialized && apr !== baseApr;
-    } else if (isSpecialized) {
-      apr = "3/2";
-      baseApr = "1";
-      hasSpecAprBonus = true;
-    } else {
-      apr = "1";
-      baseApr = "1";
-    }
-
-    return (
-      <div
-        key={eq.id}
-        className={`rounded-lg border p-3 ${isEquipped ? "border-border bg-card/50" : "border-dashed border-border/50 bg-card/20"}`}
-        data-testid={`play-weapon-${eq.id}`}
-      >
-        <div className="mb-1.5 flex items-center gap-2">
-          <span className="font-medium">{weaponName}</span>
-          <Badge variant="outline" className="text-[10px] md:text-xs">
-            {weapon.weapon_type === "melee"
-              ? t("melee")
-              : weapon.weapon_type === "ranged"
-                ? t("ranged")
-                : `${t("melee")}/${t("ranged")}`}
-          </Badge>
-          {isSpecialized && (
-            <Badge className="bg-primary/20 text-[10px] md:text-xs text-primary">★</Badge>
-          )}
-        </div>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm sm:grid-cols-4">
-          <div>
-            <span className="text-xs text-muted-foreground">THAC0 {t("melee")}: </span>
-            <span className="font-mono font-bold">{adjusted.melee}</span>
-          </div>
-          {adjusted.ranged !== null && (
-            <div>
-              <span className="text-xs text-muted-foreground">THAC0 {t("ranged")}: </span>
-              <span className="font-mono font-bold">{adjusted.ranged}</span>
-            </div>
-          )}
-          <div>
-            <span className="text-xs text-muted-foreground">{t("damage")}: </span>
-            <span className="font-mono">{damageSM}</span>
-            <span className="text-muted-foreground"> / {damageL}</span>
-          </div>
-          <div>
-            <span className="text-xs text-muted-foreground">{t("weaponSpeed")}: </span>
-            <span className="font-mono">
-              {getEffectiveWeaponSpeed(weapon.speed, eq.hit_bonus, eq.damage_bonus)}
-            </span>
-          </div>
-          <div>
-            <span className="text-xs text-muted-foreground">{t("attacksPerRound")}: </span>
-            <span className="font-mono">{apr}</span>
-            {hasSpecAprBonus && (
-              <span className="ml-1 text-[10px] md:text-xs text-amber-400">★</span>
-            )}
-          </div>
-        </div>
-        <div className="mt-1.5 flex flex-wrap items-center gap-2">
-          {eq.hit_bonus > 0 && (
-            <span
-              className={`text-xs ${isEpicWeapon ? "text-purple-400" : "text-muted-foreground"}`}
-              data-testid={`play-weapon-bonus-${eq.id}`}
-            >
-              {isEpicWeapon && <Swords className="mr-0.5 inline h-3 w-3" aria-hidden="true" />}+
-              {eq.hit_bonus} {isEpicWeapon ? t("epicHitBonus") : t("magicBonus")}
-            </span>
-          )}
-          {isEpicWeapon && epicEffects?.miscEffects.includes("cold_damage_1d6") && (
-            <span className="text-xs text-purple-400" data-testid={`play-weapon-cold-dmg-${eq.id}`}>
-              <Snowflake className="mr-0.5 inline h-3 w-3" aria-hidden="true" />
-              {t("epicColdDamage")}
-            </span>
-          )}
-          {isSpecialized && (
-            <span
-              className="text-xs text-amber-400"
-              data-testid={`play-weapon-spec-bonus-${eq.id}`}
-            >
-              ★ {t("specBonus")}
-            </span>
-          )}
-          <Button
-            variant="default"
-            size="sm"
-            className="h-8 shrink-0 px-2.5 text-xs"
-            onClick={() => setExpandedBreakdown((prev) => (prev === eq.id ? null : eq.id))}
-            data-testid={`play-weapon-breakdown-toggle-${eq.id}`}
-          >
-            {expandedBreakdown === eq.id ? t("hideBreakdown") : t("showBreakdown")}
-          </Button>
-          {!readOnly && (
-            <Button
-              variant="default"
-              size="sm"
-              className="ml-auto h-6 shrink-0 px-2 text-[10px] md:text-xs"
-              onClick={() => toggleEquip(eq.id, isEquipped)}
-              data-testid={`play-${isEquipped ? "unequip" : "equip"}-${eq.id}`}
-            >
-              {isEquipped ? t("unequip") : t("equip")}
-            </Button>
-          )}
-        </div>
-        {expandedBreakdown === eq.id && (
-          <div
-            className="mt-2 space-y-2 border-t border-border/50 pt-2 text-xs"
-            data-testid={`play-weapon-breakdown-${eq.id}`}
-          >
-            {/* THAC0 Melee Breakdown */}
-            {weapon.weapon_type !== "ranged" && (
-              <div>
-                <div className="mb-1 font-medium text-muted-foreground">THAC0 {t("melee")}</div>
-                <div className="space-y-0.5 pl-2 font-mono text-[11px] md:text-sm">
-                  <div className="flex justify-between">
-                    <span>{t("baseThac0")}</span>
-                    <span>{thac0}</span>
-                  </div>
-                  {strMods.hitAdj !== 0 && (
-                    <div className="flex justify-between">
-                      <span>{t("strHitAdj")}</span>
-                      <span>
-                        {strMods.hitAdj > 0 ? `-${strMods.hitAdj}` : `+${-strMods.hitAdj}`}
-                      </span>
-                    </div>
-                  )}
-                  {specHitBonus > 0 && (
-                    <div className="flex justify-between text-amber-400">
-                      <span>★ {t("specHitBonus")}</span>
-                      <span>-{specHitBonus}</span>
-                    </div>
-                  )}
-                  {profPenalty !== 0 && (
-                    <div className="flex justify-between text-red-400">
-                      <span>
-                        {t("notProficient")} ({t("profPenalty")})
-                      </span>
-                      <span>+{-profPenalty}</span>
-                    </div>
-                  )}
-                  {eq.hit_bonus !== 0 && (
-                    <div
-                      className={`flex justify-between ${isEpicWeapon ? "text-purple-400" : eq.hit_bonus > 0 ? "text-blue-400" : "text-red-400"}`}
-                    >
-                      <span>
-                        {isEpicWeapon && (
-                          <Swords className="mr-0.5 inline h-3 w-3" aria-hidden="true" />
-                        )}
-                        {isEpicWeapon ? t("epicHitBonus") : t("magicHitBonus")}
-                      </span>
-                      <span>{eq.hit_bonus > 0 ? `-${eq.hit_bonus}` : `+${-eq.hit_bonus}`}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between border-t border-border/30 pt-0.5 font-bold">
-                    <span>= THAC0</span>
-                    <span>{adjusted.melee}</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* THAC0 Ranged Breakdown */}
-            {adjusted.ranged !== null && (
-              <div>
-                <div className="mb-1 font-medium text-muted-foreground">THAC0 {t("ranged")}</div>
-                <div className="space-y-0.5 pl-2 font-mono text-[11px] md:text-sm">
-                  <div className="flex justify-between">
-                    <span>{t("baseThac0")}</span>
-                    <span>{thac0}</span>
-                  </div>
-                  {dexMods.missileAdj !== 0 && (
-                    <div className="flex justify-between">
-                      <span>{t("dexMissileAdj")}</span>
-                      <span>
-                        {dexMods.missileAdj > 0
-                          ? `-${dexMods.missileAdj}`
-                          : `+${-dexMods.missileAdj}`}
-                      </span>
-                    </div>
-                  )}
-                  {specHitBonus > 0 && (
-                    <div className="flex justify-between text-amber-400">
-                      <span>★ {t("specHitBonus")}</span>
-                      <span>-{specHitBonus}</span>
-                    </div>
-                  )}
-                  {profPenalty !== 0 && (
-                    <div className="flex justify-between text-red-400">
-                      <span>
-                        {t("notProficient")} ({t("profPenalty")})
-                      </span>
-                      <span>+{-profPenalty}</span>
-                    </div>
-                  )}
-                  {eq.hit_bonus !== 0 && (
-                    <div
-                      className={`flex justify-between ${isEpicWeapon ? "text-purple-400" : eq.hit_bonus > 0 ? "text-blue-400" : "text-red-400"}`}
-                    >
-                      <span>
-                        {isEpicWeapon && (
-                          <Swords className="mr-0.5 inline h-3 w-3" aria-hidden="true" />
-                        )}
-                        {isEpicWeapon ? t("epicHitBonus") : t("magicHitBonus")}
-                      </span>
-                      <span>{eq.hit_bonus > 0 ? `-${eq.hit_bonus}` : `+${-eq.hit_bonus}`}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between border-t border-border/30 pt-0.5 font-bold">
-                    <span>= THAC0</span>
-                    <span>{adjusted.ranged}</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Damage Breakdown */}
-            <div>
-              <div className="mb-1 font-medium text-muted-foreground">{t("damage")}</div>
-              <div className="space-y-0.5 pl-2 font-mono text-[11px] md:text-sm">
-                <div className="flex justify-between">
-                  <span>{t("baseDamage")} (SM/L)</span>
-                  <span>
-                    {weapon.damage_sm} / {weapon.damage_l}
-                  </span>
-                </div>
-                {strMods.dmgAdj !== 0 && (
-                  <div className="flex justify-between">
-                    <span>{t("strDmgAdj")}</span>
-                    <span>{strMods.dmgAdj > 0 ? `+${strMods.dmgAdj}` : strMods.dmgAdj}</span>
-                  </div>
-                )}
-                {specDmgBonus > 0 && (
-                  <div className="flex justify-between text-amber-400">
-                    <span>★ {t("specDmgBonus")}</span>
-                    <span>+{specDmgBonus}</span>
-                  </div>
-                )}
-                {eq.damage_bonus !== 0 && (
-                  <div
-                    className={`flex justify-between ${isEpicWeapon ? "text-purple-400" : eq.damage_bonus > 0 ? "text-blue-400" : "text-red-400"}`}
-                  >
-                    <span>
-                      {isEpicWeapon && (
-                        <Swords className="mr-0.5 inline h-3 w-3" aria-hidden="true" />
-                      )}
-                      {isEpicWeapon ? t("epicDmgBonus") : t("magicDmgBonus")}
-                    </span>
-                    <span>{eq.damage_bonus > 0 ? `+${eq.damage_bonus}` : eq.damage_bonus}</span>
-                  </div>
-                )}
-                {isEpicWeapon && epicEffects?.miscEffects.includes("cold_damage_1d6") && (
-                  <div className="flex justify-between text-purple-400">
-                    <span>
-                      <Snowflake className="mr-0.5 inline h-3 w-3" aria-hidden="true" />
-                      {t("epicColdDamage")}
-                    </span>
-                    <span>+1d6</span>
-                  </div>
-                )}
-                <div className="flex justify-between border-t border-border/30 pt-0.5 font-bold">
-                  <span>= {t("damage")}</span>
-                  <span>
-                    {damageSM} / {damageL}
-                    {isEpicWeapon && epicEffects?.miscEffects.includes("cold_damage_1d6")
-                      ? " +1d6"
-                      : ""}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* APR Breakdown */}
-            <div>
-              <div className="mb-1 font-medium text-muted-foreground">{t("attacksPerRound")}</div>
-              <div className="space-y-0.5 pl-2 font-mono text-[11px] md:text-sm">
-                <div className="flex justify-between">
-                  <span>{t("levelApr")}</span>
-                  <span>{baseApr}</span>
-                </div>
-                {hasSpecAprBonus && (
-                  <div className="flex justify-between text-amber-400">
-                    <span>★ {t("specAprBonus")}</span>
-                    <span>+1/2</span>
-                  </div>
-                )}
-                <div className="flex justify-between border-t border-border/30 pt-0.5 font-bold">
-                  <span>= {t("attacksPerRound")}</span>
-                  <span>{apr}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Speed */}
-            <div>
-              <div className="mb-1 font-medium text-muted-foreground">{t("weaponSpeed")}</div>
-              <div className="space-y-0.5 pl-2 font-mono text-[11px] md:text-sm">
-                <div className="flex justify-between">
-                  <span>{t("baseDamage").replace(/\(.*/, "").trim() || "Base"}</span>
-                  <span>{weapon.speed}</span>
-                </div>
-                {Math.max(0, Math.min(eq.hit_bonus, eq.damage_bonus || eq.hit_bonus)) > 0 && (
-                  <div className="flex justify-between text-blue-400">
-                    <span>{t("magicHitBonus")}</span>
-                    <span>-{Math.min(eq.hit_bonus, eq.damage_bonus || eq.hit_bonus)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between border-t border-border/30 pt-0.5 font-bold">
-                  <span>= {t("weaponSpeed")}</span>
-                  <span>
-                    {getEffectiveWeaponSpeed(weapon.speed, eq.hit_bonus, eq.damage_bonus)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
 
   async function toggleEquip(equipmentId: string, currentlyEquipped: boolean) {
     if (readOnly) return;
@@ -694,7 +351,26 @@ function PlayCombatPanelInner({
       {equippedWeapons.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("noWeapons")}</p>
       ) : (
-        <div className="space-y-2">{equippedWeapons.map((eq) => renderWeaponCard(eq, true))}</div>
+        <div className="space-y-2">
+          {equippedWeapons.map((eq) => (
+            <WeaponCard
+              key={eq.id}
+              eq={eq}
+              isEquipped
+              thac0={thac0}
+              strMods={strMods}
+              dexMods={dexMods}
+              classGroups={classGroups}
+              weaponProficiencies={weaponProficiencies}
+              warriorLevel={warriorEntry?.level ?? null}
+              expanded={expandedBreakdown === eq.id}
+              onToggleExpand={() => setExpandedBreakdown((prev) => (prev === eq.id ? null : eq.id))}
+              readOnly={readOnly}
+              onToggleEquip={toggleEquip}
+              epicEffects={epicEffects}
+            />
+          ))}
+        </div>
       )}
 
       {/* Unequipped weapons — same card layout with Equip button */}
@@ -704,7 +380,26 @@ function PlayCombatPanelInner({
             {t("availableWeapons")}
           </div>
           <div className="space-y-2">
-            {unequippedWeapons.map((eq) => renderWeaponCard(eq, false))}
+            {unequippedWeapons.map((eq) => (
+              <WeaponCard
+                key={eq.id}
+                eq={eq}
+                isEquipped={false}
+                thac0={thac0}
+                strMods={strMods}
+                dexMods={dexMods}
+                classGroups={classGroups}
+                weaponProficiencies={weaponProficiencies}
+                warriorLevel={warriorEntry?.level ?? null}
+                expanded={expandedBreakdown === eq.id}
+                onToggleExpand={() =>
+                  setExpandedBreakdown((prev) => (prev === eq.id ? null : eq.id))
+                }
+                readOnly={readOnly}
+                onToggleEquip={toggleEquip}
+                epicEffects={epicEffects}
+              />
+            ))}
           </div>
         </div>
       )}
@@ -867,3 +562,393 @@ function PlayCombatPanelInner({
 }
 
 export const PlayCombatPanel = memo(PlayCombatPanelInner);
+
+// ─── WeaponCard — memoized sub-component ───────────────────────────────
+// Extracted from a local render function so React.memo can skip re-renders
+// when none of its props changed. In play mode the parent re-renders often
+// (HP changes, etc.), but the weapon-specific data rarely does.
+
+interface WeaponCardProps {
+  eq: CharacterEquipmentWithDetails;
+  isEquipped: boolean;
+  thac0: number;
+  strMods: StrengthModifiers;
+  dexMods: DexterityModifiers;
+  classGroups: ClassGroup[];
+  weaponProficiencies: CharacterWeaponProficiencyRow[];
+  warriorLevel: number | null;
+  expanded: boolean;
+  onToggleExpand: () => void;
+  readOnly: boolean;
+  onToggleEquip: (id: string, currentlyEquipped: boolean) => void;
+  epicEffects?: EpicEffects;
+}
+
+function WeaponCardInner({
+  eq,
+  isEquipped,
+  thac0,
+  strMods,
+  dexMods,
+  classGroups,
+  weaponProficiencies,
+  warriorLevel,
+  expanded,
+  onToggleExpand,
+  readOnly,
+  onToggleEquip,
+  epicEffects,
+}: WeaponCardProps) {
+  const t = useTranslations("play");
+  const locale = useLocale();
+
+  const weapon = eq.weapon!;
+  const weaponName = eq.custom_label || localized(weapon.name, weapon.name_en, locale);
+  const isEpicWeapon = !!eq.custom_label;
+  const matchingProf = findWeaponProf(weaponProficiencies, weapon.name, weapon.name_en);
+  const isProficient = !!matchingProf;
+  const isSpecialized = matchingProf?.specialization ?? false;
+  const firstGroup = classGroups[0] ?? "warrior";
+  const profPenalty = isProficient ? 0 : getNonproficiencyPenalty(firstGroup);
+
+  const specHitBonus = isSpecialized ? 1 : 0;
+  const specDmgBonus = isSpecialized ? 2 : 0;
+
+  const adjusted = getAdjustedWeaponThac0(
+    thac0,
+    strMods.hitAdj + specHitBonus,
+    dexMods.missileAdj + specHitBonus,
+    weapon.weapon_type,
+    profPenalty,
+    eq.hit_bonus
+  );
+
+  const damageSM = formatDamageWithBonus(
+    weapon.damage_sm,
+    strMods.dmgAdj + specDmgBonus,
+    eq.damage_bonus
+  );
+  const damageL = formatDamageWithBonus(
+    weapon.damage_l,
+    strMods.dmgAdj + specDmgBonus,
+    eq.damage_bonus
+  );
+
+  // Warriors: PHB APR table, Non-warriors with S&P spec: +1/2 APR (1 → 3/2)
+  let apr: string;
+  let baseApr: string;
+  let hasSpecAprBonus = false;
+  if (warriorLevel !== null) {
+    apr = getAttacksPerRound("warrior", warriorLevel, isSpecialized);
+    baseApr = getAttacksPerRound("warrior", warriorLevel, false);
+    hasSpecAprBonus = isSpecialized && apr !== baseApr;
+  } else if (isSpecialized) {
+    apr = "3/2";
+    baseApr = "1";
+    hasSpecAprBonus = true;
+  } else {
+    apr = "1";
+    baseApr = "1";
+  }
+
+  return (
+    <div
+      className={`rounded-lg border p-3 ${isEquipped ? "border-border bg-card/50" : "border-dashed border-border/50 bg-card/20"}`}
+      data-testid={`play-weapon-${eq.id}`}
+    >
+      <div className="mb-1.5 flex items-center gap-2">
+        <span className="font-medium">{weaponName}</span>
+        <Badge variant="outline" className="text-[10px] md:text-xs">
+          {weapon.weapon_type === "melee"
+            ? t("melee")
+            : weapon.weapon_type === "ranged"
+              ? t("ranged")
+              : `${t("melee")}/${t("ranged")}`}
+        </Badge>
+        {isSpecialized && (
+          <Badge className="bg-primary/20 text-[10px] md:text-xs text-primary">★</Badge>
+        )}
+      </div>
+      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm sm:grid-cols-4">
+        <div>
+          <span className="text-xs text-muted-foreground">THAC0 {t("melee")}: </span>
+          <span className="font-mono font-bold">{adjusted.melee}</span>
+        </div>
+        {adjusted.ranged !== null && (
+          <div>
+            <span className="text-xs text-muted-foreground">THAC0 {t("ranged")}: </span>
+            <span className="font-mono font-bold">{adjusted.ranged}</span>
+          </div>
+        )}
+        <div>
+          <span className="text-xs text-muted-foreground">{t("damage")}: </span>
+          <span className="font-mono">{damageSM}</span>
+          <span className="text-muted-foreground"> / {damageL}</span>
+        </div>
+        <div>
+          <span className="text-xs text-muted-foreground">{t("weaponSpeed")}: </span>
+          <span className="font-mono">
+            {getEffectiveWeaponSpeed(weapon.speed, eq.hit_bonus, eq.damage_bonus)}
+          </span>
+        </div>
+        <div>
+          <span className="text-xs text-muted-foreground">{t("attacksPerRound")}: </span>
+          <span className="font-mono">{apr}</span>
+          {hasSpecAprBonus && <span className="ml-1 text-[10px] md:text-xs text-amber-400">★</span>}
+        </div>
+      </div>
+      <div className="mt-1.5 flex flex-wrap items-center gap-2">
+        {eq.hit_bonus > 0 && (
+          <span
+            className={`text-xs ${isEpicWeapon ? "text-purple-400" : "text-muted-foreground"}`}
+            data-testid={`play-weapon-bonus-${eq.id}`}
+          >
+            {isEpicWeapon && <Swords className="mr-0.5 inline h-3 w-3" aria-hidden="true" />}+
+            {eq.hit_bonus} {isEpicWeapon ? t("epicHitBonus") : t("magicBonus")}
+          </span>
+        )}
+        {isEpicWeapon && epicEffects?.miscEffects.includes("cold_damage_1d6") && (
+          <span className="text-xs text-purple-400" data-testid={`play-weapon-cold-dmg-${eq.id}`}>
+            <Snowflake className="mr-0.5 inline h-3 w-3" aria-hidden="true" />
+            {t("epicColdDamage")}
+          </span>
+        )}
+        {isSpecialized && (
+          <span className="text-xs text-amber-400" data-testid={`play-weapon-spec-bonus-${eq.id}`}>
+            ★ {t("specBonus")}
+          </span>
+        )}
+        <Button
+          variant="default"
+          size="sm"
+          className="h-8 shrink-0 px-2.5 text-xs"
+          onClick={onToggleExpand}
+          data-testid={`play-weapon-breakdown-toggle-${eq.id}`}
+        >
+          {expanded ? t("hideBreakdown") : t("showBreakdown")}
+        </Button>
+        {!readOnly && (
+          <Button
+            variant="default"
+            size="sm"
+            className="ml-auto h-6 shrink-0 px-2 text-[10px] md:text-xs"
+            onClick={() => onToggleEquip(eq.id, isEquipped)}
+            data-testid={`play-${isEquipped ? "unequip" : "equip"}-${eq.id}`}
+          >
+            {isEquipped ? t("unequip") : t("equip")}
+          </Button>
+        )}
+      </div>
+      {expanded && (
+        <div
+          className="mt-2 space-y-2 border-t border-border/50 pt-2 text-xs"
+          data-testid={`play-weapon-breakdown-${eq.id}`}
+        >
+          {/* THAC0 Melee Breakdown */}
+          {weapon.weapon_type !== "ranged" && (
+            <div>
+              <div className="mb-1 font-medium text-muted-foreground">THAC0 {t("melee")}</div>
+              <div className="space-y-0.5 pl-2 font-mono text-[11px] md:text-sm">
+                <div className="flex justify-between">
+                  <span>{t("baseThac0")}</span>
+                  <span>{thac0}</span>
+                </div>
+                {strMods.hitAdj !== 0 && (
+                  <div className="flex justify-between">
+                    <span>{t("strHitAdj")}</span>
+                    <span>{strMods.hitAdj > 0 ? `-${strMods.hitAdj}` : `+${-strMods.hitAdj}`}</span>
+                  </div>
+                )}
+                {specHitBonus > 0 && (
+                  <div className="flex justify-between text-amber-400">
+                    <span>★ {t("specHitBonus")}</span>
+                    <span>-{specHitBonus}</span>
+                  </div>
+                )}
+                {profPenalty !== 0 && (
+                  <div className="flex justify-between text-red-400">
+                    <span>
+                      {t("notProficient")} ({t("profPenalty")})
+                    </span>
+                    <span>+{-profPenalty}</span>
+                  </div>
+                )}
+                {eq.hit_bonus !== 0 && (
+                  <div
+                    className={`flex justify-between ${isEpicWeapon ? "text-purple-400" : eq.hit_bonus > 0 ? "text-blue-400" : "text-red-400"}`}
+                  >
+                    <span>
+                      {isEpicWeapon && (
+                        <Swords className="mr-0.5 inline h-3 w-3" aria-hidden="true" />
+                      )}
+                      {isEpicWeapon ? t("epicHitBonus") : t("magicHitBonus")}
+                    </span>
+                    <span>{eq.hit_bonus > 0 ? `-${eq.hit_bonus}` : `+${-eq.hit_bonus}`}</span>
+                  </div>
+                )}
+                <div className="flex justify-between border-t border-border/30 pt-0.5 font-bold">
+                  <span>= THAC0</span>
+                  <span>{adjusted.melee}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* THAC0 Ranged Breakdown */}
+          {adjusted.ranged !== null && (
+            <div>
+              <div className="mb-1 font-medium text-muted-foreground">THAC0 {t("ranged")}</div>
+              <div className="space-y-0.5 pl-2 font-mono text-[11px] md:text-sm">
+                <div className="flex justify-between">
+                  <span>{t("baseThac0")}</span>
+                  <span>{thac0}</span>
+                </div>
+                {dexMods.missileAdj !== 0 && (
+                  <div className="flex justify-between">
+                    <span>{t("dexMissileAdj")}</span>
+                    <span>
+                      {dexMods.missileAdj > 0
+                        ? `-${dexMods.missileAdj}`
+                        : `+${-dexMods.missileAdj}`}
+                    </span>
+                  </div>
+                )}
+                {specHitBonus > 0 && (
+                  <div className="flex justify-between text-amber-400">
+                    <span>★ {t("specHitBonus")}</span>
+                    <span>-{specHitBonus}</span>
+                  </div>
+                )}
+                {profPenalty !== 0 && (
+                  <div className="flex justify-between text-red-400">
+                    <span>
+                      {t("notProficient")} ({t("profPenalty")})
+                    </span>
+                    <span>+{-profPenalty}</span>
+                  </div>
+                )}
+                {eq.hit_bonus !== 0 && (
+                  <div
+                    className={`flex justify-between ${isEpicWeapon ? "text-purple-400" : eq.hit_bonus > 0 ? "text-blue-400" : "text-red-400"}`}
+                  >
+                    <span>
+                      {isEpicWeapon && (
+                        <Swords className="mr-0.5 inline h-3 w-3" aria-hidden="true" />
+                      )}
+                      {isEpicWeapon ? t("epicHitBonus") : t("magicHitBonus")}
+                    </span>
+                    <span>{eq.hit_bonus > 0 ? `-${eq.hit_bonus}` : `+${-eq.hit_bonus}`}</span>
+                  </div>
+                )}
+                <div className="flex justify-between border-t border-border/30 pt-0.5 font-bold">
+                  <span>= THAC0</span>
+                  <span>{adjusted.ranged}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Damage Breakdown */}
+          <div>
+            <div className="mb-1 font-medium text-muted-foreground">{t("damage")}</div>
+            <div className="space-y-0.5 pl-2 font-mono text-[11px] md:text-sm">
+              <div className="flex justify-between">
+                <span>{t("baseDamage")} (SM/L)</span>
+                <span>
+                  {weapon.damage_sm} / {weapon.damage_l}
+                </span>
+              </div>
+              {strMods.dmgAdj !== 0 && (
+                <div className="flex justify-between">
+                  <span>{t("strDmgAdj")}</span>
+                  <span>{strMods.dmgAdj > 0 ? `+${strMods.dmgAdj}` : strMods.dmgAdj}</span>
+                </div>
+              )}
+              {specDmgBonus > 0 && (
+                <div className="flex justify-between text-amber-400">
+                  <span>★ {t("specDmgBonus")}</span>
+                  <span>+{specDmgBonus}</span>
+                </div>
+              )}
+              {eq.damage_bonus !== 0 && (
+                <div
+                  className={`flex justify-between ${isEpicWeapon ? "text-purple-400" : eq.damage_bonus > 0 ? "text-blue-400" : "text-red-400"}`}
+                >
+                  <span>
+                    {isEpicWeapon && (
+                      <Swords className="mr-0.5 inline h-3 w-3" aria-hidden="true" />
+                    )}
+                    {isEpicWeapon ? t("epicDmgBonus") : t("magicDmgBonus")}
+                  </span>
+                  <span>{eq.damage_bonus > 0 ? `+${eq.damage_bonus}` : eq.damage_bonus}</span>
+                </div>
+              )}
+              {isEpicWeapon && epicEffects?.miscEffects.includes("cold_damage_1d6") && (
+                <div className="flex justify-between text-purple-400">
+                  <span>
+                    <Snowflake className="mr-0.5 inline h-3 w-3" aria-hidden="true" />
+                    {t("epicColdDamage")}
+                  </span>
+                  <span>+1d6</span>
+                </div>
+              )}
+              <div className="flex justify-between border-t border-border/30 pt-0.5 font-bold">
+                <span>= {t("damage")}</span>
+                <span>
+                  {damageSM} / {damageL}
+                  {isEpicWeapon && epicEffects?.miscEffects.includes("cold_damage_1d6")
+                    ? " +1d6"
+                    : ""}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* APR Breakdown */}
+          <div>
+            <div className="mb-1 font-medium text-muted-foreground">{t("attacksPerRound")}</div>
+            <div className="space-y-0.5 pl-2 font-mono text-[11px] md:text-sm">
+              <div className="flex justify-between">
+                <span>{t("levelApr")}</span>
+                <span>{baseApr}</span>
+              </div>
+              {hasSpecAprBonus && (
+                <div className="flex justify-between text-amber-400">
+                  <span>★ {t("specAprBonus")}</span>
+                  <span>{formatAprDelta(baseApr, apr)}</span>
+                </div>
+              )}
+              <div className="flex justify-between border-t border-border/30 pt-0.5 font-bold">
+                <span>= {t("attacksPerRound")}</span>
+                <span>{apr}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Speed */}
+          <div>
+            <div className="mb-1 font-medium text-muted-foreground">{t("weaponSpeed")}</div>
+            <div className="space-y-0.5 pl-2 font-mono text-[11px] md:text-sm">
+              <div className="flex justify-between">
+                <span>{t("baseDamage").replace(/\(.*/, "").trim() || "Base"}</span>
+                <span>{weapon.speed}</span>
+              </div>
+              {Math.max(0, Math.min(eq.hit_bonus, eq.damage_bonus || eq.hit_bonus)) > 0 && (
+                <div className="flex justify-between text-blue-400">
+                  <span>{t("magicHitBonus")}</span>
+                  <span>-{Math.min(eq.hit_bonus, eq.damage_bonus || eq.hit_bonus)}</span>
+                </div>
+              )}
+              <div className="flex justify-between border-t border-border/30 pt-0.5 font-bold">
+                <span>= {t("weaponSpeed")}</span>
+                <span>{getEffectiveWeaponSpeed(weapon.speed, eq.hit_bonus, eq.damage_bonus)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const WeaponCard = memo(WeaponCardInner);

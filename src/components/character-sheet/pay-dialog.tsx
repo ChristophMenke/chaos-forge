@@ -40,13 +40,19 @@ export function PayDialog({ purse, onPay, onClose }: PayDialogProps) {
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
       onClick={onClose}
+      role="presentation"
       data-testid="pay-dialog"
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pay-dialog-title"
         className="mx-4 flex w-full max-w-md flex-col gap-4 rounded-lg border border-border bg-card p-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="font-heading text-xl text-primary">{t("payTitle")}</h3>
+        <h3 id="pay-dialog-title" className="font-heading text-xl text-primary">
+          {t("payTitle")}
+        </h3>
 
         {/* Mode toggle */}
         <div className="flex gap-2">

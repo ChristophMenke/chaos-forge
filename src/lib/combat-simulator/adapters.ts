@@ -133,17 +133,18 @@ export function monsterToCombatEntities(
   const parsed = parseHitDice(monster.hit_dice);
   const damageDice = parseDamageString(monster.damage);
   const apr = parseAttacksPerRound(monster.attacks_per_round);
+  const typicalSpells = monster.typical_spells ?? [];
   const role = inferMonsterRole(
     monster.ac,
     monster.hit_dice_value,
     monster.has_ranged_attack,
-    monster.typical_spells
+    typicalSpells
   );
   const zone = monster.default_zone ?? zoneFromRole(role);
 
   // Match monster spells to catalog
   const knownSpells: SimSpell[] = [];
-  for (const spellName of monster.typical_spells) {
+  for (const spellName of typicalSpells) {
     const key = matchSpellToCatalog(spellName);
     if (key && COMBAT_SPELLS[key]) knownSpells.push(COMBAT_SPELLS[key]);
   }

@@ -10,7 +10,7 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { MagicEffectBadges } from "@/components/shared/magic-effect-badges";
 import { UseConsumableDialog } from "@/components/character-sheet/use-consumable-dialog";
 import { isMagicItem, isDepleted } from "@/lib/rules/magic-items";
-import { isConsumable, canUseConsumable, getConsumableType } from "@/lib/rules/consumables";
+import { canUseConsumable, getConsumableType } from "@/lib/rules/consumables";
 import { createClient } from "@/lib/supabase/client";
 import type { CharacterEquipmentWithDetails } from "@/lib/supabase/types";
 

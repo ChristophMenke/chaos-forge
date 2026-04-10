@@ -13,7 +13,6 @@ import type {
   CharacterEquipmentWithDetails,
   MagicEffects,
   MagicSpellAbility,
-  MagicStatOverrides,
 } from "@/lib/supabase/types";
 import type { SavingThrows } from "./types";
 

@@ -11,6 +11,9 @@ import type {
   MonsterRow,
   GmBookmarkRow,
   BookmarkEntityType,
+  WeaponRow,
+  ArmorRow,
+  GeneralItemRow,
 } from "@/lib/supabase/types";
 
 const COOKIE_NAME = "gm_session";
@@ -251,6 +254,7 @@ export async function distributeGold(
 export async function createCustomWeaponGm(data: {
   name: string;
   name_en?: string;
+  proficiency_name?: string;
   damage_sm?: string;
   damage_l?: string;
   weapon_type: "melee" | "ranged" | "both";
@@ -269,6 +273,7 @@ export async function createCustomWeaponGm(data: {
     .insert({
       name: data.name,
       name_en: data.name_en || null,
+      proficiency_name: data.proficiency_name ?? data.name,
       damage_sm: data.damage_sm || "1d4",
       damage_l: data.damage_l || "1d4",
       weapon_type: data.weapon_type,
@@ -317,6 +322,180 @@ export async function createCustomArmorGm(data: {
 
   if (error || !armor) return { success: false, error: error?.message };
   return { success: true, armorId: armor.id };
+}
+
+// ─── Weapon CRUD ────────────────────────────────────────────────────
+
+export async function updateWeaponGm(
+  id: string,
+  data: {
+    name?: string;
+    name_en?: string;
+    damage_sm?: string;
+    damage_l?: string;
+    weapon_type?: "melee" | "ranged" | "both";
+    speed?: number;
+    weight?: number;
+  }
+): Promise<{ success: boolean; error?: string }> {
+  if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
+  const service = createServiceClient();
+  const { error } = await service.from("weapons").update(data).eq("id", id);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function deleteWeaponGm(
+  id: string
+): Promise<{ success: boolean; error?: string; usedBy?: { name: string; id: string }[] }> {
+  if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
+  const service = createServiceClient();
+
+  // Check character_equipment
+  const { data: equipRows } = await service
+    .from("character_equipment")
+    .select("character_id")
+    .eq("weapon_id", id);
+
+  if (equipRows && equipRows.length > 0) {
+    const charIds = [...new Set(equipRows.map((r) => r.character_id))];
+    const { data: chars } = await service.from("characters").select("id, name").in("id", charIds);
+    return {
+      success: false,
+      error: "item_in_use",
+      usedBy: (chars ?? []).map((c) => ({ name: c.name, id: c.id })),
+    };
+  }
+
+  const { error } = await service.from("weapons").delete().eq("id", id);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+// ─── Armor CRUD ─────────────────────────────────────────────────────
+
+export async function updateArmorGm(
+  id: string,
+  data: {
+    name?: string;
+    name_en?: string;
+    ac?: number;
+    weight?: number;
+    is_shield?: boolean;
+    shield_type?: "buckler" | "small" | "medium" | "large" | null;
+    is_magical_protection?: boolean;
+  }
+): Promise<{ success: boolean; error?: string }> {
+  if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
+  const service = createServiceClient();
+  const { error } = await service.from("armor").update(data).eq("id", id);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function deleteArmorGm(
+  id: string
+): Promise<{ success: boolean; error?: string; usedBy?: { name: string; id: string }[] }> {
+  if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
+  const service = createServiceClient();
+
+  const { data: equipRows } = await service
+    .from("character_equipment")
+    .select("character_id")
+    .eq("armor_id", id);
+
+  if (equipRows && equipRows.length > 0) {
+    const charIds = [...new Set(equipRows.map((r) => r.character_id))];
+    const { data: chars } = await service.from("characters").select("id, name").in("id", charIds);
+    return {
+      success: false,
+      error: "item_in_use",
+      usedBy: (chars ?? []).map((c) => ({ name: c.name, id: c.id })),
+    };
+  }
+
+  const { error } = await service.from("armor").delete().eq("id", id);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+// ─── General Item CRUD ──────────────────────────────────────────────
+
+export async function createGeneralItemGm(data: {
+  name: string;
+  name_en?: string;
+  weight?: number;
+  category?: string;
+}): Promise<{ success: boolean; itemId?: string; error?: string }> {
+  if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
+  const service = createServiceClient();
+
+  const { data: item, error } = await service
+    .from("general_items")
+    .insert({
+      name: data.name,
+      name_en: data.name_en || null,
+      weight: data.weight ?? 0,
+      cost_gp: 0,
+      category: data.category || "general",
+      is_custom: true,
+    })
+    .select("id")
+    .single();
+
+  if (error || !item) return { success: false, error: error?.message };
+  return { success: true, itemId: item.id };
+}
+
+export async function updateGeneralItemGm(
+  id: string,
+  data: {
+    name?: string;
+    name_en?: string;
+    weight?: number;
+    category?: string;
+  }
+): Promise<{ success: boolean; error?: string }> {
+  if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
+  const service = createServiceClient();
+  const { error } = await service.from("general_items").update(data).eq("id", id);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function deleteGeneralItemGm(
+  id: string
+): Promise<{ success: boolean; error?: string; usedBy?: { name: string; id: string }[] }> {
+  if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
+  const service = createServiceClient();
+
+  // Check character_inventory
+  const { data: invRows } = await service
+    .from("character_inventory")
+    .select("character_id")
+    .eq("item_id", id);
+
+  // Check party_loot_items
+  const { data: partyRows } = await service.from("party_loot_items").select("id").eq("item_id", id);
+
+  if ((invRows && invRows.length > 0) || (partyRows && partyRows.length > 0)) {
+    const charIds = [...new Set((invRows ?? []).map((r) => r.character_id))];
+    const usedBy: { name: string; id: string }[] = [];
+
+    if (charIds.length > 0) {
+      const { data: chars } = await service.from("characters").select("id, name").in("id", charIds);
+      usedBy.push(...(chars ?? []).map((c) => ({ name: c.name, id: c.id })));
+    }
+    if (partyRows && partyRows.length > 0) {
+      usedBy.push({ name: "Party Loot", id: "party" });
+    }
+
+    return { success: false, error: "item_in_use", usedBy };
+  }
+
+  const { error } = await service.from("general_items").delete().eq("id", id);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
 }
 
 // ─── Magic Item Catalog (CRUD) ───────────────────────────────────────
@@ -372,23 +551,36 @@ export async function updateMagicItem(
   return { success: true };
 }
 
-export async function deleteMagicItem(id: string): Promise<{ success: boolean; error?: string }> {
+export async function deleteMagicItem(
+  id: string
+): Promise<{ success: boolean; error?: string; usedBy?: { name: string; id: string }[] }> {
   if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
   const service = createServiceClient();
 
-  // Check for active instances
-  const { count: equipCount } = await service
+  // Check character_equipment
+  const { data: equipRows } = await service
     .from("character_equipment")
-    .select("id", { count: "exact", head: true })
+    .select("character_id")
     .eq("magic_item_id", id);
 
-  const { count: partyCount } = await service
+  const { data: partyRows } = await service
     .from("party_loot_items")
-    .select("id", { count: "exact", head: true })
+    .select("id")
     .eq("magic_item_id", id);
 
-  if ((equipCount ?? 0) > 0 || (partyCount ?? 0) > 0) {
-    return { success: false, error: "Item is still in use" };
+  if ((equipRows && equipRows.length > 0) || (partyRows && partyRows.length > 0)) {
+    const charIds = [...new Set((equipRows ?? []).map((r) => r.character_id))];
+    const usedBy: { name: string; id: string }[] = [];
+
+    if (charIds.length > 0) {
+      const { data: chars } = await service.from("characters").select("id, name").in("id", charIds);
+      usedBy.push(...(chars ?? []).map((c) => ({ name: c.name, id: c.id })));
+    }
+    if (partyRows && partyRows.length > 0) {
+      usedBy.push({ name: "Party Loot", id: "party" });
+    }
+
+    return { success: false, error: "item_in_use", usedBy };
   }
 
   const { error } = await service.from("magic_items").delete().eq("id", id);
@@ -863,4 +1055,140 @@ export async function fetchMonsters(
 
   const { data } = await query;
   return (data as MonsterRow[]) ?? [];
+}
+
+// ─── Monster CRUD ───────────────────────────────────────────────────
+
+export async function createMonsterGm(
+  monsterData: Partial<MonsterRow>
+): Promise<{ success: boolean; id?: string; error?: string }> {
+  if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
+  const service = createServiceClient();
+
+  const { data, error } = await service
+    .from("monsters")
+    .insert({
+      name: monsterData.name ?? "New Monster",
+      name_en: monsterData.name_en || null,
+      climate_terrain: monsterData.climate_terrain || null,
+      frequency: monsterData.frequency || null,
+      organization: monsterData.organization || null,
+      activity_cycle: monsterData.activity_cycle || null,
+      diet: monsterData.diet || null,
+      intelligence: monsterData.intelligence || null,
+      treasure: monsterData.treasure || null,
+      alignment: monsterData.alignment || null,
+      ac: monsterData.ac ?? 10,
+      movement: monsterData.movement || null,
+      hit_dice: monsterData.hit_dice || "1",
+      hit_dice_value: monsterData.hit_dice_value ?? 1,
+      thac0: monsterData.thac0 ?? 20,
+      attacks_per_round: String(monsterData.attacks_per_round ?? "1"),
+      damage: monsterData.damage || "1d4",
+      special_attacks: monsterData.special_attacks || null,
+      special_defenses: monsterData.special_defenses || null,
+      magic_resistance: monsterData.magic_resistance || null,
+      size: monsterData.size ?? "M",
+      morale: monsterData.morale || null,
+      morale_value: monsterData.morale_value ?? 10,
+      xp_value: monsterData.xp_value ?? 0,
+      description: monsterData.description || null,
+      source_book: monsterData.source_book || "Custom",
+      default_zone: monsterData.default_zone ?? "melee",
+      has_ranged_attack: monsterData.has_ranged_attack ?? false,
+      typical_spells: monsterData.typical_spells || null,
+      is_custom: true,
+    })
+    .select("id")
+    .single();
+
+  if (error || !data) return { success: false, error: error?.message };
+  return { success: true, id: data.id };
+}
+
+/** Whitelist of monster fields that can be updated via the GM form.
+ *  Excludes id, created_at, updated_at, image_url, is_custom, created_by. */
+type MonsterUpdatePayload = Partial<
+  Pick<
+    MonsterRow,
+    | "name"
+    | "name_en"
+    | "ac"
+    | "movement"
+    | "hit_dice"
+    | "hit_dice_value"
+    | "thac0"
+    | "attacks_per_round"
+    | "damage"
+    | "special_attacks"
+    | "special_defenses"
+    | "magic_resistance"
+    | "size"
+    | "morale"
+    | "morale_value"
+    | "xp_value"
+    | "description"
+    | "climate_terrain"
+    | "frequency"
+    | "organization"
+    | "activity_cycle"
+    | "diet"
+    | "intelligence"
+    | "treasure"
+    | "alignment"
+    | "has_ranged_attack"
+    | "default_zone"
+    | "typical_spells"
+    | "source_book"
+  >
+>;
+
+export async function updateMonsterGm(
+  id: string,
+  monsterData: MonsterUpdatePayload
+): Promise<{ success: boolean; error?: string }> {
+  if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
+  const service = createServiceClient();
+  const { error } = await service.from("monsters").update(monsterData).eq("id", id);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function fetchMonstersGm(): Promise<MonsterRow[]> {
+  if (!(await checkGmSession())) return [];
+  const service = createServiceClient();
+  const { data } = await service.from("monsters").select("*").order("name", { ascending: true });
+  return (data as MonsterRow[]) ?? [];
+}
+
+export async function fetchWeaponsGm(): Promise<WeaponRow[]> {
+  if (!(await checkGmSession())) return [];
+  const service = createServiceClient();
+  const { data } = await service.from("weapons").select("*").order("name", { ascending: true });
+  return (data as WeaponRow[]) ?? [];
+}
+
+export async function fetchArmorGm(): Promise<ArmorRow[]> {
+  if (!(await checkGmSession())) return [];
+  const service = createServiceClient();
+  const { data } = await service.from("armor").select("*").order("name", { ascending: true });
+  return (data as ArmorRow[]) ?? [];
+}
+
+export async function fetchGeneralItemsGm(): Promise<GeneralItemRow[]> {
+  if (!(await checkGmSession())) return [];
+  const service = createServiceClient();
+  const { data } = await service
+    .from("general_items")
+    .select("*")
+    .order("name", { ascending: true });
+  return (data as GeneralItemRow[]) ?? [];
+}
+
+export async function deleteMonsterGm(id: string): Promise<{ success: boolean; error?: string }> {
+  if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
+  const service = createServiceClient();
+  const { error } = await service.from("monsters").delete().eq("id", id);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
 }

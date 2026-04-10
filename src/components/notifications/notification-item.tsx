@@ -2,12 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Package, Coins, ArrowRightLeft, Sparkles } from "lucide-react";
+import { Package, Coins, ArrowRightLeft, Sparkles, X } from "lucide-react";
 import type { NotificationRow } from "@/lib/supabase/types";
 
 interface NotificationItemProps {
   notification: NotificationRow;
   onMarkRead: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
 function getRelativeTime(
@@ -24,7 +25,7 @@ function getRelativeTime(
   return t("timeDays", { count: days });
 }
 
-export function NotificationItem({ notification, onMarkRead }: NotificationItemProps) {
+export function NotificationItem({ notification, onMarkRead, onDelete }: NotificationItemProps) {
   const t = useTranslations("notifications");
   const router = useRouter();
   const details = notification.details;
@@ -100,27 +101,39 @@ export function NotificationItem({ notification, onMarkRead }: NotificationItemP
   }
 
   return (
-    <button
-      className={`flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-left transition-colors hover:bg-accent/30 ${
+    <div
+      className={`group relative flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-left transition-colors hover:bg-accent/30 ${
         notification.is_read ? "opacity-60" : ""
       }`}
-      onClick={handleClick}
       data-testid={`notification-item-${notification.id}`}
     >
-      {icon}
-      <div className="min-w-0 flex-1">
-        <p className="text-sm text-foreground">{message}</p>
-        {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
-        <p className="mt-0.5 text-[10px] text-muted-foreground">
-          {getRelativeTime(notification.created_at, t)}
-        </p>
-      </div>
-      {!notification.is_read && (
-        <span
-          className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary"
-          data-testid={`notification-unread-dot-${notification.id}`}
-        />
-      )}
-    </button>
+      <button className="flex min-w-0 flex-1 items-start gap-2.5 text-left" onClick={handleClick}>
+        {icon}
+        <div className="min-w-0 flex-1">
+          <p className="text-sm text-foreground">{message}</p>
+          {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+          <p className="mt-0.5 text-[10px] text-muted-foreground">
+            {getRelativeTime(notification.created_at, t)}
+          </p>
+        </div>
+        {!notification.is_read && (
+          <span
+            className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary"
+            data-testid={`notification-unread-dot-${notification.id}`}
+          />
+        )}
+      </button>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete(notification.id);
+        }}
+        className="mt-0.5 shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:text-red-400 group-hover:opacity-100"
+        aria-label={t("delete")}
+        data-testid={`notification-delete-${notification.id}`}
+      >
+        <X className="h-3.5 w-3.5" />
+      </button>
+    </div>
   );
 }

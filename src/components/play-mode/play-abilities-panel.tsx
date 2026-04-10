@@ -51,10 +51,6 @@ function PlayAbilitiesPanelInner({
     }));
   }
 
-  function resetAll() {
-    setUsedAbilities({});
-  }
-
   return (
     <GlassCard hover={false} data-testid="play-abilities-panel">
       <div className="mb-3 flex items-center justify-between">

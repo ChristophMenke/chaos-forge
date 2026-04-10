@@ -39,19 +39,34 @@ export function SimulationResults({ result }: SimulationResultsProps) {
   return (
     <div className="space-y-3" data-testid="gm-combat-results">
       {/* Main gauge */}
-      <GlassCard className="p-4 text-center" data-testid="gm-combat-win-gauge">
-        <p className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          {t("combatWinChance")}
-        </p>
-        <p className={`font-heading text-4xl font-bold ${winColor}`} data-testid="gm-combat-pwin">
-          {Math.round(result.pWin * 100)}%
-        </p>
-        <span
-          className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-semibold ${DIFFICULTY_COLORS[result.difficulty]}`}
-          data-testid="gm-combat-difficulty"
-        >
-          {t(difficultyKey)}
-        </span>
+      <GlassCard
+        className="relative overflow-hidden p-6 text-center"
+        data-testid="gm-combat-win-gauge"
+      >
+        {/* Background glow based on win chance */}
+        <div
+          className={`pointer-events-none absolute inset-0 ${
+            result.pWin >= 0.7
+              ? "bg-gradient-to-b from-green-500/5 to-transparent"
+              : result.pWin >= 0.4
+                ? "bg-gradient-to-b from-yellow-500/5 to-transparent"
+                : "bg-gradient-to-b from-red-500/5 to-transparent"
+          }`}
+        />
+        <div className="relative">
+          <p className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {t("combatWinChance")}
+          </p>
+          <p className={`font-heading text-5xl font-bold ${winColor}`} data-testid="gm-combat-pwin">
+            {Math.round(result.pWin * 100)}%
+          </p>
+          <span
+            className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-semibold ${DIFFICULTY_COLORS[result.difficulty]}`}
+            data-testid="gm-combat-difficulty"
+          >
+            {t(difficultyKey)}
+          </span>
+        </div>
       </GlassCard>
 
       {/* Stats grid */}

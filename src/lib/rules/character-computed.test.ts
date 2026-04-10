@@ -568,6 +568,7 @@ describe("computeCharacterCombatData", () => {
           source_book: "PHB",
           is_custom: true,
           created_by: null,
+          proficiency_name: null,
         },
         armor: null,
       };

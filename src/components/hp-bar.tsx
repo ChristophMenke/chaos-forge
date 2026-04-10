@@ -14,13 +14,15 @@ interface HpBarProps {
 export function HpBar({ current, max, barClass, unconsciousLabel, deadLabel }: HpBarProps) {
   const pct = max > 0 ? Math.max(0, Math.min(100, Math.round((current / max) * 100))) : 0;
   const status = getHpStatus(current, max);
+  // Extracted into a const so jsx-a11y/aria-proptypes static analysis can verify it's a number.
+  const ariaValueMin = -max;
 
   return (
     <div className="flex items-center gap-2" data-testid="hp-bar">
       <div
         role="progressbar"
         aria-valuenow={current}
-        aria-valuemin={-max}
+        aria-valuemin={ariaValueMin}
         aria-valuemax={max}
         aria-label={`HP: ${current}/${max}`}
         className={`h-2.5 flex-1 overflow-hidden rounded-full ${status === "dead" ? "bg-red-900/50" : "bg-black/30 dark:bg-black/50"}`}

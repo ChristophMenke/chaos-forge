@@ -106,7 +106,6 @@ test.describe("Share Dialog", () => {
       const newText = await toggle.textContent();
       expect(newText).not.toBe(initialText);
     }).toPass({ timeout: 5000 });
-    const newText = await toggle.textContent();
 
     // Restore original state
     await toggle.click();

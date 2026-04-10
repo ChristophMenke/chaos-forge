@@ -28,7 +28,6 @@ import {
 } from "@/lib/rules/spellslots";
 import { getClassGroup } from "@/lib/rules/classes";
 import type { ClassGroup, ClassId } from "@/lib/rules/types";
-import { isPriestCaster } from "@/lib/rules/magic";
 import type { CharacterRow, CharacterSpellWithDetails, SpellRow } from "@/lib/supabase/types";
 import { getKit, getKitSpellFailure } from "@/lib/rules/kits";
 
@@ -138,7 +137,9 @@ function PlaySpellbookPanelInner({
     return getSpecialistBonusSlots(casterClass.classId as ClassId, casterLevel);
   }, [isPointsMode, isWizard, casterClass.classId, casterLevel, maxSpellLevel]);
 
-  const slotsAdj = character.spell_slots_adj ?? {};
+  // Wrap in useMemo so the object reference is stable while character.spell_slots_adj is null,
+  // otherwise `?? {}` would create a new object every render and destabilize totalSlots' deps.
+  const slotsAdj = useMemo(() => character.spell_slots_adj ?? {}, [character.spell_slots_adj]);
 
   const totalSlots = useMemo(
     () =>

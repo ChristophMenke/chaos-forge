@@ -23,7 +23,7 @@ import {
 } from "@/lib/rules/combat";
 import { getMulticlassThac0, getMulticlassArmorWarnings } from "@/lib/rules/multiclass";
 import { getNonproficiencyPenalty } from "@/lib/rules/proficiencies";
-import { CLASSES, getClassGroup } from "@/lib/rules/classes";
+import { getClassGroup } from "@/lib/rules/classes";
 import { getKitArmorWarning } from "@/lib/rules/kits";
 import { getBookAbbreviation } from "@/lib/utils/source-books";
 import type { ClassId, ClassGroup } from "@/lib/rules/types";
@@ -40,7 +40,7 @@ import type {
 import { MagicItemForm, type MagicItemFormData } from "@/components/shared/magic-item-form";
 import { MagicEffectBadges } from "@/components/shared/magic-effect-badges";
 import { UseConsumableDialog } from "./use-consumable-dialog";
-import { isConsumable, canUseConsumable, getConsumableType } from "@/lib/rules/consumables";
+import { canUseConsumable, getConsumableType } from "@/lib/rules/consumables";
 
 interface TabEquipmentProps {
   characterId: string;
@@ -132,7 +132,7 @@ export function TabEquipment({
   const [lazyMagicItems, setLazyMagicItems] = useState<MagicItemRow[] | null>(
     allMagicItems.length > 0 ? allMagicItems : null
   );
-  const [loadingCatalogs, setLoadingCatalogs] = useState(false);
+  const [, setLoadingCatalogs] = useState(false);
   const catalogsLoadedRef = useRef(false);
 
   // Load catalogs once on mount (component is dynamically imported, so this fires when tab opens)
@@ -157,11 +157,14 @@ export function TabEquipment({
       .finally(() => setLoadingCatalogs(false));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Use lazy-loaded data (falls back to empty arrays while loading)
-  const weapons = lazyWeapons ?? [];
-  const armors = lazyArmor ?? [];
-  const generalItems = lazyGeneralItems ?? [];
-  const magicItems = lazyMagicItems ?? [];
+  // Use lazy-loaded data (falls back to empty arrays while loading).
+  // Wrap in useMemo so the array reference is stable while data is null,
+  // otherwise the `?? []` would create a new array on every render and
+  // destabilize all downstream useMemo dependency arrays.
+  const weapons = useMemo(() => lazyWeapons ?? [], [lazyWeapons]);
+  const armors = useMemo(() => lazyArmor ?? [], [lazyArmor]);
+  const generalItems = useMemo(() => lazyGeneralItems ?? [], [lazyGeneralItems]);
+  const magicItems = useMemo(() => lazyMagicItems ?? [], [lazyMagicItems]);
 
   // Proficiency autocomplete for custom items
   const [weaponProfSearch, setWeaponProfSearch] = useState("");
@@ -1129,11 +1132,19 @@ export function TabEquipment({
       {showAddDialog && !readOnly && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          role="presentation"
           data-testid="add-item-dialog"
         >
-          <div className="mx-4 max-h-[80vh] w-full max-w-lg overflow-hidden rounded-lg border border-border bg-background shadow-lg">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-item-dialog-title"
+            className="mx-4 max-h-[80vh] w-full max-w-lg overflow-hidden rounded-lg border border-border bg-background shadow-lg"
+          >
             <div className="flex items-center justify-between border-b border-border p-4">
-              <h3 className="font-heading text-lg">{t("addItem")}</h3>
+              <h3 id="add-item-dialog-title" className="font-heading text-lg">
+                {t("addItem")}
+              </h3>
               <Button
                 variant="ghost"
                 size="icon-sm"

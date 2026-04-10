@@ -13,6 +13,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  Pencil,
+  Trash2,
+  X,
 } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
 import { Input } from "@/components/ui/input";
@@ -26,6 +29,12 @@ import {
   createCustomWeaponGm,
   createCustomArmorGm,
   createMagicItem,
+  updateWeaponGm,
+  deleteWeaponGm,
+  updateArmorGm,
+  deleteArmorGm,
+  updateGeneralItemGm,
+  deleteGeneralItemGm,
 } from "@/app/master/actions";
 import { MasterMagicItemsTab } from "./master-magic-items-tab";
 import { MagicItemForm } from "@/components/shared/magic-item-form";
@@ -56,6 +65,7 @@ interface MasterItemsPanelProps {
   userId: string;
   onBookmarkToggle: (entityType: BookmarkEntityType, entityId: string) => void;
   onMagicItemsChange: () => void;
+  onItemsChange?: () => void;
 }
 
 type ItemTab = "weapons" | "armor" | "items" | "magic";
@@ -73,6 +83,7 @@ export function MasterItemsPanel({
   userId,
   onBookmarkToggle,
   onMagicItemsChange,
+  onItemsChange,
 }: MasterItemsPanelProps) {
   const t = useTranslations("master");
   const locale = useLocale();
@@ -85,6 +96,16 @@ export function MasterItemsPanel({
   const [showMagicCreate, setShowMagicCreate] = useState(false);
   const [createType, setCreateType] = useState<"weapon" | "armor" | "item">("weapon");
   const [creating, setCreating] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<Record<string, string | number | boolean>>({});
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    id: string;
+    type: "weapon" | "armor" | "general";
+    name: string;
+  } | null>(null);
+  const [deleteError, setDeleteError] = useState<{
+    usedBy: { name: string; id: string }[];
+  } | null>(null);
 
   // Custom weapon form
   const INITIAL_WEAPON_FORM = {
@@ -187,8 +208,9 @@ export function MasterItemsPanel({
     if (!wf.name.trim() || !wf.profSelected) return;
     setCreating(true);
     const result = await createCustomWeaponGm({
-      name: wf.profSelected,
+      name: wf.name.trim(),
       name_en: wf.nameEn.trim() || undefined,
+      proficiency_name: wf.profSelected,
       weapon_type: wf.weaponType,
       damage_sm: wf.damageSm || "1d4",
       damage_l: wf.damageLg || "1d4",
@@ -201,6 +223,7 @@ export function MasterItemsPanel({
     if (result.success && result.weaponId) {
       showToastMsg(t("customWeaponCreated"), "success");
       setWeaponForm(INITIAL_WEAPON_FORM);
+      onItemsChange?.();
     } else {
       showToastMsg(t("injectFailed"), "error");
     }
@@ -209,6 +232,8 @@ export function MasterItemsPanel({
   async function handleCreateArmor() {
     if (!af.name.trim() || !af.profSelected) return;
     setCreating(true);
+    // For armor, `name` must match an existing proficiency entry (used for AC/prof lookup),
+    // while `name_en` carries the user-provided display name if it differs.
     const result = await createCustomArmorGm({
       name: af.profSelected,
       name_en: af.name.trim() !== af.profSelected ? af.name.trim() : undefined,
@@ -222,6 +247,7 @@ export function MasterItemsPanel({
     if (result.success) {
       showToastMsg(t("customArmorCreated"), "success");
       setArmorForm(INITIAL_ARMOR_FORM);
+      onItemsChange?.();
     } else {
       showToastMsg(t("injectFailed"), "error");
     }
@@ -312,6 +338,36 @@ export function MasterItemsPanel({
     { id: "items", label: t("items"), icon: <Package className="h-3.5 w-3.5" /> },
     { id: "magic", label: t("magicItems"), icon: <Sparkles className="h-3.5 w-3.5" /> },
   ];
+
+  async function handleDelete(id: string, type: "weapon" | "armor" | "general") {
+    const deleteFn =
+      type === "weapon" ? deleteWeaponGm : type === "armor" ? deleteArmorGm : deleteGeneralItemGm;
+    const result = await deleteFn(id);
+    if (result.success) {
+      showToastMsg(t("itemDeleted"), "success");
+      setDeleteConfirm(null);
+      setDeleteError(null);
+      onItemsChange?.();
+    } else if (result.error === "item_in_use" && result.usedBy) {
+      setDeleteError({ usedBy: result.usedBy });
+    } else {
+      showToastMsg(result.error ?? t("injectFailed"), "error");
+    }
+  }
+
+  async function handleSaveEdit(id: string, type: "weapon" | "armor" | "general") {
+    const updateFn =
+      type === "weapon" ? updateWeaponGm : type === "armor" ? updateArmorGm : updateGeneralItemGm;
+    const result = await updateFn(id, editForm);
+    if (result.success) {
+      showToastMsg(t("itemUpdated"), "success");
+      setEditingId(null);
+      setEditForm({});
+      onItemsChange?.();
+    } else {
+      showToastMsg(result.error ?? t("injectFailed"), "error");
+    }
+  }
 
   function renderInjectButtons(
     itemType: "weapon" | "armor" | "general",
@@ -716,6 +772,7 @@ export function MasterItemsPanel({
                     if (result.success) {
                       showToastMsg(t("customItemCreated"), "success");
                       setItemForm(INITIAL_ITEM_FORM);
+                      onItemsChange?.();
                     } else {
                       showToastMsg(t("injectFailed"), "error");
                     }
@@ -795,81 +852,246 @@ export function MasterItemsPanel({
         {itemTab === "weapons" &&
           pagedWeapons.map((w) => (
             <GlassCard key={w.id} hover={false} className="p-3" data-testid={`gm-weapon-${w.id}`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="font-medium text-foreground">
-                    {localized(w.name, w.name_en, locale)}
-                  </span>
-                  <div className="mt-0.5 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                    <span>
-                      {t("damage")}: {w.damage_sm}/{w.damage_l}
-                    </span>
-                    <span>
-                      {t("speed")}: {w.speed}
-                    </span>
-                    <span>
-                      {t("weight")}: {lbsToKg(w.weight)}
-                    </span>
-                  </div>
-                  <div className="mt-1 text-[10px] md:text-xs text-blue-400">
-                    Proficiency: {w.name}
-                  </div>
-                </div>
-                <div className="flex items-center gap-1">
-                  <BookmarkToggle
-                    entityType="weapon"
-                    entityId={w.id}
-                    isBookmarked={bookmarkSet.has(`weapon:${w.id}`)}
-                    userId={userId}
-                    onToggle={onBookmarkToggle}
+              {editingId === w.id ? (
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    defaultValue={w.name}
+                    onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                    className="w-full rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm"
+                    data-testid={`gm-edit-weapon-name-${w.id}`}
                   />
-                  <Badge variant="outline" className="text-[10px] md:text-xs">
-                    {w.weapon_type}
-                  </Badge>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="text"
+                      defaultValue={w.damage_sm}
+                      placeholder={t("damageSm")}
+                      onChange={(e) => setEditForm((f) => ({ ...f, damage_sm: e.target.value }))}
+                      className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm"
+                    />
+                    <input
+                      type="text"
+                      defaultValue={w.damage_l}
+                      placeholder={t("damageLg")}
+                      onChange={(e) => setEditForm((f) => ({ ...f, damage_l: e.target.value }))}
+                      className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="number"
+                      defaultValue={w.speed}
+                      placeholder={t("speed")}
+                      onChange={(e) =>
+                        setEditForm((f) => ({ ...f, speed: Number(e.target.value) }))
+                      }
+                      className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm"
+                    />
+                    <input
+                      type="number"
+                      defaultValue={w.weight}
+                      placeholder={t("weight")}
+                      onChange={(e) =>
+                        setEditForm((f) => ({ ...f, weight: Number(e.target.value) }))
+                      }
+                      className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={() => handleSaveEdit(w.id, "weapon")}>
+                      {t("save")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setEditingId(null);
+                        setEditForm({});
+                      }}
+                    >
+                      <X className="mr-1 h-3 w-3" />
+                      {t("cancel")}
+                    </Button>
+                  </div>
                 </div>
-              </div>
-              {renderInjectButtons("weapon", w.id, w.name)}
+              ) : (
+                <>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-medium text-foreground">
+                        {localized(w.name, w.name_en, locale)}
+                      </span>
+                      <div className="mt-0.5 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                        <span>
+                          {t("damage")}: {w.damage_sm}/{w.damage_l}
+                        </span>
+                        <span>
+                          {t("speed")}: {w.speed}
+                        </span>
+                        <span>
+                          {t("weight")}: {lbsToKg(w.weight)}
+                        </span>
+                      </div>
+                      <div className="mt-1 text-[10px] md:text-xs text-blue-400">
+                        Proficiency: {w.proficiency_name ?? w.name}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => {
+                          setEditingId(w.id);
+                          setEditForm({
+                            name: w.name,
+                            damage_sm: w.damage_sm,
+                            damage_l: w.damage_l,
+                            speed: w.speed,
+                            weight: w.weight,
+                          });
+                        }}
+                        className="rounded p-1 text-muted-foreground hover:text-foreground"
+                        aria-label={t("editItem", {
+                          name: localized(w.name, w.name_en, locale),
+                        })}
+                        data-testid={`gm-edit-weapon-${w.id}`}
+                      >
+                        <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirm({ id: w.id, type: "weapon", name: w.name })}
+                        className="rounded p-1 text-muted-foreground hover:text-red-400"
+                        aria-label={t("deleteItemFor", {
+                          name: localized(w.name, w.name_en, locale),
+                        })}
+                        data-testid={`gm-delete-weapon-${w.id}`}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                      </button>
+                      <BookmarkToggle
+                        entityType="weapon"
+                        entityId={w.id}
+                        isBookmarked={bookmarkSet.has(`weapon:${w.id}`)}
+                        userId={userId}
+                        onToggle={onBookmarkToggle}
+                      />
+                      <Badge variant="outline" className="text-[10px] md:text-xs">
+                        {w.weapon_type}
+                      </Badge>
+                    </div>
+                  </div>
+                  {renderInjectButtons("weapon", w.id, w.name)}
+                </>
+              )}
             </GlassCard>
           ))}
 
         {itemTab === "armor" &&
           pagedArmor.map((a) => (
             <GlassCard key={a.id} hover={false} className="p-3" data-testid={`gm-armor-${a.id}`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="font-medium text-foreground">
-                    {localized(a.name, a.name_en, locale)}
-                  </span>
-                  <div className="mt-0.5 flex gap-2 text-xs text-muted-foreground">
-                    <span>
-                      {t("ac")}: {a.ac}
-                    </span>
-                    <span>
-                      {t("weight")}: {lbsToKg(a.weight)}
-                    </span>
-                  </div>
-                  {a.is_shield && (
-                    <div className="mt-1 text-[10px] md:text-xs text-blue-400">
-                      Proficiency: {a.name} ({a.shield_type})
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-1">
-                  <BookmarkToggle
-                    entityType="armor"
-                    entityId={a.id}
-                    isBookmarked={bookmarkSet.has(`armor:${a.id}`)}
-                    userId={userId}
-                    onToggle={onBookmarkToggle}
+              {editingId === a.id ? (
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    defaultValue={a.name}
+                    onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                    className="w-full rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm"
                   />
-                  {a.is_shield && (
-                    <Badge variant="outline" className="text-[10px] md:text-xs">
-                      {a.shield_type ?? "shield"}
-                    </Badge>
-                  )}
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="number"
+                      defaultValue={a.ac}
+                      placeholder={t("ac")}
+                      onChange={(e) => setEditForm((f) => ({ ...f, ac: Number(e.target.value) }))}
+                      className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm"
+                    />
+                    <input
+                      type="number"
+                      defaultValue={a.weight}
+                      placeholder={t("weight")}
+                      onChange={(e) =>
+                        setEditForm((f) => ({ ...f, weight: Number(e.target.value) }))
+                      }
+                      className="rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={() => handleSaveEdit(a.id, "armor")}>
+                      {t("save")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setEditingId(null);
+                        setEditForm({});
+                      }}
+                    >
+                      <X className="mr-1 h-3 w-3" />
+                      {t("cancel")}
+                    </Button>
+                  </div>
                 </div>
-              </div>
-              {renderInjectButtons("armor", a.id, a.name)}
+              ) : (
+                <>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-medium text-foreground">
+                        {localized(a.name, a.name_en, locale)}
+                      </span>
+                      <div className="mt-0.5 flex gap-2 text-xs text-muted-foreground">
+                        <span>
+                          {t("ac")}: {a.ac}
+                        </span>
+                        <span>
+                          {t("weight")}: {lbsToKg(a.weight)}
+                        </span>
+                      </div>
+                      {a.is_shield && (
+                        <div className="mt-1 text-[10px] md:text-xs text-blue-400">
+                          Proficiency: {a.name} ({a.shield_type})
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => {
+                          setEditingId(a.id);
+                          setEditForm({ name: a.name, ac: a.ac, weight: a.weight });
+                        }}
+                        className="rounded p-1 text-muted-foreground hover:text-foreground"
+                        aria-label={t("editItem", {
+                          name: localized(a.name, a.name_en, locale),
+                        })}
+                        data-testid={`gm-edit-armor-${a.id}`}
+                      >
+                        <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirm({ id: a.id, type: "armor", name: a.name })}
+                        className="rounded p-1 text-muted-foreground hover:text-red-400"
+                        aria-label={t("deleteItemFor", {
+                          name: localized(a.name, a.name_en, locale),
+                        })}
+                        data-testid={`gm-delete-armor-${a.id}`}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                      </button>
+                      <BookmarkToggle
+                        entityType="armor"
+                        entityId={a.id}
+                        isBookmarked={bookmarkSet.has(`armor:${a.id}`)}
+                        userId={userId}
+                        onToggle={onBookmarkToggle}
+                      />
+                      {a.is_shield && (
+                        <Badge variant="outline" className="text-[10px] md:text-xs">
+                          {a.shield_type ?? "shield"}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  {renderInjectButtons("armor", a.id, a.name)}
+                </>
+              )}
             </GlassCard>
           ))}
 
@@ -881,22 +1103,87 @@ export function MasterItemsPanel({
               className="p-3"
               data-testid={`gm-item-${item.id}`}
             >
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-foreground">
-                  {localized(item.name, item.name_en, locale)}
-                </span>
-                <div className="flex items-center gap-1">
-                  <BookmarkToggle
-                    entityType="general_item"
-                    entityId={item.id}
-                    isBookmarked={bookmarkSet.has(`general_item:${item.id}`)}
-                    userId={userId}
-                    onToggle={onBookmarkToggle}
+              {editingId === item.id ? (
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    defaultValue={item.name}
+                    onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                    className="w-full rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm"
                   />
-                  <span className="text-xs text-muted-foreground">{lbsToKg(item.weight)}</span>
+                  <input
+                    type="number"
+                    defaultValue={item.weight}
+                    placeholder={t("weight")}
+                    onChange={(e) => setEditForm((f) => ({ ...f, weight: Number(e.target.value) }))}
+                    className="w-full rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm"
+                  />
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={() => handleSaveEdit(item.id, "general")}>
+                      {t("save")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setEditingId(null);
+                        setEditForm({});
+                      }}
+                    >
+                      <X className="mr-1 h-3 w-3" />
+                      {t("cancel")}
+                    </Button>
+                  </div>
                 </div>
-              </div>
-              {renderInjectButtons("general", item.id, item.name)}
+              ) : (
+                <>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-foreground">
+                      {localized(item.name, item.name_en, locale)}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => {
+                          setEditingId(item.id);
+                          setEditForm({ name: item.name, weight: item.weight });
+                        }}
+                        className="rounded p-1 text-muted-foreground hover:text-foreground"
+                        aria-label={t("editItem", {
+                          name: localized(item.name, item.name_en, locale),
+                        })}
+                        data-testid={`gm-edit-item-${item.id}`}
+                      >
+                        <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                      </button>
+                      <button
+                        onClick={() =>
+                          setDeleteConfirm({
+                            id: item.id,
+                            type: "general",
+                            name: item.name,
+                          })
+                        }
+                        className="rounded p-1 text-muted-foreground hover:text-red-400"
+                        aria-label={t("deleteItemFor", {
+                          name: localized(item.name, item.name_en, locale),
+                        })}
+                        data-testid={`gm-delete-item-${item.id}`}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                      </button>
+                      <BookmarkToggle
+                        entityType="general_item"
+                        entityId={item.id}
+                        isBookmarked={bookmarkSet.has(`general_item:${item.id}`)}
+                        userId={userId}
+                        onToggle={onBookmarkToggle}
+                      />
+                      <span className="text-xs text-muted-foreground">{lbsToKg(item.weight)}</span>
+                    </div>
+                  </div>
+                  {renderInjectButtons("general", item.id, item.name)}
+                </>
+              )}
             </GlassCard>
           ))}
 
@@ -952,6 +1239,62 @@ export function MasterItemsPanel({
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {deleteConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          role="presentation"
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="items-delete-title"
+            className="mx-4 w-full max-w-sm rounded-lg border border-border bg-card p-4 shadow-xl"
+          >
+            <h3 id="items-delete-title" className="mb-2 font-heading text-lg text-foreground">
+              {t("confirmDelete")}
+            </h3>
+            <p className="mb-3 text-sm text-muted-foreground">
+              {t("confirmDeleteItem", { name: deleteConfirm.name })}
+            </p>
+            {deleteError && (
+              <div className="mb-3 rounded-md bg-red-900/30 p-2 text-sm text-red-300">
+                <p className="font-medium">{t("itemInUse")}</p>
+                <ul className="mt-1 list-inside list-disc text-xs">
+                  {deleteError.usedBy.map((u) => (
+                    <li key={u.id}>{u.name}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <div className="flex gap-2">
+              {!deleteError && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleDelete(deleteConfirm.id, deleteConfirm.type)}
+                  data-testid="gm-confirm-delete"
+                >
+                  <Trash2 className="mr-1 h-3 w-3" />
+                  {t("deleteItem")}
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setDeleteConfirm(null);
+                  setDeleteError(null);
+                }}
+                data-testid="gm-cancel-delete"
+              >
+                {t("cancel")}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 

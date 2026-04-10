@@ -52,7 +52,7 @@ export function MasterMagicItemsTab({
   search,
   page,
   pageSize,
-  onPageChange,
+  onPageChange: _onPageChange,
   onToast,
   onFilteredCountChange,
 }: MasterMagicItemsTabProps) {

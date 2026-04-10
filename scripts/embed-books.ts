@@ -17,7 +17,6 @@ import { resolveBook, trimText, chunkText, type ChunkMetadata } from "../src/lib
 const BOOKS_DIR = join(__dirname, "..", "ressources", "books");
 const VOYAGE_API_URL = "https://api.voyageai.com/v1/embeddings";
 const EMBEDDING_MODEL = "voyage-3-lite";
-const BATCH_SIZE = 100;
 
 interface VoyageResponse {
   data: { embedding: number[]; index: number }[];

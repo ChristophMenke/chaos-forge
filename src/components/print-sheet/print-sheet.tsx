@@ -46,7 +46,6 @@ import type {
   CharacterInventoryWithDetails,
   SpellRow,
   EpicItemRow,
-  TraitEntry,
 } from "@/lib/supabase/types";
 import { getEpicEffects } from "@/lib/rules/epic-items";
 import { isPriestCaster } from "@/lib/rules/magic";

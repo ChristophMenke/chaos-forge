@@ -38,9 +38,20 @@ Chaos Forge ersetzt umständliche Offline-Editoren aus den 90er Jahren durch ein
 - **Bilinguale Suche** — Zauber können in Deutsch und Englisch gefunden werden, unabhängig von Locale
 - **Fertigkeiten** — NWP-Beschreibungen (PHB Chapter 5) beim Anklicken, Click-to-expand im Character Sheet und Play Mode
 - **Metrisches System** — Automatische Konvertierung von imperialen Einheiten (Fuß, Yards, Meilen) zu metrisch in Zauber-Texten
-- **Master of Chaos (GM-Dashboard)** — PIN-geschützter Spielleiter-Bereich mit taktischer Party-Übersicht (AC, THAC0, HP, Saves, Perception, Thief Skills), Supabase Realtime für Live-HP, Loot-Verteilung (Waffen, Rüstungen, Items), Gold-Distribution (5 Münztypen), Custom Item Creation mit Proficiency-Autocomplete, eingebetteter Rulebook Chat, eigene Sidebar + Bottom-Nav, PWA-Manifest für Homescreen-Installation
+- **Master of Chaos (GM-Dashboard)** — PIN-geschützter Spielleiter-Bereich mit:
+  - **Council of Heroes** — Taktische Party-Übersicht mit Aggregat-Stats (Durchschnitts-HP, Bester AC/THAC0, Down-Warning), Hero-Cards mit klassenfarbigen Gradients, expandierbare Details für Saves + Thief Skills
+  - **Treasury Vault** — Gold-Verteilung mit Multi-Select, Split-Party-Modus, Quick-Presets (+10/50/100/500/1000 GP), parallele Sends, Live-Totalwert
+  - **Item-Management (CRUD)** — Edit/Delete für Waffen, Rüstungen, allgemeine Items UND magische Items (auch canonical PHB-Daten). Delete blockiert wenn Item im Inventar, zeigt betroffene Charaktere
+  - **Monster-Management (CRUD + AI Import)** — Manuelle Eingabe oder KI-Import via Foto/PDF (Claude Vision), mit Precise-Mode (Sonnet-4) und client-seitiger Bildkompression (iPhone-Photos unter 3 MB)
+  - **Combat Simulator** — Party vs. Opposition mit VS-Divider, Siegchance in %, Durchschnittsrunden, DPR-Breakdown, Kampf-Log
+  - **Realtime HP** — Supabase Postgres-Changes für Live-HP der Party während der Session
+  - **Bestiary + NPCs** — 200+ Monster aus dem Monstrous Manual + Custom-NPC-Management
+  - **Rulebook Chat** — Eingebetteter KI-Chat für Regelfragen mit Quellenbuch-Filter
+  - **Eigene Navigation** — Sidebar + Bottom-Nav, PWA-Manifest für Homescreen-Installation
+- **Notifications** — Live-Notifications für Item/Gold-Transfer, XP-Vergabe etc. mit Delete-Funktion (einzeln + alle)
+- **Avatar-Silhouetten** — Rassen-/Klassen-spezifische Silhouetten als Fallback wenn Character kein Avatar hat
 - **Responsive Design** — Desktop Left-Sidebar, Mobile Bottom-Nav mit More-Menu, Glassmorphism Cards
-- **Accessibility** — WCAG 2 AA geprüft via axe-core Playwright Tests
+- **Accessibility** — WCAG 2 AA geprüft via axe-core Playwright Tests, ARIA-konforme Dialoge, Screenreader-Labels
 - **Regelwerk-Engine** — Reine TypeScript-Funktionen für alle PHB-Regeln + Player's Option
 
 ## Tech-Stack
@@ -49,10 +60,11 @@ Chaos Forge ersetzt umständliche Offline-Editoren aus den 90er Jahren durch ein
 - **Datenbank & Auth:** Supabase (PostgreSQL + Row Level Security)
 - **Styling:** Tailwind CSS v4 + shadcn/ui + Glassmorphism Design-System
 - **i18n:** next-intl (Cookie-basiert, DE/EN) + `localized()` Utility für DB-Daten
-- **Testing:** Vitest (1164+ Unit-Tests), Playwright (80+ E2E inkl. Responsive, A11y, Sidebar, XP-Management, GM-Dashboard)
+- **Testing:** Vitest (1439 Unit-Tests), Playwright (121 E2E inkl. Responsive, A11y, Sidebar, XP-Management, GM-Dashboard, Master, Mobile)
 - **Hosting:** Vercel (Free-Tier optimiert)
-- **AI:** Anthropic Claude API (Character Import, Session Summaries)
+- **AI:** Anthropic Claude API (Character Import, Monster Import, Session Summaries) + Google Gemini (Imagen für Bild-Generierung)
 - **Export:** `docx` Paket für Word-Export
+- **Image Compression:** Canvas API client-seitig für iPhone-Fotos (vor Upload)
 
 ## Lokale Entwicklung
 
@@ -83,10 +95,17 @@ Chaos Forge ersetzt umständliche Offline-Editoren aus den 90er Jahren durch ein
    ```
 
 5. **Tests ausführen**
+
    ```bash
    npm test              # Unit-Tests (Vitest)
    npm run test:e2e      # E2E-Tests (Playwright)
    ```
+
+6. **CI-Pipeline lokal spiegeln**
+   ```bash
+   npm run verify        # format:check + lint + typecheck + test + build
+   ```
+   Dieser Befehl entspricht 1:1 der CI und sollte vor jedem Push grün sein.
 
 ## Regelwerk-Spezifikation
 
@@ -175,7 +194,7 @@ e2e/                      # Playwright E2E-Tests (POM-Pattern)
   helpers/                # Auth-Helper
 messages/                 # i18n-Dateien (de.json, en.json)
 supabase/
-  migrations/             # 176 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items + Priest + Party + Shield + Traits + Realtime + Gold RPC)
+  migrations/             # 200 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items + Priest + Party + Shield + Traits + Realtime + Gold RPC + Monsters + Notifications + Weapon Proficiency Split)
 ressources/
   books/                  # OCR-Texte der AD&D 2e Regelbücher
 ```

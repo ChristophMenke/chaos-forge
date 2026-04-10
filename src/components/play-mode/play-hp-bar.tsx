@@ -2,7 +2,6 @@
 
 import { memo, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { AvatarDisplay } from "@/components/avatar-display";
 import { Badge } from "@/components/ui/badge";
@@ -29,7 +28,7 @@ interface PlayHpBarProps {
 }
 
 function PlayHpBarInner({
-  characterId,
+  characterId: _characterId,
   name,
   avatarUrl,
   raceId,
@@ -55,6 +54,8 @@ function PlayHpBarInner({
   const pct = hpMax > 0 ? Math.max(0, Math.min(100, Math.round((hpCurrent / hpMax) * 100))) : 0;
   const colors = getClassGroupColors(classGroup);
   const status = getHpStatus(hpCurrent, hpMax);
+  // Extracted into a const so jsx-a11y/aria-proptypes static analysis can verify it's a number.
+  const ariaValueMin = -hpMax;
 
   function applyDamage() {
     const amount = parseInt(inputValue, 10);
@@ -193,7 +194,7 @@ function PlayHpBarInner({
           <div
             role="progressbar"
             aria-valuenow={hpCurrent}
-            aria-valuemin={-hpMax}
+            aria-valuemin={ariaValueMin}
             aria-valuemax={hpMax}
             aria-label={`HP: ${hpCurrent}/${hpMax}`}
             className={`mt-1 h-2 overflow-hidden rounded-full ${status === "dead" ? "bg-red-900/50" : "bg-black/30 dark:bg-black/50"}`}
@@ -250,7 +251,13 @@ function PlayHpBarInner({
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") showDamageInput ? applyDamage() : applyHeal();
+              if (e.key === "Enter") {
+                if (showDamageInput) {
+                  applyDamage();
+                } else {
+                  applyHeal();
+                }
+              }
               if (e.key === "Escape") {
                 setShowDamageInput(false);
                 setShowHealInput(false);

@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { Sparkles } from "lucide-react";
 import { CharacterModeNav } from "@/components/character-mode-nav";
 import { createClient } from "@/lib/supabase/client";
-import { localized } from "@/lib/utils/localize";
 import { DamageLevelCard } from "./damage-level-card";
 import { SimpleEpicCard } from "./simple-epic-card";
 import { BladeSystemCard } from "./blade-system-card";

@@ -246,7 +246,7 @@ function BookmarkCard({
 
 // ─── Card Image (type-specific) ─────────────────────────────────────
 
-function CardImage({ item, locale }: { item: ResolvedBookmark; locale: string }) {
+function CardImage({ item, locale: _locale }: { item: ResolvedBookmark; locale: string }) {
   switch (item.entityType) {
     case "monster": {
       const m = item.data as MonsterRow;

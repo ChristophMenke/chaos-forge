@@ -52,14 +52,15 @@ export function NpcAvatarUpload({
     setError(null);
   }
 
-  // Clean up object URL on unmount
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(
-    () => () => {
+  // Clean up object URL on unmount.
+  // We intentionally close over the latest previewUrl via a ref-style read
+  // by re-running the effect whenever previewUrl changes; the cleanup then
+  // revokes the previous URL when a new one replaces it (or on unmount).
+  useEffect(() => {
+    return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
-    },
-    []
-  );
+    };
+  }, [previewUrl]);
 
   function handleClose() {
     resetCropState();

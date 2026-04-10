@@ -1,7 +1,6 @@
 "use client";
 
 import { useSyncExternalStore, useCallback, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -25,9 +24,8 @@ function getServerSnapshot() {
 }
 
 export function LocaleToggle() {
-  const router = useRouter();
   const current = useSyncExternalStore(subscribe, getLocaleFromCookie, getServerSnapshot);
-  const [isPending, startTransition] = useTransition();
+  const [isPending] = useTransition();
 
   const toggleLocale = useCallback(() => {
     const next = current === "en" ? "de" : "en";

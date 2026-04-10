@@ -54,7 +54,6 @@ import type {
   CharacterInventoryWithDetails,
   SpellRow,
   EpicItemRow,
-  TraitEntry,
 } from "@/lib/supabase/types";
 import type { PrintPreferences, PrintSectionId } from "@/lib/print-config";
 import { DEFAULT_PRINT_PREFERENCES } from "@/lib/print-config";

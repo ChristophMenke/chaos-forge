@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, lazy, Suspense } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo, lazy, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { Area } from "react-easy-crop";
@@ -39,23 +39,29 @@ export function AvatarUpload({
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Crop state
+  // Crop state — previewUrl is derived from selectedFile (useMemo + cleanup effect)
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<CropArea | null>(null);
+
+  // Derived object URL — only recreated when selectedFile changes
+  const previewUrl = useMemo(
+    () => (selectedFile ? URL.createObjectURL(selectedFile) : null),
+    [selectedFile]
+  );
+  // Revoke the URL when it changes or the component unmounts
+  useEffect(() => {
+    if (!previewUrl) return;
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
 
   const onCropComplete = useCallback((_croppedArea: Area, croppedPixels: Area) => {
     setCroppedAreaPixels(croppedPixels);
   }, []);
 
   function resetCropState() {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
     setSelectedFile(null);
-    setPreviewUrl(null);
     setCrop({ x: 0, y: 0 });
     setZoom(1);
     setCroppedAreaPixels(null);
@@ -67,27 +73,17 @@ export function AvatarUpload({
     setIsOpen(false);
   }
 
-  const handleFileSelected = useCallback(
-    (file: File) => {
-      setError(null);
-      const validationError = validateFile(file);
-      if (validationError) {
-        setError(validationError);
-        return;
-      }
-
-      // Clean up previous preview
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-
-      setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
-      setCrop({ x: 0, y: 0 });
-      setZoom(1);
-    },
-    [previewUrl]
-  );
+  const handleFileSelected = useCallback((file: File) => {
+    setError(null);
+    const validationError = validateFile(file);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    setSelectedFile(file);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+  }, []);
 
   async function handleSaveCrop() {
     if (!selectedFile || !croppedAreaPixels) return;
@@ -159,13 +155,19 @@ export function AvatarUpload({
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
           onClick={handleClose}
+          role="presentation"
           data-testid="avatar-upload-modal"
         >
           <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="avatar-upload-title"
             className="mx-4 flex w-full max-w-md flex-col gap-4 rounded-lg border border-border bg-card p-6"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="font-heading text-xl text-primary">{t("uploadTitle")}</h3>
+            <h3 id="avatar-upload-title" className="font-heading text-xl text-primary">
+              {t("uploadTitle")}
+            </h3>
 
             {/* Show cropper when a file is selected, otherwise show drop zone */}
             {previewUrl && selectedFile ? (
