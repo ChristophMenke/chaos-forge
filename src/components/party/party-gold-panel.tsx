@@ -183,7 +183,10 @@ export function PartyGoldPanel({
       </h3>
 
       {/* Coin display */}
-      <div className="mb-2 grid grid-cols-4 gap-1 text-center" data-testid="party-gold-coins">
+      <div
+        className="mb-2 grid grid-cols-2 gap-2 text-center xs:grid-cols-4 sm:gap-1"
+        data-testid="party-gold-coins"
+      >
         {COINS.map((coin) => (
           <div
             key={coin.key}
@@ -216,7 +219,7 @@ export function PartyGoldPanel({
       </div>
 
       {/* Action buttons */}
-      <div className="flex gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row">
         <Button
           variant="outline"
           size="sm"
@@ -252,7 +255,7 @@ export function PartyGoldPanel({
           <DialogTitle className="font-heading text-lg text-primary">
             {t("addGoldTitle")}
           </DialogTitle>
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {COINS.map((coin) => (
               <div key={coin.key} className="text-center">
                 <label className="text-[10px] md:text-xs text-muted-foreground">{coin.label}</label>
@@ -303,7 +306,7 @@ export function PartyGoldPanel({
           <DialogTitle className="font-heading text-lg text-primary">
             {t("removeGoldTitle")}
           </DialogTitle>
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {COINS.map((coin) => (
               <div key={coin.key} className="text-center">
                 <label className="text-[10px] md:text-xs text-muted-foreground">{coin.label}</label>

@@ -34,13 +34,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ cleaned: false });
   }
 
-  // Reset party gold to 0
+  // Narrow the cleanup to a specific character if provided — lets parallel
+  // tests clean up only their own state without stepping on siblings.
+  const characterId: string | undefined = body.character_id;
+
+  if (characterId) {
+    await supabaseAdmin.from("party_loot_items").delete().eq("source_character_id", characterId);
+    await supabaseAdmin.from("party_loot_log").delete().eq("character_id", characterId);
+    return NextResponse.json({ cleaned: true, scoped: characterId });
+  }
+
+  // Full reset — used by global teardown or single-worker runs.
   await supabaseAdmin
     .from("party_loot_gold")
     .update({ pp: 0, gp: 0, ep: 0, sp: 0, cp: 0 })
     .not("id", "is", null);
-
-  // Remove test items and log entries
   await supabaseAdmin.from("party_loot_items").delete().in("added_by", testUserIds);
   await supabaseAdmin.from("party_loot_log").delete().in("user_id", testUserIds);
 

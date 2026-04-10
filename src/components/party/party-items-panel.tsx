@@ -1,21 +1,19 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
+import { Sparkles, Plus, Trash2, Send } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
-import { DistributeItemDialog } from "@/components/party/distribute-item-dialog";
+import { DistributeItemSheet } from "@/components/party/distribute-item-sheet";
+import { AddToLootSheet } from "@/components/party/add-to-loot-sheet";
 import { createClient } from "@/lib/supabase/client";
-import { Sparkles } from "lucide-react";
 import { localized } from "@/lib/utils/localize";
 import { MagicEffectBadges } from "@/components/shared/magic-effect-badges";
-import type {
-  PartyLootItemWithDetails,
-  GeneralItemRow,
-  WeaponRow,
-  ArmorRow,
-} from "@/lib/supabase/types";
+import type { PartyLootItemWithDetails } from "@/lib/supabase/types";
+import type { OwnedItemGroup } from "@/lib/party-loot/types";
 
 interface CharacterOption {
   id: string;
@@ -23,68 +21,32 @@ interface CharacterOption {
   user_id: string;
 }
 
-interface CatalogItem {
-  id: string;
-  name: string;
-  name_en: string | null;
-  type: "item" | "weapon" | "armor";
-}
-
 interface PartyItemsPanelProps {
   items: PartyLootItemWithDetails[];
   userId: string;
   characters: CharacterOption[];
-  allGeneralItems: GeneralItemRow[];
-  allWeapons?: WeaponRow[];
-  allArmor?: ArmorRow[];
+  characterMap: Record<string, string>;
+  ownedItemGroups: OwnedItemGroup[];
+  activeCharacterId?: string;
   activeCharacterName?: string;
 }
 
 export function PartyItemsPanel({
-  items: initialItems,
+  items,
   userId,
   characters,
-  allGeneralItems,
-  allWeapons = [],
-  allArmor = [],
+  characterMap,
+  ownedItemGroups,
+  activeCharacterId,
   activeCharacterName = "",
 }: PartyItemsPanelProps) {
   const t = useTranslations("party");
   const locale = useLocale();
+  const router = useRouter();
   const supabase = createClient();
-  const [items, setItems] = useState(initialItems);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [customName, setCustomName] = useState("");
-  const [showSearch, setShowSearch] = useState(false);
   const [distributeItem, setDistributeItem] = useState<PartyLootItemWithDetails | null>(null);
-  const [savingId, setSavingId] = useState<string | null>(null);
-  const searchRef = useRef<HTMLInputElement>(null);
-
-  const filteredCatalog: CatalogItem[] = searchQuery.trim()
-    ? [
-        ...allGeneralItems
-          .filter(
-            (gi) =>
-              gi.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              (gi.name_en?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
-          )
-          .map((gi) => ({ id: gi.id, name: gi.name, name_en: gi.name_en, type: "item" as const })),
-        ...allWeapons
-          .filter(
-            (w) =>
-              w.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              (w.name_en?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
-          )
-          .map((w) => ({ id: w.id, name: w.name, name_en: w.name_en, type: "weapon" as const })),
-        ...allArmor
-          .filter(
-            (a) =>
-              a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              (a.name_en?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
-          )
-          .map((a) => ({ id: a.id, name: a.name, name_en: a.name_en, type: "armor" as const })),
-      ].slice(0, 15)
-    : [];
+  const [addSheetOpen, setAddSheetOpen] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   function itemName(item: PartyLootItemWithDetails): string {
     if (item.custom_label) return item.custom_label;
@@ -100,233 +62,61 @@ export function PartyItemsPanel({
     );
   }
 
-  async function addFromCatalog(catalogItem: CatalogItem) {
-    if (savingId) return;
-    setSavingId("add");
-
-    const isGeneralItem = catalogItem.type === "item";
-    const insertData = isGeneralItem
-      ? { item_id: catalogItem.id, quantity: 1, added_by: userId }
-      : {
-          custom_name: localized(catalogItem.name, catalogItem.name_en, locale),
-          quantity: 1,
-          added_by: userId,
-        };
-
-    const { data, error } = await supabase
-      .from("party_loot_items")
-      .insert(insertData)
-      .select("*, item:general_items(*)")
-      .single();
-
-    setSavingId(null);
-    if (error || !data) return;
-
-    const name = localized(catalogItem.name, catalogItem.name_en, locale);
-    await supabase.from("party_loot_log").insert({
-      action: "add_item",
-      user_id: userId,
-      details: { item_name: name, quantity: 1, actor: activeCharacterName },
-    });
-    setItems([data as PartyLootItemWithDetails, ...items]);
-    setSearchQuery("");
-    setShowSearch(false);
-  }
-
-  async function addCustomItem() {
-    if (!customName.trim() || savingId) return;
-    setSavingId("add");
-
-    const { data, error } = await supabase
-      .from("party_loot_items")
-      .insert({
-        custom_name: customName.trim(),
-        quantity: 1,
-        added_by: userId,
-      })
-      .select("*, item:general_items(*)")
-      .single();
-
-    setSavingId(null);
-    if (error || !data) return;
-
-    await supabase.from("party_loot_log").insert({
-      action: "add_item",
-      user_id: userId,
-      details: {
-        item_name: customName.trim(),
-        custom_name: customName.trim(),
-        quantity: 1,
-        actor: activeCharacterName,
-      },
-    });
-    setItems([data as PartyLootItemWithDetails, ...items]);
-    setCustomName("");
-    setShowSearch(false);
+  function sourceLabel(item: PartyLootItemWithDetails): string | null {
+    if (!item.source_character_id) return null;
+    return characterMap[item.source_character_id] ?? null;
   }
 
   async function removeItem(item: PartyLootItemWithDetails) {
-    if (savingId === item.id) return;
-    setSavingId(item.id);
-
-    await supabase.from("party_loot_items").delete().eq("id", item.id);
-    await supabase.from("party_loot_log").insert({
-      action: "remove_item",
-      user_id: userId,
-      details: { item_name: itemName(item), quantity: item.quantity, actor: activeCharacterName },
-    });
-    setItems(items.filter((i) => i.id !== item.id));
-    setSavingId(null);
-  }
-
-  async function updateQuantity(itemId: string, newQty: number) {
-    if (savingId === itemId) return;
-    if (newQty < 1) {
-      const item = items.find((i) => i.id === itemId);
-      if (item) return removeItem(item);
-      return;
+    if (removingId) return;
+    setRemovingId(item.id);
+    try {
+      const { error } = await supabase.from("party_loot_items").delete().eq("id", item.id);
+      if (error) {
+        console.error("removeItem failed:", error.message);
+        return;
+      }
+      await supabase.from("party_loot_log").insert({
+        action: "remove_item",
+        user_id: userId,
+        details: {
+          item_name: itemName(item),
+          quantity: item.quantity,
+          actor: activeCharacterName,
+        },
+      });
+      router.refresh();
+    } finally {
+      setRemovingId(null);
     }
-    setSavingId(itemId);
-    await supabase.from("party_loot_items").update({ quantity: newQty }).eq("id", itemId);
-    setItems(items.map((i) => (i.id === itemId ? { ...i, quantity: newQty } : i)));
-    setSavingId(null);
   }
 
-  function handleDistributed(itemId: string, distributedQty: number) {
-    setItems((prev) => {
-      const item = prev.find((i) => i.id === itemId);
-      if (!item) return prev;
-      const remaining = item.quantity - distributedQty;
-      if (remaining <= 0) return prev.filter((i) => i.id !== itemId);
-      return prev.map((i) => (i.id === itemId ? { ...i, quantity: remaining } : i));
-    });
+  function handleDistributed() {
     setDistributeItem(null);
+    router.refresh();
   }
+
+  const canAdd = ownedItemGroups.some((g) => g.equipped.length > 0 || g.inventory.length > 0);
 
   return (
     <GlassCard hover={false} data-testid="party-items-panel">
-      <h3 className="mb-3 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-        {t("items")}
-      </h3>
-
-      {/* Add item controls */}
-      <div className="mb-3 space-y-2" data-testid="party-items-add">
-        <div className="flex gap-1.5">
-          <input
-            ref={searchRef}
-            type="text"
-            value={showSearch ? searchQuery : customName}
-            onChange={(e) => {
-              if (showSearch) {
-                setSearchQuery(e.target.value);
-              } else {
-                setCustomName(e.target.value);
-              }
-            }}
-            onFocus={() => setShowSearch(true)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !showSearch) addCustomItem();
-            }}
-            placeholder={showSearch ? t("searchItems") : t("itemName")}
-            className="min-w-0 flex-1 rounded-md border border-border bg-background px-2 py-1 text-sm"
-            data-testid="party-items-search-input"
-          />
-          <Button
-            size="sm"
-            className="h-8 shrink-0"
-            onClick={() => {
-              if (showSearch && searchQuery.trim()) {
-                setCustomName(searchQuery);
-                setShowSearch(false);
-                setSearchQuery("");
-              } else if (!showSearch) {
-                addCustomItem();
-              }
-            }}
-            disabled={(showSearch ? false : !customName.trim()) || savingId === "add"}
-            data-testid="party-items-add-btn"
-          >
-            {t("addItem")}
-          </Button>
-        </div>
-
-        {/* Search results dropdown */}
-        {showSearch && searchQuery.trim() && (
-          <div className="max-h-48 overflow-y-auto rounded-md border border-border bg-background">
-            {filteredCatalog.length > 0 ? (
-              filteredCatalog.map((ci) => (
-                <button
-                  key={`${ci.type}-${ci.id}`}
-                  type="button"
-                  className="flex w-full items-center justify-between px-3 py-1.5 text-left text-sm hover:bg-accent"
-                  onClick={() => addFromCatalog(ci)}
-                  data-testid={`party-items-catalog-${ci.type}-${ci.id}`}
-                >
-                  <span>{localized(ci.name, ci.name_en, locale)}</span>
-                  <span className="text-[10px] uppercase text-muted-foreground">
-                    {ci.type === "weapon" ? "⚔" : ci.type === "armor" ? "🛡" : "📦"}
-                  </span>
-                </button>
-              ))
-            ) : (
-              <div className="px-3 py-2 text-sm text-muted-foreground">
-                <button
-                  type="button"
-                  className="text-primary hover:underline"
-                  data-testid="party-items-custom-create"
-                  onClick={() => {
-                    setCustomName(searchQuery);
-                    setShowSearch(false);
-                    setSearchQuery("");
-                  }}
-                >
-                  {t("customItem")}: &quot;{searchQuery}&quot;
-                </button>
-              </div>
-            )}
-            {filteredCatalog.length > 0 && (
-              <div className="border-t border-border px-3 py-1.5">
-                <button
-                  type="button"
-                  className="text-xs text-primary hover:underline"
-                  data-testid="party-items-custom-create-alt"
-                  onClick={() => {
-                    setCustomName(searchQuery);
-                    setShowSearch(false);
-                    setSearchQuery("");
-                  }}
-                >
-                  {t("customItem")}: &quot;{searchQuery}&quot;
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Custom name input (when search dismissed) */}
-        {!showSearch && customName && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span>{t("customItem")}:</span>
-            <span className="font-medium text-foreground">{customName}</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-5 px-1 text-xs"
-              onClick={() => {
-                setCustomName("");
-                setShowSearch(true);
-                setTimeout(() => searchRef.current?.focus(), 0);
-              }}
-            >
-              ×
-            </Button>
-          </div>
-        )}
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h3 className="font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          {t("items")}
+        </h3>
+        <Button
+          size="sm"
+          onClick={() => setAddSheetOpen(true)}
+          disabled={!canAdd}
+          data-testid="party-items-add-btn"
+        >
+          <Plus className="mr-1 size-4" />
+          {t("addItem")}
+        </Button>
       </div>
 
-      {/* Item list */}
       {items.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 py-6" data-testid="party-items-empty">
+        <div className="flex flex-col items-center gap-3 py-8" data-testid="party-items-empty">
           <Image
             src="/images/empty-states/treasure-chest.webp"
             alt=""
@@ -334,86 +124,96 @@ export function PartyItemsPanel({
             height={120}
             className="opacity-50"
           />
-          <p className="text-sm text-muted-foreground">{t("noItems")}</p>
+          <p className="text-center text-sm text-muted-foreground">{t("noItems")}</p>
+          {!canAdd && (
+            <p className="text-center text-xs text-muted-foreground">{t("noOwnItemsHint")}</p>
+          )}
         </div>
       ) : (
-        <div className="space-y-1" data-testid="party-items-list">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="rounded-md border border-border px-2 py-1"
-              data-testid={`party-item-${item.id}`}
-            >
-              <div className="flex items-center gap-2">
-                <span className="min-w-0 flex-1 truncate text-sm">
-                  {isMagicItem(item) && (
-                    <Sparkles className="mr-1 inline-block h-3 w-3 text-amber-400" />
-                  )}
-                  {itemName(item)}
-                </span>
+        <ul className="space-y-2" data-testid="party-items-list">
+          {items.map((item) => {
+            const name = itemName(item);
+            const source = sourceLabel(item);
+            const isLegacy = !item.source_character_id;
+            return (
+              <li
+                key={item.id}
+                className="rounded-lg border border-border bg-card/40 p-3 transition hover:bg-card/60"
+                data-testid={`party-item-${item.id}`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      {isMagicItem(item) && (
+                        <Sparkles className="size-3.5 shrink-0 text-amber-400" />
+                      )}
+                      <span className="truncate text-sm font-medium">{name}</span>
+                      {item.quantity > 1 && (
+                        <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                          ×{item.quantity}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                      {source && (
+                        <span
+                          className="rounded bg-primary/15 px-1.5 py-0.5 text-[10px] text-primary"
+                          data-testid={`party-item-source-${item.id}`}
+                        >
+                          {t("fromCharacter", { name: source })}
+                        </span>
+                      )}
+                      {isLegacy && (
+                        <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                          {t("legacyItem")}
+                        </span>
+                      )}
+                    </div>
+                    {isMagicItem(item) && item.magic_effects && (
+                      <div className="mt-2">
+                        <MagicEffectBadges effects={item.magic_effects} id={item.id} />
+                      </div>
+                    )}
+                  </div>
 
-                {/* Quantity controls */}
-                <div className="flex shrink-0 items-center gap-0.5">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0 text-xs"
-                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                    disabled={savingId === item.id}
-                    aria-label={`${itemName(item)} −1`}
-                    data-testid={`party-item-minus-${item.id}`}
-                  >
-                    −
-                  </Button>
-                  <span className="w-6 text-center font-mono text-sm">{item.quantity}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0 text-xs"
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                    disabled={savingId === item.id}
-                    aria-label={`${itemName(item)} +1`}
-                    data-testid={`party-item-plus-${item.id}`}
-                  >
-                    +
-                  </Button>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setDistributeItem(item)}
+                      data-testid={`party-item-distribute-${item.id}`}
+                      aria-label={t("distributeItemLabel", { item: name })}
+                    >
+                      <Send className="size-3.5" />
+                      <span className="hidden sm:ml-1 sm:inline">{t("distributeItem")}</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => removeItem(item)}
+                      disabled={removingId === item.id}
+                      aria-label={t("removeItem", { item: name })}
+                      data-testid={`party-item-remove-${item.id}`}
+                    >
+                      <Trash2 className="size-3.5" />
+                    </Button>
+                  </div>
                 </div>
-
-                {/* Distribute button */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-6 shrink-0 px-2 text-xs"
-                  onClick={() => setDistributeItem(item)}
-                  data-testid={`party-item-distribute-${item.id}`}
-                >
-                  {t("distributeItem")}
-                </Button>
-
-                {/* Remove button */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 shrink-0 p-0 text-xs text-muted-foreground hover:text-red-400"
-                  onClick={() => removeItem(item)}
-                  disabled={savingId === item.id}
-                  aria-label={t("removeItem", { item: itemName(item) })}
-                  data-testid={`party-item-remove-${item.id}`}
-                >
-                  ×
-                </Button>
-              </div>
-              {isMagicItem(item) && item.magic_effects && (
-                <MagicEffectBadges effects={item.magic_effects} id={item.id} />
-              )}
-            </div>
-          ))}
-        </div>
+              </li>
+            );
+          })}
+        </ul>
       )}
 
-      {/* Distribute Item dialog */}
+      <AddToLootSheet
+        open={addSheetOpen}
+        onOpenChange={setAddSheetOpen}
+        ownedItemGroups={ownedItemGroups}
+        defaultCharacterId={activeCharacterId}
+      />
+
       {distributeItem && (
-        <DistributeItemDialog
+        <DistributeItemSheet
           item={distributeItem}
           characters={characters}
           userId={userId}

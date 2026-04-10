@@ -586,6 +586,13 @@ export interface PartyLootItemRow {
   magic_effects?: MagicEffects;
   custom_label?: string | null;
   magic_item_id?: string | null;
+  source_character_id?: string | null;
+  source_type?: "inventory" | "equipment" | null;
+  source_row_id?: string | null;
+  weapon_id?: string | null;
+  armor_id?: string | null;
+  hit_bonus?: number;
+  damage_bonus?: number;
 }
 
 export interface PartyLootItemWithDetails extends PartyLootItemRow {

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/supabase/auth";
 import { SessionDetail } from "@/components/session/session-detail";
+import { RealtimeRefresh } from "@/components/realtime-refresh";
 import type {
   SessionRow,
   SessionEntryRow,
@@ -103,20 +104,26 @@ export default async function SessionPage({ params }: SessionPageProps) {
     .returns<Pick<CharacterRow, "id" | "name" | "avatar_url" | "race_id" | "class_id">[]>();
 
   return (
-    <SessionDetail
-      session={session}
-      entries={entries ?? []}
-      entryCharacters={entryCharacters ?? []}
-      userCharacters={userCharacters ?? []}
-      tags={tags}
-      allTags={allTags ?? []}
-      userId={user.id}
-      isCreator={session.created_by === user.id}
-      xpHistory={sessionXpHistory ?? []}
-      entryCharacterMap={Object.fromEntries((entryCharacters ?? []).map((c) => [c.id, c]))}
-      participants={participantChars ?? []}
-      externalParticipants={session.external_participants}
-      allActiveCharacters={allActiveChars ?? []}
-    />
+    <>
+      <RealtimeRefresh
+        channelName={`session-${id}`}
+        bindings={[{ table: "session_entries", filter: `session_id=eq.${id}` }]}
+      />
+      <SessionDetail
+        session={session}
+        entries={entries ?? []}
+        entryCharacters={entryCharacters ?? []}
+        userCharacters={userCharacters ?? []}
+        tags={tags}
+        allTags={allTags ?? []}
+        userId={user.id}
+        isCreator={session.created_by === user.id}
+        xpHistory={sessionXpHistory ?? []}
+        entryCharacterMap={Object.fromEntries((entryCharacters ?? []).map((c) => [c.id, c]))}
+        participants={participantChars ?? []}
+        externalParticipants={session.external_participants}
+        allActiveCharacters={allActiveChars ?? []}
+      />
+    </>
   );
 }

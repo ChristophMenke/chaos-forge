@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Trash2 } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
@@ -26,6 +26,51 @@ function formatCoinAmount(details: Record<string, unknown>): string {
   return parts.join(", ");
 }
 
+interface LogGroup {
+  key: string;
+  label: string;
+  entries: PartyLootLogRow[];
+}
+
+function groupByDay(
+  log: PartyLootLogRow[],
+  locale: string,
+  labels: { today: string; yesterday: string }
+): LogGroup[] {
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startOfYesterday = startOfToday - 24 * 60 * 60 * 1000;
+
+  const groups = new Map<string, LogGroup>();
+  for (const entry of log) {
+    const ts = new Date(entry.created_at).getTime();
+    let key: string;
+    let label: string;
+    if (ts >= startOfToday) {
+      key = "today";
+      label = labels.today;
+    } else if (ts >= startOfYesterday) {
+      key = "yesterday";
+      label = labels.yesterday;
+    } else {
+      const d = new Date(entry.created_at);
+      key = d.toISOString().slice(0, 10);
+      label = d.toLocaleDateString(locale, {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+    }
+    let group = groups.get(key);
+    if (!group) {
+      group = { key, label, entries: [] };
+      groups.set(key, group);
+    }
+    group.entries.push(entry);
+  }
+  return Array.from(groups.values());
+}
+
 export function PartyLogPanel({ log: initialLog, userMap, characterMap }: PartyLogPanelProps) {
   const t = useTranslations("party");
   const tc = useTranslations("common");
@@ -33,6 +78,15 @@ export function PartyLogPanel({ log: initialLog, userMap, characterMap }: PartyL
   const [log, setLog] = useState(initialLog);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const groups = useMemo(
+    () =>
+      groupByDay(log, locale, {
+        today: t("today"),
+        yesterday: t("yesterday"),
+      }),
+    [log, locale, t]
+  );
 
   function formatEntry(entry: PartyLootLogRow): string {
     const details = entry.details;
@@ -72,10 +126,7 @@ export function PartyLogPanel({ log: initialLog, userMap, characterMap }: PartyL
     const supabase = createClient();
     const { error } = await supabase.from("party_loot_log").delete().eq("id", entryId);
     setDeletingId(null);
-    if (error) {
-      // Keep dialog open so user knows it failed
-      return;
-    }
+    if (error) return;
     setLog((prev) => prev.filter((e) => e.id !== entryId));
     setConfirmDeleteId(null);
   }
@@ -89,35 +140,51 @@ export function PartyLogPanel({ log: initialLog, userMap, characterMap }: PartyL
       {log.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("noLog")}</p>
       ) : (
-        <div className="space-y-1.5" data-testid="party-log-entries">
-          {log.map((entry) => {
-            const time = new Date(entry.created_at).toLocaleTimeString(locale, {
-              hour: "2-digit",
-              minute: "2-digit",
-            });
-            return (
-              <div
-                key={entry.id}
-                className="group flex items-start gap-2 text-sm"
-                data-testid={`party-log-entry-${entry.id}`}
-              >
-                <span className="shrink-0 font-mono text-xs text-muted-foreground">{time}</span>
-                <span className="flex-1 text-foreground/80">{formatEntry(entry)}</span>
-                <button
-                  onClick={() => setConfirmDeleteId(entry.id)}
-                  className="shrink-0 rounded p-0.5 text-muted-foreground/50 opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
-                  aria-label={t("deleteLogEntry")}
-                  data-testid={`party-log-delete-${entry.id}`}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            );
-          })}
+        <div className="space-y-4" data-testid="party-log-entries">
+          {groups.map((group) => (
+            <section key={group.key}>
+              <h4 className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80">
+                {group.label}
+              </h4>
+              <ol className="relative space-y-2 border-l border-border pl-4">
+                {group.entries.map((entry) => {
+                  const time = new Date(entry.created_at).toLocaleTimeString(locale, {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  });
+                  return (
+                    <li
+                      key={entry.id}
+                      className="group relative"
+                      data-testid={`party-log-entry-${entry.id}`}
+                    >
+                      <span
+                        className="absolute -left-[1.3rem] top-1.5 size-1.5 rounded-full bg-primary"
+                        aria-hidden="true"
+                      />
+                      <div className="flex items-start gap-2 text-sm">
+                        <span className="shrink-0 font-mono text-xs text-muted-foreground">
+                          {time}
+                        </span>
+                        <span className="flex-1 text-foreground/85">{formatEntry(entry)}</span>
+                        <button
+                          onClick={() => setConfirmDeleteId(entry.id)}
+                          className="shrink-0 rounded p-0.5 text-muted-foreground/50 transition-opacity hover:text-destructive sm:opacity-0 sm:group-hover:opacity-100"
+                          aria-label={t("deleteLogEntry")}
+                          data-testid={`party-log-delete-${entry.id}`}
+                        >
+                          <Trash2 className="size-3.5" />
+                        </button>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
+          ))}
         </div>
       )}
 
-      {/* Delete Confirmation Dialog */}
       <Dialog
         open={confirmDeleteId !== null}
         onOpenChange={(open) => {

@@ -19,6 +19,13 @@ export interface TestCharacterOptions {
   alignment?: string;
   is_public?: boolean;
   classes?: Array<{ class_id: string; level: number; xp_current?: number }>;
+  inventory?: Array<{ custom_name?: string; item_id?: string; quantity?: number }>;
+  equipment?: Array<{
+    weapon_id?: string;
+    armor_id?: string;
+    custom_label?: string;
+    equipped?: boolean;
+  }>;
 }
 
 /**
@@ -50,10 +57,15 @@ export async function createTestCharacter(
         classes: options.classes ?? [
           { class_id: options.class_id ?? "fighter", level: options.level ?? 5, xp_current: 18000 },
         ],
+        inventory: options.inventory,
+        equipment: options.equipment,
       },
     },
   });
   const data = await resp.json();
+  if (data.error) {
+    throw new Error(`Failed to create test character "${options.name}": ${data.error}`);
+  }
   if (!data.character_id) {
     throw new Error(`Failed to create test character "${options.name}": ${JSON.stringify(data)}`);
   }
