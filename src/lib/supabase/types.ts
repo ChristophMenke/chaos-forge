@@ -250,6 +250,7 @@ export interface WeaponRow {
   source_book: string;
   is_custom: boolean;
   created_by: string | null;
+  proficiency_name: string | null;
 }
 
 export interface ArmorRow {

@@ -66,6 +66,7 @@ interface MasterItemsPanelProps {
   userId: string;
   onBookmarkToggle: (entityType: BookmarkEntityType, entityId: string) => void;
   onMagicItemsChange: () => void;
+  onItemsChange?: () => void;
 }
 
 type ItemTab = "weapons" | "armor" | "items" | "magic";
@@ -83,6 +84,7 @@ export function MasterItemsPanel({
   userId,
   onBookmarkToggle,
   onMagicItemsChange,
+  onItemsChange,
 }: MasterItemsPanelProps) {
   const t = useTranslations("master");
   const locale = useLocale();
@@ -207,8 +209,9 @@ export function MasterItemsPanel({
     if (!wf.name.trim() || !wf.profSelected) return;
     setCreating(true);
     const result = await createCustomWeaponGm({
-      name: wf.profSelected,
+      name: wf.name.trim(),
       name_en: wf.nameEn.trim() || undefined,
+      proficiency_name: wf.profSelected,
       weapon_type: wf.weaponType,
       damage_sm: wf.damageSm || "1d4",
       damage_l: wf.damageLg || "1d4",
@@ -341,8 +344,7 @@ export function MasterItemsPanel({
       showToastMsg(t("itemDeleted"), "success");
       setDeleteConfirm(null);
       setDeleteError(null);
-      // Trigger page refresh to get updated data
-      window.location.reload();
+      onItemsChange?.();
     } else if (result.error === "item_in_use" && result.usedBy) {
       setDeleteError({ usedBy: result.usedBy });
     } else {
@@ -358,7 +360,7 @@ export function MasterItemsPanel({
       showToastMsg(t("itemUpdated"), "success");
       setEditingId(null);
       setEditForm({});
-      window.location.reload();
+      onItemsChange?.();
     } else {
       showToastMsg(result.error ?? t("injectFailed"), "error");
     }
@@ -927,39 +929,39 @@ export function MasterItemsPanel({
                         </span>
                       </div>
                       <div className="mt-1 text-[10px] md:text-xs text-blue-400">
-                        Proficiency: {w.name}
+                        Proficiency: {w.proficiency_name ?? w.name}
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
-                      {w.is_custom && (
-                        <>
-                          <button
-                            onClick={() => {
-                              setEditingId(w.id);
-                              setEditForm({
-                                name: w.name,
-                                damage_sm: w.damage_sm,
-                                damage_l: w.damage_l,
-                                speed: w.speed,
-                                weight: w.weight,
-                              });
-                            }}
-                            className="rounded p-1 text-muted-foreground hover:text-foreground"
-                            data-testid={`gm-edit-weapon-${w.id}`}
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={() =>
-                              setDeleteConfirm({ id: w.id, type: "weapon", name: w.name })
-                            }
-                            className="rounded p-1 text-muted-foreground hover:text-red-400"
-                            data-testid={`gm-delete-weapon-${w.id}`}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </>
-                      )}
+                      <button
+                        onClick={() => {
+                          setEditingId(w.id);
+                          setEditForm({
+                            name: w.name,
+                            damage_sm: w.damage_sm,
+                            damage_l: w.damage_l,
+                            speed: w.speed,
+                            weight: w.weight,
+                          });
+                        }}
+                        className="rounded p-1 text-muted-foreground hover:text-foreground"
+                        aria-label={t("editItem", {
+                          name: localized(w.name, w.name_en, locale),
+                        })}
+                        data-testid={`gm-edit-weapon-${w.id}`}
+                      >
+                        <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirm({ id: w.id, type: "weapon", name: w.name })}
+                        className="rounded p-1 text-muted-foreground hover:text-red-400"
+                        aria-label={t("deleteItemFor", {
+                          name: localized(w.name, w.name_en, locale),
+                        })}
+                        data-testid={`gm-delete-weapon-${w.id}`}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                      </button>
                       <BookmarkToggle
                         entityType="weapon"
                         entityId={w.id}
@@ -1046,29 +1048,29 @@ export function MasterItemsPanel({
                       )}
                     </div>
                     <div className="flex items-center gap-1">
-                      {a.is_custom && (
-                        <>
-                          <button
-                            onClick={() => {
-                              setEditingId(a.id);
-                              setEditForm({ name: a.name, ac: a.ac, weight: a.weight });
-                            }}
-                            className="rounded p-1 text-muted-foreground hover:text-foreground"
-                            data-testid={`gm-edit-armor-${a.id}`}
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={() =>
-                              setDeleteConfirm({ id: a.id, type: "armor", name: a.name })
-                            }
-                            className="rounded p-1 text-muted-foreground hover:text-red-400"
-                            data-testid={`gm-delete-armor-${a.id}`}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </>
-                      )}
+                      <button
+                        onClick={() => {
+                          setEditingId(a.id);
+                          setEditForm({ name: a.name, ac: a.ac, weight: a.weight });
+                        }}
+                        className="rounded p-1 text-muted-foreground hover:text-foreground"
+                        aria-label={t("editItem", {
+                          name: localized(a.name, a.name_en, locale),
+                        })}
+                        data-testid={`gm-edit-armor-${a.id}`}
+                      >
+                        <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirm({ id: a.id, type: "armor", name: a.name })}
+                        className="rounded p-1 text-muted-foreground hover:text-red-400"
+                        aria-label={t("deleteItemFor", {
+                          name: localized(a.name, a.name_en, locale),
+                        })}
+                        data-testid={`gm-delete-armor-${a.id}`}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                      </button>
                       <BookmarkToggle
                         entityType="armor"
                         entityId={a.id}
@@ -1136,33 +1138,35 @@ export function MasterItemsPanel({
                       {localized(item.name, item.name_en, locale)}
                     </span>
                     <div className="flex items-center gap-1">
-                      {item.is_custom && (
-                        <>
-                          <button
-                            onClick={() => {
-                              setEditingId(item.id);
-                              setEditForm({ name: item.name, weight: item.weight });
-                            }}
-                            className="rounded p-1 text-muted-foreground hover:text-foreground"
-                            data-testid={`gm-edit-item-${item.id}`}
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={() =>
-                              setDeleteConfirm({
-                                id: item.id,
-                                type: "general",
-                                name: item.name,
-                              })
-                            }
-                            className="rounded p-1 text-muted-foreground hover:text-red-400"
-                            data-testid={`gm-delete-item-${item.id}`}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </>
-                      )}
+                      <button
+                        onClick={() => {
+                          setEditingId(item.id);
+                          setEditForm({ name: item.name, weight: item.weight });
+                        }}
+                        className="rounded p-1 text-muted-foreground hover:text-foreground"
+                        aria-label={t("editItem", {
+                          name: localized(item.name, item.name_en, locale),
+                        })}
+                        data-testid={`gm-edit-item-${item.id}`}
+                      >
+                        <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                      </button>
+                      <button
+                        onClick={() =>
+                          setDeleteConfirm({
+                            id: item.id,
+                            type: "general",
+                            name: item.name,
+                          })
+                        }
+                        className="rounded p-1 text-muted-foreground hover:text-red-400"
+                        aria-label={t("deleteItemFor", {
+                          name: localized(item.name, item.name_en, locale),
+                        })}
+                        data-testid={`gm-delete-item-${item.id}`}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                      </button>
                       <BookmarkToggle
                         entityType="general_item"
                         entityId={item.id}

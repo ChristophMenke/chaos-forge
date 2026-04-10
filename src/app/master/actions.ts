@@ -251,6 +251,7 @@ export async function distributeGold(
 export async function createCustomWeaponGm(data: {
   name: string;
   name_en?: string;
+  proficiency_name?: string;
   damage_sm?: string;
   damage_l?: string;
   weapon_type: "melee" | "ranged" | "both";
@@ -269,6 +270,7 @@ export async function createCustomWeaponGm(data: {
     .insert({
       name: data.name,
       name_en: data.name_en || null,
+      proficiency_name: data.proficiency_name ?? data.name,
       damage_sm: data.damage_sm || "1d4",
       damage_l: data.damage_l || "1d4",
       weapon_type: data.weapon_type,
@@ -335,7 +337,7 @@ export async function updateWeaponGm(
 ): Promise<{ success: boolean; error?: string }> {
   if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
   const service = createServiceClient();
-  const { error } = await service.from("weapons").update(data).eq("id", id).eq("is_custom", true);
+  const { error } = await service.from("weapons").update(data).eq("id", id);
   if (error) return { success: false, error: error.message };
   return { success: true };
 }
@@ -362,7 +364,7 @@ export async function deleteWeaponGm(
     };
   }
 
-  const { error } = await service.from("weapons").delete().eq("id", id).eq("is_custom", true);
+  const { error } = await service.from("weapons").delete().eq("id", id);
   if (error) return { success: false, error: error.message };
   return { success: true };
 }
@@ -383,7 +385,7 @@ export async function updateArmorGm(
 ): Promise<{ success: boolean; error?: string }> {
   if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
   const service = createServiceClient();
-  const { error } = await service.from("armor").update(data).eq("id", id).eq("is_custom", true);
+  const { error } = await service.from("armor").update(data).eq("id", id);
   if (error) return { success: false, error: error.message };
   return { success: true };
 }
@@ -409,7 +411,7 @@ export async function deleteArmorGm(
     };
   }
 
-  const { error } = await service.from("armor").delete().eq("id", id).eq("is_custom", true);
+  const { error } = await service.from("armor").delete().eq("id", id);
   if (error) return { success: false, error: error.message };
   return { success: true };
 }
@@ -453,7 +455,7 @@ export async function updateGeneralItemGm(
 ): Promise<{ success: boolean; error?: string }> {
   if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
   const service = createServiceClient();
-  const { error } = await service.from("general_items").update(data).eq("id", id).eq("is_custom", true);
+  const { error } = await service.from("general_items").update(data).eq("id", id);
   if (error) return { success: false, error: error.message };
   return { success: true };
 }
@@ -488,7 +490,7 @@ export async function deleteGeneralItemGm(
     return { success: false, error: "item_in_use", usedBy };
   }
 
-  const { error } = await service.from("general_items").delete().eq("id", id).eq("is_custom", true);
+  const { error } = await service.from("general_items").delete().eq("id", id);
   if (error) return { success: false, error: error.message };
   return { success: true };
 }
@@ -1107,13 +1109,42 @@ export async function updateMonsterGm(
 ): Promise<{ success: boolean; error?: string }> {
   if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
   const service = createServiceClient();
-  const { error } = await service
-    .from("monsters")
-    .update(monsterData)
-    .eq("id", id)
-    .eq("is_custom", true);
+  const { error } = await service.from("monsters").update(monsterData).eq("id", id);
   if (error) return { success: false, error: error.message };
   return { success: true };
+}
+
+export async function fetchMonstersGm(): Promise<MonsterRow[]> {
+  if (!(await checkGmSession())) return [];
+  const service = createServiceClient();
+  const { data } = await service.from("monsters").select("*").order("name", { ascending: true });
+  return (data as MonsterRow[]) ?? [];
+}
+
+export async function fetchWeaponsGm(): Promise<import("@/lib/supabase/types").WeaponRow[]> {
+  if (!(await checkGmSession())) return [];
+  const service = createServiceClient();
+  const { data } = await service.from("weapons").select("*").order("name", { ascending: true });
+  return (data as import("@/lib/supabase/types").WeaponRow[]) ?? [];
+}
+
+export async function fetchArmorGm(): Promise<import("@/lib/supabase/types").ArmorRow[]> {
+  if (!(await checkGmSession())) return [];
+  const service = createServiceClient();
+  const { data } = await service.from("armor").select("*").order("name", { ascending: true });
+  return (data as import("@/lib/supabase/types").ArmorRow[]) ?? [];
+}
+
+export async function fetchGeneralItemsGm(): Promise<
+  import("@/lib/supabase/types").GeneralItemRow[]
+> {
+  if (!(await checkGmSession())) return [];
+  const service = createServiceClient();
+  const { data } = await service
+    .from("general_items")
+    .select("*")
+    .order("name", { ascending: true });
+  return (data as import("@/lib/supabase/types").GeneralItemRow[]) ?? [];
 }
 
 export async function deleteMonsterGm(id: string): Promise<{ success: boolean; error?: string }> {

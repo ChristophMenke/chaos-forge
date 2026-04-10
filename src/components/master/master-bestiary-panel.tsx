@@ -37,10 +37,26 @@ import {
   updateMonsterGm,
   deleteMonsterGm,
 } from "@/app/master/actions";
+import { compressImageIfNeeded } from "@/lib/utils/image-compression";
 import { BookmarkToggle } from "./bookmark-toggle";
 import type { MonsterRow } from "@/lib/supabase/types";
 
 const SIZE_ORDER = ["T", "S", "M", "L", "H", "G"] as const;
+
+/** Parse AD&D hit dice notation: "3+3" → 3, "1/2" → 0.5, "8" → 8 */
+function parseHitDiceValue(hd: string): number {
+  const trimmed = hd.trim();
+  if (!trimmed) return 1;
+  // Handle fractional notation like "1/2" or "1/4"
+  if (trimmed.includes("/")) {
+    const [num, denom] = trimmed.split("/").map((s) => parseFloat(s));
+    if (num && denom) return num / denom;
+    return 0.5;
+  }
+  // Handle "3+3" → 3
+  const parsed = parseFloat(trimmed);
+  return parsed > 0 ? parsed : 1;
+}
 
 const HD_RANGES = [
   { key: "1", min: 0, max: 1 },
@@ -89,6 +105,7 @@ interface MasterBestiaryPanelProps {
     entityType: import("@/lib/supabase/types").BookmarkEntityType,
     entityId: string
   ) => void;
+  onMonstersChange?: () => void;
 }
 
 const PAGE_SIZE = 24;
@@ -99,6 +116,7 @@ export function MasterBestiaryPanel({
   bookmarkSet,
   userId,
   onBookmarkToggle,
+  onMonstersChange,
 }: MasterBestiaryPanelProps) {
   const t = useTranslations("master");
   const locale = useLocale();
@@ -115,6 +133,9 @@ export function MasterBestiaryPanel({
   const [importing, setImporting] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [preciseMode, setPreciseMode] = useState(false);
+  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
+  const [pendingImagePreview, setPendingImagePreview] = useState<string | null>(null);
   const [monsterForm, setMonsterForm] = useState<Partial<MonsterRow>>({
     name: "",
     name_en: "",
@@ -138,9 +159,22 @@ export function MasterBestiaryPanel({
   async function handleCreateMonster() {
     if (!monsterForm.name?.trim()) return;
     const result = await createMonsterGm(monsterForm);
-    if (result.success) {
+    if (result.success && result.id) {
+      // Upload pending image if user selected one
+      if (pendingImageFile) {
+        try {
+          const compressed = await compressImageIfNeeded(pendingImageFile);
+          const imgFormData = new FormData();
+          imgFormData.append("file", compressed);
+          await uploadMonsterImage(result.id, imgFormData);
+        } catch {
+          // Image upload failed but monster was created — log but don't block
+        }
+      }
       showToast(t("monsterCreated"), "success");
       setShowCreate(false);
+      setPendingImageFile(null);
+      setPendingImagePreview(null);
       setMonsterForm({
         name: "",
         ac: 10,
@@ -154,19 +188,31 @@ export function MasterBestiaryPanel({
         xp_value: 0,
         movement: "12",
       });
-      window.location.reload();
+      onMonstersChange?.();
     } else {
       showToast(result.error ?? t("monsterImportFailed"), "error");
     }
   }
 
+  function handleSelectImage(file: File) {
+    setPendingImageFile(file);
+    const reader = new FileReader();
+    reader.onload = () => setPendingImagePreview(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
   async function handleAIImport(files: FileList) {
     setImporting(true);
     try {
+      // Client-side compression for large iPhone photos
+      const compressedFiles = await Promise.all(
+        Array.from(files).map((file) => compressImageIfNeeded(file))
+      );
       const formData = new FormData();
-      for (const file of files) {
+      for (const file of compressedFiles) {
         formData.append("files", file);
       }
+      if (preciseMode) formData.append("precise", "true");
       const res = await fetch("/api/scan-monster", { method: "POST", body: formData });
       if (!res.ok) {
         const err = await res.json();
@@ -215,7 +261,7 @@ export function MasterBestiaryPanel({
     if (result.success) {
       showToast(t("monsterDeleted"), "success");
       setDeleteConfirmId(null);
-      window.location.reload();
+      onMonstersChange?.();
     } else {
       showToast(result.error ?? t("monsterImportFailed"), "error");
     }
@@ -308,7 +354,20 @@ export function MasterBestiaryPanel({
             </div>
 
             {createMode === "ai" && (
-              <div className="mb-3">
+              <div className="mb-3 space-y-2">
+                <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    checked={preciseMode}
+                    onChange={(e) => setPreciseMode(e.target.checked)}
+                    className="h-3.5 w-3.5"
+                    data-testid="gm-monster-precise-mode"
+                  />
+                  {t("preciseMode")}
+                  <span className="text-[10px] text-muted-foreground/60">
+                    ({t("preciseModeDesc")})
+                  </span>
+                </label>
                 <label className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed border-border/50 bg-background/20 p-6 transition-colors hover:border-primary/50">
                   {importing ? (
                     <>
@@ -393,7 +452,7 @@ export function MasterBestiaryPanel({
                         setMonsterForm((f) => ({
                           ...f,
                           hit_dice: e.target.value,
-                          hit_dice_value: parseFloat(e.target.value) || 1,
+                          hit_dice_value: parseHitDiceValue(e.target.value),
                         }))
                       }
                       className="w-full rounded-md border border-border bg-background/50 px-2 py-1 text-sm"
@@ -515,6 +574,41 @@ export function MasterBestiaryPanel({
                   rows={2}
                   className="w-full rounded-md border border-border bg-background/50 px-3 py-1.5 text-sm"
                 />
+
+                {/* Monster Image Upload */}
+                <div>
+                  <span className="mb-1 block text-[10px] text-muted-foreground">
+                    {t("monsterUploadImage")}
+                  </span>
+                  <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-border/50 bg-background/20 p-2 transition-colors hover:border-primary/50">
+                    {pendingImagePreview ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={pendingImagePreview}
+                        alt=""
+                        className="h-16 w-16 rounded object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-16 w-16 items-center justify-center rounded bg-background/40">
+                        <Upload className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                    )}
+                    <span className="flex-1 text-xs text-muted-foreground">
+                      {pendingImageFile?.name ?? t("monsterUploadImage")}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleSelectImage(file);
+                      }}
+                      data-testid="gm-monster-image-upload"
+                    />
+                  </label>
+                </div>
+
                 <Button
                   className="w-full"
                   disabled={!monsterForm.name?.trim()}

@@ -1576,6 +1576,8 @@
     "confirmDeleteItem": "Really delete \"{name}\"?",
     "itemInUse": "Item is still used by:",
     "deleteItem": "Delete",
+    "editItem": "Edit {name}",
+    "deleteItemFor": "Delete {name}",
     "itemDeleted": "Item deleted!",
     "itemUpdated": "Item updated!",
     "createMonster": "Create Monster",
@@ -1596,6 +1598,8 @@
     "monsterMoralValue": "Morale value",
     "monsterManualEntry": "Manual entry",
     "monsterAIImport": "AI Import (Photo/PDF)",
+    "preciseMode": "Precise mode",
+    "preciseModeDesc": "slower, more accurate",
     "monsterImporting": "Analyzing monster...",
     "monsterImportSuccess": "Monster imported successfully!",
     "monsterImportFailed": "Import failed.",
@@ -1619,6 +1623,8 @@
     "timeDays": "{count}d ago",
     "sessionXpAwarded": "{character} received {xp} XP from \"{sessionTitle}\"",
     "delete": "Delete",
-    "deleteAll": "Delete all"
+    "deleteAll": "Delete all",
+    "confirmDeleteAll": "Really delete all?",
+    "cancel": "Cancel"
   }
 }
