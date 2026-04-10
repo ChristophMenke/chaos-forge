@@ -31,22 +31,6 @@ const HEADERS: HeaderSpec[] = [
     width: 1600,
     height: 400,
   },
-  {
-    filename: "council-banner.webp",
-    prompt:
-      `${STYLE_LANDSCAPE}. Medieval war council chamber interior, ` +
-      `ornate round table with aged map of a fantasy world, ` +
-      `banners and heraldic shields hanging on stone walls, ` +
-      `crossed weapons and coat of arms, ` +
-      `flickering torches casting dramatic shadows, ` +
-      `empty chairs awaiting heroes, ` +
-      `rich tapestries with mythical creatures, ` +
-      `warm amber and red light, ` +
-      `cinematic wide banner composition, no people visible, no text, ` +
-      `heroic atmosphere, ancient stone architecture`,
-    width: 1600,
-    height: 400,
-  },
 ];
 
 async function main() {

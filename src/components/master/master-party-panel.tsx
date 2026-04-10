@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { ChevronDown, ChevronUp, Users, Heart, Shield, Swords, Skull } from "lucide-react";
 import { MasterCharacterCard } from "./master-character-card";
@@ -122,25 +121,12 @@ export function MasterPartyPanel({ partyData, liveHpMap, onViewCharacter }: Mast
 
   return (
     <div data-testid="gm-party-panel">
-      {/* ═══ Party Overview Banner — Council Chamber background ═══ */}
+      {/* ═══ Party Overview Banner ═══ */}
       {active.length > 0 && (
         <div
-          className="relative mb-5 overflow-hidden rounded-xl border border-border/50 shadow-2xl shadow-amber-950/20"
+          className={`relative mb-5 overflow-hidden rounded-xl border border-border/50 bg-gradient-to-br ${healthGradient} via-background/60 to-background/40 backdrop-blur-sm`}
           data-testid="gm-party-overview-banner"
         >
-          {/* Generated council chamber background */}
-          <Image
-            src="/images/gm-panels/council-banner.webp"
-            alt=""
-            fill
-            priority
-            className="pointer-events-none object-cover object-center"
-            aria-hidden="true"
-          />
-          {/* Dark gradient overlay for readability (tinted by party health) */}
-          <div
-            className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${healthGradient} via-background/85 to-background/90`}
-          />
           {/* Decorative elements */}
           <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-amber-500/15 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-10 -left-10 h-28 w-28 rounded-full bg-red-500/15 blur-3xl" />
