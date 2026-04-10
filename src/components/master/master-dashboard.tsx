@@ -336,11 +336,12 @@ export function MasterDashboard({
 
       {/* Main Content — offset for sidebar on desktop */}
       <div
-        className={`sm:pl-16 xl:pl-48 ${
+        className={
           activeTab === "chat"
-            ? "flex h-[calc(100dvh-5rem)] flex-col sm:h-dvh sm:pb-0"
-            : "w-full p-3 pb-20 sm:pr-4 sm:pt-4 sm:pb-4"
-        }`}
+            ? // Fixed to viewport so body doesn't scroll; offsets for sidebar (desktop) and bottom nav (mobile)
+              "fixed inset-0 bottom-16 flex flex-col sm:bottom-0 sm:pl-16 xl:pl-48"
+            : "w-full p-3 pb-20 sm:pl-16 sm:pr-4 sm:pt-4 sm:pb-4 xl:pl-48"
+        }
         data-testid="gm-dashboard"
       >
         {/* Header — hidden on chat tab for max space */}
