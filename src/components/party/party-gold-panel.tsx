@@ -105,7 +105,7 @@ export function PartyGoldPanel({
       });
 
       if (error) {
-        const msg = error.message.includes("insufficient")
+        const msg = error.message.includes("insufficient_character_gold")
           ? t("insufficientCharacterGold")
           : error.message;
         setSaveError(msg);
@@ -216,7 +216,7 @@ export function PartyGoldPanel({
 
       {/* Coin display */}
       <div
-        className="mb-2 grid grid-cols-2 gap-2 text-center sm:grid-cols-4 sm:gap-1"
+        className="mb-2 grid grid-cols-3 gap-2 text-center sm:grid-cols-5 sm:gap-1"
         data-testid="party-gold-coins"
       >
         {COINS.map((coin) => (
@@ -282,7 +282,7 @@ export function PartyGoldPanel({
                 {t("addGoldSubtitle", { name: activeCharacter.name })}
               </p>
               <div
-                className="grid grid-cols-2 gap-2 sm:grid-cols-4"
+                className="grid grid-cols-3 gap-2 sm:grid-cols-5"
                 data-testid="party-add-gold-purse"
               >
                 {COINS.map((coin) => {
@@ -354,7 +354,7 @@ export function PartyGoldPanel({
           <DialogTitle className="font-heading text-lg text-primary">
             {t("removeGoldTitle")}
           </DialogTitle>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
             {COINS.map((coin) => (
               <div key={coin.key} className="text-center">
                 <label className="text-[10px] md:text-xs text-muted-foreground">{coin.label}</label>

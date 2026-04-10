@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
@@ -45,6 +45,7 @@ export function PartyItemsPanel({
   const locale = useLocale();
   const router = useRouter();
   const supabase = createClient();
+  const [isPending, startTransition] = useTransition();
   const [distributeItem, setDistributeItem] = useState<PartyLootItemWithDetails | null>(null);
   const [addSheetOpen, setAddSheetOpen] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
@@ -69,7 +70,7 @@ export function PartyItemsPanel({
   }
 
   async function removeItem(item: PartyLootItemWithDetails) {
-    if (removingId) return;
+    if (removingId || isPending) return;
     setRemovingId(item.id);
     const toastId = toast.loading(t("removeLoading"));
     try {
@@ -88,7 +89,9 @@ export function PartyItemsPanel({
         },
       });
       toast.success(t("removeSuccess"), { id: toastId });
-      router.refresh();
+      startTransition(() => {
+        router.refresh();
+      });
     } finally {
       setRemovingId(null);
     }
@@ -96,7 +99,9 @@ export function PartyItemsPanel({
 
   function handleDistributed() {
     setDistributeItem(null);
-    router.refresh();
+    startTransition(() => {
+      router.refresh();
+    });
   }
 
   const canAdd = ownedItemGroups.some((g) => g.equipped.length > 0 || g.inventory.length > 0);

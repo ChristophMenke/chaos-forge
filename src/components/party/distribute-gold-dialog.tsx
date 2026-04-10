@@ -157,7 +157,7 @@ export function DistributeGoldDialog({
         </div>
 
         {/* Coin inputs */}
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
           {COINS.map((coin) => (
             <div key={coin.key} className="text-center">
               <label className="text-[10px] md:text-xs text-muted-foreground">

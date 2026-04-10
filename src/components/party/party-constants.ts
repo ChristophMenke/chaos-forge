@@ -14,6 +14,13 @@ export const COINS = [
     bg: "bg-gradient-to-br from-amber-400/25 via-amber-500/10 to-amber-900/20",
   },
   {
+    key: "ep" as const,
+    label: "EP",
+    border: "border-violet-400/40",
+    text: "text-violet-200",
+    bg: "bg-gradient-to-br from-violet-500/20 via-violet-500/10 to-violet-900/20",
+  },
+  {
     key: "sp" as const,
     label: "SP",
     border: "border-zinc-300/40",

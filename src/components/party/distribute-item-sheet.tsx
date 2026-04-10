@@ -114,6 +114,7 @@ export function DistributeItemSheet({
             notes: "",
           });
           if (insError) {
+            toast.error(t("distributeError"), { id: toastId });
             setError(insError.message);
             return;
           }
@@ -144,6 +145,7 @@ export function DistributeItemSheet({
             notes: "",
           });
           if (insError) {
+            toast.error(t("distributeError"), { id: toastId });
             setError(insError.message);
             return;
           }
