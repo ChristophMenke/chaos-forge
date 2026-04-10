@@ -20,6 +20,7 @@ interface DistributeItemSheetProps {
   item: PartyLootItemWithDetails;
   characters: CharacterOption[];
   userId: string;
+  activeCharacterName?: string;
   onDistribute: (itemId: string, quantity: number) => void;
   onClose: () => void;
 }
@@ -28,6 +29,7 @@ export function DistributeItemSheet({
   item,
   characters,
   userId,
+  activeCharacterName = "",
   onDistribute,
   onClose,
 }: DistributeItemSheetProps) {
@@ -167,7 +169,11 @@ export function DistributeItemSheet({
         action: "distribute_item",
         user_id: userId,
         character_id: selectedCharacterId,
-        details: { item_name: name, quantity },
+        details: {
+          item_name: name,
+          quantity,
+          ...(activeCharacterName ? { actor: activeCharacterName } : {}),
+        },
       });
 
       const recipient = characters.find((c) => c.id === selectedCharacterId);

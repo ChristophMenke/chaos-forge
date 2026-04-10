@@ -217,6 +217,7 @@ export function PartyItemsPanel({
           item={distributeItem}
           characters={characters}
           userId={userId}
+          activeCharacterName={activeCharacterName}
           onDistribute={handleDistributed}
           onClose={() => setDistributeItem(null)}
         />
