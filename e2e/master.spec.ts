@@ -267,7 +267,6 @@ test.describe("Master of Chaos — GM Interface", () => {
     });
 
     test("size filter narrows results", async ({ page }) => {
-      const master = new MasterPage(page);
       const allCards = page.locator("[data-testid^='gm-monster-card-']");
       await expect(allCards.first()).toBeVisible({ timeout: 5_000 });
       const totalBefore = await allCards.count();

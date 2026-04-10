@@ -71,9 +71,6 @@ export default async function CharactersPage() {
     (c) => c.user_id !== user.id && !sharedCharacterIds.has(c.id) && c.is_public
   );
 
-  const hasOtherCharacters =
-    ownInactive.length > 0 || sharedWithMe.length > 0 || publicChars.length > 0;
-
   function renderCard(character: CharacterRow) {
     const classes = charClassMap.get(character.id) ?? [];
     const isOwner = character.user_id === user.id;

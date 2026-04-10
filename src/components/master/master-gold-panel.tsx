@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { Coins, Sparkles, Users, ArrowRight, CircleDollarSign } from "lucide-react";
 import { AvatarDisplay } from "@/components/avatar-display";
@@ -89,8 +90,13 @@ export function MasterGoldPanel({ characters }: MasterGoldPanelProps) {
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [splitMode, setSplitMode] = useState(false);
 
+  // Derive effective selection: drop IDs that are no longer in the active roster
+  // (prevents ghost-sends if a character is removed/deactivated after selection)
+  const activeIdSet = new Set(activeCharacters.map((c) => c.id));
+  const effectiveSelectedIds = new Set(Array.from(selectedIds).filter((id) => activeIdSet.has(id)));
+
   const hasCoins = COIN_ORDER.some((c) => coins[c] > 0);
-  const selectedCount = selectedIds.size;
+  const selectedCount = effectiveSelectedIds.size;
 
   // Value of one "share" (what a single character receives) in GP
   const perCharacterGpValue = COIN_ORDER.reduce(
@@ -141,81 +147,88 @@ export function MasterGoldPanel({ characters }: MasterGoldPanelProps) {
   }
 
   async function handleSend() {
-    if (selectedIds.size === 0 || !hasCoins) return;
+    if (effectiveSelectedIds.size === 0 || !hasCoins) return;
     setSending(true);
 
-    const targets = Array.from(selectedIds);
+    const targets = Array.from(effectiveSelectedIds);
     const perCharacter = splitMode && selectedCount > 1 ? splitValues : coins;
 
-    let successCount = 0;
-    for (const charId of targets) {
-      const result = await distributeGold(charId, { ...perCharacter, ep: 0 });
-      if (result.success) successCount++;
-    }
+    // Parallel sends — private group ≤ 10 chars, parallel is safe and much faster
+    const results = await Promise.all(
+      targets.map((charId) => distributeGold(charId, { ...perCharacter, ep: 0 }))
+    );
+    const successCount = results.filter((r) => r.success).length;
 
     setSending(false);
     if (successCount === targets.length) {
       setCoins({ pp: 0, gp: 0, sp: 0, cp: 0 });
       showToast(t("goldSent"), "success");
-    } else {
+    } else if (successCount === 0) {
       showToast(t("goldFailed"), "error");
+    } else {
+      showToast(t("goldPartialSent", { success: successCount, total: targets.length }), "error");
     }
   }
 
   return (
     <div className="relative" data-testid="gm-gold-panel">
-      {/* Dramatic Header Banner */}
-      <div className="relative mb-6 overflow-hidden rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-950/60 via-yellow-950/40 to-amber-950/60 px-5 py-5 shadow-2xl shadow-amber-950/30">
-        {/* Decorative radial glows */}
-        <div className="pointer-events-none absolute -left-16 -top-16 h-40 w-40 rounded-full bg-amber-500/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-10 -right-10 h-32 w-32 rounded-full bg-yellow-500/20 blur-3xl" />
-        {/* Filigree pattern overlay */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.06]"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(45deg, rgba(251, 191, 36, 0.4) 0 1px, transparent 1px 12px)",
-          }}
+      {/* Dramatic Header Banner — Treasury Vault background image */}
+      <div className="relative mb-6 overflow-hidden rounded-xl border border-amber-500/30 shadow-2xl shadow-amber-950/30">
+        {/* Generated treasury background */}
+        <Image
+          src="/images/gm-panels/treasury-banner.webp"
+          alt=""
+          fill
+          priority
+          className="pointer-events-none object-cover object-center"
+          aria-hidden="true"
         />
+        {/* Dark gradient overlay for readability */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-amber-950/90 via-background/70 to-amber-950/80" />
+        {/* Decorative radial glows */}
+        <div className="pointer-events-none absolute -left-16 -top-16 h-40 w-40 rounded-full bg-amber-500/25 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-10 -right-10 h-32 w-32 rounded-full bg-yellow-500/25 blur-3xl" />
         {/* Top + bottom gold filigree */}
         <div className="pointer-events-none absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-400/70 to-transparent" />
         <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
-
-        <div className="relative flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="relative flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400/40 to-amber-700/30 ring-1 ring-amber-400/50 shadow-lg shadow-amber-500/30">
-              <Coins className="h-7 w-7 text-amber-200" />
-              <div className="pointer-events-none absolute inset-0 animate-pulse rounded-lg bg-amber-400/10 blur-lg" />
+        {/* Content padding (wraps flex row below since Image is absolute) */}
+        <div className="relative px-5 py-5 sm:px-6">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="relative flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400/40 to-amber-700/30 ring-1 ring-amber-400/50 shadow-lg shadow-amber-500/30">
+                <Coins className="h-7 w-7 text-amber-200" />
+                <div className="pointer-events-none absolute inset-0 animate-pulse rounded-lg bg-amber-400/10 blur-lg" />
+              </div>
+              <div>
+                <h2 className="font-heading text-2xl leading-tight tracking-wide text-amber-100 sm:text-3xl">
+                  {t("goldTreasuryTitle")}
+                </h2>
+                <p className="mt-0.5 text-xs font-medium uppercase tracking-[0.2em] text-amber-300/90">
+                  {t("goldTreasurySubtitle")}
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="font-heading text-2xl leading-tight tracking-wide text-amber-100 sm:text-3xl">
-                {t("goldTreasuryTitle")}
-              </h2>
-              <p className="mt-0.5 text-[11px] font-medium uppercase tracking-[0.2em] text-amber-400/70">
-                {t("goldTreasurySubtitle")}
-              </p>
-            </div>
-          </div>
-          {/* Live total — shows real amount leaving the treasury */}
-          <div
-            className="hidden items-center gap-2 rounded-full border border-amber-400/40 bg-amber-950/40 px-4 py-2 backdrop-blur-sm sm:flex"
-            data-testid="gm-gold-total"
-          >
-            <CircleDollarSign className="h-4 w-4 text-amber-300" />
-            <div className="flex flex-col items-end leading-tight">
-              <span className="font-mono text-sm font-semibold text-amber-200">
-                {totalGoldValue.toLocaleString(locale, { maximumFractionDigits: 2 })} GP
-              </span>
-              <span className="text-[9px] uppercase tracking-wider text-amber-400/70">
-                {selectedCount > 1 && !splitMode && perCharacterGpValue > 0
-                  ? t("goldTotalPerHero", {
-                      per: perCharacterGpValue.toLocaleString(locale, {
-                        maximumFractionDigits: 2,
-                      }),
-                      count: selectedCount,
-                    })
-                  : t("goldTotalValue")}
-              </span>
+            {/* Live total — shows real amount leaving the treasury */}
+            <div
+              className="hidden items-center gap-2 rounded-full border border-amber-400/40 bg-amber-950/60 px-4 py-2 backdrop-blur-sm sm:flex"
+              data-testid="gm-gold-total"
+            >
+              <CircleDollarSign className="h-4 w-4 text-amber-300" />
+              <div className="flex flex-col items-end leading-tight">
+                <span className="font-mono text-sm font-semibold text-amber-200">
+                  {totalGoldValue.toLocaleString(locale, { maximumFractionDigits: 2 })} GP
+                </span>
+                <span className="text-[11px] uppercase tracking-wider text-amber-300/80">
+                  {selectedCount > 1 && !splitMode && perCharacterGpValue > 0
+                    ? t("goldTotalPerHero", {
+                        per: perCharacterGpValue.toLocaleString(locale, {
+                          maximumFractionDigits: 2,
+                        }),
+                        count: selectedCount,
+                      })
+                    : t("goldTotalValue")}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -234,13 +247,13 @@ export function MasterGoldPanel({ characters }: MasterGoldPanelProps) {
                 {t("goldRecipients")}
               </h3>
             </div>
-            <span className="rounded-full border border-amber-500/30 bg-amber-950/30 px-2 py-0.5 text-[10px] font-semibold text-amber-300">
+            <span className="rounded-full border border-amber-500/30 bg-amber-950/30 px-2 py-0.5 text-xs font-semibold text-amber-300">
               {selectedCount} / {activeCharacters.length}
             </span>
           </div>
 
           {/* Multi-select hint */}
-          <p className="mb-3 text-[10px] uppercase tracking-wider text-muted-foreground">
+          <p className="mb-3 text-xs uppercase tracking-wider text-muted-foreground">
             {t("goldMultiSelectHint")}
           </p>
 
@@ -249,15 +262,18 @@ export function MasterGoldPanel({ characters }: MasterGoldPanelProps) {
               {t("noCharactersFound")}
             </p>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-2" role="listbox" aria-label={t("goldRecipients")}>
               {activeCharacters.map((char) => {
-                const isSelected = selectedIds.has(char.id);
+                const isSelected = effectiveSelectedIds.has(char.id);
                 const group = getPrimaryGroup(char);
                 const colors = getClassGroupColors(group);
                 return (
                   <button
                     key={char.id}
                     onClick={() => toggleCharacter(char.id)}
+                    role="option"
+                    aria-selected={isSelected}
+                    aria-label={t("goldRecipientLabel", { name: char.name })}
                     className={`group relative flex w-full items-center gap-3 overflow-hidden rounded-lg border px-3 py-2.5 text-left transition-all ${
                       isSelected
                         ? `border-amber-500/60 bg-gradient-to-r from-amber-950/40 via-amber-900/20 to-transparent shadow-lg shadow-amber-500/10`
@@ -292,7 +308,7 @@ export function MasterGoldPanel({ characters }: MasterGoldPanelProps) {
                       >
                         {char.name}
                       </div>
-                      <div className="mt-0.5 flex items-center gap-2 text-[10px] text-muted-foreground">
+                      <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
                         <span className={colors.text}>
                           {CLASSES[char.class_id as ClassId]
                             ? localized(
@@ -338,7 +354,7 @@ export function MasterGoldPanel({ characters }: MasterGoldPanelProps) {
               {hasCoins && (
                 <button
                   onClick={clearAll}
-                  className="text-[10px] uppercase tracking-wider text-muted-foreground transition-colors hover:text-red-400"
+                  className="text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-red-400"
                   data-testid="gm-gold-clear"
                 >
                   {t("goldClear")}
@@ -379,7 +395,7 @@ export function MasterGoldPanel({ characters }: MasterGoldPanelProps) {
                       {/* Coin Label */}
                       <div className="mb-1 text-center">
                         <span
-                          className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold tracking-widest ring-1 ${meta.ringColor} ${meta.color} bg-black/30`}
+                          className={`inline-block rounded-full px-2 py-0.5 text-xs font-bold tracking-widest ring-1 ${meta.ringColor} ${meta.color} bg-black/30`}
                         >
                           {meta.label}
                         </span>
@@ -406,7 +422,7 @@ export function MasterGoldPanel({ characters }: MasterGoldPanelProps) {
 
                       {/* Split preview */}
                       {splitMode && selectedCount > 1 && hasValue && (
-                        <div className="mt-1 text-center text-[9px] uppercase tracking-wider text-amber-300/70">
+                        <div className="mt-1 text-center text-[11px] uppercase tracking-wider text-amber-300">
                           {splitValues[coin]} / {t("goldHero")}
                         </div>
                       )}
@@ -418,7 +434,7 @@ export function MasterGoldPanel({ characters }: MasterGoldPanelProps) {
 
             {/* Quick Presets */}
             <div className="mt-4">
-              <div className="mb-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+              <div className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">
                 {t("goldQuickPresets")}
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -491,7 +507,7 @@ export function MasterGoldPanel({ characters }: MasterGoldPanelProps) {
             {/* Status line */}
             {(!hasCoins || selectedCount === 0) && (
               <p
-                className="text-center text-[11px] italic text-muted-foreground/70"
+                className="text-center text-xs italic text-muted-foreground"
                 data-testid="gm-gold-status"
               >
                 {selectedCount === 0
@@ -505,9 +521,11 @@ export function MasterGoldPanel({ characters }: MasterGoldPanelProps) {
         </div>
       </div>
 
-      {/* Toast */}
+      {/* Toast — aria-live for screen readers */}
       {toast && (
         <div
+          role="alert"
+          aria-live="polite"
           className={`fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-lg border px-4 py-2 text-sm font-medium shadow-2xl backdrop-blur-sm sm:bottom-4 ${
             toast.type === "success"
               ? "border-amber-500/40 bg-amber-950/80 text-amber-100 shadow-amber-500/20"

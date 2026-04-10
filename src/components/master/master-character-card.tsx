@@ -53,6 +53,13 @@ const CLASS_SHADOW: Record<string, string> = {
   wizard: "hover:shadow-teal-500/20",
 };
 
+const STAT_TILE_GRADIENT: Record<string, string> = {
+  warrior: "from-red-950/50 to-red-900/20 ring-red-500/30",
+  priest: "from-amber-950/50 to-amber-900/20 ring-amber-500/30",
+  rogue: "from-blue-950/50 to-blue-900/20 ring-blue-500/30",
+  wizard: "from-teal-950/50 to-teal-900/20 ring-teal-500/30",
+};
+
 export function MasterCharacterCard({
   character,
   classes,
@@ -68,7 +75,8 @@ export function MasterCharacterCard({
   const activeClasses = classes.filter((cc) => cc.is_active);
   const hpCurrent = liveHp?.current ?? combat.hpCurrent;
   const hpMax = liveHp?.max ?? combat.hpMax;
-  const hpStatus = getHpStatus(hpCurrent, hpMax);
+  // Guard against hpMax=0 (newly created character without HP roll)
+  const hpStatus = hpMax > 0 ? getHpStatus(hpCurrent, hpMax) : "alive";
   const hpPct = hpMax > 0 ? Math.round((hpCurrent / hpMax) * 100) : 0;
 
   const classLabel = activeClasses
@@ -107,7 +115,7 @@ export function MasterCharacterCard({
       {/* Status Badge Banner (dead/unconscious) */}
       {hpStatus !== "alive" && (
         <div
-          className={`relative flex items-center justify-center gap-1.5 border-b px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${
+          className={`relative flex items-center justify-center gap-1.5 border-b px-3 py-1.5 text-xs font-bold uppercase tracking-widest ${
             hpStatus === "dead"
               ? "border-red-500/40 bg-red-950/60 text-red-300"
               : "border-amber-500/40 bg-amber-950/60 text-amber-300"
@@ -131,6 +139,7 @@ export function MasterCharacterCard({
       <button
         onClick={() => onViewCharacter?.(character.id)}
         className="relative block w-full text-left"
+        aria-label={t("viewCharacterAriaLabel", { name: character.name })}
         data-testid={`gm-view-character-${character.id}`}
       >
         {/* Hero Header: Portrait + Name + Level */}
@@ -167,10 +176,13 @@ export function MasterCharacterCard({
               <h3 className="truncate font-heading text-lg leading-tight text-foreground">
                 {character.name}
               </h3>
-              <Eye className="h-4 w-4 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-amber-400/80" />
+              <Eye
+                className="h-4 w-4 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-amber-400/80"
+                aria-hidden="true"
+              />
             </div>
             <p className={`mt-0.5 truncate text-xs font-medium ${colors.text}`}>{classLabel}</p>
-            <p className="mt-0.5 truncate text-[10px] uppercase tracking-wider text-muted-foreground/70">
+            <p className="mt-0.5 truncate text-xs uppercase tracking-wider text-muted-foreground">
               {raceName}
             </p>
           </div>
@@ -187,7 +199,7 @@ export function MasterCharacterCard({
           />
           {/* HP percentage indicator */}
           {hpStatus === "alive" && (
-            <div className="mt-1 text-right text-[9px] uppercase tracking-wider text-muted-foreground/60">
+            <div className="mt-1 text-right text-xs uppercase tracking-wider text-muted-foreground">
               {hpPct}%{" "}
               {hpPct >= 75
                 ? t("hpHealthy")
@@ -220,7 +232,7 @@ export function MasterCharacterCard({
         <div className="px-4 pb-3">
           <div className="mb-1 flex items-center gap-1.5">
             <Zap className="h-3 w-3 text-amber-400/60" />
-            <span className="text-[9px] font-semibold uppercase tracking-widest text-amber-400/60">
+            <span className="text-xs font-semibold uppercase tracking-widest text-amber-400">
               {t("saves")}
             </span>
           </div>
@@ -238,7 +250,9 @@ export function MasterCharacterCard({
       <div className="border-t border-border/30 px-4">
         <button
           onClick={() => setExpanded(!expanded)}
-          className="flex w-full items-center justify-between py-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70 transition-colors hover:text-foreground"
+          aria-expanded={expanded}
+          aria-controls={`gm-char-details-${character.id}`}
+          className="flex w-full items-center justify-between py-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
           data-testid={`gm-char-expand-${character.id}`}
         >
           <span className="flex items-center gap-1.5">
@@ -251,10 +265,10 @@ export function MasterCharacterCard({
         </button>
 
         {expanded && (
-          <div className="space-y-3 pb-4 pt-1">
+          <div id={`gm-char-details-${character.id}`} className="space-y-3 pb-4 pt-1">
             {/* Perception */}
             <div className="flex items-center justify-between rounded-md bg-background/30 px-3 py-1.5">
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">
                 {t("perception")}
               </span>
               <span className="font-mono text-sm font-bold text-foreground">
@@ -265,7 +279,7 @@ export function MasterCharacterCard({
             {/* Thief Skills (if any) */}
             {combat.thiefSkills && (
               <div>
-                <div className="mb-1.5 text-[9px] font-semibold uppercase tracking-widest text-blue-400/70">
+                <div className="mb-1.5 text-xs font-semibold uppercase tracking-widest text-blue-400">
                   {t("thiefSkills")}
                 </div>
                 <div className="grid grid-cols-4 gap-1">
@@ -277,9 +291,9 @@ export function MasterCharacterCard({
                   <ThiefTile label={t("climbWalls")} value={combat.thiefSkills.climbWalls} />
                   <ThiefTile label={t("readLanguages")} value={combat.thiefSkills.readLanguages} />
                   {combat.backstabMultiplier && (
-                    <div className="rounded bg-blue-950/30 px-1 py-0.5 text-center ring-1 ring-blue-500/30">
-                      <div className="text-[8px] text-blue-400/70">BS</div>
-                      <div className="font-mono text-xs font-bold text-blue-300">
+                    <div className="rounded bg-blue-950/30 px-1.5 py-1 text-center ring-1 ring-blue-500/30">
+                      <div className="text-[11px] text-blue-300">BS</div>
+                      <div className="font-mono text-sm font-bold text-blue-200">
                         ×{combat.backstabMultiplier}
                       </div>
                     </div>
@@ -306,18 +320,12 @@ function StatTile({
   value: number;
   accent: string;
 }) {
-  const tileGradient: Record<string, string> = {
-    warrior: "from-red-950/50 to-red-900/20 ring-red-500/30",
-    priest: "from-amber-950/50 to-amber-900/20 ring-amber-500/30",
-    rogue: "from-blue-950/50 to-blue-900/20 ring-blue-500/30",
-    wizard: "from-teal-950/50 to-teal-900/20 ring-teal-500/30",
-  };
-  const grad = tileGradient[accent] ?? tileGradient.warrior;
+  const grad = STAT_TILE_GRADIENT[accent] ?? STAT_TILE_GRADIENT.warrior;
   return (
     <div className={`relative overflow-hidden rounded-lg bg-gradient-to-br p-2 ring-1 ${grad}`}>
-      <div className="mb-0.5 flex items-center justify-center gap-1 text-amber-400/70">
+      <div className="mb-0.5 flex items-center justify-center gap-1 text-amber-400">
         {icon}
-        <span className="text-[9px] font-semibold uppercase tracking-widest">{label}</span>
+        <span className="text-xs font-semibold uppercase tracking-widest">{label}</span>
       </div>
       <div className="text-center font-heading text-2xl font-bold text-foreground">{value}</div>
     </div>
@@ -327,9 +335,9 @@ function StatTile({
 /** Small save tile */
 function SaveTile({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded border border-border/30 bg-background/30 px-1 py-1 text-center">
-      <div className="text-[8px] text-muted-foreground/70">{label}</div>
-      <div className="font-mono text-[11px] font-bold text-foreground">{value}</div>
+    <div className="rounded border border-border/30 bg-background/30 px-1.5 py-1 text-center">
+      <div className="text-[11px] text-muted-foreground">{label}</div>
+      <div className="font-mono text-sm font-bold text-foreground">{value}</div>
     </div>
   );
 }
@@ -337,9 +345,9 @@ function SaveTile({ label, value }: { label: string; value: number }) {
 /** Thief skill tile */
 function ThiefTile({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded bg-blue-950/20 px-1 py-0.5 text-center ring-1 ring-blue-500/20">
-      <div className="text-[8px] text-blue-400/70">{label}</div>
-      <div className="font-mono text-[11px] text-blue-200">{value}</div>
+    <div className="rounded bg-blue-950/20 px-1.5 py-1 text-center ring-1 ring-blue-500/20">
+      <div className="text-[11px] text-blue-300">{label}</div>
+      <div className="font-mono text-sm text-blue-200">{value}</div>
     </div>
   );
 }

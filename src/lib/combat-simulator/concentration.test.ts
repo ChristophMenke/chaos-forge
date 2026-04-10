@@ -179,7 +179,7 @@ describe("Damage type immunity", () => {
     const fireImmune = makeTarget({
       specialDefenses: [{ type: "immunity", element: "fire" }],
     });
-    const state = makeState([caster, fireImmune]);
+    const _state = makeState([caster, fireImmune]);
 
     // Find a seed where the mage casts fireball
     for (let seed = 0; seed < 50; seed++) {

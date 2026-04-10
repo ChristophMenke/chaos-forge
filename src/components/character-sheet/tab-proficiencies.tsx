@@ -26,11 +26,7 @@ import type {
   CharacterFightingStyleRow,
   WeaponRow,
 } from "@/lib/supabase/types";
-import {
-  getFightingStyle,
-  getAvailableFightingStyles,
-  canLearnMoreFightingStyles,
-} from "@/lib/rules/fighting-styles";
+import { getFightingStyle, getAvailableFightingStyles } from "@/lib/rules/fighting-styles";
 import { CLASSES } from "@/lib/rules/classes";
 
 const NWP_GROUP_FILTER_KEYS = ["all", "general", "warrior", "priest", "rogue", "wizard"] as const;
@@ -353,8 +349,6 @@ export function TabProficiencies({
     const all = getAvailableFightingStyles(classGroupForStyles);
     return all.filter((s) => !fightingStyles.some((fs) => fs.style_id === s.id));
   }, [classGroupForStyles, fightingStyles]);
-  const canAddMore = canLearnMoreFightingStyles(classGroupForStyles, fightingStyles.length);
-
   async function addFightingStyle(styleId: string) {
     setLoading(true);
     const supabase = createClient();
@@ -660,7 +654,6 @@ export function TabProficiencies({
               const style = getFightingStyle(fs.style_id);
               if (!style) return null;
               const benefit = style.benefits.find((b) => b.slots === fs.slots_invested);
-              const canUpgrade = fs.slots_invested < style.maxSlots;
               return (
                 <div
                   key={fs.id}

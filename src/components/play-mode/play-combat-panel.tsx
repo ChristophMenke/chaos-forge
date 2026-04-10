@@ -25,7 +25,6 @@ import type {
   CharacterWeaponProficiencyRow,
 } from "@/lib/supabase/types";
 import { localized } from "@/lib/utils/localize";
-import { lbsToKg } from "@/lib/utils/units";
 import { findWeaponProf } from "@/lib/utils/proficiency-match";
 import type { EpicEffects } from "@/lib/rules/epic-items";
 import { getKit, getKitArmorWarning } from "@/lib/rules/kits";

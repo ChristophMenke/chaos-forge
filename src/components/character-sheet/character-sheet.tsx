@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
@@ -40,9 +40,8 @@ import {
 } from "@/lib/rules/equipment";
 import { getSingleWeaponStyleBonus } from "@/lib/rules/fighting-styles";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
-import { getKit, getEffectiveHitDie, getKitsForClass } from "@/lib/rules/kits";
+import { getKit, getKitsForClass } from "@/lib/rules/kits";
 import { getPriesthood } from "@/lib/rules/priesthoods";
-import { getPriestSpheres, isPriestCaster } from "@/lib/rules/magic";
 import { getAllClasses } from "@/lib/rules/classes";
 import { Spinner } from "@/components/ui/spinner";
 import { AvatarUpload } from "@/components/avatar-upload";
@@ -197,17 +196,6 @@ export function CharacterSheet({
 
   const race = character.race_id ? RACES[character.race_id as keyof typeof RACES] : null;
   const priesthoodDef = character.priesthood ? getPriesthood(character.priesthood) : null;
-  const hasPriestClass = classIds.some((id) => isPriestCaster(id as ClassId));
-  const priestSphereMap = hasPriestClass
-    ? getPriestSpheres(
-        classIds.find((id) => isPriestCaster(id as ClassId)) as ClassId,
-        character.priesthood,
-        character.alignment
-      )
-    : {};
-  const priestSphereNames = Object.entries(priestSphereMap)
-    .map(([sphere, access]) => `${sphere}${access === "minor" ? " (1-3)" : ""}`)
-    .join(", ");
   const classNames = classIds
     .map((id) => {
       const cls = CLASSES[id];

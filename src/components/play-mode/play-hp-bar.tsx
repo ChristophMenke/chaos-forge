@@ -2,7 +2,6 @@
 
 import { memo, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { AvatarDisplay } from "@/components/avatar-display";
 import { Badge } from "@/components/ui/badge";
@@ -29,7 +28,7 @@ interface PlayHpBarProps {
 }
 
 function PlayHpBarInner({
-  characterId,
+  characterId: _characterId,
   name,
   avatarUrl,
   raceId,

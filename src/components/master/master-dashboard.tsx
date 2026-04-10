@@ -95,15 +95,6 @@ export function MasterDashboard({
   const [generalItems, setGeneralItems] = useState<GeneralItemRow[]>(initialGeneralItems);
   const [monsters, setMonsters] = useState<MonsterRow[]>(initialMonsters);
 
-  const refreshWeapons = useCallback(async () => {
-    setWeapons(await fetchWeaponsGm());
-  }, []);
-  const refreshArmor = useCallback(async () => {
-    setArmor(await fetchArmorGm());
-  }, []);
-  const refreshGeneralItems = useCallback(async () => {
-    setGeneralItems(await fetchGeneralItemsGm());
-  }, []);
   const refreshMonsters = useCallback(async () => {
     setMonsters(await fetchMonstersGm());
   }, []);

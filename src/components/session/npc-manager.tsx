@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { AvatarDisplay } from "@/components/avatar-display";
 import { NpcAvatarUpload } from "./npc-avatar-upload";
 import { ImageLightbox } from "@/components/image-lightbox";
 import type { ChronicleNpcRow } from "@/lib/supabase/types";

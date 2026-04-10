@@ -9,7 +9,6 @@ import type {
   SimulationResult,
   SimulationConfig,
   IterationOutcome,
-  RoundLogEntry,
   ActionLogEntry,
 } from "./types";
 import { createSeededRng, type SeededRng } from "./dice";

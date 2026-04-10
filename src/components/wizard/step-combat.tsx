@@ -11,7 +11,6 @@ import {
 import { getDexterityModifiers } from "@/lib/rules/abilities";
 import { CLASSES } from "@/lib/rules/classes";
 import { getKit, getEffectiveHitDie } from "@/lib/rules/kits";
-import type { ClassId } from "@/lib/rules/types";
 import type { WizardState } from "./wizard-types";
 
 interface StepCombatProps {

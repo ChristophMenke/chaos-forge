@@ -168,10 +168,9 @@ describe("Backstab mechanics", () => {
 
 describe("Re-hide mechanic", () => {
   it("thief attempts re-hide in round 2+", () => {
-    const rng = createSeededRng(1); // Seed that gives d100 <= 50
     const thief = makeThief({ isHidden: false });
     const target = makeTarget();
-    const state = makeState([thief, target], 2);
+    const _state = makeState([thief, target], 2);
 
     // Run multiple seeds to find one where re-hide succeeds
     let foundHide = false;

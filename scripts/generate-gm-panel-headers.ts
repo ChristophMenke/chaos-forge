@@ -63,7 +63,10 @@ async function main() {
       writeFileSync(path, buffer);
       console.log(`✓ Saved: ${path} (${(buffer.length / 1024).toFixed(1)} KB)`);
     } catch (err) {
-      console.error(`✗ Failed to generate ${spec.filename}:`, err instanceof Error ? err.message : err);
+      console.error(
+        `✗ Failed to generate ${spec.filename}:`,
+        err instanceof Error ? err.message : err
+      );
     }
   }
 }

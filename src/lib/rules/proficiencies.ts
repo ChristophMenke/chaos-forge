@@ -24,7 +24,7 @@ export function getWeaponProficiencySlots(classGroup: ClassGroup, level: number)
 export function getNonweaponProficiencySlots(
   classGroup: ClassGroup,
   level: number,
-  intScore?: number
+  _intScore?: number
 ): number {
   const base = classGroup === "priest" || classGroup === "wizard" ? 4 : 3;
   return base + Math.floor((level - 1) / 3);

@@ -1,4 +1,4 @@
-import type { ClassGroup, ClassId, SavingThrows, GrantedPower } from "./types";
+import type { ClassGroup, ClassId, SavingThrows } from "./types";
 import { getActivePowers } from "./priesthoods";
 
 // ─── THAC0 ─────────────────────────────────────────────────────────────────────

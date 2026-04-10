@@ -23,7 +23,7 @@ import {
 } from "@/lib/rules/combat";
 import { getMulticlassThac0, getMulticlassArmorWarnings } from "@/lib/rules/multiclass";
 import { getNonproficiencyPenalty } from "@/lib/rules/proficiencies";
-import { CLASSES, getClassGroup } from "@/lib/rules/classes";
+import { getClassGroup } from "@/lib/rules/classes";
 import { getKitArmorWarning } from "@/lib/rules/kits";
 import { getBookAbbreviation } from "@/lib/utils/source-books";
 import type { ClassId, ClassGroup } from "@/lib/rules/types";
@@ -40,7 +40,7 @@ import type {
 import { MagicItemForm, type MagicItemFormData } from "@/components/shared/magic-item-form";
 import { MagicEffectBadges } from "@/components/shared/magic-effect-badges";
 import { UseConsumableDialog } from "./use-consumable-dialog";
-import { isConsumable, canUseConsumable, getConsumableType } from "@/lib/rules/consumables";
+import { canUseConsumable, getConsumableType } from "@/lib/rules/consumables";
 
 interface TabEquipmentProps {
   characterId: string;
@@ -132,7 +132,7 @@ export function TabEquipment({
   const [lazyMagicItems, setLazyMagicItems] = useState<MagicItemRow[] | null>(
     allMagicItems.length > 0 ? allMagicItems : null
   );
-  const [loadingCatalogs, setLoadingCatalogs] = useState(false);
+  const [, setLoadingCatalogs] = useState(false);
   const catalogsLoadedRef = useRef(false);
 
   // Load catalogs once on mount (component is dynamically imported, so this fires when tab opens)

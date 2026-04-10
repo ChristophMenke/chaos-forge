@@ -28,7 +28,6 @@ import {
 } from "@/lib/rules/spellslots";
 import { getClassGroup } from "@/lib/rules/classes";
 import type { ClassGroup, ClassId } from "@/lib/rules/types";
-import { isPriestCaster } from "@/lib/rules/magic";
 import type { CharacterRow, CharacterSpellWithDetails, SpellRow } from "@/lib/supabase/types";
 import { getKit, getKitSpellFailure } from "@/lib/rules/kits";
 

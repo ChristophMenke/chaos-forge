@@ -54,7 +54,6 @@ describe("validateImportFiles", () => {
     // Instead: 5 files of exactly 10 MB each = 50 MB (passes), so use 5 files slightly larger
     // Actually 5 * MAX_FILE_SIZE = 50 MB = MAX_TOTAL_SIZE, so that should pass
     // Let's use a scenario where individual files pass but total fails
-    const sizePerFile = MAX_TOTAL_SIZE / 4; // Each file is 12.5 MB — but that's > MAX_FILE_SIZE (10 MB)
     // So we need many small files... but MAX_FILE_COUNT is 5
     // Actually with max 5 files of max 10 MB each, max total is 50 MB = MAX_TOTAL_SIZE
     // So total check only triggers if we change limits. Let's just test at boundary:

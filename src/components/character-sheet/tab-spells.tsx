@@ -150,7 +150,7 @@ export function TabSpells({
   allowedSpellBooks,
   spellWhitelist,
   onAllowedSpellBooksChange,
-  onSpellWhitelistChange,
+  onSpellWhitelistChange: _onSpellWhitelistChange,
 }: TabSpellsProps) {
   const t = useTranslations("spells");
   const te = useTranslations("epic");

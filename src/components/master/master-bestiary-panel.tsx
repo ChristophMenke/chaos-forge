@@ -31,12 +31,7 @@ import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { localized } from "@/lib/utils/localize";
 import { monsterAvatar } from "@/lib/utils/svg-avatar";
-import {
-  uploadMonsterImage,
-  createMonsterGm,
-  updateMonsterGm,
-  deleteMonsterGm,
-} from "@/app/master/actions";
+import { uploadMonsterImage, createMonsterGm, deleteMonsterGm } from "@/app/master/actions";
 import { compressImageIfNeeded } from "@/lib/utils/image-compression";
 import { BookmarkToggle } from "./bookmark-toggle";
 import type { MonsterRow } from "@/lib/supabase/types";
