@@ -157,11 +157,14 @@ export function TabEquipment({
       .finally(() => setLoadingCatalogs(false));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Use lazy-loaded data (falls back to empty arrays while loading)
-  const weapons = lazyWeapons ?? [];
-  const armors = lazyArmor ?? [];
-  const generalItems = lazyGeneralItems ?? [];
-  const magicItems = lazyMagicItems ?? [];
+  // Use lazy-loaded data (falls back to empty arrays while loading).
+  // Wrap in useMemo so the array reference is stable while data is null,
+  // otherwise the `?? []` would create a new array on every render and
+  // destabilize all downstream useMemo dependency arrays.
+  const weapons = useMemo(() => lazyWeapons ?? [], [lazyWeapons]);
+  const armors = useMemo(() => lazyArmor ?? [], [lazyArmor]);
+  const generalItems = useMemo(() => lazyGeneralItems ?? [], [lazyGeneralItems]);
+  const magicItems = useMemo(() => lazyMagicItems ?? [], [lazyMagicItems]);
 
   // Proficiency autocomplete for custom items
   const [weaponProfSearch, setWeaponProfSearch] = useState("");

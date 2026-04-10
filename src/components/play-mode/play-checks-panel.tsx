@@ -245,15 +245,19 @@ function PlayChecksPanelInner({
     ];
   }, [showThiefSkills, character, ts, epic, mt]);
 
-  // NWP checks with target numbers (using effective stats from epic + magic overrides + bonuses)
+  // NWP checks with target numbers (using effective stats from epic + magic overrides + bonuses).
+  // `eff` is inlined here so the useMemo dependency list is fully expressed via primitives
+  // (eo, mo, mb), avoiding a stale-closure warning on the non-memoized `eff` function.
   const nwpChecks = useMemo(() => {
+    const effective = (base: number, stat: "str" | "dex" | "con" | "int" | "wis" | "cha") =>
+      Math.max(base, eo[stat] ?? 0, mo[stat] ?? 0) + (mb[stat] ?? 0);
     const abilityMap: Record<string, number> = {
-      str: eff(character.str, "str"),
-      dex: eff(character.dex, "dex"),
-      con: eff(character.con, "con"),
-      int: eff(character.int, "int"),
-      wis: eff(character.wis, "wis"),
-      cha: eff(character.cha, "cha"),
+      str: effective(character.str, "str"),
+      dex: effective(character.dex, "dex"),
+      con: effective(character.con, "con"),
+      int: effective(character.int, "int"),
+      wis: effective(character.wis, "wis"),
+      cha: effective(character.cha, "cha"),
     };
     return nonweaponProficiencies.map((nwp) => {
       const ability = nwp.proficiency.ability.toLowerCase();
