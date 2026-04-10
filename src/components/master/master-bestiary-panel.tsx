@@ -45,7 +45,10 @@ function parseHitDiceValue(hd: string): number {
   // Fractional notation: "1/2" → 0.5, "1/4" → 0.25
   if (trimmed.includes("/")) {
     const [num, denom] = trimmed.split("/").map(Number);
-    if (num && denom) return num / denom;
+    // Guard against NaN and division by zero. "0/N" = 0 is legal; "N/0" is not.
+    if (!Number.isNaN(num) && !Number.isNaN(denom) && denom !== 0) {
+      return num / denom;
+    }
     return 0.5;
   }
   // Leading numeric part: "3+3" → 3, "8+8" → 8
@@ -130,6 +133,7 @@ export function MasterBestiaryPanel({
   const [showCreate, setShowCreate] = useState(false);
   const [createMode, setCreateMode] = useState<"manual" | "ai">("manual");
   const [importing, setImporting] = useState(false);
+  const [savingMonster, setSavingMonster] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [preciseMode, setPreciseMode] = useState(false);
@@ -156,40 +160,45 @@ export function MasterBestiaryPanel({
   }
 
   async function handleCreateMonster() {
-    if (!monsterForm.name?.trim()) return;
-    const result = await createMonsterGm(monsterForm);
-    if (result.success && result.id) {
-      // Upload pending image if user selected one
-      if (pendingImageFile) {
-        try {
-          const compressed = await compressImageIfNeeded(pendingImageFile);
-          const imgFormData = new FormData();
-          imgFormData.append("file", compressed);
-          await uploadMonsterImage(result.id, imgFormData);
-        } catch {
-          // Image upload failed but monster was created — log but don't block
+    if (!monsterForm.name?.trim() || savingMonster) return;
+    setSavingMonster(true);
+    try {
+      const result = await createMonsterGm(monsterForm);
+      if (result.success && result.id) {
+        // Upload pending image if user selected one
+        if (pendingImageFile) {
+          try {
+            const compressed = await compressImageIfNeeded(pendingImageFile);
+            const imgFormData = new FormData();
+            imgFormData.append("file", compressed);
+            await uploadMonsterImage(result.id, imgFormData);
+          } catch {
+            // Image upload failed but monster was created — log but don't block
+          }
         }
+        showToast(t("monsterCreated"), "success");
+        setShowCreate(false);
+        setPendingImageFile(null);
+        setPendingImagePreview(null);
+        setMonsterForm({
+          name: "",
+          ac: 10,
+          hit_dice: "1",
+          hit_dice_value: 1,
+          thac0: 20,
+          attacks_per_round: "1",
+          damage: "1d4",
+          size: "M",
+          morale_value: 10,
+          xp_value: 0,
+          movement: "12",
+        });
+        onMonstersChange?.();
+      } else {
+        showToast(result.error ?? t("monsterImportFailed"), "error");
       }
-      showToast(t("monsterCreated"), "success");
-      setShowCreate(false);
-      setPendingImageFile(null);
-      setPendingImagePreview(null);
-      setMonsterForm({
-        name: "",
-        ac: 10,
-        hit_dice: "1",
-        hit_dice_value: 1,
-        thac0: 20,
-        attacks_per_round: "1",
-        damage: "1d4",
-        size: "M",
-        morale_value: 10,
-        xp_value: 0,
-        movement: "12",
-      });
-      onMonstersChange?.();
-    } else {
-      showToast(result.error ?? t("monsterImportFailed"), "error");
+    } finally {
+      setSavingMonster(false);
     }
   }
 
@@ -610,11 +619,11 @@ export function MasterBestiaryPanel({
 
                 <Button
                   className="w-full"
-                  disabled={!monsterForm.name?.trim()}
+                  disabled={!monsterForm.name?.trim() || savingMonster}
                   onClick={handleCreateMonster}
                   data-testid="gm-monster-create-submit"
                 >
-                  {t("monsterSave")}
+                  {savingMonster ? t("goldSending") : t("monsterSave")}
                 </Button>
               </div>
             )}
@@ -814,9 +823,19 @@ export function MasterBestiaryPanel({
 
       {/* Delete Monster Confirmation */}
       {deleteConfirmId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="mx-4 w-full max-w-sm rounded-lg border border-border bg-card p-4 shadow-xl">
-            <h3 className="mb-2 font-heading text-lg text-foreground">{t("confirmDelete")}</h3>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          role="presentation"
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="monster-delete-title"
+            className="mx-4 w-full max-w-sm rounded-lg border border-border bg-card p-4 shadow-xl"
+          >
+            <h3 id="monster-delete-title" className="mb-2 font-heading text-lg text-foreground">
+              {t("confirmDelete")}
+            </h3>
             <p className="mb-3 text-sm text-muted-foreground">
               {t("deleteMonsterConfirm", {
                 name: monsters.find((m) => m.id === deleteConfirmId)?.name ?? "",
@@ -1543,10 +1562,12 @@ function MonsterDetailModal({
             </dl>
 
             {/* Typical spells */}
-            {monster.typical_spells.length > 0 && (
+            {(monster.typical_spells ?? []).length > 0 && (
               <div className="mt-3">
                 <p className="text-xs font-medium text-muted-foreground">{t("npcSpellNotes")}:</p>
-                <p className="text-sm text-foreground">{monster.typical_spells.join(", ")}</p>
+                <p className="text-sm text-foreground">
+                  {(monster.typical_spells ?? []).join(", ")}
+                </p>
               </div>
             )}
 

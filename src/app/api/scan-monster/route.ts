@@ -1,3 +1,7 @@
+// NOTE: Next.js 16 App Router Route Handlers have no built-in body size config.
+// On Vercel Free-Tier, requests > 4.5 MB are rejected with 413 BEFORE this code runs.
+// Client-side image compression (src/lib/utils/image-compression.ts) targets 3 MB per
+// file so that a multi-file upload stays within the platform limit.
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import sharp from "sharp";
@@ -64,6 +68,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Maximal 5 Dateien erlaubt." }, { status: 400 });
     }
 
+    // MIME-Type Whitelist (Defense-in-Depth gegen Browser-Spoofing)
+    const ALLOWED_TYPES = new Set<string>([
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+      "application/pdf",
+    ]);
+    for (const file of allFiles) {
+      if (!ALLOWED_TYPES.has(file.type)) {
+        return NextResponse.json(
+          { error: `Dateityp "${file.type}" wird nicht unterstützt.` },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Aggregate size limit (Vercel Free-Tier Body-Limit beachten)
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB per file
+    const MAX_TOTAL_SIZE = 20 * 1024 * 1024; // 20 MB aggregate
+    const totalSize = allFiles.reduce((sum, f) => sum + f.size, 0);
+    if (totalSize > MAX_TOTAL_SIZE) {
+      return NextResponse.json(
+        { error: "Gesamtgröße aller Dateien überschreitet 20 MB." },
+        { status: 400 }
+      );
+    }
+
     const contentBlocks: Array<
       | {
           type: "document";
@@ -72,7 +104,6 @@ export async function POST(request: NextRequest) {
       | { type: "image"; source: { type: "base64"; media_type: ImageMediaType; data: string } }
     > = [];
 
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB per file
     for (const file of allFiles) {
       if (file.size > MAX_FILE_SIZE) {
         return NextResponse.json(
@@ -188,7 +219,11 @@ Notes:
     }
     return NextResponse.json(parsed);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unbekannter Fehler";
-    return NextResponse.json({ error: message }, { status: 500 });
+    // Log server-side details but don't leak them to the client
+    console.error("[scan-monster]", err);
+    return NextResponse.json(
+      { error: "Interner Fehler beim Verarbeiten der Datei. Bitte erneut versuchen." },
+      { status: 500 }
+    );
   }
 }

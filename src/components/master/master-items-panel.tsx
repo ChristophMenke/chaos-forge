@@ -1244,9 +1244,19 @@ export function MasterItemsPanel({
 
       {/* Delete Confirmation Dialog */}
       {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="mx-4 w-full max-w-sm rounded-lg border border-border bg-card p-4 shadow-xl">
-            <h3 className="mb-2 font-heading text-lg text-foreground">{t("confirmDelete")}</h3>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          role="presentation"
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="items-delete-title"
+            className="mx-4 w-full max-w-sm rounded-lg border border-border bg-card p-4 shadow-xl"
+          >
+            <h3 id="items-delete-title" className="mb-2 font-heading text-lg text-foreground">
+              {t("confirmDelete")}
+            </h3>
             <p className="mb-3 text-sm text-muted-foreground">
               {t("confirmDeleteItem", { name: deleteConfirm.name })}
             </p>

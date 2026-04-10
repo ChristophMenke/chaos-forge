@@ -15,7 +15,10 @@ export interface CompressionOptions {
 
 const DEFAULT_MAX_DIMENSION = 1920;
 const DEFAULT_QUALITY = 0.85;
-const DEFAULT_MAX_SIZE_BYTES = 8 * 1024 * 1024;
+// 3 MB per file — leaves headroom for multi-file uploads under Vercel's 4.5 MB body limit.
+// Even with 5 files maxed out, we'd be at 15 MB which is blocked by our aggregate check.
+// Realistic: 1-2 compressed photos stay well under 4.5 MB.
+const DEFAULT_MAX_SIZE_BYTES = 3 * 1024 * 1024;
 
 /**
  * Compresses an image File/Blob if it exceeds the size limit.
@@ -38,13 +41,10 @@ export async function compressImageIfNeeded(
   // Skip if already small enough
   if (file.size <= maxSizeBytes) return file;
 
-  // Load the image
+  // Load and scale the image once — the canvas is reused for all quality retries
   const img = await loadImage(file);
-
-  // Compute scaled dimensions
   const { width, height } = scaleDimensions(img.width, img.height, maxDimension);
 
-  // Draw to canvas
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
@@ -55,22 +55,22 @@ export async function compressImageIfNeeded(
   }
   ctx.drawImage(img, 0, 0, width, height);
 
-  // Convert to JPEG blob
-  const blob = await new Promise<Blob | null>((resolve) => {
-    canvas.toBlob((b) => resolve(b), "image/jpeg", quality);
-  });
+  // Try progressively lower quality settings: 0.85 → 0.70 → 0.55 → 0.40 → 0.30
+  // Reuses the same canvas — no re-decoding of the original file.
+  let currentQuality = quality;
+  let blob: Blob | null = null;
+  while (currentQuality >= 0.3) {
+    blob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob((b) => resolve(b), "image/jpeg", currentQuality);
+    });
+    if (!blob) return file;
+    if (blob.size <= maxSizeBytes) break;
+    // Floor reached — return the last blob anyway, caller may still accept it
+    if (currentQuality <= 0.3) break;
+    currentQuality = Math.max(0.3, currentQuality - 0.15);
+  }
 
   if (!blob) return file;
-
-  // If still too large, retry with lower quality (floor at 0.3)
-  // Steps: 0.85 → 0.70 → 0.55 → 0.40 → 0.30, then stop.
-  // If still oversized at 0.3, the API's per-file cap will surface a clear error.
-  if (blob.size > maxSizeBytes && quality > 0.3) {
-    return compressImageIfNeeded(file, {
-      ...options,
-      quality: Math.max(0.3, quality - 0.15),
-    });
-  }
 
   // Return as File (preserve original name, switch extension to .jpg)
   const newName = file.name.replace(/\.[^.]+$/, "") + ".jpg";

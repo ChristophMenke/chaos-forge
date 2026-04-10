@@ -1106,9 +1106,46 @@ export async function createMonsterGm(
   return { success: true, id: data.id };
 }
 
+/** Whitelist of monster fields that can be updated via the GM form.
+ *  Excludes id, created_at, updated_at, image_url, is_custom, created_by. */
+type MonsterUpdatePayload = Partial<
+  Pick<
+    MonsterRow,
+    | "name"
+    | "name_en"
+    | "ac"
+    | "movement"
+    | "hit_dice"
+    | "hit_dice_value"
+    | "thac0"
+    | "attacks_per_round"
+    | "damage"
+    | "special_attacks"
+    | "special_defenses"
+    | "magic_resistance"
+    | "size"
+    | "morale"
+    | "morale_value"
+    | "xp_value"
+    | "description"
+    | "climate_terrain"
+    | "frequency"
+    | "organization"
+    | "activity_cycle"
+    | "diet"
+    | "intelligence"
+    | "treasure"
+    | "alignment"
+    | "has_ranged_attack"
+    | "default_zone"
+    | "typical_spells"
+    | "source_book"
+  >
+>;
+
 export async function updateMonsterGm(
   id: string,
-  monsterData: Partial<MonsterRow>
+  monsterData: MonsterUpdatePayload
 ): Promise<{ success: boolean; error?: string }> {
   if (!(await checkGmSession())) return { success: false, error: "Unauthorized" };
   const service = createServiceClient();
