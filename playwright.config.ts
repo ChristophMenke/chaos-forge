@@ -42,6 +42,7 @@ export default defineConfig({
         "rulebook-chat.spec.ts",
         "party.spec.ts",
         "dashboard.spec.ts",
+        "dashboard-npc-visibility.spec.ts",
         "xp-management.spec.ts",
         "master.spec.ts",
         "notifications.spec.ts",

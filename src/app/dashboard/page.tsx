@@ -204,6 +204,7 @@ export default async function DashboardPage() {
     supabase
       .from("chronicle_npcs")
       .select("*")
+      .eq("is_visible_to_players", true)
       .order("created_at", { ascending: false })
       .limit(5)
       .returns<ChronicleNpcRow[]>(),
@@ -1190,7 +1191,11 @@ export default async function DashboardPage() {
             </div>
             <div className="mt-3 space-y-2">
               {latestNpcs.map((npc) => (
-                <div key={npc.id} className="rounded-md border border-border/50 px-3 py-2">
+                <div
+                  key={npc.id}
+                  data-testid={`dashboard-npc-${npc.id}`}
+                  className="rounded-md border border-border/50 px-3 py-2"
+                >
                   <div className="flex items-center gap-2">
                     <AvatarDisplay name={npc.name} avatarUrl={npc.avatar_url} size={24} />
                     <span className="flex-1 text-sm font-medium">{npc.name}</span>
