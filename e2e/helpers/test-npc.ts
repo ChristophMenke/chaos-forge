@@ -39,7 +39,7 @@ export async function createTestNpc(
  */
 export async function deleteTestNpc(request: APIRequestContext, npcId: string): Promise<void> {
   const resp = await request.delete(`${BASE_URL}/api/test-seed-npc`, {
-    data: { npc_id: npcId },
+    data: { email: TEST_EMAIL, npc_id: npcId },
   });
   if (!resp.ok()) {
     console.warn(`deleteTestNpc: failed for ${npcId} (status ${resp.status()})`);

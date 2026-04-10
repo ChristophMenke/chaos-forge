@@ -73,7 +73,12 @@ export async function DELETE(request: Request) {
   }
 
   const body = await request.json().catch(() => ({}));
+  const email = body.email?.toLowerCase();
   const npcId: string | undefined = body.npc_id;
+
+  if (!email?.endsWith(TEST_DOMAIN)) {
+    return NextResponse.json({ error: "only_test_users" }, { status: 403 });
+  }
 
   if (!npcId) {
     return NextResponse.json({ error: "npc_id_required" }, { status: 400 });
