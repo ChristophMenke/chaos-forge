@@ -143,13 +143,29 @@ export function PartyLogPanel({ log, userMap, characterMap }: PartyLogPanelProps
     [log, locale, t]
   );
 
+  function resolveActor(entry: PartyLootLogRow): string {
+    const details = entry.details;
+    // 1. Explicit actor field (set by client-side logs)
+    if (typeof details.actor === "string" && details.actor) return details.actor;
+    // 2. For add-*-actions, character_id is the source character = actor
+    if (
+      (entry.action === "add_gold" || entry.action === "add_item") &&
+      entry.character_id &&
+      characterMap[entry.character_id]
+    ) {
+      return characterMap[entry.character_id]!;
+    }
+    // 3. Fall back to user display name
+    return userMap[entry.user_id] ?? "?";
+  }
+
   function formatEntry(entry: PartyLootLogRow): string {
     const details = entry.details;
-    const user =
-      typeof details.actor === "string" && details.actor
-        ? details.actor
-        : (userMap[entry.user_id] ?? "?");
-    const character = entry.character_id ? (characterMap[entry.character_id] ?? "?") : "";
+    const user = resolveActor(entry);
+    // For distribute actions, character_id is the recipient
+    const isDistribute = entry.action === "distribute_gold" || entry.action === "distribute_item";
+    const character =
+      isDistribute && entry.character_id ? (characterMap[entry.character_id] ?? "?") : "";
     const item =
       (typeof details.item_name === "string" ? details.item_name : null) ??
       (typeof details.custom_name === "string" ? details.custom_name : null) ??
