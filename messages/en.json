@@ -1353,7 +1353,10 @@
     "selectRecipient": "Select recipient",
     "today": "Today",
     "yesterday": "Yesterday",
-    "tabsLabel": "Party views"
+    "tabsLabel": "Party views",
+    "addGoldSubtitle": "From {name}'s purse",
+    "addGoldNeedsCharacter": "You need an active character to add gold to the pool.",
+    "insufficientCharacterGold": "Your character doesn't have enough gold."
   },
   "master": {
     "title": "Master of Chaos",

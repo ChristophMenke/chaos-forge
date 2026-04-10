@@ -57,11 +57,16 @@ export default async function PartyPage() {
     supabase.from("profiles").select("id, display_name").returns<ProfileOption[]>(),
     supabase
       .from("characters")
-      .select("id, name, avatar_url")
+      .select("id, name, avatar_url, gold_pp, gold_gp, gold_ep, gold_sp, gold_cp")
       .eq("user_id", user.id)
       .eq("is_active", true)
       .order("name")
-      .returns<Pick<CharacterRow, "id" | "name" | "avatar_url">[]>(),
+      .returns<
+        Pick<
+          CharacterRow,
+          "id" | "name" | "avatar_url" | "gold_pp" | "gold_gp" | "gold_ep" | "gold_sp" | "gold_cp"
+        >[]
+      >(),
   ]);
 
   const ownCharacterIds = (ownCharacters ?? []).map((c) => c.id);
@@ -125,6 +130,7 @@ export default async function PartyPage() {
         characterMap={characterMap}
         userId={user.id}
         ownedItemGroups={ownedItemGroups}
+        ownCharacters={ownCharacters ?? []}
       />
     </div>
   );

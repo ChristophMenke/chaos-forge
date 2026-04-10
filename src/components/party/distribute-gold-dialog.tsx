@@ -20,7 +20,7 @@ interface DistributeGoldDialogProps {
   characters: CharacterOption[];
   userId: string;
   activeCharacterName?: string;
-  onDistribute: (updatedGold: PartyLootGoldRow) => void;
+  onDistribute: () => void;
   onClose: () => void;
 }
 
@@ -106,15 +106,7 @@ export function DistributeGoldDialog({
         });
       }
 
-      const updatedGold: PartyLootGoldRow = {
-        ...gold,
-        pp: gold.pp - amounts.pp,
-        gp: gold.gp - amounts.gp,
-        ep: gold.ep - amounts.ep,
-        sp: gold.sp - amounts.sp,
-        cp: gold.cp - amounts.cp,
-      };
-      onDistribute(updatedGold);
+      onDistribute();
     } finally {
       setIsSaving(false);
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { Trash2 } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
@@ -71,11 +72,11 @@ function groupByDay(
   return Array.from(groups.values());
 }
 
-export function PartyLogPanel({ log: initialLog, userMap, characterMap }: PartyLogPanelProps) {
+export function PartyLogPanel({ log, userMap, characterMap }: PartyLogPanelProps) {
   const t = useTranslations("party");
   const tc = useTranslations("common");
   const locale = useLocale();
-  const [log, setLog] = useState(initialLog);
+  const router = useRouter();
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -123,12 +124,15 @@ export function PartyLogPanel({ log: initialLog, userMap, characterMap }: PartyL
 
   async function handleDelete(entryId: string) {
     setDeletingId(entryId);
-    const supabase = createClient();
-    const { error } = await supabase.from("party_loot_log").delete().eq("id", entryId);
-    setDeletingId(null);
-    if (error) return;
-    setLog((prev) => prev.filter((e) => e.id !== entryId));
-    setConfirmDeleteId(null);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from("party_loot_log").delete().eq("id", entryId);
+      if (error) return;
+      setConfirmDeleteId(null);
+      router.refresh();
+    } finally {
+      setDeletingId(null);
+    }
   }
 
   return (

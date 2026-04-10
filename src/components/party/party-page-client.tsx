@@ -15,6 +15,7 @@ import type {
   PartyLootLogRow,
 } from "@/lib/supabase/types";
 import type { OwnedItemGroup } from "@/lib/party-loot/types";
+import type { ActiveCharacterPurse } from "@/components/party/party-gold-panel";
 
 interface CharacterOption {
   id: string;
@@ -31,6 +32,7 @@ interface PartyPageClientProps {
   characterMap: Record<string, string>;
   userId: string;
   ownedItemGroups: OwnedItemGroup[];
+  ownCharacters: ActiveCharacterPurse[];
 }
 
 type ViewId = "loot" | "gold" | "log";
@@ -46,6 +48,7 @@ export function PartyPageClient({
   characterMap,
   userId,
   ownedItemGroups,
+  ownCharacters,
 }: PartyPageClientProps) {
   const t = useTranslations("party");
   const router = useRouter();
@@ -62,6 +65,10 @@ export function PartyPageClient({
   );
   const [activeCharacterId, setActiveCharacterId] = useState<string>(myCharacters[0]?.id ?? "");
   const activeCharacterName = characters.find((c) => c.id === activeCharacterId)?.name ?? "";
+  const activeCharacter = useMemo(
+    () => ownCharacters.find((c) => c.id === activeCharacterId) ?? null,
+    [ownCharacters, activeCharacterId]
+  );
 
   useRealtimeRefresh("party-loot", [
     { table: "party_loot_gold" },
@@ -91,7 +98,7 @@ export function PartyPageClient({
       gold={gold}
       userId={userId}
       characters={characters}
-      activeCharacterName={activeCharacterName}
+      activeCharacter={activeCharacter}
     />
   );
 
