@@ -73,7 +73,9 @@ interface GenerationReportEntry {
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const limitArg = args.find((a) => a.startsWith("--limit="));
-  const limit = limitArg ? parseInt(limitArg.split("=")[1], 10) : Number.POSITIVE_INFINITY;
+  const parsedLimit = limitArg ? parseInt(limitArg.split("=")[1], 10) : NaN;
+  const limit =
+    Number.isFinite(parsedLimit) && parsedLimit > 0 ? parsedLimit : Number.POSITIVE_INFINITY;
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;

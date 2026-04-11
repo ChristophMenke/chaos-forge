@@ -221,8 +221,9 @@ export function parseMonsterHtml(html: string, monsterKey: string): ParsedMonste
   };
   let currentSection: keyof typeof sections = "intro";
 
-  // Only paragraphs inside <body> that are NOT `p.nav` or `p.tsr`
-  const paragraphs = Array.from(doc.querySelectorAll("body > p, body p")).filter(
+  // Only paragraphs inside <body> that are NOT `p.nav` or `p.tsr`.
+  // `body p` already covers all descendants — `body > p` is redundant.
+  const paragraphs = Array.from(doc.querySelectorAll("body p")).filter(
     (p) => !p.classList.contains("nav") && !p.classList.contains("tsr")
   );
 
@@ -275,7 +276,10 @@ export function parseMonsterHtml(html: string, monsterKey: string): ParsedMonste
     treasure: rawStats["treasure"] || null,
     alignment: rawStats["alignment"] || null,
     no_appearing: rawStats["no_appearing"] || null,
-    ac: firstInteger(rawStats["armor_class"] ?? "10") || 10,
+    // `armor_class` may be absent (reference articles). Only fall back to 10
+    // when the field is missing — AC 0 and negative values are valid in AD&D
+    // and must not be coerced to 10 by the `|| 10` falsy-check.
+    ac: rawStats["armor_class"] !== undefined ? firstInteger(rawStats["armor_class"]) : 10,
     movement: rawStats["movement"] || "",
     hit_dice,
     hit_dice_value: parseHitDiceValue(hit_dice),

@@ -139,11 +139,12 @@ async function loadExistingMonsters(): Promise<MonsterRow[]> {
   return (data as MonsterRow[]) ?? [];
 }
 
-/** Normalise a name for matching: lowercase, strip punctuation + whitespace. */
+/** Normalise a name for matching: lowercase, expand ß, strip punctuation + whitespace. */
 function normaliseName(s: string | null | undefined): string {
   if (!s) return "";
   return s
     .toLowerCase()
+    .replace(/ß/g, "ss") // NFD does not decompose ß — expand it explicitly
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "") // strip diacritics
     .replace(/[^a-z0-9]+/g, "");
@@ -154,6 +155,7 @@ function tokenSortName(s: string | null | undefined): string {
   if (!s) return "";
   return s
     .toLowerCase()
+    .replace(/ß/g, "ss")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .split(/[^a-z0-9]+/)
@@ -167,6 +169,7 @@ function tokens(s: string | null | undefined): string[] {
   if (!s) return [];
   return s
     .toLowerCase()
+    .replace(/ß/g, "ss")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .split(/[^a-z0-9]+/)

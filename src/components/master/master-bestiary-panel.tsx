@@ -137,9 +137,11 @@ export function MasterBestiaryPanel({
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [preciseMode, setPreciseMode] = useState(false);
 
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   function showToast(message: string, type: "success" | "error") {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
+    toastTimerRef.current = setTimeout(() => setToast(null), 3000);
   }
 
   /** Create (new monster) or edit (existing) submit handler used by the shared
@@ -809,9 +811,10 @@ function MonsterCard({
               }}
               className="rounded-full bg-black/60 p-1.5 text-primary hover:bg-black/80"
               title={t("monsterAddToCombat")}
+              aria-label={t("monsterAddToCombat")}
               data-testid={`gm-monster-add-${monster.id}`}
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4" aria-hidden="true" />
             </button>
           )}
         </div>
@@ -1065,9 +1068,10 @@ function MonsterListView({
                         }}
                         className="rounded-full p-1 text-primary hover:bg-primary/20"
                         title={t("monsterAddToCombat")}
+                        aria-label={t("monsterAddToCombat")}
                         data-testid={`gm-monster-add-${m.id}`}
                       >
-                        <Plus className="h-4 w-4" />
+                        <Plus className="h-4 w-4" aria-hidden="true" />
                       </button>
                     )}
                   </td>
@@ -1283,9 +1287,10 @@ function MonsterDetailModal({
                 onClick={() => setFullscreen(true)}
                 className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-md bg-primary/80 px-3 py-1.5 text-sm font-medium text-primary-foreground shadow-lg hover:bg-primary"
                 title="P"
+                aria-label={t("monsterShowPlayers")}
                 data-testid="gm-monster-show-players"
               >
-                <Eye className="h-4 w-4" />
+                <Eye className="h-4 w-4" aria-hidden="true" />
                 {t("monsterShowPlayers")}
               </button>
             )}
