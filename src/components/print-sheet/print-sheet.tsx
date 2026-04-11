@@ -48,6 +48,7 @@ import type {
   EpicItemRow,
 } from "@/lib/supabase/types";
 import { getEpicEffects } from "@/lib/rules/epic-items";
+import { getMagicItemEffects } from "@/lib/rules/magic-items";
 import { isPriestCaster } from "@/lib/rules/magic";
 import { getFightingStyle } from "@/lib/rules/fighting-styles";
 
@@ -89,6 +90,9 @@ export function PrintSheet({
   const locale = useLocale();
   const race = character.race_id ? RACES[character.race_id as keyof typeof RACES] : null;
   const epicEffects = useMemo(() => getEpicEffects(epicItems), [epicItems]);
+  // Magic-item AC modifier (Ring of Protection, Cloak of Protection, ...)
+  // must flow into the printed AC so the paper sheet matches the play view.
+  const magicEffects = useMemo(() => getMagicItemEffects(equipment), [equipment]);
 
   const activeClasses = characterClasses.filter((cc) => cc.is_active);
   const classEntries = activeClasses.map((cc) => ({
@@ -133,6 +137,7 @@ export function PrintSheet({
     equippedArmorAC: equippedArmorForAC?.armor?.ac ?? null,
     shieldEquipped: hasShieldForAC,
     dexDefenseAdj: dexMods.defensiveAdj,
+    magicACModifier: magicEffects.acBonus,
     classGroups,
     encumbrance: encumbranceLevel,
     ignoreEncumbrance: character.ignore_encumbrance,
@@ -708,6 +713,16 @@ export function PrintSheet({
         parts.push({
           label: t("epicAcBonus"),
           value: -epicEffects.acBonus,
+        });
+      }
+      // Magic-item AC bonus (Ring of Protection, Cloak of Protection, ...)
+      // — additive, displayed as a separate line so the printed breakdown
+      // visibly accounts for the ring/cloak rather than hiding it inside
+      // the total.
+      if (magicEffects.acBonus) {
+        parts.push({
+          label: t("magicAcBonus"),
+          value: magicEffects.acBonus,
         });
       }
       return (

@@ -898,6 +898,7 @@ export function PlayMode({
             readOnly={!isOwner}
             onEquipmentChange={setEquipment}
             epicEffects={epicEffects}
+            magicAcBonus={magicEffects.acBonus}
             characterKit={character.kit}
             singleWeaponStyleBonus={singleWeaponStyleBonus}
             shieldProficiencyBonus={shieldProficiencyBonus}
@@ -1020,6 +1021,7 @@ export function PlayMode({
             readOnly={!isOwner}
             onEquipmentChange={setEquipment}
             epicEffects={epicEffects}
+            magicAcBonus={magicEffects.acBonus}
             characterKit={character.kit}
             singleWeaponStyleBonus={singleWeaponStyleBonus}
             shieldProficiencyBonus={shieldProficiencyBonus}
