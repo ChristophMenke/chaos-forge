@@ -77,6 +77,7 @@ import { XpAddDialog } from "./xp-add-dialog";
 import { PayDialog } from "./pay-dialog";
 import { getEpicEffects, scaleSubStat } from "@/lib/rules/epic-items";
 import type { EpicEffects } from "@/lib/rules/epic-items";
+import { getMagicItemEffects } from "@/lib/rules/magic-items";
 import type {
   CharacterEquipmentWithDetails,
   CharacterSpellWithDetails,
@@ -249,6 +250,12 @@ export function CharacterSheet({
   const epicEffects: EpicEffects = useMemo(() => getEpicEffects(epicItems), [epicItems]);
   const eo = epicEffects.statOverrides;
 
+  // Regular magic item effects — needed so the manage-view AC display
+  // includes things like a Ring of Protection or Cloak of Protection.
+  // Without this aggregate, the manage screen showed the AC WITHOUT the
+  // ring's bonus while the play mode showed the corrected value.
+  const magicEffects = useMemo(() => getMagicItemEffects(equipmentState), [equipmentState]);
+
   // Apply epic stat overrides (e.g., Kondensator overrides CON)
   const effectiveStr = eo.str ?? character.str;
   const effectiveDex = eo.dex ?? character.dex;
@@ -357,6 +364,8 @@ export function CharacterSheet({
     equippedArmorAC: equippedArmor?.armor?.ac ?? null,
     shieldEquipped: hasShield,
     dexDefenseAdj: dexMods.defensiveAdj,
+    magicACModifier: magicEffects.acBonus,
+    epicAcBonus: epicEffects.acBonus,
     classGroups,
     encumbrance: encumbranceLevel,
     ignoreEncumbrance: character.ignore_encumbrance,

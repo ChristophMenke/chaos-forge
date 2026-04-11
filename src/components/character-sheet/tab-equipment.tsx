@@ -11,6 +11,7 @@ import {
   getMovementRate,
   getShieldProficiencyBonus,
 } from "@/lib/rules/equipment";
+import { getMagicItemEffects } from "@/lib/rules/magic-items";
 import { useTranslations, useLocale } from "next-intl";
 import { localized } from "@/lib/utils/localize";
 import { matchesWeaponProf, findWeaponProf } from "@/lib/utils/proficiency-match";
@@ -298,10 +299,15 @@ export function TabEquipment({
     equippedShieldItem?.armor?.name ?? null,
     weaponProficiencies
   );
+  // Aggregate magic-item bonuses (Ring of Protection, Cloak of Protection, …)
+  // so the equipment-tab AC pill matches the play-mode AC and the Combat-tab
+  // AC. Without this the ring's bonus was silently dropped from this view.
+  const equipmentMagicEffects = useMemo(() => getMagicItemEffects(equipment), [equipment]);
   const currentAC = calculateAC({
     equippedArmorAC: equippedArmor?.armor?.ac ?? null,
     shieldEquipped,
     dexDefenseAdj,
+    magicACModifier: equipmentMagicEffects.acBonus,
     classGroups,
     encumbrance: encumbranceLevel,
     ignoreEncumbrance,

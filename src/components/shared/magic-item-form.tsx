@@ -108,27 +108,34 @@ function EffectRow({
   onChange,
   testId,
   placeholder = "0",
+  helpText,
 }: {
   label: string;
   value: number | undefined;
   onChange: (v: number | undefined) => void;
   testId: string;
   placeholder?: string;
+  helpText?: string;
 }) {
   return (
-    <div className="flex items-center gap-2">
-      <span className="w-40 text-xs">{label}</span>
-      <Input
-        type="number"
-        value={value ?? ""}
-        onChange={(e) => {
-          const v = e.target.value;
-          onChange(v === "" || v === "0" ? undefined : Number(v));
-        }}
-        placeholder={placeholder}
-        className="w-20 text-center text-sm"
-        data-testid={testId}
-      />
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2">
+        <span className="w-40 text-xs">{label}</span>
+        <Input
+          type="number"
+          value={value ?? ""}
+          onChange={(e) => {
+            const v = e.target.value;
+            onChange(v === "" || v === "0" ? undefined : Number(v));
+          }}
+          placeholder={placeholder}
+          className="w-20 text-center text-sm"
+          data-testid={testId}
+        />
+      </div>
+      {helpText && (
+        <p className="pl-[168px] text-[11px] italic text-muted-foreground">{helpText}</p>
+      )}
     </div>
   );
 }
@@ -330,6 +337,7 @@ export function MagicItemForm({ onSubmit, submitLabel, loading, initialData }: M
           value={fx.ac_bonus}
           onChange={(v) => updateEffect("ac_bonus", v)}
           testId="magic-effect-ac-bonus"
+          helpText={t("magicAcBonusHint")}
         />
         <EffectRow
           label={t("magicAttackBonus")}
