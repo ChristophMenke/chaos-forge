@@ -109,34 +109,42 @@ export default function LoginPage() {
       className="relative -mb-16 flex flex-1 flex-col items-center justify-end pb-6 sm:mb-0 sm:items-end sm:justify-end sm:pb-10 sm:pr-8 md:pr-16 lg:pr-24"
       data-testid="login-page"
     >
-      {/* Full-bleed party artwork. Portrait variant for narrow viewports,
-          landscape variant once the viewport is wider than tall. */}
+      {/* Full-bleed party artwork. Both the neutral and grimace variants
+          are rendered simultaneously, stacked absolutely on top of each
+          other, with opacity toggled by the step state. Rendering both
+          means the browser begins downloading the grimace images on
+          initial page load, so by the time the player submits their
+          email the silly-face version is already in cache — the crossfade
+          is instant instead of stalling while the mobile network fetches
+          a fresh ~300 KB image. */}
       <div className="absolute inset-0 -z-10 overflow-hidden bg-[#1a1408]">
-        {step === "email" ? (
-          <picture>
-            <source
-              media="(min-aspect-ratio: 4/3)"
-              srcSet="/images/login/login-party-landscape.webp"
-            />
-            <img
-              src="/images/login/login-party-portrait.webp"
-              alt=""
-              className="h-full w-full object-cover"
-            />
-          </picture>
-        ) : (
-          <picture>
-            <source
-              media="(min-aspect-ratio: 4/3)"
-              srcSet="/images/login/login-party-grimace-landscape.webp"
-            />
-            <img
-              src="/images/login/login-party-grimace-portrait.webp"
-              alt=""
-              className="h-full w-full object-cover"
-            />
-          </picture>
-        )}
+        <picture>
+          <source
+            media="(min-aspect-ratio: 4/3)"
+            srcSet="/images/login/login-party-landscape.webp"
+          />
+          <img
+            src="/images/login/login-party-portrait.webp"
+            alt=""
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
+              step === "email" ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        </picture>
+        <picture>
+          <source
+            media="(min-aspect-ratio: 4/3)"
+            srcSet="/images/login/login-party-grimace-landscape.webp"
+          />
+          <img
+            src="/images/login/login-party-grimace-portrait.webp"
+            alt=""
+            fetchPriority="high"
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
+              step === "code" ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        </picture>
       </div>
 
       {/* Parchment login card — matches the master PIN gate aesthetic. */}
