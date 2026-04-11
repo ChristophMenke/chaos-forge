@@ -3,9 +3,6 @@
 import { useState, useRef, useEffect, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { Shield } from "lucide-react";
-import { GlassCard } from "@/components/glass-card";
-import { Button } from "@/components/ui/button";
 import { verifyPin } from "@/app/master/actions";
 
 export function MasterPinGate() {
@@ -94,21 +91,55 @@ export function MasterPinGate() {
   }
 
   return (
-    <div className="flex min-h-[60vh] items-center justify-center px-4">
-      <GlassCard
-        className="w-full max-w-sm p-6 text-center"
-        hover={false}
-        data-testid="gm-pin-gate"
-      >
-        <Shield className="mx-auto mb-4 h-12 w-12 text-amber-400" />
-        <h1 className="font-heading mb-2 text-2xl text-foreground">{t("title")}</h1>
-        <p className="mb-6 text-sm text-muted-foreground">{t("pinPrompt")}</p>
+    <div
+      className="relative -mb-16 flex flex-1 flex-col items-center sm:mb-0"
+      data-testid="gm-pin-gate"
+    >
+      {/* Full-bleed artwork background.
+          Portrait variant covers mobile / tall screens, landscape variant
+          kicks in once the viewport aspect ratio hits ~4:3. */}
+      <div className="absolute inset-0 -z-10 overflow-hidden bg-[#0b0810]">
+        <picture>
+          <source
+            media="(min-aspect-ratio: 4/3)"
+            srcSet="/images/gm-panels/master-pin-landscape.webp"
+          />
+          <img
+            src="/images/gm-panels/master-pin-portrait.webp"
+            alt=""
+            className="h-full w-full object-cover"
+          />
+        </picture>
+      </div>
 
-        <form onSubmit={handleSubmit}>
+      {/* Parchment PIN panel — absolutely positioned to sit precisely on the
+          open book page in the artwork. Percentages are tuned to both the
+          portrait and landscape background variants so the card lands on
+          the parchment rather than floating over the magician's torso or
+          sliding off the bottom of the viewport. */}
+      <form
+        onSubmit={handleSubmit}
+        className="absolute left-1/2 w-full max-w-xs -translate-x-1/2 px-3 sm:max-w-sm"
+        style={{ bottom: "max(env(safe-area-inset-bottom, 0px), 4%)" }}
+      >
+        <div
+          className="rounded-md border-2 border-amber-900/70 bg-[#f4e9d1]/95 px-3 py-3 shadow-2xl shadow-black/60 backdrop-blur-sm"
+          style={{
+            backgroundImage:
+              "radial-gradient(ellipse at top, rgba(120,70,20,0.1) 0%, transparent 70%)",
+          }}
+        >
+          <h1 className="font-heading mb-0.5 text-center text-lg tracking-wide text-amber-950 sm:text-xl">
+            {t("title")}
+          </h1>
+          <p className="mb-2 text-center text-[11px] leading-tight text-amber-950/70 sm:text-xs">
+            {t("pinPrompt")}
+          </p>
+
           <fieldset>
             <legend className="sr-only">{t("pinPrompt")}</legend>
             <div
-              className={`mb-4 flex justify-center gap-2 ${shake ? "animate-shake" : ""}`}
+              className={`mb-2 flex justify-center gap-1 ${shake ? "animate-shake" : ""}`}
               data-testid="gm-pin-inputs"
             >
               {digits.map((digit, i) => (
@@ -125,10 +156,8 @@ export function MasterPinGate() {
                   onChange={(e) => handleChange(i, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(i, e)}
                   onPaste={i === 0 ? handlePaste : undefined}
-                  className={`h-14 w-12 rounded-lg border bg-background/50 text-center text-2xl font-mono focus:outline-none focus:ring-2 ${
-                    error || lockedOut
-                      ? "border-destructive focus:ring-destructive"
-                      : "border-border focus:ring-primary"
+                  className={`h-9 w-8 rounded border-2 bg-[#e8dab4] text-center font-mono text-lg text-amber-950 shadow-inner shadow-amber-900/20 focus:outline-none focus:ring-2 focus:ring-amber-600 sm:h-10 sm:w-9 sm:text-xl ${
+                    error || lockedOut ? "border-red-700" : "border-amber-900/60"
                   }`}
                   aria-label={`${t("pinDigit")} ${i + 1} ${t("pinOf")} 6`}
                   data-testid={`gm-pin-digit-${i}`}
@@ -140,27 +169,33 @@ export function MasterPinGate() {
           </fieldset>
 
           {error && (
-            <p className="mb-4 text-sm text-destructive" data-testid="gm-pin-error">
+            <p
+              className="mb-1 text-center text-[11px] font-medium text-red-800"
+              data-testid="gm-pin-error"
+            >
               {t("wrongPin")}
             </p>
           )}
 
           {lockedOut && (
-            <p className="mb-4 text-sm text-destructive" data-testid="gm-pin-locked">
+            <p
+              className="mb-1 text-center text-[11px] font-medium text-red-800"
+              data-testid="gm-pin-locked"
+            >
               {t("tooManyAttempts")}
             </p>
           )}
 
-          <Button
+          <button
             type="submit"
-            className="w-full"
+            className="h-9 w-full rounded border-2 border-amber-900/70 bg-gradient-to-b from-amber-400 to-amber-600 px-3 font-heading text-sm font-semibold tracking-wide text-amber-950 shadow-md transition-all hover:from-amber-300 hover:to-amber-500 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={isPending || lockedOut || digits.some((d) => d === "")}
             data-testid="gm-pin-submit"
           >
             {isPending ? t("unlocking") : t("unlock")}
-          </Button>
-        </form>
-      </GlassCard>
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
