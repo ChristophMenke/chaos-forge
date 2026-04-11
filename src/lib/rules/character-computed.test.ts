@@ -764,6 +764,35 @@ describe("computeCharacterCombatData", () => {
       expect(result.ac).toBe(6);
     });
 
+    it("Ring of Protection +1 improves AC by exactly 1 (descending AD&D convention)", () => {
+      // Regression test for a bug where a custom "Ring of Protection +1" had
+      // its ac_bonus stored as +1 instead of -1, which silently made the AC
+      // WORSE by 1 point (difference of 2 to the intended result).
+      //
+      // AD&D 2e rule: lower AC = better. A Ring of Protection +1 means "AC
+      // improves by 1", which in storage terms means ac_bonus = -1 (it is
+      // added to the AC in calculateAC(), so a negative value decreases AC).
+      const char = makeCharacter({ dex: 10 });
+      const classes = [makeClass("mage", 5)];
+
+      const baselineResult = computeCharacterCombatData(char, classes, [], [], []);
+      // Mage has no unarmored bonus → base AC = 10
+      expect(baselineResult.ac).toBe(10);
+
+      const correctRing = makeMagicEquip({ ac_bonus: -1 }, "Ring of Protection +1");
+      const withRing = computeCharacterCombatData(char, classes, [correctRing], [], []);
+      expect(withRing.ac).toBe(9); // 1 point better
+
+      // If someone accidentally stores +1 instead of -1 (the data-entry bug
+      // we fixed in migration 00215), the AC would go to 11 — 2 points
+      // worse than intended. This asserts that outcome explicitly so a
+      // future refactor that flips the sign inside the aggregator breaks
+      // this test and forces a conscious decision.
+      const wrongRing = makeMagicEquip({ ac_bonus: 1 }, "Ring of Protection (wrong sign)");
+      const withWrongRing = computeCharacterCombatData(char, classes, [wrongRing], [], []);
+      expect(withWrongRing.ac).toBe(11); // 1 point WORSE (proves the bug mechanism)
+    });
+
     it("magic item save bonuses are applied to saves", () => {
       const char = makeCharacter();
       const classes = [makeClass("fighter", 5)];
