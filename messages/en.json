@@ -1569,6 +1569,10 @@
     "monsterDamage": "Damage",
     "monsterSpecialAttacks": "Special Attacks",
     "monsterSpecialDefenses": "Special Defenses",
+    "monsterCombatTactics": "Combat Tactics",
+    "monsterHabitatSociety": "Habitat & Society",
+    "monsterEcology": "Ecology",
+    "monsterReferenceEntryTooltip": "Reference entry with no combat stats — not combat-ready",
     "monsterMagicResistance": "Magic Resistance",
     "monsterSize": "Size",
     "monsterMorale": "Morale",
@@ -1680,7 +1684,8 @@
     "monsterImporting": "Analyzing monster...",
     "monsterImportSuccess": "Monster imported successfully!",
     "monsterImportFailed": "Import failed.",
-    "monsterSave": "Save Monster"
+    "monsterSave": "Save Monster",
+    "monsterFormAdvancedSection": "Advanced details (fluff, narrative, variants)"
   },
   "notifications": {
     "title": "Notifications",

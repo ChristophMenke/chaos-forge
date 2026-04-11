@@ -1,0 +1,882 @@
+[
+  {
+    "id": "ce6b1b2b-7a45-4790-8c34-31b625c52cc8",
+    "name": "Aasräuber",
+    "name_en": "Carrion Crawler"
+  },
+  {
+    "id": "505bceb1-21a8-46f1-a062-2d04c1d7d848",
+    "name": "Aboleth",
+    "name_en": "Aboleth"
+  },
+  {
+    "id": "9cbaef5e-b8c7-4bec-a09b-2b487589b40d",
+    "name": "Ankheg",
+    "name_en": "Ankheg"
+  },
+  {
+    "id": "3d7f2669-13ac-4cea-a362-ee613c56bbf6",
+    "name": "Babau",
+    "name_en": "Babau"
+  },
+  {
+    "id": "23ed9564-b7ff-461e-bb28-bbc5955c3bc0",
+    "name": "Balor",
+    "name_en": "Balor"
+  },
+  {
+    "id": "3fe4449b-f076-46ed-b5af-102709c4644d",
+    "name": "Banshee",
+    "name_en": "Banshee"
+  },
+  {
+    "id": "7b933cd7-6d39-4d90-a0ea-fcfa0dd6005c",
+    "name": "Basilisk",
+    "name_en": "Basilisk"
+  },
+  {
+    "id": "67578e3a-c0e0-45d3-bea5-f4c622edd8cb",
+    "name": "Behelmter Schrecken",
+    "name_en": "Helmed Horror"
+  },
+  {
+    "id": "4f7de8af-6abb-4a4f-b1e6-b118d65f54e3",
+    "name": "Betrachter",
+    "name_en": "Beholder"
+  },
+  {
+    "id": "016bfcc1-3757-44d2-9e73-144007973401",
+    "name": "Blauer Drache (Erwachsen)",
+    "name_en": "Blue Dragon (Adult)"
+  },
+  {
+    "id": "2043f152-1cdf-45c8-b419-7808e2265ca4",
+    "name": "Blinzelhund",
+    "name_en": "Blink Dog"
+  },
+  {
+    "id": "e6e6cf4f-d456-4ba1-8f2b-b81c704620a0",
+    "name": "Bronzedrache (Erwachsen)",
+    "name_en": "Bronze Dragon (Adult)"
+  },
+  {
+    "id": "25e1722c-44ed-4c53-a80a-38f0582dc732",
+    "name": "Bugbear",
+    "name_en": "Bugbear"
+  },
+  {
+    "id": "8c380a49-ba6a-4800-a9be-a301491c0515",
+    "name": "Bulette",
+    "name_en": "Bulette"
+  },
+  {
+    "id": "184f3e85-17dc-402d-84d6-b685c3bdf79b",
+    "name": "Bullywug",
+    "name_en": "Bullywug"
+  },
+  {
+    "id": "2fa8824e-cc97-47ae-879f-7c571b9ee144",
+    "name": "Chimäre",
+    "name_en": "Chimera"
+  },
+  {
+    "id": "0a370bd8-1736-4d13-a8c0-a1a1835d5f78",
+    "name": "Cloaker",
+    "name_en": "Cloaker"
+  },
+  {
+    "id": "6c685aaa-012b-407e-87ef-71a4c080a28f",
+    "name": "Cockatrice",
+    "name_en": "Cockatrice"
+  },
+  {
+    "id": "481d7d1b-4cf2-4353-99d4-1abeed1f315b",
+    "name": "Dao",
+    "name_en": "Dao"
+  },
+  {
+    "id": "11137c85-9b22-4c7f-b2a1-b393cdbe3a40",
+    "name": "Deckenlauerer",
+    "name_en": "Lurker Above"
+  },
+  {
+    "id": "57753c72-30f1-480c-9b4a-a9f12dbe368c",
+    "name": "Derro",
+    "name_en": "Derro"
+  },
+  {
+    "id": "6542721a-fd42-4579-9ed6-fa42584ba3f8",
+    "name": "Doppelgänger",
+    "name_en": "Doppelganger"
+  },
+  {
+    "id": "420f276d-4f13-4298-8215-97426f08e953",
+    "name": "Drachenschildkröte",
+    "name_en": "Dragon Turtle"
+  },
+  {
+    "id": "41630ff4-7acc-4309-a46e-0a8b18e8ed11",
+    "name": "Dracolich",
+    "name_en": "Dracolich"
+  },
+  {
+    "id": "d1ec6de2-040a-4df6-9a5a-426dc27265b3",
+    "name": "Dretch",
+    "name_en": "Dretch"
+  },
+  {
+    "id": "43284770-cfb7-47dc-b83e-9762c1325745",
+    "name": "Drow",
+    "name_en": "Drow"
+  },
+  {
+    "id": "92334491-6039-4655-a7e6-2b63cf58dccf",
+    "name": "Dryade",
+    "name_en": "Dryad"
+  },
+  {
+    "id": "664cfdb5-1580-4994-94d9-9eca53301f60",
+    "name": "Dschinn",
+    "name_en": "Djinni"
+  },
+  {
+    "id": "3109c1b1-8242-4a1a-b533-e9bf12507de4",
+    "name": "Duergar",
+    "name_en": "Duergar"
+  },
+  {
+    "id": "edac04f4-e56b-4d36-a1e0-b07909f1037a",
+    "name": "Dunkelmantel",
+    "name_en": "Darkmantle"
+  },
+  {
+    "id": "9b931657-54c7-4a50-bb60-5fe6e4774964",
+    "name": "Efrit",
+    "name_en": "Efreeti"
+  },
+  {
+    "id": "760e55a6-1f37-447b-a84b-d16e08169ba5",
+    "name": "Einhorn",
+    "name_en": "Unicorn"
+  },
+  {
+    "id": "d8fdd873-1be4-442e-97a4-3d00a567a489",
+    "name": "Eisengolem",
+    "name_en": "Iron Golem"
+  },
+  {
+    "id": "1907ac40-b9ec-44dc-865b-67d6d3806422",
+    "name": "Eisteufel",
+    "name_en": "Ice Devil"
+  },
+  {
+    "id": "79d7f51a-5278-4a6b-8596-4dca881c76ba",
+    "name": "Erdelemental (12 TW)",
+    "name_en": "Earth Elemental (12 HD)"
+  },
+  {
+    "id": "0af102d3-03e2-471f-a29d-7803c99e063b",
+    "name": "Erinye",
+    "name_en": "Erinyes"
+  },
+  {
+    "id": "a1a67f73-128f-495a-ab63-bd08c77a7e5f",
+    "name": "Ettin",
+    "name_en": "Ettin"
+  },
+  {
+    "id": "d5362fc5-8ae7-4672-a570-35d59d1d49f5",
+    "name": "Eulenbär",
+    "name_en": "Owlbear"
+  },
+  {
+    "id": "d3d33f38-764e-4e37-a989-6c48c1b57f97",
+    "name": "Fallensteller",
+    "name_en": "Trapper"
+  },
+  {
+    "id": "288432a5-3ef5-45bc-8819-40d253c17be7",
+    "name": "Feuerelemental (12 TW)",
+    "name_en": "Fire Elemental (12 HD)"
+  },
+  {
+    "id": "a41b6f32-3409-4a2d-97e8-5c1e4a715f6c",
+    "name": "Feuerriese",
+    "name_en": "Fire Giant"
+  },
+  {
+    "id": "2a3cb8b5-e294-4fbc-b4cb-45e95ceb86ef",
+    "name": "Fleischgolem",
+    "name_en": "Flesh Golem"
+  },
+  {
+    "id": "a822e9d0-3341-437d-b493-bdc155be2a0a",
+    "name": "Frostriese",
+    "name_en": "Frost Giant"
+  },
+  {
+    "id": "c57eda81-68da-4c6d-923e-086a0c7beffa",
+    "name": "Galeb Duhr",
+    "name_en": "Galeb Duhr"
+  },
+  {
+    "id": "bdf7ca38-69a5-4b80-979a-4b61b839fb18",
+    "name": "Gargoyle",
+    "name_en": "Gargoyle"
+  },
+  {
+    "id": "a4ccb67d-9f4f-4ab4-9ef6-26fdb76bcf20",
+    "name": "Geist",
+    "name_en": "Ghost"
+  },
+  {
+    "id": "ad8046ab-620b-4f3e-902c-9662d583c46e",
+    "name": "Geisterscheinung",
+    "name_en": "Wraith"
+  },
+  {
+    "id": "d62f2fda-3662-4651-961b-cb79ac86077a",
+    "name": "Gelatinöser Würfel",
+    "name_en": "Gelatinous Cube"
+  },
+  {
+    "id": "9ea5f1d1-5de9-4ffc-acf1-e10e4df9e809",
+    "name": "Gelber Schimmel",
+    "name_en": "Yellow Mold"
+  },
+  {
+    "id": "16969cc4-b8d6-4409-be18-e68ebbd2fab4",
+    "name": "Gespenst",
+    "name_en": "Spectre"
+  },
+  {
+    "id": "b417a7f6-df04-4dbb-af11-e533ba89a77d",
+    "name": "Ghast",
+    "name_en": "Ghast"
+  },
+  {
+    "id": "78386fa7-ba98-408c-90f5-f07fabbf6e56",
+    "name": "Ghul",
+    "name_en": "Ghoul"
+  },
+  {
+    "id": "88e61345-5f72-4a0f-9d1f-ef117bfa8da9",
+    "name": "Gibbernder Schlund",
+    "name_en": "Gibbering Mouther"
+  },
+  {
+    "id": "5802a342-dcf4-43d4-aae3-fd2ada78867a",
+    "name": "Githyanki",
+    "name_en": "Githyanki"
+  },
+  {
+    "id": "efaefbf8-50ba-45f3-8658-dd7cfba2ec40",
+    "name": "Githzerai",
+    "name_en": "Githzerai"
+  },
+  {
+    "id": "716e7a79-0463-48bc-9855-9019bcc599bb",
+    "name": "Glabrezu",
+    "name_en": "Glabrezu"
+  },
+  {
+    "id": "527af4eb-4f96-4231-88ac-8fac550ab748",
+    "name": "Gnoll",
+    "name_en": "Gnoll"
+  },
+  {
+    "id": "3331794c-ecfc-4d56-9e23-1f211a9120c3",
+    "name": "Goblin",
+    "name_en": "Goblin"
+  },
+  {
+    "id": "c8d0744e-5ff6-4ba5-a423-3ccc0cb67672",
+    "name": "Golddrache (Erwachsen)",
+    "name_en": "Gold Dragon (Adult)"
+  },
+  {
+    "id": "2e255988-c85e-4ede-b97b-23e41d78f3fe",
+    "name": "Gorgon",
+    "name_en": "Gorgon"
+  },
+  {
+    "id": "a70d1de2-767f-4a8c-85a1-febe3b0ce8ea",
+    "name": "Grauer Schleim",
+    "name_en": "Gray Ooze"
+  },
+  {
+    "id": "98979f50-f737-4a52-8b7c-eb86dd4603e3",
+    "name": "Greif",
+    "name_en": "Griffon"
+  },
+  {
+    "id": "485d4c87-7cc8-4769-91ee-2eb752b2c916",
+    "name": "Grubenteufel",
+    "name_en": "Pit Fiend"
+  },
+  {
+    "id": "737b66d6-8137-42f4-bc8d-3cded31e17e3",
+    "name": "Grüner Drache (Erwachsen)",
+    "name_en": "Green Dragon (Adult)"
+  },
+  {
+    "id": "186d63eb-2505-4424-81eb-6d13b282ff5b",
+    "name": "Grüner Schleim",
+    "name_en": "Green Slime"
+  },
+  {
+    "id": "07f3428c-6230-4949-bbab-202102c4e26d",
+    "name": "Hakengrausamkeit",
+    "name_en": "Hook Horror"
+  },
+  {
+    "id": "e1a70b52-0e3d-4fdb-965f-297714ab5d75",
+    "name": "Hezrou",
+    "name_en": "Hezrou"
+  },
+  {
+    "id": "d8173f2f-7342-4382-9229-e89c6231e78a",
+    "name": "Hippogryph",
+    "name_en": "Hippogriff"
+  },
+  {
+    "id": "f29578b2-fc23-4336-8582-8b55afe0fe0a",
+    "name": "Hobgoblin",
+    "name_en": "Hobgoblin"
+  },
+  {
+    "id": "1b8e5a68-d739-419f-a61e-b6f2e21a081d",
+    "name": "Höhlenbär",
+    "name_en": "Cave Bear"
+  },
+  {
+    "id": "72939647-f425-4685-b2fc-a40507cfea74",
+    "name": "Homunculus",
+    "name_en": "Homunculus"
+  },
+  {
+    "id": "8f11a0b4-4881-4cbb-b359-8e3f550bf92d",
+    "name": "Huecuva",
+    "name_en": "Huecuva"
+  },
+  {
+    "id": "17692fd9-dd69-4f43-b41b-aaa638cd195e",
+    "name": "Hügelriese",
+    "name_en": "Hill Giant"
+  },
+  {
+    "id": "5e78ea65-6cf1-4b05-a8f3-a1915215fe8c",
+    "name": "Illithid",
+    "name_en": "Mind Flayer"
+  },
+  {
+    "id": "c10da93a-c336-4e25-b3a9-03f84d2c9bb8",
+    "name": "Imp",
+    "name_en": "Imp"
+  },
+  {
+    "id": "3d99e134-3e9a-4b92-8169-3e43f3c3e8db",
+    "name": "Intellektverschlinger",
+    "name_en": "Intellect Devourer"
+  },
+  {
+    "id": "42743a2d-925c-45a2-8d74-335d9552b508",
+    "name": "Irrlicht",
+    "name_en": "Will-o'-Wisp"
+  },
+  {
+    "id": "1578fbf4-0e26-4eae-8e33-d2e1e01ec290",
+    "name": "Juju-Zombie",
+    "name_en": "Juju Zombie"
+  },
+  {
+    "id": "9dce0e4b-300d-46cd-b601-0c330e5b9c46",
+    "name": "Knochenteufel",
+    "name_en": "Bone Devil"
+  },
+  {
+    "id": "7445eca8-e871-4986-93b4-e33bbab980d9",
+    "name": "Kobold",
+    "name_en": "Kobold"
+  },
+  {
+    "id": "891bd517-2b61-4589-87ad-df5b7fe09aeb",
+    "name": "Kreischer",
+    "name_en": "Shrieker"
+  },
+  {
+    "id": "cdf6d9c4-e0cb-4ae7-99fe-9229e44593cc",
+    "name": "Kristallschleim",
+    "name_en": "Crystal Ooze"
+  },
+  {
+    "id": "284a8820-f9cf-4b2a-bef7-336c33c53c5d",
+    "name": "Kryptenwächter",
+    "name_en": "Crypt Thing"
+  },
+  {
+    "id": "cf1aebfd-e503-407f-8ba3-2154fc04c521",
+    "name": "Kuo-Toa",
+    "name_en": "Kuo-Toa"
+  },
+  {
+    "id": "de365c54-39e5-4a5d-85c8-e7b71ea96bdb",
+    "name": "Kupferdrache (Erwachsen)",
+    "name_en": "Copper Dragon (Adult)"
+  },
+  {
+    "id": "b64eb5cd-10a8-483d-a686-a24fda647e38",
+    "name": "Lebende Rüstung",
+    "name_en": "Animated Armor"
+  },
+  {
+    "id": "17a74125-0ffe-4218-9ce7-824d85e3dacd",
+    "name": "Lehmgolem",
+    "name_en": "Clay Golem"
+  },
+  {
+    "id": "f99b482c-0967-4d78-8702-58678023e35e",
+    "name": "Lemure",
+    "name_en": "Lemure"
+  },
+  {
+    "id": "dbf8cc6c-e44f-4274-8036-ebb45f0bbfb0",
+    "name": "Lich",
+    "name_en": "Lich"
+  },
+  {
+    "id": "9abd6089-51f3-4cc7-aebd-2027a1928d14",
+    "name": "Lizardman",
+    "name_en": "Lizard Man"
+  },
+  {
+    "id": "7d185771-221e-4269-8543-497e8737c3d2",
+    "name": "Luftelemental (12 TW)",
+    "name_en": "Air Elemental (12 HD)"
+  },
+  {
+    "id": "df608b4d-2538-4122-b02d-a137c1c1ded0",
+    "name": "Mantikor",
+    "name_en": "Manticore"
+  },
+  {
+    "id": "220f7ed2-ea30-4a09-b58f-45d4941fd72a",
+    "name": "Marid",
+    "name_en": "Marid"
+  },
+  {
+    "id": "8c580c75-b04c-4006-b323-92ab09c8479e",
+    "name": "Marilith",
+    "name_en": "Marilith"
+  },
+  {
+    "id": "915a0183-2b17-48d0-ae5f-f8608aa57c30",
+    "name": "Medusa",
+    "name_en": "Medusa"
+  },
+  {
+    "id": "d92b999c-98df-4a7e-bd86-f5cdc628da75",
+    "name": "Mephit (Eis)",
+    "name_en": "Mephit (Ice)"
+  },
+  {
+    "id": "67333b0f-bca6-47cb-b43e-867b0f693dbe",
+    "name": "Mephit (Feuer)",
+    "name_en": "Mephit (Fire)"
+  },
+  {
+    "id": "071fedc3-323c-46a0-b96e-c347fb42c451",
+    "name": "Messingdrache (Erwachsen)",
+    "name_en": "Brass Dragon (Adult)"
+  },
+  {
+    "id": "d607af96-a6fe-4bca-a8a1-5c1d5d402e09",
+    "name": "Mimic",
+    "name_en": "Mimic"
+  },
+  {
+    "id": "5f3bfd3b-12e5-4bc5-add0-56587f706d78",
+    "name": "Minotaurus",
+    "name_en": "Minotaur"
+  },
+  {
+    "id": "ec9c9ae1-74f8-45a6-a12b-1958059dabe0",
+    "name": "Mumie",
+    "name_en": "Mummy"
+  },
+  {
+    "id": "c3153758-ed0c-40c6-b8ce-9be7d6f0a6a4",
+    "name": "Nachtmahr",
+    "name_en": "Nightmare"
+  },
+  {
+    "id": "65336b27-02aa-4880-90ab-ed01aec32ac1",
+    "name": "Nalfeshnee",
+    "name_en": "Nalfeshnee"
+  },
+  {
+    "id": "61bdf113-1e71-4ac6-99a1-1a637746fb23",
+    "name": "Nixe",
+    "name_en": "Nixie"
+  },
+  {
+    "id": "b0fb18fe-f9d4-4525-bcf0-530bb67bafc0",
+    "name": "Norker",
+    "name_en": "Norker"
+  },
+  {
+    "id": "73e71bd2-c033-4117-bcfe-42342bed4ddf",
+    "name": "Ockergelee",
+    "name_en": "Ochre Jelly"
+  },
+  {
+    "id": "2800ccac-2b94-4adb-a9ff-93f49a9dc442",
+    "name": "Ogermagier",
+    "name_en": "Ogre Mage"
+  },
+  {
+    "id": "0182e5f5-2ac2-4e76-af23-3ce23ecb7167",
+    "name": "Ogre",
+    "name_en": "Ogre"
+  },
+  {
+    "id": "20e1e3a2-52c3-4815-bbf3-131513a1e063",
+    "name": "Orc",
+    "name_en": "Orc"
+  },
+  {
+    "id": "50c08313-c43f-4768-b787-9a6c4ffc7c57",
+    "name": "Otyugh",
+    "name_en": "Otyugh"
+  },
+  {
+    "id": "caf01f44-8452-45b0-9ec8-0a4e1f0ffc31",
+    "name": "Pegasus",
+    "name_en": "Pegasus"
+  },
+  {
+    "id": "33b48c1d-3cb2-4fa1-a18b-9f87aed3c4a7",
+    "name": "Peryton",
+    "name_en": "Peryton"
+  },
+  {
+    "id": "8af7f07f-a306-49e7-b187-4b96f4ccbe1a",
+    "name": "Phasenspinne",
+    "name_en": "Phase Spider"
+  },
+  {
+    "id": "3d6cb45e-a471-4265-975d-ec5e7c3c0808",
+    "name": "Piercer",
+    "name_en": "Piercer"
+  },
+  {
+    "id": "10805627-1e77-4329-9eb7-18ace29f696c",
+    "name": "Pixie",
+    "name_en": "Pixie"
+  },
+  {
+    "id": "ddbd68cf-54e4-4da6-bf06-12c2d44a5d1f",
+    "name": "Poltergeist",
+    "name_en": "Poltergeist"
+  },
+  {
+    "id": "edd99d47-cde0-4085-9d9e-320917a440a3",
+    "name": "Quasit",
+    "name_en": "Quasit"
+  },
+  {
+    "id": "49f4f643-48da-4287-9b53-fe9d7e8d7a15",
+    "name": "Rakshasa",
+    "name_en": "Rakshasa"
+  },
+  {
+    "id": "013447d5-3ec4-4cb0-9b29-62831c6ed203",
+    "name": "Revenant",
+    "name_en": "Revenant"
+  },
+  {
+    "id": "04ce7eb2-8241-4b9c-992c-532e2ca88bd8",
+    "name": "Riesenadler",
+    "name_en": "Giant Eagle"
+  },
+  {
+    "id": "8094d7ca-a2d9-4fd5-9a15-b37b3f09ff8c",
+    "name": "Rieseneidechse",
+    "name_en": "Giant Lizard"
+  },
+  {
+    "id": "600efca6-50e1-4ab9-8731-59c14c6dda06",
+    "name": "Rieseneule",
+    "name_en": "Giant Owl"
+  },
+  {
+    "id": "8242f3b3-3abb-4808-b0ae-3a293ea04fdc",
+    "name": "Riesenratte",
+    "name_en": "Giant Rat"
+  },
+  {
+    "id": "8ff51b19-b652-47a9-92e0-9549feeaec8b",
+    "name": "Riesenskorpion",
+    "name_en": "Giant Scorpion"
+  },
+  {
+    "id": "6588e10f-9100-44db-8ae5-8aa2c1e93d3a",
+    "name": "Riesenspinne",
+    "name_en": "Giant Spider"
+  },
+  {
+    "id": "8ab83e04-b604-4c5c-958a-a7d99edd7de3",
+    "name": "Riesentausendfüßler",
+    "name_en": "Giant Centipede"
+  },
+  {
+    "id": "ef0ed5b9-746f-4539-bf38-6fa951d56cc9",
+    "name": "Riesenwespe",
+    "name_en": "Giant Wasp"
+  },
+  {
+    "id": "bff35554-eb5b-4836-996b-e6c609f790fa",
+    "name": "Roc",
+    "name_en": "Roc"
+  },
+  {
+    "id": "659cc4e0-203f-481b-9c85-0d5ffdf311ab",
+    "name": "Roper",
+    "name_en": "Roper"
+  },
+  {
+    "id": "aae31dbb-2905-4bf4-bd7d-b99381458264",
+    "name": "Rostmonster",
+    "name_en": "Rust Monster"
+  },
+  {
+    "id": "a1fbec0d-d22c-44b5-a80e-1cd1991a4ef8",
+    "name": "Roter Drache (Erwachsen)",
+    "name_en": "Red Dragon (Adult)"
+  },
+  {
+    "id": "e1998d5d-40f4-4fc9-88f7-02a251f5ee9f",
+    "name": "Sahuagin",
+    "name_en": "Sahuagin"
+  },
+  {
+    "id": "75aa97af-1a00-4455-b0c1-366d7140a179",
+    "name": "Salamander",
+    "name_en": "Salamander"
+  },
+  {
+    "id": "d9f7bc04-9065-4481-a7e7-c29afe2243e6",
+    "name": "Satyr",
+    "name_en": "Satyr"
+  },
+  {
+    "id": "f57edf57-0c0c-4a16-accf-fc1e70a08fb7",
+    "name": "Schatten",
+    "name_en": "Shadow"
+  },
+  {
+    "id": "3447c7e6-2699-4acb-a204-e1cd69c6d142",
+    "name": "Schattendrache",
+    "name_en": "Shadow Dragon"
+  },
+  {
+    "id": "d2e9d5df-3e35-42cc-b9e2-dc0f48c383ff",
+    "name": "Schildwächter",
+    "name_en": "Shield Guardian"
+  },
+  {
+    "id": "0e2da8ee-f9fb-441c-9e36-21d33b09fe29",
+    "name": "Schrecklicher Wolf",
+    "name_en": "Dire Wolf"
+  },
+  {
+    "id": "e71ad1b4-9c1a-4435-be38-a3571152d95a",
+    "name": "Schwarzer Drache (Erwachsen)",
+    "name_en": "Black Dragon (Adult)"
+  },
+  {
+    "id": "8fee7df5-63cf-4ed9-aabe-da4ad83ed0de",
+    "name": "Schwarzer Pudding",
+    "name_en": "Black Pudding"
+  },
+  {
+    "id": "00d8b340-672f-4396-89e2-834cd92f2222",
+    "name": "Senfgelee",
+    "name_en": "Mustard Jelly"
+  },
+  {
+    "id": "17fe4c9b-cc38-43f8-ae49-3b920c777843",
+    "name": "Silberdrache (Erwachsen)",
+    "name_en": "Silver Dragon (Adult)"
+  },
+  {
+    "id": "50f2e1ae-27d8-4f61-866a-15dac799536f",
+    "name": "Skelett",
+    "name_en": "Skeleton"
+  },
+  {
+    "id": "88ea38ea-669a-494d-9683-c040edc7cc2a",
+    "name": "Skelettritter",
+    "name_en": "Skeleton Warrior"
+  },
+  {
+    "id": "69c96251-dc80-4d09-9218-c6bf08ab1d2c",
+    "name": "Steingolem",
+    "name_en": "Stone Golem"
+  },
+  {
+    "id": "1a4628fd-cde4-4067-904a-89584c34647d",
+    "name": "Steinriese",
+    "name_en": "Stone Giant"
+  },
+  {
+    "id": "b20033a0-52a5-4cd2-8934-98a638648176",
+    "name": "Stirge",
+    "name_en": "Stirge"
+  },
+  {
+    "id": "f97dd1c6-b4d2-498b-8a7e-2d7ffb424e11",
+    "name": "Sturmriese",
+    "name_en": "Storm Giant"
+  },
+  {
+    "id": "9aa11f9a-3004-4328-b6ef-1355ebec85a6",
+    "name": "Todesritter",
+    "name_en": "Death Knight"
+  },
+  {
+    "id": "bdb902ce-c5b7-4211-b5ae-729a9692224f",
+    "name": "Treant",
+    "name_en": "Treant"
+  },
+  {
+    "id": "270b4417-aacd-43a8-bfd4-5b9b42bf1f45",
+    "name": "Troglodyte",
+    "name_en": "Troglodyte"
+  },
+  {
+    "id": "1b08f873-2cee-422d-8f1c-17099381f8a9",
+    "name": "Troll",
+    "name_en": "Troll"
+  },
+  {
+    "id": "a8c3c8f9-48d8-438a-85da-387e1a8ffc94",
+    "name": "Umber Hulk",
+    "name_en": "Umber Hulk"
+  },
+  {
+    "id": "a46a7077-56d6-44d5-9ed7-5015cb864eb7",
+    "name": "Unsichtbarer Pirscher",
+    "name_en": "Invisible Stalker"
+  },
+  {
+    "id": "1f5f82ef-c0c2-430f-881e-467200e28331",
+    "name": "Vampir",
+    "name_en": "Vampire"
+  },
+  {
+    "id": "98744640-137b-4aff-97a6-bdd37c276be3",
+    "name": "Verlagerungsbestie",
+    "name_en": "Displacer Beast"
+  },
+  {
+    "id": "8d853d1e-636b-48be-8427-9131513b9c19",
+    "name": "Violetter Pilz",
+    "name_en": "Violet Fungus"
+  },
+  {
+    "id": "f558a14b-fa43-4137-87e2-7f7e0580307a",
+    "name": "Vogelscheuche",
+    "name_en": "Scarecrow"
+  },
+  {
+    "id": "af67fa63-d008-4bad-aa91-3ac939447889",
+    "name": "Vrock",
+    "name_en": "Vrock"
+  },
+  {
+    "id": "e9036941-45b8-4944-baff-a2b51627cb04",
+    "name": "Wandelnder Hügel",
+    "name_en": "Shambling Mound"
+  },
+  {
+    "id": "db332c30-6c0c-4068-9379-b2f41f130ded",
+    "name": "Warg",
+    "name_en": "Worg"
+  },
+  {
+    "id": "211b04e7-9c8e-4cdb-acf3-5db68bb6d427",
+    "name": "Wasserelemental (12 TW)",
+    "name_en": "Water Elemental (12 HD)"
+  },
+  {
+    "id": "ec697d78-9c4b-4857-a350-4507a9b33fd7",
+    "name": "Weißer Drache (Erwachsen)",
+    "name_en": "White Dragon (Adult)"
+  },
+  {
+    "id": "7b9a5983-7b9d-4aea-8b91-f94cffd07a3b",
+    "name": "Weißer Drache (Jung)",
+    "name_en": "White Dragon (Young)"
+  },
+  {
+    "id": "337a51b5-4213-4213-bbc3-c7b093ccd33f",
+    "name": "Wereber",
+    "name_en": "Wereboar"
+  },
+  {
+    "id": "97bd3238-3bb4-4cec-92bb-fc39e6552d19",
+    "name": "Werrate",
+    "name_en": "Wererat"
+  },
+  {
+    "id": "8a13818c-b2d7-47be-9017-94da4ca18cd4",
+    "name": "Werwolf",
+    "name_en": "Werewolf"
+  },
+  {
+    "id": "64d954e4-3f82-475b-b92f-f5bfb63a9dbb",
+    "name": "Wight",
+    "name_en": "Wight"
+  },
+  {
+    "id": "101036eb-4cf6-4612-b9e9-ad83c02a3b8b",
+    "name": "Wildschwein",
+    "name_en": "Wild Boar"
+  },
+  {
+    "id": "9fc5ff56-0516-411e-a3c1-7d82dc1d15dd",
+    "name": "Winterwolf",
+    "name_en": "Winter Wolf"
+  },
+  {
+    "id": "ee6abec1-6722-4373-9748-65992fc5de87",
+    "name": "Wolkenriese",
+    "name_en": "Cloud Giant"
+  },
+  {
+    "id": "33d7a62a-4208-4fe8-9f21-cf0d1c30c699",
+    "name": "Wyvern",
+    "name_en": "Wyvern"
+  },
+  {
+    "id": "06417257-3e71-4507-b673-33aa7e149834",
+    "name": "Xorn",
+    "name_en": "Xorn"
+  },
+  {
+    "id": "ecfccc02-7405-46c7-b1ce-0bdf007b067a",
+    "name": "Xvart",
+    "name_en": "Xvart"
+  },
+  {
+    "id": "2f262b1d-b5cb-4368-8f45-1cc1767dc4b1",
+    "name": "Yugoloth (Mezzoloth)",
+    "name_en": "Yugoloth (Mezzoloth)"
+  },
+  {
+    "id": "2fb7e1bb-3d99-4df5-9b3d-fd8e64ed2795",
+    "name": "Zombie",
+    "name_en": "Zombie"
+  }
+]
