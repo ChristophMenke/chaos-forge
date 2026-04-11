@@ -30,6 +30,8 @@ import path from "path";
 import sharp from "sharp";
 import dotenv from "dotenv";
 import type { MonsterRow } from "../src/lib/supabase/types";
+import { NAME_OVERRIDES } from "./backfill-monsters-from-compendium";
+import type { ParsedMonster } from "./parse-compendium";
 
 dotenv.config({ path: path.resolve(__dirname, "..", ".env.local") });
 
@@ -37,6 +39,7 @@ dotenv.config({ path: path.resolve(__dirname, "..", ".env.local") });
 
 const SNAPSHOT_DIR = path.resolve(__dirname, "..", "ressources", "compendium-snapshot");
 const GIF_DIR = path.join(SNAPSHOT_DIR, "mm", "img");
+const PARSED_PATH = path.join(SNAPSHOT_DIR, "parsed.json");
 const BACKUP_PATH = path.join(SNAPSHOT_DIR, "pre-ingest-image-urls.json");
 const REPORT_PATH = path.join(SNAPSHOT_DIR, "image-ingest-report.md");
 
@@ -52,16 +55,62 @@ function normaliseName(s: string | null | undefined): string {
     .replace(/[^a-z0-9]+/g, "");
 }
 
+function tokenSortName(s: string | null | undefined): string {
+  if (!s) return "";
+  return s
+    .toLowerCase()
+    .replace(/ß/g, "ss")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean)
+    .sort()
+    .join("");
+}
+
 /** GIF → WebP via sharp. Animated GIFs are flattened to the first frame. */
 export async function gifToWebp(gifBuffer: Buffer): Promise<Buffer> {
   return sharp(gifBuffer, { animated: false }).webp({ quality: 85 }).toBuffer();
 }
 
-export function findMatchingGif(monster: MonsterRow, gifKeys: Set<string>): string | null {
+/**
+ * Find the GIF file key (without extension) that corresponds to a DB monster.
+ *
+ * Strategy — mirrors the backfill match logic so anything that backfill
+ * successfully mapped to a compendium entry also gets the corresponding
+ * image:
+ * 1. Direct filename match against normalised name_en / name
+ * 2. NAME_OVERRIDES reverse lookup (German seed name → compendium key)
+ * 3. Token-sort match against parsed.json entries (order-insensitive)
+ * 4. Normalised name_en match against parsed.json monster_key
+ */
+export function findMatchingGif(
+  monster: MonsterRow,
+  gifKeys: Set<string>,
+  parsed: ParsedMonster[] = []
+): string | null {
+  // (1) Direct match — GIF filenames are monster_keys, but many match
+  //     a plain name_en like "goblin" or "troll".
   const keyNorm = normaliseName(monster.name_en);
   if (keyNorm && gifKeys.has(keyNorm)) return keyNorm;
   const nameNorm = normaliseName(monster.name);
   if (nameNorm && gifKeys.has(nameNorm)) return nameNorm;
+
+  // (2) Override map: German seed name → compendium monster_key.
+  //     Catches "Blauer Drache (Erwachsen)" → "dragcblu" → dragcblu.gif.
+  const overrideKey = NAME_OVERRIDES[monster.name];
+  if (overrideKey && gifKeys.has(overrideKey)) return overrideKey;
+
+  // (3) + (4) Lookup in parsed.json.
+  if (parsed.length === 0) return null;
+  const nameEnSort = tokenSortName(monster.name_en);
+  const nameEnLower = (monster.name_en ?? "").toLowerCase();
+  for (const p of parsed) {
+    if (!gifKeys.has(p.monster_key)) continue;
+    if (tokenSortName(p.name_en) === nameEnSort && nameEnSort !== "") return p.monster_key;
+    if (normaliseName(p.name_en) === keyNorm && keyNorm !== "") return p.monster_key;
+    if (p.name_en.toLowerCase() === nameEnLower && nameEnLower !== "") return p.monster_key;
+  }
   return null;
 }
 
@@ -124,6 +173,13 @@ async function main(): Promise<void> {
   }
   console.log(`  ${gifKeys.size} Compendium-GIFs verfügbar`);
 
+  // 3b. Load parsed.json so findMatchingGif can cross-reference compendium
+  //     monster_keys via the same match strategies the backfill uses.
+  const parsed: ParsedMonster[] = existsSync(PARSED_PATH)
+    ? JSON.parse(readFileSync(PARSED_PATH, "utf-8"))
+    : [];
+  console.log(`  ${parsed.length} Compendium-Einträge in parsed.json`);
+
   // 4. Process each monster
   const report: IngestReport = {
     total: monsters.length,
@@ -144,7 +200,7 @@ async function main(): Promise<void> {
     const monster = monsters[i];
     const progress = `[${i + 1}/${monsters.length}]`;
 
-    const matchedKey = findMatchingGif(monster, gifKeys);
+    const matchedKey = findMatchingGif(monster, gifKeys, parsed);
     if (!matchedKey) {
       report.withoutMatch++;
       processedRows.push({ id: monster.id, name: monster.name, outcome: "no-match" });
