@@ -1339,8 +1339,10 @@ function MonsterDetailModal({
               </p>
             )}
 
-            {/* Core stats — Monster Manual style block with icons */}
-            <div className="mb-4 grid grid-cols-4 gap-2">
+            {/* Core stats — Monster Manual style block with icons.
+                On narrow mobile viewports 4 columns clips long labels like
+                "Trefferwürfel" and "Bewegungsrate", so stack 2×2 below sm. */}
+            <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
               {[
                 {
                   label: t("ac"),
@@ -1384,8 +1386,10 @@ function MonsterDetailModal({
               ))}
             </div>
 
-            {/* Combat stats — full labels */}
-            <div className="mb-4 grid grid-cols-2 gap-2">
+            {/* Combat stats — full labels.
+                Stack single-column on mobile so "Spezialverteidigung" and
+                long German special-attack descriptions don't clip. */}
+            <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
               {[
                 { label: t("monsterAttacksFull"), value: monster.attacks_per_round },
                 { label: t("monsterDamageFull"), value: monster.damage },
@@ -1395,10 +1399,10 @@ function MonsterDetailModal({
                 .filter((s) => s.value)
                 .map((s) => (
                   <div key={s.label} className="rounded border border-border/30 px-3 py-2">
-                    <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                    <div className="break-words text-xs uppercase tracking-wider text-muted-foreground">
                       {s.label}
                     </div>
-                    <div className="text-sm">{s.value}</div>
+                    <div className="break-words text-sm">{s.value}</div>
                   </div>
                 ))}
             </div>
