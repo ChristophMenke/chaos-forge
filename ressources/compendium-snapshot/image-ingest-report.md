@@ -1,0 +1,424 @@
+# Monster Image Ingest Report
+
+Generated: 2026-04-11T10:48:05.967Z
+
+## Summary
+
+- **317** Monster mit neuem WebP-Bild
+- **89** Monster ohne passendes GIF im Snapshot (React-Fallback)
+- **0** Fehler
+- **406** Seed-Monster insgesamt verarbeitet
+
+## Monster mit neuem Bild
+
+- Derro (`57753c72-30f1-480c-9b4a-a9f12dbe368c`)
+- Blauer Drache (Erwachsen) (`016bfcc1-3757-44d2-9e73-144007973401`)
+- Drow (`43284770-cfb7-47dc-b83e-9762c1325745`)
+- Ankheg (`9cbaef5e-b8c7-4bec-a09b-2b487589b40d`)
+- Aasräuber (`ce6b1b2b-7a45-4790-8c34-31b625c52cc8`)
+- Nebelriese (`9e945f11-45e1-4496-b610-a5ec09dc4434`)
+- Riese, Fomorianischer (`f49d24dc-2ed9-4af4-aa5d-e30252ac58b1`)
+- Frostriese (`a822e9d0-3341-437d-b493-bdc155be2a0a`)
+- Vogel (`32d4f9f9-b78c-4300-a688-602f9884264e`)
+- Hügelriese (`17692fd9-dd69-4f43-b41b-aaa638cd195e`)
+- Riese, Berg- (`aa067245-6c28-4b81-93c7-6b0e655dbef1`)
+- Steinriese (`1a4628fd-cde4-4067-904a-89584c34647d`)
+- Luftelemental (12 TW) (`7d185771-221e-4269-8543-497e8737c3d2`)
+- Dracolich (`41630ff4-7acc-4309-a46e-0a8b18e8ed11`)
+- Aboleth (`505bceb1-21a8-46f1-a062-2d04c1d7d848`)
+- Ameise (`85628220-33ca-4a69-9c52-3616520035c5`)
+- Fleischfressender Affe (`52f38e71-4152-471a-b6f6-1eaf26b61687`)
+- Aurumvorax (`6003b255-d15a-467b-bee1-80e3d2ab940a`)
+- Golddrache (Erwachsen) (`c8d0744e-5ff6-4ba5-a423-3ccc0cb67672`)
+- Baatezu, Niedere, Abishai (`f006beed-78ff-4ac7-a3c8-358bfa73fa72`)
+- Weißer Drache (Jung) (`7b9a5983-7b9d-4aea-8b91-f94cffd07a3b`)
+- Grubenteufel (`485d4c87-7cc8-4769-91ee-2eb752b2c916`)
+- Bugbear (`25e1722c-44ed-4c53-a80a-38f0582dc732`)
+- Lich (`dbf8cc6c-e44f-4274-8036-ebb45f0bbfb0`)
+- Dachs (`3b7016ad-3c17-43c7-b273-97305c77218a`)
+- Banshee (`3fe4449b-f076-46ed-b5af-102709c4644d`)
+- Basilisk (`7b933cd7-6d39-4d90-a0ea-fcfa0dd6005c`)
+- Riesenkäfer (`d196bd28-e1ae-4fb9-a14f-5358b38b8307`)
+- Aarakocra (`fef166a6-0bff-4830-99e5-b43edb6606c7`)
+- Ameisenlöwe, Riesenameisenlöwe (`ee1a9aff-350e-4edc-9164-ce8f76d2ce28`)
+- Barrakuda (`81719f11-3cc7-4d58-8179-0a341876c1aa`)
+- Behir (`36447632-95fe-492b-9a44-955a1d7223b2`)
+- Bücherwurm (`bdd2a6a6-3200-4b37-a54f-455b21fd7804`)
+- Couatl (`9279a170-81c7-4985-918d-146a51571f94`)
+- Wildschwein (`101036eb-4cf6-4612-b9e9-ad83c02a3b8b`)
+- Gehirnmaulwurf (`d717a9dc-86b5-4351-952c-d4f0cb5747d0`)
+- Drache, Allgemeine Informationen (`8df7adde-909f-4950-94b2-1a2a53f2f668`)
+- Gebrochene (`b6313384-ce4b-4625-884b-6342e8348233`)
+- Bulette (`8c380a49-ba6a-4800-a9be-a301491c0515`)
+- Bullywug (`184f3e85-17dc-402d-84d6-b685c3bdf79b`)
+- Katze, Klein (`cdbbaa45-872f-4242-b468-4bb06f0d2b86`)
+- Höhlenfischer (`9163f72b-79f5-4b4c-9382-2d608f84b57d`)
+- Tausendfüßer (`b648f2bb-8451-469f-bcfa-eb465162f92b`)
+- Chimäre (`2fa8824e-cc97-47ae-879f-7c571b9ee144`)
+- Cloaker (`0a370bd8-1736-4d13-a8c0-a1a1835d5f78`)
+- Cockatrice (`6c685aaa-012b-407e-87ef-71a4c080a28f`)
+- Fisch (`d829514d-0a84-4903-9ad2-0ecd4aef6285`)
+- Kriechende Klaue (`2afc8b7d-7c8e-45f7-9044-72f37e129f20`)
+- Krokodil (`8dd720a8-56e8-48f1-abf3-524abf428686`)
+- Krebstier, Riesig (`f3706ebb-3389-4139-aee8-f7305438d022`)
+- Kryptenwächter (`284a8820-f9cf-4b2a-bef7-336c33c53c5d`)
+- Todesritter (`9aa11f9a-3004-4328-b6ef-1355ebec85a6`)
+- Revenant (`013447d5-3ec4-4cb0-9b29-62831c6ed203`)
+- Dinosaurier I (`4307cdce-f7f4-4374-90e2-88fff22cee3d`)
+- Verlagerungsbestie (`98744640-137b-4aff-97a6-bdd37c276be3`)
+- Doppelgänger (`6542721a-fd42-4579-9ed6-fa42584ba3f8`)
+- Brauner Drache (`ea9d0799-e7bd-404d-aa7c-aa190144796f`)
+- Schwarzer Drache (Erwachsen) (`e71ad1b4-9c1a-4435-be38-a3571152d95a`)
+- Grüner Drache (Erwachsen) (`737b66d6-8137-42f4-bc8d-3cded31e17e3`)
+- Roter Drache (Erwachsen) (`a1fbec0d-d22c-44b5-a80e-1cd1991a4ef8`)
+- Weißer Drache (Erwachsen) (`ec697d78-9c4b-4857-a350-4507a9b33fd7`)
+- Tiefendrache (`1ed8b61a-70e9-4075-8969-2be5ec32f2fd`)
+- Amethystdrache (`c904f43f-48ef-4b5d-8109-3997466b3d79`)
+- Kristalldrache (`7d45eee7-f32e-4b88-8dc9-188e05362261`)
+- Smaragddrache (`5dcdf672-9789-41c0-9eb6-921c69d412d3`)
+- Saphirdrache (`0bcee064-db60-4dc7-919d-cef062cb99a0`)
+- Topazdrache (`244e6dd8-29f9-4f68-8542-2209215acdbc`)
+- Messingdrache (Erwachsen) (`071fedc3-323c-46a0-b96e-c347fb42c451`)
+- Schimmel I (`8720e5c9-dfce-4b3b-aecd-dc834ae1daba`)
+- Bronzedrache (Erwachsen) (`e6e6cf4f-d456-4ba1-8f2b-b81c704620a0`)
+- Kupferdrache (Erwachsen) (`de365c54-39e5-4a5d-85c8-e7b71ea96bdb`)
+- Schleim/Glibber/Gallert I (`c60f9fb8-7e16-4420-9e79-daeab2297f22`)
+- Quecksilberdrache (`eea1341b-d665-4a91-b5ce-5a6ed702e469`)
+- Nebeldrache (`004afbcb-f0ce-4a1e-916f-8c74c20ada58`)
+- Silberdrache (Erwachsen) (`17fe4c9b-cc38-43f8-ae49-3b920c777843`)
+- Schattendrache (`3447c7e6-2699-4acb-a204-e1cd69c6d142`)
+- Stahldrache (`95f0222c-2f3d-4872-9902-b1757403adf9`)
+- Golem I (Größerer Golem) (`223ed488-80f7-4abc-9796-1ce28d369f32`)
+- Gelber Drache (`db8afd84-0925-4841-a77b-3b5a8f4133ee`)
+- Drachenfisch (`24302787-a7d0-49b6-b23b-5841ec0822b9`)
+- Sahuagin (`e1998d5d-40f4-4fc9-88f7-02a251f5ee9f`)
+- Pavian (`4e0786db-f5c7-4ea7-85c9-3ee725fda8d7`)
+- Dragonne (`e07a6d30-f72e-4abd-8af0-a0186e00dad1`)
+- Baatezu (`cc00c71c-e092-4d40-99bb-33a0a0a98282`)
+- Drachenschildkröte (`420f276d-4f13-4298-8215-97426f08e953`)
+- Brownie (`de323c3c-95c0-4fc0-b638-17ad2a1a10ad`)
+- Arkane (`ccdd5d45-e0c5-4b43-8159-c2a496a2ba0f`)
+- Feendrache (`f7952f05-fa23-4b93-9d70-aeb7f6526a1a`)
+- Feuerdrache (`78b41afd-e7d8-4b81-8b4c-d8482eb5fa1c`)
+- Pseudodrache (`d8f51b58-aa6a-4b81-8845-5c768e97888a`)
+- Krabbenmann (`4c6fa081-5dfb-4b36-8e2a-95d06b62efba`)
+- Hund (`904b79ba-c126-49c7-bba6-5e57d6ef9ac0`)
+- Dryade (`92334491-6039-4655-a7e6-2b63cf58dccf`)
+- Duergar (`3109c1b1-8242-4a1a-b533-e9bf12507de4`)
+- Zwerg (`9aca76cc-31b5-411f-8262-4e52152968ad`)
+- Rinnensalzwerg (`30a151b2-cc9e-4abe-b822-531559b1c28e`)
+- Elementar (Athas), Allgemeine Informationen (`cdc9840a-ddf1-45b8-b5fb-c87b8f0aa67c`)
+- Erdelemental (12 TW) (`79d7f51a-5278-4a6b-8596-4dca881c76ba`)
+- Feuerelemental (12 TW) (`288432a5-3ef5-45bc-8819-40d253c17be7`)
+- Elementar, Verbundelement (`5b7aa427-248b-4d9b-b5ee-814a03a36d21`)
+- Elementar, Allgemeine Informationen (`66cc8a3b-f4fd-48ae-9652-56676bb18fe5`)
+- Locathah (`04d89596-8017-4e4e-9e96-0715b57e613c`)
+- Elf (`0be7b709-3f81-4605-93c6-3100ade1c914`)
+- Elf, Wasseself (`8f038a0e-b0d6-4214-bf31-5f2a25faa423`)
+- Ettercap (`51be6943-7459-44db-867e-b0b9675a5403`)
+- Wurm (`41d90f49-43cb-4e81-9cd4-0f925d1d9d3a`)
+- Augenflügel (`70c4cf01-cd0c-4076-8a18-a216af9ac4bd`)
+- Feyr (`dda2f7a3-77c0-45e7-856b-9165893178eb`)
+- Pilz (`c49bcf19-54ca-4816-a3d1-7e5a39a6ae46`)
+- Galeb Duhr (`c57eda81-68da-4c6d-923e-086a0c7beffa`)
+- Gargantua (`b8373a3a-dca7-40f2-8bf5-84a8551a840d`)
+- Gargoyle (`bdf7ca38-69a5-4b80-979a-4b61b839fb18`)
+- Zentaur (`a2d55d8a-362e-418d-8be3-005eb171afa2`)
+- Goblin (`3331794c-ecfc-4d56-9e23-1f211a9120c3`)
+- Golem, Allgemeine Informationen (`75d5b7b9-5814-4c37-b64c-d8942b88877d`)
+- Delfin (`85ef3210-4db4-476f-b4cf-d920b765daec`)
+- Geist (`a4ccb67d-9f4f-4ab4-9ef6-26fdb76bcf20`)
+- Ghul (`78386fa7-ba98-408c-90f5-f07fabbf6e56`)
+- Adler (`1b8dcf1d-92af-4abc-aaec-21699fb284ba`)
+- Wolkenriese (`ee6abec1-6722-4373-9748-65992fc5de87`)
+- Riese, Zyklop (`5891f0b5-618e-4f6d-9fb6-df63b80d96cd`)
+- Ettin (`a1a67f73-128f-495a-ab63-bd08c77a7e5f`)
+- Riese, Firbolg (`dfc4ee67-3f41-49b3-bd24-c2b5b3293fa1`)
+- Feuerriese (`a41b6f32-3409-4a2d-97e8-5c1e4a715f6c`)
+- Gremlin (`e6bc3b3f-a714-42cf-9c79-ccb843055818`)
+- Sturmriese (`f97dd1c6-b4d2-498b-8a7e-2d7ffb424e11`)
+- Riese, Verbeeg (`386bf9f3-1d18-4d00-b37b-8ccbedbba5d1`)
+- Waldriese (`dfe9fa7a-1380-4c0a-9fe5-96c9bca305f3`)
+- Gibberling (`e6adf19c-eed7-4bf9-b221-92b1657d24b5`)
+- Gith (`51870ccb-89bd-414e-8ad5-2b829cf2e872`)
+- Gith-Pirat (`ba97ad80-f3c1-4783-a7b5-46551208c7e9`)
+- Githyanki (`5802a342-dcf4-43d4-aae3-fd2ada78867a`)
+- Githzerai (`efaefbf8-50ba-45f3-8658-dd7cfba2ec40`)
+- Haunt (`46e6cc10-b345-4b1d-9b02-1e245f79172b`)
+- Düsterflügel (`3908b906-ddfa-4a95-b8c6-e06e0be7d47c`)
+- Gnoll (`527af4eb-4f96-4231-88ac-8fac550ab748`)
+- Gnom (`95ce237f-ce73-47f3-a7a1-b2707c1ffbb3`)
+- Gnom, Spriggan (`28fcf700-2373-4ee5-b0a8-7ea3286e37e0`)
+- Golem II (Niederer Golem) (`dc4584ce-d41b-466d-8d20-9cfb90d8af88`)
+- Golem III (`0da7d70f-5e93-4e0e-8e85-df01120b159a`)
+- Necrophidius und Vogelscheuche (`5bab3209-9271-4d95-a8c0-db18699c57d0`)
+- Gorgon (`2e255988-c85e-4ede-b97b-23e41d78f3fe`)
+- Gremlin, Jermlaine (`0a9191ff-a23c-4df9-a26f-81ae33a1d7d1`)
+- Greif (`98979f50-f737-4a52-8b7c-eb86dd4603e3`)
+- Grimlock (`1acc33a7-e5f9-4474-a55c-d679d3f2c5e8`)
+- Grippli (`2b59e04c-fc17-4ad7-abb0-954d91c3616e`)
+- Wächterdämon (`97310ab2-9c76-4fa8-a60b-86beca0d92df`)
+- Hexe (`853ab9d5-6888-4c95-aae3-b5d17e68e100`)
+- Halbling (`6b11453a-a838-4916-a71c-99deaed270a8`)
+- Harpyie (`76d914ca-b4b2-49f8-b2f0-b48aa9ee08e9`)
+- Hatori (`8e0c139a-d8fa-4403-934d-c74d236e0b9e`)
+- Habicht (`e914aa5a-d127-4ad0-b403-5aa9b8de2fc2`)
+- Höllenhund (`61a6774c-176d-46fa-abf1-5d02391b27cf`)
+- Hippogryph (`d8173f2f-7342-4382-9229-e89c6231e78a`)
+- Hobgoblin (`f29578b2-fc23-4336-8582-8b55afe0fe0a`)
+- Homunculus (`72939647-f425-4685-b2fc-a40507cfea74`)
+- Hakengrausamkeit (`07f3428c-6230-4949-bbab-202102c4e26d`)
+- Riesenhornisse (`3c4c8347-ec9d-44b8-bdc6-4a884f0e86cb`)
+- Hydra (`443985dd-a475-4883-ab46-eeb64cd4d0ef`)
+- Hyäne (`b87766b4-aef2-4007-8958-2279565d10d0`)
+- Imp (`c10da93a-c336-4e25-b3a9-03f84d2c9bb8`)
+- Insektenschwarm (`8ed09db5-33ee-40c4-83a4-f5ab5d80793d`)
+- Intellektverschlinger (`3d99e134-3e9a-4b92-8169-3e43f3c3e8db`)
+- Unsichtbarer Pirscher (`a46a7077-56d6-44d5-9ed7-5015cb864eb7`)
+- Ixitxachitl (`071a2ca0-612a-43a4-9562-020d61b35f1e`)
+- Schakal (`f01bb5fd-1b88-4a4e-bb44-6ca0d8975b78`)
+- Kelpie (`6e47f344-ad5e-4e20-956c-3a5f5d299059`)
+- Kenku (`3cf86867-c308-4769-9ced-993f1fb4e5d9`)
+- Killmoulis (`127bfa87-62e6-4544-ac4a-7608af82d4e3`)
+- Ki-rin (`23dcb49f-e7c6-43e0-a0ac-0b0e54210cf7`)
+- Kobold (`7445eca8-e871-4986-93b4-e33bbab980d9`)
+- Korred (`e1ca3530-c619-4dfb-90f8-aa51ae8a98e4`)
+- Lauerer (`f3850df3-16fe-4eb6-9c1b-f001cdc180d7`)
+- Kuo-Toa (`cf1aebfd-e503-407f-8ba3-2154fc04c521`)
+- Neunauge (`657d9001-e77e-4c03-860a-d2c439f58e99`)
+- Lebende Wand (`ad5dbd43-f8e5-4319-b3ff-907c6aa28536`)
+- Echse (`7534ad53-1864-44fc-ab70-ad1025a0ce19`)
+- Lizardman (`9abd6089-51f3-4cc7-aebd-2027a1928d14`)
+- Werrate (`97bd3238-3bb4-4cec-92bb-fc39e6552d19`)
+- Säugetier, Herdentier I (`1bf776a5-bf94-4496-9b54-1a7071c0fe7b`)
+- Mantikor (`df608b4d-2538-4122-b02d-a137c1c1ded0`)
+- Maedar (`2c900f84-b14e-4c8b-b628-399129f16581`)
+- Medusa (`915a0183-2b17-48d0-ae5f-f8608aa57c30`)
+- Meermann (`e4165830-24a6-4ca3-80ba-12e83b14e569`)
+- Mimic (`d607af96-a6fe-4bca-a8a1-5c1d5d402e09`)
+- Illithid (`5e78ea65-6cf1-4b05-a8f3-a1915215fe8c`)
+- Minotaurus (`5f3bfd3b-12e5-4bc5-add0-56587f706d78`)
+- Nebel, Karmesinroter Tod (`b0bae14d-a12f-46cd-af1b-a717aee34ffe`)
+- Nebel, Vampirischer (`cd27ae6d-223e-49b8-a044-5c4781994dcd`)
+- Schimmelmann (`8dd92dea-5bf3-4c57-99d0-171bcdde1949`)
+- Mongrelman (`310a4ca0-de1b-44db-961c-bbdb5f678bf4`)
+- Mumie (`ec9c9ae1-74f8-45a6-a12b-1958059dabe0`)
+- Dunkle Naga (`79c3e85b-c6f7-434a-a0f0-a138ff2263ea`)
+- Neogi (`1b0e4129-c7db-4ed0-96c6-5b7ad4bf2120`)
+- Nachtmahr (`c3153758-ed0c-40c6-b8ce-9be7d6f0a6a4`)
+- Nixe (`61bdf113-1e71-4ac6-99a1-1a637746fb23`)
+- Obliviax (`36adf1b8-8897-410c-9237-6a6678f6b4ce`)
+- Ogre (`0182e5f5-2ac2-4e76-af23-3ce23ecb7167`)
+- Halbogre (`3446c322-236f-4b43-bc0e-36bd8cc92072`)
+- Gleitender Verfolger (`222207ee-419f-4fd7-b20a-c91e0af24cb6`)
+- Orc (`20e1e3a2-52c3-4815-bbf3-131513a1e063`)
+- Otyugh (`50c08313-c43f-4768-b787-9a6c4ffc7c57`)
+- Eulenbär (`d5362fc5-8ae7-4672-a570-35d59d1d49f5`)
+- Pegasus (`caf01f44-8452-45b0-9ec8-0a4e1f0ffc31`)
+- Peryton (`33b48c1d-3cb2-4fa1-a18b-9f87aed3c4a7`)
+- Phantom (`97ca7303-1022-4666-8864-07761bf15c63`)
+- Piercer (`3d6cb45e-a471-4265-975d-ec5e7c3c0808`)
+- Pixie (`10805627-1e77-4329-9eb7-18ace29f696c`)
+- Poltergeist (`ddbd68cf-54e4-4da6-bf06-12c2d44a5d1f`)
+- Stachelschwein (`91aa50d8-e8eb-4c78-b515-73e85057afc1`)
+- Quaggoth (`d4855af1-2a9e-487a-b706-5d567d596b47`)
+- Rakshasa (`49f4f643-48da-4287-9b53-fe9d7e8d7a15`)
+- Roc (`bff35554-eb5b-4836-996b-e6c609f790fa`)
+- Roper (`659cc4e0-203f-481b-9c85-0d5ffdf311ab`)
+- Fäulniswurm (`36d4666c-06c9-4d02-8e77-29e1c2fbdb79`)
+- Rostmonster (`aae31dbb-2905-4bf4-bd7d-b99381458264`)
+- Satyr (`d9f7bc04-9065-4481-a7e7-c29afe2243e6`)
+- Skorpion (`c2bce4f0-c553-4420-9358-5c2d724dee0d`)
+- Riesenseepferdchen (`ae05aae5-11bd-4c87-ae96-3540c4928e35`)
+- Schatten (`f57edf57-0c0c-4a16-accf-fc1e70a08fb7`)
+- Zombie (`2fb7e1bb-3d99-4df5-9b3d-fd8e64ed2795`)
+- Hai (`1bfc2446-0de9-4f08-91a6-8d9515fa9361`)
+- Shedu (`23b428fe-d7b2-47fe-835c-cf8730808a8c`)
+- Sirine (`82e23566-b4fa-45e6-9dc1-ec5235e39e0e`)
+- Skelett (`50f2e1ae-27d8-4f61-866a-15dac799536f`)
+- Skelettritter (`88ea38ea-669a-494d-9683-c040edc7cc2a`)
+- Stinktier (`4681e2e6-0678-4c64-80bd-35cbe20d5c9c`)
+- Riesenschnecke (`0d00215c-706f-4507-bcd3-ba88ff7ff2df`)
+- Geflügelte Schlange (`6b705f5a-e11e-42af-9cd9-5ccde3b1ad9c`)
+- Gespenst (`16969cc4-b8d6-4409-be18-e68ebbd2fab4`)
+- Stirge (`b20033a0-52a5-4cd2-8934-98a638648176`)
+- Su-Monster (`69663411-d345-4695-9085-2bc3b52cbe01`)
+- Tako (`78562a18-29b3-49d2-8a52-6195965e6197`)
+- Balor (`23ed9564-b7ff-461e-bb28-bbc5955c3bc0`)
+- Marilith (`8c580c75-b04c-4006-b323-92ab09c8479e`)
+- Gedankenfresser (`5306a302-6296-44eb-8513-38230d49d99f`)
+- Thri-kreen (`a4a44e6f-b8ae-4d82-9dd2-62a1da4e63ec`)
+- Treant (`bdb902ce-c5b7-4211-b5ae-729a9692224f`)
+- Troglodyte (`270b4417-aacd-43a8-bfd4-5b9b42bf1f45`)
+- Umber Hulk (`a8c3c8f9-48d8-438a-85da-387e1a8ffc94`)
+- Einhorn (`760e55a6-1f37-447b-a84b-d16e08169ba5`)
+- Schwanenjungfer (`2c41d24d-eb34-497d-801b-820c7bb50202`)
+- Vampir (`1f5f82ef-c0c2-430f-881e-467200e28331`)
+- Wiesel (`64dabe1f-c354-4fb9-8dc7-e877601ba3af`)
+- Wemic (`a8514d4e-2938-44c4-9911-3df9cd849556`)
+- Wight (`64d954e4-3f82-475b-b92f-f5bfb63a9dbb`)
+- Irrlicht (`42743a2d-925c-45a2-8d74-335d9552b508`)
+- Vielfraß (`1043f9e8-a10b-48bb-bc8b-1346ad5fb4f0`)
+- Geisterscheinung (`ad8046ab-620b-4f3e-902c-9662d583c46e`)
+- Wyvern (`33d7a62a-4208-4fe8-9f21-cf0d1c30c699`)
+- Argos (`19652997-f532-4650-af11-b01f1b986ff3`)
+- Xorn (`06417257-3e71-4507-b673-33aa7e149834`)
+- Yuan-ti, Histachii (`86bfc43d-a09f-4541-9217-0ac5e6c763a9`)
+- Yugoloth, Wächter (`6c68fbc1-87de-4b71-aa42-07ad292fb7c7`)
+- Fledermaus (`e6a72851-9594-489e-b61e-0a2d0a686a1d`)
+- Bär (`ef1f2b88-6519-4879-a4af-163683519fa9`)
+- Catoblepas (`52f17ecc-5822-407b-8663-d2070dad4e50`)
+- Deepspawn (`c0517a78-38f8-438f-ad72-693230bfd35b`)
+- Mondhund (`7ba1f3ba-9e32-4f1c-a64e-567212acc1e3`)
+- Wolkendrache (`53af9476-bb68-4227-8ba5-3844b4cf55f2`)
+- Elefant (`2e6fc1df-402d-4038-89c6-68f18d659d04`)
+- Frosch (`5c454be4-6ebb-4525-81cc-f45d389fc4c7`)
+- Riese, Wüsten- (`e6e366ba-e3e8-4461-af52-11c19a9e3a74`)
+- Dschungelriese (`4ea44e42-ae28-4f31-a6cc-18f9de74e090`)
+- Riffriesе (`8b89e017-32e9-48fb-b9e5-4c3ba22ffca6`)
+- Giff (`47700239-ecda-460d-be1a-ec326d5d8bf3`)
+- Golem IV (`4452e314-ba63-48c5-9dfa-c37b6b60df26`)
+- Grell, Kolonial (`6ba519b9-2c83-4a3e-a5db-9943dbda1f08`)
+- Heucuva (`43a73e49-dd9d-4185-804f-76abee714b3e`)
+- Hippokampus (`19871091-678b-419c-82e3-86e2c20d9c47`)
+- Schakalwer (`0e82e173-0594-4cc9-8fcd-6b9f74c10547`)
+- Kirre (`bf503eaa-cd44-4fd4-afeb-40df2e3a3ef5`)
+- Lamia (`93bb0e51-8230-444c-9036-7568654e1c29`)
+- Lammasu (`21537314-26fb-4de5-a1b1-6564dca0391b`)
+- Blutegel (`39225871-9254-4fb6-ac3f-914865be7168`)
+- Leprechaun (`a974273a-45f1-4641-b4f9-9c18a2d73c15`)
+- Leukrotta (`4344e544-3a2d-444a-9196-573b2f5484ac`)
+- Lykanthrop, Allgemeine Informationen (`3e698315-4591-4ef8-aba7-68299b27bc17`)
+- Lykanthrop, Seewolf (`f9613605-d8d5-4c8c-b40d-e8158da9db28`)
+- Lykanthrop, Werbär (`7142bf2b-9c2e-4617-9583-56852e3ef9d4`)
+- Lykanthrop, Werwildschwein (`b4a197a0-47d4-4274-a54f-39d8814e89a9`)
+- Tabaxi (`4cce251f-a917-4c0c-baaa-57941627e1a4`)
+- Lykanthrop, Werefledermaus (`417ea2d3-a7e6-45b9-a0bb-7c410506e16f`)
+- Lykanthrop, Werfuchs (`19c3861e-dee9-47a3-8f49-d5778adea704`)
+- Lykanthrop, Wererabe (`a19d54b8-a5ae-43b4-b377-ce51716dc0a3`)
+- Lykanthrop, Wertiger (`50fb7d66-00a0-41a7-b0fa-fb47b9e83fec`)
+- Lykanthrop, Werwolf (`b2745fb3-b647-41a6-b576-b8f2688db126`)
+- Menschenskorpion (`b40d6dad-236f-4727-98c5-99a1ade9e8cd`)
+- Mephit (`4a28b03c-0073-49a6-8476-01759c526c99`)
+- Morkoth (`7e2d3cf4-8868-4c0b-9566-0b57f9cc4780`)
+- Schlammwühler (`0ff20ab2-8e4e-4121-ba11-2856c5c40109`)
+- Schlammmann (`961698f8-e535-4df3-b99e-2fd6ef7f4884`)
+- Große Mumie (`034a35d0-0ee9-46e2-a815-44e554329710`)
+- Myconid (`30f3fa89-590b-4cd3-98af-693a1988b92f`)
+- Naga (`3067fd27-b4ed-46ac-b686-d852ca7ef827`)
+- Nymphe (`69e259fc-e66c-4bb2-a304-549e2d561915`)
+- Riesenkrake (`9ff4ded7-60d8-467a-a421-1cd679a1c606`)
+- Phönix (`3901b904-1bd8-4278-a02e-42bff4b975b9`)
+- Pudding, Tödlicher (`3b43870e-fe1a-47a3-8aa0-2527acfe58d0`)
+- Ratte (`84316760-b29b-45c3-916a-6af9bf4c09ae`)
+- Osquip-Ratte (`f782c5e3-e877-40b7-8583-a6b54142392f`)
+- Remorhaz (`8f8fb08a-9fec-4345-91b3-718acab0d19a`)
+- Seelöwe (`f097ac9a-8c6f-4be4-8662-67dd1456a564`)
+- Selkie (`f53ca26a-2101-4eb9-8cc8-06b7234e7fd4`)
+- Riesenskelett (`2fdfc571-7883-41cd-ba59-f4431e90b8c9`)
+- Sphinx (`19b2c30d-6031-45d2-9585-6df68649ffae`)
+- Riesenkalmar (`85f6645b-3ad9-4d08-937d-8f6926b2d557`)
+- Tarrasque (`d3aa5b41-9c90-426a-84a1-ef4d730e32f8`)
+- Tasloi (`2c632791-6d5e-4517-bfa7-a7f2b7fb90ee`)
+- Titan (`4b7d7b0d-a4d2-4729-8223-012492552e97`)
+- Riesenkröte (`914225e7-f469-47c0-8fa2-abcf8e5abf61`)
+- Triton (`866332a1-9f8a-428c-825a-ed7d9d40d0a2`)
+- Wolf (`b6a288de-ad5b-442c-a1ed-569b66faedb5`)
+- Wolfswar (`fd1a0153-9fec-44e5-910c-1ac6478bd469`)
+- Yeti (`8d88e2ec-7eea-4829-9412-f694ddda6d1d`)
+- Yuan-ti (`6cbd259e-a86b-47ac-97a5-9bf757a85ed8`)
+- Zaratan (`45a0c098-0763-46cc-adcb-37e280fda2be`)
+
+## Monster ohne Compendium-Match
+
+Diese Monster nutzen den React-SVG-Fallback statt eines echten Bildes.
+
+- Dschinn
+- Xvart
+- Erinye
+- Eisengolem
+- Gelatinöser Würfel
+- Eisteufel
+- Rieseneule
+- Phasenspinne
+- Norker
+- Ghast
+- Juju-Zombie
+- Huecuva
+- Dao
+- Gibbernder Schlund
+- Marid
+- Riesenratte
+- Riesenskorpion
+- Riesenspinne
+- Riesenwespe
+- Schrecklicher Wolf
+- Warg
+- Winterwolf
+- Efrit
+- Höhlenbär
+- Lemure
+- Nalfeshnee
+- Quasit
+- Riesenadler
+- Rieseneidechse
+- Vrock
+- Dretch
+- Fleischgolem
+- Knochenteufel
+- Lebende Rüstung
+- Steingolem
+- Vogelscheuche
+- Wereber
+- Werwolf
+- Blinzelhund
+- Grauer Schleim
+- Grüner Schleim
+- Kristallschleim
+- Ockergelee
+- Senfgelee
+- Violetter Pilz
+- Dunkelmantel
+- Fallensteller
+- Mephit (Eis)
+- Mephit (Feuer)
+- Babau
+- Wasserelemental (12 TW)
+- Hezrou
+- Gelber Schimmel
+- Glabrezu
+- Kreischer
+- Lehmgolem
+- Ogermagier
+- Riesentausendfüßler
+- Salamander
+- Schildwächter
+- Yugoloth (Mezzoloth)
+- Deckenlauerer
+- Schwarzer Pudding
+- Fisch, Riesen-
+- Aal
+- Insekt, Riesig
+- Säugetier
+- Säugetier, Klein
+- Betrachter
+- Behelmter Schrecken
+- Mensch
+- Säugetier, Minimal
+- Rochen
+- Eule
+- Piranha
+- Wandelnder Hügel
+- Slaad
+- Spinne
+- Sprite (Feenwesen)
+- Troll
+- Urd
+- Wal
+- Gelbe Moschusschlingpflanze
+- Großkatze
+- Pferd
+- Pflanze, Gefährliche I
+- Pflanze, Intelligente
+- Schlange
+- Seeigel

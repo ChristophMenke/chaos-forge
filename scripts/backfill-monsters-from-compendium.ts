@@ -91,7 +91,30 @@ export const NAME_OVERRIDES: Record<string, string> = {
 
   // Lycanthropes
   Werrate: "lycawera", // Wererat
+
+  // Merged seed rows from migration 00212 — re-running the backfill must
+  // UPDATE these existing rows rather than re-inserting the Compendium-
+  // side duplicate.
+  Betrachter: "beholde1", // Beholder and Beholder-kin I
+  Ettin: "gianetti", // Giant, Ettin
+  Gargoyle: "gargoyl1", // Gargoyle I
+  Wildschwein: "boar", // Boar (seed already has "Wild Boar")
+  Dschinn: "genie", // Genie umbrella
+
+  // Tanar'ri variants — seed DB has the short names, Compendium uses
+  // "Tanar'ri, True, <X>" which neither normalisation nor token-sort catches.
+  Balor: "tanatbal",
+  Marilith: "tanatmar",
 };
+
+/**
+ * Compendium keys that must be skipped entirely — not matched, not inserted.
+ * Used when a Compendium entry has no useful data for the game and was
+ * already removed from the DB by a cleanup migration.
+ */
+export const BLOCKED_KEYS: ReadonlySet<string> = new Set<string>([
+  "beholde2", // Beholder and Beholder-kin II — deleted in migration 00212
+]);
 
 // ─── Paths ────────────────────────────────────────────────────────────
 
@@ -99,13 +122,18 @@ const SNAPSHOT_DIR = path.resolve(__dirname, "..", "ressources", "compendium-sna
 const PARSED_PATH = path.join(SNAPSHOT_DIR, "parsed.json");
 const TRANSLATED_PATH = path.join(SNAPSHOT_DIR, "translated.json");
 const DIFF_REPORT_PATH = path.join(SNAPSHOT_DIR, "backfill-diff.md");
-const MIGRATION_PATH = path.resolve(
-  __dirname,
-  "..",
-  "supabase",
-  "migrations",
-  "00211_backfill_monsters_from_compendium.sql"
-);
+/**
+ * Re-running the backfill emits to a NEW migration file rather than
+ * overwriting the already-applied 00211. Supabase tracks migrations by
+ * filename, so overwriting an applied migration is a silent no-op on the
+ * remote DB. The CLI flag `--migration-name=<name>` can override this.
+ */
+const DEFAULT_MIGRATION_NAME = "00214_backfill_monsters_expanded.sql";
+const MIGRATION_NAME_ARG = process.argv.find((a) => a.startsWith("--migration-name="));
+const MIGRATION_FILENAME = MIGRATION_NAME_ARG
+  ? MIGRATION_NAME_ARG.split("=")[1]
+  : DEFAULT_MIGRATION_NAME;
+const MIGRATION_PATH = path.resolve(__dirname, "..", "supabase", "migrations", MIGRATION_FILENAME);
 
 // ─── Helpers ──────────────────────────────────────────────────────────
 
@@ -197,7 +225,7 @@ function looksLikeDuplicate(a: string | null | undefined, b: string | null | und
 }
 
 export interface MatchResult {
-  kind: "update" | "insert" | "skip-duplicate";
+  kind: "update" | "insert" | "skip-duplicate" | "skip-blocked";
   snapshot: MergedMonster;
   existing?: MonsterRow;
   /** How we found the match — useful for the diff report. */
@@ -223,6 +251,13 @@ export function buildMatchPlan(snapshot: MergedMonster[], existing: MonsterRow[]
 
   const results: MatchResult[] = [];
   for (const snap of snapshot) {
+    // (0) hard-blocked compendium keys — entries that were already removed
+    // from the DB by a cleanup migration and must not come back.
+    if (BLOCKED_KEYS.has(snap.monster_key)) {
+      results.push({ kind: "skip-blocked", snapshot: snap });
+      continue;
+    }
+
     // (a) explicit override map — keyed by German name
     const overrideKey = Object.entries(NAME_OVERRIDES).find(([, k]) => k === snap.monster_key)?.[0];
     if (overrideKey) {
@@ -363,6 +398,9 @@ function emitMigration(plan: MatchResult[]): string {
   const skipped = plan.filter(
     (p): p is MatchResult & { kind: "skip-duplicate" } => p.kind === "skip-duplicate"
   );
+  const blocked = plan.filter(
+    (p): p is MatchResult & { kind: "skip-blocked" } => p.kind === "skip-blocked"
+  );
 
   const header = `-- Backfill monsters from compendium snapshot
 --
@@ -374,6 +412,7 @@ function emitMigration(plan: MatchResult[]): string {
 -- ${updates.length} UPDATEs (only fills empty narrative columns via COALESCE)
 -- ${inserts.length} INSERTs (new monster rows with is_custom = FALSE)
 -- ${skipped.length} SKIPPED inserts (defensive duplicate check — see diff report)
+-- ${blocked.length} BLOCKED keys (hard-deleted in prior cleanup migration)
 --
 -- Custom monsters (is_custom = TRUE) are hard-filtered and never touched.
 -- See companion plan: docs/agents/plans/2026-04-10-monster-data-completeness.md
@@ -402,6 +441,7 @@ function emitDiffReport(plan: MatchResult[]): string {
   const updates = plan.filter((p) => p.kind === "update");
   const inserts = plan.filter((p) => p.kind === "insert");
   const skipped = plan.filter((p) => p.kind === "skip-duplicate");
+  const blocked = plan.filter((p) => p.kind === "skip-blocked");
 
   const lines = [
     `# Backfill Diff Report`,
@@ -413,6 +453,7 @@ function emitDiffReport(plan: MatchResult[]): string {
     `- **${updates.length} UPDATEs** — existing seed monsters enriched with narrative sections`,
     `- **${inserts.length} INSERTs** — new monsters added to the DB`,
     `- **${skipped.length} SKIPPED inserts** — defensive duplicate check (token overlap ≥50% with an existing row)`,
+    `- **${blocked.length} BLOCKED keys** — hard-skipped compendium entries (deleted in a prior cleanup migration)`,
     `- **0 Custom monsters touched** (hard filter: \`is_custom = false\`)`,
     ``,
     `## UPDATEs`,
@@ -444,6 +485,14 @@ function emitDiffReport(plan: MatchResult[]): string {
         `| ${s.snapshot.name_en} | ${s.duplicateOf?.name} (\`${s.duplicateOf?.id}\`) | ${s.duplicateOf?.name_en ?? "—"} |`
     ),
     ``,
+    `## BLOCKED (hard-skipped)`,
+    ``,
+    `These compendium keys are in \`BLOCKED_KEYS\` — their DB rows were already removed by a cleanup migration and the backfill must not re-create them.`,
+    ``,
+    `| Compendium key | Compendium name (EN) |`,
+    `|---|---|`,
+    ...blocked.map((b) => `| \`${b.snapshot.monster_key}\` | ${b.snapshot.name_en} |`),
+    ``,
   ];
   return lines.join("\n");
 }
@@ -467,7 +516,10 @@ async function main(): Promise<void> {
   const updates = plan.filter((p) => p.kind === "update").length;
   const inserts = plan.filter((p) => p.kind === "insert").length;
   const skipped = plan.filter((p) => p.kind === "skip-duplicate").length;
-  console.log(`  ${updates} UPDATEs, ${inserts} INSERTs, ${skipped} SKIPPED (duplicate)`);
+  const blocked = plan.filter((p) => p.kind === "skip-blocked").length;
+  console.log(
+    `  ${updates} UPDATEs, ${inserts} INSERTs, ${skipped} SKIPPED (duplicate), ${blocked} BLOCKED`
+  );
 
   // Always write the diff report
   writeFileSync(DIFF_REPORT_PATH, emitDiffReport(plan), "utf-8");

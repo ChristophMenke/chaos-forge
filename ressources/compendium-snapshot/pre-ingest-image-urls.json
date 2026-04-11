@@ -1,0 +1,2032 @@
+[
+  {
+    "id": "57753c72-30f1-480c-9b4a-a9f12dbe368c",
+    "name": "Derro",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/57753c72-30f1-480c-9b4a-a9f12dbe368c.webp"
+  },
+  {
+    "id": "664cfdb5-1580-4994-94d9-9eca53301f60",
+    "name": "Dschinn",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/664cfdb5-1580-4994-94d9-9eca53301f60.webp?v=1775895844920"
+  },
+  {
+    "id": "ecfccc02-7405-46c7-b1ce-0bdf007b067a",
+    "name": "Xvart",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/ecfccc02-7405-46c7-b1ce-0bdf007b067a.webp?v=1775895721829"
+  },
+  {
+    "id": "016bfcc1-3757-44d2-9e73-144007973401",
+    "name": "Blauer Drache (Erwachsen)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/016bfcc1-3757-44d2-9e73-144007973401.webp"
+  },
+  {
+    "id": "43284770-cfb7-47dc-b83e-9762c1325745",
+    "name": "Drow",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/43284770-cfb7-47dc-b83e-9762c1325745.webp"
+  },
+  {
+    "id": "9cbaef5e-b8c7-4bec-a09b-2b487589b40d",
+    "name": "Ankheg",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/9cbaef5e-b8c7-4bec-a09b-2b487589b40d.webp"
+  },
+  {
+    "id": "ce6b1b2b-7a45-4790-8c34-31b625c52cc8",
+    "name": "Aasräuber",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/ce6b1b2b-7a45-4790-8c34-31b625c52cc8.webp?v=1775895733857"
+  },
+  {
+    "id": "9e945f11-45e1-4496-b610-a5ec09dc4434",
+    "name": "Nebelriese",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/9e945f11-45e1-4496-b610-a5ec09dc4434.webp"
+  },
+  {
+    "id": "f49d24dc-2ed9-4af4-aa5d-e30252ac58b1",
+    "name": "Riese, Fomorianischer",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/f49d24dc-2ed9-4af4-aa5d-e30252ac58b1.webp"
+  },
+  {
+    "id": "0af102d3-03e2-471f-a29d-7803c99e063b",
+    "name": "Erinye",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/0af102d3-03e2-471f-a29d-7803c99e063b.webp?v=1775895801665"
+  },
+  {
+    "id": "a822e9d0-3341-437d-b493-bdc155be2a0a",
+    "name": "Frostriese",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/a822e9d0-3341-437d-b493-bdc155be2a0a.webp"
+  },
+  {
+    "id": "32d4f9f9-b78c-4300-a688-602f9884264e",
+    "name": "Vogel",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/32d4f9f9-b78c-4300-a688-602f9884264e.webp"
+  },
+  {
+    "id": "17692fd9-dd69-4f43-b41b-aaa638cd195e",
+    "name": "Hügelriese",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/17692fd9-dd69-4f43-b41b-aaa638cd195e.webp"
+  },
+  {
+    "id": "d8fdd873-1be4-442e-97a4-3d00a567a489",
+    "name": "Eisengolem",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/d8fdd873-1be4-442e-97a4-3d00a567a489.webp?v=1775895825025"
+  },
+  {
+    "id": "d62f2fda-3662-4651-961b-cb79ac86077a",
+    "name": "Gelatinöser Würfel",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/d62f2fda-3662-4651-961b-cb79ac86077a.webp?v=1775895833033"
+  },
+  {
+    "id": "aa067245-6c28-4b81-93c7-6b0e655dbef1",
+    "name": "Riese, Berg-",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/aa067245-6c28-4b81-93c7-6b0e655dbef1.webp"
+  },
+  {
+    "id": "1a4628fd-cde4-4067-904a-89584c34647d",
+    "name": "Steinriese",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/1a4628fd-cde4-4067-904a-89584c34647d.webp"
+  },
+  {
+    "id": "1907ac40-b9ec-44dc-865b-67d6d3806422",
+    "name": "Eisteufel",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/1907ac40-b9ec-44dc-865b-67d6d3806422.webp?v=1775895850982"
+  },
+  {
+    "id": "7d185771-221e-4269-8543-497e8737c3d2",
+    "name": "Luftelemental (12 TW)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/7d185771-221e-4269-8543-497e8737c3d2.webp?v=1775903086954"
+  },
+  {
+    "id": "41630ff4-7acc-4309-a46e-0a8b18e8ed11",
+    "name": "Dracolich",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/41630ff4-7acc-4309-a46e-0a8b18e8ed11.webp"
+  },
+  {
+    "id": "505bceb1-21a8-46f1-a062-2d04c1d7d848",
+    "name": "Aboleth",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/505bceb1-21a8-46f1-a062-2d04c1d7d848.webp"
+  },
+  {
+    "id": "600efca6-50e1-4ab9-8731-59c14c6dda06",
+    "name": "Rieseneule",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/600efca6-50e1-4ab9-8731-59c14c6dda06.png"
+  },
+  {
+    "id": "85628220-33ca-4a69-9c52-3616520035c5",
+    "name": "Ameise",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/85628220-33ca-4a69-9c52-3616520035c5.webp"
+  },
+  {
+    "id": "52f38e71-4152-471a-b6f6-1eaf26b61687",
+    "name": "Fleischfressender Affe",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/52f38e71-4152-471a-b6f6-1eaf26b61687.webp"
+  },
+  {
+    "id": "6003b255-d15a-467b-bee1-80e3d2ab940a",
+    "name": "Aurumvorax",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/6003b255-d15a-467b-bee1-80e3d2ab940a.webp"
+  },
+  {
+    "id": "c8d0744e-5ff6-4ba5-a423-3ccc0cb67672",
+    "name": "Golddrache (Erwachsen)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/c8d0744e-5ff6-4ba5-a423-3ccc0cb67672.webp"
+  },
+  {
+    "id": "8af7f07f-a306-49e7-b187-4b96f4ccbe1a",
+    "name": "Phasenspinne",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/8af7f07f-a306-49e7-b187-4b96f4ccbe1a.png"
+  },
+  {
+    "id": "f006beed-78ff-4ac7-a3c8-358bfa73fa72",
+    "name": "Baatezu, Niedere, Abishai",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/f006beed-78ff-4ac7-a3c8-358bfa73fa72.webp"
+  },
+  {
+    "id": "b0fb18fe-f9d4-4525-bcf0-530bb67bafc0",
+    "name": "Norker",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/b0fb18fe-f9d4-4525-bcf0-530bb67bafc0.png"
+  },
+  {
+    "id": "b417a7f6-df04-4dbb-af11-e533ba89a77d",
+    "name": "Ghast",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/b417a7f6-df04-4dbb-af11-e533ba89a77d.png"
+  },
+  {
+    "id": "1578fbf4-0e26-4eae-8e33-d2e1e01ec290",
+    "name": "Juju-Zombie",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/1578fbf4-0e26-4eae-8e33-d2e1e01ec290.png"
+  },
+  {
+    "id": "8f11a0b4-4881-4cbb-b359-8e3f550bf92d",
+    "name": "Huecuva",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/8f11a0b4-4881-4cbb-b359-8e3f550bf92d.png"
+  },
+  {
+    "id": "7b9a5983-7b9d-4aea-8b91-f94cffd07a3b",
+    "name": "Weißer Drache (Jung)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/7b9a5983-7b9d-4aea-8b91-f94cffd07a3b.webp"
+  },
+  {
+    "id": "481d7d1b-4cf2-4353-99d4-1abeed1f315b",
+    "name": "Dao",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/481d7d1b-4cf2-4353-99d4-1abeed1f315b.png"
+  },
+  {
+    "id": "88e61345-5f72-4a0f-9d1f-ef117bfa8da9",
+    "name": "Gibbernder Schlund",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/88e61345-5f72-4a0f-9d1f-ef117bfa8da9.png"
+  },
+  {
+    "id": "220f7ed2-ea30-4a09-b58f-45d4941fd72a",
+    "name": "Marid",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/220f7ed2-ea30-4a09-b58f-45d4941fd72a.png"
+  },
+  {
+    "id": "8242f3b3-3abb-4808-b0ae-3a293ea04fdc",
+    "name": "Riesenratte",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/8242f3b3-3abb-4808-b0ae-3a293ea04fdc.png"
+  },
+  {
+    "id": "8ff51b19-b652-47a9-92e0-9549feeaec8b",
+    "name": "Riesenskorpion",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/8ff51b19-b652-47a9-92e0-9549feeaec8b.png"
+  },
+  {
+    "id": "6588e10f-9100-44db-8ae5-8aa2c1e93d3a",
+    "name": "Riesenspinne",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/6588e10f-9100-44db-8ae5-8aa2c1e93d3a.png"
+  },
+  {
+    "id": "ef0ed5b9-746f-4539-bf38-6fa951d56cc9",
+    "name": "Riesenwespe",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/ef0ed5b9-746f-4539-bf38-6fa951d56cc9.png"
+  },
+  {
+    "id": "0e2da8ee-f9fb-441c-9e36-21d33b09fe29",
+    "name": "Schrecklicher Wolf",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/0e2da8ee-f9fb-441c-9e36-21d33b09fe29.png"
+  },
+  {
+    "id": "db332c30-6c0c-4068-9379-b2f41f130ded",
+    "name": "Warg",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/db332c30-6c0c-4068-9379-b2f41f130ded.png"
+  },
+  {
+    "id": "9fc5ff56-0516-411e-a3c1-7d82dc1d15dd",
+    "name": "Winterwolf",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/9fc5ff56-0516-411e-a3c1-7d82dc1d15dd.png"
+  },
+  {
+    "id": "9b931657-54c7-4a50-bb60-5fe6e4774964",
+    "name": "Efrit",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/9b931657-54c7-4a50-bb60-5fe6e4774964.png"
+  },
+  {
+    "id": "1b8e5a68-d739-419f-a61e-b6f2e21a081d",
+    "name": "Höhlenbär",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/1b8e5a68-d739-419f-a61e-b6f2e21a081d.png"
+  },
+  {
+    "id": "f99b482c-0967-4d78-8702-58678023e35e",
+    "name": "Lemure",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/f99b482c-0967-4d78-8702-58678023e35e.png"
+  },
+  {
+    "id": "65336b27-02aa-4880-90ab-ed01aec32ac1",
+    "name": "Nalfeshnee",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/65336b27-02aa-4880-90ab-ed01aec32ac1.png"
+  },
+  {
+    "id": "edd99d47-cde0-4085-9d9e-320917a440a3",
+    "name": "Quasit",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/edd99d47-cde0-4085-9d9e-320917a440a3.png"
+  },
+  {
+    "id": "04ce7eb2-8241-4b9c-992c-532e2ca88bd8",
+    "name": "Riesenadler",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/04ce7eb2-8241-4b9c-992c-532e2ca88bd8.png"
+  },
+  {
+    "id": "8094d7ca-a2d9-4fd5-9a15-b37b3f09ff8c",
+    "name": "Rieseneidechse",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/8094d7ca-a2d9-4fd5-9a15-b37b3f09ff8c.png"
+  },
+  {
+    "id": "af67fa63-d008-4bad-aa91-3ac939447889",
+    "name": "Vrock",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/af67fa63-d008-4bad-aa91-3ac939447889.png"
+  },
+  {
+    "id": "485d4c87-7cc8-4769-91ee-2eb752b2c916",
+    "name": "Grubenteufel",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/485d4c87-7cc8-4769-91ee-2eb752b2c916.webp"
+  },
+  {
+    "id": "d1ec6de2-040a-4df6-9a5a-426dc27265b3",
+    "name": "Dretch",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/d1ec6de2-040a-4df6-9a5a-426dc27265b3.png"
+  },
+  {
+    "id": "2a3cb8b5-e294-4fbc-b4cb-45e95ceb86ef",
+    "name": "Fleischgolem",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/2a3cb8b5-e294-4fbc-b4cb-45e95ceb86ef.png"
+  },
+  {
+    "id": "9dce0e4b-300d-46cd-b601-0c330e5b9c46",
+    "name": "Knochenteufel",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/9dce0e4b-300d-46cd-b601-0c330e5b9c46.png"
+  },
+  {
+    "id": "b64eb5cd-10a8-483d-a686-a24fda647e38",
+    "name": "Lebende Rüstung",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/b64eb5cd-10a8-483d-a686-a24fda647e38.png"
+  },
+  {
+    "id": "69c96251-dc80-4d09-9218-c6bf08ab1d2c",
+    "name": "Steingolem",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/69c96251-dc80-4d09-9218-c6bf08ab1d2c.png"
+  },
+  {
+    "id": "f558a14b-fa43-4137-87e2-7f7e0580307a",
+    "name": "Vogelscheuche",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/f558a14b-fa43-4137-87e2-7f7e0580307a.png"
+  },
+  {
+    "id": "337a51b5-4213-4213-bbc3-c7b093ccd33f",
+    "name": "Wereber",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/337a51b5-4213-4213-bbc3-c7b093ccd33f.png"
+  },
+  {
+    "id": "8a13818c-b2d7-47be-9017-94da4ca18cd4",
+    "name": "Werwolf",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/8a13818c-b2d7-47be-9017-94da4ca18cd4.png"
+  },
+  {
+    "id": "2043f152-1cdf-45c8-b419-7808e2265ca4",
+    "name": "Blinzelhund",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/2043f152-1cdf-45c8-b419-7808e2265ca4.png"
+  },
+  {
+    "id": "a70d1de2-767f-4a8c-85a1-febe3b0ce8ea",
+    "name": "Grauer Schleim",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/a70d1de2-767f-4a8c-85a1-febe3b0ce8ea.png"
+  },
+  {
+    "id": "186d63eb-2505-4424-81eb-6d13b282ff5b",
+    "name": "Grüner Schleim",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/186d63eb-2505-4424-81eb-6d13b282ff5b.png"
+  },
+  {
+    "id": "cdf6d9c4-e0cb-4ae7-99fe-9229e44593cc",
+    "name": "Kristallschleim",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/cdf6d9c4-e0cb-4ae7-99fe-9229e44593cc.png"
+  },
+  {
+    "id": "73e71bd2-c033-4117-bcfe-42342bed4ddf",
+    "name": "Ockergelee",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/73e71bd2-c033-4117-bcfe-42342bed4ddf.png"
+  },
+  {
+    "id": "00d8b340-672f-4396-89e2-834cd92f2222",
+    "name": "Senfgelee",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/00d8b340-672f-4396-89e2-834cd92f2222.png"
+  },
+  {
+    "id": "8d853d1e-636b-48be-8427-9131513b9c19",
+    "name": "Violetter Pilz",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/8d853d1e-636b-48be-8427-9131513b9c19.png"
+  },
+  {
+    "id": "edac04f4-e56b-4d36-a1e0-b07909f1037a",
+    "name": "Dunkelmantel",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/edac04f4-e56b-4d36-a1e0-b07909f1037a.png"
+  },
+  {
+    "id": "d3d33f38-764e-4e37-a989-6c48c1b57f97",
+    "name": "Fallensteller",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/d3d33f38-764e-4e37-a989-6c48c1b57f97.png"
+  },
+  {
+    "id": "d92b999c-98df-4a7e-bd86-f5cdc628da75",
+    "name": "Mephit (Eis)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/d92b999c-98df-4a7e-bd86-f5cdc628da75.png"
+  },
+  {
+    "id": "67333b0f-bca6-47cb-b43e-867b0f693dbe",
+    "name": "Mephit (Feuer)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/67333b0f-bca6-47cb-b43e-867b0f693dbe.png"
+  },
+  {
+    "id": "3d7f2669-13ac-4cea-a362-ee613c56bbf6",
+    "name": "Babau",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/3d7f2669-13ac-4cea-a362-ee613c56bbf6.png"
+  },
+  {
+    "id": "211b04e7-9c8e-4cdb-acf3-5db68bb6d427",
+    "name": "Wasserelemental (12 TW)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/211b04e7-9c8e-4cdb-acf3-5db68bb6d427.webp?v=1775903103136"
+  },
+  {
+    "id": "25e1722c-44ed-4c53-a80a-38f0582dc732",
+    "name": "Bugbear",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/25e1722c-44ed-4c53-a80a-38f0582dc732.png"
+  },
+  {
+    "id": "dbf8cc6c-e44f-4274-8036-ebb45f0bbfb0",
+    "name": "Lich",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/dbf8cc6c-e44f-4274-8036-ebb45f0bbfb0.png"
+  },
+  {
+    "id": "e1a70b52-0e3d-4fdb-965f-297714ab5d75",
+    "name": "Hezrou",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/e1a70b52-0e3d-4fdb-965f-297714ab5d75.png"
+  },
+  {
+    "id": "9ea5f1d1-5de9-4ffc-acf1-e10e4df9e809",
+    "name": "Gelber Schimmel",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/9ea5f1d1-5de9-4ffc-acf1-e10e4df9e809.png"
+  },
+  {
+    "id": "716e7a79-0463-48bc-9855-9019bcc599bb",
+    "name": "Glabrezu",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/716e7a79-0463-48bc-9855-9019bcc599bb.png"
+  },
+  {
+    "id": "891bd517-2b61-4589-87ad-df5b7fe09aeb",
+    "name": "Kreischer",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/891bd517-2b61-4589-87ad-df5b7fe09aeb.png"
+  },
+  {
+    "id": "17a74125-0ffe-4218-9ce7-824d85e3dacd",
+    "name": "Lehmgolem",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/17a74125-0ffe-4218-9ce7-824d85e3dacd.png"
+  },
+  {
+    "id": "2800ccac-2b94-4adb-a9ff-93f49a9dc442",
+    "name": "Ogermagier",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/2800ccac-2b94-4adb-a9ff-93f49a9dc442.png"
+  },
+  {
+    "id": "8ab83e04-b604-4c5c-958a-a7d99edd7de3",
+    "name": "Riesentausendfüßler",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/8ab83e04-b604-4c5c-958a-a7d99edd7de3.png"
+  },
+  {
+    "id": "75aa97af-1a00-4455-b0c1-366d7140a179",
+    "name": "Salamander",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/75aa97af-1a00-4455-b0c1-366d7140a179.png"
+  },
+  {
+    "id": "d2e9d5df-3e35-42cc-b9e2-dc0f48c383ff",
+    "name": "Schildwächter",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/d2e9d5df-3e35-42cc-b9e2-dc0f48c383ff.png"
+  },
+  {
+    "id": "2f262b1d-b5cb-4368-8f45-1cc1767dc4b1",
+    "name": "Yugoloth (Mezzoloth)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/2f262b1d-b5cb-4368-8f45-1cc1767dc4b1.png"
+  },
+  {
+    "id": "11137c85-9b22-4c7f-b2a1-b393cdbe3a40",
+    "name": "Deckenlauerer",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/11137c85-9b22-4c7f-b2a1-b393cdbe3a40.png"
+  },
+  {
+    "id": "8fee7df5-63cf-4ed9-aabe-da4ad83ed0de",
+    "name": "Schwarzer Pudding",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/8fee7df5-63cf-4ed9-aabe-da4ad83ed0de.png"
+  },
+  {
+    "id": "3b7016ad-3c17-43c7-b273-97305c77218a",
+    "name": "Dachs",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/3b7016ad-3c17-43c7-b273-97305c77218a.webp"
+  },
+  {
+    "id": "3fe4449b-f076-46ed-b5af-102709c4644d",
+    "name": "Banshee",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/3fe4449b-f076-46ed-b5af-102709c4644d.webp"
+  },
+  {
+    "id": "7b933cd7-6d39-4d90-a0ea-fcfa0dd6005c",
+    "name": "Basilisk",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/7b933cd7-6d39-4d90-a0ea-fcfa0dd6005c.webp"
+  },
+  {
+    "id": "d196bd28-e1ae-4fb9-a14f-5358b38b8307",
+    "name": "Riesenkäfer",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/d196bd28-e1ae-4fb9-a14f-5358b38b8307.webp"
+  },
+  {
+    "id": "fef166a6-0bff-4830-99e5-b43edb6606c7",
+    "name": "Aarakocra",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/fef166a6-0bff-4830-99e5-b43edb6606c7.webp"
+  },
+  {
+    "id": "ee1a9aff-350e-4edc-9164-ce8f76d2ce28",
+    "name": "Ameisenlöwe, Riesenameisenlöwe",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/ee1a9aff-350e-4edc-9164-ce8f76d2ce28.webp"
+  },
+  {
+    "id": "81719f11-3cc7-4d58-8179-0a341876c1aa",
+    "name": "Barrakuda",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/81719f11-3cc7-4d58-8179-0a341876c1aa.webp"
+  },
+  {
+    "id": "36447632-95fe-492b-9a44-955a1d7223b2",
+    "name": "Behir",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/36447632-95fe-492b-9a44-955a1d7223b2.webp"
+  },
+  {
+    "id": "bdd2a6a6-3200-4b37-a54f-455b21fd7804",
+    "name": "Bücherwurm",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/bdd2a6a6-3200-4b37-a54f-455b21fd7804.webp"
+  },
+  {
+    "id": "9279a170-81c7-4985-918d-146a51571f94",
+    "name": "Couatl",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/9279a170-81c7-4985-918d-146a51571f94.webp"
+  },
+  {
+    "id": "101036eb-4cf6-4612-b9e9-ad83c02a3b8b",
+    "name": "Wildschwein",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/52333a09-4337-4dda-8d7a-b50e61495376.webp"
+  },
+  {
+    "id": "d717a9dc-86b5-4351-952c-d4f0cb5747d0",
+    "name": "Gehirnmaulwurf",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/d717a9dc-86b5-4351-952c-d4f0cb5747d0.webp"
+  },
+  {
+    "id": "8df7adde-909f-4950-94b2-1a2a53f2f668",
+    "name": "Drache, Allgemeine Informationen",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/8df7adde-909f-4950-94b2-1a2a53f2f668.webp"
+  },
+  {
+    "id": "b6313384-ce4b-4625-884b-6342e8348233",
+    "name": "Gebrochene",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/b6313384-ce4b-4625-884b-6342e8348233.webp"
+  },
+  {
+    "id": "8c380a49-ba6a-4800-a9be-a301491c0515",
+    "name": "Bulette",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/8c380a49-ba6a-4800-a9be-a301491c0515.png"
+  },
+  {
+    "id": "184f3e85-17dc-402d-84d6-b685c3bdf79b",
+    "name": "Bullywug",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/184f3e85-17dc-402d-84d6-b685c3bdf79b.png"
+  },
+  {
+    "id": "cdbbaa45-872f-4242-b468-4bb06f0d2b86",
+    "name": "Katze, Klein",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/cdbbaa45-872f-4242-b468-4bb06f0d2b86.webp"
+  },
+  {
+    "id": "9163f72b-79f5-4b4c-9382-2d608f84b57d",
+    "name": "Höhlenfischer",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/9163f72b-79f5-4b4c-9382-2d608f84b57d.webp"
+  },
+  {
+    "id": "b648f2bb-8451-469f-bcfa-eb465162f92b",
+    "name": "Tausendfüßer",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/b648f2bb-8451-469f-bcfa-eb465162f92b.webp"
+  },
+  {
+    "id": "872e0310-4630-4724-97f8-f1950b05e145",
+    "name": "Fisch, Riesen-",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/872e0310-4630-4724-97f8-f1950b05e145.webp?v=1775896094248"
+  },
+  {
+    "id": "2fa8824e-cc97-47ae-879f-7c571b9ee144",
+    "name": "Chimäre",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/2fa8824e-cc97-47ae-879f-7c571b9ee144.webp"
+  },
+  {
+    "id": "9f917914-1b5c-4938-8a05-0780807e1d59",
+    "name": "Aal",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/9f917914-1b5c-4938-8a05-0780807e1d59.webp?v=1775896322023"
+  },
+  {
+    "id": "0a370bd8-1736-4d13-a8c0-a1a1835d5f78",
+    "name": "Cloaker",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/0a370bd8-1736-4d13-a8c0-a1a1835d5f78.webp"
+  },
+  {
+    "id": "6c685aaa-012b-407e-87ef-71a4c080a28f",
+    "name": "Cockatrice",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/6c685aaa-012b-407e-87ef-71a4c080a28f.webp"
+  },
+  {
+    "id": "d829514d-0a84-4903-9ad2-0ecd4aef6285",
+    "name": "Fisch",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/d829514d-0a84-4903-9ad2-0ecd4aef6285.webp"
+  },
+  {
+    "id": "2afc8b7d-7c8e-45f7-9044-72f37e129f20",
+    "name": "Kriechende Klaue",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/2afc8b7d-7c8e-45f7-9044-72f37e129f20.webp"
+  },
+  {
+    "id": "8dd720a8-56e8-48f1-abf3-524abf428686",
+    "name": "Krokodil",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/8dd720a8-56e8-48f1-abf3-524abf428686.webp"
+  },
+  {
+    "id": "f3706ebb-3389-4139-aee8-f7305438d022",
+    "name": "Krebstier, Riesig",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/f3706ebb-3389-4139-aee8-f7305438d022.webp"
+  },
+  {
+    "id": "284a8820-f9cf-4b2a-bef7-336c33c53c5d",
+    "name": "Kryptenwächter",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/284a8820-f9cf-4b2a-bef7-336c33c53c5d.webp"
+  },
+  {
+    "id": "9aa11f9a-3004-4328-b6ef-1355ebec85a6",
+    "name": "Todesritter",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/9aa11f9a-3004-4328-b6ef-1355ebec85a6.webp"
+  },
+  {
+    "id": "013447d5-3ec4-4cb0-9b29-62831c6ed203",
+    "name": "Revenant",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/013447d5-3ec4-4cb0-9b29-62831c6ed203.webp"
+  },
+  {
+    "id": "4307cdce-f7f4-4374-90e2-88fff22cee3d",
+    "name": "Dinosaurier I",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/4307cdce-f7f4-4374-90e2-88fff22cee3d.webp"
+  },
+  {
+    "id": "98744640-137b-4aff-97a6-bdd37c276be3",
+    "name": "Verlagerungsbestie",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/98744640-137b-4aff-97a6-bdd37c276be3.webp"
+  },
+  {
+    "id": "6542721a-fd42-4579-9ed6-fa42584ba3f8",
+    "name": "Doppelgänger",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/6542721a-fd42-4579-9ed6-fa42584ba3f8.webp"
+  },
+  {
+    "id": "ea9d0799-e7bd-404d-aa7c-aa190144796f",
+    "name": "Brauner Drache",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/ea9d0799-e7bd-404d-aa7c-aa190144796f.webp"
+  },
+  {
+    "id": "e71ad1b4-9c1a-4435-be38-a3571152d95a",
+    "name": "Schwarzer Drache (Erwachsen)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/e71ad1b4-9c1a-4435-be38-a3571152d95a.webp"
+  },
+  {
+    "id": "737b66d6-8137-42f4-bc8d-3cded31e17e3",
+    "name": "Grüner Drache (Erwachsen)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/737b66d6-8137-42f4-bc8d-3cded31e17e3.webp"
+  },
+  {
+    "id": "a1fbec0d-d22c-44b5-a80e-1cd1991a4ef8",
+    "name": "Roter Drache (Erwachsen)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/a1fbec0d-d22c-44b5-a80e-1cd1991a4ef8.webp"
+  },
+  {
+    "id": "ec697d78-9c4b-4857-a350-4507a9b33fd7",
+    "name": "Weißer Drache (Erwachsen)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/ec697d78-9c4b-4857-a350-4507a9b33fd7.webp"
+  },
+  {
+    "id": "1ed8b61a-70e9-4075-8969-2be5ec32f2fd",
+    "name": "Tiefendrache",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/1ed8b61a-70e9-4075-8969-2be5ec32f2fd.webp"
+  },
+  {
+    "id": "c904f43f-48ef-4b5d-8109-3997466b3d79",
+    "name": "Amethystdrache",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/c904f43f-48ef-4b5d-8109-3997466b3d79.webp"
+  },
+  {
+    "id": "5a53d6fb-33d4-4dde-9c69-9478374e9a4f",
+    "name": "Insekt, Riesig",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/5a53d6fb-33d4-4dde-9c69-9478374e9a4f.webp?v=1775896137014"
+  },
+  {
+    "id": "7d45eee7-f32e-4b88-8dc9-188e05362261",
+    "name": "Kristalldrache",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/7d45eee7-f32e-4b88-8dc9-188e05362261.webp"
+  },
+  {
+    "id": "5dcdf672-9789-41c0-9eb6-921c69d412d3",
+    "name": "Smaragddrache",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/5dcdf672-9789-41c0-9eb6-921c69d412d3.webp"
+  },
+  {
+    "id": "0bcee064-db60-4dc7-919d-cef062cb99a0",
+    "name": "Saphirdrache",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/0bcee064-db60-4dc7-919d-cef062cb99a0.webp"
+  },
+  {
+    "id": "244e6dd8-29f9-4f68-8542-2209215acdbc",
+    "name": "Topazdrache",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/244e6dd8-29f9-4f68-8542-2209215acdbc.webp"
+  },
+  {
+    "id": "ef1ef330-5238-4d06-826f-c5ae56fc8fb5",
+    "name": "Säugetier",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/ef1ef330-5238-4d06-826f-c5ae56fc8fb5.webp?v=1775896145469"
+  },
+  {
+    "id": "071fedc3-323c-46a0-b96e-c347fb42c451",
+    "name": "Messingdrache (Erwachsen)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/071fedc3-323c-46a0-b96e-c347fb42c451.webp"
+  },
+  {
+    "id": "8720e5c9-dfce-4b3b-aecd-dc834ae1daba",
+    "name": "Schimmel I",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/8720e5c9-dfce-4b3b-aecd-dc834ae1daba.webp"
+  },
+  {
+    "id": "e6e6cf4f-d456-4ba1-8f2b-b81c704620a0",
+    "name": "Bronzedrache (Erwachsen)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/e6e6cf4f-d456-4ba1-8f2b-b81c704620a0.webp"
+  },
+  {
+    "id": "de365c54-39e5-4a5d-85c8-e7b71ea96bdb",
+    "name": "Kupferdrache (Erwachsen)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/de365c54-39e5-4a5d-85c8-e7b71ea96bdb.webp"
+  },
+  {
+    "id": "c60f9fb8-7e16-4420-9e79-daeab2297f22",
+    "name": "Schleim/Glibber/Gallert I",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/c60f9fb8-7e16-4420-9e79-daeab2297f22.webp"
+  },
+  {
+    "id": "eea1341b-d665-4a91-b5ce-5a6ed702e469",
+    "name": "Quecksilberdrache",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/eea1341b-d665-4a91-b5ce-5a6ed702e469.webp"
+  },
+  {
+    "id": "004afbcb-f0ce-4a1e-916f-8c74c20ada58",
+    "name": "Nebeldrache",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/004afbcb-f0ce-4a1e-916f-8c74c20ada58.webp"
+  },
+  {
+    "id": "17fe4c9b-cc38-43f8-ae49-3b920c777843",
+    "name": "Silberdrache (Erwachsen)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/17fe4c9b-cc38-43f8-ae49-3b920c777843.webp"
+  },
+  {
+    "id": "3447c7e6-2699-4acb-a204-e1cd69c6d142",
+    "name": "Schattendrache",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/3447c7e6-2699-4acb-a204-e1cd69c6d142.webp"
+  },
+  {
+    "id": "95f0222c-2f3d-4872-9902-b1757403adf9",
+    "name": "Stahldrache",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/95f0222c-2f3d-4872-9902-b1757403adf9.webp"
+  },
+  {
+    "id": "223ed488-80f7-4abc-9796-1ce28d369f32",
+    "name": "Golem I (Größerer Golem)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/223ed488-80f7-4abc-9796-1ce28d369f32.webp"
+  },
+  {
+    "id": "db8afd84-0925-4841-a77b-3b5a8f4133ee",
+    "name": "Gelber Drache",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/db8afd84-0925-4841-a77b-3b5a8f4133ee.webp"
+  },
+  {
+    "id": "24302787-a7d0-49b6-b23b-5841ec0822b9",
+    "name": "Drachenfisch",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/24302787-a7d0-49b6-b23b-5841ec0822b9.webp"
+  },
+  {
+    "id": "e1998d5d-40f4-4fc9-88f7-02a251f5ee9f",
+    "name": "Sahuagin",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/e1998d5d-40f4-4fc9-88f7-02a251f5ee9f.png"
+  },
+  {
+    "id": "4e0786db-f5c7-4ea7-85c9-3ee725fda8d7",
+    "name": "Pavian",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/4e0786db-f5c7-4ea7-85c9-3ee725fda8d7.webp"
+  },
+  {
+    "id": "e07a6d30-f72e-4abd-8af0-a0186e00dad1",
+    "name": "Dragonne",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/e07a6d30-f72e-4abd-8af0-a0186e00dad1.webp"
+  },
+  {
+    "id": "cc00c71c-e092-4d40-99bb-33a0a0a98282",
+    "name": "Baatezu",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/cc00c71c-e092-4d40-99bb-33a0a0a98282.webp"
+  },
+  {
+    "id": "420f276d-4f13-4298-8215-97426f08e953",
+    "name": "Drachenschildkröte",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/420f276d-4f13-4298-8215-97426f08e953.webp"
+  },
+  {
+    "id": "de323c3c-95c0-4fc0-b638-17ad2a1a10ad",
+    "name": "Brownie",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/de323c3c-95c0-4fc0-b638-17ad2a1a10ad.webp"
+  },
+  {
+    "id": "ccdd5d45-e0c5-4b43-8159-c2a496a2ba0f",
+    "name": "Arkane",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/ccdd5d45-e0c5-4b43-8159-c2a496a2ba0f.webp"
+  },
+  {
+    "id": "f7952f05-fa23-4b93-9d70-aeb7f6526a1a",
+    "name": "Feendrache",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/f7952f05-fa23-4b93-9d70-aeb7f6526a1a.webp"
+  },
+  {
+    "id": "78b41afd-e7d8-4b81-8b4c-d8482eb5fa1c",
+    "name": "Feuerdrache",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/78b41afd-e7d8-4b81-8b4c-d8482eb5fa1c.webp"
+  },
+  {
+    "id": "d8f51b58-aa6a-4b81-8845-5c768e97888a",
+    "name": "Pseudodrache",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/d8f51b58-aa6a-4b81-8845-5c768e97888a.webp"
+  },
+  {
+    "id": "4c6fa081-5dfb-4b36-8e2a-95d06b62efba",
+    "name": "Krabbenmann",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/4c6fa081-5dfb-4b36-8e2a-95d06b62efba.webp"
+  },
+  {
+    "id": "904b79ba-c126-49c7-bba6-5e57d6ef9ac0",
+    "name": "Hund",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/904b79ba-c126-49c7-bba6-5e57d6ef9ac0.webp"
+  },
+  {
+    "id": "92334491-6039-4655-a7e6-2b63cf58dccf",
+    "name": "Dryade",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/92334491-6039-4655-a7e6-2b63cf58dccf.webp"
+  },
+  {
+    "id": "3109c1b1-8242-4a1a-b533-e9bf12507de4",
+    "name": "Duergar",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/3109c1b1-8242-4a1a-b533-e9bf12507de4.webp"
+  },
+  {
+    "id": "9aca76cc-31b5-411f-8262-4e52152968ad",
+    "name": "Zwerg",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/9aca76cc-31b5-411f-8262-4e52152968ad.webp"
+  },
+  {
+    "id": "30a151b2-cc9e-4abe-b822-531559b1c28e",
+    "name": "Rinnensalzwerg",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/30a151b2-cc9e-4abe-b822-531559b1c28e.webp"
+  },
+  {
+    "id": "cdc9840a-ddf1-45b8-b5fb-c87b8f0aa67c",
+    "name": "Elementar (Athas), Allgemeine Informationen",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/cdc9840a-ddf1-45b8-b5fb-c87b8f0aa67c.webp"
+  },
+  {
+    "id": "79d7f51a-5278-4a6b-8596-4dca881c76ba",
+    "name": "Erdelemental (12 TW)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/79d7f51a-5278-4a6b-8596-4dca881c76ba.webp?v=1775903076340"
+  },
+  {
+    "id": "288432a5-3ef5-45bc-8819-40d253c17be7",
+    "name": "Feuerelemental (12 TW)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/288432a5-3ef5-45bc-8819-40d253c17be7.webp?v=1775903095604"
+  },
+  {
+    "id": "5b7aa427-248b-4d9b-b5ee-814a03a36d21",
+    "name": "Elementar, Verbundelement",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/5b7aa427-248b-4d9b-b5ee-814a03a36d21.webp"
+  },
+  {
+    "id": "66cc8a3b-f4fd-48ae-9652-56676bb18fe5",
+    "name": "Elementar, Allgemeine Informationen",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/66cc8a3b-f4fd-48ae-9652-56676bb18fe5.webp"
+  },
+  {
+    "id": "04d89596-8017-4e4e-9e96-0715b57e613c",
+    "name": "Locathah",
+    "image_url_before": null
+  },
+  {
+    "id": "0be7b709-3f81-4605-93c6-3100ade1c914",
+    "name": "Elf",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/0be7b709-3f81-4605-93c6-3100ade1c914.webp"
+  },
+  {
+    "id": "8f038a0e-b0d6-4214-bf31-5f2a25faa423",
+    "name": "Elf, Wasseself",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/8f038a0e-b0d6-4214-bf31-5f2a25faa423.webp"
+  },
+  {
+    "id": "51be6943-7459-44db-867e-b0b9675a5403",
+    "name": "Ettercap",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/51be6943-7459-44db-867e-b0b9675a5403.webp"
+  },
+  {
+    "id": "41d90f49-43cb-4e81-9cd4-0f925d1d9d3a",
+    "name": "Wurm",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/41d90f49-43cb-4e81-9cd4-0f925d1d9d3a.webp"
+  },
+  {
+    "id": "70c4cf01-cd0c-4076-8a18-a216af9ac4bd",
+    "name": "Augenflügel",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/70c4cf01-cd0c-4076-8a18-a216af9ac4bd.webp"
+  },
+  {
+    "id": "dda2f7a3-77c0-45e7-856b-9165893178eb",
+    "name": "Feyr",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/dda2f7a3-77c0-45e7-856b-9165893178eb.webp"
+  },
+  {
+    "id": "1fc38241-9d99-4168-a9cc-e84e647056b3",
+    "name": "Säugetier, Klein",
+    "image_url_before": null
+  },
+  {
+    "id": "c49bcf19-54ca-4816-a3d1-7e5a39a6ae46",
+    "name": "Pilz",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/c49bcf19-54ca-4816-a3d1-7e5a39a6ae46.webp"
+  },
+  {
+    "id": "c57eda81-68da-4c6d-923e-086a0c7beffa",
+    "name": "Galeb Duhr",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/c57eda81-68da-4c6d-923e-086a0c7beffa.webp"
+  },
+  {
+    "id": "b8373a3a-dca7-40f2-8bf5-84a8551a840d",
+    "name": "Gargantua",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/b8373a3a-dca7-40f2-8bf5-84a8551a840d.webp"
+  },
+  {
+    "id": "bdf7ca38-69a5-4b80-979a-4b61b839fb18",
+    "name": "Gargoyle",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/bb065b0e-c095-4b03-b0b7-be888c8d5900.webp"
+  },
+  {
+    "id": "a2d55d8a-362e-418d-8be3-005eb171afa2",
+    "name": "Zentaur",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/a2d55d8a-362e-418d-8be3-005eb171afa2.webp"
+  },
+  {
+    "id": "3331794c-ecfc-4d56-9e23-1f211a9120c3",
+    "name": "Goblin",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/3331794c-ecfc-4d56-9e23-1f211a9120c3.webp"
+  },
+  {
+    "id": "75d5b7b9-5814-4c37-b64c-d8942b88877d",
+    "name": "Golem, Allgemeine Informationen",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/75d5b7b9-5814-4c37-b64c-d8942b88877d.webp"
+  },
+  {
+    "id": "85ef3210-4db4-476f-b4cf-d920b765daec",
+    "name": "Delfin",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/85ef3210-4db4-476f-b4cf-d920b765daec.webp"
+  },
+  {
+    "id": "a4ccb67d-9f4f-4ab4-9ef6-26fdb76bcf20",
+    "name": "Geist",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/a4ccb67d-9f4f-4ab4-9ef6-26fdb76bcf20.webp"
+  },
+  {
+    "id": "78386fa7-ba98-408c-90f5-f07fabbf6e56",
+    "name": "Ghul",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/78386fa7-ba98-408c-90f5-f07fabbf6e56.webp"
+  },
+  {
+    "id": "1b8dcf1d-92af-4abc-aaec-21699fb284ba",
+    "name": "Adler",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/1b8dcf1d-92af-4abc-aaec-21699fb284ba.webp"
+  },
+  {
+    "id": "ee6abec1-6722-4373-9748-65992fc5de87",
+    "name": "Wolkenriese",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/ee6abec1-6722-4373-9748-65992fc5de87.webp"
+  },
+  {
+    "id": "5891f0b5-618e-4f6d-9fb6-df63b80d96cd",
+    "name": "Riese, Zyklop",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/5891f0b5-618e-4f6d-9fb6-df63b80d96cd.webp"
+  },
+  {
+    "id": "4f7de8af-6abb-4a4f-b1e6-b118d65f54e3",
+    "name": "Betrachter",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/8614f357-afa8-40d4-85a3-c4d3e56bbfea.webp?v=1775896085724"
+  },
+  {
+    "id": "67578e3a-c0e0-45d3-bea5-f4c622edd8cb",
+    "name": "Behelmter Schrecken",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/67578e3a-c0e0-45d3-bea5-f4c622edd8cb.png"
+  },
+  {
+    "id": "a1a67f73-128f-495a-ab63-bd08c77a7e5f",
+    "name": "Ettin",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/a1a67f73-128f-495a-ab63-bd08c77a7e5f.webp?v=1775895862118"
+  },
+  {
+    "id": "dfc4ee67-3f41-49b3-bd24-c2b5b3293fa1",
+    "name": "Riese, Firbolg",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/dfc4ee67-3f41-49b3-bd24-c2b5b3293fa1.webp"
+  },
+  {
+    "id": "a41b6f32-3409-4a2d-97e8-5c1e4a715f6c",
+    "name": "Feuerriese",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/a41b6f32-3409-4a2d-97e8-5c1e4a715f6c.webp"
+  },
+  {
+    "id": "e6bc3b3f-a714-42cf-9c79-ccb843055818",
+    "name": "Gremlin",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/e6bc3b3f-a714-42cf-9c79-ccb843055818.webp"
+  },
+  {
+    "id": "f97dd1c6-b4d2-498b-8a7e-2d7ffb424e11",
+    "name": "Sturmriese",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/f97dd1c6-b4d2-498b-8a7e-2d7ffb424e11.webp"
+  },
+  {
+    "id": "386bf9f3-1d18-4d00-b37b-8ccbedbba5d1",
+    "name": "Riese, Verbeeg",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/386bf9f3-1d18-4d00-b37b-8ccbedbba5d1.webp"
+  },
+  {
+    "id": "dfe9fa7a-1380-4c0a-9fe5-96c9bca305f3",
+    "name": "Waldriese",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/dfe9fa7a-1380-4c0a-9fe5-96c9bca305f3.webp"
+  },
+  {
+    "id": "e6adf19c-eed7-4bf9-b221-92b1657d24b5",
+    "name": "Gibberling",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/e6adf19c-eed7-4bf9-b221-92b1657d24b5.webp"
+  },
+  {
+    "id": "51870ccb-89bd-414e-8ad5-2b829cf2e872",
+    "name": "Gith",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/51870ccb-89bd-414e-8ad5-2b829cf2e872.webp"
+  },
+  {
+    "id": "ba97ad80-f3c1-4783-a7b5-46551208c7e9",
+    "name": "Gith-Pirat",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/ba97ad80-f3c1-4783-a7b5-46551208c7e9.webp"
+  },
+  {
+    "id": "5802a342-dcf4-43d4-aae3-fd2ada78867a",
+    "name": "Githyanki",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/5802a342-dcf4-43d4-aae3-fd2ada78867a.webp"
+  },
+  {
+    "id": "efaefbf8-50ba-45f3-8658-dd7cfba2ec40",
+    "name": "Githzerai",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/efaefbf8-50ba-45f3-8658-dd7cfba2ec40.webp"
+  },
+  {
+    "id": "46e6cc10-b345-4b1d-9b02-1e245f79172b",
+    "name": "Haunt",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/46e6cc10-b345-4b1d-9b02-1e245f79172b.webp"
+  },
+  {
+    "id": "3908b906-ddfa-4a95-b8c6-e06e0be7d47c",
+    "name": "Düsterflügel",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/3908b906-ddfa-4a95-b8c6-e06e0be7d47c.webp"
+  },
+  {
+    "id": "527af4eb-4f96-4231-88ac-8fac550ab748",
+    "name": "Gnoll",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/527af4eb-4f96-4231-88ac-8fac550ab748.png"
+  },
+  {
+    "id": "95ce237f-ce73-47f3-a7a1-b2707c1ffbb3",
+    "name": "Gnom",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/95ce237f-ce73-47f3-a7a1-b2707c1ffbb3.webp"
+  },
+  {
+    "id": "28fcf700-2373-4ee5-b0a8-7ea3286e37e0",
+    "name": "Gnom, Spriggan",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/28fcf700-2373-4ee5-b0a8-7ea3286e37e0.webp"
+  },
+  {
+    "id": "dc4584ce-d41b-466d-8d20-9cfb90d8af88",
+    "name": "Golem II (Niederer Golem)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/dc4584ce-d41b-466d-8d20-9cfb90d8af88.webp"
+  },
+  {
+    "id": "0da7d70f-5e93-4e0e-8e85-df01120b159a",
+    "name": "Golem III",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/0da7d70f-5e93-4e0e-8e85-df01120b159a.webp"
+  },
+  {
+    "id": "5bab3209-9271-4d95-a8c0-db18699c57d0",
+    "name": "Necrophidius und Vogelscheuche",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/5bab3209-9271-4d95-a8c0-db18699c57d0.webp"
+  },
+  {
+    "id": "2e255988-c85e-4ede-b97b-23e41d78f3fe",
+    "name": "Gorgon",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/2e255988-c85e-4ede-b97b-23e41d78f3fe.png"
+  },
+  {
+    "id": "0a9191ff-a23c-4df9-a26f-81ae33a1d7d1",
+    "name": "Gremlin, Jermlaine",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/0a9191ff-a23c-4df9-a26f-81ae33a1d7d1.webp"
+  },
+  {
+    "id": "98979f50-f737-4a52-8b7c-eb86dd4603e3",
+    "name": "Greif",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/98979f50-f737-4a52-8b7c-eb86dd4603e3.webp"
+  },
+  {
+    "id": "1acc33a7-e5f9-4474-a55c-d679d3f2c5e8",
+    "name": "Grimlock",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/1acc33a7-e5f9-4474-a55c-d679d3f2c5e8.webp"
+  },
+  {
+    "id": "2b59e04c-fc17-4ad7-abb0-954d91c3616e",
+    "name": "Grippli",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/2b59e04c-fc17-4ad7-abb0-954d91c3616e.webp"
+  },
+  {
+    "id": "97310ab2-9c76-4fa8-a60b-86beca0d92df",
+    "name": "Wächterdämon",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/97310ab2-9c76-4fa8-a60b-86beca0d92df.webp"
+  },
+  {
+    "id": "853ab9d5-6888-4c95-aae3-b5d17e68e100",
+    "name": "Hexe",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/853ab9d5-6888-4c95-aae3-b5d17e68e100.webp"
+  },
+  {
+    "id": "6b11453a-a838-4916-a71c-99deaed270a8",
+    "name": "Halbling",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/6b11453a-a838-4916-a71c-99deaed270a8.webp"
+  },
+  {
+    "id": "76d914ca-b4b2-49f8-b2f0-b48aa9ee08e9",
+    "name": "Harpyie",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/76d914ca-b4b2-49f8-b2f0-b48aa9ee08e9.webp"
+  },
+  {
+    "id": "8e0c139a-d8fa-4403-934d-c74d236e0b9e",
+    "name": "Hatori",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/8e0c139a-d8fa-4403-934d-c74d236e0b9e.webp"
+  },
+  {
+    "id": "e914aa5a-d127-4ad0-b403-5aa9b8de2fc2",
+    "name": "Habicht",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/e914aa5a-d127-4ad0-b403-5aa9b8de2fc2.webp"
+  },
+  {
+    "id": "61a6774c-176d-46fa-abf1-5d02391b27cf",
+    "name": "Höllenhund",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/61a6774c-176d-46fa-abf1-5d02391b27cf.webp"
+  },
+  {
+    "id": "d8173f2f-7342-4382-9229-e89c6231e78a",
+    "name": "Hippogryph",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/d8173f2f-7342-4382-9229-e89c6231e78a.webp?v=1775895869890"
+  },
+  {
+    "id": "f29578b2-fc23-4336-8582-8b55afe0fe0a",
+    "name": "Hobgoblin",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/f29578b2-fc23-4336-8582-8b55afe0fe0a.png"
+  },
+  {
+    "id": "72939647-f425-4685-b2fc-a40507cfea74",
+    "name": "Homunculus",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/72939647-f425-4685-b2fc-a40507cfea74.png"
+  },
+  {
+    "id": "07f3428c-6230-4949-bbab-202102c4e26d",
+    "name": "Hakengrausamkeit",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/07f3428c-6230-4949-bbab-202102c4e26d.webp"
+  },
+  {
+    "id": "3c4c8347-ec9d-44b8-bdc6-4a884f0e86cb",
+    "name": "Riesenhornisse",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/3c4c8347-ec9d-44b8-bdc6-4a884f0e86cb.webp"
+  },
+  {
+    "id": "efe6a1ed-df7f-4671-a647-f69604e4b6f8",
+    "name": "Mensch",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/efe6a1ed-df7f-4671-a647-f69604e4b6f8.webp?v=1775896128580"
+  },
+  {
+    "id": "443985dd-a475-4883-ab46-eeb64cd4d0ef",
+    "name": "Hydra",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/443985dd-a475-4883-ab46-eeb64cd4d0ef.webp"
+  },
+  {
+    "id": "b87766b4-aef2-4007-8958-2279565d10d0",
+    "name": "Hyäne",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/b87766b4-aef2-4007-8958-2279565d10d0.webp"
+  },
+  {
+    "id": "c10da93a-c336-4e25-b3a9-03f84d2c9bb8",
+    "name": "Imp",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/c10da93a-c336-4e25-b3a9-03f84d2c9bb8.webp"
+  },
+  {
+    "id": "8ed09db5-33ee-40c4-83a4-f5ab5d80793d",
+    "name": "Insektenschwarm",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/8ed09db5-33ee-40c4-83a4-f5ab5d80793d.webp"
+  },
+  {
+    "id": "3d99e134-3e9a-4b92-8169-3e43f3c3e8db",
+    "name": "Intellektverschlinger",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/3d99e134-3e9a-4b92-8169-3e43f3c3e8db.webp"
+  },
+  {
+    "id": "a46a7077-56d6-44d5-9ed7-5015cb864eb7",
+    "name": "Unsichtbarer Pirscher",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/a46a7077-56d6-44d5-9ed7-5015cb864eb7.webp"
+  },
+  {
+    "id": "071a2ca0-612a-43a4-9562-020d61b35f1e",
+    "name": "Ixitxachitl",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/071a2ca0-612a-43a4-9562-020d61b35f1e.webp"
+  },
+  {
+    "id": "f01bb5fd-1b88-4a4e-bb44-6ca0d8975b78",
+    "name": "Schakal",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/f01bb5fd-1b88-4a4e-bb44-6ca0d8975b78.webp"
+  },
+  {
+    "id": "6e47f344-ad5e-4e20-956c-3a5f5d299059",
+    "name": "Kelpie",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/6e47f344-ad5e-4e20-956c-3a5f5d299059.webp"
+  },
+  {
+    "id": "3cf86867-c308-4769-9ced-993f1fb4e5d9",
+    "name": "Kenku",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/3cf86867-c308-4769-9ced-993f1fb4e5d9.webp"
+  },
+  {
+    "id": "127bfa87-62e6-4544-ac4a-7608af82d4e3",
+    "name": "Killmoulis",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/127bfa87-62e6-4544-ac4a-7608af82d4e3.webp"
+  },
+  {
+    "id": "23dcb49f-e7c6-43e0-a0ac-0b0e54210cf7",
+    "name": "Ki-rin",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/23dcb49f-e7c6-43e0-a0ac-0b0e54210cf7.webp"
+  },
+  {
+    "id": "7445eca8-e871-4986-93b4-e33bbab980d9",
+    "name": "Kobold",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/7445eca8-e871-4986-93b4-e33bbab980d9.webp"
+  },
+  {
+    "id": "e1ca3530-c619-4dfb-90f8-aa51ae8a98e4",
+    "name": "Korred",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/e1ca3530-c619-4dfb-90f8-aa51ae8a98e4.webp"
+  },
+  {
+    "id": "f3850df3-16fe-4eb6-9c1b-f001cdc180d7",
+    "name": "Lauerer",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/f3850df3-16fe-4eb6-9c1b-f001cdc180d7.webp"
+  },
+  {
+    "id": "cf1aebfd-e503-407f-8ba3-2154fc04c521",
+    "name": "Kuo-Toa",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/cf1aebfd-e503-407f-8ba3-2154fc04c521.png"
+  },
+  {
+    "id": "657d9001-e77e-4c03-860a-d2c439f58e99",
+    "name": "Neunauge",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/657d9001-e77e-4c03-860a-d2c439f58e99.webp"
+  },
+  {
+    "id": "ad5dbd43-f8e5-4319-b3ff-907c6aa28536",
+    "name": "Lebende Wand",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/ad5dbd43-f8e5-4319-b3ff-907c6aa28536.webp"
+  },
+  {
+    "id": "7534ad53-1864-44fc-ab70-ad1025a0ce19",
+    "name": "Echse",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/7534ad53-1864-44fc-ab70-ad1025a0ce19.webp"
+  },
+  {
+    "id": "9abd6089-51f3-4cc7-aebd-2027a1928d14",
+    "name": "Lizardman",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/9abd6089-51f3-4cc7-aebd-2027a1928d14.png"
+  },
+  {
+    "id": "97bd3238-3bb4-4cec-92bb-fc39e6552d19",
+    "name": "Werrate",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/97bd3238-3bb4-4cec-92bb-fc39e6552d19.webp"
+  },
+  {
+    "id": "1bf776a5-bf94-4496-9b54-1a7071c0fe7b",
+    "name": "Säugetier, Herdentier I",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/1bf776a5-bf94-4496-9b54-1a7071c0fe7b.webp"
+  },
+  {
+    "id": "d81a2905-b469-40a3-8b54-0a20484149a4",
+    "name": "Säugetier, Minimal",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/d81a2905-b469-40a3-8b54-0a20484149a4.webp?v=1775896156873"
+  },
+  {
+    "id": "df608b4d-2538-4122-b02d-a137c1c1ded0",
+    "name": "Mantikor",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/df608b4d-2538-4122-b02d-a137c1c1ded0.png"
+  },
+  {
+    "id": "2c900f84-b14e-4c8b-b628-399129f16581",
+    "name": "Maedar",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/2c900f84-b14e-4c8b-b628-399129f16581.webp"
+  },
+  {
+    "id": "915a0183-2b17-48d0-ae5f-f8608aa57c30",
+    "name": "Medusa",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/915a0183-2b17-48d0-ae5f-f8608aa57c30.png"
+  },
+  {
+    "id": "e4165830-24a6-4ca3-80ba-12e83b14e569",
+    "name": "Meermann",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/e4165830-24a6-4ca3-80ba-12e83b14e569.webp"
+  },
+  {
+    "id": "d607af96-a6fe-4bca-a8a1-5c1d5d402e09",
+    "name": "Mimic",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/d607af96-a6fe-4bca-a8a1-5c1d5d402e09.png"
+  },
+  {
+    "id": "5e78ea65-6cf1-4b05-a8f3-a1915215fe8c",
+    "name": "Illithid",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/5e78ea65-6cf1-4b05-a8f3-a1915215fe8c.webp"
+  },
+  {
+    "id": "5f3bfd3b-12e5-4bc5-add0-56587f706d78",
+    "name": "Minotaurus",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/5f3bfd3b-12e5-4bc5-add0-56587f706d78.png"
+  },
+  {
+    "id": "b0bae14d-a12f-46cd-af1b-a717aee34ffe",
+    "name": "Nebel, Karmesinroter Tod",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/b0bae14d-a12f-46cd-af1b-a717aee34ffe.webp"
+  },
+  {
+    "id": "cd27ae6d-223e-49b8-a044-5c4781994dcd",
+    "name": "Nebel, Vampirischer",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/cd27ae6d-223e-49b8-a044-5c4781994dcd.webp"
+  },
+  {
+    "id": "8dd92dea-5bf3-4c57-99d0-171bcdde1949",
+    "name": "Schimmelmann",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/8dd92dea-5bf3-4c57-99d0-171bcdde1949.webp"
+  },
+  {
+    "id": "310a4ca0-de1b-44db-961c-bbdb5f678bf4",
+    "name": "Mongrelman",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/310a4ca0-de1b-44db-961c-bbdb5f678bf4.webp"
+  },
+  {
+    "id": "e6794ddb-bb26-40e4-ba55-eac0bfbd7011",
+    "name": "Rochen",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/e6794ddb-bb26-40e4-ba55-eac0bfbd7011.webp?v=1775902905843"
+  },
+  {
+    "id": "ec9c9ae1-74f8-45a6-a12b-1958059dabe0",
+    "name": "Mumie",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/ec9c9ae1-74f8-45a6-a12b-1958059dabe0.png"
+  },
+  {
+    "id": "79c3e85b-c6f7-434a-a0f0-a138ff2263ea",
+    "name": "Dunkle Naga",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/79c3e85b-c6f7-434a-a0f0-a138ff2263ea.webp"
+  },
+  {
+    "id": "1b0e4129-c7db-4ed0-96c6-5b7ad4bf2120",
+    "name": "Neogi",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/1b0e4129-c7db-4ed0-96c6-5b7ad4bf2120.webp"
+  },
+  {
+    "id": "c3153758-ed0c-40c6-b8ce-9be7d6f0a6a4",
+    "name": "Nachtmahr",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/c3153758-ed0c-40c6-b8ce-9be7d6f0a6a4.webp"
+  },
+  {
+    "id": "61bdf113-1e71-4ac6-99a1-1a637746fb23",
+    "name": "Nixe",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/61bdf113-1e71-4ac6-99a1-1a637746fb23.webp"
+  },
+  {
+    "id": "36adf1b8-8897-410c-9237-6a6678f6b4ce",
+    "name": "Obliviax",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/36adf1b8-8897-410c-9237-6a6678f6b4ce.webp"
+  },
+  {
+    "id": "0182e5f5-2ac2-4e76-af23-3ce23ecb7167",
+    "name": "Ogre",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/0182e5f5-2ac2-4e76-af23-3ce23ecb7167.png"
+  },
+  {
+    "id": "3446c322-236f-4b43-bc0e-36bd8cc92072",
+    "name": "Halbogre",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/3446c322-236f-4b43-bc0e-36bd8cc92072.webp"
+  },
+  {
+    "id": "222207ee-419f-4fd7-b20a-c91e0af24cb6",
+    "name": "Gleitender Verfolger",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/222207ee-419f-4fd7-b20a-c91e0af24cb6.webp"
+  },
+  {
+    "id": "20e1e3a2-52c3-4815-bbf3-131513a1e063",
+    "name": "Orc",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/20e1e3a2-52c3-4815-bbf3-131513a1e063.png"
+  },
+  {
+    "id": "50c08313-c43f-4768-b787-9a6c4ffc7c57",
+    "name": "Otyugh",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/50c08313-c43f-4768-b787-9a6c4ffc7c57.png"
+  },
+  {
+    "id": "e4d42824-ea4c-486c-a641-06a10370167d",
+    "name": "Eule",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/e4d42824-ea4c-486c-a641-06a10370167d.webp?v=1775896176666"
+  },
+  {
+    "id": "d5362fc5-8ae7-4672-a570-35d59d1d49f5",
+    "name": "Eulenbär",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/d5362fc5-8ae7-4672-a570-35d59d1d49f5.webp"
+  },
+  {
+    "id": "caf01f44-8452-45b0-9ec8-0a4e1f0ffc31",
+    "name": "Pegasus",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/caf01f44-8452-45b0-9ec8-0a4e1f0ffc31.png"
+  },
+  {
+    "id": "33b48c1d-3cb2-4fa1-a18b-9f87aed3c4a7",
+    "name": "Peryton",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/33b48c1d-3cb2-4fa1-a18b-9f87aed3c4a7.webp"
+  },
+  {
+    "id": "97ca7303-1022-4666-8864-07761bf15c63",
+    "name": "Phantom",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/97ca7303-1022-4666-8864-07761bf15c63.webp"
+  },
+  {
+    "id": "3d6cb45e-a471-4265-975d-ec5e7c3c0808",
+    "name": "Piercer",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/3d6cb45e-a471-4265-975d-ec5e7c3c0808.png"
+  },
+  {
+    "id": "20997bc2-6426-477c-b8bc-c823df0b2115",
+    "name": "Piranha",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/20997bc2-6426-477c-b8bc-c823df0b2115.webp?v=1775896190428"
+  },
+  {
+    "id": "10805627-1e77-4329-9eb7-18ace29f696c",
+    "name": "Pixie",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/10805627-1e77-4329-9eb7-18ace29f696c.webp"
+  },
+  {
+    "id": "ddbd68cf-54e4-4da6-bf06-12c2d44a5d1f",
+    "name": "Poltergeist",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/ddbd68cf-54e4-4da6-bf06-12c2d44a5d1f.png"
+  },
+  {
+    "id": "91aa50d8-e8eb-4c78-b515-73e85057afc1",
+    "name": "Stachelschwein",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/91aa50d8-e8eb-4c78-b515-73e85057afc1.webp"
+  },
+  {
+    "id": "d4855af1-2a9e-487a-b706-5d567d596b47",
+    "name": "Quaggoth",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/d4855af1-2a9e-487a-b706-5d567d596b47.webp"
+  },
+  {
+    "id": "49f4f643-48da-4287-9b53-fe9d7e8d7a15",
+    "name": "Rakshasa",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/49f4f643-48da-4287-9b53-fe9d7e8d7a15.png"
+  },
+  {
+    "id": "bff35554-eb5b-4836-996b-e6c609f790fa",
+    "name": "Roc",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/bff35554-eb5b-4836-996b-e6c609f790fa.png"
+  },
+  {
+    "id": "659cc4e0-203f-481b-9c85-0d5ffdf311ab",
+    "name": "Roper",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/659cc4e0-203f-481b-9c85-0d5ffdf311ab.png"
+  },
+  {
+    "id": "36d4666c-06c9-4d02-8e77-29e1c2fbdb79",
+    "name": "Fäulniswurm",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/36d4666c-06c9-4d02-8e77-29e1c2fbdb79.webp"
+  },
+  {
+    "id": "aae31dbb-2905-4bf4-bd7d-b99381458264",
+    "name": "Rostmonster",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/aae31dbb-2905-4bf4-bd7d-b99381458264.png"
+  },
+  {
+    "id": "d9f7bc04-9065-4481-a7e7-c29afe2243e6",
+    "name": "Satyr",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/d9f7bc04-9065-4481-a7e7-c29afe2243e6.png"
+  },
+  {
+    "id": "c2bce4f0-c553-4420-9358-5c2d724dee0d",
+    "name": "Skorpion",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/c2bce4f0-c553-4420-9358-5c2d724dee0d.webp"
+  },
+  {
+    "id": "ae05aae5-11bd-4c87-ae96-3540c4928e35",
+    "name": "Riesenseepferdchen",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/ae05aae5-11bd-4c87-ae96-3540c4928e35.webp"
+  },
+  {
+    "id": "f57edf57-0c0c-4a16-accf-fc1e70a08fb7",
+    "name": "Schatten",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/f57edf57-0c0c-4a16-accf-fc1e70a08fb7.png"
+  },
+  {
+    "id": "2fb7e1bb-3d99-4df5-9b3d-fd8e64ed2795",
+    "name": "Zombie",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/2fb7e1bb-3d99-4df5-9b3d-fd8e64ed2795.png"
+  },
+  {
+    "id": "e9036941-45b8-4944-baff-a2b51627cb04",
+    "name": "Wandelnder Hügel",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/e9036941-45b8-4944-baff-a2b51627cb04.png"
+  },
+  {
+    "id": "1bfc2446-0de9-4f08-91a6-8d9515fa9361",
+    "name": "Hai",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/1bfc2446-0de9-4f08-91a6-8d9515fa9361.webp"
+  },
+  {
+    "id": "23b428fe-d7b2-47fe-835c-cf8730808a8c",
+    "name": "Shedu",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/23b428fe-d7b2-47fe-835c-cf8730808a8c.webp"
+  },
+  {
+    "id": "82e23566-b4fa-45e6-9dc1-ec5235e39e0e",
+    "name": "Sirine",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/82e23566-b4fa-45e6-9dc1-ec5235e39e0e.webp"
+  },
+  {
+    "id": "50f2e1ae-27d8-4f61-866a-15dac799536f",
+    "name": "Skelett",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/50f2e1ae-27d8-4f61-866a-15dac799536f.webp"
+  },
+  {
+    "id": "88ea38ea-669a-494d-9683-c040edc7cc2a",
+    "name": "Skelettritter",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/88ea38ea-669a-494d-9683-c040edc7cc2a.webp"
+  },
+  {
+    "id": "4681e2e6-0678-4c64-80bd-35cbe20d5c9c",
+    "name": "Stinktier",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/4681e2e6-0678-4c64-80bd-35cbe20d5c9c.webp"
+  },
+  {
+    "id": "1f58357b-6f50-4e81-927f-bb5313b9cc1e",
+    "name": "Slaad",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/1f58357b-6f50-4e81-927f-bb5313b9cc1e.webp?v=1775896201191"
+  },
+  {
+    "id": "0d00215c-706f-4507-bcd3-ba88ff7ff2df",
+    "name": "Riesenschnecke",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/0d00215c-706f-4507-bcd3-ba88ff7ff2df.webp"
+  },
+  {
+    "id": "6b705f5a-e11e-42af-9cd9-5ccde3b1ad9c",
+    "name": "Geflügelte Schlange",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/6b705f5a-e11e-42af-9cd9-5ccde3b1ad9c.webp"
+  },
+  {
+    "id": "16969cc4-b8d6-4409-be18-e68ebbd2fab4",
+    "name": "Gespenst",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/16969cc4-b8d6-4409-be18-e68ebbd2fab4.png"
+  },
+  {
+    "id": "684332a6-a387-4a09-b6ae-d0fcc638d6a9",
+    "name": "Spinne",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/684332a6-a387-4a09-b6ae-d0fcc638d6a9.webp?v=1775896333063"
+  },
+  {
+    "id": "fc8b7620-e1f6-473a-81de-948e694844fb",
+    "name": "Sprite (Feenwesen)",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/fc8b7620-e1f6-473a-81de-948e694844fb.webp"
+  },
+  {
+    "id": "b20033a0-52a5-4cd2-8934-98a638648176",
+    "name": "Stirge",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/b20033a0-52a5-4cd2-8934-98a638648176.png"
+  },
+  {
+    "id": "69663411-d345-4695-9085-2bc3b52cbe01",
+    "name": "Su-Monster",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/69663411-d345-4695-9085-2bc3b52cbe01.webp"
+  },
+  {
+    "id": "78562a18-29b3-49d2-8a52-6195965e6197",
+    "name": "Tako",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/78562a18-29b3-49d2-8a52-6195965e6197.webp"
+  },
+  {
+    "id": "23ed9564-b7ff-461e-bb28-bbc5955c3bc0",
+    "name": "Balor",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/23ed9564-b7ff-461e-bb28-bbc5955c3bc0.png"
+  },
+  {
+    "id": "8c580c75-b04c-4006-b323-92ab09c8479e",
+    "name": "Marilith",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/8c580c75-b04c-4006-b323-92ab09c8479e.png"
+  },
+  {
+    "id": "5306a302-6296-44eb-8513-38230d49d99f",
+    "name": "Gedankenfresser",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/5306a302-6296-44eb-8513-38230d49d99f.webp"
+  },
+  {
+    "id": "a4a44e6f-b8ae-4d82-9dd2-62a1da4e63ec",
+    "name": "Thri-kreen",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/a4a44e6f-b8ae-4d82-9dd2-62a1da4e63ec.webp"
+  },
+  {
+    "id": "bdb902ce-c5b7-4211-b5ae-729a9692224f",
+    "name": "Treant",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/bdb902ce-c5b7-4211-b5ae-729a9692224f.png"
+  },
+  {
+    "id": "270b4417-aacd-43a8-bfd4-5b9b42bf1f45",
+    "name": "Troglodyte",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/270b4417-aacd-43a8-bfd4-5b9b42bf1f45.png"
+  },
+  {
+    "id": "1b08f873-2cee-422d-8f1c-17099381f8a9",
+    "name": "Troll",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/1b08f873-2cee-422d-8f1c-17099381f8a9.png"
+  },
+  {
+    "id": "a8c3c8f9-48d8-438a-85da-387e1a8ffc94",
+    "name": "Umber Hulk",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/a8c3c8f9-48d8-438a-85da-387e1a8ffc94.webp?v=1775895773223"
+  },
+  {
+    "id": "760e55a6-1f37-447b-a84b-d16e08169ba5",
+    "name": "Einhorn",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/760e55a6-1f37-447b-a84b-d16e08169ba5.webp?v=1775895788856"
+  },
+  {
+    "id": "fb338773-ec81-4dbb-bf7f-a1d0ab8c1695",
+    "name": "Urd",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/fb338773-ec81-4dbb-bf7f-a1d0ab8c1695.webp?v=1775896219123"
+  },
+  {
+    "id": "2c41d24d-eb34-497d-801b-820c7bb50202",
+    "name": "Schwanenjungfer",
+    "image_url_before": null
+  },
+  {
+    "id": "1f5f82ef-c0c2-430f-881e-467200e28331",
+    "name": "Vampir",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/1f5f82ef-c0c2-430f-881e-467200e28331.webp"
+  },
+  {
+    "id": "64dabe1f-c354-4fb9-8dc7-e877601ba3af",
+    "name": "Wiesel",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/64dabe1f-c354-4fb9-8dc7-e877601ba3af.webp"
+  },
+  {
+    "id": "a8514d4e-2938-44c4-9911-3df9cd849556",
+    "name": "Wemic",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/a8514d4e-2938-44c4-9911-3df9cd849556.webp"
+  },
+  {
+    "id": "1682bf0c-cdda-4f3c-9246-a41393c41bef",
+    "name": "Wal",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/1682bf0c-cdda-4f3c-9246-a41393c41bef.webp?v=1775896232200"
+  },
+  {
+    "id": "64d954e4-3f82-475b-b92f-f5bfb63a9dbb",
+    "name": "Wight",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/64d954e4-3f82-475b-b92f-f5bfb63a9dbb.png"
+  },
+  {
+    "id": "42743a2d-925c-45a2-8d74-335d9552b508",
+    "name": "Irrlicht",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/42743a2d-925c-45a2-8d74-335d9552b508.png"
+  },
+  {
+    "id": "1043f9e8-a10b-48bb-bc8b-1346ad5fb4f0",
+    "name": "Vielfraß",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/1043f9e8-a10b-48bb-bc8b-1346ad5fb4f0.webp"
+  },
+  {
+    "id": "ad8046ab-620b-4f3e-902c-9662d583c46e",
+    "name": "Geisterscheinung",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/ad8046ab-620b-4f3e-902c-9662d583c46e.png"
+  },
+  {
+    "id": "33d7a62a-4208-4fe8-9f21-cf0d1c30c699",
+    "name": "Wyvern",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/33d7a62a-4208-4fe8-9f21-cf0d1c30c699.png"
+  },
+  {
+    "id": "19652997-f532-4650-af11-b01f1b986ff3",
+    "name": "Argos",
+    "image_url_before": null
+  },
+  {
+    "id": "06417257-3e71-4507-b673-33aa7e149834",
+    "name": "Xorn",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/06417257-3e71-4507-b673-33aa7e149834.webp"
+  },
+  {
+    "id": "21b011d8-100c-4efb-a4de-a06d60af490a",
+    "name": "Gelbe Moschusschlingpflanze",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/21b011d8-100c-4efb-a4de-a06d60af490a.webp?v=1775896246884"
+  },
+  {
+    "id": "86bfc43d-a09f-4541-9217-0ac5e6c763a9",
+    "name": "Yuan-ti, Histachii",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/86bfc43d-a09f-4541-9217-0ac5e6c763a9.webp"
+  },
+  {
+    "id": "6c68fbc1-87de-4b71-aa42-07ad292fb7c7",
+    "name": "Yugoloth, Wächter",
+    "image_url_before": "https://ptozyrwvbngascgydjjt.supabase.co/storage/v1/object/public/monster-images/6c68fbc1-87de-4b71-aa42-07ad292fb7c7.webp"
+  },
+  {
+    "id": "e6a72851-9594-489e-b61e-0a2d0a686a1d",
+    "name": "Fledermaus",
+    "image_url_before": null
+  },
+  {
+    "id": "ef1f2b88-6519-4879-a4af-163683519fa9",
+    "name": "Bär",
+    "image_url_before": null
+  },
+  {
+    "id": "898988d2-2415-4702-bce3-8be424e4acbf",
+    "name": "Großkatze",
+    "image_url_before": null
+  },
+  {
+    "id": "52f17ecc-5822-407b-8663-d2070dad4e50",
+    "name": "Catoblepas",
+    "image_url_before": null
+  },
+  {
+    "id": "c0517a78-38f8-438f-ad72-693230bfd35b",
+    "name": "Deepspawn",
+    "image_url_before": null
+  },
+  {
+    "id": "7ba1f3ba-9e32-4f1c-a64e-567212acc1e3",
+    "name": "Mondhund",
+    "image_url_before": null
+  },
+  {
+    "id": "53af9476-bb68-4227-8ba5-3844b4cf55f2",
+    "name": "Wolkendrache",
+    "image_url_before": null
+  },
+  {
+    "id": "2e6fc1df-402d-4038-89c6-68f18d659d04",
+    "name": "Elefant",
+    "image_url_before": null
+  },
+  {
+    "id": "5c454be4-6ebb-4525-81cc-f45d389fc4c7",
+    "name": "Frosch",
+    "image_url_before": null
+  },
+  {
+    "id": "e6e366ba-e3e8-4461-af52-11c19a9e3a74",
+    "name": "Riese, Wüsten-",
+    "image_url_before": null
+  },
+  {
+    "id": "4ea44e42-ae28-4f31-a6cc-18f9de74e090",
+    "name": "Dschungelriese",
+    "image_url_before": null
+  },
+  {
+    "id": "8b89e017-32e9-48fb-b9e5-4c3ba22ffca6",
+    "name": "Riffriesе",
+    "image_url_before": null
+  },
+  {
+    "id": "47700239-ecda-460d-be1a-ec326d5d8bf3",
+    "name": "Giff",
+    "image_url_before": null
+  },
+  {
+    "id": "4452e314-ba63-48c5-9dfa-c37b6b60df26",
+    "name": "Golem IV",
+    "image_url_before": null
+  },
+  {
+    "id": "6ba519b9-2c83-4a3e-a5db-9943dbda1f08",
+    "name": "Grell, Kolonial",
+    "image_url_before": null
+  },
+  {
+    "id": "43a73e49-dd9d-4185-804f-76abee714b3e",
+    "name": "Heucuva",
+    "image_url_before": null
+  },
+  {
+    "id": "19871091-678b-419c-82e3-86e2c20d9c47",
+    "name": "Hippokampus",
+    "image_url_before": null
+  },
+  {
+    "id": "8860d2a8-c353-4e88-91b0-a73b531570f8",
+    "name": "Pferd",
+    "image_url_before": null
+  },
+  {
+    "id": "0e82e173-0594-4cc9-8fcd-6b9f74c10547",
+    "name": "Schakalwer",
+    "image_url_before": null
+  },
+  {
+    "id": "bf503eaa-cd44-4fd4-afeb-40df2e3a3ef5",
+    "name": "Kirre",
+    "image_url_before": null
+  },
+  {
+    "id": "93bb0e51-8230-444c-9036-7568654e1c29",
+    "name": "Lamia",
+    "image_url_before": null
+  },
+  {
+    "id": "21537314-26fb-4de5-a1b1-6564dca0391b",
+    "name": "Lammasu",
+    "image_url_before": null
+  },
+  {
+    "id": "39225871-9254-4fb6-ac3f-914865be7168",
+    "name": "Blutegel",
+    "image_url_before": null
+  },
+  {
+    "id": "a974273a-45f1-4641-b4f9-9c18a2d73c15",
+    "name": "Leprechaun",
+    "image_url_before": null
+  },
+  {
+    "id": "4344e544-3a2d-444a-9196-573b2f5484ac",
+    "name": "Leukrotta",
+    "image_url_before": null
+  },
+  {
+    "id": "3e698315-4591-4ef8-aba7-68299b27bc17",
+    "name": "Lykanthrop, Allgemeine Informationen",
+    "image_url_before": null
+  },
+  {
+    "id": "f9613605-d8d5-4c8c-b40d-e8158da9db28",
+    "name": "Lykanthrop, Seewolf",
+    "image_url_before": null
+  },
+  {
+    "id": "7142bf2b-9c2e-4617-9583-56852e3ef9d4",
+    "name": "Lykanthrop, Werbär",
+    "image_url_before": null
+  },
+  {
+    "id": "b4a197a0-47d4-4274-a54f-39d8814e89a9",
+    "name": "Lykanthrop, Werwildschwein",
+    "image_url_before": null
+  },
+  {
+    "id": "4cce251f-a917-4c0c-baaa-57941627e1a4",
+    "name": "Tabaxi",
+    "image_url_before": null
+  },
+  {
+    "id": "417ea2d3-a7e6-45b9-a0bb-7c410506e16f",
+    "name": "Lykanthrop, Werefledermaus",
+    "image_url_before": null
+  },
+  {
+    "id": "19c3861e-dee9-47a3-8f49-d5778adea704",
+    "name": "Lykanthrop, Werfuchs",
+    "image_url_before": null
+  },
+  {
+    "id": "a19d54b8-a5ae-43b4-b377-ce51716dc0a3",
+    "name": "Lykanthrop, Wererabe",
+    "image_url_before": null
+  },
+  {
+    "id": "50fb7d66-00a0-41a7-b0fa-fb47b9e83fec",
+    "name": "Lykanthrop, Wertiger",
+    "image_url_before": null
+  },
+  {
+    "id": "b2745fb3-b647-41a6-b576-b8f2688db126",
+    "name": "Lykanthrop, Werwolf",
+    "image_url_before": null
+  },
+  {
+    "id": "b40d6dad-236f-4727-98c5-99a1ade9e8cd",
+    "name": "Menschenskorpion",
+    "image_url_before": null
+  },
+  {
+    "id": "4a28b03c-0073-49a6-8476-01759c526c99",
+    "name": "Mephit",
+    "image_url_before": null
+  },
+  {
+    "id": "7e2d3cf4-8868-4c0b-9566-0b57f9cc4780",
+    "name": "Morkoth",
+    "image_url_before": null
+  },
+  {
+    "id": "0ff20ab2-8e4e-4121-ba11-2856c5c40109",
+    "name": "Schlammwühler",
+    "image_url_before": null
+  },
+  {
+    "id": "961698f8-e535-4df3-b99e-2fd6ef7f4884",
+    "name": "Schlammmann",
+    "image_url_before": null
+  },
+  {
+    "id": "034a35d0-0ee9-46e2-a815-44e554329710",
+    "name": "Große Mumie",
+    "image_url_before": null
+  },
+  {
+    "id": "30f3fa89-590b-4cd3-98af-693a1988b92f",
+    "name": "Myconid",
+    "image_url_before": null
+  },
+  {
+    "id": "3067fd27-b4ed-46ac-b686-d852ca7ef827",
+    "name": "Naga",
+    "image_url_before": null
+  },
+  {
+    "id": "69e259fc-e66c-4bb2-a304-549e2d561915",
+    "name": "Nymphe",
+    "image_url_before": null
+  },
+  {
+    "id": "9ff4ded7-60d8-467a-a421-1cd679a1c606",
+    "name": "Riesenkrake",
+    "image_url_before": null
+  },
+  {
+    "id": "3901b904-1bd8-4278-a02e-42bff4b975b9",
+    "name": "Phönix",
+    "image_url_before": null
+  },
+  {
+    "id": "ca2321e5-6ce5-4772-90eb-5c3022c97c37",
+    "name": "Pflanze, Gefährliche I",
+    "image_url_before": null
+  },
+  {
+    "id": "d7a061c1-660a-422d-900b-afa95bc6b83f",
+    "name": "Pflanze, Intelligente",
+    "image_url_before": null
+  },
+  {
+    "id": "3b43870e-fe1a-47a3-8aa0-2527acfe58d0",
+    "name": "Pudding, Tödlicher",
+    "image_url_before": null
+  },
+  {
+    "id": "84316760-b29b-45c3-916a-6af9bf4c09ae",
+    "name": "Ratte",
+    "image_url_before": null
+  },
+  {
+    "id": "f782c5e3-e877-40b7-8583-a6b54142392f",
+    "name": "Osquip-Ratte",
+    "image_url_before": null
+  },
+  {
+    "id": "8f8fb08a-9fec-4345-91b3-718acab0d19a",
+    "name": "Remorhaz",
+    "image_url_before": null
+  },
+  {
+    "id": "f097ac9a-8c6f-4be4-8662-67dd1456a564",
+    "name": "Seelöwe",
+    "image_url_before": null
+  },
+  {
+    "id": "f53ca26a-2101-4eb9-8cc8-06b7234e7fd4",
+    "name": "Selkie",
+    "image_url_before": null
+  },
+  {
+    "id": "2fdfc571-7883-41cd-ba59-f4431e90b8c9",
+    "name": "Riesenskelett",
+    "image_url_before": null
+  },
+  {
+    "id": "ef29b31f-e707-45f5-8eca-3c16f99c314e",
+    "name": "Schlange",
+    "image_url_before": null
+  },
+  {
+    "id": "19b2c30d-6031-45d2-9585-6df68649ffae",
+    "name": "Sphinx",
+    "image_url_before": null
+  },
+  {
+    "id": "85f6645b-3ad9-4d08-937d-8f6926b2d557",
+    "name": "Riesenkalmar",
+    "image_url_before": null
+  },
+  {
+    "id": "d3aa5b41-9c90-426a-84a1-ef4d730e32f8",
+    "name": "Tarrasque",
+    "image_url_before": null
+  },
+  {
+    "id": "2c632791-6d5e-4517-bfa7-a7f2b7fb90ee",
+    "name": "Tasloi",
+    "image_url_before": null
+  },
+  {
+    "id": "4b7d7b0d-a4d2-4729-8223-012492552e97",
+    "name": "Titan",
+    "image_url_before": null
+  },
+  {
+    "id": "914225e7-f469-47c0-8fa2-abcf8e5abf61",
+    "name": "Riesenkröte",
+    "image_url_before": null
+  },
+  {
+    "id": "866332a1-9f8a-428c-825a-ed7d9d40d0a2",
+    "name": "Triton",
+    "image_url_before": null
+  },
+  {
+    "id": "8182b745-dce6-4350-b921-384ff4c01879",
+    "name": "Seeigel",
+    "image_url_before": null
+  },
+  {
+    "id": "b6a288de-ad5b-442c-a1ed-569b66faedb5",
+    "name": "Wolf",
+    "image_url_before": null
+  },
+  {
+    "id": "fd1a0153-9fec-44e5-910c-1ac6478bd469",
+    "name": "Wolfswar",
+    "image_url_before": null
+  },
+  {
+    "id": "8d88e2ec-7eea-4829-9412-f694ddda6d1d",
+    "name": "Yeti",
+    "image_url_before": null
+  },
+  {
+    "id": "6cbd259e-a86b-47ac-97a5-9bf757a85ed8",
+    "name": "Yuan-ti",
+    "image_url_before": null
+  },
+  {
+    "id": "45a0c098-0763-46cc-adcb-37e280fda2be",
+    "name": "Zaratan",
+    "image_url_before": null
+  }
+]

@@ -3,7 +3,7 @@
 Dieser Snapshot wurde einmalig extrahiert aus:
 
 - **Upstream**: https://github.com/decheine/complete-compendium
-- **Datum**: 2026-04-10
+- **Datum**: 2026-04-11
 - **Upstream-Commit**: 7477daae88291d86d1a9dbf620bc7eeac05dd8f7
 - **Extraktions-Filter**: TSR-Produkt-IDs 2140, 2102, 2103
   - `2140` — Monstrous Manual (1995)
@@ -25,8 +25,8 @@ vorhandenen Nutzung von `ressources/monsters/Monstrous Manual.pdf`.
 ## Inhalt
 
 - `all_tsr.json` — TSR-Produkt-ID → Buchtitel-Lookup (vom Upstream übernommen)
-- `mm/*.html` — 235 Monstrous-Manual-Monster-HTMLs
-- `mm/img/*.gif` — 214 Monster-Illustrationen (einige Monster haben upstream kein Bild)
+- `mm/*.html` — 353 Monstrous-Manual-Monster-HTMLs
+- `mm/img/*.gif` — 325 Monster-Illustrationen (einige Monster haben upstream kein Bild)
 - `parsed.json` — Wird von `scripts/parse-compendium.ts` generiert (strukturiertes JSON)
 - `translated.json` — Wird von `scripts/translate-monster-narrative.ts` generiert (DE-Übersetzung)
 

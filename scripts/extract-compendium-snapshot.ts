@@ -53,12 +53,26 @@ const SNAPSHOT_DIR = path.resolve(__dirname, "..", "ressources", "compendium-sna
 const SNAPSHOT_MM_DIR = path.join(SNAPSHOT_DIR, "mm");
 const SNAPSHOT_IMG_DIR = path.join(SNAPSHOT_MM_DIR, "img");
 
-/** Extract the comma-separated TSR product-ID list from a monster HTML file. */
+/**
+ * Extract TSR product-ID tokens from a monster HTML file.
+ *
+ * The upstream project uses two different separators depending on the
+ * source article:
+ * - `2140, 2103` — plain comma, for MM-primary entries that are also in MC1/MC2
+ * - `2102 ♦ 2140` — diamondsuit (HTML entity `&diamondsuit;`) as a cross-
+ *   reference separator between supplement series
+ *
+ * Earlier versions of this script only split on commas, which silently
+ * dropped ~400 monsters whose tag uses the diamond separator (Bugbear,
+ * Wyvern, Orc, Zombie, Mimic, …). Splitting on any non-alphanumeric
+ * separator run catches both conventions.
+ */
 function extractTsrCodes(html: string): string[] {
   const match = html.match(/<p class="tsr">([^<]*)<\/p>/);
   if (!match) return [];
   return match[1]
-    .split(",")
+    .replace(/&diamondsuit;|&#9830;/g, " ")
+    .split(/[^a-zA-Z0-9]+/)
     .map((s) => s.trim())
     .filter(Boolean);
 }
