@@ -540,7 +540,22 @@ export interface MonsterRow {
   image_url: string | null;
   source_book: string;
   description: string | null;
-  description_en: string | null;
+  /** Intro paragraph (before the Combat section). Seeded from legacy `description` in 00210. */
+  intro_text: string | null;
+  /** Tactical narrative under the MM "Combat" heading. */
+  combat_tactics: string | null;
+  /** Narrative under the MM "Habitat/Society" heading. */
+  habitat_society: string | null;
+  /** Narrative under the MM "Ecology" heading. */
+  ecology: string | null;
+  /** MM "No. Appearing" field (e.g. "2-8", "2d4"). */
+  no_appearing: string | null;
+  /** Self-reference: NULL = parent row, set = points at parent monster. */
+  variant_of_id: string | null;
+  /** Display label for the sub-variant (e.g. "Orog", "Adult"). */
+  variant_name: string | null;
+  is_custom: boolean;
+  created_by: string | null;
   created_at: string;
   updated_at: string;
 }

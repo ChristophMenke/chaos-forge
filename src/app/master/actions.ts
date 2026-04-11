@@ -1093,6 +1093,13 @@ export async function createMonsterGm(
       morale_value: monsterData.morale_value ?? 10,
       xp_value: monsterData.xp_value ?? 0,
       description: monsterData.description || null,
+      intro_text: monsterData.intro_text || null,
+      combat_tactics: monsterData.combat_tactics || null,
+      habitat_society: monsterData.habitat_society || null,
+      ecology: monsterData.ecology || null,
+      no_appearing: monsterData.no_appearing || null,
+      variant_of_id: monsterData.variant_of_id || null,
+      variant_name: monsterData.variant_name || null,
       source_book: monsterData.source_book || "Custom",
       default_zone: monsterData.default_zone ?? "melee",
       has_ranged_attack: monsterData.has_ranged_attack ?? false,
@@ -1140,6 +1147,13 @@ type MonsterUpdatePayload = Partial<
     | "default_zone"
     | "typical_spells"
     | "source_book"
+    | "intro_text"
+    | "combat_tactics"
+    | "habitat_society"
+    | "ecology"
+    | "no_appearing"
+    | "variant_of_id"
+    | "variant_name"
   >
 >;
 

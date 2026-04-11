@@ -1569,6 +1569,9 @@
     "monsterDamage": "Schaden",
     "monsterSpecialAttacks": "Spezialangriffe",
     "monsterSpecialDefenses": "Spezialverteidigung",
+    "monsterCombatTactics": "Kampftaktik",
+    "monsterHabitatSociety": "Lebensraum & Gesellschaft",
+    "monsterEcology": "Ökologie",
     "monsterMagicResistance": "Magieresistenz",
     "monsterSize": "Größe",
     "monsterMorale": "Moral",
@@ -1680,7 +1683,8 @@
     "monsterImporting": "Monster wird analysiert...",
     "monsterImportSuccess": "Monster erfolgreich importiert!",
     "monsterImportFailed": "Import fehlgeschlagen.",
-    "monsterSave": "Monster speichern"
+    "monsterSave": "Monster speichern",
+    "monsterFormAdvancedSection": "Erweiterte Details (Fluff, Narrative, Varianten)"
   },
   "notifications": {
     "title": "Benachrichtigungen",

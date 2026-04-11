@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import sharp from "sharp";
 import { createClient } from "@/lib/supabase/server";
+import { MONSTER_SCAN_PROMPT, parseScanResponse } from "@/lib/scan/monster-scan-prompt";
 
 type ImageMediaType = "image/jpeg" | "image/png" | "image/webp" | "image/gif";
 
@@ -133,64 +134,11 @@ export async function POST(request: NextRequest) {
 
     const message = await client.messages.create({
       model: preciseMode ? "claude-sonnet-4-20250514" : "claude-haiku-4-5-20251001",
-      max_tokens: 4096,
+      max_tokens: 8192,
       messages: [
         {
           role: "user",
-          content: [
-            ...contentBlocks,
-            {
-              type: "text",
-              text: `Analyze this AD&D 2nd Edition monster stat block and extract ALL available values as JSON.
-Reply ONLY with valid JSON, no other text.
-
-Expected format:
-{
-  "name": "Monster Name (German if visible, otherwise English)",
-  "name_en": "Monster Name (English)",
-  "climate_terrain": "Any",
-  "frequency": "Common",
-  "organization": "Pack",
-  "activity_cycle": "Any",
-  "diet": "Omnivore",
-  "intelligence": "Low (5-7)",
-  "treasure": "Nil",
-  "alignment": "Neutral",
-  "ac": 7,
-  "movement": "12",
-  "hit_dice": "3+3",
-  "hit_dice_value": 3,
-  "thac0": 17,
-  "attacks_per_round": 1,
-  "damage": "1d8",
-  "special_attacks": "None",
-  "special_defenses": "None",
-  "magic_resistance": "Nil",
-  "size": "M",
-  "morale": "Steady (11-12)",
-  "morale_value": 11,
-  "xp_value": 120,
-  "description": "A short description of the monster...",
-  "has_ranged_attack": false,
-  "typical_spells": null,
-  "default_zone": "melee"
-}
-
-Notes:
-- "ac" must be a number (e.g. AC 5 → 5, AC -2 → -2)
-- "hit_dice" is the string as written (e.g. "3+3", "1/2", "4", "8+8")
-- "hit_dice_value" is the numeric HD value (e.g. "3+3" → 3, "1/2" → 0.5, "8+8" → 8)
-- "thac0" must be a number
-- "size" must be one of: T (Tiny), S (Small), M (Medium), L (Large), H (Huge), G (Gargantuan)
-- "morale_value" is the minimum value from the range (e.g. "Steady (11-12)" → 11)
-- "default_zone" is "melee" or "ranged" based on the monster's primary attack mode
-- "has_ranged_attack" is true if the monster has any ranged attacks
-- "typical_spells" is a brief note about spell capabilities, null if none
-- If a value is not visible or readable, use null
-- Translate German monster names to English for name_en if the source is German
-- If the stat block spans multiple pages, combine all information`,
-            },
-          ],
+          content: [...contentBlocks, { type: "text", text: MONSTER_SCAN_PROMPT }],
         },
       ],
     });
@@ -204,20 +152,15 @@ Notes:
       );
     }
 
-    // Extract JSON from response (handle markdown code blocks)
-    const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/) ?? [null, responseText];
-    const jsonString = (jsonMatch[1] ?? responseText).trim();
-
-    let parsed: unknown;
     try {
-      parsed = JSON.parse(jsonString);
+      const parsed = parseScanResponse(responseText);
+      return NextResponse.json(parsed);
     } catch {
       return NextResponse.json(
         { error: "KI-Antwort konnte nicht verarbeitet werden — bitte erneut versuchen." },
         { status: 422 }
       );
     }
-    return NextResponse.json(parsed);
   } catch (err) {
     // Log server-side details but don't leak them to the client
     console.error("[scan-monster]", err);

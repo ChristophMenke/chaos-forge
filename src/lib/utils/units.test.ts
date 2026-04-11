@@ -149,4 +149,38 @@ describe("convertImperialText", () => {
   it("handles '10 ft x 10 ft' area format", () => {
     expect(convertImperialText("10 ft. x 10 ft.")).toBe("3 m x 3 m");
   });
+
+  // --- Range handling (e.g. from monster narrative texts) ---
+  it("converts pound ranges '150-200 pounds' to a proper kg range", () => {
+    // 150 lbs ≈ 68 kg, 200 lbs ≈ 90.7 kg
+    expect(convertImperialText("150-200 pounds")).toBe("68-90.7 kg");
+  });
+
+  it("converts pound ranges with lbs shorthand '10-20 lbs'", () => {
+    expect(convertImperialText("10-20 lbs")).toBe("4.5-9.1 kg");
+  });
+
+  it("converts feet ranges '5-10 feet'", () => {
+    expect(convertImperialText("5-10 feet")).toBe("1.5-3 m");
+  });
+
+  it("converts yard ranges '2-3 yards'", () => {
+    expect(convertImperialText("2-3 yards")).toBe("1.8-2.7 m");
+  });
+
+  it("converts mile ranges '1-2 miles'", () => {
+    expect(convertImperialText("1-2 miles")).toBe("1.6-3.2 km");
+  });
+
+  it("range handling does not break existing hyphenated adjective form", () => {
+    // '15-foot radius' has a word after the dash, not a number, so it stays
+    // in the existing hyphenated-adjective branch.
+    expect(convertImperialText("a 15-foot radius")).toBe("a 4.6-Meter radius");
+  });
+
+  it("range handling coexists with trailing single values", () => {
+    expect(convertImperialText("between 5-10 feet and up to 20 feet")).toBe(
+      "between 1.5-3 m and up to 6.1 m"
+    );
+  });
 });

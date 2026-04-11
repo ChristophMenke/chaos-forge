@@ -103,13 +103,22 @@ export async function POST(request: NextRequest) {
         .filter((w: string) => w.length >= 4)
         .slice(0, 5);
 
+      // Narrative sections can be long — truncate each to a reasonable budget
+      // so three monster matches × four sections stay well within Claude's
+      // input context.
+      const MAX_SECTION_LEN = 800;
+      const truncate = (text: string | null) => {
+        if (!text) return "";
+        return text.length > MAX_SECTION_LEN ? text.slice(0, MAX_SECTION_LEN) + "…" : text;
+      };
+
       const matchedMonsters =
         words.length > 0
           ? (
               await service
                 .from("monsters")
                 .select(
-                  "name, name_en, ac, hit_dice, thac0, damage, special_attacks, special_defenses, magic_resistance, movement, xp_value"
+                  "name, name_en, ac, hit_dice, thac0, damage, special_attacks, special_defenses, magic_resistance, movement, xp_value, no_appearing, intro_text, combat_tactics, habitat_society, ecology"
                 )
                 .or(words.map((w: string) => `name.ilike.%${w}%,name_en.ilike.%${w}%`).join(","))
                 .limit(3)
@@ -133,14 +142,35 @@ export async function POST(request: NextRequest) {
                 magic_resistance: number;
                 movement: string;
                 xp_value: number;
-              }) =>
-                `${m.name}${m.name_en ? ` (${m.name_en})` : ""}: AC ${m.ac}, TW ${m.hit_dice}, ETW0 ${m.thac0}, Schaden ${m.damage}, BW ${m.movement}` +
-                (m.special_attacks ? `, Spezialangriffe: ${m.special_attacks}` : "") +
-                (m.special_defenses ? `, Spezialverteidigung: ${m.special_defenses}` : "") +
-                (m.magic_resistance > 0 ? `, MR ${m.magic_resistance}%` : "") +
-                `, EP ${m.xp_value}`
+                no_appearing: string | null;
+                intro_text: string | null;
+                combat_tactics: string | null;
+                habitat_society: string | null;
+                ecology: string | null;
+              }) => {
+                const stats =
+                  `${m.name}${m.name_en ? ` (${m.name_en})` : ""}: ` +
+                  `RK ${m.ac}, TW ${m.hit_dice}, ETW0 ${m.thac0}, Schaden ${m.damage}, BW ${m.movement}` +
+                  (m.no_appearing ? `, Auftreten: ${m.no_appearing}` : "") +
+                  (m.special_attacks ? `, Spezialangriffe: ${m.special_attacks}` : "") +
+                  (m.special_defenses ? `, Spezialverteidigung: ${m.special_defenses}` : "") +
+                  (m.magic_resistance > 0 ? `, MR ${m.magic_resistance}%` : "") +
+                  `, EP ${m.xp_value}`;
+
+                const narrative = [
+                  m.intro_text && `### Beschreibung\n${truncate(m.intro_text)}`,
+                  m.combat_tactics && `### Kampf\n${truncate(m.combat_tactics)}`,
+                  m.habitat_society &&
+                    `### Lebensraum & Gesellschaft\n${truncate(m.habitat_society)}`,
+                  m.ecology && `### Ökologie\n${truncate(m.ecology)}`,
+                ]
+                  .filter(Boolean)
+                  .join("\n\n");
+
+                return stats + (narrative ? "\n\n" + narrative : "");
+              }
             )
-            .join("\n");
+            .join("\n\n---\n\n");
       }
     } catch {
       // Monster search is optional — continue without it
