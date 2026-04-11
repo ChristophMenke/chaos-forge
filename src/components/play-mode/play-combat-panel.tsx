@@ -50,6 +50,9 @@ interface PlayCombatPanelProps {
   readOnly?: boolean;
   onEquipmentChange: (equipment: CharacterEquipmentWithDetails[]) => void;
   epicEffects?: EpicEffects;
+  /** Aggregated AC bonus from regular magic items (Ring of Protection,
+   *  Cloak of Protection, …). Already-summed value, additive on the AC. */
+  magicAcBonus?: number;
   characterKit?: string | null;
   singleWeaponStyleBonus?: number;
   shieldProficiencyBonus?: number;
@@ -94,6 +97,7 @@ function PlayCombatPanelInner({
   readOnly = false,
   onEquipmentChange,
   epicEffects,
+  magicAcBonus = 0,
   characterKit,
   singleWeaponStyleBonus = 0,
   shieldProficiencyBonus = 0,
@@ -174,6 +178,17 @@ function PlayCombatPanelInner({
       parts.push({
         label: t("epicAcBonus", { bonus: epicEffects.acBonus }),
         value: -epicEffects.acBonus,
+      });
+    }
+    // Regular magic-item AC bonus (Ring of Protection, Cloak of Protection,
+    // ...). The aggregator already returns this as a signed value with the
+    // AD&D-descending convention (negative = improvement), so we display it
+    // as-is — no extra sign flip — and the breakdown sums match the final
+    // AC pill.
+    if (magicAcBonus) {
+      parts.push({
+        label: t("magicAcBonus"),
+        value: magicAcBonus,
       });
     }
     return parts;

@@ -42,6 +42,7 @@ import { getFightingStyle } from "@/lib/rules/fighting-styles";
 import { isPriestCaster } from "@/lib/rules/magic";
 import { getAllAbilityModifiers } from "@/lib/rules/abilities";
 import { getEpicEffects } from "@/lib/rules/epic-items";
+import { getMagicItemEffects } from "@/lib/rules/magic-items";
 import type {
   CharacterRow,
   CharacterClassRow,
@@ -401,6 +402,7 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
   const encumbranceLevel = calculateEncumbrance(totalWeight, strMods.weightAllow);
   const isMagicalProtection = equippedArmorForAC?.armor?.is_magical_protection ?? false;
   const epicEffects = getEpicEffects(props.epicItems ?? []);
+  const magicEffects = getMagicItemEffects(equipment);
   const equippedShieldForAC = equipment.find((e) => e.armor && e.equipped && e.armor.is_shield);
   const shieldProfBonus = getShieldProficiencyBonus(
     equippedShieldForAC?.armor?.shield_type ?? null,
@@ -411,6 +413,7 @@ export async function generateCharacterDocx(props: PrintSheetProps): Promise<Blo
     equippedArmorAC: equippedArmorForAC?.armor?.ac ?? null,
     shieldEquipped: hasShieldForAC,
     dexDefenseAdj: dexMods.defensiveAdj,
+    magicACModifier: magicEffects.acBonus,
     classGroups,
     encumbrance: encumbranceLevel,
     ignoreEncumbrance: character.ignore_encumbrance,
