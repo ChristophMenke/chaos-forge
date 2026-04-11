@@ -46,15 +46,28 @@ const REPORT_PATH = path.join(SNAPSHOT_DIR, "gemini-generation-report.md");
  * descriptions cause the model to render the sentence literally into
  * the image as captions or labels. Only pass the creature name and a
  * short list of visual attributes if needed.
+ *
+ * Name-disambiguation: when the English name is a common word that could
+ * also be a human name or an everyday object ("Ray", "Spider", "Sprite"),
+ * Imagen sometimes generates a photo of a person or an unrelated thing.
+ * Including the German name as a second signal and tagging the creature
+ * explicitly as a non-human D&D monster steers the model toward the
+ * intended subject.
  */
 export function buildImagePrompt(monster: MonsterRow): string {
   const englishName = monster.name_en ?? monster.name;
+  const germanName = monster.name;
+  const creatureLabel =
+    germanName && englishName && germanName !== englishName
+      ? `${englishName} (German: ${germanName})`
+      : englishName;
 
   return [
-    `A single fantasy creature, a ${englishName}, depicted in the exact visual style of the 1995 Advanced Dungeons & Dragons Monstrous Manual by TSR.`,
+    `A single Advanced Dungeons & Dragons fantasy monster, a ${creatureLabel}, depicted in the exact visual style of the 1995 AD&D 2nd Edition Monstrous Manual by TSR.`,
+    "Subject is a non-human D&D creature, NOT a person, NOT a photograph, NOT a portrait.",
     "Medium: watercolor washes over ink line art, painterly brushwork, crisp black outlines, muted earthy colors, soft shading.",
-    "Composition: three-quarter side view, single creature centred on a plain pure-white background, no environment, no props, no other creatures.",
-    "Strict prohibitions: absolutely no text, no captions, no labels, no letters, no words, no typography, no borders, no frames, no logos, no watermarks, no signatures.",
+    "Composition: three-quarter side view, single creature centred on a plain pure-white background, no environment, no props, no other creatures, no humans.",
+    "Strict prohibitions: absolutely no text, no captions, no labels, no letters, no words, no typography, no borders, no frames, no logos, no watermarks, no signatures, no photographic realism.",
     "Aesthetic: Tony DiTerlizzi, Larry Elmore, Jeff Easley, Tony Szczudlo — classic late-1980s / early-1990s TSR fantasy illustration.",
   ].join(" ");
 }
