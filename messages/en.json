@@ -1572,6 +1572,7 @@
     "monsterCombatTactics": "Combat Tactics",
     "monsterHabitatSociety": "Habitat & Society",
     "monsterEcology": "Ecology",
+    "monsterReferenceEntryTooltip": "Reference entry with no combat stats — not combat-ready",
     "monsterMagicResistance": "Magic Resistance",
     "monsterSize": "Size",
     "monsterMorale": "Morale",

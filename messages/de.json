@@ -1572,6 +1572,7 @@
     "monsterCombatTactics": "Kampftaktik",
     "monsterHabitatSociety": "Lebensraum & Gesellschaft",
     "monsterEcology": "Ökologie",
+    "monsterReferenceEntryTooltip": "Referenz-Eintrag ohne Kampfwerte — nicht kampftauglich",
     "monsterMagicResistance": "Magieresistenz",
     "monsterSize": "Größe",
     "monsterMorale": "Moral",

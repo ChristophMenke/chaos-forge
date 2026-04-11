@@ -56,6 +56,16 @@ const HD_RANGES = [
   { key: "5", min: 13, max: Infinity },
 ] as const;
 
+/**
+ * Some compendium entries are reference articles rather than combat stat
+ * blocks ("Drache, Allgemeine Informationen", "Säugetier", …). They have
+ * an empty `damage` column and should not be droppable into the combat
+ * simulator — the GM would end up with a dummy 1d4 fallback.
+ */
+function isReferenceEntry(m: MonsterRow): boolean {
+  return !m.damage || m.damage.trim() === "";
+}
+
 type SortKey = "name" | "ac" | "hd" | "thac0" | "xp";
 type SortDir = "asc" | "desc";
 
@@ -791,7 +801,7 @@ function MonsterCard({
               />
             </div>
           )}
-          {onAddToCombat && (
+          {onAddToCombat && !isReferenceEntry(monster) && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -1047,17 +1057,19 @@ function MonsterListView({
                 </td>
                 {onAddToCombat && (
                   <td className="px-1 py-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onAddToCombat(m, 1);
-                      }}
-                      className="rounded-full p-1 text-primary hover:bg-primary/20"
-                      title={t("monsterAddToCombat")}
-                      data-testid={`gm-monster-add-${m.id}`}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </button>
+                    {!isReferenceEntry(m) && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onAddToCombat(m, 1);
+                        }}
+                        className="rounded-full p-1 text-primary hover:bg-primary/20"
+                        title={t("monsterAddToCombat")}
+                        data-testid={`gm-monster-add-${m.id}`}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </button>
+                    )}
                   </td>
                 )}
               </tr>
@@ -1474,8 +1486,16 @@ function MonsterDetailModal({
               </div>
             )}
 
-            {/* Add to combat */}
-            {onAddToCombat && (
+            {/* Add to combat — hidden for reference entries (empty damage) */}
+            {onAddToCombat && isReferenceEntry(monster) && (
+              <div
+                className="mt-4 rounded-lg border border-border/40 bg-muted/20 px-3 py-2 text-xs italic text-muted-foreground"
+                data-testid="gm-monster-detail-reference-notice"
+              >
+                {t("monsterReferenceEntryTooltip")}
+              </div>
+            )}
+            {onAddToCombat && !isReferenceEntry(monster) && (
               <div className="mt-4 flex items-center gap-2">
                 <input
                   type="number"
