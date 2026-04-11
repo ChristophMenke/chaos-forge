@@ -20,7 +20,8 @@
     "no": "No",
     "unknown": "Unknown",
     "notLoggedIn": "Not logged in.",
-    "skipToMain": "Skip to main content"
+    "skipToMain": "Skip to main content",
+    "fullscreen": "Fullscreen"
   },
   "landing": {
     "tagline": "Forge your legend",
@@ -940,6 +941,8 @@
     "npcPage": "Page {current} of {total}",
     "npcPrev": "Previous",
     "npcNext": "Next",
+    "npcDeleteTitle": "Delete NPC?",
+    "npcDeleteMessage": "Really delete {name}? This cannot be undone.",
     "quotes": "Quotes",
     "addQuote": "Add Quote",
     "quoteContent": "The quote...",

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { Pencil, Trash2, Maximize2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { NpcAvatarUpload } from "./npc-avatar-upload";
 import { ImageLightbox } from "@/components/image-lightbox";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import type { ChronicleNpcRow } from "@/lib/supabase/types";
 
 const PAGE_SIZE = 10;
@@ -31,6 +33,7 @@ export function NpcManager({ npcs: initialNpcs }: NpcManagerProps) {
   const [locationFilter, setLocationFilter] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [lightboxNpc, setLightboxNpc] = useState<{ name: string; url: string } | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<ChronicleNpcRow | null>(null);
   const [page, setPage] = useState(0);
 
   // Unique locations for filter dropdown
@@ -131,6 +134,7 @@ export function NpcManager({ npcs: initialNpcs }: NpcManagerProps) {
         if (page >= newTotalPages) setPage(Math.max(0, newTotalPages - 1));
         return next;
       });
+      setPendingDelete(null);
     }
   }
 
@@ -245,96 +249,96 @@ export function NpcManager({ npcs: initialNpcs }: NpcManagerProps) {
       ) : (
         <>
           <div className="flex flex-col gap-2">
-            {pagedNpcs.map((npc) => (
-              <div
-                key={npc.id}
-                className="rounded-lg border border-border bg-card/30 p-3"
-                data-testid={`npc-card-${npc.id}`}
-              >
-                <div className="flex items-start gap-3">
-                  {/* Avatar — click to enlarge, long-press/right-click to upload */}
-                  <div className="relative shrink-0">
-                    <NpcAvatarUpload
-                      npcId={npc.id}
-                      npcName={npc.name}
-                      currentAvatarUrl={npc.avatar_url}
-                      onUploaded={(url) => handleAvatarUploaded(npc.id, url)}
-                    />
-                    {npc.avatar_url && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setLightboxNpc({ name: npc.name, url: npc.avatar_url! });
-                        }}
-                        className="absolute -bottom-1 -right-1 rounded-full bg-card/80 p-0.5 text-muted-foreground transition-colors hover:text-primary"
-                        aria-label="Vollbild"
-                        data-testid={`npc-avatar-fullscreen-${npc.id}`}
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-3 w-3"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
+            {pagedNpcs.map((npc) => {
+              const isExpanded = expandedId === npc.id;
+              return (
+                <div
+                  key={npc.id}
+                  className="group rounded-xl border border-border/60 bg-card/40 p-3 transition-colors hover:border-border hover:bg-card/60"
+                  data-testid={`npc-card-${npc.id}`}
+                >
+                  <div className="flex items-start gap-3">
+                    {/* Avatar — click to enlarge, long-press/right-click to upload */}
+                    <div className="relative shrink-0">
+                      <NpcAvatarUpload
+                        npcId={npc.id}
+                        npcName={npc.name}
+                        currentAvatarUrl={npc.avatar_url}
+                        onUploaded={(url) => handleAvatarUploaded(npc.id, url)}
+                      />
+                      {npc.avatar_url && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setLightboxNpc({ name: npc.name, url: npc.avatar_url! });
+                          }}
+                          className="absolute -bottom-1 -right-1 rounded-full bg-card/90 p-1 text-muted-foreground shadow-sm ring-1 ring-border/60 transition-colors hover:text-primary"
+                          aria-label={tcom("fullscreen")}
+                          data-testid={`npc-avatar-fullscreen-${npc.id}`}
                         >
-                          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-                        </svg>
-                      </button>
-                    )}
-                  </div>
+                          <Maximize2 className="h-3 w-3" />
+                        </button>
+                      )}
+                    </div>
 
-                  {/* Content */}
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    className="flex-1 cursor-pointer"
-                    onClick={() => setExpandedId(expandedId === npc.id ? null : npc.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        setExpandedId(expandedId === npc.id ? null : npc.id);
-                      }
-                    }}
-                  >
-                    <span className="font-medium">{npc.name}</span>
-                    {npc.location && (
-                      <Badge variant="secondary" className="ml-2 text-[10px] md:text-xs">
-                        {npc.location}
-                      </Badge>
-                    )}
-                  </div>
+                    {/* Content (clickable to expand) */}
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      className="min-w-0 flex-1 cursor-pointer"
+                      onClick={() => setExpandedId(isExpanded ? null : npc.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setExpandedId(isExpanded ? null : npc.id);
+                        }
+                      }}
+                    >
+                      <h3 className="truncate font-medium leading-tight text-foreground">
+                        {npc.name}
+                      </h3>
+                      {npc.location && (
+                        <Badge
+                          variant="secondary"
+                          className="mt-1 max-w-full truncate text-[10px] md:text-xs"
+                        >
+                          {npc.location}
+                        </Badge>
+                      )}
+                    </div>
 
-                  {/* Actions */}
-                  <div className="flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => startEdit(npc)}
-                      data-testid={`npc-edit-${npc.id}`}
-                    >
-                      {tcom("edit")}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-destructive hover:text-destructive"
-                      onClick={() => handleDelete(npc.id)}
-                      data-testid={`npc-delete-${npc.id}`}
-                    >
-                      {tcom("delete")}
-                    </Button>
+                    {/* Actions: kompakte Icon-Buttons */}
+                    <div className="flex shrink-0 flex-col gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="text-muted-foreground hover:text-foreground"
+                        onClick={() => startEdit(npc)}
+                        aria-label={tcom("edit")}
+                        data-testid={`npc-edit-${npc.id}`}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="text-muted-foreground hover:text-destructive"
+                        onClick={() => setPendingDelete(npc)}
+                        aria-label={tcom("delete")}
+                        data-testid={`npc-delete-${npc.id}`}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </div>
+                  {isExpanded && npc.description && (
+                    <p className="mt-3 whitespace-pre-wrap border-t border-border/40 pt-2 text-sm text-muted-foreground">
+                      {npc.description}
+                    </p>
+                  )}
                 </div>
-                {expandedId === npc.id && npc.description && (
-                  <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
-                    {npc.description}
-                  </p>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Paging */}
@@ -375,6 +379,16 @@ export function NpcManager({ npcs: initialNpcs }: NpcManagerProps) {
           onClose={() => setLightboxNpc(null)}
         />
       )}
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title={t("npcDeleteTitle")}
+        message={t("npcDeleteMessage", { name: pendingDelete?.name ?? "" })}
+        confirmLabel={tcom("delete")}
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => {
+          if (pendingDelete) handleDelete(pendingDelete.id);
+        }}
+      />
     </div>
   );
 }

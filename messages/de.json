@@ -20,7 +20,8 @@
     "no": "Nein",
     "unknown": "Unbekannt",
     "notLoggedIn": "Nicht eingeloggt.",
-    "skipToMain": "Zum Hauptinhalt springen"
+    "skipToMain": "Zum Hauptinhalt springen",
+    "fullscreen": "Vollbild"
   },
   "landing": {
     "tagline": "Schmiede deine Legende",
@@ -940,6 +941,8 @@
     "npcPage": "Seite {current} von {total}",
     "npcPrev": "Zurück",
     "npcNext": "Weiter",
+    "npcDeleteTitle": "NPC löschen?",
+    "npcDeleteMessage": "Möchtest du {name} wirklich löschen? Das kann nicht rückgängig gemacht werden.",
     "quotes": "Zitate",
     "addQuote": "Zitat hinzufügen",
     "quoteContent": "Das Zitat...",
