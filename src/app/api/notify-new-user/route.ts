@@ -27,9 +27,24 @@ export async function POST() {
     .eq("id", user.id)
     .maybeSingle();
 
-  if (!profile || profile.is_approved) {
+  // Legacy self-heal: auth.users row exists but no profile was created by the
+  // trigger. Create one as unapproved — the admin will see the banner-and-
+  // approve flow on the next login.
+  if (!profile) {
+    const service = createServiceClient();
+    await service.from("profiles").insert({
+      id: user.id,
+      display_name: user.user_metadata?.display_name ?? user.email?.split("@")[0] ?? "Abenteurer",
+      email: user.email,
+      is_approved: false,
+      skip_tutorials: false,
+    });
+    // fall through so the rest of the flow (admin notification + Discord ping) runs
+  } else if (profile.is_approved) {
     return Response.json({ ok: true, skipped: "approved" });
   }
+
+  const userEmail = profile?.email ?? user.email ?? "";
 
   // Update last_login_at regardless (own row, RLS allows this)
   await supabase
@@ -72,7 +87,7 @@ export async function POST() {
         await service.from("notifications").insert({
           user_id: admin.id,
           type: "new_user_registered",
-          details: { user_email: profile.email, user_id: user.id },
+          details: { user_email: userEmail, user_id: user.id },
         });
       }
     }
@@ -81,8 +96,8 @@ export async function POST() {
   }
 
   const content = isNewRegistration
-    ? `🆕 **Neuer Schergen-Kandidat:** ${profile.email}\nIn der App unter Benachrichtigungen freischalten.`
-    : `⏳ ${profile.email} hat sich eingeloggt, wartet noch auf Freigabe.`;
+    ? `🆕 **Neuer Schergen-Kandidat:** ${userEmail}\nIn der App unter Benachrichtigungen freischalten.`
+    : `⏳ ${userEmail} hat sich eingeloggt, wartet noch auf Freigabe.`;
 
   // Fire-and-forget — don't block the response on the webhook
   fetch(webhookUrl, {
