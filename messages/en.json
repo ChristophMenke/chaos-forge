@@ -194,6 +194,7 @@
     "hitDie": "Hit Die"
   },
   "sheet": {
+    "name": "Name",
     "alignment": "Alignment",
     "stats": "Stats",
     "combat": "Combat",

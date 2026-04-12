@@ -194,6 +194,7 @@
     "hitDie": "Trefferwürfel"
   },
   "sheet": {
+    "name": "Name",
     "alignment": "Gesinnung",
     "stats": "Werte",
     "combat": "Kampf",

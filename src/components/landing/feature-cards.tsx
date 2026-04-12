@@ -65,7 +65,7 @@ export async function LandingFeatures() {
                   {f.title}
                 </h3>
               </div>
-              <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
+              <p className="text-sm leading-relaxed text-foreground/90 sm:text-base">
                 {f.description}
               </p>
             </div>

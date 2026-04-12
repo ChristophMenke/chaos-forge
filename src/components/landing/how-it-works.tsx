@@ -22,7 +22,13 @@ export async function LandingHowItWorks() {
         {steps.map((s, i) => (
           <li key={s.num} className="relative" data-testid={`landing-step-${i + 1}`}>
             <span
-              className="absolute -left-[3rem] flex h-10 w-10 items-center justify-center rounded-full border-2 border-amber-400 bg-amber-400 font-heading text-sm font-bold text-zinc-900 shadow-lg shadow-amber-400/30 sm:-left-[3.75rem] sm:h-12 sm:w-12 sm:text-base"
+              className="absolute -left-[3rem] flex h-10 w-10 items-center justify-center rounded-full border-2 font-heading text-sm font-bold shadow-lg sm:-left-[3.75rem] sm:h-12 sm:w-12 sm:text-base"
+              style={{
+                backgroundColor: "#fbbf24",
+                borderColor: "#f59e0b",
+                color: "#18181b",
+                boxShadow: "0 4px 20px rgba(251, 191, 36, 0.4)",
+              }}
               aria-hidden
             >
               {s.num}
@@ -30,9 +36,7 @@ export async function LandingHowItWorks() {
             <h3 className="font-heading text-xl tracking-wide text-foreground sm:text-2xl">
               {s.title}
             </h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
-              {s.desc}
-            </p>
+            <p className="mt-2 text-sm leading-relaxed text-foreground/90 sm:text-base">{s.desc}</p>
           </li>
         ))}
       </ol>

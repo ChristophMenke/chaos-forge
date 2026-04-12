@@ -48,6 +48,11 @@ export async function POST(request: Request) {
     });
   }
 
+  // Test-domain users are auto-approved so the approval-enforcement trigger
+  // doesn't block E2E writes. Gated by TEST_DOMAIN already — non-test emails
+  // never reach this branch.
+  await supabaseAdmin.from("profiles").update({ is_approved: true }).eq("email", email);
+
   // Now sign in with password
   const supabaseClient = createClient(supabaseUrl, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
     auth: { autoRefreshToken: false, persistSession: false },

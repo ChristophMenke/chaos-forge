@@ -14,7 +14,7 @@ export async function LandingFooterCta() {
         <h2 className="font-heading text-3xl tracking-wide text-primary sm:text-4xl">
           {t("footerTitle")}
         </h2>
-        <p className="mx-auto mt-4 max-w-lg text-base text-muted-foreground sm:text-lg">
+        <p className="mx-auto mt-4 max-w-lg text-base text-foreground/90 sm:text-lg">
           {t("footerSubtitle")}
         </p>
         <Link href="/login" className="mt-8 inline-block">
