@@ -42,10 +42,13 @@ export async function POST() {
     return Response.json({ ok: true, skipped: "no_webhook" });
   }
 
-  // Look up the registration notification (service client — RLS-scoped to admin).
+  // Look up the registration notification (service client bypasses RLS).
+  // Also recreate the in-app notification if the admin accidentally deleted it
+  // — this way the "Freischalten"-Button reappears on the next login.
   let isNewRegistration = false;
   try {
     const service = createServiceClient();
+
     const { data: regNotif } = await service
       .from("notifications")
       .select("created_at")
@@ -57,6 +60,21 @@ export async function POST() {
     if (regNotif?.created_at) {
       const age = Date.now() - new Date(regNotif.created_at).getTime();
       isNewRegistration = age < FRESH_REGISTRATION_WINDOW_MS;
+    } else {
+      // No existing notification for this user — recreate it so the admin
+      // always has an "approve" action in the in-app notifications panel.
+      const { data: admin } = await service
+        .from("profiles")
+        .select("id")
+        .eq("email", "christoph.menke@gmail.com")
+        .maybeSingle();
+      if (admin?.id) {
+        await service.from("notifications").insert({
+          user_id: admin.id,
+          type: "new_user_registered",
+          details: { user_email: profile.email, user_id: user.id },
+        });
+      }
     }
   } catch {
     // If lookup fails, fall back to the generic "still waiting" message
