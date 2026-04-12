@@ -1777,7 +1777,14 @@
     "pendingBanner": "Der Scherge Christoph muss dein Interesse dem Chaos beizutreten erst noch akzeptieren.",
     "writeBlocked": "Du musst erst freigeschaltet werden, bevor du Änderungen vornehmen kannst.",
     "writeBlockedShort": "Noch nicht freigeschaltet",
-    "approved": "Willkommen im Chaos — du wurdest freigeschaltet!"
+    "approved": "Willkommen im Chaos — du wurdest freigeschaltet!",
+    "adminApproveTitle": "Schergen freischalten",
+    "adminPending": "Wartet auf Freigabe",
+    "adminApprovedAlready": "Bereits freigeschaltet",
+    "adminApproveButton": "Jetzt freischalten",
+    "adminApproveSuccess": "{email} ist freigeschaltet",
+    "adminApproveError": "Freischaltung fehlgeschlagen",
+    "adminAlreadyApprovedMsg": "Dieser User ist bereits freigeschaltet. Keine Aktion nötig."
   },
   "tutorial": {
     "next": "Weiter",
