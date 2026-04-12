@@ -157,7 +157,7 @@ find backup-$(date +%F)/storage -type f | wc -l
 | --------------- | ------------ |
 | spells          | 3.200+       |
 | rulebook_chunks | 3.400+       |
-| monsters        | 170+         |
+| monsters        | 400+         |
 | general_items   | 140+         |
 | weapons         | 100+         |
 | characters      | 10+          |
@@ -166,7 +166,7 @@ find backup-$(date +%F)/storage -type f | wc -l
 | -------------- | ----------- |
 | avatars        | 25+         |
 | npc-avatars    | 25+         |
-| monster-images | 340+        |
+| monster-images | 400+        |
 
 ---
 
@@ -178,7 +178,7 @@ find backup-$(date +%F)/storage -type f | wc -l
 
 #### 1. Schema wiederherstellen (Migrationen)
 
-Die 187 SQL-Migrationen unter `supabase/migrations/` definieren das vollständige Schema:
+Die 213 SQL-Migrationen unter `supabase/migrations/` definieren das vollständige Schema:
 
 ```bash
 supabase link --project-ref <project-ref>
@@ -217,7 +217,7 @@ import_order = [
     # Party & Loot
     "party_loot_gold", "party_loot_items", "party_loot_log",
     # Sonstiges
-    "xp_history", "notifications",
+    "xp_history", "notifications", "gm_bookmarks",
 ]
 
 for table in import_order:
@@ -387,6 +387,7 @@ backup-YYYY-MM-DD/
   tags.json
   weapons.json
   xp_history.json
+  gm_bookmarks.json
   storage/
     avatars/           # Charakter-Avatare (WebP, nach User-UUID gruppiert)
     npc-avatars/       # NPC-Avatare

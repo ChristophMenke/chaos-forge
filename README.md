@@ -45,7 +45,8 @@ Chaos Forge ersetzt umständliche Offline-Editoren aus den 90er Jahren durch ein
   - **Monster-Management (CRUD + AI Import)** — Manuelle Eingabe oder KI-Import via Foto/PDF (Claude Vision), mit Precise-Mode (Sonnet-4) und client-seitiger Bildkompression (iPhone-Photos unter 3 MB)
   - **Combat Simulator** — Party vs. Opposition mit VS-Divider, Siegchance in %, Durchschnittsrunden, DPR-Breakdown, Kampf-Log
   - **Realtime HP** — Supabase Postgres-Changes für Live-HP der Party während der Session
-  - **Bestiary + NPCs** — 200+ Monster aus dem Monstrous Manual + Custom-NPC-Management
+  - **Bestiary + NPCs** — 400+ Monster aus dem Monstrous Manual (Compendium-Backfill mit Narrativ-Texten, Sub-Varianten, Treasure-Code-Legende) + Custom-NPC-Management
+  - **Monster-Import-Pipeline** — 5-Schritt-Prozess (Snapshot → Parse → Backfill → Translate → Images), dokumentiert in `docs/monster-import.md`
   - **Rulebook Chat** — Eingebetteter KI-Chat für Regelfragen mit Quellenbuch-Filter
   - **Eigene Navigation** — Sidebar + Bottom-Nav, PWA-Manifest für Homescreen-Installation
 - **Notifications** — Live-Notifications für Item/Gold-Transfer, XP-Vergabe etc. mit Delete-Funktion (einzeln + alle)
@@ -60,7 +61,7 @@ Chaos Forge ersetzt umständliche Offline-Editoren aus den 90er Jahren durch ein
 - **Datenbank & Auth:** Supabase (PostgreSQL + Row Level Security)
 - **Styling:** Tailwind CSS v4 + shadcn/ui + Glassmorphism Design-System
 - **i18n:** next-intl (Cookie-basiert, DE/EN) + `localized()` Utility für DB-Daten
-- **Testing:** Vitest (1439 Unit-Tests), Playwright (121 E2E inkl. Responsive, A11y, Sidebar, XP-Management, GM-Dashboard, Master, Mobile)
+- **Testing:** Vitest (1552 Unit-Tests), Playwright (120 E2E inkl. Responsive, A11y, Sidebar, XP-Management, GM-Dashboard, Master, Mobile)
 - **Hosting:** Vercel (Free-Tier optimiert)
 - **AI:** Anthropic Claude API (Character Import, Monster Import, Session Summaries) + Google Gemini (Imagen für Bild-Generierung)
 - **Export:** `docx` Paket für Word-Export
@@ -194,7 +195,12 @@ e2e/                      # Playwright E2E-Tests (POM-Pattern)
   helpers/                # Auth-Helper
 messages/                 # i18n-Dateien (de.json, en.json)
 supabase/
-  migrations/             # 200 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items + Priest + Party + Shield + Traits + Realtime + Gold RPC + Monsters + Notifications + Weapon Proficiency Split)
+  migrations/             # 213 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items + Priest + Party + Shield + Traits + Realtime + Gold RPC + Monsters + Notifications + Weapon Proficiency Split + Monster Narrative + Profiles)
 ressources/
   books/                  # OCR-Texte der AD&D 2e Regelbücher
+  compendium-snapshot/    # Monstrous Manual HTML-Snapshot + parsed/translated JSON
+  monsters/               # Monstrous Manual PDF (Referenz für AI-Scan)
+scripts/                  # Einmalige Daten-Pipeline-Scripts (Compendium-Backfill, Bild-Generierung)
+docs/
+  monster-import.md       # Monster-Import-Pipeline Dokumentation
 ```

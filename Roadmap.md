@@ -62,5 +62,97 @@ Die App richtet sich an eine private Spielgruppe ("Chaos RPG") mit maximal 10 Nu
 - [x] Eigene Items/Zauber/Fertigkeiten erstellbar.
 - [x] Lockere Regeln (Warnings statt Blocking).
 - [x] Dark/Light Mode.
-- [x] Test-Login Bypass (christoph@chaos-forge.de).
-- [ ] i18n (Deutsch/Englisch) mit next-intl.
+- [x] Test-Login Bypass (QA-Domain: @qa.chaosforge.test).
+- [x] i18n (Deutsch/Englisch) mit next-intl.
+
+## Epic 6: Play Mode & Epische Ausrüstung
+
+- [x] Session-optimierte Ansicht (Kampf, Zauber, Fähigkeiten, Checks, Inventar, Geldbörse).
+- [x] Epic Items mit Effekten (Stat-Overrides, Thief-Penalties, Spell Failure, Gestaltwandlung, Spell Abilities).
+- [x] Mode-Navigation (Verwalten/Spielen/Episch).
+- [x] Wahrnehmungswurf-Hausregel: `floor((INT + WIS) / 2)`.
+- [x] Untote vertreiben Panel + Gestaltwandlung.
+
+## Epic 7: Dashboard Ausbau
+
+- [x] 8 Widgets: Zitat des Tages, NPCs, XP-Ranking, Tag-Wolke, Party-Übersicht, Session-Stats, Throwback.
+
+## Epic 8: Print/Export Customization
+
+- [x] Abschnitte ein-/ausblendbar und in der Reihenfolge änderbar.
+- [x] Word-Export (.docx) mit 1:1 Print-Layout.
+- [x] Alle PHB-Modifier im Export.
+
+## Epic 9: Priester-System
+
+- [x] Sphären-basiertes Zaubersystem (Priester sehen automatisch alle Zauber ihrer Sphären).
+- [x] Gottheit + Priesthood-Auswahl (20+ Priesterschaften).
+- [x] Turn Undead Panel.
+- [x] Quellenbuch-Filter (DM entscheidet welche Bücher).
+- [x] Player's Option Spell Points System.
+
+## Epic 10: Tiefling & Erweiterungen
+
+- [x] 9. Rasse (Tiefling), Rassenwechsel, Fähigkeiten-Panel.
+- [x] Magische Items/Waffen mit Stat-Effekten.
+- [x] Import-Verbesserungen.
+
+## Epic 11: Regelwerk-Vollständigkeit
+
+- [x] Crusader, Monk, Shaman, Bard Slots, Dual-Class Engine.
+- [x] Beschreibungstext-Audit.
+
+## Epic 12: Party-Inventar & Loot
+
+- [x] Gemeinsame Gruppenkasse (5 Münztypen: PP, GP, EP, SP, CP).
+- [x] Item-Pool mit CRUD + In-Use-Check.
+- [x] Loot-Verteilung an Charaktere.
+- [x] Audit-Log + Gold-Abzug.
+
+## Epic 13: Epische Waffen & P.O: S&P
+
+- [x] Klinge des Wassers (Spell Abilities, Kälteschaden).
+- [x] Shield Proficiency AC-Bonus (P.O: S&P Table 51).
+- [x] Traits & Disadvantages (CP-Kosten, bilingual).
+
+## Epic 14: Master of Chaos (GM-Dashboard)
+
+- [x] PIN-Gate (6-Digit, Rate-Limiting, Immersives Artwork).
+- [x] Party-Übersicht (Council of Heroes, Realtime HP via Postgres-Changes).
+- [x] Gold-Distribution (Treasury Vault, Multi-Select, Split-Party).
+- [x] Custom Items mit Proficiency-Autocomplete.
+- [x] Monster CRUD + AI Import (Claude Vision, Precise Mode).
+- [x] Combat Simulator (VS-Divider, Siegchance, DPR-Breakdown).
+- [x] Rulebook Chat + NPC-Management.
+- [x] PWA-Manifest, eigene Sidebar + Bottom-Nav.
+
+## Epic 15: UX/UI Polish & GM CRUD Extensions
+
+- [x] Treasury Vault + Council of Heroes Redesign.
+- [x] GM Item CRUD (Edit/Delete mit In-Use-Check).
+- [x] Notifications Delete (einzeln + alle).
+- [x] Avatar Fallback (Rassen-/Klassen-Silhouetten).
+- [x] Client-Side Image Compression (Canvas API, iPhone-Fotos < 3 MB).
+- [x] React 19/Compiler-Migration, Memory-Leak Fixes.
+- [x] `npm run verify` als CI-Spiegel, Dialog ARIA Compliance.
+
+## Epic 16: Monster-Datenmodell-Vollständigkeit
+
+- [x] Compendium-Backfill (353 MM-Monster aus decheine/complete-compendium).
+- [x] Schema-Migration (Narrative-Felder: intro_text, combat_tactics, habitat_society, ecology).
+- [x] Sub-Varianten-System (variant_of_id FK Self-Reference, variant_name).
+- [x] HTML-Parser + Merge-Script (parse-compendium.ts, backfill-monsters-from-compendium.ts).
+- [x] Claude Sonnet 4 Übersetzung (translate-monster-narrative.ts mit AD&D-Glossar).
+- [x] Monster-Bilder (GIF-Import aus Compendium + Gemini Imagen für Fehlende).
+- [x] Treasure-Code-Legende (DMG-Buchstaben → DE-Beschreibung, Tooltip im Bestiary).
+- [x] MonsterForm Component (Create/Edit, shared zwischen Dialog und Variant-Picker).
+- [x] AI-Import Multi-Variant-Picker (Orc + Orog in einem Scan → Auswahl-Panel).
+
+## Epic 17: Immersive Screens & QA-Migration
+
+- [x] Immersive PIN-Gate + Login-Screens (Chaos-Artwork, Parchment-Cards, Party-Background).
+- [x] NPC-Card-Layout-Polish (Icon-Buttons, Confirm-Dialog, gestackte Location-Badges).
+- [x] Bestiary-Header-Redesign (konsistente gold/primary Buttons + Settings-Cog für Precise-Mode).
+- [x] Magic Items AC-Berechnung überall (calculateAC + getMagicItemEffects in 5 Aufrufstellen).
+- [x] Test-Domain Migration auf @qa.chaosforge.test (RFC .test TLD, zentrale Constants).
+- [x] 5 pre-existing E2E-Failures gefixt (PIN Touch-Target, Size-Filter, Party Gold, A11y Timeout).
