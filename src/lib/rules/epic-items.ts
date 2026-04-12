@@ -60,6 +60,14 @@ export interface SpellAbility {
 
 export interface EpicEffects {
   statOverrides: EpicStatOverrides;
+  /**
+   * Hard-override stats that REPLACE the character's base value regardless of
+   * whether it is higher. Used for items like the Kondensator where the
+   * biological stat (base_con: 5) replaces the stored CON when unequipped,
+   * even though the stored CON is higher (reflecting the "normally equipped"
+   * state). Normal statOverrides use max() semantics since they model buffs.
+   */
+  forceStatOverrides: EpicStatOverrides;
   miscEffects: string[];
   /** Thief skill penalty percentage (e.g., 10 = -10%) */
   thiefPenalty: number;
@@ -85,6 +93,36 @@ export interface EpicEffects {
   overclockAbility: OverclockAbility | null;
   /** Spell-like abilities from epic items (e.g., Water Walk, Cone of Cold) */
   spellAbilities: SpellAbility[];
+}
+
+/**
+ * Items can declare a "biological base" stat in `simple_effects.base_<stat>`.
+ * When such an item is UNEQUIPPED, that value is used as the effective stat
+ * override — models permanently-integrated gear like Sprocket's Konstitutions-
+ * Kondensator, where taking the device off reveals the wearer's true (much
+ * lower) stat.
+ */
+const BASE_STAT_KEYS = {
+  base_str: "str",
+  base_dex: "dex",
+  base_con: "con",
+  base_int: "int",
+  base_wis: "wis",
+  base_cha: "cha",
+} as const;
+
+function applyUnequippedBaseOverrides(item: EpicItemRow, target: EpicStatOverrides): void {
+  const se = item.simple_effects as Record<string, unknown> | null;
+  if (!se) return;
+  for (const [seKey, statKey] of Object.entries(BASE_STAT_KEYS) as [
+    keyof typeof BASE_STAT_KEYS,
+    keyof EpicStatOverrides,
+  ][]) {
+    const value = se[seKey];
+    if (typeof value === "number" && target[statKey] === undefined) {
+      target[statKey] = value;
+    }
+  }
 }
 
 // ── Core Functions ───────────────────────────────────────────
@@ -163,6 +201,7 @@ function getCumulativeEffects(
 export function getEpicEffects(items: EpicItemRow[], characterLevel?: number): EpicEffects {
   const result: EpicEffects = {
     statOverrides: {},
+    forceStatOverrides: {},
     miscEffects: [],
     thiefPenalty: 0,
     thiefDisabled: false,
@@ -181,7 +220,14 @@ export function getEpicEffects(items: EpicItemRow[], characterLevel?: number): E
   let overclockCandidate: OverclockAbility | null = null;
 
   for (const item of items) {
-    if (!item.equipped) continue;
+    if (!item.equipped) {
+      // Unequipped items with `simple_effects.base_<stat>` still apply their
+      // biological-base override (see BASE_STAT_KEYS doc above). These go into
+      // forceStatOverrides because they must replace the stored stat even when
+      // stored is higher.
+      applyUnequippedBaseOverrides(item, result.forceStatOverrides);
+      continue;
+    }
     const se = item.simple_effects as Record<string, unknown> | null;
 
     // Items with damage levels (cumulative if level_thresholds present)
@@ -192,7 +238,25 @@ export function getEpicEffects(items: EpicItemRow[], characterLevel?: number): E
 
       const { effects, statOverrides } = getCumulativeEffects(item, unlockedLevel);
 
-      Object.assign(result.statOverrides, statOverrides);
+      // If the item declares a biological base_<stat> it is the authoritative
+      // source for that stat — its overrides must replace (not max) the base.
+      const authoritativeStats = new Set<keyof EpicStatOverrides>();
+      if (se) {
+        for (const [seKey, statKey] of Object.entries(BASE_STAT_KEYS)) {
+          if (typeof se[seKey] === "number") authoritativeStats.add(statKey);
+        }
+      }
+      for (const [k, v] of Object.entries(statOverrides) as [
+        keyof EpicStatOverrides,
+        number | undefined,
+      ][]) {
+        if (v === undefined) continue;
+        if (authoritativeStats.has(k)) {
+          result.forceStatOverrides[k] = v;
+        } else {
+          result.statOverrides[k] = v;
+        }
+      }
 
       for (const effect of effects) {
         result.miscEffects.push(effect);
