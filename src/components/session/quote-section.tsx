@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { ApprovalGate } from "@/components/approval-gate";
 import type { ChronicleQuoteRow, QuoteReactionRow } from "@/lib/supabase/types";
 
 const EMOJI_OPTIONS = ["👍", "😂", "💀", "🔥", "⭐", "❤️", "🐉", "⚔️"];
@@ -151,14 +152,16 @@ export function QuoteSection({
     <div data-testid="quote-section">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="font-heading text-xl text-primary">{t("quotes")}</h2>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => (showForm ? resetForm() : setShowForm(true))}
-          data-testid="quote-add-button"
-        >
-          {showForm ? tcom("cancel") : t("addQuote")}
-        </Button>
+        <ApprovalGate>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => (showForm ? resetForm() : setShowForm(true))}
+            data-testid="quote-add-button"
+          >
+            {showForm ? tcom("cancel") : t("addQuote")}
+          </Button>
+        </ApprovalGate>
       </div>
 
       {/* Create/Edit Form */}
@@ -277,25 +280,27 @@ export function QuoteSection({
 
                 {/* Owner actions */}
                 {isOwner && (
-                  <div className="mt-2 flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => startEdit(quote)}
-                      data-testid={`quote-edit-${quote.id}`}
-                    >
-                      {tcom("edit")}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-destructive hover:text-destructive"
-                      onClick={() => handleDelete(quote.id)}
-                      data-testid={`quote-delete-${quote.id}`}
-                    >
-                      {tcom("delete")}
-                    </Button>
-                  </div>
+                  <ApprovalGate fallback={null}>
+                    <div className="mt-2 flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => startEdit(quote)}
+                        data-testid={`quote-edit-${quote.id}`}
+                      >
+                        {tcom("edit")}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => handleDelete(quote.id)}
+                        data-testid={`quote-delete-${quote.id}`}
+                      >
+                        {tcom("delete")}
+                      </Button>
+                    </div>
+                  </ApprovalGate>
                 )}
               </div>
             );

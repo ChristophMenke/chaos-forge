@@ -11,6 +11,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { NpcAvatarUpload } from "./npc-avatar-upload";
 import { ImageLightbox } from "@/components/image-lightbox";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { ApprovalGate } from "@/components/approval-gate";
 import type { ChronicleNpcRow } from "@/lib/supabase/types";
 
 const PAGE_SIZE = 10;
@@ -162,14 +163,16 @@ export function NpcManager({ npcs: initialNpcs }: NpcManagerProps) {
     <div data-testid="npc-manager">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="font-heading text-xl text-primary">{t("npcs")}</h2>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => (showForm ? resetForm() : setShowForm(true))}
-          data-testid="npc-add-button"
-        >
-          {showForm ? tcom("cancel") : t("addNpc")}
-        </Button>
+        <ApprovalGate>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => (showForm ? resetForm() : setShowForm(true))}
+            data-testid="npc-add-button"
+          >
+            {showForm ? tcom("cancel") : t("addNpc")}
+          </Button>
+        </ApprovalGate>
       </div>
 
       {/* Search + Location Filter */}
@@ -308,28 +311,30 @@ export function NpcManager({ npcs: initialNpcs }: NpcManagerProps) {
                     </div>
 
                     {/* Actions: kompakte Icon-Buttons */}
-                    <div className="flex shrink-0 flex-col gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        className="text-muted-foreground hover:text-foreground"
-                        onClick={() => startEdit(npc)}
-                        aria-label={tcom("edit")}
-                        data-testid={`npc-edit-${npc.id}`}
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        className="text-muted-foreground hover:text-destructive"
-                        onClick={() => setPendingDelete(npc)}
-                        aria-label={tcom("delete")}
-                        data-testid={`npc-delete-${npc.id}`}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
+                    <ApprovalGate fallback={null}>
+                      <div className="flex shrink-0 flex-col gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          className="text-muted-foreground hover:text-foreground"
+                          onClick={() => startEdit(npc)}
+                          aria-label={tcom("edit")}
+                          data-testid={`npc-edit-${npc.id}`}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          className="text-muted-foreground hover:text-destructive"
+                          onClick={() => setPendingDelete(npc)}
+                          aria-label={tcom("delete")}
+                          data-testid={`npc-delete-${npc.id}`}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </ApprovalGate>
                   </div>
                   {isExpanded && npc.description && (
                     <p className="mt-3 whitespace-pre-wrap border-t border-border/40 pt-2 text-sm text-muted-foreground">

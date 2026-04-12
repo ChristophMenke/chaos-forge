@@ -9,6 +9,7 @@ import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { DistributeGoldDialog } from "@/components/party/distribute-gold-dialog";
+import { ApprovalGate } from "@/components/approval-gate";
 import { createClient } from "@/lib/supabase/client";
 import { purseTotalInCP, type CoinPurse } from "@/lib/rules/equipment";
 import { COINS } from "@/components/party/party-constants";
@@ -240,35 +241,37 @@ export function PartyGoldPanel({
       </div>
 
       {/* Action buttons */}
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <Button
-          variant="outline"
-          size="sm"
-          className="flex-1"
-          onClick={() => setShowAddDialog(true)}
-          data-testid="party-add-gold-btn"
-        >
-          {t("addGold")}
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="flex-1"
-          onClick={() => setShowRemoveDialog(true)}
-          data-testid="party-remove-gold-btn"
-        >
-          {t("removeGold")}
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="flex-1"
-          onClick={() => setShowDistributeDialog(true)}
-          data-testid="party-distribute-gold-btn"
-        >
-          {t("distributeGold")}
-        </Button>
-      </div>
+      <ApprovalGate>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1"
+            onClick={() => setShowAddDialog(true)}
+            data-testid="party-add-gold-btn"
+          >
+            {t("addGold")}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1"
+            onClick={() => setShowRemoveDialog(true)}
+            data-testid="party-remove-gold-btn"
+          >
+            {t("removeGold")}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1"
+            onClick={() => setShowDistributeDialog(true)}
+            data-testid="party-distribute-gold-btn"
+          >
+            {t("distributeGold")}
+          </Button>
+        </div>
+      </ApprovalGate>
 
       {/* Add Gold dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
