@@ -267,7 +267,7 @@ export function MonsterForm({
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         <div>
-          <label className={labelClass}>MR %</label>
+          <label className={labelClass}>{t("monsterMagicResistanceLabel")}</label>
           <input
             type="number"
             min={0}
@@ -289,7 +289,7 @@ export function MonsterForm({
           />
         </div>
         <div>
-          <label className={labelClass}>Moral Text</label>
+          <label className={labelClass}>{t("monsterMoraleText")}</label>
           <input
             type="text"
             value={form.morale ?? ""}
@@ -324,7 +324,7 @@ export function MonsterForm({
             {/* Fluff fields */}
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div>
-                <label className={labelClass}>Klima/Gelände</label>
+                <label className={labelClass}>{t("monsterClimate")}</label>
                 <input
                   type="text"
                   value={form.climate_terrain ?? ""}
@@ -334,7 +334,7 @@ export function MonsterForm({
                 />
               </div>
               <div>
-                <label className={labelClass}>Häufigkeit</label>
+                <label className={labelClass}>{t("monsterFrequency")}</label>
                 <input
                   type="text"
                   value={form.frequency ?? ""}
@@ -344,7 +344,7 @@ export function MonsterForm({
                 />
               </div>
               <div>
-                <label className={labelClass}>Organisation</label>
+                <label className={labelClass}>{t("monsterOrganization")}</label>
                 <input
                   type="text"
                   value={form.organization ?? ""}
@@ -354,7 +354,7 @@ export function MonsterForm({
                 />
               </div>
               <div>
-                <label className={labelClass}>Aktivitätszyklus</label>
+                <label className={labelClass}>{t("monsterActivityCycle")}</label>
                 <input
                   type="text"
                   value={form.activity_cycle ?? ""}
@@ -364,7 +364,7 @@ export function MonsterForm({
                 />
               </div>
               <div>
-                <label className={labelClass}>Ernährung</label>
+                <label className={labelClass}>{t("monsterDiet")}</label>
                 <input
                   type="text"
                   value={form.diet ?? ""}
@@ -374,7 +374,7 @@ export function MonsterForm({
                 />
               </div>
               <div>
-                <label className={labelClass}>Intelligenz</label>
+                <label className={labelClass}>{t("monsterIntelligence")}</label>
                 <input
                   type="text"
                   value={form.intelligence ?? ""}
@@ -384,7 +384,7 @@ export function MonsterForm({
                 />
               </div>
               <div>
-                <label className={labelClass}>Schatz</label>
+                <label className={labelClass}>{t("monsterTreasure")}</label>
                 <input
                   type="text"
                   value={form.treasure ?? ""}
@@ -394,7 +394,7 @@ export function MonsterForm({
                 />
               </div>
               <div>
-                <label className={labelClass}>Gesinnung</label>
+                <label className={labelClass}>{t("monsterAlignment")}</label>
                 <input
                   type="text"
                   value={form.alignment ?? ""}
@@ -404,7 +404,7 @@ export function MonsterForm({
                 />
               </div>
               <div>
-                <label className={labelClass}>No. Appearing</label>
+                <label className={labelClass}>{t("monsterNoAppearing")}</label>
                 <input
                   type="text"
                   value={form.no_appearing ?? ""}
@@ -415,7 +415,7 @@ export function MonsterForm({
                 />
               </div>
               <div>
-                <label className={labelClass}>Quellenbuch</label>
+                <label className={labelClass}>{t("monsterSourceBook")}</label>
                 <input
                   type="text"
                   value={form.source_book ?? "Custom"}
@@ -429,7 +429,7 @@ export function MonsterForm({
             {/* Narrative sections */}
             <div className="space-y-2">
               <div>
-                <label className={labelClass}>Einleitung</label>
+                <label className={labelClass}>{t("monsterIntroText")}</label>
                 <textarea
                   value={form.intro_text ?? ""}
                   onChange={(e) => update("intro_text", e.target.value || null)}
@@ -439,7 +439,7 @@ export function MonsterForm({
                 />
               </div>
               <div>
-                <label className={labelClass}>Kampf</label>
+                <label className={labelClass}>{t("monsterCombatTactics")}</label>
                 <textarea
                   value={form.combat_tactics ?? ""}
                   onChange={(e) => update("combat_tactics", e.target.value || null)}
@@ -449,7 +449,7 @@ export function MonsterForm({
                 />
               </div>
               <div>
-                <label className={labelClass}>Lebensraum & Gesellschaft</label>
+                <label className={labelClass}>{t("monsterHabitatSociety")}</label>
                 <textarea
                   value={form.habitat_society ?? ""}
                   onChange={(e) => update("habitat_society", e.target.value || null)}
@@ -459,7 +459,7 @@ export function MonsterForm({
                 />
               </div>
               <div>
-                <label className={labelClass}>Ökologie</label>
+                <label className={labelClass}>{t("monsterEcology")}</label>
                 <textarea
                   value={form.ecology ?? ""}
                   onChange={(e) => update("ecology", e.target.value || null)}
@@ -473,14 +473,14 @@ export function MonsterForm({
             {/* Variant linkage */}
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div>
-                <label className={labelClass}>Variante von (Parent-Monster)</label>
+                <label className={labelClass}>{t("monsterVariantOf")}</label>
                 <select
                   value={form.variant_of_id ?? ""}
                   onChange={(e) => update("variant_of_id", e.target.value || null)}
                   className={fieldClass}
                   data-testid="monster-form-variant-of-id"
                 >
-                  <option value="">— keine Variante —</option>
+                  <option value="">{t("monsterNoVariant")}</option>
                   {parentOptions.map((m) => (
                     <option key={m.id} value={m.id}>
                       {m.name}
@@ -490,7 +490,7 @@ export function MonsterForm({
                 </select>
               </div>
               <div>
-                <label className={labelClass}>Varianten-Name</label>
+                <label className={labelClass}>{t("monsterVariantName")}</label>
                 <input
                   type="text"
                   value={form.variant_name ?? ""}
@@ -514,10 +514,10 @@ export function MonsterForm({
           disabled={submitting}
           data-testid="monster-form-cancel"
         >
-          Abbrechen
+          {t("cancel")}
         </Button>
         <Button type="submit" disabled={submitting} data-testid="monster-form-submit">
-          {submitting ? "Speichert …" : mode === "create" ? "Anlegen" : "Speichern"}
+          {submitting ? t("monsterSaving") : mode === "create" ? t("monsterCreate") : t("save")}
         </Button>
       </div>
     </form>

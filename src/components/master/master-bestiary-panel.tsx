@@ -662,7 +662,7 @@ export function MasterBestiaryPanel({
       >
         <DialogContent className="sm:max-w-xl" data-testid="gm-monster-variant-picker-dialog">
           <DialogHeader>
-            <DialogTitle>Varianten auswählen</DialogTitle>
+            <DialogTitle>{t("variantPickerDialogTitle")}</DialogTitle>
           </DialogHeader>
           {pendingVariants && pendingVariants.length > 1 && (
             <MonsterVariantPicker
@@ -1114,6 +1114,7 @@ function MonsterDetailModal({
   onDelete?: (id: string) => void;
 }) {
   const t = useTranslations("master");
+  const tcom = useTranslations("common");
   const [count, setCount] = useState(1);
   const [imageUrl, setImageUrl] = useState(monster.image_url);
   const [fullscreen, setFullscreen] = useState(false);
@@ -1241,7 +1242,7 @@ function MonsterDetailModal({
             <button
               onClick={() => setFullscreen(false)}
               className="absolute right-4 top-4 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
-              aria-label="Close"
+              aria-label={tcom("close")}
             >
               <X className="h-6 w-6" aria-hidden="true" />
             </button>
@@ -1277,8 +1278,8 @@ function MonsterDetailModal({
             <button
               onClick={() => setFullscreen(true)}
               className="absolute right-3 top-3 rounded-md bg-black/60 p-1.5 text-white hover:bg-black/80"
-              title="Fullscreen"
-              aria-label="Fullscreen"
+              title={tcom("fullscreen")}
+              aria-label={tcom("fullscreen")}
               data-testid="gm-monster-fullscreen-btn"
             >
               <Maximize2 className="h-4 w-4" aria-hidden="true" />
@@ -1286,7 +1287,7 @@ function MonsterDetailModal({
             <button
               onClick={onClose}
               className="absolute left-3 top-3 rounded-md bg-black/60 p-1.5 text-white hover:bg-black/80 lg:hidden"
-              aria-label="Close"
+              aria-label={tcom("close")}
               data-testid="gm-monster-detail-close"
             >
               <X className="h-4 w-4" />
@@ -1326,7 +1327,7 @@ function MonsterDetailModal({
                 ref={closeButtonRef}
                 onClick={onClose}
                 className="hidden rounded-md p-1.5 text-muted-foreground hover:bg-accent/30 hover:text-foreground lg:block"
-                aria-label="Close"
+                aria-label={tcom("close")}
                 data-testid="gm-monster-detail-close-desktop"
               >
                 <X className="h-5 w-5" aria-hidden="true" />

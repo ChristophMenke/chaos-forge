@@ -161,7 +161,7 @@ export function SessionDetail({
         setErrorMessage(null);
       }
     } catch {
-      setErrorMessage("Zusammenfassung fehlgeschlagen.");
+      setErrorMessage(t("summaryFailed"));
     }
 
     setGeneratingSummary(false);

@@ -44,7 +44,8 @@
     "invalidCode": "Ungültiger oder abgelaufener Code. Bitte erneut versuchen.",
     "resendCode": "Code erneut senden",
     "changeEmail": "Andere E-Mail verwenden",
-    "supabaseNotConfigured": "Supabase ist nicht konfiguriert. Bitte .env.local mit NEXT_PUBLIC_SUPABASE_URL und NEXT_PUBLIC_SUPABASE_ANON_KEY anlegen."
+    "supabaseNotConfigured": "Supabase ist nicht konfiguriert. Bitte .env.local mit NEXT_PUBLIC_SUPABASE_URL und NEXT_PUBLIC_SUPABASE_ANON_KEY anlegen.",
+    "unknownError": "Unbekannter Fehler."
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -170,7 +171,8 @@
     "grantedPowers": "Verliehene Kräfte",
     "fromLevel": "ab Stufe {level}",
     "recommendedAbilities": "Empfohlen",
-    "noPriesthoodForDruid": "Druiden haben eine feste Sphären-Zuordnung und wählen keine Glaubensrichtung."
+    "noPriesthoodForDruid": "Druiden haben eine feste Sphären-Zuordnung und wählen keine Glaubensrichtung.",
+    "hitDie": "Trefferwürfel"
   },
   "sheet": {
     "alignment": "Gesinnung",
@@ -584,7 +586,10 @@
     "addFightingStyle": "Kampfstil hinzufügen",
     "upgradeSlot": "Slot aufwerten",
     "slotsInvested": "{slots} Slot(s)",
-    "confirmRemoveStyle": "Möchtest du diesen Kampfstil wirklich entfernen?"
+    "confirmRemoveStyle": "Möchtest du diesen Kampfstil wirklich entfernen?",
+    "addSlot": "Slot hinzufügen",
+    "removeSlot": "Slot entfernen",
+    "removeLanguage": "Sprache entfernen"
   },
   "sessions": {
     "title": "Die Chronik des Chaos",
@@ -645,7 +650,10 @@
     "xpAlreadyDistributed": "Bereits verteilt: {xp} EP",
     "xpUpdateDistribution": "Aktualisieren",
     "noParticipantsWarning": "Füge zuerst Teilnehmer hinzu, bevor du EP verteilst.",
-    "searchCharacters": "Charakter suchen..."
+    "searchCharacters": "Charakter suchen...",
+    "summaryFailed": "Zusammenfassung fehlgeschlagen.",
+    "imageGenerateFailed": "Bildgenerierung fehlgeschlagen.",
+    "createFailed": "Fehler beim Erstellen."
   },
   "tagTypes": {
     "npc": "NPC",
@@ -754,7 +762,9 @@
     "spellLevel": "Stufe",
     "removeSpell": "Zauber entfernen",
     "noSpells": "Keine Zauber erkannt.",
-    "creating": "Erstelle..."
+    "creating": "Erstelle...",
+    "scanFailed": "Scan fehlgeschlagen.",
+    "createFailed": "Fehler beim Erstellen."
   },
   "print": {
     "print": "Drucken (Cmd+P)",
@@ -996,7 +1006,8 @@
     "uploading": "Lade hoch...",
     "zoom": "Zoom",
     "pickAnother": "Anderes Bild wählen",
-    "remove": "Bild entfernen"
+    "remove": "Bild entfernen",
+    "deleteFailed": "Löschen fehlgeschlagen."
   },
   "sharing": {
     "title": "Teilen: {name}",
@@ -1160,7 +1171,7 @@
     "kitSpellFailure": "Zauber-Fehlschlag: {percent}% ({kitName})",
     "multiclassWizardArmor": "Multiclass-Magier: Keine Zauber möglich in Rüstung (PHB)",
     "multiclassThiefArmor": "Multiclass-Dieb: Diebesfähigkeiten eingeschränkt in schwerer Rüstung (nur Schlösser öffnen + Geräusche hören)",
-    "turnUndead": "Untote vertreiben",
+    "turnUndead": "Untote",
     "commandUndead": "Untote befehligen",
     "undead": "Untote",
     "undeadType": "Untoter",
@@ -1196,7 +1207,6 @@
     "removeItemMessage": "\"{name}\" wirklich wegwerfen?",
     "equipped": "Angelegt",
     "unequipped": "Abgelegt",
-    "turnUndead": "Untote",
     "saveFailed": "Änderung konnte nicht gespeichert werden. Bitte erneut versuchen.",
     "spellCastFailed": "Zauber konnte nicht als verbraucht markiert werden.",
     "restFailed": "Zauberslots konnten nicht zurückgesetzt werden.",
@@ -1659,7 +1669,7 @@
     "monsterDamageFull": "Schaden pro Angriff",
     "monsterImageUploadFailed": "Bild-Upload fehlgeschlagen",
     "confirmDelete": "Löschen bestätigen",
-    "confirmDeleteItem": "\u201E{name}\u201C wirklich löschen?",
+    "confirmDeleteItem": "„{name}“ wirklich löschen?",
     "itemInUse": "Item wird noch verwendet von:",
     "deleteItem": "Löschen",
     "editItem": "{name} bearbeiten",
@@ -1673,7 +1683,7 @@
     "monsterDeleted": "Monster gelöscht!",
     "editMonster": "Bearbeiten",
     "deleteMonster": "Löschen",
-    "deleteMonsterConfirm": "Monster \u201E{name}\u201C wirklich löschen?",
+    "deleteMonsterConfirm": "Monster „{name}“ wirklich löschen?",
     "monsterName": "Monstername",
     "monsterNameEn": "Name (EN)",
     "monsterDescription": "Beschreibung",
@@ -1691,7 +1701,28 @@
     "monsterImportSuccess": "Monster erfolgreich importiert!",
     "monsterImportFailed": "Import fehlgeschlagen.",
     "monsterSave": "Monster speichern",
-    "monsterFormAdvancedSection": "Erweiterte Details (Fluff, Narrative, Varianten)"
+    "monsterFormAdvancedSection": "Erweiterte Details (Fluff, Narrative, Varianten)",
+    "monsterMoraleText": "Moral Text",
+    "monsterNoAppearing": "Anzahl",
+    "monsterSourceBook": "Quellenbuch",
+    "monsterIntroText": "Einleitung",
+    "monsterVariantOf": "Variante von (Parent-Monster)",
+    "monsterNoVariant": "— keine Variante —",
+    "monsterVariantName": "Varianten-Name",
+    "monsterSaving": "Speichert …",
+    "monsterCreate": "Anlegen",
+    "monsterMagicResistanceLabel": "MR %",
+    "variantPickerTitle": "{count} Varianten im Bild erkannt",
+    "variantPickerSubtitle": "Wähle die Varianten, die du importieren möchtest.",
+    "variantPickerLinkage": "Verknüpfung",
+    "variantPickerParentChild": "Parent + Varianten",
+    "variantPickerParentChildDesc": "die erste Variante wird zum Parent-Monster, die weiteren werden als Sub-Varianten verknüpft",
+    "variantPickerSeparate": "Getrennt",
+    "variantPickerSeparateDesc": "alle Varianten werden als eigenständige Monster angelegt",
+    "variantPickerSelectAtLeast": "Mindestens eine auswählen",
+    "variantPickerImport": "{count} importieren",
+    "variantPickerDialogTitle": "Varianten auswählen",
+    "monsterStatLine": "TW {hd}, RK {ac}, ETW0 {thac0}, Schaden {damage}"
   },
   "notifications": {
     "title": "Benachrichtigungen",
