@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { Cinzel, Crimson_Text, Geist, Geist_Mono } from "next/font/google";
-import Image from "next/image";
-import Link from "next/link";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AppHeader } from "@/components/app-header";
 import { SkipToMain } from "@/components/skip-to-main";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "@/components/ui/sonner";
@@ -86,18 +85,7 @@ export default async function RootLayout({
           <ThemeProvider>
             <TooltipProvider>
               <SkipToMain />
-              <header className="embed-hidden flex items-center justify-center border-b border-border px-4 py-2 sm:px-6 sm:py-4">
-                <Link href="/">
-                  <Image
-                    src="/header-logo.webp"
-                    alt="Chaos Forge"
-                    width={280}
-                    height={120}
-                    priority
-                    className="h-[84px] w-auto sm:h-[168px]"
-                  />
-                </Link>
-              </header>
+              <AppHeader />
 
               <main id="main" className="flex flex-1 flex-col pb-16 sm:pb-0">
                 {children}
