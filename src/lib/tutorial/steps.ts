@@ -85,13 +85,13 @@ export const TUTORIAL_STEPS: Record<string, TutorialStep[]> = {
       target: '[data-testid="chronicle-npcs"]',
       titleKey: "chronicle.npcsTitle",
       descriptionKey: "chronicle.npcsDesc",
-      position: "bottom",
+      position: "left",
     },
     {
       target: '[data-testid="chronicle-quotes"]',
       titleKey: "chronicle.quotesTitle",
       descriptionKey: "chronicle.quotesDesc",
-      position: "top",
+      position: "right",
     },
     {
       titleKey: "chronicle.chatTitle",

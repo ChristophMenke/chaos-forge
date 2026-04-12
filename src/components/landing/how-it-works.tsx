@@ -22,7 +22,7 @@ export async function LandingHowItWorks() {
         {steps.map((s, i) => (
           <li key={s.num} className="relative" data-testid={`landing-step-${i + 1}`}>
             <span
-              className="absolute -left-[3rem] flex h-10 w-10 items-center justify-center rounded-full border-2 border-primary bg-primary font-heading text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 sm:-left-[3.75rem] sm:h-12 sm:w-12 sm:text-base"
+              className="absolute -left-[3rem] flex h-10 w-10 items-center justify-center rounded-full border-2 border-amber-400 bg-amber-400 font-heading text-sm font-bold text-zinc-900 shadow-lg shadow-amber-400/30 sm:-left-[3.75rem] sm:h-12 sm:w-12 sm:text-base"
               aria-hidden
             >
               {s.num}
