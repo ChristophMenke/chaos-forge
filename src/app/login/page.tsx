@@ -110,7 +110,7 @@ export default function LoginPage() {
 
   return (
     <div
-      className="relative -mb-16 flex h-[100dvh] flex-col items-center justify-end pb-6 sm:mb-0 sm:items-end sm:pb-10 sm:pr-8 md:pr-16 lg:pr-24"
+      className="relative -mb-16 flex h-[100dvh] flex-col items-center justify-end pb-6 sm:mb-0 sm:items-start sm:pb-10 sm:pl-6 md:pl-10 lg:pl-16"
       data-testid="login-page"
     >
       <div className="absolute inset-0 -z-10 overflow-hidden bg-[#1a1408]">
@@ -143,7 +143,7 @@ export default function LoginPage() {
         </picture>
       </div>
 
-      <div className="w-full max-w-md px-4">
+      <div className="w-full max-w-xs px-4 sm:max-w-sm">
         <div
           className="rounded-lg border-2 border-amber-900/70 bg-[#f4e9d1]/95 px-5 py-5 shadow-2xl shadow-black/50 backdrop-blur-sm sm:px-7 sm:py-6"
           style={{
