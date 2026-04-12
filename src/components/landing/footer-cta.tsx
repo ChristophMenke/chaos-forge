@@ -18,7 +18,12 @@ export async function LandingFooterCta() {
           {t("footerSubtitle")}
         </p>
         <Link href="/login" className="mt-8 inline-block">
-          <Button size="lg" className="h-12 px-8 text-base" data-testid="cta-login-button-footer">
+          <Button
+            size="lg"
+            className="h-12 px-8 text-base"
+            data-testid="cta-login-button-footer"
+            style={{ backgroundColor: "#fbbf24", color: "#18181b" }}
+          >
             {t("cta")}
           </Button>
         </Link>

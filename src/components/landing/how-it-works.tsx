@@ -18,25 +18,31 @@ export async function LandingHowItWorks() {
         {t("howItWorksTitle")}
       </h2>
 
-      <ol className="stagger-reveal relative space-y-10 border-l-2 border-primary/30 pl-8 sm:pl-12">
+      <ol className="stagger-reveal space-y-8">
         {steps.map((s, i) => (
-          <li key={s.num} className="relative" data-testid={`landing-step-${i + 1}`}>
+          <li key={s.num} className="flex gap-4 sm:gap-6" data-testid={`landing-step-${i + 1}`}>
+            {/* Decorative step badge — aria-hidden; visible number is not
+                read by screen readers. Uses inline style so axe measures the
+                opaque background correctly regardless of ancestor cascade. */}
             <span
-              className="absolute -left-[3rem] flex h-10 w-10 items-center justify-center rounded-full border-2 font-heading text-sm font-bold shadow-lg sm:-left-[3.75rem] sm:h-12 sm:w-12 sm:text-base"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full font-heading text-base font-bold shadow-lg sm:h-14 sm:w-14 sm:text-lg"
               style={{
                 backgroundColor: "#fbbf24",
-                borderColor: "#f59e0b",
                 color: "#18181b",
-                boxShadow: "0 4px 20px rgba(251, 191, 36, 0.4)",
+                boxShadow: "0 4px 16px rgba(251, 191, 36, 0.35)",
               }}
               aria-hidden
             >
               {s.num}
             </span>
-            <h3 className="font-heading text-xl tracking-wide text-foreground sm:text-2xl">
-              {s.title}
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-foreground/90 sm:text-base">{s.desc}</p>
+            <div className="flex-1">
+              <h3 className="font-heading text-xl tracking-wide text-foreground sm:text-2xl">
+                {s.title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-foreground/90 sm:text-base">
+                {s.desc}
+              </p>
+            </div>
           </li>
         ))}
       </ol>

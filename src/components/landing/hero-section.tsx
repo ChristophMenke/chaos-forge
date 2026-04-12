@@ -49,7 +49,12 @@ export async function LandingHero() {
           <Button
             size="lg"
             data-testid="cta-login-button"
-            className="h-12 px-8 text-base shadow-xl shadow-primary/30"
+            className="h-12 px-8 text-base shadow-xl"
+            style={{
+              backgroundColor: "#fbbf24",
+              color: "#18181b",
+              boxShadow: "0 8px 24px rgba(251, 191, 36, 0.4)",
+            }}
           >
             {t("cta")}
           </Button>
