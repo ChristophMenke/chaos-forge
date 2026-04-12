@@ -14,6 +14,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Nicht authentifiziert." }, { status: 401 });
   }
 
+  // Approval gate — unapproved users can view but not regenerate mood images.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_approved")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (profile && profile.is_approved === false) {
+    return NextResponse.json(
+      { error: "Du musst erst freigeschaltet werden, bevor du Bilder generieren kannst." },
+      { status: 403 }
+    );
+  }
+
   if (!process.env.GOOGLE_API_KEY) {
     return NextResponse.json(
       { error: "Bildgenerierung ist nicht konfiguriert (GOOGLE_API_KEY fehlt)." },

@@ -9,6 +9,7 @@ import remarkBreaks from "remark-breaks";
 import { Pencil, Check, X, ImageIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { ApprovalGate } from "@/components/approval-gate";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -281,16 +282,22 @@ export function SessionDetail({
 
       {/* Generate mood image button */}
       <div className="mb-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleGenerateImage}
-          disabled={generatingImage || !canRegenerate}
-          data-testid="session-generate-image"
-        >
-          {generatingImage ? <Spinner className="mr-2" /> : <ImageIcon className="mr-2 h-4 w-4" />}
-          {imageUrl ? t("regenerateMoodImage") : t("generateMoodImage")}
-        </Button>
+        <ApprovalGate>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleGenerateImage}
+            disabled={generatingImage || !canRegenerate}
+            data-testid="session-generate-image"
+          >
+            {generatingImage ? (
+              <Spinner className="mr-2" />
+            ) : (
+              <ImageIcon className="mr-2 h-4 w-4" />
+            )}
+            {imageUrl ? t("regenerateMoodImage") : t("generateMoodImage")}
+          </Button>
+        </ApprovalGate>
       </div>
 
       {errorMessage && (
@@ -449,25 +456,29 @@ export function SessionDetail({
           <h2 className="font-heading text-xl">{t("summary")}</h2>
           <div className="flex gap-2">
             {entriesState.length > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleGenerateSummary}
-                disabled={generatingSummary}
-                data-testid="generate-summary-button"
-              >
-                {generatingSummary ? t("generating") : t("generateSummary")}
-              </Button>
+              <ApprovalGate>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleGenerateSummary}
+                  disabled={generatingSummary}
+                  data-testid="generate-summary-button"
+                >
+                  {generatingSummary ? t("generating") : t("generateSummary")}
+                </Button>
+              </ApprovalGate>
             )}
             {summaryDirty && (
-              <Button
-                size="sm"
-                onClick={handleSaveSummary}
-                disabled={savingSummary}
-                data-testid="save-summary-button"
-              >
-                {savingSummary ? tc("saving") : tc("save")}
-              </Button>
+              <ApprovalGate>
+                <Button
+                  size="sm"
+                  onClick={handleSaveSummary}
+                  disabled={savingSummary}
+                  data-testid="save-summary-button"
+                >
+                  {savingSummary ? tc("saving") : tc("save")}
+                </Button>
+              </ApprovalGate>
             )}
           </div>
         </div>
