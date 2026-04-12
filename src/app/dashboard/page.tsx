@@ -392,9 +392,14 @@ export default async function DashboardPage() {
   const maxRaceCount = raceDistribution[0]?.count ?? 1;
 
   // ── Party-wide statistics (active characters only) ──
-  // activeCharacters = own active chars; partyOverviewCharacters = other users' active chars
-  // (publicCharacters is queried with .neq("user_id") so no deduplication needed)
-  const partyChars = [...activeCharacters, ...partyOverviewCharacters];
+  // activeCharacters = own active chars; partyOverviewCharacters = public
+  // (other users') + shared chars. Self-shares (a character shared with its
+  // own owner) can cause a duplicate here, so deduplicate by id.
+  const partyCharsMap = new Map<string, (typeof activeCharacters)[number]>();
+  for (const c of [...activeCharacters, ...partyOverviewCharacters]) {
+    if (!partyCharsMap.has(c.id)) partyCharsMap.set(c.id, c);
+  }
+  const partyChars = Array.from(partyCharsMap.values());
   const partyCharIds = partyChars.map((c) => c.id);
 
   // ── Combat data queries (scoped to party characters) ──
