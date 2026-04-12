@@ -107,8 +107,7 @@ export function MasterPinGate() {
 
       <form
         onSubmit={handleSubmit}
-        className="absolute left-1/2 w-full max-w-[160px] -translate-x-1/2 sm:max-w-[180px]"
-        style={{ bottom: "max(env(safe-area-inset-bottom, 0px), 10%)" }}
+        className="absolute bottom-[25%] left-1/2 w-full max-w-[160px] -translate-x-1/2 sm:bottom-[10%] sm:max-w-[180px]"
       >
         <div className="px-1 py-1.5">
           <fieldset>
