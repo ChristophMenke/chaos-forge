@@ -14,8 +14,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Datenbank & Auth:** Supabase (PostgreSQL + Row Level Security)
 - **Styling:** Tailwind CSS v4 + shadcn/ui + Glassmorphism Design-System
 - **i18n:** next-intl (Cookie-basiert, DE/EN) + `localized()` Utility für DB-Daten
-- **Unit-/Integrationstests:** Vitest (1439 Tests)
-- **E2E-Tests:** Playwright (121 E2E inkl. Responsive, A11y, Sidebar, XP-Management, GM-Dashboard, Master, Mobile)
+- **Unit-/Integrationstests:** Vitest (1552 Tests)
+- **E2E-Tests:** Playwright (120 E2E inkl. Responsive, A11y, Sidebar, XP-Management, GM-Dashboard, Master, Mobile)
 - **Linting/Formatting:** ESLint (next config) + Prettier (0 Warnings, 0 Errors)
 - **Hosting:** Vercel (Free-Tier)
 - **AI:** Anthropic Claude API (Character Import, Monster Import, Session Summaries) + Google Gemini (Imagen für Bild-Generierung)
@@ -66,7 +66,7 @@ src/
     level-badge.tsx       # Hexagonales Level-Badge (CSS clip-path)
     app-sidebar.tsx       # Desktop Left-Sidebar (Icons, Tooltips, Logout)
     app-nav.tsx           # Mobile Bottom-Nav + More-Menu
-    master/               # GM-Dashboard: PIN-Gate, Party Panel (Council of Heroes mit Aggregat-Stats), Gold Panel (Treasury Vault mit Multi-Select + Split), Items Panel (CRUD + In-Use-Check), Bestiary Panel (Monster CRUD + AI Import), NPCs, Combat Simulator, Bookmarks, Rulebook Chat, Sidebar, Bottom Nav
+    master/               # GM-Dashboard: Immersive PIN-Gate (Chaos-Artwork), Party Panel (Council of Heroes mit Aggregat-Stats), Gold Panel (Treasury Vault mit Multi-Select + Split), Items Panel (CRUD + In-Use-Check), Bestiary Panel (Monster CRUD + AI Import + Precise-Mode-Toggle), MonsterForm (Create/Edit), MonsterVariantPicker (Multi-Variant-Scan), NPCs, Combat Simulator, Bookmarks, Rulebook Chat, Sidebar, Bottom Nav
     notifications/        # Notification Bell mit Delete-Funktion (einzeln + alle)
     epic-equipment/       # Epische Ausrüstung (Schadensstufen-Cards, Simple Items, Blade System, Spell Abilities)
     party/                # Party-Inventar (Gold-Panel, Items-Panel, Log-Panel, Loot-Verteilung)
@@ -109,7 +109,14 @@ src/
       units.ts            # lbsToKg(), feetToMeters(), convertImperialText()
       spell-display.ts    # spellRange(), spellArea(), spellDescription() — metrische Konvertierung
       image-compression.ts # Canvas API Client-Side Kompression (iPhone-Fotos, max 3 MB für Vercel Free-Tier)
+      treasure-codes.ts   # DMG-Treasure-Code-Legende (A-Z → DE-Kurzbeschreibung, Tooltip im Bestiary)
+    rules/
+      magic-items.ts      # getMagicItemEffects(equipment) — Aggregiert AC-Bonus, Saves etc. aus character_equipment.magic_effects
     gemini/               # Google Gemini Imagen Client für Bild-Generierung (Rassen, Klassen, Banner)
+    scan/                 # AI-Scan-Prompts
+      monster-scan-prompt.ts # Claude Vision Prompt für Monster-Import (ScannedMonsterVariant-Schema)
+    test/                 # Test-Infrastruktur
+      constants.ts        # TEST_DOMAIN (@qa.chaosforge.test), TEST_PRIMARY_EMAIL, TEST_SECONDARY_EMAIL
     hooks/                # Custom React Hooks
       use-print-preferences.ts # Print-Layout-Preferences pro Charakter (localStorage)
     print-config.ts       # Print-Section-IDs, Preferences-Typen, Persistence
@@ -117,13 +124,16 @@ src/
   test/                   # Vitest Setup, Smoke- & Regressionstests
 e2e/                      # Playwright E2E-Tests
   responsive-a11y.spec.ts # Mobile Responsive, Desktop Sidebar, FAB + WCAG 2 AA (axe-core)
-  pages/                  # Page Object Models (character-sheet, spellbook, login)
-  helpers/                # Auth-Helper (Cookie-basierter Test-Login)
+  pages/                  # Page Object Models (character-sheet, spellbook, login, master, party)
+  helpers/                # Auth-Helper (Cookie-basierter Test-Login, Test-Domain: @qa.chaosforge.test)
+scripts/                  # Einmalige Daten-Pipeline-Scripts (nicht committed, siehe docs/monster-import.md)
 messages/                 # i18n-Dateien (de.json, en.json)
 supabase/
-  migrations/             # 200 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items + Realtime + Gold RPC + Monsters + Notifications + Weapon Proficiency Split)
+  migrations/             # 213 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items + Realtime + Gold RPC + Monsters + Notifications + Weapon Proficiency Split + Monster Narrative + Profiles)
 ressources/
   books/                  # OCR-Texte der AD&D 2e Regelbücher (metrisch konvertiert)
+  compendium-snapshot/    # Monstrous Manual HTML-Snapshot + parsed/translated JSON (einmaliger Backfill)
+  monsters/               # Monstrous Manual PDF (Referenz für AI-Scan)
 ```
 
 ## Regelwerk-Engine (`src/lib/rules/`)
@@ -276,7 +286,8 @@ Diese Abweichungen vom Standard-PHB gelten für die "Chaos RPG"-Gruppe:
 - **Env-Variablen:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GM_PIN` (6-Digit), optional `GM_SESSION_SECRET` in `.env.local`
 - **RLS:** Alle Tabellen nutzen Row Level Security — SELECT für alle Authentifizierten, INSERT/UPDATE/DELETE nur für Owner
 - **Storage:** `voice-notes` Bucket für Sprachnotizen, `avatars` für Character-Avatare
-- **Migrationen:** 200 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
+- **Migrationen:** 213 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
+- **Test-Domain:** E2E-Tests nutzen `@qa.chaosforge.test` (RFC-reservierte `.test`-TLD). Zentrale Constants in `src/lib/test/constants.ts`. Alle API-Routes (`test-login`, `test-cleanup`, `test-seed*`) whitelisten nur diese Domain. `share-dialog.tsx` filtert die Test-Domain aus dem Share-Dropdown.
 
 ## AD&D 2e Regelwerk-Spezifika
 
@@ -292,7 +303,8 @@ Das Datenmodell und die Regelwerk-Engine müssen folgende AD&D 2e Besonderheiten
 - **Shield Proficiency:** P.O: Skills & Powers Table 51 — Buckler +1, Small +2, Medium +3, Large +3 (über `armor.shield_type` + Weapon Proficiency)
 - **Traits & Disadvantages:** P.O: Skills & Powers — JSONB-Arrays auf `characters` mit Name, Beschreibung, CP-Kosten (bilingual)
 - **Source Books:** Jedes Item/Waffe/Zauber hat ein `source_book` Feld (PHB, AEG, ToM, etc.)
-- **Monster Stat Blocks:** Vollständige Monstrous Manual Struktur (AC, HD, THAC0, APR, Damage, Special Attacks/Defenses, Morale, XP Value, Size, Climate, Treasure, Alignment, Typical Spells). `parseHitDiceValue()` unterstützt `"1/2"`, `"3+3"` und `"8"` Notation. GM kann alle Monster (auch canonical) bearbeiten.
+- **Monster Stat Blocks:** Vollständige Monstrous Manual Struktur (AC, HD, THAC0, APR, Damage, Special Attacks/Defenses, Morale, XP Value, Size, Climate, Treasure, Alignment, Typical Spells, No. Appearing). Narrative Sektionen: `intro_text`, `combat_tactics`, `habitat_society`, `ecology`. Sub-Varianten via `variant_of_id` (FK Self-Reference) + `variant_name`. `parseHitDiceValue()` unterstützt `"1/2"`, `"3+3"` und `"8"` Notation. GM kann alle Monster (auch canonical) über `MonsterForm` bearbeiten. AI-Import (Claude Vision) mit Multi-Variant-Picker für Stat-Blocks mit Sub-Varianten (z.B. Orc + Orog). Precise-Mode (Sonnet vs. Haiku) als Settings-Cog am Import-Button.
+- **Magic Items AC:** `getMagicItemEffects(equipment)` aggregiert `ac_bonus` aus `character_equipment.magic_effects`. AD&D nutzt absteigende AC → Magic-Boni sind **negativ** (z.B. Ring of Protection +1 = `ac_bonus: -1`). `calculateAC()` akzeptiert `magicACModifier` Parameter — muss an **jeder** Aufrufstelle (Character-Sheet, Tab-Equipment, Play-Mode, Print-Sheet, DOCX-Export) mitgegeben werden.
 - **Custom Weapons:** `weapons.name` = Display-Name, `weapons.proficiency_name` = Waffenfertigkeits-Kategorie (getrennt seit Migration 00200) — ermöglicht z.B. ein "Krassreißer +2" mit Proficiency-Kategorie "Long Sword"
 
 ## Entwicklungs-Workflow (zwingend)
@@ -334,3 +346,5 @@ Finaler explorativer Test mit etablierten Testing-Heuristiken und gezielten "Tes
 13. **Epische Waffen & P.O: S&P** — Klinge des Wassers (Spell Abilities, Kälteschaden), Shield Proficiency AC-Bonus, Traits & Disadvantages ✅
 14. **Master of Chaos (GM-Dashboard)** — PIN-Gate, Party-Übersicht (Realtime HP), Loot-Verteilung, Gold-Distribution, Custom Items mit Proficiency-Autocomplete, eingebetteter Chat, PWA ✅
 15. **UX/UI Performance Polish & GM CRUD Extensions** — Treasury Vault + Council of Heroes Redesign, GM Item CRUD (Edit/Delete mit In-Use-Check), Monster CRUD + AI Import (Claude Vision), Notifications Delete, Avatar Fallback (Silhouetten), Client-Side Image Compression, React 19/Compiler-Migration, Memory-Leak Fixes (URL.createObjectURL Pattern), `npm run verify` als CI-Spiegel, Dialog ARIA Compliance ✅
+16. **Monster-Datenmodell-Vollständigkeit** — Compendium-Backfill (353 MM-Monster aus decheine/complete-compendium), Schema-Migration (Narrative-Felder, Variant-System, No. Appearing), HTML-Parser + Merge-Script, Claude Sonnet 4 Übersetzung (DE), Gemini Imagen Monster-Bilder, Treasure-Code-Legende, Magic-Items AC-Berechnung überall ✅
+17. **Immersive Screens & QA-Migration** — PIN-Gate + Login-Screens mit Chaos-Artwork (Parchment-Cards, Party-Background mit allen aktiven Chars), NPC-Card-Layout-Polish + Confirm-Dialog, Bestiary-Header-Redesign (konsistente Buttons + Settings-Cog für Precise-Mode), Test-Domain Migration auf `@qa.chaosforge.test` (RFC .test TLD, zentrale Constants, 0 Spam-Risiko), 5 pre-existing E2E-Failures gefixt ✅
