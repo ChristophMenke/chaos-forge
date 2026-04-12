@@ -77,6 +77,13 @@ export default function LoginPage() {
       if (verifyError) {
         setError(t("invalidCode"));
       } else {
+        // Ping admin via Discord webhook if this user is still unapproved.
+        // Fire-and-forget — don't block the redirect on it.
+        fetch("/api/notify-new-user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ newRegistration: true }),
+        }).catch(() => {});
         window.location.href = "/characters";
       }
     } catch (err) {

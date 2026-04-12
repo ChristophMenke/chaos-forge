@@ -6,6 +6,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { GlassCard } from "@/components/glass-card";
 import { CharacterCard } from "@/components/character-card";
 import { RealtimeRefresh } from "@/components/realtime-refresh";
+import { TutorialOverlay } from "@/components/tutorial/tutorial-overlay";
 import { QuoteReactionBar } from "@/components/session/quote-reaction-bar";
 import { AvatarDisplay } from "@/components/avatar-display";
 import { HpBar } from "@/components/hp-bar";
@@ -686,6 +687,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6" data-testid="dashboard-page">
+      <TutorialOverlay page="dashboard" />
       <RealtimeRefresh
         channelName="dashboard"
         bindings={[
@@ -701,7 +703,10 @@ export default async function DashboardPage() {
       {activeCharacters.length === 0 ? (
         <p className="text-muted-foreground">{t("noCharacters")}</p>
       ) : (
-        <div className="stagger-reveal grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div
+          data-testid="dashboard-character-grid"
+          className="stagger-reveal grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        >
           {activeCharacters.map((character) => (
             <CharacterCard
               key={character.id}

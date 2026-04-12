@@ -25,7 +25,10 @@ const BASE_PORTRAIT = path.join(OUT_DIR, "login-party-portrait.webp");
 const BASE_LANDSCAPE = path.join(OUT_DIR, "login-party-landscape.webp");
 
 const PARTY_ORDER = [
-  { name: "Larry", role: "Human male fighter, silver hair, dark cloak over armor" },
+  {
+    name: "Larry",
+    role: "Human male fighter, THE TALLEST of the group, young adult, clean-shaven, messy tousled silver-grey shoulder-length hair, piercing bright blue eyes, dark leather armor with silver chain accents, high-collared dark cloak (hood down)",
+  },
   {
     name: "Isolde",
     role: "Tiefling female thief with dark ram horns, dusky red skin, leather armor",
@@ -90,9 +93,12 @@ async function loadPartyAvatars(
       .from("characters")
       .select("avatar_url")
       .eq("name", p.name)
-      .single();
+      .maybeSingle();
     const avatarUrl = (data as { avatar_url?: string | null } | null)?.avatar_url;
-    if (!avatarUrl) throw new Error(`${p.name} has no avatar_url`);
+    if (!avatarUrl) {
+      console.warn(`  (skip ${p.name}: no avatar_url)`);
+      continue;
+    }
     avatars.push({ name: p.name, bytes: await downloadAvatar(avatarUrl) });
   }
   return avatars;

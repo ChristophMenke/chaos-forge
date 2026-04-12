@@ -26,7 +26,26 @@
   "landing": {
     "tagline": "Schmiede deine Legende",
     "subtitle": "Charakter-Manager & Session-Tracker für AD&D 2nd Edition.",
-    "cta": "Abenteuer beginnen"
+    "cta": "Abenteuer beginnen",
+    "heroBadge": "Private Gruppe · AD&D 2nd Edition",
+    "featuresTitle": "Was dich erwartet",
+    "featureCharacterTitle": "Charakter-Management",
+    "featureCharacterDesc": "Erstelle Helden mit dem geführten Wizard oder importiere bestehende Bögen per Foto. Attribute, Zauber, Ausrüstung und epische Items in einer Ansicht.",
+    "featureSessionTitle": "Chronik des Chaos",
+    "featureSessionDesc": "Dokumentiere Abenteuer, verteile XP, halte NPCs und Zitate fest — inklusive Sprachnotizen für unterwegs.",
+    "featureChatTitle": "Regelbuch-KI",
+    "featureChatDesc": "Frage den Assistenten alles zu AD&D 2e. Antworten kommen direkt aus den offiziellen Büchern, inklusive Monstrous-Manual-Taktik.",
+    "featureGmTitle": "Spielleiter-Werkzeuge",
+    "featureGmDesc": "Eigenes PIN-geschütztes GM-Dashboard mit Party-Überblick in Realtime, Loot-Verteilung, Monster-Bestiarium und Kampfsimulator.",
+    "howItWorksTitle": "So schlägst du den ersten Funken",
+    "step1Title": "Anmelden",
+    "step1Desc": "Eine E-Mail, ein Einmalcode — kein Passwort, keine Hürden.",
+    "step2Title": "Charakter formen",
+    "step2Desc": "Wähle Rasse, Klasse, Gesinnung. Würfel echte Attribute oder importiere einen existierenden Bogen.",
+    "step3Title": "Ins Chaos stürzen",
+    "step3Desc": "Spielmodus öffnen, mit der Gruppe spielen — alle Werte, Zauber und Beute immer griffbereit.",
+    "footerTitle": "Bereit für dein nächstes Kapitel?",
+    "footerSubtitle": "Kein Setup, keine Downloads. Melde dich an und leg los."
   },
   "login": {
     "title": "Willkommen, Abenteurer",
@@ -1744,6 +1763,62 @@
     "delete": "Löschen",
     "deleteAll": "Alle löschen",
     "confirmDeleteAll": "Wirklich alle löschen?",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "newUserRegistered": "Neuer Zugang: {email} wartet auf deine Freigabe",
+    "userApproved": "Du wurdest freigeschaltet — willkommen im Chaos!",
+    "approveNow": "Jetzt freischalten",
+    "approveSuccess": "{email} wurde freigeschaltet",
+    "approveError": "Freischaltung fehlgeschlagen"
+  },
+  "approval": {
+    "pendingBanner": "Der Scherge Christoph muss dein Interesse dem Chaos beizutreten erst noch akzeptieren.",
+    "writeBlocked": "Du musst erst freigeschaltet werden, bevor du Änderungen vornehmen kannst.",
+    "writeBlockedShort": "Noch nicht freigeschaltet",
+    "approved": "Willkommen im Chaos — du wurdest freigeschaltet!"
+  },
+  "tutorial": {
+    "next": "Weiter",
+    "back": "Zurück",
+    "skip": "Überspringen",
+    "finish": "Los geht's!",
+    "restart": "Tutorial neu starten",
+    "dashboard": {
+      "welcomeTitle": "Willkommen im Chaos Forge",
+      "welcomeDesc": "Dies ist dein Dashboard — das Herzstück deiner Gruppe. Hier siehst du alle Charaktere, Statistiken und aktuelle Aktivitäten.",
+      "charactersTitle": "Deine Charaktere",
+      "charactersDesc": "Hier findest du deine Helden. Klick auf eine Karte für Details oder leg oben einen neuen Charakter an.",
+      "notificationsTitle": "Benachrichtigungen",
+      "notificationsDesc": "Erhaltenes Gold, neue Items, zugewiesene XP — alles landet hier. Die Glocke leuchtet rot bei ungelesenen Nachrichten.",
+      "chatTitle": "Hilfe jederzeit",
+      "chatDesc": "Fragen zu Regeln oder zur App? Der Chat im More-Menü beantwortet beides — AD&D 2e Regeln direkt aus den Büchern und alles zur Bedienung von Chaos Forge."
+    },
+    "characters": {
+      "welcomeTitle": "Dein Charakter",
+      "welcomeDesc": "Drei Modi stehen dir zur Verfügung: Verwalten, Spielen und Episch.",
+      "modesTitle": "Modi wechseln",
+      "modesDesc": "Verwalten für die ruhige Pflege, Spielen für die Session, Episch für Schadensstufen und Spezialitems.",
+      "chatTitle": "Unsicher bei einer Regel?",
+      "chatDesc": "Der Chat hilft bei THAC0, Spruchlisten, Turn Undead und vielem mehr. Auch App-Fragen werden beantwortet — einfach fragen."
+    },
+    "party": {
+      "welcomeTitle": "Die Beutekasse",
+      "welcomeDesc": "Die Party teilt sich Gold und Gegenstände. Hier ist alles transparent für die ganze Gruppe.",
+      "goldTitle": "Gemeinsames Gold",
+      "goldDesc": "Platinum, Gold, Elektrum, Silber, Kupfer. Hinzufügen, verteilen, abziehen — jede Transaktion wird geloggt.",
+      "itemsTitle": "Item-Pool",
+      "itemsDesc": "Gefundene Items landen hier, bevor sie an Charaktere verteilt werden. Der Beschenkte bekommt eine Notification.",
+      "chatTitle": "Fragen zur Verteilung?",
+      "chatDesc": "Der Chat im More-Menü erklärt alle Party-Loot-Funktionen im Detail."
+    },
+    "chronicle": {
+      "welcomeTitle": "Chronik des Chaos",
+      "welcomeDesc": "Hier lebt die Geschichte der Gruppe — Sessions, NPCs, Zitate und XP.",
+      "npcsTitle": "NPCs anlegen",
+      "npcsDesc": "Wichtige Personen aus deinen Abenteuern — mit Bild, Tags und Beschreibung. Perfekt zum Nachschlagen beim nächsten Auftritt.",
+      "quotesTitle": "Zitate sammeln",
+      "quotesDesc": "Die besten Sprüche der Session — hier werden sie verewigt. Ideal für den Throwback beim nächsten Mal.",
+      "chatTitle": "Mehr erfahren",
+      "chatDesc": "Der Chat erklärt jede Chronik-Funktion und hilft auch bei Regelfragen zum aktuellen Abenteuer."
+    }
   }
 }

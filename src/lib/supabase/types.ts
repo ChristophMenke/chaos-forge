@@ -623,7 +623,9 @@ export type NotificationType =
   | "party_gold_received"
   | "trade_item_received"
   | "trade_gold_received"
-  | "session_xp_awarded";
+  | "session_xp_awarded"
+  | "new_user_registered"
+  | "user_approved";
 
 export interface NotificationRow {
   id: string;
