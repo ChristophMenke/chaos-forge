@@ -478,7 +478,7 @@ export function TabProficiencies({
                   setWeaponSlotsAdj(v);
                   updateSlotAdj("weapon_slots_adj", v);
                 }}
-                aria-label="Slot entfernen"
+                aria-label={t("removeSlot")}
               >
                 −
               </button>
@@ -497,7 +497,7 @@ export function TabProficiencies({
                   setWeaponSlotsAdj(v);
                   updateSlotAdj("weapon_slots_adj", v);
                 }}
-                aria-label="Slot hinzufügen"
+                aria-label={t("addSlot")}
               >
                 +
               </button>
@@ -751,7 +751,7 @@ export function TabProficiencies({
                   setNwpSlotsAdj(v);
                   updateSlotAdj("nwp_slots_adj", v);
                 }}
-                aria-label="Slot entfernen"
+                aria-label={t("removeSlot")}
               >
                 −
               </button>
@@ -770,7 +770,7 @@ export function TabProficiencies({
                   setNwpSlotsAdj(v);
                   updateSlotAdj("nwp_slots_adj", v);
                 }}
-                aria-label="Slot hinzufügen"
+                aria-label={t("addSlot")}
               >
                 +
               </button>
@@ -1056,7 +1056,7 @@ export function TabProficiencies({
                   setLanguageSlotsAdj(v);
                   updateSlotAdj("language_slots_adj", v);
                 }}
-                aria-label="Sprache entfernen"
+                aria-label={t("removeLanguage")}
               >
                 −
               </button>
@@ -1080,7 +1080,7 @@ export function TabProficiencies({
                   setLanguageSlotsAdj(v);
                   updateSlotAdj("language_slots_adj", v);
                 }}
-                aria-label="Sprache hinzufügen"
+                aria-label={t("addLanguage")}
               >
                 +
               </button>

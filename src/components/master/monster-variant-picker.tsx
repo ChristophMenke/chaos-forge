@@ -15,6 +15,7 @@
  */
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import type { ScannedMonsterVariant } from "@/lib/scan/monster-scan-prompt";
 
@@ -29,6 +30,7 @@ export interface MonsterVariantPickerProps {
 }
 
 export function MonsterVariantPicker({ variants, onImport, onCancel }: MonsterVariantPickerProps) {
+  const t = useTranslations("master");
   const [selected, setSelected] = useState<Set<number>>(new Set(variants.map((_, i) => i)));
   const [strategy, setStrategy] = useState<VariantStrategy>(
     variants.length > 1 ? "parent-child" : "separate"
@@ -52,10 +54,10 @@ export function MonsterVariantPicker({ variants, onImport, onCancel }: MonsterVa
   return (
     <div className="space-y-4" data-testid="monster-variant-picker">
       <div>
-        <h3 className="text-sm font-medium">{variants.length} Varianten im Bild erkannt</h3>
-        <p className="text-xs text-muted-foreground">
-          Wähle die Varianten, die du importieren möchtest.
-        </p>
+        <h3 className="text-sm font-medium">
+          {t("variantPickerTitle", { count: variants.length })}
+        </h3>
+        <p className="text-xs text-muted-foreground">{t("variantPickerSubtitle")}</p>
       </div>
 
       {/* Variant list */}
@@ -78,8 +80,13 @@ export function MonsterVariantPicker({ variants, onImport, onCancel }: MonsterVa
               <div className="flex-1 text-sm">
                 <div className="font-medium">{displayName}</div>
                 <div className="text-xs text-muted-foreground">
-                  {`HD ${v.hit_dice}, AC ${v.ac}, ETW0 ${v.thac0}, Schaden ${v.damage}`}
-                  {v.xp_value > 0 ? `, ${v.xp_value} EP` : ""}
+                  {t("monsterStatLine", {
+                    hd: v.hit_dice,
+                    ac: v.ac,
+                    thac0: v.thac0,
+                    damage: v.damage,
+                  })}
+                  {v.xp_value > 0 ? `, ${v.xp_value} ${t("monsterXP")}` : ""}
                 </div>
               </div>
             </label>
@@ -90,7 +97,7 @@ export function MonsterVariantPicker({ variants, onImport, onCancel }: MonsterVa
       {/* Linkage strategy (only relevant when ≥ 2 variants selected) */}
       {selected.size >= 2 && (
         <fieldset className="space-y-2 rounded-lg border border-border/50 p-3">
-          <legend className="text-xs text-muted-foreground">Verknüpfung</legend>
+          <legend className="text-xs text-muted-foreground">{t("variantPickerLinkage")}</legend>
           <label className="flex cursor-pointer items-center gap-2 text-sm">
             <input
               type="radio"
@@ -101,8 +108,8 @@ export function MonsterVariantPicker({ variants, onImport, onCancel }: MonsterVa
               data-testid="monster-variant-picker-strategy-parent-child"
             />
             <span>
-              <span className="font-medium">Parent + Varianten</span> — die erste Variante wird zum
-              Parent-Monster, die weiteren werden als Sub-Varianten verknüpft
+              <span className="font-medium">{t("variantPickerParentChild")}</span> —{" "}
+              {t("variantPickerParentChildDesc")}
             </span>
           </label>
           <label className="flex cursor-pointer items-center gap-2 text-sm">
@@ -115,8 +122,8 @@ export function MonsterVariantPicker({ variants, onImport, onCancel }: MonsterVa
               data-testid="monster-variant-picker-strategy-separate"
             />
             <span>
-              <span className="font-medium">Getrennt</span> — alle Varianten werden als
-              eigenständige Monster angelegt
+              <span className="font-medium">{t("variantPickerSeparate")}</span> —{" "}
+              {t("variantPickerSeparateDesc")}
             </span>
           </label>
         </fieldset>
@@ -130,7 +137,7 @@ export function MonsterVariantPicker({ variants, onImport, onCancel }: MonsterVa
           onClick={onCancel}
           data-testid="monster-variant-picker-cancel"
         >
-          Abbrechen
+          {t("cancel")}
         </Button>
         <Button
           type="button"
@@ -138,7 +145,9 @@ export function MonsterVariantPicker({ variants, onImport, onCancel }: MonsterVa
           disabled={selected.size === 0}
           data-testid="monster-variant-picker-import"
         >
-          {selected.size === 0 ? "Mindestens eine auswählen" : `${selected.size} importieren`}
+          {selected.size === 0
+            ? t("variantPickerSelectAtLeast")
+            : t("variantPickerImport", { count: selected.size })}
         </Button>
       </div>
     </div>

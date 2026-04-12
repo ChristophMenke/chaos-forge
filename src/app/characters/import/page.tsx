@@ -90,6 +90,7 @@ export default function ImportCharacterPage({
 }: ImportCharacterPageProps = {}) {
   const router = useRouter();
   const t = useTranslations("import");
+  const tc = useTranslations("common");
   const locale = useLocale();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [scanning, setScanning] = useState(false);
@@ -257,7 +258,7 @@ export default function ImportCharacterPage({
       } = await supabase.auth.getUser();
 
       if (!user) {
-        setError("Nicht eingeloggt.");
+        setError(tc("notLoggedIn"));
         setSaving(false);
         return;
       }
@@ -602,7 +603,7 @@ export default function ImportCharacterPage({
 
       router.push(`${basePath}/${data.id}/manage`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Fehler beim Erstellen.");
+      setError(err instanceof Error ? err.message : t("createFailed"));
       setSaving(false);
     }
   }

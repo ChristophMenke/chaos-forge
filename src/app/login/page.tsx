@@ -55,7 +55,7 @@ export default function LoginPage() {
         setStep("code");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      setError(err instanceof Error ? err.message : t("unknownError"));
     }
 
     setLoading(false);
@@ -80,7 +80,7 @@ export default function LoginPage() {
         window.location.href = "/characters";
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      setError(err instanceof Error ? err.message : t("unknownError"));
     }
 
     setLoading(false);
@@ -102,7 +102,7 @@ export default function LoginPage() {
         setMessage(t("success"));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      setError(err instanceof Error ? err.message : t("unknownError"));
     } finally {
       setLoading(false);
     }

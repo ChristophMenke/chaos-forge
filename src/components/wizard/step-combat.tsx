@@ -72,7 +72,7 @@ export function StepCombat({ state, onChange }: StepCombatProps) {
         </div>
         {state.classIds.length > 0 && (
           <div className="rounded-md border border-border p-3 text-center">
-            <div className="text-xs text-muted-foreground">Hit Die</div>
+            <div className="text-xs text-muted-foreground">{t("hitDie")}</div>
             <div className="font-heading text-2xl text-primary" data-testid="wizard-hit-die">
               {state.classIds
                 .map((classId) => {

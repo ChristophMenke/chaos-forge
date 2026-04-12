@@ -703,7 +703,7 @@ export function CharacterSheet({
                 <button
                   onClick={() => setShowAvatarLightbox(true)}
                   className="absolute -bottom-1 -right-1 rounded-full bg-card/80 p-1 text-muted-foreground transition-colors hover:text-primary"
-                  aria-label="Vollbild"
+                  aria-label={tcom("fullscreen")}
                   data-testid="avatar-fullscreen-button"
                 >
                   <svg
@@ -751,7 +751,7 @@ export function CharacterSheet({
                 className="w-full truncate border-none bg-transparent font-heading text-2xl text-primary outline-none focus:ring-1 focus:ring-primary/30 sm:text-3xl"
                 value={character.name}
                 onChange={(e) => update("name", e.target.value)}
-                aria-label="Name"
+                aria-label={t("name")}
                 data-testid="sheet-name"
               />
             ) : (
@@ -1939,6 +1939,7 @@ export function CharacterSheet({
               isOwner={isOwner}
               locale={locale}
               t={t}
+              cancelLabel={tcom("cancel")}
               onChange={(entries) => update("traits", entries)}
             />
 
@@ -1952,6 +1953,7 @@ export function CharacterSheet({
               isOwner={isOwner}
               locale={locale}
               t={t}
+              cancelLabel={tcom("cancel")}
               onChange={(entries) => update("disadvantages", entries)}
             />
 
@@ -2103,6 +2105,7 @@ function TraitSection({
   isOwner,
   locale,
   t,
+  cancelLabel,
   onChange,
 }: {
   title: string;
@@ -2113,6 +2116,7 @@ function TraitSection({
   isOwner: boolean;
   locale: string;
   t: ReturnType<typeof useTranslations>;
+  cancelLabel: string;
   onChange: (entries: TraitEntry[]) => void;
 }) {
   const [showAdd, setShowAdd] = useState(false);
@@ -2267,7 +2271,7 @@ function TraitSection({
               size="sm"
               onClick={() => setShowAdd(false)}
               data-testid={`${testIdPrefix}-add-cancel`}
-              aria-label="Cancel"
+              aria-label={cancelLabel}
             >
               <X className="h-4 w-4" aria-hidden="true" />
             </Button>

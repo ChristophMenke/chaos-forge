@@ -44,7 +44,8 @@
     "invalidCode": "Invalid or expired code. Please try again.",
     "resendCode": "Resend Code",
     "changeEmail": "Use a different email",
-    "supabaseNotConfigured": "Supabase is not configured. Please create .env.local with NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
+    "supabaseNotConfigured": "Supabase is not configured. Please create .env.local with NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+    "unknownError": "An unknown error occurred."
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -170,7 +171,8 @@
     "grantedPowers": "Granted Powers",
     "fromLevel": "from level {level}",
     "recommendedAbilities": "Recommended",
-    "noPriesthoodForDruid": "Druids have fixed sphere access and do not choose a faith."
+    "noPriesthoodForDruid": "Druids have fixed sphere access and do not choose a faith.",
+    "hitDie": "Hit Die"
   },
   "sheet": {
     "alignment": "Alignment",
@@ -584,7 +586,10 @@
     "addFightingStyle": "Add Fighting Style",
     "upgradeSlot": "Upgrade Slot",
     "slotsInvested": "{slots} Slot(s)",
-    "confirmRemoveStyle": "Do you really want to remove this fighting style?"
+    "confirmRemoveStyle": "Do you really want to remove this fighting style?",
+    "addSlot": "Add slot",
+    "removeSlot": "Remove slot",
+    "removeLanguage": "Remove language"
   },
   "sessions": {
     "title": "The Chronicle of Chaos",
@@ -645,7 +650,10 @@
     "xpAlreadyDistributed": "Already distributed: {xp} XP",
     "xpUpdateDistribution": "Update",
     "noParticipantsWarning": "Add participants first before distributing XP.",
-    "searchCharacters": "Search character..."
+    "searchCharacters": "Search character...",
+    "summaryFailed": "Failed to generate summary.",
+    "imageGenerateFailed": "Failed to generate session image.",
+    "createFailed": "Failed to create session."
   },
   "tagTypes": {
     "npc": "NPC",
@@ -754,7 +762,9 @@
     "spellLevel": "Level",
     "removeSpell": "Remove Spell",
     "noSpells": "No spells detected.",
-    "creating": "Creating..."
+    "creating": "Creating...",
+    "scanFailed": "Scan failed.",
+    "createFailed": "Failed to create character."
   },
   "print": {
     "print": "Print (Cmd+P)",
@@ -996,7 +1006,8 @@
     "uploading": "Uploading...",
     "zoom": "Zoom",
     "pickAnother": "Pick a different image",
-    "remove": "Remove image"
+    "remove": "Remove image",
+    "deleteFailed": "Failed to delete."
   },
   "sharing": {
     "title": "Share: {name}",
@@ -1160,7 +1171,7 @@
     "kitSpellFailure": "Spell Failure: {percent}% ({kitName})",
     "multiclassWizardArmor": "Multiclass wizard: Cannot cast spells in armor (PHB)",
     "multiclassThiefArmor": "Multiclass thief: Thief abilities restricted in heavy armor (open locks + detect noise only)",
-    "turnUndead": "Turn Undead",
+    "turnUndead": "Undead",
     "commandUndead": "Command Undead",
     "undead": "Undead",
     "undeadType": "Undead Type",
@@ -1196,7 +1207,6 @@
     "removeItemMessage": "Discard \"{name}\"?",
     "equipped": "Equipped",
     "unequipped": "Unequipped",
-    "turnUndead": "Undead",
     "saveFailed": "Failed to save changes. Please try again.",
     "spellCastFailed": "Failed to mark spell as expended.",
     "restFailed": "Failed to reset spell slots.",
@@ -1691,7 +1701,28 @@
     "monsterImportSuccess": "Monster imported successfully!",
     "monsterImportFailed": "Import failed.",
     "monsterSave": "Save Monster",
-    "monsterFormAdvancedSection": "Advanced details (fluff, narrative, variants)"
+    "monsterFormAdvancedSection": "Advanced details (fluff, narrative, variants)",
+    "monsterMoraleText": "Moral Text",
+    "monsterNoAppearing": "No. Appearing",
+    "monsterSourceBook": "Sourcebook",
+    "monsterIntroText": "Introduction",
+    "monsterVariantOf": "Variant of (parent monster)",
+    "monsterNoVariant": "— no variant —",
+    "monsterVariantName": "Variant Name",
+    "monsterSaving": "Saving…",
+    "monsterCreate": "Create",
+    "monsterMagicResistanceLabel": "MR %",
+    "variantPickerTitle": "{count} variants detected in image",
+    "variantPickerSubtitle": "Select the variants you want to import.",
+    "variantPickerLinkage": "Linkage",
+    "variantPickerParentChild": "Parent + Variants",
+    "variantPickerParentChildDesc": "the first variant becomes the parent monster, the rest are linked as sub-variants",
+    "variantPickerSeparate": "Separate",
+    "variantPickerSeparateDesc": "all variants are created as independent monsters",
+    "variantPickerSelectAtLeast": "Select at least one",
+    "variantPickerImport": "Import {count}",
+    "variantPickerDialogTitle": "Select Variants",
+    "monsterStatLine": "HD {hd}, AC {ac}, THAC0 {thac0}, Dmg {damage}"
   },
   "notifications": {
     "title": "Notifications",

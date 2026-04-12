@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 
 export default function NewSessionPage() {
   const t = useTranslations("sessions");
+  const tc = useTranslations("common");
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [sessionDate, setSessionDate] = useState(new Date().toISOString().split("T")[0]);
@@ -28,7 +29,7 @@ export default function NewSessionPage() {
       } = await supabase.auth.getUser();
 
       if (!user) {
-        setError("Nicht eingeloggt.");
+        setError(tc("notLoggedIn"));
         setSaving(false);
         return;
       }
@@ -51,7 +52,7 @@ export default function NewSessionPage() {
 
       router.push(`/sessions/${data.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Fehler beim Erstellen.");
+      setError(err instanceof Error ? err.message : t("createFailed"));
       setSaving(false);
     }
   }
