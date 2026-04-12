@@ -15,6 +15,8 @@ test.beforeAll(async ({ request }) => {
     level: 3,
     hp_current: 25,
     hp_max: 25,
+    gold_gp: 500,
+    gold_sp: 100,
   });
 });
 

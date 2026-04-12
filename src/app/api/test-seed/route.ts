@@ -214,6 +214,10 @@ export async function PUT(request: Request) {
       alignment: characterData.alignment ?? "true-neutral",
       is_public: characterData.is_public ?? false,
       is_active: characterData.is_active ?? true,
+      ...(characterData.gold_pp != null && { gold_pp: characterData.gold_pp }),
+      ...(characterData.gold_gp != null && { gold_gp: characterData.gold_gp }),
+      ...(characterData.gold_sp != null && { gold_sp: characterData.gold_sp }),
+      ...(characterData.gold_cp != null && { gold_cp: characterData.gold_cp }),
     })
     .select("id")
     .single();
