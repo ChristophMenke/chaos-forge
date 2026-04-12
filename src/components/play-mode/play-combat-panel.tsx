@@ -614,7 +614,7 @@ function WeaponCardInner({
   onToggleEquip,
   epicEffects,
 }: WeaponCardProps) {
-  const t = useTranslations("play");
+  const t = useTranslations("playMode");
   const locale = useLocale();
 
   const weapon = eq.weapon!;
