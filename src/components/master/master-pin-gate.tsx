@@ -105,15 +105,16 @@ export function MasterPinGate() {
         </picture>
       </div>
 
+      {/* Mobile: parchment card fixed at bottom. Desktop: transparent on book. */}
       <form
         onSubmit={handleSubmit}
-        className="absolute bottom-[25%] left-1/2 w-full max-w-[160px] -translate-x-1/2 sm:bottom-[10%] sm:max-w-[180px]"
+        className="absolute inset-x-0 bottom-0 flex justify-center px-4 pb-[max(env(safe-area-inset-bottom,0px),12px)] sm:inset-x-auto sm:bottom-[10%] sm:left-1/2 sm:w-full sm:max-w-[180px] sm:-translate-x-1/2 sm:px-0 sm:pb-0"
       >
-        <div className="px-1 py-1.5">
+        <div className="w-full max-w-xs rounded-t-lg border-t-2 border-x-2 border-amber-900/70 bg-[#f4e9d1]/95 px-4 py-3 shadow-2xl backdrop-blur-sm sm:max-w-none sm:rounded-none sm:border-0 sm:bg-transparent sm:px-1 sm:py-1.5 sm:shadow-none sm:backdrop-blur-none">
           <fieldset>
             <legend className="sr-only">{t("pinPrompt")}</legend>
             <div
-              className={`mb-1.5 flex justify-center gap-px ${shake ? "animate-shake" : ""}`}
+              className={`mb-2 flex justify-center gap-1 sm:mb-1.5 sm:gap-px ${shake ? "animate-shake" : ""}`}
               data-testid="gm-pin-inputs"
             >
               {digits.map((digit, i) => (
@@ -130,8 +131,10 @@ export function MasterPinGate() {
                   onChange={(e) => handleChange(i, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(i, e)}
                   onPaste={i === 0 ? handlePaste : undefined}
-                  className={`size-6 rounded border bg-[#e8dab4]/80 text-center font-mono text-xs text-amber-950 shadow-inner shadow-amber-900/10 focus:outline-none focus:ring-1 focus:ring-amber-600 sm:size-7 sm:text-sm ${
-                    error || lockedOut ? "border-red-700" : "border-amber-900/40"
+                  className={`size-11 rounded border-2 bg-[#e8dab4] text-center font-mono text-lg text-amber-950 shadow-inner shadow-amber-900/20 focus:outline-none focus:ring-2 focus:ring-amber-600 sm:size-6 sm:rounded sm:border sm:bg-[#e8dab4]/80 sm:text-xs sm:shadow-amber-900/10 sm:focus:ring-1 ${
+                    error || lockedOut
+                      ? "border-red-700"
+                      : "border-amber-900/60 sm:border-amber-900/40"
                   }`}
                   aria-label={`${t("pinDigit")} ${i + 1} ${t("pinOf")} 6`}
                   data-testid={`gm-pin-digit-${i}`}
@@ -146,7 +149,7 @@ export function MasterPinGate() {
             <p
               role="alert"
               aria-live="assertive"
-              className="mb-0.5 text-center text-[9px] font-medium text-red-800"
+              className="mb-1 text-center text-xs font-medium text-red-800 sm:mb-0.5 sm:text-[9px]"
               data-testid="gm-pin-error"
             >
               {t("wrongPin")}
@@ -157,7 +160,7 @@ export function MasterPinGate() {
             <p
               role="alert"
               aria-live="assertive"
-              className="mb-0.5 text-center text-[9px] font-medium text-red-800"
+              className="mb-1 text-center text-xs font-medium text-red-800 sm:mb-0.5 sm:text-[9px]"
               data-testid="gm-pin-locked"
             >
               {t("tooManyAttempts")}
@@ -166,7 +169,7 @@ export function MasterPinGate() {
 
           <button
             type="submit"
-            className="h-5 w-full rounded border border-amber-900/50 bg-gradient-to-b from-amber-400 to-amber-600 px-2 font-heading text-[9px] font-semibold tracking-wide text-amber-950 shadow-sm transition-all hover:from-amber-300 hover:to-amber-500 disabled:cursor-not-allowed disabled:opacity-50 sm:h-6 sm:text-[10px]"
+            className="h-10 w-full rounded-md border-2 border-amber-900/70 bg-gradient-to-b from-amber-400 to-amber-600 px-3 font-heading text-sm font-semibold tracking-wide text-amber-950 shadow-md transition-all hover:from-amber-300 hover:to-amber-500 disabled:cursor-not-allowed disabled:opacity-50 sm:h-5 sm:rounded sm:border sm:border-amber-900/50 sm:px-2 sm:text-[9px] sm:shadow-sm"
             disabled={isPending || lockedOut || digits.some((d) => d === "")}
             data-testid="gm-pin-submit"
           >
