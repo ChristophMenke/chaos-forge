@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { X, ChevronRight, ChevronLeft, Sparkles } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 import {
   TUTORIAL_STEPS,
   type TutorialStep,
@@ -175,9 +176,38 @@ export function TutorialOverlay({ page, forceShow = false, onClose }: TutorialOv
     if (typeof window === "undefined") return;
     if (forceShow) return; // already active from initial state
     if (isTutorialDismissed(page)) return;
-    // Small delay to let the page render before measuring target elements.
-    const timer = window.setTimeout(() => setActive(true), 600);
-    return () => window.clearTimeout(timer);
+
+    let timer: number | undefined;
+    let cancelled = false;
+
+    // Also respect profile.skip_tutorials (set for users that existed before
+    // the tutorial feature shipped). If the flag is true, cache in localStorage
+    // for cheap subsequent checks.
+    (async () => {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase.auth.getUser();
+        if (cancelled || !data.user) return;
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("skip_tutorials")
+          .eq("id", data.user.id)
+          .maybeSingle();
+        if (cancelled) return;
+        if (profile?.skip_tutorials === true) {
+          dismissTutorial(page);
+          return;
+        }
+        timer = window.setTimeout(() => setActive(true), 600);
+      } catch {
+        if (!cancelled) timer = window.setTimeout(() => setActive(true), 600);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
   }, [page, forceShow]);
 
   function close(markDismissed = true) {
