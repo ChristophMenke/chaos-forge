@@ -95,9 +95,12 @@ export async function POST() {
     // If lookup fails, fall back to the generic "still waiting" message
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://adnd-chaos-forge.vercel.app";
+  const approveLink = `${siteUrl}/admin/approve/${user.id}`;
+
   const content = isNewRegistration
-    ? `🆕 **Neuer Schergen-Kandidat:** ${userEmail}\nIn der App unter Benachrichtigungen freischalten.`
-    : `⏳ ${userEmail} hat sich eingeloggt, wartet noch auf Freigabe.`;
+    ? `🆕 **Neuer Schergen-Kandidat:** ${userEmail}\n→ Direkt freischalten: ${approveLink}`
+    : `⏳ ${userEmail} hat sich eingeloggt, wartet noch auf Freigabe.\n→ ${approveLink}`;
 
   // Fire-and-forget — don't block the response on the webhook
   fetch(webhookUrl, {

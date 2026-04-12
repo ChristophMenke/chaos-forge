@@ -1777,7 +1777,14 @@
     "pendingBanner": "Minion Christoph must first accept your interest in joining the chaos.",
     "writeBlocked": "You must be approved before you can make changes.",
     "writeBlockedShort": "Not approved yet",
-    "approved": "Welcome to the chaos — you have been approved!"
+    "approved": "Welcome to the chaos — you have been approved!",
+    "adminApproveTitle": "Approve minion",
+    "adminPending": "Waiting for approval",
+    "adminApprovedAlready": "Already approved",
+    "adminApproveButton": "Approve now",
+    "adminApproveSuccess": "{email} has been approved",
+    "adminApproveError": "Approval failed",
+    "adminAlreadyApprovedMsg": "This user is already approved. No action needed."
   },
   "tutorial": {
     "next": "Next",
