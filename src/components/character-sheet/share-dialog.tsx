@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
+import { TEST_DOMAIN } from "@/lib/test/constants";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import type { CharacterShareRow, AppUser } from "@/lib/supabase/types";
@@ -65,9 +66,9 @@ export function ShareDialog({
       .from("profiles")
       .select("id, display_name, email");
 
-    // Filter out @chaos-forge.de test users (client-side to avoid NULL email exclusion)
+    // Filter out test-domain users (client-side to avoid NULL email exclusion)
     const mappedUsers: AppUser[] = (profilesData ?? [])
-      .filter((p) => !p.email?.endsWith("@chaos-forge.de"))
+      .filter((p) => !p.email?.endsWith(TEST_DOMAIN))
       .map((p) => ({
         id: p.id,
         email: p.email ?? "",

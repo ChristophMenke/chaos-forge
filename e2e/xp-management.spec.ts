@@ -1,6 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 
-const TEST_EMAIL = "christoph@chaos-forge.de";
+const TEST_EMAIL = "QA-primary@qa.chaosforge.test";
 const BASE_URL = "http://localhost:3000";
 
 /** Create a multiclass test character via API */

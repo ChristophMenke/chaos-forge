@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { createTestUser, deleteTestUser } from "./helpers/auth";
 import { CharacterSheetPage } from "./pages/character-sheet.page";
 
-const TEST_EMAIL = "christoph@chaos-forge.de";
+const TEST_EMAIL = "QA-primary@qa.chaosforge.test";
 
 test.describe("Share Dialog", () => {
   let characterId: string;
@@ -11,7 +11,7 @@ test.describe("Share Dialog", () => {
   // Create unique secondary test user + test character before each test
   test.beforeEach(async ({ request }, testInfo) => {
     const uniqueId = `${Date.now()}-${testInfo.workerIndex}`;
-    shareUserEmail = `share-e2e-${uniqueId}@chaos-forge.de`;
+    shareUserEmail = `QA-share-${uniqueId}@qa.chaosforge.test`;
     await createTestUser(request, shareUserEmail);
 
     const resp = await request.put("/api/test-seed", {
@@ -52,9 +52,7 @@ test.describe("Share Dialog", () => {
     }
   });
 
-  test("opens share dialog and shows user list without @chaos-forge.de addresses", async ({
-    page,
-  }) => {
+  test("opens share dialog and shows user list without test-domain addresses", async ({ page }) => {
     test.setTimeout(60000);
     const sheet = new CharacterSheetPage(page);
 
@@ -73,12 +71,12 @@ test.describe("Share Dialog", () => {
     const select = page.getByTestId("share-user-select");
     await expect(select).toBeVisible();
 
-    // Verify no @chaos-forge.de addresses in the dropdown
+    // Verify no test-domain addresses in the dropdown
     const options = select.locator("option");
     const count = await options.count();
     for (let i = 1; i < count; i++) {
       const text = await options.nth(i).textContent();
-      expect(text).not.toContain("@chaos-forge.de");
+      expect(text).not.toContain("@qa.chaosforge.test");
     }
 
     // Close dialog

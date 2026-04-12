@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { TEST_DOMAIN } from "@/lib/test/constants";
 
 const TEST_EMAIL = process.env.TEST_USER_EMAIL;
 const TEST_PASSWORD = "test-chaos-forge-2026!";
-const TEST_DOMAIN = "@chaos-forge.de";
 
 export async function POST(request: Request) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
   const email = body.email?.toLowerCase();
 
-  // Allow any @chaos-forge.de email for E2E tests
+  // Allow any test-domain email for E2E tests
   if (!email?.endsWith(TEST_DOMAIN)) {
     return NextResponse.json({ error: "not_test_user" }, { status: 404 });
   }

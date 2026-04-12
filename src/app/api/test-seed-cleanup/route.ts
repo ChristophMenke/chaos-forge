@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { TEST_DOMAIN } from "@/lib/test/constants";
 
-const TEST_DOMAIN = "@chaos-forge.de";
 const TEST_CHARACTER_NAMES = ["Gor", "Elara", "QA-MultiXP", "QA-SingleXP"];
 
 /**
  * Removes test characters created by the E2E test seed.
- * Only works for @chaos-forge.de test users. Deletes characters by name.
+ * Only works for test-domain users. Deletes characters by name.
  */
 export async function POST(request: Request) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

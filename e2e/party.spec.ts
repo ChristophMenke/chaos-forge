@@ -3,7 +3,7 @@ import { PartyPage } from "./pages/party.page";
 import { createTestCharacter, deleteTestCharacter } from "./helpers/test-character";
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
-const TEST_EMAIL = "christoph@chaos-forge.de";
+const TEST_EMAIL = "QA-primary@qa.chaosforge.test";
 
 let charId: string;
 

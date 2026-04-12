@@ -1,7 +1,7 @@
 import type { FullConfig } from "@playwright/test";
 
-const TEST_EMAIL = "christoph@chaos-forge.de";
-const SECONDARY_EMAIL = "e2e-other@chaos-forge.de";
+const TEST_EMAIL = "QA-primary@qa.chaosforge.test";
+const SECONDARY_EMAIL = "QA-secondary@qa.chaosforge.test";
 
 /**
  * Global teardown: removes test characters and the secondary test user
