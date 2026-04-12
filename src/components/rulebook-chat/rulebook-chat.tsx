@@ -196,7 +196,7 @@ function WelcomeScreen({
   t: (key: string) => string;
   onExampleClick: (message: string) => void;
 }) {
-  const examples = [t("example1"), t("example2"), t("example3")];
+  const examples = [t("example1"), t("example2"), t("example3"), t("example4")];
 
   return (
     <div
