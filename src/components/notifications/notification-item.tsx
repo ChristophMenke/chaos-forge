@@ -138,7 +138,18 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Notific
       }`}
       data-testid={`notification-item-${notification.id}`}
     >
-      <button className="flex min-w-0 flex-1 items-start gap-2.5 text-left" onClick={handleClick}>
+      <div
+        role="button"
+        tabIndex={0}
+        className="flex min-w-0 flex-1 cursor-pointer items-start gap-2.5 text-left"
+        onClick={handleClick}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleClick();
+          }
+        }}
+      >
         {icon}
         <div className="min-w-0 flex-1">
           <p className="text-sm text-foreground">{message}</p>
@@ -164,7 +175,7 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Notific
             data-testid={`notification-unread-dot-${notification.id}`}
           />
         )}
-      </button>
+      </div>
       <button
         onClick={(e) => {
           e.stopPropagation();

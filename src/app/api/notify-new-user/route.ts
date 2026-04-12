@@ -1,15 +1,17 @@
-import { NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 
 /**
  * Called from the login flow after successful OTP verify.
- * If the user is unapproved AND this is a fresh registration, fires a Discord
- * webhook to ping the admin. The in-app notification is created by the
- * handle_new_user DB trigger — this route only adds the out-of-band Discord ping.
+ * If the user is unapproved, pings the admin via Discord webhook.
  *
- * Idempotency: we only ping once per user, tracked via a marker notification.
+ * "Fresh registration" (first login) is derived server-side from the
+ * `new_user_registered` notification timestamp written by the
+ * `handle_new_user` trigger — no trust placed in the client payload.
  */
-export async function POST(request: NextRequest) {
+const FRESH_REGISTRATION_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+
+export async function POST() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -29,7 +31,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ ok: true, skipped: "approved" });
   }
 
-  // Update last_login_at regardless
+  // Update last_login_at regardless (own row, RLS allows this)
   await supabase
     .from("profiles")
     .update({ last_login_at: new Date().toISOString() })
@@ -40,13 +42,31 @@ export async function POST(request: NextRequest) {
     return Response.json({ ok: true, skipped: "no_webhook" });
   }
 
-  // Don't block the response on the webhook
-  const body = await request.json().catch(() => ({}));
-  const isNewRegistration = body?.newRegistration === true;
+  // Look up the registration notification (service client — RLS-scoped to admin).
+  let isNewRegistration = false;
+  try {
+    const service = createServiceClient();
+    const { data: regNotif } = await service
+      .from("notifications")
+      .select("created_at")
+      .eq("type", "new_user_registered")
+      .eq("details->>user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (regNotif?.created_at) {
+      const age = Date.now() - new Date(regNotif.created_at).getTime();
+      isNewRegistration = age < FRESH_REGISTRATION_WINDOW_MS;
+    }
+  } catch {
+    // If lookup fails, fall back to the generic "still waiting" message
+  }
+
   const content = isNewRegistration
     ? `🆕 **Neuer Schergen-Kandidat:** ${profile.email}\nIn der App unter Benachrichtigungen freischalten.`
     : `⏳ ${profile.email} hat sich eingeloggt, wartet noch auf Freigabe.`;
 
+  // Fire-and-forget — don't block the response on the webhook
   fetch(webhookUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

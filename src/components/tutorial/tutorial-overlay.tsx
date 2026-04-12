@@ -37,7 +37,18 @@ function useElementRect(selector: string | undefined): Rect | null {
         return;
       }
       const r = el.getBoundingClientRect();
-      setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
+      setRect((prev) => {
+        if (
+          prev &&
+          prev.top === r.top &&
+          prev.left === r.left &&
+          prev.width === r.width &&
+          prev.height === r.height
+        ) {
+          return prev; // identity-stable: React bails out
+        }
+        return { top: r.top, left: r.left, width: r.width, height: r.height };
+      });
     }
 
     measure();
@@ -57,43 +68,94 @@ function useElementRect(selector: string | undefined): Rect | null {
   return selector ? rect : null;
 }
 
+// Rough tooltip bounds — max-w-sm = 24rem ≈ 384px, height estimated.
+// Used for viewport overflow detection; flips sides if the preferred position
+// would push the tooltip off-screen.
+const TOOLTIP_W = 384;
+const TOOLTIP_H = 220;
+const EDGE_MARGIN = 12;
+
 function getTooltipPosition(rect: Rect | null, position: TutorialStep["position"]) {
   if (!rect) {
-    // Center on viewport when no target
-    return {
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-    };
+    return { top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
   }
 
-  const margin = 12;
-  switch (position ?? "bottom") {
-    case "top":
-      return {
-        top: Math.max(margin, rect.top - 16) + "px",
-        left: rect.left + rect.width / 2 + "px",
-        transform: "translate(-50%, -100%)",
-      };
-    case "left":
-      return {
-        top: rect.top + rect.height / 2 + "px",
-        left: Math.max(margin, rect.left - 16) + "px",
-        transform: "translate(-100%, -50%)",
-      };
-    case "right":
-      return {
-        top: rect.top + rect.height / 2 + "px",
-        left: rect.left + rect.width + 16 + "px",
-        transform: "translate(0, -50%)",
-      };
+  const vw = typeof window !== "undefined" ? window.innerWidth : 1920;
+  const vh = typeof window !== "undefined" ? window.innerHeight : 1080;
+  const pref = position ?? "bottom";
+
+  // Horizontal centering for top/bottom with edge clamping.
+  const centerLeft = rect.left + rect.width / 2;
+  const clampedLeft = Math.min(
+    Math.max(EDGE_MARGIN + TOOLTIP_W / 2, centerLeft),
+    vw - EDGE_MARGIN - TOOLTIP_W / 2
+  );
+
+  // Vertical centering for left/right with edge clamping.
+  const centerTop = rect.top + rect.height / 2;
+  const clampedTop = Math.min(
+    Math.max(EDGE_MARGIN + TOOLTIP_H / 2, centerTop),
+    vh - EDGE_MARGIN - TOOLTIP_H / 2
+  );
+
+  switch (pref) {
+    case "top": {
+      const flip = rect.top - TOOLTIP_H - 16 < 0;
+      return flip
+        ? {
+            top: rect.top + rect.height + 16 + "px",
+            left: clampedLeft + "px",
+            transform: "translate(-50%, 0)",
+          }
+        : {
+            top: rect.top - 16 + "px",
+            left: clampedLeft + "px",
+            transform: "translate(-50%, -100%)",
+          };
+    }
+    case "left": {
+      const flip = rect.left - TOOLTIP_W - 16 < 0;
+      return flip
+        ? {
+            top: clampedTop + "px",
+            left: rect.left + rect.width + 16 + "px",
+            transform: "translate(0, -50%)",
+          }
+        : {
+            top: clampedTop + "px",
+            left: rect.left - 16 + "px",
+            transform: "translate(-100%, -50%)",
+          };
+    }
+    case "right": {
+      const flip = rect.left + rect.width + 16 + TOOLTIP_W > vw;
+      return flip
+        ? {
+            top: clampedTop + "px",
+            left: rect.left - 16 + "px",
+            transform: "translate(-100%, -50%)",
+          }
+        : {
+            top: clampedTop + "px",
+            left: rect.left + rect.width + 16 + "px",
+            transform: "translate(0, -50%)",
+          };
+    }
     case "bottom":
-    default:
-      return {
-        top: rect.top + rect.height + 16 + "px",
-        left: rect.left + rect.width / 2 + "px",
-        transform: "translate(-50%, 0)",
-      };
+    default: {
+      const flip = rect.top + rect.height + 16 + TOOLTIP_H > vh;
+      return flip
+        ? {
+            top: rect.top - 16 + "px",
+            left: clampedLeft + "px",
+            transform: "translate(-50%, -100%)",
+          }
+        : {
+            top: rect.top + rect.height + 16 + "px",
+            left: clampedLeft + "px",
+            transform: "translate(-50%, 0)",
+          };
+    }
   }
 }
 
@@ -141,6 +203,19 @@ export function TutorialOverlay({ page, forceShow = false, onClose }: TutorialOv
   const isLast = stepIndex === steps.length - 1;
   const tooltipStyle = getTooltipPosition(rect, currentStep.position);
 
+  // Clamp the spotlight cutout to the viewport — getBoundingClientRect can
+  // return negative coordinates when the target is scrolled off-screen, which
+  // breaks the polygon cutout in some browsers.
+  const vw = typeof window !== "undefined" ? window.innerWidth : 1920;
+  const vh = typeof window !== "undefined" ? window.innerHeight : 1080;
+  const cutoutPad = 8;
+  const cutoutL = rect ? Math.max(0, rect.left - cutoutPad) : 0;
+  const cutoutT = rect ? Math.max(0, rect.top - cutoutPad) : 0;
+  const cutoutR = rect ? Math.min(vw, rect.left + rect.width + cutoutPad) : 0;
+  const cutoutB = rect ? Math.min(vh, rect.top + rect.height + cutoutPad) : 0;
+  const cutoutVisible =
+    !!rect && cutoutL < cutoutR && cutoutT < cutoutB && cutoutR > 0 && cutoutB > 0;
+
   return (
     <div
       className="fixed inset-0 z-[100] pointer-events-none"
@@ -153,15 +228,15 @@ export function TutorialOverlay({ page, forceShow = false, onClose }: TutorialOv
       <div
         className="pointer-events-auto absolute inset-0 bg-black/60 transition-opacity"
         style={
-          rect
+          cutoutVisible
             ? {
                 clipPath: `polygon(
                   0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%,
-                  ${rect.left - 8}px ${rect.top - 8}px,
-                  ${rect.left - 8}px ${rect.top + rect.height + 8}px,
-                  ${rect.left + rect.width + 8}px ${rect.top + rect.height + 8}px,
-                  ${rect.left + rect.width + 8}px ${rect.top - 8}px,
-                  ${rect.left - 8}px ${rect.top - 8}px
+                  ${cutoutL}px ${cutoutT}px,
+                  ${cutoutL}px ${cutoutB}px,
+                  ${cutoutR}px ${cutoutB}px,
+                  ${cutoutR}px ${cutoutT}px,
+                  ${cutoutL}px ${cutoutT}px
                 )`,
               }
             : undefined

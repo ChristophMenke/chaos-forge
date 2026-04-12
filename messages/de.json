@@ -1745,6 +1745,7 @@
   },
   "notifications": {
     "title": "Benachrichtigungen",
+    "navLabel": "Meldungen",
     "markAllRead": "Alle als gelesen markieren",
     "empty": "Keine Benachrichtigungen",
     "gmItemReceived": "{character} hat {item} erhalten (GM)",

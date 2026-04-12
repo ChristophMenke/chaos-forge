@@ -6,6 +6,7 @@ export async function LandingFeatures() {
 
   const features = [
     {
+      id: "character",
       icon: Sword,
       glow: "glow-warrior",
       title: t("featureCharacterTitle"),
@@ -13,6 +14,7 @@ export async function LandingFeatures() {
       iconColor: "text-red-400",
     },
     {
+      id: "session",
       icon: Scroll,
       glow: "glow-priest",
       title: t("featureSessionTitle"),
@@ -20,6 +22,7 @@ export async function LandingFeatures() {
       iconColor: "text-amber-300",
     },
     {
+      id: "chat",
       icon: Sparkles,
       glow: "glow-wizard",
       title: t("featureChatTitle"),
@@ -27,6 +30,7 @@ export async function LandingFeatures() {
       iconColor: "text-teal-300",
     },
     {
+      id: "gm",
       icon: ShieldCheck,
       glow: "glow-rogue",
       title: t("featureGmTitle"),
@@ -49,9 +53,9 @@ export async function LandingFeatures() {
           const Icon = f.icon;
           return (
             <div
-              key={f.title}
+              key={f.id}
               className={`glass glass-hover tilt-card ${f.glow} rounded-xl p-6 sm:p-8`}
-              data-testid={`landing-feature-${f.title}`}
+              data-testid={`landing-feature-${f.id}`}
             >
               <div className="mb-4 flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-border/50 bg-card/40">
