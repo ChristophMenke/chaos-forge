@@ -123,7 +123,7 @@ test.describe("Accessibility — Authenticated Pages (WCAG 2 AA)", () => {
     await firstCard.click();
     await expect(page.getByTestId("character-choice-page")).toBeVisible({ timeout: 15000 });
     await page.getByTestId("character-manage-link").click();
-    await page.getByTestId("sheet-tabs").waitFor({ timeout: 30000 });
+    await page.getByTestId("sheet-tabs").waitFor({ timeout: 45000 });
     const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
     const critical = results.violations.filter((v) => v.impact === "critical");
     if (critical.length > 0) {

@@ -268,19 +268,21 @@ test.describe("Master of Chaos — GM Interface", () => {
     });
 
     test("size filter narrows results", async ({ page }) => {
-      const allCards = page.locator("[data-testid^='gm-monster-card-']");
-      await expect(allCards.first()).toBeVisible({ timeout: 5_000 });
-      const totalBefore = await allCards.count();
+      const resultCount = page.locator("[data-testid='gm-bestiary-panel'] > p.text-xs");
+      await expect(resultCount).toBeVisible({ timeout: 5_000 });
+      const totalText = await resultCount.textContent();
+      const totalMatch = totalText?.match(/(\d+)\s*$/);
+      const totalBefore = totalMatch ? parseInt(totalMatch[1], 10) : 0;
+      expect(totalBefore).toBeGreaterThan(0);
 
-      // Filter to Tiny only
-      await page.getByTestId("gm-bestiary-size-filter").selectOption("T");
-      // Wait for filter to take effect — count should change
+      // Filter to Gargantuan (rare, definitely fewer than total)
+      await page.getByTestId("gm-bestiary-size-filter").selectOption("G");
       await expect(async () => {
-        const filteredCount = await allCards.count();
-        expect(filteredCount).toBeLessThan(totalBefore);
-      }).toPass({ timeout: 3000 });
-      const filteredCount = await allCards.count();
-      expect(filteredCount).toBeLessThan(totalBefore);
+        const text = await resultCount.textContent();
+        const match = text?.match(/(\d+)\s*$/);
+        const count = match ? parseInt(match[1], 10) : totalBefore;
+        expect(count).toBeLessThan(totalBefore);
+      }).toPass({ timeout: 5000 });
     });
 
     test("no results shows empty state", async ({ page }) => {

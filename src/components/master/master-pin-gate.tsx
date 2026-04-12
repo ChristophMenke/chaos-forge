@@ -123,7 +123,7 @@ export function MasterPinGate() {
         style={{ bottom: "max(env(safe-area-inset-bottom, 0px), 4%)" }}
       >
         <div
-          className="rounded-md border-2 border-amber-900/70 bg-[#f4e9d1]/95 px-3 py-3 shadow-2xl shadow-black/60 backdrop-blur-sm"
+          className="rounded-md border-2 border-amber-900/70 bg-[#f4e9d1]/95 px-2 py-3 shadow-2xl shadow-black/60 backdrop-blur-sm sm:px-3"
           style={{
             backgroundImage:
               "radial-gradient(ellipse at top, rgba(120,70,20,0.1) 0%, transparent 70%)",
@@ -139,7 +139,7 @@ export function MasterPinGate() {
           <fieldset>
             <legend className="sr-only">{t("pinPrompt")}</legend>
             <div
-              className={`mb-2 flex justify-center gap-1 ${shake ? "animate-shake" : ""}`}
+              className={`mb-2 flex justify-center gap-0.5 ${shake ? "animate-shake" : ""}`}
               data-testid="gm-pin-inputs"
             >
               {digits.map((digit, i) => (
@@ -156,7 +156,8 @@ export function MasterPinGate() {
                   onChange={(e) => handleChange(i, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(i, e)}
                   onPaste={i === 0 ? handlePaste : undefined}
-                  className={`h-9 w-8 rounded border-2 bg-[#e8dab4] text-center font-mono text-lg text-amber-950 shadow-inner shadow-amber-900/20 focus:outline-none focus:ring-2 focus:ring-amber-600 sm:h-10 sm:w-9 sm:text-xl ${
+                  style={{ minHeight: 44, minWidth: 44 }}
+                  className={`rounded border-2 bg-[#e8dab4] text-center font-mono text-lg text-amber-950 shadow-inner shadow-amber-900/20 focus:outline-none focus:ring-2 focus:ring-amber-600 sm:text-xl ${
                     error || lockedOut ? "border-red-700" : "border-amber-900/60"
                   }`}
                   aria-label={`${t("pinDigit")} ${i + 1} ${t("pinOf")} 6`}

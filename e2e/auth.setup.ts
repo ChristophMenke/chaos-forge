@@ -2,7 +2,7 @@ import { test as setup, expect } from "@playwright/test";
 import { createTestCharacter, deleteTestCharacter } from "./helpers/test-character";
 
 const SUPABASE_PROJECT_REF = "ptozyrwvbngascgydjjt";
-const TEST_EMAIL = "christoph@chaos-forge.de";
+const TEST_EMAIL = "QA-primary@qa.chaosforge.test";
 
 export const AUTH_FILE = "e2e/.auth/user.json";
 

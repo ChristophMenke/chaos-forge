@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-
-const TEST_DOMAIN = "@chaos-forge.de";
+import { TEST_DOMAIN } from "@/lib/test/constants";
 
 export async function POST(request: Request) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -14,7 +13,7 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
   const email = body.email?.toLowerCase();
 
-  // Safety: only allow deletion of @chaos-forge.de test users
+  // Safety: only allow deletion of test-domain users
   if (!email?.endsWith(TEST_DOMAIN)) {
     return NextResponse.json({ error: "only_test_users_can_be_deleted" }, { status: 403 });
   }

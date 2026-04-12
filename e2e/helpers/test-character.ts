@@ -1,6 +1,6 @@
 import type { APIRequestContext } from "@playwright/test";
 
-const TEST_EMAIL = "christoph@chaos-forge.de";
+const TEST_EMAIL = "QA-primary@qa.chaosforge.test";
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
 
 export interface TestCharacterOptions {
@@ -26,6 +26,10 @@ export interface TestCharacterOptions {
     custom_label?: string;
     equipped?: boolean;
   }>;
+  gold_pp?: number;
+  gold_gp?: number;
+  gold_sp?: number;
+  gold_cp?: number;
 }
 
 /**
@@ -59,6 +63,10 @@ export async function createTestCharacter(
         ],
         inventory: options.inventory,
         equipment: options.equipment,
+        ...(options.gold_pp != null && { gold_pp: options.gold_pp }),
+        ...(options.gold_gp != null && { gold_gp: options.gold_gp }),
+        ...(options.gold_sp != null && { gold_sp: options.gold_sp }),
+        ...(options.gold_cp != null && { gold_cp: options.gold_cp }),
       },
     },
   });

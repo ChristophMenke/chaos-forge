@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { TEST_DOMAIN } from "@/lib/test/constants";
 
-const TEST_DOMAIN = "@chaos-forge.de";
 const QA_PREFIX = "QA-";
 
 /**
- * Creates a test NPC in chronicle_npcs. Only works for @chaos-forge.de test users.
+ * Creates a test NPC in chronicle_npcs. Only works for test-domain users.
  * NPC name must start with "QA-" so the test-seed-cleanup endpoint can remove it.
  */
 export async function POST(request: Request) {
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
 }
 
 /**
- * Deletes a test NPC by ID. Only works for NPCs created by @chaos-forge.de users
+ * Deletes a test NPC by ID. Only works for NPCs created by test-domain users
  * AND named with a "QA-" prefix.
  */
 export async function DELETE(request: Request) {

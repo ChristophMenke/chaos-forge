@@ -1,14 +1,13 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-
-const TEST_DOMAIN = "@chaos-forge.de";
+import { TEST_DOMAIN, TEST_SECONDARY_EMAIL } from "@/lib/test/constants";
 
 /**
  * Creates test characters for E2E tests.
  * - "Gor" (Fighter) owned by the requesting test user
  * - "Elara" (Mage) owned by a secondary test user, made public
  *
- * Only works for @chaos-forge.de test users. Idempotent — skips if characters already exist.
+ * Only works for test-domain users. Idempotent — skips if characters already exist.
  */
 export async function POST(request: Request) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -38,7 +37,7 @@ export async function POST(request: Request) {
   }
 
   // Find or create secondary test user for Elara (owned by different user)
-  const secondaryEmail = "e2e-other@chaos-forge.de";
+  const secondaryEmail = TEST_SECONDARY_EMAIL;
   let secondary = usersData?.users?.find((u) => u.email === secondaryEmail);
 
   if (!secondary) {
@@ -163,7 +162,7 @@ export async function POST(request: Request) {
 
 /**
  * Creates a single test character with custom data and returns its ID.
- * Only works for @chaos-forge.de test users.
+ * Only works for test-domain users.
  */
 export async function PUT(request: Request) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -215,6 +214,10 @@ export async function PUT(request: Request) {
       alignment: characterData.alignment ?? "true-neutral",
       is_public: characterData.is_public ?? false,
       is_active: characterData.is_active ?? true,
+      ...(characterData.gold_pp != null && { gold_pp: characterData.gold_pp }),
+      ...(characterData.gold_gp != null && { gold_gp: characterData.gold_gp }),
+      ...(characterData.gold_sp != null && { gold_sp: characterData.gold_sp }),
+      ...(characterData.gold_cp != null && { gold_cp: characterData.gold_cp }),
     })
     .select("id")
     .single();
@@ -293,7 +296,7 @@ export async function PUT(request: Request) {
 }
 
 /**
- * Deletes a test character by ID. Only works for characters owned by @chaos-forge.de users.
+ * Deletes a test character by ID. Only works for characters owned by @qa.chaosforge.test users.
  */
 export async function DELETE(request: Request) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -314,7 +317,7 @@ export async function DELETE(request: Request) {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  // Verify the character belongs to a @chaos-forge.de test user
+  // Verify the character belongs to a test-domain user
   const { data: character } = await supabaseAdmin
     .from("characters")
     .select("id, user_id")

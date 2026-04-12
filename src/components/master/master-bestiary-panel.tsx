@@ -25,6 +25,7 @@ import {
   FileUp,
   Loader2,
   Info,
+  Settings2,
 } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
@@ -137,6 +138,7 @@ export function MasterBestiaryPanel({
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [preciseMode, setPreciseMode] = useState(false);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   function showToast(message: string, type: "success" | "error") {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
@@ -359,7 +361,7 @@ export function MasterBestiaryPanel({
   return (
     <div className="space-y-4" data-testid="gm-bestiary-panel">
       {/* Create + AI Import Toolbar */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex gap-2">
         <Button
           onClick={() => {
             setPendingVariants(null);
@@ -371,36 +373,45 @@ export function MasterBestiaryPanel({
           <Plus className="h-4 w-4" />
           {t("createMonster")}
         </Button>
-        <label
-          className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border border-border bg-background/50 px-4 py-2 text-sm font-medium transition-colors hover:bg-background/70 ${importing ? "pointer-events-none opacity-60" : ""}`}
-          data-testid="gm-monster-ai-import"
-        >
-          {importing ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <FileUp className="h-4 w-4" />
-          )}
-          {importing ? t("monsterImporting") : t("monsterAIImport")}
-          <input
-            type="file"
-            accept="image/*,application/pdf"
-            multiple
-            className="hidden"
-            onChange={(e) => e.target.files && handleAIImport(e.target.files)}
+        <div className="flex flex-1 gap-0">
+          <Button
+            onClick={() => fileInputRef.current?.click()}
             disabled={importing}
-            data-testid="gm-monster-ai-upload"
-          />
-        </label>
-        <label className="flex cursor-pointer items-center gap-1.5 text-xs text-muted-foreground">
-          <input
-            type="checkbox"
-            checked={preciseMode}
-            onChange={(e) => setPreciseMode(e.target.checked)}
-            className="h-3.5 w-3.5"
-            data-testid="gm-monster-precise-mode"
-          />
-          {t("preciseMode")}
-        </label>
+            className="flex-1 rounded-r-none"
+            data-testid="gm-monster-ai-import"
+          >
+            {importing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <FileUp className="h-4 w-4" />
+            )}
+            {importing ? t("monsterImporting") : t("monsterAIImport")}
+          </Button>
+          <Button
+            variant="default"
+            size="icon"
+            className={`rounded-l-none border-l border-primary-foreground/20 ${preciseMode ? "" : "opacity-60"}`}
+            onClick={() => setPreciseMode(!preciseMode)}
+            title={`${t("preciseMode")} — ${t("preciseModeDesc")}`}
+            aria-pressed={preciseMode}
+            data-testid="gm-monster-precise-toggle"
+          >
+            <Settings2 className="h-4 w-4" />
+          </Button>
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*,application/pdf"
+          multiple
+          className="hidden"
+          onChange={(e) => {
+            if (e.target.files) handleAIImport(e.target.files);
+            if (fileInputRef.current) fileInputRef.current.value = "";
+          }}
+          disabled={importing}
+          data-testid="gm-monster-ai-upload"
+        />
       </div>
 
       {/* Search, Filters & View Toggle */}

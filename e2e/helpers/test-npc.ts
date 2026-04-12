@@ -1,6 +1,6 @@
 import type { APIRequestContext } from "@playwright/test";
 
-const TEST_EMAIL = "christoph@chaos-forge.de";
+const TEST_EMAIL = "QA-primary@qa.chaosforge.test";
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
 
 export interface TestNpcOptions {

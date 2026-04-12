@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-
-const TEST_DOMAIN = "@chaos-forge.de";
+import { TEST_DOMAIN } from "@/lib/test/constants";
 
 /**
  * Cleans up party loot state (gold, items, log) created by E2E tests.
- * Does NOT delete characters. Only works for @chaos-forge.de test users.
+ * Does NOT delete characters. Only works for test-domain users.
  */
 export async function POST(request: Request) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

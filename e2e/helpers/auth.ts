@@ -1,6 +1,6 @@
 import type { Page, APIRequestContext } from "@playwright/test";
 
-const TEST_EMAIL = "christoph@chaos-forge.de";
+const TEST_EMAIL = "QA-primary@qa.chaosforge.test";
 const SUPABASE_PROJECT_REF = "ptozyrwvbngascgydjjt";
 
 /**
@@ -12,7 +12,7 @@ export async function loginAsTestUser(page: Page) {
 }
 
 /**
- * Login as any @chaos-forge.de test user.
+ * Login as any test-domain user.
  * Creates the user if it doesn't exist yet.
  */
 export async function loginAsUser(page: Page, email: string) {
@@ -96,7 +96,7 @@ export async function createTestUser(request: APIRequestContext, email: string):
 
 /**
  * Delete a test user via the test-cleanup API.
- * Only works for @chaos-forge.de emails (safety guard).
+ * Only works for test-domain emails (safety guard).
  */
 export async function deleteTestUser(request: APIRequestContext, email: string): Promise<void> {
   const resp = await request.post("/api/test-cleanup", {
