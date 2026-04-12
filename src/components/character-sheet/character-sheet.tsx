@@ -249,6 +249,7 @@ export function CharacterSheet({
   // Epic item effects (stat overrides, thief penalties, spell failure warnings)
   const epicEffects: EpicEffects = useMemo(() => getEpicEffects(epicItems), [epicItems]);
   const eo = epicEffects.statOverrides;
+  const fo = epicEffects.forceStatOverrides;
 
   // Regular magic item effects — needed so the manage-view AC display
   // includes things like a Ring of Protection or Cloak of Protection.
@@ -256,33 +257,38 @@ export function CharacterSheet({
   // ring's bonus while the play mode showed the corrected value.
   const magicEffects = useMemo(() => getMagicItemEffects(equipmentState), [equipmentState]);
 
-  // Apply epic stat overrides (e.g., Kondensator overrides CON)
-  const effectiveStr = eo.str ?? character.str;
-  const effectiveDex = eo.dex ?? character.dex;
-  const effectiveCon = eo.con ?? character.con;
-  const effectiveInt = eo.int ?? character.int;
-  const effectiveWis = eo.wis ?? character.wis;
-  const effectiveCha = eo.cha ?? character.cha;
+  // Apply epic stat overrides (e.g., Kondensator overrides CON).
+  // forceStatOverrides replace base unconditionally; regular overrides only
+  // apply if they're higher than base (?? character.X pattern was already
+  // override-semantic so we keep it; force wins before that).
+  const effectiveStr = fo.str ?? eo.str ?? character.str;
+  const effectiveDex = fo.dex ?? eo.dex ?? character.dex;
+  const effectiveCon = fo.con ?? eo.con ?? character.con;
+  const effectiveInt = fo.int ?? eo.int ?? character.int;
+  const effectiveWis = fo.wis ?? eo.wis ?? character.wis;
+  const effectiveCha = fo.cha ?? eo.cha ?? character.cha;
 
-  // Scale sub-stats proportionally when a main stat is overridden
-  const effectiveConHealth =
-    eo.con != null
-      ? scaleSubStat(character.con, character.con_health, effectiveCon)
-      : character.con_health;
-  const effectiveConFitness =
-    eo.con != null
-      ? scaleSubStat(character.con, character.con_fitness, effectiveCon)
-      : character.con_fitness;
+  // Scale sub-stats proportionally when a main stat is overridden (by either
+  // regular epic-override or force-override — both change the effective stat)
+  const conOverridden = fo.con != null || eo.con != null;
+  const strOverridden = fo.str != null || eo.str != null;
+  const dexOverridden = fo.dex != null || eo.dex != null;
+  const effectiveConHealth = conOverridden
+    ? scaleSubStat(character.con, character.con_health, effectiveCon)
+    : character.con_health;
+  const effectiveConFitness = conOverridden
+    ? scaleSubStat(character.con, character.con_fitness, effectiveCon)
+    : character.con_fitness;
 
   const strMods = useMemo(
     () =>
       getStrengthModifiers(
         effectiveStr,
         character.str_exceptional ?? undefined,
-        eo.str != null
+        strOverridden
           ? scaleSubStat(character.str, character.str_muscle, effectiveStr)
           : character.str_muscle,
-        eo.str != null
+        strOverridden
           ? scaleSubStat(character.str, character.str_stamina, effectiveStr)
           : character.str_stamina
       ),
@@ -291,7 +297,7 @@ export function CharacterSheet({
       character.str_exceptional,
       character.str_muscle,
       character.str_stamina,
-      eo.str,
+      strOverridden,
       character.str,
     ]
   );
@@ -299,57 +305,60 @@ export function CharacterSheet({
     () =>
       getDexterityModifiers(
         effectiveDex,
-        eo.dex != null
+        dexOverridden
           ? scaleSubStat(character.dex, character.dex_aim, effectiveDex)
           : character.dex_aim,
-        eo.dex != null
+        dexOverridden
           ? scaleSubStat(character.dex, character.dex_balance, effectiveDex)
           : character.dex_balance
       ),
-    [effectiveDex, character.dex, character.dex_aim, character.dex_balance, eo.dex]
+    [effectiveDex, character.dex, character.dex_aim, character.dex_balance, dexOverridden]
   );
   const conMods = useMemo(
     () => getConstitutionModifiers(effectiveCon, effectiveConHealth, effectiveConFitness),
     [effectiveCon, effectiveConHealth, effectiveConFitness]
   );
+  const intOverridden = fo.int != null || eo.int != null;
   const intMods = useMemo(
     () =>
       getIntelligenceModifiers(
         effectiveInt,
-        eo.int != null
+        intOverridden
           ? scaleSubStat(character.int, character.int_knowledge, effectiveInt)
           : character.int_knowledge,
-        eo.int != null
+        intOverridden
           ? scaleSubStat(character.int, character.int_reason, effectiveInt)
           : character.int_reason
       ),
-    [effectiveInt, character.int, character.int_knowledge, character.int_reason, eo.int]
+    [effectiveInt, character.int, character.int_knowledge, character.int_reason, intOverridden]
   );
+  const wisOverridden = fo.wis != null || eo.wis != null;
   const wisMods = useMemo(
     () =>
       getWisdomModifiers(
         effectiveWis,
-        eo.wis != null
+        wisOverridden
           ? scaleSubStat(character.wis, character.wis_intuition, effectiveWis)
           : character.wis_intuition,
-        eo.wis != null
+        wisOverridden
           ? scaleSubStat(character.wis, character.wis_willpower, effectiveWis)
           : character.wis_willpower
       ),
-    [effectiveWis, character.wis, character.wis_intuition, character.wis_willpower, eo.wis]
+    [effectiveWis, character.wis, character.wis_intuition, character.wis_willpower, wisOverridden]
   );
+  const chaOverridden = fo.cha != null || eo.cha != null;
   const chaMods = useMemo(
     () =>
       getCharismaModifiers(
         effectiveCha,
-        eo.cha != null
+        chaOverridden
           ? scaleSubStat(character.cha, character.cha_leadership, effectiveCha)
           : character.cha_leadership,
-        eo.cha != null
+        chaOverridden
           ? scaleSubStat(character.cha, character.cha_appearance, effectiveCha)
           : character.cha_appearance
       ),
-    [effectiveCha, character.cha, character.cha_leadership, character.cha_appearance, eo.cha]
+    [effectiveCha, character.cha, character.cha_leadership, character.cha_appearance, chaOverridden]
   );
   // AC calculation using equipped armor + shield + DEX + class bonuses (reactive to equipmentState)
   const equippedArmor = equipmentState.find((e) => e.equipped && e.armor && !e.armor.is_shield);

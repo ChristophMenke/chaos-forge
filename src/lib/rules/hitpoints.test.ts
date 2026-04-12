@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   calculateHitPointsLevel1,
+  computeEffectiveMaxHp,
   getConBonusCap,
   getDeathThreshold,
   getHpStatus,
@@ -100,5 +101,40 @@ describe("COMBAT-020: getHpStatus", () => {
 
   it("treats maxHp=0 as dead (cannot exist per rules but defined boundary)", () => {
     expect(getHpStatus(0, 0)).toBe("dead");
+  });
+});
+
+describe("computeEffectiveMaxHp", () => {
+  it("returns stored max when CON is unchanged", () => {
+    expect(computeEffectiveMaxHp(50, 2, 2, 9, "rogue")).toBe(50);
+  });
+
+  it("raises max on CON increase (delta positive) — warrior uncapped", () => {
+    // Warrior level 5, CON 0 → 4 bonus: delta = (4 − 0) × 5 = 20
+    expect(computeEffectiveMaxHp(40, 0, 4, 5, "warrior")).toBe(60);
+  });
+
+  it("lowers max on CON drop (Kondensator unequip scenario)", () => {
+    // Sprocket: single-class for simplicity. CON 18 (+2 cap) → CON 5 (-2).
+    // delta = (-2 − 2) × 9 = -36
+    expect(computeEffectiveMaxHp(50, 2, -2, 9, "rogue")).toBe(50 - 36);
+  });
+
+  it("caps non-warrior CON bonus at +2 in delta calc", () => {
+    // Would be +4 without cap, but rogue caps at +2 → delta = (2 − 0) × 3 = 6
+    expect(computeEffectiveMaxHp(20, 0, 4, 3, "rogue")).toBe(26);
+  });
+
+  it("applies HP penalty (negative mod) without cap for non-warriors", () => {
+    // Negative adjustments aren't capped by class bonus cap
+    expect(computeEffectiveMaxHp(30, 0, -2, 5, "rogue")).toBe(20);
+  });
+
+  it("clamps effective max to at least 1", () => {
+    expect(computeEffectiveMaxHp(5, 0, -2, 10, "rogue")).toBe(1);
+  });
+
+  it("treats level 0 as level 1 (defensive)", () => {
+    expect(computeEffectiveMaxHp(50, 2, -2, 0, "rogue")).toBe(50 + (-2 - 2) * 1);
   });
 });

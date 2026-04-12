@@ -266,21 +266,23 @@ export function PlayMode({
   const overclockActive = overclockState.active;
 
   const eo = epicEffects.statOverrides;
+  const fo = epicEffects.forceStatOverrides;
 
   // Overclock is only effective when the ability exists and is active
   const overclockEffective = overclockActive && epicEffects.overclockAbility != null;
 
-  // Effective stats: max(base, epicOverride, magicOverride) + magic additive bonuses + overclock
-  const resolve = (base: number, epic?: number, magic?: number): number =>
-    Math.max(base, epic ?? 0, magic ?? 0);
-  const effectiveStr = resolve(character.str, eo.str, mo.str) + (mb.str ?? 0);
-  const effectiveDex = resolve(character.dex, eo.dex, mo.dex) + (mb.dex ?? 0);
+  // Effective stats: forceStatOverride wins absolutely; otherwise
+  // max(base, epicOverride, magicOverride) + magic additive bonuses + overclock
+  const resolve = (base: number, force?: number, epic?: number, magic?: number): number =>
+    force ?? Math.max(base, epic ?? 0, magic ?? 0);
+  const effectiveStr = resolve(character.str, fo.str, eo.str, mo.str) + (mb.str ?? 0);
+  const effectiveDex = resolve(character.dex, fo.dex, eo.dex, mo.dex) + (mb.dex ?? 0);
   const effectiveCon = overclockEffective
     ? epicEffects.overclockAbility!.conOverride
-    : resolve(character.con, eo.con, mo.con) + (mb.con ?? 0);
-  const effectiveInt = resolve(character.int, eo.int, mo.int) + (mb.int ?? 0);
-  const effectiveWis = resolve(character.wis, eo.wis, mo.wis) + (mb.wis ?? 0);
-  const effectiveCha = resolve(character.cha, eo.cha, mo.cha) + (mb.cha ?? 0);
+    : resolve(character.con, fo.con, eo.con, mo.con) + (mb.con ?? 0);
+  const effectiveInt = resolve(character.int, fo.int, eo.int, mo.int) + (mb.int ?? 0);
+  const effectiveWis = resolve(character.wis, fo.wis, eo.wis, mo.wis) + (mb.wis ?? 0);
+  const effectiveCha = resolve(character.cha, fo.cha, eo.cha, mo.cha) + (mb.cha ?? 0);
 
   // Derived rules engine values
   const activeClasses = useMemo(
@@ -330,7 +332,7 @@ export function PlayMode({
     [baseSaves, msb]
   );
 
-  const strOverridden = eo.str != null || mo.str != null;
+  const strOverridden = fo.str != null || eo.str != null || mo.str != null;
   const strExceptional =
     mo.str != null && mo.str >= (eo.str ?? 0) && magicEffects.strExceptionalOverride != null
       ? magicEffects.strExceptionalOverride
@@ -356,7 +358,7 @@ export function PlayMode({
       strOverridden,
     ]
   );
-  const dexOverridden = eo.dex != null || mo.dex != null;
+  const dexOverridden = fo.dex != null || eo.dex != null || mo.dex != null;
   const dexMods = useMemo(
     () =>
       getDexterityModifiers(
@@ -370,7 +372,7 @@ export function PlayMode({
       ),
     [effectiveDex, character.dex, character.dex_aim, character.dex_balance, dexOverridden]
   );
-  const conIsOverridden = overclockEffective || eo.con != null || mo.con != null;
+  const conIsOverridden = overclockEffective || fo.con != null || eo.con != null || mo.con != null;
   const conMods = useMemo(
     () =>
       getConstitutionModifiers(
@@ -384,7 +386,7 @@ export function PlayMode({
       ),
     [effectiveCon, character.con, character.con_health, character.con_fitness, conIsOverridden]
   );
-  const intOverridden = eo.int != null || mo.int != null;
+  const intOverridden = fo.int != null || eo.int != null || mo.int != null;
   const intMods = useMemo(
     () =>
       getIntelligenceModifiers(
@@ -398,7 +400,7 @@ export function PlayMode({
       ),
     [effectiveInt, character.int, character.int_knowledge, character.int_reason, intOverridden]
   );
-  const wisOverridden = eo.wis != null || mo.wis != null;
+  const wisOverridden = fo.wis != null || eo.wis != null || mo.wis != null;
   const wisMods = useMemo(
     () =>
       getWisdomModifiers(
@@ -412,7 +414,7 @@ export function PlayMode({
       ),
     [effectiveWis, character.wis, character.wis_intuition, character.wis_willpower, wisOverridden]
   );
-  const chaOverridden = eo.cha != null || mo.cha != null;
+  const chaOverridden = fo.cha != null || eo.cha != null || mo.cha != null;
   const chaMods = useMemo(
     () =>
       getCharismaModifiers(

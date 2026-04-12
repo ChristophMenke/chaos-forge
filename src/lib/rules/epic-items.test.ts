@@ -497,3 +497,51 @@ describe("spell abilities", () => {
     expect(effects.spellAbilities).toHaveLength(3);
   });
 });
+
+describe("getEpicEffects — base_<stat> unequipped semantic", () => {
+  it("applies base_con as forceStatOverride when condenser is unequipped", () => {
+    const condenser = makeCondenser({
+      equipped: false,
+      simple_effects: { base_con: 5 },
+    });
+    const effects = getEpicEffects([condenser]);
+    expect(effects.forceStatOverrides.con).toBe(5);
+    expect(effects.statOverrides.con).toBeUndefined();
+  });
+
+  it("applies damage-level override as forceStatOverride when item declares base_con (authoritative)", () => {
+    const condenser = makeCondenser({
+      damage_level: 3,
+      simple_effects: { base_con: 5 },
+    });
+    const effects = getEpicEffects([condenser]);
+    // Authoritative stat → override goes into forceStatOverrides so it replaces
+    // (not max) the stored CON.
+    expect(effects.forceStatOverrides.con).toBe(15);
+    expect(effects.statOverrides.con).toBeUndefined();
+  });
+
+  it("keeps regular statOverrides for items without base_<stat>", () => {
+    // Legacy condenser (no base_con) behaves as before — writes to statOverrides
+    const condenser = makeCondenser({ damage_level: 3, simple_effects: {} });
+    const effects = getEpicEffects([condenser]);
+    expect(effects.statOverrides.con).toBe(15);
+    expect(effects.forceStatOverrides.con).toBeUndefined();
+  });
+
+  it("does NOT apply base_con when item is unequipped but has no base_<stat>", () => {
+    const condenser = makeCondenser({ equipped: false, simple_effects: {} });
+    const effects = getEpicEffects([condenser]);
+    expect(effects.statOverrides.con).toBeUndefined();
+    expect(effects.forceStatOverrides.con).toBeUndefined();
+  });
+
+  it("scales sub-stats proportionally when forceStatOverride applies", () => {
+    // Kondensator off → base_con 5; original con_health was 18, fitness 18
+    // scaled: min(5, round(5 * 18/18)) = 5
+    expect(scaleSubStat(18, 18, 5)).toBe(5);
+    // Less proportional: original sub=12, base_stat=18, override=5
+    // scaled: round(5 * 12/18) = 3; clamped to [1, 5] → 3
+    expect(scaleSubStat(18, 12, 5)).toBe(3);
+  });
+});

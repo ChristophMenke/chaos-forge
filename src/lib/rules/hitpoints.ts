@@ -13,6 +13,39 @@ export function calculateHitPointsLevel1(
 }
 
 /**
+ * Apply the class-group CON-bonus cap to an ability modifier.
+ * Warrior cap +4, others +2. Penalties (negative values) are not capped.
+ */
+function capConHpAdjForClass(conHpAdj: number, classGroup: ClassGroup): number {
+  if (conHpAdj < 0) return conHpAdj;
+  return Math.min(conHpAdj, getConBonusCap(classGroup));
+}
+
+/**
+ * Compute the effective max HP when the character's effective CON differs
+ * from the CON used when HP was originally rolled/stored. Delta approach:
+ *
+ *   effective_max_hp = stored_max_hp + (effCap − storedCap) × level
+ *
+ * Clamped to a minimum of 1. Penalties are applied per level. This is used
+ * for epic items that replace CON (e.g. Sprocket's Kondensator): on unequip
+ * the effective CON drops → effective max HP drops → current HP is clamped
+ * by the caller to avoid "undead" states.
+ */
+export function computeEffectiveMaxHp(
+  storedMaxHp: number,
+  storedConHpAdj: number,
+  effectiveConHpAdj: number,
+  characterLevel: number,
+  classGroup: ClassGroup
+): number {
+  const storedCapped = capConHpAdjForClass(storedConHpAdj, classGroup);
+  const effCapped = capConHpAdjForClass(effectiveConHpAdj, classGroup);
+  const delta = (effCapped - storedCapped) * Math.max(1, characterLevel);
+  return Math.max(1, storedMaxHp + delta);
+}
+
+/**
  * CON HP bonus cap by class group.
  * Warriors can benefit from the full +3/+4 at CON 17/18.
  * All others are capped at +2.

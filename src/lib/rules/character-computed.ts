@@ -132,23 +132,39 @@ export function computeCharacterCombatData(
   // Epic effects
   const epicEffects = getEpicEffects(epicItems, character.level);
   const eo = epicEffects.statOverrides;
+  const fo = epicEffects.forceStatOverrides;
 
   // Magic item effects (additive bonuses + stat overrides)
   const magicEffects = getMagicItemEffects(equipment);
   const mb = magicEffects.statBonuses;
   const mo = magicEffects.statOverrides;
 
-  // Effective stats: max(base, epicOverride, magicOverride) + magic additive bonuses (capped at 25)
+  // Effective stats: forceStatOverride wins absolutely (replaces base regardless
+  // of direction); otherwise max(base, epicOverride, magicOverride) + magic
+  // additive bonuses (capped at 25). Force-overrides model items like the
+  // Kondensator where the biological stat replaces the stored buffed value.
   const MAX_STAT = 25;
-  const resolve = (base: number, epic?: number, magic?: number): number =>
-    Math.max(base, epic ?? 0, magic ?? 0);
-  const effectiveStr = Math.min(resolve(character.str, eo.str, mo.str) + (mb.str ?? 0), MAX_STAT);
-  const effectiveDex = Math.min(resolve(character.dex, eo.dex, mo.dex) + (mb.dex ?? 0), MAX_STAT);
-  const effectiveInt = Math.min(resolve(character.int, eo.int, mo.int) + (mb.int ?? 0), MAX_STAT);
-  const effectiveWis = Math.min(resolve(character.wis, eo.wis, mo.wis) + (mb.wis ?? 0), MAX_STAT);
+  const resolve = (base: number, force?: number, epic?: number, magic?: number): number =>
+    force ?? Math.max(base, epic ?? 0, magic ?? 0);
+  const effectiveStr = Math.min(
+    resolve(character.str, fo.str, eo.str, mo.str) + (mb.str ?? 0),
+    MAX_STAT
+  );
+  const effectiveDex = Math.min(
+    resolve(character.dex, fo.dex, eo.dex, mo.dex) + (mb.dex ?? 0),
+    MAX_STAT
+  );
+  const effectiveInt = Math.min(
+    resolve(character.int, fo.int, eo.int, mo.int) + (mb.int ?? 0),
+    MAX_STAT
+  );
+  const effectiveWis = Math.min(
+    resolve(character.wis, fo.wis, eo.wis, mo.wis) + (mb.wis ?? 0),
+    MAX_STAT
+  );
 
   // Is STR overridden by any item?
-  const strOverridden = eo.str != null || mo.str != null;
+  const strOverridden = fo.str != null || eo.str != null || mo.str != null;
   // For exceptional STR: use magic override if magic item provides the winning STR override
   const strExceptional =
     mo.str != null && mo.str >= (eo.str ?? 0) && magicEffects.strExceptionalOverride != null
@@ -166,7 +182,7 @@ export function computeCharacterCombatData(
       ? (scaleSubStat(character.str, character.str_stamina, effectiveStr) ?? undefined)
       : (character.str_stamina ?? undefined)
   );
-  const dexOverridden = eo.dex != null || mo.dex != null;
+  const dexOverridden = fo.dex != null || eo.dex != null || mo.dex != null;
   const dexMods = getDexterityModifiers(
     effectiveDex,
     dexOverridden
@@ -178,7 +194,10 @@ export function computeCharacterCombatData(
   );
 
   // CON adjustment for HP (same logic as play-mode.tsx)
-  const effectiveCon = Math.min(resolve(character.con, eo.con, mo.con) + (mb.con ?? 0), MAX_STAT);
+  const effectiveCon = Math.min(
+    resolve(character.con, fo.con, eo.con, mo.con) + (mb.con ?? 0),
+    MAX_STAT
+  );
   const conMods = getConstitutionModifiers(effectiveCon);
   const baseConMods = getConstitutionModifiers(character.con);
 

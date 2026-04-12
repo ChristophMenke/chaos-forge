@@ -67,6 +67,7 @@ function PlayChecksPanelInner({
   const defaultEpic: EpicEffects = useMemo(
     () => ({
       statOverrides: {},
+      forceStatOverrides: {},
       miscEffects: [],
       thiefPenalty: 0,
       thiefDisabled: false,
