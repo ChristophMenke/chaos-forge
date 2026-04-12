@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/supabase/auth";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Button } from "@/components/ui/button";
+import { ApprovalGate } from "@/components/approval-gate";
 import { CharacterCard } from "@/components/character-card";
 import type { CharacterRow, CharacterClassRow, CharacterShareRow } from "@/lib/supabase/types";
 
@@ -100,9 +101,11 @@ export default async function CharactersPage() {
     <div className="flex flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6" data-testid="characters-page">
       <div className="flex items-center justify-between">
         <h1 className="font-heading text-2xl text-primary sm:text-3xl">{t("title")}</h1>
-        <Link href="/characters/new">
-          <Button data-testid="create-character-button">{t("newCharacter")}</Button>
-        </Link>
+        <ApprovalGate>
+          <Link href="/characters/new">
+            <Button data-testid="create-character-button">{t("newCharacter")}</Button>
+          </Link>
+        </ApprovalGate>
       </div>
 
       {ownActive.length === 0 &&

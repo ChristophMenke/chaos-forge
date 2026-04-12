@@ -10,6 +10,7 @@ import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { DistributeItemSheet } from "@/components/party/distribute-item-sheet";
 import { AddToLootSheet } from "@/components/party/add-to-loot-sheet";
+import { ApprovalGate } from "@/components/approval-gate";
 import { createClient } from "@/lib/supabase/client";
 import { localized } from "@/lib/utils/localize";
 import { MagicEffectBadges } from "@/components/shared/magic-effect-badges";
@@ -112,15 +113,17 @@ export function PartyItemsPanel({
         <h3 className="font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">
           {t("items")}
         </h3>
-        <Button
-          size="sm"
-          onClick={() => setAddSheetOpen(true)}
-          disabled={!canAdd}
-          data-testid="party-items-add-btn"
-        >
-          <Plus className="mr-1 size-4" />
-          {t("addItem")}
-        </Button>
+        <ApprovalGate>
+          <Button
+            size="sm"
+            onClick={() => setAddSheetOpen(true)}
+            disabled={!canAdd}
+            data-testid="party-items-add-btn"
+          >
+            <Plus className="mr-1 size-4" />
+            {t("addItem")}
+          </Button>
+        </ApprovalGate>
       </div>
 
       {items.length === 0 ? (

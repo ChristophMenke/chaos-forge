@@ -9,6 +9,7 @@ import { AvatarDisplay } from "@/components/avatar-display";
 import { NpcManager } from "@/components/session/npc-manager";
 import { QuoteSection } from "@/components/session/quote-section";
 import { TutorialOverlay } from "@/components/tutorial/tutorial-overlay";
+import { ApprovalGate } from "@/components/approval-gate";
 import type {
   SessionRow,
   TagRow,
@@ -107,9 +108,11 @@ export default async function SessionsPage() {
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h2 className="font-heading text-2xl text-primary">{tc("sessions")}</h2>
-            <Link href="/sessions/new">
-              <Button data-testid="create-session-button">{t("newSession")}</Button>
-            </Link>
+            <ApprovalGate>
+              <Link href="/sessions/new">
+                <Button data-testid="create-session-button">{t("newSession")}</Button>
+              </Link>
+            </ApprovalGate>
           </div>
 
           {!sessions || sessions.length === 0 ? (
