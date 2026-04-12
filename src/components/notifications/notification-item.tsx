@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Package, Coins, ArrowRightLeft, Sparkles, X } from "lucide-react";
+import { Package, Coins, ArrowRightLeft, Sparkles, X, UserPlus, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
+import { createClient } from "@/lib/supabase/client";
 import type { NotificationRow } from "@/lib/supabase/types";
 
 interface NotificationItemProps {
@@ -28,6 +31,7 @@ function getRelativeTime(
 export function NotificationItem({ notification, onMarkRead, onDelete }: NotificationItemProps) {
   const t = useTranslations("notifications");
   const router = useRouter();
+  const [approving, setApproving] = useState(false);
   const details = notification.details;
 
   const character = (details.character_name as string) ?? "";
@@ -47,6 +51,10 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Notific
       xp: ((details.xp_amount as number) ?? 0).toLocaleString(),
       sessionTitle: (details.session_title as string) ?? "",
     }),
+    new_user_registered: t("newUserRegistered", {
+      email: (details.user_email as string) ?? "",
+    }),
+    user_approved: t("userApproved"),
   };
 
   const message = messageMap[notification.type] ?? notification.type;
@@ -72,7 +80,11 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Notific
   }`;
 
   const icon =
-    notification.type === "session_xp_awarded" ? (
+    notification.type === "new_user_registered" ? (
+      <UserPlus className={iconClassName} />
+    ) : notification.type === "user_approved" ? (
+      <CheckCircle2 className={iconClassName} />
+    ) : notification.type === "session_xp_awarded" ? (
       <Sparkles className={iconClassName} />
     ) : notification.type.includes("gold") ? (
       <Coins className={iconClassName} />
@@ -100,6 +112,25 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Notific
     }
   }
 
+  async function handleApprove(e: React.MouseEvent) {
+    e.stopPropagation();
+    const targetUserId = (details.user_id as string) ?? null;
+    const targetEmail = (details.user_email as string) ?? "";
+    if (!targetUserId || approving) return;
+    setApproving(true);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.rpc("approve_user", { target_user_id: targetUserId });
+      if (error) throw error;
+      toast.success(t("approveSuccess", { email: targetEmail }));
+      onMarkRead(notification.id);
+    } catch {
+      toast.error(t("approveError"));
+    } finally {
+      setApproving(false);
+    }
+  }
+
   return (
     <div
       className={`group relative flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-left transition-colors hover:bg-accent/30 ${
@@ -107,7 +138,18 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Notific
       }`}
       data-testid={`notification-item-${notification.id}`}
     >
-      <button className="flex min-w-0 flex-1 items-start gap-2.5 text-left" onClick={handleClick}>
+      <div
+        role="button"
+        tabIndex={0}
+        className="flex min-w-0 flex-1 cursor-pointer items-start gap-2.5 text-left"
+        onClick={handleClick}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleClick();
+          }
+        }}
+      >
         {icon}
         <div className="min-w-0 flex-1">
           <p className="text-sm text-foreground">{message}</p>
@@ -115,6 +157,17 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Notific
           <p className="mt-0.5 text-[10px] text-muted-foreground">
             {getRelativeTime(notification.created_at, t)}
           </p>
+          {notification.type === "new_user_registered" && (
+            <button
+              onClick={handleApprove}
+              disabled={approving}
+              className="mt-2 inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
+              data-testid={`notification-approve-${notification.id}`}
+            >
+              <CheckCircle2 className="h-3 w-3" />
+              {t("approveNow")}
+            </button>
+          )}
         </div>
         {!notification.is_read && (
           <span
@@ -122,7 +175,7 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Notific
             data-testid={`notification-unread-dot-${notification.id}`}
           />
         )}
-      </button>
+      </div>
       <button
         onClick={(e) => {
           e.stopPropagation();

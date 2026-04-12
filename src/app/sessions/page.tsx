@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { AvatarDisplay } from "@/components/avatar-display";
 import { NpcManager } from "@/components/session/npc-manager";
 import { QuoteSection } from "@/components/session/quote-section";
+import { TutorialOverlay } from "@/components/tutorial/tutorial-overlay";
 import type {
   SessionRow,
   TagRow,
@@ -201,7 +202,7 @@ export default async function SessionsPage() {
         </div>
 
         {/* Column 2: Quotes */}
-        <div className="lg:sticky lg:top-6 lg:self-start">
+        <div className="lg:sticky lg:top-6 lg:self-start" data-testid="chronicle-quotes">
           <GlassCard glow="neutral">
             <QuoteSection
               quotes={quotes ?? []}
@@ -212,12 +213,13 @@ export default async function SessionsPage() {
         </div>
 
         {/* Column 3: NPCs */}
-        <div className="lg:sticky lg:top-6 lg:self-start">
+        <div className="lg:sticky lg:top-6 lg:self-start" data-testid="chronicle-npcs">
           <GlassCard glow="neutral">
             <NpcManager npcs={npcs ?? []} />
           </GlassCard>
         </div>
       </div>
+      <TutorialOverlay page="chronicle" />
     </div>
   );
 }

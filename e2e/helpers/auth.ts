@@ -58,9 +58,14 @@ export async function loginAsUser(page: Page, email: string) {
   ]);
 
   // Also set in localStorage via addInitScript (some Supabase client code reads from there)
+  // Also pre-dismiss all tutorial overlays so they don't block test interactions.
   await page.context().addInitScript(
     ({ session, projectRef }) => {
       window.localStorage.setItem(`sb-${projectRef}-auth-token`, session);
+      window.localStorage.setItem(
+        "chaos-forge-tutorial-dismissed",
+        JSON.stringify({ dashboard: true, characters: true, party: true, chronicle: true })
+      );
     },
     { session: sessionData, projectRef: SUPABASE_PROJECT_REF }
   );

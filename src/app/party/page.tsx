@@ -2,6 +2,7 @@ import { requireAuth } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
 import { PartyPageClient } from "@/components/party/party-page-client";
+import { TutorialOverlay } from "@/components/tutorial/tutorial-overlay";
 import { collectOwnedItems } from "@/lib/party-loot/owned-items";
 import type {
   PartyLootGoldRow,
@@ -119,6 +120,7 @@ export default async function PartyPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6" data-testid="party-page">
+      <TutorialOverlay page="party" />
       <h1 className="font-heading text-3xl text-primary">{t("title")}</h1>
 
       <PartyPageClient

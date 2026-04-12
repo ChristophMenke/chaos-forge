@@ -26,7 +26,26 @@
   "landing": {
     "tagline": "Forge your legend",
     "subtitle": "Character manager & session tracker for AD&D 2nd Edition.",
-    "cta": "Begin your adventure"
+    "cta": "Begin your adventure",
+    "heroBadge": "Private Group · AD&D 2nd Edition",
+    "featuresTitle": "What awaits you",
+    "featureCharacterTitle": "Character Management",
+    "featureCharacterDesc": "Build heroes with the guided wizard or import existing sheets from a photo. Abilities, spells, equipment and epic items — all in one view.",
+    "featureSessionTitle": "Chronicle of Chaos",
+    "featureSessionDesc": "Log adventures, award XP, capture NPCs and memorable quotes — voice notes included for on-the-go entries.",
+    "featureChatTitle": "Rulebook AI",
+    "featureChatDesc": "Ask the assistant anything about AD&D 2e. Answers come straight from the official books, including Monstrous Manual tactics.",
+    "featureGmTitle": "Game Master Tools",
+    "featureGmDesc": "A PIN-gated GM dashboard with realtime party overview, loot distribution, monster bestiary and combat simulator.",
+    "howItWorksTitle": "How to strike the first spark",
+    "step1Title": "Sign in",
+    "step1Desc": "One email, one one-time code — no passwords, no friction.",
+    "step2Title": "Shape your hero",
+    "step2Desc": "Pick race, class, alignment. Roll real stats or import an existing sheet.",
+    "step3Title": "Dive into chaos",
+    "step3Desc": "Open Play Mode, run the session with your group — stats, spells and loot always at hand.",
+    "footerTitle": "Ready for your next chapter?",
+    "footerSubtitle": "No setup, no downloads. Sign in and begin."
   },
   "login": {
     "title": "Welcome, Adventurer",
@@ -175,6 +194,7 @@
     "hitDie": "Hit Die"
   },
   "sheet": {
+    "name": "Name",
     "alignment": "Alignment",
     "stats": "Stats",
     "combat": "Combat",
@@ -1284,17 +1304,18 @@
     "coldDamage": "+1d6 Cold Damage"
   },
   "rulebook": {
-    "title": "Rulebook Chat",
-    "placeholder": "Ask your question",
+    "title": "Rules & App Help",
+    "placeholder": "Ask about AD&D or the app...",
     "send": "Send",
-    "thinking": "Searching the rulebooks...",
-    "welcome": "Welcome to the Rulebook Chat! Ask questions about AD&D 2nd Edition rules and get answers straight from the source books.",
-    "exampleQuestions": "Example questions:",
+    "thinking": "The Oracle-Kraken is pondering...",
+    "welcome": "Greetings, adventurer! I know the AD&D 2nd Edition rulebooks by heart — and the Chaos Forge app too. Ask me about rules, monsters, combat tactics OR how to use the app.",
+    "exampleQuestions": "For example:",
     "example1": "What THAC0 does a Fighter have at level 5?",
-    "example2": "How does backstab work?",
-    "example3": "Which spells can a Diviner not cast?",
-    "noAnswer": "No matching rule was found for this question.",
-    "error": "Error querying the rules. Please try again.",
+    "example2": "How do I attach a magic item to my character?",
+    "example3": "How does Turn Undead work?",
+    "example4": "How do I distribute XP across the party?",
+    "noAnswer": "I found nothing matching in the rules or the app docs.",
+    "error": "Error with the query. Please try again.",
     "filterBooks": "Filter books",
     "allBooks": "All books",
     "source": "Source"
@@ -1726,6 +1747,7 @@
   },
   "notifications": {
     "title": "Notifications",
+    "navLabel": "Alerts",
     "markAllRead": "Mark all as read",
     "empty": "No notifications",
     "gmItemReceived": "{character} received {item} (GM)",
@@ -1744,6 +1766,62 @@
     "delete": "Delete",
     "deleteAll": "Delete all",
     "confirmDeleteAll": "Really delete all?",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "newUserRegistered": "New access: {email} awaits your approval",
+    "userApproved": "You have been approved — welcome to the chaos!",
+    "approveNow": "Approve now",
+    "approveSuccess": "{email} has been approved",
+    "approveError": "Approval failed"
+  },
+  "approval": {
+    "pendingBanner": "Minion Christoph must first accept your interest in joining the chaos.",
+    "writeBlocked": "You must be approved before you can make changes.",
+    "writeBlockedShort": "Not approved yet",
+    "approved": "Welcome to the chaos — you have been approved!"
+  },
+  "tutorial": {
+    "next": "Next",
+    "back": "Back",
+    "skip": "Skip",
+    "finish": "Let's go!",
+    "restart": "Restart tutorial",
+    "dashboard": {
+      "welcomeTitle": "Welcome to Chaos Forge",
+      "welcomeDesc": "This is your dashboard — the hub of your group. See all characters, stats and current activity at a glance.",
+      "charactersTitle": "Your characters",
+      "charactersDesc": "Your heroes live here. Tap a card for details or create a new character up top.",
+      "notificationsTitle": "Notifications",
+      "notificationsDesc": "Received gold, new items, awarded XP — all land here. The bell glows red for unread messages.",
+      "chatTitle": "Help, anytime",
+      "chatDesc": "Questions about rules or the app? The chat in the More menu answers both — AD&D 2e rules straight from the books and anything about using Chaos Forge."
+    },
+    "characters": {
+      "welcomeTitle": "Your character",
+      "welcomeDesc": "Three modes are available: Manage, Play and Epic.",
+      "modesTitle": "Switch modes",
+      "modesDesc": "Manage for calm upkeep, Play for the session, Epic for damage tiers and special items.",
+      "chatTitle": "Unsure about a rule?",
+      "chatDesc": "The chat helps with THAC0, spell lists, Turn Undead and more. App questions are answered too — just ask."
+    },
+    "party": {
+      "welcomeTitle": "The party loot",
+      "welcomeDesc": "The party shares gold and items. Everything is transparent to the whole group.",
+      "goldTitle": "Shared gold",
+      "goldDesc": "Platinum, Gold, Electrum, Silver, Copper. Add, distribute, remove — every transaction is logged.",
+      "itemsTitle": "Item pool",
+      "itemsDesc": "Found items land here before being distributed. The recipient gets a notification.",
+      "chatTitle": "Questions about distribution?",
+      "chatDesc": "The chat in the More menu explains every party loot feature in detail."
+    },
+    "chronicle": {
+      "welcomeTitle": "Chronicle of Chaos",
+      "welcomeDesc": "The group's story lives here — sessions, NPCs, quotes and XP.",
+      "npcsTitle": "Create NPCs",
+      "npcsDesc": "Important people from your adventures — with image, tags and description. Perfect for lookup at their next appearance.",
+      "quotesTitle": "Capture quotes",
+      "quotesDesc": "The best lines from the session — immortalised here. Ideal for throwback next time.",
+      "chatTitle": "Learn more",
+      "chatDesc": "The chat explains every chronicle feature and helps with rules for your current adventure."
+    }
   }
 }

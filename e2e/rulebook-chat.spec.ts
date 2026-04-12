@@ -9,7 +9,7 @@ test.describe("Rulebook Chat", () => {
 
     await expect(chat.container).toBeVisible({ timeout: 15000 });
     await expect(chat.welcomeScreen).toBeVisible();
-    await expect(chat.exampleQuestions).toHaveCount(3);
+    await expect(chat.exampleQuestions).toHaveCount(4);
     await expect(chat.chatInput).toBeVisible();
     await expect(chat.sendButton).toBeVisible();
   });

@@ -5,6 +5,7 @@ import { getLocale, getMessages } from "next-intl/server";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppHeader } from "@/components/app-header";
+import { ApprovalBanner } from "@/components/approval-banner";
 import { SkipToMain } from "@/components/skip-to-main";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "@/components/ui/sonner";
@@ -86,6 +87,7 @@ export default async function RootLayout({
             <TooltipProvider>
               <SkipToMain />
               <AppHeader />
+              <ApprovalBanner />
 
               <main id="main" className="flex flex-1 flex-col pb-16 sm:pb-0">
                 {children}

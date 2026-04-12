@@ -159,18 +159,21 @@ export function NotificationBell({
             </span>
           )}
         </div>
-        {/* Mobile: always show label; Desktop: show on xl */}
+        {/* Mobile: always show label; Desktop: show on xl (uses a shorter
+            label to fit inside the narrow sidebar next to the badge) */}
         {isMobile ? (
           <span className="flex-1 text-left">{t("title")}</span>
         ) : (
-          <span className="hidden text-sm font-medium xl:inline">{t("title")}</span>
+          <span className="hidden min-w-0 flex-1 truncate text-left text-sm font-medium xl:inline-block">
+            {t("navLabel")}
+          </span>
         )}
         {unreadCount > 0 && (
           <span
             className={
               isMobile
                 ? "rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white"
-                : "ml-auto hidden rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white xl:inline"
+                : "hidden shrink-0 rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white xl:inline-flex"
             }
             data-testid={isMobile ? "notification-badge-mobile" : "notification-badge"}
           >

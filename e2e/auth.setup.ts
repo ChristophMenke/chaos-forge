@@ -52,6 +52,14 @@ setup("authenticate", async ({ page }) => {
   await expect(page).not.toHaveURL(/\/login/, { timeout: 15000 });
   await page.getByTestId("active-characters-grid").waitFor({ state: "visible", timeout: 15000 });
 
+  // Pre-dismiss all tutorial overlays so they don't intercept clicks in tests.
+  await page.evaluate(() => {
+    localStorage.setItem(
+      "chaos-forge-tutorial-dismissed",
+      JSON.stringify({ dashboard: true, characters: true, party: true, chronicle: true })
+    );
+  });
+
   // Save state for all workers to reuse, then clean up temp character
   try {
     await page.context().storageState({ path: AUTH_FILE });

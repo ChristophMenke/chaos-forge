@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/supabase/auth";
 import { CharacterSheet } from "@/components/character-sheet/character-sheet";
+import { TutorialOverlay } from "@/components/tutorial/tutorial-overlay";
 import type {
   CharacterRow,
   CharacterClassRow,
@@ -111,26 +112,29 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
   ]);
 
   return (
-    <CharacterSheet
-      character={character}
-      characterClasses={characterClasses ?? []}
-      userId={user.id}
-      equipment={(equipment as CharacterEquipmentWithDetails[]) ?? []}
-      spells={(spells as CharacterSpellWithDetails[]) ?? []}
-      allWeapons={[]}
-      allArmor={[]}
-      allSpells={[]}
-      weaponProficiencies={weaponProfs ?? []}
-      nonweaponProficiencies={(nwProfs as CharacterNWPWithDetails[]) ?? []}
-      inventory={(inventoryData as CharacterInventoryWithDetails[]) ?? []}
-      allGeneralItems={[]}
-      allMagicItems={[]}
-      allNonweaponProficiencies={allNWPs ?? []}
-      languages={languages ?? []}
-      fightingStyles={fightingStyles ?? []}
-      sessions={sessionsData ?? []}
-      xpHistory={xpHistoryData ?? []}
-      epicItems={epicItems ?? []}
-    />
+    <>
+      <TutorialOverlay page="characters" />
+      <CharacterSheet
+        character={character}
+        characterClasses={characterClasses ?? []}
+        userId={user.id}
+        equipment={(equipment as CharacterEquipmentWithDetails[]) ?? []}
+        spells={(spells as CharacterSpellWithDetails[]) ?? []}
+        allWeapons={[]}
+        allArmor={[]}
+        allSpells={[]}
+        weaponProficiencies={weaponProfs ?? []}
+        nonweaponProficiencies={(nwProfs as CharacterNWPWithDetails[]) ?? []}
+        inventory={(inventoryData as CharacterInventoryWithDetails[]) ?? []}
+        allGeneralItems={[]}
+        allMagicItems={[]}
+        allNonweaponProficiencies={allNWPs ?? []}
+        languages={languages ?? []}
+        fightingStyles={fightingStyles ?? []}
+        sessions={sessionsData ?? []}
+        xpHistory={xpHistoryData ?? []}
+        epicItems={epicItems ?? []}
+      />
+    </>
   );
 }

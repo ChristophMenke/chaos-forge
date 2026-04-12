@@ -4,19 +4,79 @@ import { createClient } from "@/lib/supabase/server";
 import { embedQuery } from "@/lib/embeddings";
 import { createServiceClient } from "@/lib/supabase/service";
 
-const SYSTEM_PROMPT = `Du bist ein Regelwerk-Nachschlageassistent für Advanced Dungeons & Dragons 2nd Edition.
-Du antwortest AUSSCHLIESSLICH auf Basis der bereitgestellten Regelbuch-Ausschnitte.
+const APP_HELP_CONTEXT = `--- Chaos Forge App-Dokumentation ---
 
-STRIKTE REGELN:
-1. Basiere deine Antwort AUSSCHLIESSLICH auf den bereitgestellten Ausschnitten. Erfinde NIEMALS Regeln, Werte oder Mechaniken.
+ALLGEMEIN
+- Chaos Forge ist ein Web-Manager für AD&D 2nd Edition. Anmeldung per E-Mail + 6-stelligem Einmalcode (OTP), kein Passwort.
+- Die Navigation unten (Mobile) bzw. links (Desktop) führt zu: Dashboard, Charaktere, Chronik, Party Loot, More (Notifications/Import/Chat).
+- Sprache umschalten: Globus-Symbol am unteren Rand der Sidebar oder im More-Menü.
+- Dark/Light Mode: Sonne/Mond-Symbol ebendort.
+
+CHARAKTERE
+- Neuen Charakter erstellen: /characters/new — entweder geführter 8-Stufen Wizard (Basics, Attribute, Rasse, Klasse, Kit, Priesterschaft, Kampf, Zusammenfassung) oder OCR-Import per Foto vom Charakterbogen.
+- Bestehende Charaktere: /characters — Übersicht aller eigenen + geteilten + öffentlichen Helden.
+- Charakter verwalten: /characters/[id]/manage — sieben Tabs: Stats, Kampf, Notizen, Ausrüstung, Zauber, Diebesfähigkeiten, Fertigkeiten.
+- Play Mode: /characters/[id]/play — session-optimierte Ansicht mit HP-Tracker, Angriffen, Zaubern, Fähigkeiten, Wahrnehmung, Inventar, Geldbörse.
+- Epische Ausrüstung: /characters/[id]/epic — Schadensstufen-Cards, Simple Items, Blade System, Spell Abilities. Freischaltung erfolgt automatisch über Level.
+- Zauberbuch: /characters/[id]/spellbook — durchsuchen, lernen, memorieren, Source-Book-Filter.
+- Druckansicht: Über das Menü im Charakter → Drucken. Abschnitte ein-/ausblendbar, Reihenfolge änderbar. Export als Word-Datei möglich.
+
+MAGISCHE ITEMS ANLEGEN
+- Ausrüstungs-Tab im Charakter öffnen → "Hinzufügen" → entweder aus Katalog wählen oder "Custom" anlegen.
+- Bei Custom-Items: Name, Gewicht, Anzahl, und optional magische Effekte (AC-Bonus, Saves, Stat-Overrides etc.) eingeben.
+- GM-seitig (/master → Items): Zentraler Magic-Items-Katalog mit CRUD. Items können an Charaktere gepusht werden.
+- AC-Boni in AD&D 2e sind negativ: Ring of Protection +1 hat ac_bonus = -1.
+
+XP & LEVEL-AUFSTIEG
+- XP wird durch den GM vergeben (/master → Party Übersicht → XP-Vergabe, oder über eine Session).
+- Dashboard zeigt die XP-Historie jedes Charakters.
+- XP an Party verteilen: GM kann Gesamt-XP eingeben, die automatisch pro Charakter gesplittet wird.
+- Stufenaufstieg passiert automatisch wenn XP-Schwelle erreicht. Trefferpunkte werden via Dialog nachgewürfelt.
+
+PARTY LOOT
+- /party — Gemeinsame Kasse (Platinum, Gold, Elektrum, Silber, Kupfer) + Item-Pool + Audit-Log.
+- Gold hinzufügen/entfernen: Panel oben, Multi-Select + Split möglich.
+- Items verteilen: Loot-Verteilung-Button → Charakter wählen → bekommt Notification.
+
+CHRONIK
+- /sessions — Alle vergangenen Sessions, Timeline-Ansicht.
+- NPC anlegen: Chronik → NPC-Panel → "+ NPC". Bild, Beschreibung, Tags.
+- Eigenen Eintrag schreiben: In einer Session → "Eintrag hinzufügen" → Text oder Sprachnotiz (MediaRecorder).
+- Zitat hinzufügen: Chronik → Zitate-Panel → "+ Zitat". Autor und Text.
+
+GM / SPIELLEITER
+- /master — PIN-geschützter Bereich für den Spielleiter. PIN wird in .env.local als GM_PIN konfiguriert.
+- Tabs: Party, Gold, Items, Bestiarium (Monster-CRUD + AI-Import), NPCs, Kampfsimulator, Bookmarks, Rulebook Chat.
+- Monster-Import: Bestiarium → Import → Foto hochladen, Multi-Variant-Picker für Stat-Blocks mit Unterarten (Orc + Orog etc.).
+
+CHAT
+- Der Chat (Sidebar → "More" → "Chat") beantwortet Regelfragen aus den offiziellen Büchern UND Fragen zur App-Nutzung.
+- Bücher-Filter verfügbar für gezielte Regelrecherche.
+
+USER-FREIGABE
+- Neue User haben nach der Anmeldung nur Lese-Zugriff. Ein Admin muss sie erst freischalten.
+- Bis zur Freigabe erscheint ein Banner am oberen Rand. Freigabe erfolgt durch Christoph über seine Notifications.
+`;
+
+const SYSTEM_PROMPT = `Du bist ein dualer Assistent für die Chaos Forge App: Regelwerk-Experte für Advanced Dungeons & Dragons 2nd Edition UND Hilfe-Assistent für die App-Nutzung.
+
+Du erkennst automatisch, worauf sich eine Frage bezieht:
+
+MODUS A — AD&D REGELFRAGEN (THAC0, Klassen, Zauber, Monster, Kampfregeln etc.):
+1. Basiere deine Antwort AUSSCHLIESSLICH auf den bereitgestellten Regelbuch-Ausschnitten. Erfinde NIEMALS Regeln, Werte oder Mechaniken.
 2. Wenn die Ausschnitte nicht genügend Informationen enthalten, sage klar: "Dazu habe ich in den bereitgestellten Regeltexten keine ausreichende Information gefunden."
-3. Zitiere relevante Passagen wenn möglich und nenne die Quelle.
-4. Wenn die Ausschnitte die Frage nur teilweise beantworten, beantworte was du kannst und sage klar, was nicht abgedeckt ist.
-5. Verwende metrische Maßeinheiten (Meter, Kilometer, Kilogramm) — rechne imperiale Werte um.
-6. Formatiere deine Antwort mit Markdown. Nutze Fettdruck für Schlüsselbegriffe und Überschriften für Abschnitte.
-7. Nenne bei jeder Information die Quelle im Format **(Buchname)**.
-8. Antworte in der Sprache, in der die Frage gestellt wurde.
-9. Wenn Monster/Kreaturen-Daten bereitgestellt werden, nutze diese für taktische Hinweise (Schwächen, Immunitäten, empfohlene Gegenmaßnahmen).`;
+3. Zitiere relevante Passagen wenn möglich und nenne die Quelle im Format **(Buchname)**.
+4. Wenn Monster/Kreaturen-Daten bereitgestellt werden, nutze diese für taktische Hinweise.
+
+MODUS B — APP-HILFE (Fragen zur Bedienung, UI, Features wie "Wie lege ich ein magisches Item an?", "Wie nutze ich den Play Mode?", "Wie verteile ich XP?"):
+1. Nutze AUSSCHLIESSLICH die bereitgestellte App-Dokumentation (nicht die Regelbuch-Ausschnitte).
+2. Wenn ein Feature nicht dokumentiert ist, sage: "Das kann ich in der App-Dokumentation gerade nicht finden — frag Christoph direkt."
+3. Gib konkrete Navigationspfade an (z.B. "/characters/[id]/manage → Tab Ausrüstung").
+
+GEMEINSAME REGELN:
+- Verwende metrische Maßeinheiten (Meter, Kilometer, Kilogramm).
+- Formatiere deine Antwort mit Markdown. Nutze Fettdruck für Schlüsselbegriffe.
+- Antworte in der Sprache, in der die Frage gestellt wurde.`;
 
 // Simple in-memory rate limiter (sufficient for ~10 users)
 const rateLimitMap = new Map<string, number[]>();
@@ -176,16 +236,18 @@ export async function POST(request: NextRequest) {
       // Monster search is optional — continue without it
     }
 
-    // 4. Build context from retrieved chunks
-    const contextBlock =
-      (chunks && chunks.length > 0
+    // 4. Build context from retrieved chunks + monster data + app help
+    const rulesContext =
+      chunks && chunks.length > 0
         ? chunks
             .map(
               (c: { book_title: string; content: string; similarity: number }) =>
                 `--- Quelle: ${c.book_title} (Relevanz: ${(c.similarity * 100).toFixed(0)}%) ---\n${c.content}`
             )
             .join("\n\n")
-        : "Keine relevanten Regeltexte gefunden.") + monsterContext;
+        : "Keine relevanten Regeltexte gefunden.";
+
+    const contextBlock = rulesContext + monsterContext + "\n\n" + APP_HELP_CONTEXT;
 
     // 5. Build message history (max 4 previous exchanges = 8 messages)
     // Validate and sanitize history entries
