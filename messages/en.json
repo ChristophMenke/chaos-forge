@@ -683,6 +683,10 @@
   },
   "dashboard": {
     "title": "Party Dashboard",
+    "nextSessionLabel": "Next game night",
+    "nextSessionToday": "Today! Grab your dice!",
+    "nextSessionTomorrow": "Tomorrow — get ready!",
+    "nextSessionInDays": "in {count, plural, =1 {# day} other {# days}}",
     "adventurers": "Adventurers",
     "averageLevel": "Average Level",
     "classDistribution": "Classes",
