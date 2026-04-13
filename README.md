@@ -49,11 +49,18 @@ Chaos Forge ersetzt umständliche Offline-Editoren aus den 90er Jahren durch ein
   - **Monster-Import-Pipeline** — 5-Schritt-Prozess (Snapshot → Parse → Backfill → Translate → Images), dokumentiert in `docs/monster-import.md`
   - **Rulebook Chat** — Eingebetteter KI-Chat für Regelfragen mit Quellenbuch-Filter
   - **Eigene Navigation** — Sidebar + Bottom-Nav, PWA-Manifest für Homescreen-Installation
-- **Notifications** — Live-Notifications für Item/Gold-Transfer, XP-Vergabe etc. mit Delete-Funktion (einzeln + alle)
+- **Notifications** — Live-Notifications für Item/Gold-Transfer, XP-Vergabe, Freigabe-Events etc. mit Delete-Funktion (einzeln + alle)
 - **Avatar-Silhouetten** — Rassen-/Klassen-spezifische Silhouetten als Fallback wenn Character kein Avatar hat
 - **Responsive Design** — Desktop Left-Sidebar, Mobile Bottom-Nav mit More-Menu, Glassmorphism Cards
 - **Accessibility** — WCAG 2 AA geprüft via axe-core Playwright Tests, ARIA-konforme Dialoge, Screenreader-Labels
 - **Regelwerk-Engine** — Reine TypeScript-Funktionen für alle PHB-Regeln + Player's Option
+- **Landing Page** — Immersives Showcase mit Party-Artwork, 4 Feature-Cards mit Klassen-Glows, How-It-Works Timeline, Footer-CTA
+- **User-Freigabe-System** — Neue Registrierungen bekommen Read-Only-Zugriff bis der Admin sie via `/admin/approve/[id]` freischaltet oder ablehnt (Account-Delete). Persistenter Banner für Wartende. BEFORE-Trigger auf 20+ Tabellen blocken Writes konsistent (auch durch SECURITY DEFINER RPCs). In-App-Notification + Discord-Webhook bei neuen Usern
+- **Tutorial-System** — Custom Overlay (kein Library-Bloat) mit Spotlight-Clip-Path, auf Dashboard, Charakterbogen, Party Loot, Chronik. Einmalig, skippbar, letzter Schritt verweist auf Chat. Bestehende User via `skip_tutorials`-Flag ausgenommen
+- **Rulebook Chat (dual mode)** — beantwortet AD&D-Regelfragen (RAG mit Voyage AI + Regelbuch-Chunks) UND App-Nutzungsfragen ("Wie lege ich ein Magic Item an?") in einem
+- **User-Settings** (`/settings`) — Profil editieren (Name, Avatar), Theme/Sprache, Tutorials zurücksetzen, DSGVO-konforme Account-Selbstlöschung
+- **Legal Pages** — `/impressum` + `/datenschutz` mit allen externen Diensten, DSGVO-Rechten, Footer-Links auf allen Seiten
+- **Kondensator-Stat-Override** — Neue `forceStatOverrides`-Semantik für Epic Items mit `simple_effects.base_<stat>` (ersetzt Basiswert unbedingt). `computeEffectiveMaxHp` passt Max-HP bei CON-Änderung dynamisch an (Delta-basiert, Warrior-Cap beachtet, asymmetrische Current-HP-Clamping-Regel: CON↑ = max steigt/current bleibt, CON↓ = current wird geclamped)
 
 ## Tech-Stack
 
@@ -61,7 +68,7 @@ Chaos Forge ersetzt umständliche Offline-Editoren aus den 90er Jahren durch ein
 - **Datenbank & Auth:** Supabase (PostgreSQL + Row Level Security)
 - **Styling:** Tailwind CSS v4 + shadcn/ui + Glassmorphism Design-System
 - **i18n:** next-intl (Cookie-basiert, DE/EN) + `localized()` Utility für DB-Daten
-- **Testing:** Vitest (1552 Unit-Tests), Playwright (120 E2E inkl. Responsive, A11y, Sidebar, XP-Management, GM-Dashboard, Master, Mobile)
+- **Testing:** Vitest (1564 Unit-Tests), Playwright (120+ E2E inkl. Responsive, A11y, Sidebar, XP-Management, GM-Dashboard, Master, Mobile, Approval-Flow)
 - **Hosting:** Vercel (Free-Tier optimiert)
 - **AI:** Anthropic Claude API (Character Import, Monster Import, Session Summaries) + Google Gemini (Imagen für Bild-Generierung)
 - **Export:** `docx` Paket für Word-Export
@@ -195,7 +202,7 @@ e2e/                      # Playwright E2E-Tests (POM-Pattern)
   helpers/                # Auth-Helper
 messages/                 # i18n-Dateien (de.json, en.json)
 supabase/
-  migrations/             # 213 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items + Priest + Party + Shield + Traits + Realtime + Gold RPC + Monsters + Notifications + Weapon Proficiency Split + Monster Narrative + Profiles)
+  migrations/             # 219 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items + Priest + Party + Shield + Traits + Realtime + Gold RPC + Monsters + Notifications + Weapon Proficiency Split + Monster Narrative + Profiles + is_approved + skip_tutorials)
 ressources/
   books/                  # OCR-Texte der AD&D 2e Regelbücher
   compendium-snapshot/    # Monstrous Manual HTML-Snapshot + parsed/translated JSON

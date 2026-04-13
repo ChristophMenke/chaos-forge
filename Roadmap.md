@@ -156,3 +156,22 @@ Die App richtet sich an eine private Spielgruppe ("Chaos RPG") mit maximal 10 Nu
 - [x] Magic Items AC-Berechnung überall (calculateAC + getMagicItemEffects in 5 Aufrufstellen).
 - [x] Test-Domain Migration auf @qa.chaosforge.test (RFC .test TLD, zentrale Constants).
 - [x] 5 pre-existing E2E-Failures gefixt (PIN Touch-Target, Size-Filter, Party Gold, A11y Timeout).
+
+## Epic 18: Landing Page, Tutorial & User-Freigabe
+
+- [x] Landing Page Redesign (Hero mit Party-Artwork, 4 Feature-Cards mit Klassen-Glows, How-It-Works-Timeline, Footer-CTA).
+- [x] Custom Tutorial-Overlay (kein Library-Bloat) für Dashboard, Charakterbogen, Party Loot, Chronik — localStorage-Persistenz pro Seite, letzter Schritt verweist auf Chat.
+- [x] Rulebook Chat beantwortet auch App-Nutzungsfragen (Dual-Mode: Regel-RAG + App-Doku).
+- [x] User-Freigabe-System: `profiles.is_approved`, BEFORE-Trigger auf 20+ Tabellen, Approval-Banner mit Realtime-Subscription, In-App + Discord-Notification bei Registrierung.
+- [x] Admin-Approve-Seite `/admin/approve/[id]` mit Approve- und Reject-Flow (Reject löscht Auth-User via CASCADE).
+- [x] Legacy-User-Heal-Migration (auth.users ohne profiles → Profile nachziehen).
+- [x] Larry-Artwork: Gemini image-edit ersetzt nur Larry im bestehenden Party-Bild (Stil + Komposition bleiben).
+
+## Epic 19: Settings, Legal & Kondensator
+
+- [x] `/settings` mit Profil-Edit, Theme/Sprache, Tutorial-Reset, DSGVO-konformer Account-Selbstlöschung.
+- [x] `/impressum` + `/datenschutz` + Footer mit externen Diensten (Vercel, Supabase, Anthropic, Google Gemini, Voyage, Discord), DSGVO-Rechten, 30-Tage-Löschfrist.
+- [x] Kondensator CON-Fallback: neue `forceStatOverrides`-Semantik für Items mit `simple_effects.base_<stat>` (unbedingter Override, kein max()). `computeEffectiveMaxHp` Delta-Helper. Asymmetrische Current-HP-Clamping-Regel.
+- [x] Chronik-Aktionen (Bild-Gen, KI-Zusammenfassung) hinter ApprovalGate + server-seitigem 403-Block.
+- [x] `skip_tutorials`-Flag für bestehende User (Backfill, damit keiner mit "alte Hasen"-Status das Tutorial bekommt).
+- [x] Dashboard Party-Stats: Dedup in `partyChars` gegen Self-Share-Duplikate.
