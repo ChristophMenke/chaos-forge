@@ -1745,6 +1745,10 @@
     "variantPickerDialogTitle": "Select Variants",
     "monsterStatLine": "HD {hd}, AC {ac}, THAC0 {thac0}, Dmg {damage}"
   },
+  "footer": {
+    "imprint": "Imprint",
+    "privacy": "Privacy"
+  },
   "notifications": {
     "title": "Notifications",
     "navLabel": "Alerts",
@@ -1784,7 +1788,11 @@
     "adminApproveButton": "Approve now",
     "adminApproveSuccess": "{email} has been approved",
     "adminApproveError": "Approval failed",
-    "adminAlreadyApprovedMsg": "This user is already approved. No action needed."
+    "adminAlreadyApprovedMsg": "This user is already approved. No action needed.",
+    "adminRejectButton": "Reject & delete",
+    "adminRejectConfirm": "Delete account of {email} permanently? This cannot be undone.",
+    "adminRejectSuccess": "{email} has been rejected and deleted",
+    "adminRejectError": "Rejection failed"
   },
   "tutorial": {
     "next": "Next",

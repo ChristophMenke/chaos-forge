@@ -1745,6 +1745,10 @@
     "variantPickerDialogTitle": "Varianten auswählen",
     "monsterStatLine": "TW {hd}, RK {ac}, ETW0 {thac0}, Schaden {damage}"
   },
+  "footer": {
+    "imprint": "Impressum",
+    "privacy": "Datenschutz"
+  },
   "notifications": {
     "title": "Benachrichtigungen",
     "navLabel": "Meldungen",
@@ -1784,7 +1788,11 @@
     "adminApproveButton": "Jetzt freischalten",
     "adminApproveSuccess": "{email} ist freigeschaltet",
     "adminApproveError": "Freischaltung fehlgeschlagen",
-    "adminAlreadyApprovedMsg": "Dieser User ist bereits freigeschaltet. Keine Aktion nötig."
+    "adminAlreadyApprovedMsg": "Dieser User ist bereits freigeschaltet. Keine Aktion nötig.",
+    "adminRejectButton": "Ablehnen & löschen",
+    "adminRejectConfirm": "Account von {email} endgültig löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "adminRejectSuccess": "{email} wurde abgelehnt und gelöscht",
+    "adminRejectError": "Ablehnung fehlgeschlagen"
   },
   "tutorial": {
     "next": "Weiter",
