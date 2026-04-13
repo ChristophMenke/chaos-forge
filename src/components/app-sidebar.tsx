@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { LogOut } from "lucide-react";
+import { LogOut, Settings as SettingsIcon } from "lucide-react";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LocaleToggle } from "@/components/locale-toggle";
@@ -15,9 +15,10 @@ import { useRouter } from "next/navigation";
 interface AppSidebarProps {
   userEmail?: string;
   userId?: string;
+  userAvatarUrl?: string | null;
 }
 
-export function AppSidebar({ userEmail, userId }: AppSidebarProps) {
+export function AppSidebar({ userEmail, userId, userAvatarUrl }: AppSidebarProps) {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const router = useRouter();
@@ -75,16 +76,40 @@ export function AppSidebar({ userEmail, userId }: AppSidebarProps) {
         {userEmail && (
           <Tooltip>
             <TooltipTrigger
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary"
+              className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-xs font-medium text-primary"
+              aria-label={userEmail}
               data-testid="sidebar-user-avatar"
             >
-              {userEmail.charAt(0).toUpperCase()}
+              {userAvatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={userAvatarUrl} alt="" className="h-full w-full object-cover" />
+              ) : (
+                userEmail.charAt(0).toUpperCase()
+              )}
             </TooltipTrigger>
             <TooltipContent side="right">{userEmail}</TooltipContent>
           </Tooltip>
         )}
         <LocaleToggle />
         <ThemeToggle />
+        <Tooltip>
+          <TooltipTrigger
+            render={<Link href="/settings" />}
+            className={`flex h-10 w-10 items-center justify-center rounded-lg transition-all xl:w-full xl:justify-start xl:gap-3 xl:px-3 ${
+              pathname === "/settings" || pathname.startsWith("/settings/")
+                ? "bg-primary/10 text-primary shadow-sm"
+                : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+            }`}
+            aria-label={t("settings")}
+            data-testid="nav-settings"
+          >
+            <SettingsIcon className="h-5 w-5 shrink-0" />
+            <span className="hidden text-sm font-medium xl:inline">{t("settings")}</span>
+          </TooltipTrigger>
+          <TooltipContent side="right" className="xl:hidden">
+            {t("settings")}
+          </TooltipContent>
+        </Tooltip>
         <Tooltip>
           <TooltipTrigger
             onClick={handleLogout}
