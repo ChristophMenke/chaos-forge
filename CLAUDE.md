@@ -14,8 +14,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Datenbank & Auth:** Supabase (PostgreSQL + Row Level Security)
 - **Styling:** Tailwind CSS v4 + shadcn/ui + Glassmorphism Design-System
 - **i18n:** next-intl (Cookie-basiert, DE/EN) + `localized()` Utility für DB-Daten
-- **Unit-/Integrationstests:** Vitest (1552 Tests)
-- **E2E-Tests:** Playwright (120 E2E inkl. Responsive, A11y, Sidebar, XP-Management, GM-Dashboard, Master, Mobile)
+- **Unit-/Integrationstests:** Vitest (1564 Tests)
+- **E2E-Tests:** Playwright (120+ E2E inkl. Responsive, A11y, Sidebar, XP-Management, GM-Dashboard, Master, Mobile, Approval-Flow)
 - **Linting/Formatting:** ESLint (next config) + Prettier (0 Warnings, 0 Errors)
 - **Hosting:** Vercel (Free-Tier)
 - **AI:** Anthropic Claude API (Character Import, Monster Import, Session Summaries) + Google Gemini (Imagen für Bild-Generierung)
@@ -286,7 +286,9 @@ Diese Abweichungen vom Standard-PHB gelten für die "Chaos RPG"-Gruppe:
 - **Env-Variablen:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GM_PIN` (6-Digit), optional `GM_SESSION_SECRET` in `.env.local`
 - **RLS:** Alle Tabellen nutzen Row Level Security — SELECT für alle Authentifizierten, INSERT/UPDATE/DELETE nur für Owner
 - **Storage:** `voice-notes` Bucket für Sprachnotizen, `avatars` für Character-Avatare
-- **Migrationen:** 213 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
+- **Migrationen:** 219 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
+- **User-Freigabe:** `profiles.is_approved` (default false, bestehende User via Backfill auf true) + `enforce_approval`-BEFORE-Trigger auf 20+ Tabellen (characters, character*\*, chronicle*_, sessions, tags, party*loot*_, monsters, magic*items, epic_items, gm_bookmarks). `approve_user(uuid)` RPC nur für Admin. `simple_effects.base*<stat>`-Items (Kondensator) gehen über `forceStatOverrides` — ersetzen Basiswert unbedingt (nicht max()).
+- **Tutorials:** `profiles.skip_tutorials` (Backfill = true) blendet Overlays für bestehende User aus. Client-Side localStorage-Key `chaos-forge-tutorial-dismissed`.
 - **Test-Domain:** E2E-Tests nutzen `@qa.chaosforge.test` (RFC-reservierte `.test`-TLD). Zentrale Constants in `src/lib/test/constants.ts`. Alle API-Routes (`test-login`, `test-cleanup`, `test-seed*`) whitelisten nur diese Domain. `share-dialog.tsx` filtert die Test-Domain aus dem Share-Dropdown.
 
 ## AD&D 2e Regelwerk-Spezifika
@@ -348,3 +350,5 @@ Finaler explorativer Test mit etablierten Testing-Heuristiken und gezielten "Tes
 15. **UX/UI Performance Polish & GM CRUD Extensions** — Treasury Vault + Council of Heroes Redesign, GM Item CRUD (Edit/Delete mit In-Use-Check), Monster CRUD + AI Import (Claude Vision), Notifications Delete, Avatar Fallback (Silhouetten), Client-Side Image Compression, React 19/Compiler-Migration, Memory-Leak Fixes (URL.createObjectURL Pattern), `npm run verify` als CI-Spiegel, Dialog ARIA Compliance ✅
 16. **Monster-Datenmodell-Vollständigkeit** — Compendium-Backfill (353 MM-Monster aus decheine/complete-compendium), Schema-Migration (Narrative-Felder, Variant-System, No. Appearing), HTML-Parser + Merge-Script, Claude Sonnet 4 Übersetzung (DE), Gemini Imagen Monster-Bilder, Treasure-Code-Legende, Magic-Items AC-Berechnung überall ✅
 17. **Immersive Screens & QA-Migration** — PIN-Gate + Login-Screens mit Chaos-Artwork (Parchment-Cards, Party-Background mit allen aktiven Chars), NPC-Card-Layout-Polish + Confirm-Dialog, Bestiary-Header-Redesign (konsistente Buttons + Settings-Cog für Precise-Mode), Test-Domain Migration auf `@qa.chaosforge.test` (RFC .test TLD, zentrale Constants, 0 Spam-Risiko), 5 pre-existing E2E-Failures gefixt ✅
+18. **Landing Page, Tutorial & User-Freigabe** — Landing-Redesign (Hero + 4 Feature-Cards mit Klassen-Glows + How-It-Works + Footer-CTA), Custom Tutorial-Overlay mit Spotlight-Clip-Path (Dashboard, Charakterbogen, Party, Chronik), Rulebook Chat im Dual-Mode (Regeln + App-Hilfe), `profiles.is_approved` mit BEFORE-Trigger auf 20+ Tabellen, Approval-Banner + Realtime, Admin-Approve/Reject-Page `/admin/approve/[id]`, Discord-Webhook-Ping, Legacy-User-Heal-Migration, Larry-Artwork-Replacement via Gemini Image-Edit ✅
+19. **Settings, Legal & Kondensator** — `/settings` (Profil, Theme, Sprache, Tutorial-Reset, DSGVO-Self-Delete), `/impressum` + `/datenschutz` + Footer mit externen Diensten + DSGVO-Rechten, `forceStatOverrides`-Semantik für Epic Items mit `simple_effects.base_<stat>` (Kondensator CON-Fallback: beim Ablegen → CON 5, beim Anlegen → 18), `computeEffectiveMaxHp` Delta-Helper mit asymmetrischer Current-HP-Clamping-Regel (CON↑ max steigt/current bleibt, CON↓ current geclamped), ApprovalGate + Server-403 um Chronik-Actions (Bild-Gen/KI-Summary), KI-Summary max_tokens 500→1500, `skip_tutorials`-Flag für bestehende User ✅
