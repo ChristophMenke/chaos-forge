@@ -3,7 +3,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Package, Coins, ArrowRightLeft, Sparkles, X, UserPlus, CheckCircle2 } from "lucide-react";
+import {
+  Package,
+  Coins,
+  ArrowRightLeft,
+  Sparkles,
+  X,
+  UserPlus,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import type { NotificationRow } from "@/lib/supabase/types";
@@ -32,6 +41,8 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Notific
   const t = useTranslations("notifications");
   const router = useRouter();
   const [approving, setApproving] = useState(false);
+  const [rejecting, setRejecting] = useState(false);
+  const [confirmReject, setConfirmReject] = useState(false);
   const details = notification.details;
 
   const character = (details.character_name as string) ?? "";
@@ -131,6 +142,29 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Notific
     }
   }
 
+  async function handleReject(e: React.MouseEvent) {
+    e.stopPropagation();
+    const targetUserId = (details.user_id as string) ?? null;
+    const targetEmail = (details.user_email as string) ?? "";
+    if (!targetUserId || rejecting) return;
+    setRejecting(true);
+    try {
+      const res = await fetch(`/api/admin/reject-user`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: targetUserId }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      toast.success(t("rejectSuccess", { email: targetEmail }));
+      onDelete(notification.id);
+    } catch {
+      toast.error(t("rejectError"));
+    } finally {
+      setRejecting(false);
+      setConfirmReject(false);
+    }
+  }
+
   return (
     <div
       className={`group relative flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-left transition-colors hover:bg-accent/30 ${
@@ -158,15 +192,60 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Notific
             {getRelativeTime(notification.created_at, t)}
           </p>
           {notification.type === "new_user_registered" && (
-            <button
-              onClick={handleApprove}
-              disabled={approving}
-              className="mt-2 inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
-              data-testid={`notification-approve-${notification.id}`}
-            >
-              <CheckCircle2 className="h-3 w-3" />
-              {t("approveNow")}
-            </button>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <button
+                onClick={handleApprove}
+                disabled={approving || rejecting}
+                className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
+                data-testid={`notification-approve-${notification.id}`}
+              >
+                <CheckCircle2 className="h-3 w-3" />
+                {t("approveNow")}
+              </button>
+              {confirmReject ? (
+                <>
+                  <span
+                    className="text-[11px] text-destructive"
+                    data-testid={`notification-reject-confirm-${notification.id}`}
+                  >
+                    {t("rejectConfirm", { email: (details.user_email as string) ?? "" })}
+                  </span>
+                  <button
+                    onClick={handleReject}
+                    disabled={rejecting || approving}
+                    className="inline-flex items-center gap-1 rounded-md border border-destructive/50 bg-destructive/10 px-2 py-1 text-[11px] font-medium text-destructive transition-colors hover:bg-destructive/20 disabled:opacity-50"
+                    data-testid={`notification-reject-submit-${notification.id}`}
+                  >
+                    <XCircle className="h-3 w-3" />
+                    {t("rejectConfirmYes")}
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setConfirmReject(false);
+                    }}
+                    disabled={rejecting}
+                    className="inline-flex items-center rounded-md px-2 py-1 text-[11px] font-medium text-muted-foreground hover:text-foreground disabled:opacity-50"
+                    data-testid={`notification-reject-cancel-${notification.id}`}
+                  >
+                    {t("cancel")}
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setConfirmReject(true);
+                  }}
+                  disabled={approving || rejecting}
+                  className="inline-flex items-center gap-1 rounded-md border border-destructive/40 px-2 py-1 text-[11px] font-medium text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50"
+                  data-testid={`notification-reject-${notification.id}`}
+                >
+                  <XCircle className="h-3 w-3" />
+                  {t("rejectNow")}
+                </button>
+              )}
+            </div>
           )}
         </div>
         {!notification.is_read && (

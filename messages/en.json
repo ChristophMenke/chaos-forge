@@ -1803,7 +1803,12 @@
     "userApproved": "You have been approved — welcome to the chaos!",
     "approveNow": "Approve now",
     "approveSuccess": "{email} has been approved",
-    "approveError": "Approval failed"
+    "approveError": "Approval failed",
+    "rejectNow": "Reject",
+    "rejectConfirm": "Delete {email} permanently?",
+    "rejectConfirmYes": "Delete",
+    "rejectSuccess": "{email} has been rejected and deleted",
+    "rejectError": "Rejection failed"
   },
   "approval": {
     "pendingBanner": "Minion Christoph must first accept your interest in joining the chaos.",

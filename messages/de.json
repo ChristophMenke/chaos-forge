@@ -1803,7 +1803,12 @@
     "userApproved": "Du wurdest freigeschaltet — willkommen im Chaos!",
     "approveNow": "Jetzt freischalten",
     "approveSuccess": "{email} wurde freigeschaltet",
-    "approveError": "Freischaltung fehlgeschlagen"
+    "approveError": "Freischaltung fehlgeschlagen",
+    "rejectNow": "Ablehnen",
+    "rejectConfirm": "{email} endgültig löschen?",
+    "rejectConfirmYes": "Löschen",
+    "rejectSuccess": "{email} wurde abgelehnt und gelöscht",
+    "rejectError": "Ablehnung fehlgeschlagen"
   },
   "approval": {
     "pendingBanner": "Der Scherge Christoph muss dein Interesse dem Chaos beizutreten erst noch akzeptieren.",
