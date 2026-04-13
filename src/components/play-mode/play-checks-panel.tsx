@@ -86,12 +86,15 @@ function PlayChecksPanelInner({
   );
   const epic = epicEffects ?? defaultEpic;
   const eo = epic.statOverrides;
+  const fo = epic.forceStatOverrides;
   const mo = magicStatOverrides;
   const mb = magicStatBonuses;
 
-  // Resolve effective stat: max(base, epicOverride, magicOverride) + magicBonus
+  // Resolve effective stat: force ?? max(base, epicOverride, magicOverride) + magicBonus.
+  // Force-overrides (z.B. Kondensator) ersetzen den Base-Wert unbedingt.
   function eff(base: number, stat: "str" | "dex" | "con" | "int" | "wis" | "cha"): number {
-    return Math.max(base, eo[stat] ?? 0, mo[stat] ?? 0) + (mb[stat] ?? 0);
+    const resolved = fo[stat] ?? Math.max(base, eo[stat] ?? 0, mo[stat] ?? 0);
+    return resolved + (mb[stat] ?? 0);
   }
 
   // Is a stat modified by any override or bonus?
@@ -251,7 +254,7 @@ function PlayChecksPanelInner({
   // (eo, mo, mb), avoiding a stale-closure warning on the non-memoized `eff` function.
   const nwpChecks = useMemo(() => {
     const effective = (base: number, stat: "str" | "dex" | "con" | "int" | "wis" | "cha") =>
-      Math.max(base, eo[stat] ?? 0, mo[stat] ?? 0) + (mb[stat] ?? 0);
+      (fo[stat] ?? Math.max(base, eo[stat] ?? 0, mo[stat] ?? 0)) + (mb[stat] ?? 0);
     const abilityMap: Record<string, number> = {
       str: effective(character.str, "str"),
       dex: effective(character.dex, "dex"),
@@ -275,7 +278,7 @@ function PlayChecksPanelInner({
           : null,
       };
     });
-  }, [nonweaponProficiencies, character, locale, eo, mo, mb]);
+  }, [nonweaponProficiencies, character, locale, fo, eo, mo, mb]);
 
   const [expandedNwp, setExpandedNwp] = useState<string | null>(null);
 

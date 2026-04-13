@@ -54,6 +54,16 @@ export function getConBonusCap(classGroup: ClassGroup): number {
   return classGroup === "warrior" ? 4 : 2;
 }
 
+/**
+ * Clamp current HP when max HP changes (e.g. via CON-Override).
+ * Pure cap: current is only lowered to fit the new max, never reduced
+ * below the previous value. Death threshold = −effectiveMax.
+ */
+export function clampHpCurrentToMax(storedCurrent: number, effectiveMax: number): number {
+  const floor = getDeathThreshold(effectiveMax);
+  return Math.max(floor, Math.min(storedCurrent, effectiveMax));
+}
+
 export type HpStatus = "alive" | "unconscious" | "dead";
 
 /**

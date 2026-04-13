@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   calculateHitPointsLevel1,
+  clampHpCurrentToMax,
   computeEffectiveMaxHp,
   getConBonusCap,
   getDeathThreshold,
@@ -136,5 +137,41 @@ describe("computeEffectiveMaxHp", () => {
 
   it("treats level 0 as level 1 (defensive)", () => {
     expect(computeEffectiveMaxHp(50, 2, -2, 0, "rogue")).toBe(50 + (-2 - 2) * 1);
+  });
+});
+
+describe("clampHpCurrentToMax", () => {
+  it("caps current down to new max when current > max (Kondensator unequip)", () => {
+    // Sprocket: vorher 34/34, Kondensator ab → neues Max 12
+    expect(clampHpCurrentToMax(34, 12)).toBe(12);
+  });
+
+  it("leaves current unchanged when ≤ max", () => {
+    expect(clampHpCurrentToMax(10, 12)).toBe(10);
+    expect(clampHpCurrentToMax(5, 12)).toBe(5);
+    expect(clampHpCurrentToMax(12, 12)).toBe(12);
+  });
+
+  it("does NOT reduce current proportionally — pure cap only", () => {
+    // Regression: früher reduzierte der Code current um den (negativen) Delta,
+    // statt nur zu clampen. 34 → 12/12 ist korrekt; 34 → -10/12 war der Bug.
+    expect(clampHpCurrentToMax(34, 12)).not.toBe(-10);
+    expect(clampHpCurrentToMax(34, 12)).toBe(12);
+  });
+
+  it("allows unconscious (negative but above death threshold)", () => {
+    expect(clampHpCurrentToMax(-5, 12)).toBe(-5);
+    expect(clampHpCurrentToMax(0, 12)).toBe(0);
+    expect(clampHpCurrentToMax(-11, 12)).toBe(-11);
+  });
+
+  it("clamps current to death threshold when below −max", () => {
+    expect(clampHpCurrentToMax(-20, 12)).toBe(-12);
+    expect(clampHpCurrentToMax(-100, 50)).toBe(-50);
+  });
+
+  it("handles stored current already above stored max (edge case)", () => {
+    // Shouldn't happen under normal rules, but function must be defensive
+    expect(clampHpCurrentToMax(20, 12)).toBe(12);
   });
 });

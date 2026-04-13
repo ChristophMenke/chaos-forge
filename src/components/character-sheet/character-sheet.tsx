@@ -1221,7 +1221,7 @@ export function CharacterSheet({
                 {
                   key: "str" as const,
                   label: "STR",
-                  value: character.str,
+                  value: effectiveStr,
                   mods: t("abilityModStr", {
                     hit: `${strMods.hitAdj >= 0 ? "+" : ""}${strMods.hitAdj}`,
                     dmg: `${strMods.dmgAdj >= 0 ? "+" : ""}${strMods.dmgAdj}`,
@@ -1230,7 +1230,7 @@ export function CharacterSheet({
                 {
                   key: "dex" as const,
                   label: "DEX",
-                  value: character.dex,
+                  value: effectiveDex,
                   mods: t("abilityModDex", {
                     ac: `${dexMods.defensiveAdj >= 0 ? "+" : ""}${dexMods.defensiveAdj}`,
                   }),
@@ -1238,7 +1238,7 @@ export function CharacterSheet({
                 {
                   key: "con" as const,
                   label: "CON",
-                  value: character.con,
+                  value: effectiveCon,
                   mods: t("abilityModCon", {
                     hp: `${conMods.hpAdj >= 0 ? "+" : ""}${conMods.hpAdj}`,
                   }),
@@ -1246,13 +1246,13 @@ export function CharacterSheet({
                 {
                   key: "int" as const,
                   label: "INT",
-                  value: character.int,
+                  value: effectiveInt,
                   mods: t("abilityModInt", { count: intMods.numberOfLanguages }),
                 },
                 {
                   key: "wis" as const,
                   label: "WIS",
-                  value: character.wis,
+                  value: effectiveWis,
                   mods: t("abilityModWis", {
                     adj: `${wisMods.magicalDefenseAdj >= 0 ? "+" : ""}${wisMods.magicalDefenseAdj}`,
                   }),
@@ -1260,7 +1260,7 @@ export function CharacterSheet({
                 {
                   key: "cha" as const,
                   label: "CHA",
-                  value: character.cha,
+                  value: effectiveCha,
                   mods: t("abilityModCha", { count: chaMods.maxHenchmen }),
                 },
               ].map(({ key, label, value, mods }) => {
