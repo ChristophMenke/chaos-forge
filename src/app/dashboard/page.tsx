@@ -7,6 +7,7 @@ import { GlassCard } from "@/components/glass-card";
 import { CharacterCard } from "@/components/character-card";
 import { RealtimeRefresh } from "@/components/realtime-refresh";
 import { TutorialOverlay } from "@/components/tutorial/tutorial-overlay";
+import { NextSessionBanner } from "@/components/dashboard/next-session-banner";
 import { QuoteReactionBar } from "@/components/session/quote-reaction-bar";
 import { AvatarDisplay } from "@/components/avatar-display";
 import { HpBar } from "@/components/hp-bar";
@@ -702,6 +703,8 @@ export default async function DashboardPage() {
         ]}
       />
       <h1 className="font-heading text-3xl text-primary">{t("title")}</h1>
+
+      <NextSessionBanner />
 
       {/* ── Character Grid (Hero Section — top) ──────────── */}
       <h2 className="font-heading text-xl">{t("myCharacters")}</h2>

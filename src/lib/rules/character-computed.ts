@@ -28,7 +28,7 @@ import { scaleSubStat, applyThiefPenalty } from "./epic-items";
 import { hasThiefSkills, getBackstabMultiplier } from "./thief";
 import { getSingleWeaponStyleBonus } from "./fighting-styles";
 import { getClassGroup } from "./classes";
-import { getConBonusCap } from "./hitpoints";
+import { getConBonusCap, clampHpCurrentToMax } from "./hitpoints";
 import { getAdjustedWeaponThac0, getAttacksPerRound } from "./combat";
 import { getNonproficiencyPenalty } from "./proficiencies";
 import { findWeaponProf } from "@/lib/utils/proficiency-match";
@@ -215,7 +215,7 @@ export function computeCharacterCombatData(
     hpDelta = Math.round(totalDelta / divisor);
   }
   const hpMax = Math.max(1, character.hp_max + hpDelta);
-  const hpCurrent = Math.max(0, Math.min(character.hp_current + Math.min(0, hpDelta), hpMax));
+  const hpCurrent = clampHpCurrentToMax(character.hp_current, hpMax);
 
   // Equipment: armor + shield
   const equippedArmor = equipment.find((e) => e.equipped && e.armor && !e.armor.is_shield);

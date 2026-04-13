@@ -54,6 +54,24 @@ export function getConBonusCap(classGroup: ClassGroup): number {
   return classGroup === "warrior" ? 4 : 2;
 }
 
+/**
+ * Clamp current HP to the new effective max after a max HP change (e.g. CON-Override).
+ *
+ * Rules applied in order:
+ *  1. If storedCurrent > effectiveMax → lower current to effectiveMax.
+ *  2. If storedCurrent < −effectiveMax (below death threshold) → raise to −effectiveMax.
+ *  3. Otherwise return storedCurrent unchanged (unconscious state is preserved as-is).
+ *
+ * Intentionally one-directional on the upper bound: current is never raised toward
+ * effectiveMax (no free healing when max increases). The only upward correction is
+ * the death-threshold floor (#2), which prevents a logically impossible "more-dead-
+ * than-the-new-max-allows" state.
+ */
+export function clampHpCurrentToMax(storedCurrent: number, effectiveMax: number): number {
+  const floor = getDeathThreshold(effectiveMax);
+  return Math.max(floor, Math.min(storedCurrent, effectiveMax));
+}
+
 export type HpStatus = "alive" | "unconscious" | "dead";
 
 /**

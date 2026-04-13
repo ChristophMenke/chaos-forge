@@ -1101,4 +1101,147 @@ describe("computeCharacterCombatData", () => {
       expect(result.perception).toBe(11); // INT 10, WIS 12 → unchanged
     });
   });
+
+  describe("HP clamping on CON change (Kondensator scenarios)", () => {
+    function makeCondenser(unequipped: boolean): EpicItemRow {
+      return {
+        id: "epic-condenser",
+        character_id: "test-char",
+        slug: "condenser",
+        name: "Konstitutions-Kondensator",
+        name_en: "Constitution Condenser",
+        description: "",
+        description_en: "",
+        icon: "heart-pulse",
+        equipped: !unequipped,
+        damage_level: 0,
+        max_damage_level: 3,
+        damage_levels: unequipped
+          ? {}
+          : {
+              "0": {
+                description: "",
+                description_en: "",
+                effects: [],
+                stat_overrides: { con: 18 },
+              },
+            },
+        simple_effects: { base_con: 5 },
+        notes: "",
+        created_at: "",
+        updated_at: "",
+      };
+    }
+
+    it("Kondensator unequipped: HP max drops, current is clamped — NOT reduced by delta", () => {
+      // Sprocket-Setup: Base CON 5 (bio), Kondensator angelegt im Regelzustand setzt
+      // effective CON auf 18. hp_max=34 wurde mit CON 18 erzeugt. Beim Ablegen
+      // fällt effective CON auf 5 (fo.con=5), hpMax sinkt auf 12. hpCurrent
+      // muss auf 12 geclampt werden (NICHT auf −10).
+      const char = makeCharacter({
+        str: 10,
+        dex: 14,
+        con: 18,
+        int: 10,
+        wis: 10,
+        hp_current: 34,
+        hp_max: 34,
+        level: 6,
+      });
+      const classes = [makeClass("thief", 6)];
+      const condenser = makeCondenser(true);
+
+      const result = computeCharacterCombatData(char, classes, [], [condenser], []);
+      // CON 18 hpAdj=+4 → rogue-capped to +2. CON 5 hpAdj=-1 (penalties uncapped).
+      // Delta per level = (−1 − 2) = −3; total over 6 levels = −18 (single class, divisor 1).
+      // hpMax = max(1, 34 + (−18)) = 16
+      expect(result.hpMax).toBe(16);
+      // CRITICAL: current must be clamped to new max — not driven negative by the delta
+      expect(result.hpCurrent).toBe(16);
+    });
+
+    it("Kondensator equipped + L0: HP unchanged (fo.con matches stored CON)", () => {
+      // Wenn Kondensator angelegt ist mit stat_overrides.con=18 UND
+      // simple_effects.base_constitution=5 → forceStatOverrides.con=18 (equip-branch).
+      // effectiveCon=18 = character.con=18 → hpDelta=0, HP unverändert.
+      const char = makeCharacter({
+        con: 18,
+        hp_current: 34,
+        hp_max: 34,
+        level: 6,
+      });
+      const classes = [makeClass("thief", 6)];
+      const condenser = makeCondenser(false);
+
+      const result = computeCharacterCombatData(char, classes, [], [condenser], []);
+      expect(result.hpMax).toBe(34);
+      expect(result.hpCurrent).toBe(34);
+    });
+
+    it("CON buff raises hpMax but leaves current unchanged (no free heal)", () => {
+      // Buff via statOverrides (nicht force): eo.con=18 über base=12.
+      // hpMax steigt, current bleibt (darf nicht über altes Max springen).
+      const char = makeCharacter({
+        con: 12,
+        hp_current: 20,
+        hp_max: 30,
+        level: 5,
+      });
+      const classes = [makeClass("thief", 5)];
+      const buffItem: EpicItemRow = {
+        id: "epic-buff",
+        character_id: "test-char",
+        slug: "con-amulet",
+        name: "CON Amulet",
+        name_en: "CON Amulet",
+        description: "",
+        description_en: "",
+        icon: "amulet",
+        equipped: true,
+        damage_level: 0,
+        max_damage_level: 1,
+        damage_levels: {
+          "0": { description: "", description_en: "", effects: [], stat_overrides: { con: 18 } },
+        },
+        simple_effects: {},
+        notes: "",
+        created_at: "",
+        updated_at: "",
+      };
+
+      const result = computeCharacterCombatData(char, classes, [], [buffItem], []);
+      // Rogue cap +2. eo.con: 12 → 18, hpAdj 0 → +2, delta = (2 − 0) × 5 = +10
+      expect(result.hpMax).toBe(40);
+      expect(result.hpCurrent).toBe(20); // unverändert — kein Free-Heal
+    });
+
+    it("current HP below 0 (unconscious) stays negative after clamp when within death threshold", () => {
+      // Edge case: Char war bereits im Unconscious-Zustand, dann ändert sich Max.
+      // Current soll nicht nach oben geclampt werden.
+      const char = makeCharacter({
+        con: 15,
+        hp_current: -3,
+        hp_max: 30,
+        level: 5,
+      });
+      const classes = [makeClass("thief", 5)];
+
+      const result = computeCharacterCombatData(char, classes, [], [], []);
+      expect(result.hpCurrent).toBe(-3);
+    });
+
+    it("clamps current to death threshold if below −effectiveMax", () => {
+      const char = makeCharacter({
+        con: 18,
+        hp_current: -40,
+        hp_max: 30,
+        level: 5,
+      });
+      const classes = [makeClass("thief", 5)];
+
+      const result = computeCharacterCombatData(char, classes, [], [], []);
+      // hp_current=-40, max remains ~30 → clamp to -30
+      expect(result.hpCurrent).toBe(-result.hpMax);
+    });
+  });
 });

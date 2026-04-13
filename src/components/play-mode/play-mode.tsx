@@ -37,7 +37,7 @@ import {
   getShieldProficiencyBonus,
 } from "@/lib/rules/equipment";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
-import { getConBonusCap, getDeathThreshold } from "@/lib/rules/hitpoints";
+import { getConBonusCap, clampHpCurrentToMax } from "@/lib/rules/hitpoints";
 import { CLASSES, getClassGroup } from "@/lib/rules/classes";
 import { getEpicEffects, scaleSubStat } from "@/lib/rules/epic-items";
 import type { EpicEffects } from "@/lib/rules/epic-items";
@@ -456,13 +456,7 @@ export function PlayMode({
     return Math.round(totalDelta / divisor);
   }, [activeClasses, conMods.hpAdj, baseConMods.hpAdj]);
   const effectiveHpMax = Math.max(1, character.hp_max + hpDelta);
-  // Asymmetric HP capping: damage (negative delta) caps current HP down,
-  // but repair (positive delta) only raises max — never heals current HP.
-  // HP can go negative down to -maxHP (death threshold).
-  const effectiveHpCurrent = Math.max(
-    getDeathThreshold(effectiveHpMax),
-    Math.min(character.hp_current + Math.min(0, hpDelta), effectiveHpMax)
-  );
+  const effectiveHpCurrent = clampHpCurrentToMax(character.hp_current, effectiveHpMax);
 
   // Equipment calculations — use DB is_shield flag instead of name heuristic
   const equippedArmor = useMemo(

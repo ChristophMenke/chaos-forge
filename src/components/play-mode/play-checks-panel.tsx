@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { GlassCard } from "@/components/glass-card";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +20,8 @@ import type { EpicEffects } from "@/lib/rules/epic-items";
 import type { ThiefSkillBonuses } from "@/lib/rules/magic-items";
 import { localized } from "@/lib/utils/localize";
 
+type StatKey = "str" | "dex" | "con" | "int" | "wis" | "cha";
+
 interface PlayChecksPanelProps {
   saves: SavingThrows;
   character: CharacterRow;
@@ -36,8 +38,8 @@ interface PlayChecksPanelProps {
   magicPerceptionBonus?: number;
   magicSaveBonuses?: Partial<SavingThrows>;
   magicThiefBonuses?: ThiefSkillBonuses;
-  magicStatOverrides?: Partial<Record<"str" | "dex" | "con" | "int" | "wis" | "cha", number>>;
-  magicStatBonuses?: Partial<Record<"str" | "dex" | "con" | "int" | "wis" | "cha", number>>;
+  magicStatOverrides?: Partial<Record<StatKey, number>>;
+  magicStatBonuses?: Partial<Record<StatKey, number>>;
 }
 
 function PlayChecksPanelInner({
@@ -86,30 +88,38 @@ function PlayChecksPanelInner({
   );
   const epic = epicEffects ?? defaultEpic;
   const eo = epic.statOverrides;
+  const fo = epic.forceStatOverrides;
   const mo = magicStatOverrides;
   const mb = magicStatBonuses;
 
-  // Resolve effective stat: max(base, epicOverride, magicOverride) + magicBonus
-  function eff(base: number, stat: "str" | "dex" | "con" | "int" | "wis" | "cha"): number {
-    return Math.max(base, eo[stat] ?? 0, mo[stat] ?? 0) + (mb[stat] ?? 0);
-  }
+  // Resolve effective stat: force ?? max(base, epicOverride, magicOverride) + magicBonus.
+  // Force-overrides (z.B. Kondensator) ersetzen den Base-Wert unbedingt.
+  // Memoized so that abilities and nwpChecks can reference it in their dep arrays
+  // instead of inlining a duplicate resolver body.
+  const eff = useCallback(
+    (base: number, stat: StatKey): number => {
+      const resolved = fo[stat] ?? Math.max(base, eo[stat] ?? 0, mo[stat] ?? 0);
+      return resolved + (mb[stat] ?? 0);
+    },
+    [fo, eo, mo, mb]
+  );
 
   // Is a stat modified by any override or bonus?
-  function isModified(base: number, stat: "str" | "dex" | "con" | "int" | "wis" | "cha"): boolean {
-    return eff(base, stat) !== base;
-  }
+  const isModified = useCallback(
+    (base: number, stat: StatKey): boolean => eff(base, stat) !== base,
+    [eff]
+  );
 
   // Helper: scale sub-stat if main stat is overridden by any source
-  function sub(
-    base: number,
-    baseSub: number | null,
-    stat: "str" | "dex" | "con" | "int" | "wis" | "cha"
-  ): number | null {
-    if (baseSub == null) return null;
-    const effective = eff(base, stat);
-    if (effective !== base) return scaleSubStat(base, baseSub, effective);
-    return baseSub;
-  }
+  const sub = useCallback(
+    (base: number, baseSub: number | null, stat: StatKey): number | null => {
+      if (baseSub == null) return null;
+      const effective = eff(base, stat);
+      if (effective !== base) return scaleSubStat(base, baseSub, effective);
+      return baseSub;
+    },
+    [eff]
+  );
 
   // Ability scores with names (using effective stats from epic + magic overrides + bonuses)
   const abilities = useMemo(
@@ -199,8 +209,7 @@ function PlayChecksPanelInner({
         ].filter(Boolean),
       },
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [character, ts, eo, mo, mb]
+    [character, ts, eff, isModified, sub]
   );
 
   // Thief skills (epic penalties + magic item bonuses)
@@ -247,18 +256,14 @@ function PlayChecksPanelInner({
   }, [showThiefSkills, character, ts, epic, mt]);
 
   // NWP checks with target numbers (using effective stats from epic + magic overrides + bonuses).
-  // `eff` is inlined here so the useMemo dependency list is fully expressed via primitives
-  // (eo, mo, mb), avoiding a stale-closure warning on the non-memoized `eff` function.
   const nwpChecks = useMemo(() => {
-    const effective = (base: number, stat: "str" | "dex" | "con" | "int" | "wis" | "cha") =>
-      Math.max(base, eo[stat] ?? 0, mo[stat] ?? 0) + (mb[stat] ?? 0);
     const abilityMap: Record<string, number> = {
-      str: effective(character.str, "str"),
-      dex: effective(character.dex, "dex"),
-      con: effective(character.con, "con"),
-      int: effective(character.int, "int"),
-      wis: effective(character.wis, "wis"),
-      cha: effective(character.cha, "cha"),
+      str: eff(character.str, "str"),
+      dex: eff(character.dex, "dex"),
+      con: eff(character.con, "con"),
+      int: eff(character.int, "int"),
+      wis: eff(character.wis, "wis"),
+      cha: eff(character.cha, "cha"),
     };
     return nonweaponProficiencies.map((nwp) => {
       const ability = nwp.proficiency.ability.toLowerCase();
@@ -275,7 +280,7 @@ function PlayChecksPanelInner({
           : null,
       };
     });
-  }, [nonweaponProficiencies, character, locale, eo, mo, mb]);
+  }, [nonweaponProficiencies, character, locale, eff]);
 
   const [expandedNwp, setExpandedNwp] = useState<string | null>(null);
 

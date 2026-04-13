@@ -683,6 +683,10 @@
   },
   "dashboard": {
     "title": "Gruppen-Dashboard",
+    "nextSessionLabel": "Nächster Rollenspielabend",
+    "nextSessionToday": "Heute! Hol die Würfel raus!",
+    "nextSessionTomorrow": "Morgen — mach dich bereit!",
+    "nextSessionInDays": "in {count, plural, =1 {# Tag} other {# Tagen}}",
     "adventurers": "Abenteurer",
     "averageLevel": "Durchschnittsstufe",
     "classDistribution": "Klassen",
