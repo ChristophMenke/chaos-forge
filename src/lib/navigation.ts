@@ -1,4 +1,12 @@
-import { LayoutDashboard, Users, ScrollText, Package, FileUp, BookOpen } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  ScrollText,
+  Package,
+  FileUp,
+  BookOpen,
+  Settings,
+} from "lucide-react";
 
 export const NAV_ITEMS = [
   {
@@ -41,6 +49,13 @@ export const NAV_ITEMS = [
     icon: BookOpen,
     labelKey: "rulebook" as const,
     testId: "nav-rulebook",
+    mobileBar: false,
+  },
+  {
+    href: "/settings",
+    icon: Settings,
+    labelKey: "settings" as const,
+    testId: "nav-settings",
     mobileBar: false,
   },
 ];
