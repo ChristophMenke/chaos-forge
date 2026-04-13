@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import {
   GraduationCap,
   User,
   AlertTriangle,
+  Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,7 @@ import { GlassCard } from "@/components/glass-card";
 import { createClient } from "@/lib/supabase/client";
 import { useTheme } from "@/components/theme-provider";
 import { resetTutorials } from "@/lib/tutorial/steps";
+import { uploadProfileAvatar, deleteProfileAvatar } from "@/lib/avatar/profile-upload";
 
 interface SettingsClientProps {
   userId: string;
@@ -40,12 +42,13 @@ export function SettingsClient({
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const [displayName, setDisplayName] = useState(initialDisplayName);
-  const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl ?? "");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(initialAvatarUrl);
   const [savingProfile, setSavingProfile] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const profileDirty =
-    displayName !== initialDisplayName || (avatarUrl || null) !== (initialAvatarUrl ?? null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const profileDirty = displayName !== initialDisplayName;
 
   async function saveProfile() {
     if (savingProfile || !profileDirty) return;
@@ -59,7 +62,7 @@ export function SettingsClient({
       const supabase = createClient();
       const { error } = await supabase
         .from("profiles")
-        .update({ display_name: trimmed, avatar_url: avatarUrl || null })
+        .update({ display_name: trimmed })
         .eq("id", userId);
       if (error) throw error;
       toast.success(t("profileSaved"));
@@ -68,6 +71,41 @@ export function SettingsClient({
       toast.error(t("profileSaveError"));
     } finally {
       setSavingProfile(false);
+    }
+  }
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || uploadingAvatar) return;
+    setUploadingAvatar(true);
+    try {
+      const { url, error } = await uploadProfileAvatar(file, userId);
+      if (error || !url) {
+        toast.error(error ?? t("avatarUploadError"));
+        return;
+      }
+      setAvatarUrl(url);
+      toast.success(t("avatarUploaded"));
+      router.refresh();
+    } finally {
+      setUploadingAvatar(false);
+    }
+  }
+
+  async function handleAvatarRemove() {
+    if (uploadingAvatar) return;
+    setUploadingAvatar(true);
+    try {
+      const error = await deleteProfileAvatar(userId);
+      if (error) {
+        toast.error(error);
+        return;
+      }
+      setAvatarUrl(null);
+      router.refresh();
+    } finally {
+      setUploadingAvatar(false);
     }
   }
 
@@ -141,18 +179,63 @@ export function SettingsClient({
 
           <div>
             <label
-              htmlFor="settings-avatar-url"
+              htmlFor="settings-avatar-file"
               className="mb-1 block text-xs text-muted-foreground"
             >
-              {t("avatarUrl")}
+              {t("avatar")}
             </label>
-            <Input
-              id="settings-avatar-url"
-              value={avatarUrl}
-              onChange={(e) => setAvatarUrl(e.target.value)}
-              placeholder="https://…"
-              data-testid="settings-avatar-url"
-            />
+            <div className="flex items-center gap-3">
+              <div
+                className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border border-border bg-primary/10 text-lg font-medium text-primary"
+                data-testid="settings-avatar-preview"
+              >
+                {avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  (displayName || email).charAt(0).toUpperCase()
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingAvatar}
+                  data-testid="settings-avatar-upload"
+                >
+                  {uploadingAvatar ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Upload className="mr-2 h-4 w-4" />
+                  )}
+                  {uploadingAvatar ? t("avatarUploading") : t("avatarUpload")}
+                </Button>
+                {avatarUrl && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleAvatarRemove}
+                    disabled={uploadingAvatar}
+                    data-testid="settings-avatar-remove"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    {t("avatarRemove")}
+                  </Button>
+                )}
+              </div>
+              <input
+                ref={fileInputRef}
+                id="settings-avatar-file"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handleAvatarChange}
+                data-testid="settings-avatar-file"
+              />
+            </div>
           </div>
 
           <Button
