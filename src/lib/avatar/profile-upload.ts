@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
-import { resizeImageToSquare } from "./resize";
+import { resizeImageToSquare, cropAndResize, type CropArea } from "./resize";
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -24,19 +24,12 @@ function profilePath(userId: string) {
   return `${userId}/profile.webp`;
 }
 
-export async function uploadProfileAvatar(
-  file: File,
-  userId: string
-): Promise<ProfileUploadResult> {
-  const validationError = validateProfileAvatarFile(file);
-  if (validationError) return { url: null, error: validationError };
-
+async function uploadBlob(blob: Blob, userId: string): Promise<ProfileUploadResult> {
   try {
-    const resized = await resizeImageToSquare(file);
     const supabase = createClient();
     const path = profilePath(userId);
 
-    const { error: uploadError } = await supabase.storage.from(BUCKET).upload(path, resized, {
+    const { error: uploadError } = await supabase.storage.from(BUCKET).upload(path, blob, {
       contentType: "image/webp",
       upsert: true,
     });
@@ -54,6 +47,41 @@ export async function uploadProfileAvatar(
     if (updateError) return { url: null, error: updateError.message };
 
     return { url: avatarUrl, error: null };
+  } catch (err) {
+    return {
+      url: null,
+      error: err instanceof Error ? err.message : "Upload fehlgeschlagen.",
+    };
+  }
+}
+
+export async function uploadProfileAvatar(
+  file: File,
+  userId: string
+): Promise<ProfileUploadResult> {
+  const validationError = validateProfileAvatarFile(file);
+  if (validationError) return { url: null, error: validationError };
+  try {
+    const resized = await resizeImageToSquare(file);
+    return uploadBlob(resized, userId);
+  } catch (err) {
+    return {
+      url: null,
+      error: err instanceof Error ? err.message : "Upload fehlgeschlagen.",
+    };
+  }
+}
+
+export async function uploadProfileAvatarCropped(
+  file: File,
+  crop: CropArea,
+  userId: string
+): Promise<ProfileUploadResult> {
+  const validationError = validateProfileAvatarFile(file);
+  if (validationError) return { url: null, error: validationError };
+  try {
+    const cropped = await cropAndResize(file, crop);
+    return uploadBlob(cropped, userId);
   } catch (err) {
     return {
       url: null,
