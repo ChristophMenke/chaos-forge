@@ -88,6 +88,7 @@ function CropBody({ file, onCancel, onConfirm, busy }: CropBodyProps) {
           step={0.01}
           value={zoom}
           onChange={(e) => setZoom(Number(e.target.value))}
+          aria-valuetext={`${Math.round(zoom * 100)}%`}
           className="flex-1 accent-primary"
           data-testid="avatar-crop-zoom"
         />

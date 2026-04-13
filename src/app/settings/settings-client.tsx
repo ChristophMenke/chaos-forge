@@ -100,6 +100,7 @@ export function SettingsClient({
       const { url, error } = await uploadProfileAvatarCropped(pendingFile, crop, userId);
       if (error || !url) {
         toast.error(error ?? t("avatarUploadError"));
+        setPendingFile(null);
         return;
       }
       setAvatarUrl(url);
