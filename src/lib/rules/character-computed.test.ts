@@ -1244,4 +1244,93 @@ describe("computeCharacterCombatData", () => {
       expect(result.hpCurrent).toBe(-result.hpMax);
     });
   });
+
+  describe("Thief-Penalty über Kondensator-Schadensstufen", () => {
+    function makeDamagedCondenser(damageLevel: number): EpicItemRow {
+      return {
+        id: "epic-condenser",
+        character_id: "test-char",
+        slug: "condenser",
+        name: "Konstitutions-Kondensator",
+        name_en: "Constitution Condenser",
+        description: "",
+        description_en: "",
+        icon: "heart-pulse",
+        equipped: true,
+        damage_level: damageLevel,
+        max_damage_level: 8,
+        damage_levels: {
+          "0": {
+            description: "",
+            description_en: "",
+            effects: [],
+            stat_overrides: { con: 18 },
+          },
+          "3": {
+            description: "",
+            description_en: "",
+            effects: ["spell_failure_10"],
+            stat_overrides: { con: 15 },
+          },
+          "4": {
+            description: "",
+            description_en: "",
+            effects: ["spell_failure_10", "thief_penalty_10"],
+            stat_overrides: { con: 14 },
+          },
+          "5": {
+            description: "",
+            description_en: "",
+            effects: ["spell_failure_10", "thief_disabled", "electric_damage_1"],
+            stat_overrides: { con: 12 },
+          },
+        },
+        simple_effects: { base_con: 5 },
+        notes: "",
+        created_at: "",
+        updated_at: "",
+      };
+    }
+
+    it("Damage-Level 3: kein Penalty", () => {
+      const char = makeCharacter({
+        con: 18,
+        thief_pick_locks: 50,
+        thief_find_traps: 40,
+      });
+      const classes = [makeClass("thief", 6)];
+      const result = computeCharacterCombatData(char, classes, [], [makeDamagedCondenser(3)], []);
+      expect(result.epicEffects.thiefPenalty).toBe(0);
+      expect(result.epicEffects.thiefDisabled).toBe(false);
+      expect(result.thiefSkills?.openLocks).toBe(50);
+      expect(result.thiefSkills?.findTraps).toBe(40);
+    });
+
+    it("Damage-Level 4: −10% auf alle Thief-Skills", () => {
+      const char = makeCharacter({
+        con: 18,
+        thief_pick_locks: 50,
+        thief_find_traps: 40,
+      });
+      const classes = [makeClass("thief", 6)];
+      const result = computeCharacterCombatData(char, classes, [], [makeDamagedCondenser(4)], []);
+      expect(result.epicEffects.thiefPenalty).toBe(10);
+      expect(result.epicEffects.thiefDisabled).toBe(false);
+      expect(result.thiefSkills?.openLocks).toBe(40);
+      expect(result.thiefSkills?.findTraps).toBe(30);
+    });
+
+    it("Damage-Level 5: Thief-Skills komplett deaktiviert", () => {
+      const char = makeCharacter({
+        con: 18,
+        thief_pick_locks: 50,
+        thief_find_traps: 40,
+      });
+      const classes = [makeClass("thief", 6)];
+      const result = computeCharacterCombatData(char, classes, [], [makeDamagedCondenser(5)], []);
+      expect(result.epicEffects.thiefDisabled).toBe(true);
+      // thiefSkills wird null gesetzt, wenn thiefDisabled greift
+      expect(result.thiefSkills).toBeNull();
+    });
+  });
 });
