@@ -90,8 +90,12 @@ export default async function ApproveUserPage({ params }: ApproveUserPageProps) 
               targetId={target.id}
               targetEmail={target.email ?? ""}
               approveLabel={t("adminApproveButton")}
+              rejectLabel={t("adminRejectButton")}
+              rejectConfirm={t("adminRejectConfirm", { email: target.email ?? "" })}
               successLabel={t("adminApproveSuccess")}
               errorLabel={t("adminApproveError")}
+              rejectSuccessLabel={t("adminRejectSuccess")}
+              rejectErrorLabel={t("adminRejectError")}
             />
           )}
 
