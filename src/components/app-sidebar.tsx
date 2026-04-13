@@ -76,7 +76,8 @@ export function AppSidebar({ userEmail, userId, userAvatarUrl }: AppSidebarProps
         {userEmail && (
           <Tooltip>
             <TooltipTrigger
-              className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-medium text-primary ring-1 ring-primary/20"
+              render={<Link href="/settings" />}
+              className="flex h-10 w-10 items-center justify-center self-center overflow-hidden rounded-full bg-primary/10 text-sm font-medium text-primary ring-1 ring-primary/20 transition-all hover:ring-primary/50"
               aria-label={userEmail}
               data-testid="sidebar-user-avatar"
             >
