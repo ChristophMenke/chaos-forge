@@ -5,6 +5,7 @@ import { getLocale, getMessages } from "next-intl/server";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppHeader } from "@/components/app-header";
+import { AppFooter } from "@/components/app-footer";
 import { ApprovalBanner } from "@/components/approval-banner";
 import { ApprovalErrorToast } from "@/components/approval-error-toast";
 import { SkipToMain } from "@/components/skip-to-main";
@@ -94,6 +95,7 @@ export default async function RootLayout({
               <main id="main" className="flex flex-1 flex-col pb-16 sm:pb-0">
                 {children}
               </main>
+              <AppFooter />
             </TooltipProvider>
             <Toaster richColors position="bottom-right" />
           </ThemeProvider>
