@@ -45,13 +45,11 @@ describe("CLASS-011: getConBonusCap", () => {
   });
 
   it("warrior with CON 18 (+4) keeps full bonus", () => {
-    const cap = getConBonusCap("warrior");
-    expect(Math.min(4, cap)).toBe(4);
+    expect(getConBonusCap("warrior")).toBeGreaterThanOrEqual(4);
   });
 
   it("priest with CON 18 (+4) is reduced to +2", () => {
-    const cap = getConBonusCap("priest");
-    expect(Math.min(4, cap)).toBe(2);
+    expect(getConBonusCap("priest")).toBe(2);
   });
 });
 

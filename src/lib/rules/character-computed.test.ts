@@ -1152,13 +1152,12 @@ describe("computeCharacterCombatData", () => {
       const condenser = makeCondenser(true);
 
       const result = computeCharacterCombatData(char, classes, [], [condenser], []);
-      // CON 18 → hpAdj capped at +2. CON 5 → hpAdj -3 (-3 is below cap, uncapped).
-      // Delta per level = (−3) − 2 = −5 → total = −5 × 6 = −30
-      // hpMax = 34 + (−30) = 4 ... actually let's just verify the contract:
-      expect(result.hpMax).toBeLessThan(34);
-      expect(result.hpMax).toBeGreaterThanOrEqual(1);
-      // CRITICAL: current must not go negative via delta-damage
-      expect(result.hpCurrent).toBe(result.hpMax);
+      // CON 18 hpAdj=+4 → rogue-capped to +2. CON 5 hpAdj=-1 (penalties uncapped).
+      // Delta per level = (−1 − 2) = −3; total over 6 levels = −18 (single class, divisor 1).
+      // hpMax = max(1, 34 + (−18)) = 16
+      expect(result.hpMax).toBe(16);
+      // CRITICAL: current must be clamped to new max — not driven negative by the delta
+      expect(result.hpCurrent).toBe(16);
     });
 
     it("Kondensator equipped + L0: HP unchanged (fo.con matches stored CON)", () => {
@@ -1211,8 +1210,9 @@ describe("computeCharacterCombatData", () => {
       };
 
       const result = computeCharacterCombatData(char, classes, [], [buffItem], []);
-      expect(result.hpMax).toBeGreaterThan(30);
-      expect(result.hpCurrent).toBe(20); // unverändert
+      // Rogue cap +2. eo.con: 12 → 18, hpAdj 0 → +2, delta = (2 − 0) × 5 = +10
+      expect(result.hpMax).toBe(40);
+      expect(result.hpCurrent).toBe(20); // unverändert — kein Free-Heal
     });
 
     it("current HP below 0 (unconscious) stays negative after clamp when within death threshold", () => {

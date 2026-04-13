@@ -258,21 +258,23 @@ export function CharacterSheet({
   const magicEffects = useMemo(() => getMagicItemEffects(equipmentState), [equipmentState]);
 
   // Apply epic stat overrides (e.g., Kondensator overrides CON).
-  // forceStatOverrides replace base unconditionally; regular overrides only
-  // apply if they're higher than base (?? character.X pattern was already
-  // override-semantic so we keep it; force wins before that).
-  const effectiveStr = fo.str ?? eo.str ?? character.str;
-  const effectiveDex = fo.dex ?? eo.dex ?? character.dex;
-  const effectiveCon = fo.con ?? eo.con ?? character.con;
-  const effectiveInt = fo.int ?? eo.int ?? character.int;
-  const effectiveWis = fo.wis ?? eo.wis ?? character.wis;
-  const effectiveCha = fo.cha ?? eo.cha ?? character.cha;
+  // Matches the resolve() semantics in character-computed.ts:
+  //   forceStatOverrides win unconditionally (Kondensator sets biological base);
+  //   otherwise max(base, epicOverride, magicOverride) so a lower override
+  //   never silently drops the stat below base.
+  const mo = magicEffects.statOverrides;
+  const effectiveStr = fo.str ?? Math.max(character.str, eo.str ?? 0, mo.str ?? 0);
+  const effectiveDex = fo.dex ?? Math.max(character.dex, eo.dex ?? 0, mo.dex ?? 0);
+  const effectiveCon = fo.con ?? Math.max(character.con, eo.con ?? 0, mo.con ?? 0);
+  const effectiveInt = fo.int ?? Math.max(character.int, eo.int ?? 0, mo.int ?? 0);
+  const effectiveWis = fo.wis ?? Math.max(character.wis, eo.wis ?? 0, mo.wis ?? 0);
+  const effectiveCha = fo.cha ?? Math.max(character.cha, eo.cha ?? 0, mo.cha ?? 0);
 
-  // Scale sub-stats proportionally when a main stat is overridden (by either
-  // regular epic-override or force-override — both change the effective stat)
-  const conOverridden = fo.con != null || eo.con != null;
-  const strOverridden = fo.str != null || eo.str != null;
-  const dexOverridden = fo.dex != null || eo.dex != null;
+  // Scale sub-stats proportionally when a main stat is overridden (by epic,
+  // force-override, or magic-item override — all three change the effective stat)
+  const conOverridden = fo.con != null || eo.con != null || mo.con != null;
+  const strOverridden = fo.str != null || eo.str != null || mo.str != null;
+  const dexOverridden = fo.dex != null || eo.dex != null || mo.dex != null;
   const effectiveConHealth = conOverridden
     ? scaleSubStat(character.con, character.con_health, effectiveCon)
     : character.con_health;
