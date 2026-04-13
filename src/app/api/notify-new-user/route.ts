@@ -5,12 +5,12 @@ import { createServiceClient } from "@/lib/supabase/service";
  * Called from the login flow after successful OTP verify.
  * If the user is unapproved, pings the admin via Discord webhook.
  *
- * "Fresh registration" (first login) is derived server-side from the
- * `new_user_registered` notification timestamp written by the
- * `handle_new_user` trigger — no trust placed in the client payload.
+ * "First login" is derived from `profiles.last_login_at IS NULL`. The OTP flow
+ * creates the auth.users row (and profile via trigger) when the code is
+ * REQUESTED, but this endpoint only runs when the code is VERIFIED — the gap
+ * is unbounded (user reads mail, types code), so a time-window check on the
+ * notification timestamp is unreliable.
  */
-const FRESH_REGISTRATION_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
-
 export async function POST() {
   const supabase = await createClient();
   const {
@@ -23,7 +23,7 @@ export async function POST() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("is_approved, email")
+    .select("is_approved, email, last_login_at")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -45,8 +45,9 @@ export async function POST() {
   }
 
   const userEmail = profile?.email ?? user.email ?? "";
+  const isFirstLogin = profile?.last_login_at == null;
 
-  // Update last_login_at regardless (own row, RLS allows this)
+  // Update last_login_at AFTER reading it (own row, RLS allows this)
   await supabase
     .from("profiles")
     .update({ last_login_at: new Date().toISOString() })
@@ -57,27 +58,18 @@ export async function POST() {
     return Response.json({ ok: true, skipped: "no_webhook" });
   }
 
-  // Look up the registration notification (service client bypasses RLS).
-  // Also recreate the in-app notification if the admin accidentally deleted it
-  // — this way the "Freischalten"-Button reappears on the next login.
-  let isNewRegistration = false;
+  // Ensure an in-app admin notification exists so the "Freischalten"-Button
+  // is available (it may have been deleted, or the trigger missed it).
   try {
     const service = createServiceClient();
-
     const { data: regNotif } = await service
       .from("notifications")
-      .select("created_at")
+      .select("id")
       .eq("type", "new_user_registered")
       .eq("details->>user_id", user.id)
-      .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
-    if (regNotif?.created_at) {
-      const age = Date.now() - new Date(regNotif.created_at).getTime();
-      isNewRegistration = age < FRESH_REGISTRATION_WINDOW_MS;
-    } else {
-      // No existing notification for this user — recreate it so the admin
-      // always has an "approve" action in the in-app notifications panel.
+    if (!regNotif) {
       const { data: admin } = await service
         .from("profiles")
         .select("id")
@@ -92,13 +84,13 @@ export async function POST() {
       }
     }
   } catch {
-    // If lookup fails, fall back to the generic "still waiting" message
+    // Non-critical — fall through to the Discord ping
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://adnd-chaos-forge.vercel.app";
   const approveLink = `${siteUrl}/admin/approve/${user.id}`;
 
-  const content = isNewRegistration
+  const content = isFirstLogin
     ? `🆕 **Neuer Schergen-Kandidat:** ${userEmail}\n→ Direkt freischalten: ${approveLink}`
     : `⏳ ${userEmail} hat sich eingeloggt, wartet noch auf Freigabe.\n→ ${approveLink}`;
 
