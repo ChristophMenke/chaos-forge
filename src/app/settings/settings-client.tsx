@@ -21,7 +21,13 @@ import { GlassCard } from "@/components/glass-card";
 import { createClient } from "@/lib/supabase/client";
 import { useTheme } from "@/components/theme-provider";
 import { resetTutorials } from "@/lib/tutorial/steps";
-import { uploadProfileAvatar, deleteProfileAvatar } from "@/lib/avatar/profile-upload";
+import {
+  uploadProfileAvatarCropped,
+  deleteProfileAvatar,
+  validateProfileAvatarFile,
+} from "@/lib/avatar/profile-upload";
+import { AvatarCropDialog } from "@/components/avatar-crop-dialog";
+import type { CropArea } from "@/lib/avatar/resize";
 
 interface SettingsClientProps {
   userId: string;
@@ -45,6 +51,7 @@ export function SettingsClient({
   const [avatarUrl, setAvatarUrl] = useState<string | null>(initialAvatarUrl);
   const [savingProfile, setSavingProfile] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -74,18 +81,30 @@ export function SettingsClient({
     }
   }
 
-  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file || uploadingAvatar) return;
+    const validationError = validateProfileAvatarFile(file);
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+    setPendingFile(file);
+  }
+
+  async function handleCropConfirm(crop: CropArea) {
+    if (!pendingFile) return;
     setUploadingAvatar(true);
     try {
-      const { url, error } = await uploadProfileAvatar(file, userId);
+      const { url, error } = await uploadProfileAvatarCropped(pendingFile, crop, userId);
       if (error || !url) {
         toast.error(error ?? t("avatarUploadError"));
+        setPendingFile(null);
         return;
       }
       setAvatarUrl(url);
+      setPendingFile(null);
       toast.success(t("avatarUploaded"));
       router.refresh();
     } finally {
@@ -147,6 +166,12 @@ export function SettingsClient({
 
   return (
     <div className="flex flex-col gap-5">
+      <AvatarCropDialog
+        file={pendingFile}
+        onCancel={() => setPendingFile(null)}
+        onConfirm={handleCropConfirm}
+        busy={uploadingAvatar}
+      />
       {/* ── Profile ────────────────────────────────────────── */}
       <GlassCard hover={false} data-testid="settings-section-profile">
         <div className="mb-3 flex items-center gap-2">
