@@ -1167,6 +1167,8 @@
     "noSpells": "No spells prepared",
     "noProficiencies": "No proficiencies",
     "noItems": "No inventory",
+    "deleteItemTitle": "Delete item?",
+    "deleteItemMessage": "Do you really want to remove {name} from the inventory?",
     "wisMagicalDefense": "WIS Magical Defense",
     "perception": "Perception",
     "perceptionFormula": "(INT + WIS) / 2",

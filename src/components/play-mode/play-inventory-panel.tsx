@@ -7,6 +7,7 @@ import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SendItemDialog } from "./send-item-dialog";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { createClient } from "@/lib/supabase/client";
 import { getEncumbranceLabel } from "@/lib/rules/equipment";
 import type { EncumbranceLevel } from "@/lib/rules/equipment";
@@ -48,6 +49,7 @@ function PlayInventoryPanelInner({
   const [newItemName, setNewItemName] = useState("");
   const [newItemQty, setNewItemQty] = useState(1);
   const [sendingItem, setSendingItem] = useState<CharacterInventoryWithDetails | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<CharacterInventoryWithDetails | null>(null);
 
   async function addItem() {
     if (!newItemName.trim()) return;
@@ -77,7 +79,11 @@ function PlayInventoryPanelInner({
   }
 
   async function updateQuantity(itemId: string, newQty: number) {
-    if (newQty < 1) return removeItem(itemId);
+    if (newQty < 1) {
+      // Reducing the last unit removes the item — confirm first.
+      setPendingDelete(inventory.find((i) => i.id === itemId) ?? null);
+      return;
+    }
     const supabase = createClient();
     await supabase.from("character_inventory").update({ quantity: newQty }).eq("id", itemId);
     onInventoryChange(inventory.map((i) => (i.id === itemId ? { ...i, quantity: newQty } : i)));
@@ -227,6 +233,18 @@ function PlayInventoryPanelInner({
           onClose={() => setSendingItem(null)}
         />
       )}
+
+      {/* Delete confirmation */}
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title={t("deleteItemTitle")}
+        message={t("deleteItemMessage", { name: pendingDelete ? itemName(pendingDelete) : "" })}
+        onConfirm={() => {
+          if (pendingDelete) removeItem(pendingDelete.id);
+          setPendingDelete(null);
+        }}
+        onCancel={() => setPendingDelete(null)}
+      />
     </GlassCard>
   );
 }

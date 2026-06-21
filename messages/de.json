@@ -1167,6 +1167,8 @@
     "noSpells": "Keine Zauber vorbereitet",
     "noProficiencies": "Keine Fertigkeiten",
     "noItems": "Kein Inventar",
+    "deleteItemTitle": "Gegenstand löschen?",
+    "deleteItemMessage": "Möchtest du {name} wirklich aus dem Inventar entfernen?",
     "wisMagicalDefense": "WIS Magische Abwehr",
     "perception": "Wahrnehmung",
     "perceptionFormula": "(INT + WIS) / 2",
