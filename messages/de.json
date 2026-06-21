@@ -981,7 +981,10 @@
     "addQuote": "Zitat hinzufügen",
     "quoteContent": "Das Zitat...",
     "quoteAttributedTo": "Wer hat es gesagt? (optional)",
-    "noQuotes": "Noch keine Zitate. Zeit für denkwürdige Momente!"
+    "noQuotes": "Noch keine Zitate. Zeit für denkwürdige Momente!",
+    "quotePage": "Seite {current} von {total}",
+    "quotePrev": "Zurück",
+    "quoteNext": "Weiter"
   },
   "theme": {
     "toggleDark": "Zum dunklen Modus wechseln",

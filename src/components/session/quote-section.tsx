@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ import { ApprovalGate } from "@/components/approval-gate";
 import type { ChronicleQuoteRow, QuoteReactionRow } from "@/lib/supabase/types";
 
 const EMOJI_OPTIONS = ["👍", "😂", "💀", "🔥", "⭐", "❤️", "🐉", "⚔️"];
+
+const PAGE_SIZE = 10;
 
 interface QuoteSectionProps {
   quotes: ChronicleQuoteRow[];
@@ -26,19 +28,20 @@ export function QuoteSection({
   const tcom = useTranslations("common");
   const [quotes, setQuotes] = useState(initialQuotes);
   const [reactions, setReactions] = useState(initialReactions);
+  const [page, setPage] = useState(0);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [content, setContent] = useState("");
   const [attributedTo, setAttributedTo] = useState("");
   const [saving, setSaving] = useState(false);
   const [pickerOpenId, setPickerOpenId] = useState<string | null>(null);
-  const pickerRef = useRef<HTMLDivElement>(null);
 
-  // Close emoji picker on outside click
+  // Close emoji picker on outside click. Querying the DOM via a data-attribute
+  // avoids the stale-ref pitfall of sharing one ref across many quote cards.
   useEffect(() => {
     if (!pickerOpenId) return;
     function handleClick(e: MouseEvent) {
-      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+      if (!(e.target as Element).closest("[data-emoji-picker]")) {
         setPickerOpenId(null);
       }
     }
@@ -49,46 +52,55 @@ export function QuoteSection({
   async function handleSave() {
     if (!content.trim()) return;
     setSaving(true);
-    const supabase = createClient();
+    try {
+      const supabase = createClient();
 
-    if (editingId) {
-      const { error } = await supabase
-        .from("chronicle_quotes")
-        .update({ content: content.trim(), attributed_to: attributedTo.trim() })
-        .eq("id", editingId);
-      if (!error) {
-        setQuotes((prev) =>
-          prev.map((q) =>
-            q.id === editingId
-              ? { ...q, content: content.trim(), attributed_to: attributedTo.trim() }
-              : q
-          )
-        );
+      if (editingId) {
+        const { error } = await supabase
+          .from("chronicle_quotes")
+          .update({ content: content.trim(), attributed_to: attributedTo.trim() })
+          .eq("id", editingId);
+        if (!error) {
+          setQuotes((prev) =>
+            prev.map((q) =>
+              q.id === editingId
+                ? { ...q, content: content.trim(), attributed_to: attributedTo.trim() }
+                : q
+            )
+          );
+          resetForm();
+        }
+      } else {
+        const { data, error } = await supabase
+          .from("chronicle_quotes")
+          .insert({
+            content: content.trim(),
+            attributed_to: attributedTo.trim(),
+            created_by: currentUserId,
+          })
+          .select()
+          .single<ChronicleQuoteRow>();
+        if (!error && data) {
+          setQuotes((prev) => [data, ...prev]);
+          resetForm();
+        }
       }
-    } else {
-      const { data, error } = await supabase
-        .from("chronicle_quotes")
-        .insert({
-          content: content.trim(),
-          attributed_to: attributedTo.trim(),
-          created_by: currentUserId,
-        })
-        .select()
-        .single<ChronicleQuoteRow>();
-      if (!error && data) {
-        setQuotes((prev) => [data, ...prev]);
-      }
+    } finally {
+      setSaving(false);
     }
-
-    resetForm();
-    setSaving(false);
   }
 
   async function handleDelete(id: string) {
     const supabase = createClient();
     const { error } = await supabase.from("chronicle_quotes").delete().eq("id", id);
     if (!error) {
-      setQuotes((prev) => prev.filter((q) => q.id !== id));
+      setQuotes((prev) => {
+        const next = prev.filter((q) => q.id !== id);
+        // Clamp page if current page is now out of bounds
+        const newTotalPages = Math.max(1, Math.ceil(next.length / PAGE_SIZE));
+        if (page >= newTotalPages) setPage(Math.max(0, newTotalPages - 1));
+        return next;
+      });
       setReactions((prev) => prev.filter((r) => r.quote_id !== id));
     }
   }
@@ -133,20 +145,33 @@ export function QuoteSection({
     setShowForm(false);
   }
 
-  function getReactionCounts(quoteId: string): { emoji: string; count: number; hasOwn: boolean }[] {
-    const quoteReactions = reactions.filter((r) => r.quote_id === quoteId);
-    const grouped = new Map<string, { count: number; hasOwn: boolean }>();
-    for (const r of quoteReactions) {
-      const current = grouped.get(r.emoji) ?? { count: 0, hasOwn: false };
+  // Group all reactions by quote once per change instead of re-filtering the
+  // full list for every rendered card.
+  const reactionsByQuote = useMemo(() => {
+    const byQuote = new Map<string, Map<string, { count: number; hasOwn: boolean }>>();
+    for (const r of reactions) {
+      let emojiMap = byQuote.get(r.quote_id);
+      if (!emojiMap) {
+        emojiMap = new Map();
+        byQuote.set(r.quote_id, emojiMap);
+      }
+      const current = emojiMap.get(r.emoji) ?? { count: 0, hasOwn: false };
       current.count++;
       if (r.user_id === currentUserId) current.hasOwn = true;
-      grouped.set(r.emoji, current);
+      emojiMap.set(r.emoji, current);
     }
-    return Array.from(grouped.entries()).map(([emoji, data]) => ({
-      emoji,
-      ...data,
-    }));
-  }
+    const result = new Map<string, { emoji: string; count: number; hasOwn: boolean }[]>();
+    for (const [quoteId, emojiMap] of byQuote) {
+      result.set(
+        quoteId,
+        Array.from(emojiMap.entries()).map(([emoji, data]) => ({ emoji, ...data }))
+      );
+    }
+    return result;
+  }, [reactions, currentUserId]);
+
+  const totalPages = Math.max(1, Math.ceil(quotes.length / PAGE_SIZE));
+  const pagedQuotes = quotes.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   return (
     <div data-testid="quote-section">
@@ -209,103 +234,135 @@ export function QuoteSection({
           {t("noQuotes")}
         </p>
       ) : (
-        <div className="flex flex-col gap-3">
-          {quotes.map((quote) => {
-            const reactionCounts = getReactionCounts(quote.id);
-            const isOwner = quote.created_by === currentUserId;
+        <>
+          <div className="flex flex-col gap-3">
+            {pagedQuotes.map((quote) => {
+              const reactionCounts = reactionsByQuote.get(quote.id) ?? [];
+              const isOwner = quote.created_by === currentUserId;
 
-            return (
-              <div
-                key={quote.id}
-                className="relative rounded-lg border border-amber-500/20 bg-amber-950/10 p-4"
-                data-testid={`quote-card-${quote.id}`}
-              >
-                <span
-                  className="absolute -top-2 left-2 font-serif text-3xl leading-none text-primary/30"
-                  aria-hidden="true"
+              return (
+                <div
+                  key={quote.id}
+                  className="relative rounded-lg border border-amber-500/20 bg-amber-950/10 p-4"
+                  data-testid={`quote-card-${quote.id}`}
                 >
-                  &#x275D;
-                </span>
-                <blockquote className="pl-4 pt-1 font-serif text-sm italic text-foreground/90">
-                  {quote.content}
-                </blockquote>
-                {quote.attributed_to && (
-                  <p className="mt-2 text-right text-sm font-medium text-primary/70">
-                    — {quote.attributed_to}
-                  </p>
-                )}
+                  <span
+                    className="absolute -top-2 left-2 font-serif text-3xl leading-none text-primary/30"
+                    aria-hidden="true"
+                  >
+                    &#x275D;
+                  </span>
+                  <blockquote className="pl-4 pt-1 font-serif text-sm italic text-foreground/90">
+                    {quote.content}
+                  </blockquote>
+                  {quote.attributed_to && (
+                    <p className="mt-2 text-right text-sm font-medium text-primary/70">
+                      — {quote.attributed_to}
+                    </p>
+                  )}
 
-                {/* Reactions */}
-                <div className="mt-3 flex flex-wrap items-center gap-1">
-                  {reactionCounts.map(({ emoji, count, hasOwn }) => (
-                    <button
-                      key={emoji}
-                      onClick={() => toggleReaction(quote.id, emoji)}
-                      className={`rounded-full border px-2 py-0.5 text-sm transition-colors ${
-                        hasOwn ? "border-primary/50 bg-primary/10" : "border-border hover:bg-muted"
-                      }`}
-                      data-testid={`quote-reaction-${quote.id}-${emoji}`}
-                    >
-                      {emoji} {count}
-                    </button>
-                  ))}
-                  {/* Add reaction picker */}
-                  <div className="relative" ref={pickerOpenId === quote.id ? pickerRef : null}>
-                    <button
-                      className="rounded-full border border-dashed border-border px-2 py-0.5 text-sm text-muted-foreground hover:bg-muted"
-                      onClick={() => setPickerOpenId(pickerOpenId === quote.id ? null : quote.id)}
-                      data-testid={`quote-add-reaction-${quote.id}`}
-                    >
-                      +
-                    </button>
-                    {pickerOpenId === quote.id && (
-                      <div className="absolute bottom-full left-0 z-10 mb-1 flex rounded-lg border border-border bg-card p-2 shadow-lg">
-                        {EMOJI_OPTIONS.map((emoji) => (
-                          <button
-                            key={emoji}
-                            onClick={() => {
-                              toggleReaction(quote.id, emoji);
-                              setPickerOpenId(null);
-                            }}
-                            className="rounded p-1 text-lg hover:bg-muted"
-                            data-testid={`quote-emoji-pick-${quote.id}-${emoji}`}
-                          >
-                            {emoji}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Owner actions */}
-                {isOwner && (
-                  <ApprovalGate fallback={null}>
-                    <div className="mt-2 flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => startEdit(quote)}
-                        data-testid={`quote-edit-${quote.id}`}
+                  {/* Reactions */}
+                  <div className="mt-3 flex flex-wrap items-center gap-1">
+                    {reactionCounts.map(({ emoji, count, hasOwn }) => (
+                      <button
+                        key={emoji}
+                        onClick={() => toggleReaction(quote.id, emoji)}
+                        className={`rounded-full border px-2 py-0.5 text-sm transition-colors ${
+                          hasOwn
+                            ? "border-primary/50 bg-primary/10"
+                            : "border-border hover:bg-muted"
+                        }`}
+                        data-testid={`quote-reaction-${quote.id}-${emoji}`}
                       >
-                        {tcom("edit")}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => handleDelete(quote.id)}
-                        data-testid={`quote-delete-${quote.id}`}
+                        {emoji} {count}
+                      </button>
+                    ))}
+                    {/* Add reaction picker */}
+                    <div className="relative" data-emoji-picker>
+                      <button
+                        className="rounded-full border border-dashed border-border px-2 py-0.5 text-sm text-muted-foreground hover:bg-muted"
+                        onClick={() => setPickerOpenId(pickerOpenId === quote.id ? null : quote.id)}
+                        data-testid={`quote-add-reaction-${quote.id}`}
                       >
-                        {tcom("delete")}
-                      </Button>
+                        +
+                      </button>
+                      {pickerOpenId === quote.id && (
+                        <div className="absolute bottom-full left-0 z-10 mb-1 flex rounded-lg border border-border bg-card p-2 shadow-lg">
+                          {EMOJI_OPTIONS.map((emoji) => (
+                            <button
+                              key={emoji}
+                              onClick={() => {
+                                toggleReaction(quote.id, emoji);
+                                setPickerOpenId(null);
+                              }}
+                              className="rounded p-1 text-lg hover:bg-muted"
+                              data-testid={`quote-emoji-pick-${quote.id}-${emoji}`}
+                            >
+                              {emoji}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  </ApprovalGate>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                  </div>
+
+                  {/* Owner actions */}
+                  {isOwner && (
+                    <ApprovalGate fallback={null}>
+                      <div className="mt-2 flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => startEdit(quote)}
+                          data-testid={`quote-edit-${quote.id}`}
+                        >
+                          {tcom("edit")}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => handleDelete(quote.id)}
+                          data-testid={`quote-delete-${quote.id}`}
+                        >
+                          {tcom("delete")}
+                        </Button>
+                      </div>
+                    </ApprovalGate>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {totalPages > 1 && (
+            <div
+              className="mt-3 flex items-center justify-center gap-3"
+              data-testid="quote-pagination"
+            >
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={page === 0}
+                data-testid="quote-prev"
+              >
+                {t("quotePrev")}
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                {t("quotePage", { current: page + 1, total: totalPages })}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                disabled={page >= totalPages - 1}
+                data-testid="quote-next"
+              >
+                {t("quoteNext")}
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
