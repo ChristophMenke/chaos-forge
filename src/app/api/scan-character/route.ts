@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     const client = new Anthropic({ apiKey });
 
     const message = await client.messages.create({
-      model: preciseMode ? "claude-sonnet-4-20250514" : "claude-haiku-4-5-20251001",
+      model: preciseMode ? "claude-sonnet-4-6" : "claude-haiku-4-5-20251001",
       max_tokens: 4096,
       messages: [
         {
