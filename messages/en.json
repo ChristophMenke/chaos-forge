@@ -981,7 +981,10 @@
     "addQuote": "Add Quote",
     "quoteContent": "The quote...",
     "quoteAttributedTo": "Who said it? (optional)",
-    "noQuotes": "No quotes yet. Time for memorable moments!"
+    "noQuotes": "No quotes yet. Time for memorable moments!",
+    "quotePage": "Page {current} of {total}",
+    "quotePrev": "Previous",
+    "quoteNext": "Next"
   },
   "theme": {
     "toggleDark": "Switch to dark mode",
