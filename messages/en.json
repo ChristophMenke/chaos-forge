@@ -1300,6 +1300,8 @@
     "bladeVialBroken": "Broken",
     "bladeLost": "Lost",
     "bladeForge": "Forge blade",
+    "speed": "Speed",
+    "saveError": "Saving failed. Please try again.",
     "bladesThrown": "{count} blade(s) thrown — don't forget to collect!",
     "mixtureInventory": "Mixture Inventory",
     "mixtureCraft": "Craft",

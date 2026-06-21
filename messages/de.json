@@ -1300,6 +1300,8 @@
     "bladeVialBroken": "Zerbrochen",
     "bladeLost": "Verloren",
     "bladeForge": "Klinge schmieden",
+    "speed": "Geschw.",
+    "saveError": "Speichern fehlgeschlagen. Bitte erneut versuchen.",
     "bladesThrown": "{count} Klinge(n) geworfen — einsammeln nicht vergessen!",
     "mixtureInventory": "Mixtur-Vorrat",
     "mixtureCraft": "Herstellen",

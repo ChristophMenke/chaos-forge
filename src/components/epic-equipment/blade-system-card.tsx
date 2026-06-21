@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import {
   Swords,
   RotateCcw,
@@ -20,7 +21,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/client";
 import { localized } from "@/lib/utils/localize";
-import { feetToMeters } from "@/lib/utils/units";
+import { feetToMeters, lbsToKg } from "@/lib/utils/units";
 import {
   loadBlade,
   throwBlade,
@@ -42,6 +43,7 @@ interface BladeSystemCardProps {
 
 export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeSystemCardProps) {
   const t = useTranslations("epic");
+  const tcom = useTranslations("common");
   const data = item.simple_effects as unknown as BladeSystemData;
   const [blades, setBlades] = useState<Blade[]>(data.blades);
   const [mixtures, setMixtures] = useState<Record<string, MixtureInfo>>(data.mixtures);
@@ -50,15 +52,30 @@ export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeS
   const [collectingBlade, setCollectingBlade] = useState<number | null>(null);
 
   async function persistState(newBlades: Blade[], newMixtures: Record<string, MixtureInfo>) {
+    // Closure still holds the pre-update state, so we can roll back on failure.
+    const prevBlades = blades;
+    const prevMixtures = mixtures;
     setSaving(true);
-    const supabase = createClient();
-    await supabase
-      .from("epic_items")
-      .update({
-        simple_effects: { ...data, blades: newBlades, mixtures: newMixtures },
-      })
-      .eq("id", item.id);
-    setSaving(false);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from("epic_items")
+        .update({
+          simple_effects: { ...data, blades: newBlades, mixtures: newMixtures },
+        })
+        .eq("id", item.id);
+      if (error) {
+        setBlades(prevBlades);
+        setMixtures(prevMixtures);
+        toast.error(t("saveError"));
+      }
+    } catch {
+      setBlades(prevBlades);
+      setMixtures(prevMixtures);
+      toast.error(t("saveError"));
+    } finally {
+      setSaving(false);
+    }
   }
 
   function handleLoadBlade(bladeId: number, mixtureKey: string) {
@@ -155,7 +172,7 @@ export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeS
               <div className="font-mono text-sm font-bold">{data.weapon_stats.damage_l}</div>
             </div>
             <div>
-              <span className="text-[10px] md:text-xs text-muted-foreground">Speed</span>
+              <span className="text-[10px] md:text-xs text-muted-foreground">{t("speed")}</span>
               <div className="font-mono text-sm font-bold">{data.weapon_stats.speed}</div>
             </div>
             <div>
@@ -172,7 +189,9 @@ export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeS
             </div>
             <div>
               <span className="text-[10px] md:text-xs text-muted-foreground">{t("weight")}</span>
-              <div className="font-mono text-sm font-bold">{data.weapon_stats.weight} lbs</div>
+              <div className="font-mono text-sm font-bold">
+                {lbsToKg(data.weapon_stats.weight)} kg
+              </div>
             </div>
           </div>
         </>
@@ -271,6 +290,7 @@ export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeS
                           <button
                             onClick={() => setCollectingBlade(null)}
                             className="text-xs text-muted-foreground hover:text-foreground"
+                            aria-label={tcom("cancel")}
                           >
                             ✕
                           </button>
@@ -340,6 +360,7 @@ export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeS
                         <button
                           onClick={() => setLoadingBlade(null)}
                           className="text-xs text-muted-foreground hover:text-foreground"
+                          aria-label={tcom("cancel")}
                         >
                           ✕
                         </button>
