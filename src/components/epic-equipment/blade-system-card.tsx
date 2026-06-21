@@ -2,51 +2,37 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Swords, RotateCcw, Plus, Target, PackagePlus } from "lucide-react";
+import { toast } from "sonner";
+import {
+  Swords,
+  RotateCcw,
+  Plus,
+  Target,
+  Ban,
+  Trash2,
+  Hammer,
+  Check,
+  X,
+  PackagePlus,
+} from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/client";
 import { localized } from "@/lib/utils/localize";
-import { feetToMeters } from "@/lib/utils/units";
+import { feetToMeters, lbsToKg } from "@/lib/utils/units";
+import {
+  loadBlade,
+  throwBlade,
+  collectBlade,
+  loseBlade,
+  forgeBlade,
+  type Blade,
+  type MixtureInfo,
+  type BladeSystemData,
+} from "@/lib/rules/blades";
 import type { EpicItemRow } from "@/lib/supabase/types";
-
-interface Blade {
-  id: number;
-  mixture: string | null;
-  status: "ready" | "thrown";
-}
-
-interface MixtureInfo {
-  count: number;
-  name: string;
-  name_en: string;
-  color: string;
-  effect: string;
-  effect_en: string;
-  duration: string;
-  duration_en: string;
-}
-
-interface WeaponStats {
-  damage_sm: string;
-  damage_l: string;
-  weapon_type: string;
-  speed: number;
-  weight: number;
-  range_short: number;
-  range_medium: number;
-  range_long: number;
-}
-
-interface BladeSystemData {
-  type: "blade_system";
-  max_prepared: number;
-  blades: Blade[];
-  mixtures: Record<string, MixtureInfo>;
-  weapon_stats?: WeaponStats;
-}
 
 interface BladeSystemCardProps {
   item: EpicItemRow;
@@ -57,51 +43,72 @@ interface BladeSystemCardProps {
 
 export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeSystemCardProps) {
   const t = useTranslations("epic");
+  const tcom = useTranslations("common");
   const data = item.simple_effects as unknown as BladeSystemData;
   const [blades, setBlades] = useState<Blade[]>(data.blades);
   const [mixtures, setMixtures] = useState<Record<string, MixtureInfo>>(data.mixtures);
   const [saving, setSaving] = useState(false);
   const [loadingBlade, setLoadingBlade] = useState<number | null>(null);
+  const [collectingBlade, setCollectingBlade] = useState<number | null>(null);
 
   async function persistState(newBlades: Blade[], newMixtures: Record<string, MixtureInfo>) {
+    // Closure still holds the pre-update state, so we can roll back on failure.
+    const prevBlades = blades;
+    const prevMixtures = mixtures;
     setSaving(true);
-    const supabase = createClient();
-    await supabase
-      .from("epic_items")
-      .update({
-        simple_effects: { ...data, blades: newBlades, mixtures: newMixtures },
-      })
-      .eq("id", item.id);
-    setSaving(false);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from("epic_items")
+        .update({
+          simple_effects: { ...data, blades: newBlades, mixtures: newMixtures },
+        })
+        .eq("id", item.id);
+      if (error) {
+        setBlades(prevBlades);
+        setMixtures(prevMixtures);
+        toast.error(t("saveError"));
+      }
+    } catch {
+      setBlades(prevBlades);
+      setMixtures(prevMixtures);
+      toast.error(t("saveError"));
+    } finally {
+      setSaving(false);
+    }
   }
 
   function handleLoadBlade(bladeId: number, mixtureKey: string) {
-    const mix = mixtures[mixtureKey];
-    if (!mix || mix.count <= 0) return;
-
-    const newBlades = blades.map((b) => (b.id === bladeId ? { ...b, mixture: mixtureKey } : b));
-    const newMixtures = {
-      ...mixtures,
-      [mixtureKey]: { ...mix, count: mix.count - 1 },
-    };
-    setBlades(newBlades);
-    setMixtures(newMixtures);
+    const result = loadBlade(blades, mixtures, bladeId, mixtureKey);
     setLoadingBlade(null);
-    persistState(newBlades, newMixtures);
+    if (result.blades === blades && result.mixtures === mixtures) return;
+    setBlades(result.blades);
+    setMixtures(result.mixtures);
+    persistState(result.blades, result.mixtures);
   }
 
-  function handleThrow(bladeId: number) {
-    const newBlades = blades.map((b) =>
-      b.id === bladeId ? { ...b, status: "thrown" as const } : b
-    );
+  function handleThrow(bladeId: number, outcome: "hit" | "miss") {
+    const newBlades = throwBlade(blades, bladeId, outcome);
     setBlades(newBlades);
     persistState(newBlades, mixtures);
   }
 
-  function handleCollect(bladeId: number) {
-    const newBlades = blades.map((b) =>
-      b.id === bladeId ? { ...b, mixture: null, status: "ready" as const } : b
-    );
+  function handleCollect(bladeId: number, vialIntact: boolean) {
+    const newBlades = collectBlade(blades, bladeId, vialIntact);
+    setCollectingBlade(null);
+    setBlades(newBlades);
+    persistState(newBlades, mixtures);
+  }
+
+  function handleLose(bladeId: number) {
+    const newBlades = loseBlade(blades, bladeId);
+    setBlades(newBlades);
+    persistState(newBlades, mixtures);
+  }
+
+  function handleForge() {
+    const newBlades = forgeBlade(blades, data.max_prepared);
+    if (newBlades === blades) return;
     setBlades(newBlades);
     persistState(newBlades, mixtures);
   }
@@ -117,8 +124,8 @@ export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeS
     persistState(blades, newMixtures);
   }
 
-  const readyBlades = blades.filter((b) => b.status === "ready");
   const thrownBlades = blades.filter((b) => b.status === "thrown");
+  const canForge = blades.length < data.max_prepared;
 
   return (
     <GlassCard glow="neutral" hover={false} data-testid={`epic-item-${item.slug}`}>
@@ -165,7 +172,7 @@ export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeS
               <div className="font-mono text-sm font-bold">{data.weapon_stats.damage_l}</div>
             </div>
             <div>
-              <span className="text-[10px] md:text-xs text-muted-foreground">Speed</span>
+              <span className="text-[10px] md:text-xs text-muted-foreground">{t("speed")}</span>
               <div className="font-mono text-sm font-bold">{data.weapon_stats.speed}</div>
             </div>
             <div>
@@ -182,7 +189,9 @@ export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeS
             </div>
             <div>
               <span className="text-[10px] md:text-xs text-muted-foreground">{t("weight")}</span>
-              <div className="font-mono text-sm font-bold">{data.weapon_stats.weight} lbs</div>
+              <div className="font-mono text-sm font-bold">
+                {lbsToKg(data.weapon_stats.weight)} kg
+              </div>
             </div>
           </div>
         </>
@@ -192,9 +201,23 @@ export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeS
 
       {/* Prepared Blades */}
       <div data-testid="blade-slots">
-        <p className="mb-3 text-sm font-medium text-muted-foreground">
-          {t("bladesReady")} ({readyBlades.length}/{data.max_prepared})
-        </p>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <p className="text-sm font-medium text-muted-foreground">
+            {t("bladesReady")} ({blades.length}/{data.max_prepared})
+          </p>
+          {isOwner && canForge && (
+            <Button
+              variant="outline"
+              size="xs"
+              onClick={handleForge}
+              disabled={saving}
+              data-testid="blade-forge"
+            >
+              <Hammer className="mr-1 h-3 w-3" />
+              {t("bladeForge")}
+            </Button>
+          )}
+        </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {blades.map((blade) => {
             const mix = blade.mixture ? mixtures[blade.mixture] : null;
@@ -205,30 +228,35 @@ export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeS
                 key={blade.id}
                 className={`relative flex flex-col items-center gap-2 rounded-lg border p-3 transition-all ${
                   isThrown
-                    ? "border-dashed border-muted-foreground/30 bg-muted/20 opacity-50"
+                    ? "border-dashed border-muted-foreground/30 bg-muted/20 opacity-70"
                     : mix
                       ? "border-solid bg-background/50"
                       : "border-dashed border-muted-foreground/30 bg-background/20"
                 }`}
-                style={mix ? { borderColor: `${mix.color}50` } : undefined}
+                style={mix && !isThrown ? { borderColor: `${mix.color}50` } : undefined}
                 data-testid={`blade-slot-${blade.id}`}
               >
                 {/* Blade visual */}
                 <div
                   className="flex h-10 w-10 items-center justify-center rounded-full text-lg font-bold"
                   style={{
-                    backgroundColor: mix ? `${mix.color}20` : "transparent",
-                    color: mix ? mix.color : "var(--muted-foreground)",
-                    border: `2px solid ${mix ? mix.color : "var(--border)"}`,
+                    backgroundColor: mix && !isThrown ? `${mix.color}20` : "transparent",
+                    color: mix && !isThrown ? mix.color : "var(--muted-foreground)",
+                    border: `2px solid ${mix && !isThrown ? mix.color : "var(--border)"}`,
                   }}
                 >
                   {isThrown ? "—" : blade.id}
                 </div>
 
                 {/* Status label */}
-                <span className="text-xs font-medium" style={{ color: mix?.color }}>
+                <span
+                  className="text-xs font-medium"
+                  style={{ color: mix && !isThrown ? mix.color : undefined }}
+                >
                   {isThrown
-                    ? t("bladeThrown")
+                    ? blade.outcome === "hit"
+                      ? t("bladeHit")
+                      : t("bladeMiss")
                     : mix
                       ? localized(mix.name, mix.name_en, locale)
                       : t("bladeEmpty")}
@@ -236,27 +264,85 @@ export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeS
 
                 {/* Actions */}
                 {isOwner && !saving && (
-                  <div className="flex gap-1">
+                  <div className="flex flex-wrap justify-center gap-1">
                     {isThrown ? (
-                      <Button
-                        variant="outline"
-                        size="xs"
-                        onClick={() => handleCollect(blade.id)}
-                        data-testid={`blade-collect-${blade.id}`}
-                      >
-                        <RotateCcw className="mr-1 h-3 w-3" />
-                        {t("bladeCollect")}
-                      </Button>
+                      collectingBlade === blade.id ? (
+                        // Fehlwurf: Phiole intakt oder zerbrochen?
+                        <div className="flex flex-wrap items-center justify-center gap-1">
+                          <Button
+                            variant="outline"
+                            size="xs"
+                            onClick={() => handleCollect(blade.id, true)}
+                            data-testid={`blade-vial-intact-${blade.id}`}
+                          >
+                            <Check className="mr-1 h-3 w-3" />
+                            {t("bladeVialIntact")}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="xs"
+                            onClick={() => handleCollect(blade.id, false)}
+                            data-testid={`blade-vial-broken-${blade.id}`}
+                          >
+                            <X className="mr-1 h-3 w-3" />
+                            {t("bladeVialBroken")}
+                          </Button>
+                          <button
+                            onClick={() => setCollectingBlade(null)}
+                            className="text-xs text-muted-foreground hover:text-foreground"
+                            aria-label={tcom("cancel")}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="xs"
+                            onClick={() =>
+                              blade.outcome === "hit"
+                                ? handleCollect(blade.id, false)
+                                : setCollectingBlade(blade.id)
+                            }
+                            data-testid={`blade-collect-${blade.id}`}
+                          >
+                            <RotateCcw className="mr-1 h-3 w-3" />
+                            {t("bladeCollect")}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="xs"
+                            onClick={() => handleLose(blade.id)}
+                            data-testid={`blade-lose-${blade.id}`}
+                          >
+                            <Trash2 className="mr-1 h-3 w-3" />
+                            {t("bladeLost")}
+                          </Button>
+                        </>
+                      )
                     ) : mix ? (
-                      <Button
-                        variant="outline"
-                        size="xs"
-                        onClick={() => handleThrow(blade.id)}
-                        data-testid={`blade-throw-${blade.id}`}
-                      >
-                        <Target className="mr-1 h-3 w-3" />
-                        {t("bladeThrow")}
-                      </Button>
+                      // Bestückte Klinge: Treffer oder Fehlwurf werfen
+                      <>
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          onClick={() => handleThrow(blade.id, "hit")}
+                          data-testid={`blade-throw-hit-${blade.id}`}
+                        >
+                          <Target className="mr-1 h-3 w-3" />
+                          {t("bladeThrowHit")}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          onClick={() => handleThrow(blade.id, "miss")}
+                          data-testid={`blade-throw-miss-${blade.id}`}
+                        >
+                          <Ban className="mr-1 h-3 w-3" />
+                          {t("bladeThrowMiss")}
+                        </Button>
+                      </>
                     ) : loadingBlade === blade.id ? (
                       <div className="flex flex-wrap justify-center gap-1">
                         {Object.entries(mixtures).map(([key, m]) => (
@@ -274,11 +360,13 @@ export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeS
                         <button
                           onClick={() => setLoadingBlade(null)}
                           className="text-xs text-muted-foreground hover:text-foreground"
+                          aria-label={tcom("cancel")}
                         >
                           ✕
                         </button>
                       </div>
                     ) : (
+                      // Leere Klinge: bestücken / nachladen
                       <Button
                         variant="outline"
                         size="xs"
