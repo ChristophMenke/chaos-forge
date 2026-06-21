@@ -11,7 +11,7 @@ export default async function PartyLayout({ children }: { children: React.ReactN
     <div className="flex flex-1 flex-col sm:flex-row" data-testid="party-layout">
       <AppSidebar userEmail={nav.userEmail} userId={nav.userId} userAvatarUrl={nav.userAvatarUrl} />
       <AppNav userEmail={nav.userEmail} userId={nav.userId} userAvatarUrl={nav.userAvatarUrl} />
-      <div className="flex flex-1 flex-col sm:ml-16 xl:ml-48">
+      <div className="flex flex-1 flex-col sm:ml-[calc(4rem_+_env(safe-area-inset-left,0px))] xl:ml-[calc(12rem_+_env(safe-area-inset-left,0px))]">
         <div className="mx-auto w-full max-w-[1600px]">{children}</div>
       </div>
     </div>

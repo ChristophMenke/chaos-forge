@@ -280,7 +280,7 @@ export function MasterDashboard({
           userEmail={userEmail}
         />
         <div
-          className="flex h-screen flex-col pb-20 sm:pl-16 sm:pb-0 xl:pl-48"
+          className="flex h-screen flex-col pb-20 sm:pl-[calc(4rem_+_env(safe-area-inset-left,0px))] sm:pb-0 xl:pl-[calc(12rem_+_env(safe-area-inset-left,0px))]"
           data-testid="gm-character-view"
         >
           {/* Back bar */}
@@ -330,8 +330,8 @@ export function MasterDashboard({
         className={
           activeTab === "chat"
             ? // Fixed to viewport so body doesn't scroll; offsets for sidebar (desktop) and bottom nav (mobile)
-              "fixed inset-0 bottom-16 flex flex-col sm:bottom-0 sm:pl-16 xl:pl-48"
-            : "w-full p-3 pb-20 sm:pl-16 sm:pr-4 sm:pt-4 sm:pb-4 xl:pl-48"
+              "fixed inset-0 bottom-16 flex flex-col sm:bottom-0 sm:pl-[calc(4rem_+_env(safe-area-inset-left,0px))] xl:pl-[calc(12rem_+_env(safe-area-inset-left,0px))]"
+            : "w-full p-3 pb-20 sm:pl-[calc(4rem_+_env(safe-area-inset-left,0px))] sm:pr-4 sm:pt-4 sm:pb-4 xl:pl-[calc(12rem_+_env(safe-area-inset-left,0px))]"
         }
         data-testid="gm-dashboard"
       >
