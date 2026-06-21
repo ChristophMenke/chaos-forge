@@ -39,7 +39,7 @@ export function MasterSidebar({ activeTab, onTabChange, userEmail }: MasterSideb
 
   return (
     <nav
-      className="fixed left-0 top-0 z-50 hidden h-full w-16 flex-col items-center border-r border-amber-500/20 glass py-4 sm:flex xl:w-48 xl:items-stretch"
+      className="fixed left-[env(safe-area-inset-left,0px)] top-0 z-50 hidden h-full w-16 flex-col items-center border-r border-amber-500/20 glass py-4 sm:flex xl:w-48 xl:items-stretch"
       aria-label="GM sidebar"
       data-testid="gm-sidebar"
     >
