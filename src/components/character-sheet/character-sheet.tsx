@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
@@ -149,6 +149,28 @@ export function CharacterSheet({
   const [character, setCharacter] = useState(initial);
   const [charClasses, setCharClasses] = useState(initialClasses);
   const [equipmentState, setEquipment] = useState(equipment);
+
+  // On desktop the header avatar grows to match the height of the info column
+  // next to it (name/classes/alignment), so it fills the space down to the
+  // tabs. On mobile (stacked layout) it keeps its default size.
+  const infoColRef = useRef<HTMLDivElement>(null);
+  const [headerFitSize, setHeaderFitSize] = useState<number | null>(null);
+  useEffect(() => {
+    const el = infoColRef.current;
+    if (!el || typeof window === "undefined") return;
+    const mq = window.matchMedia("(min-width: 640px)");
+    const measure = () => setHeaderFitSize(mq.matches ? el.offsetHeight : null);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    mq.addEventListener("change", measure);
+    return () => {
+      ro.disconnect();
+      mq.removeEventListener("change", measure);
+    };
+  }, []);
+  // Clamp so a very tall info column can't blow the avatar up unreasonably.
+  const avatarFitSize = headerFitSize ? Math.min(headerFitSize, 220) : 80;
   const [spellsState, setSpells] = useState(spells);
   const [weaponProfsState, setWeaponProfs] = useState(weaponProficiencies);
   const [nwProfsState, setNwProfs] = useState(nonweaponProficiencies);
@@ -707,7 +729,7 @@ export function CharacterSheet({
                 userId={userId}
                 characterName={character.name}
                 currentAvatarUrl={character.avatar_url}
-                size={80}
+                size={avatarFitSize}
                 variant="square"
               />
               {character.avatar_url && (
@@ -743,20 +765,21 @@ export function CharacterSheet({
                 alt={`Avatar von ${character.name}`}
                 width={128}
                 height={128}
-                className="h-24 w-24 rounded-lg object-contain sm:h-32 sm:w-32"
+                style={headerFitSize ? { width: avatarFitSize, height: avatarFitSize } : undefined}
+                className="h-24 w-24 rounded-lg object-cover sm:h-32 sm:w-32"
               />
             </button>
           ) : (
             <AvatarDisplay
               name={character.name}
               avatarUrl={null}
-              size={80}
+              size={avatarFitSize}
               variant="square"
               raceId={character.race_id ?? undefined}
               classGroup={primaryClassGroup}
             />
           )}
-          <div className="min-w-0 flex-1">
+          <div ref={infoColRef} className="min-w-0 flex-1">
             {isOwner ? (
               <input
                 className="w-full truncate border-none bg-transparent font-heading text-2xl text-primary outline-none focus:ring-1 focus:ring-primary/30 sm:text-3xl"
