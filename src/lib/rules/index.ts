@@ -16,3 +16,4 @@ export * from "./kits";
 export * from "./fighting-styles";
 export * from "./priesthoods";
 export * from "./turn-undead";
+export * from "./blades";
