@@ -3,9 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import remarkBreaks from "remark-breaks";
 import { createServiceClient } from "@/lib/supabase/service";
-import { MarkdownRenderer as ReactMarkdown } from "@/components/markdown-renderer";
+import { PublicMarkdown } from "@/components/session/public-markdown";
 import { AvatarDisplay } from "@/components/avatar-display";
 import { Badge } from "@/components/ui/badge";
 import type { SessionRow, SessionEntryRow, CharacterRow, TagRow } from "@/lib/supabase/types";
@@ -151,7 +150,7 @@ export default async function PublicSessionPage({ params }: PublicSessionPagePro
       {session.summary && (
         <section className="mb-8" data-testid="public-session-summary">
           <div className="prose prose-sm prose-invert max-w-none rounded-md border border-border p-4">
-            <ReactMarkdown remarkPlugins={[remarkBreaks]}>{session.summary}</ReactMarkdown>
+            <PublicMarkdown>{session.summary}</PublicMarkdown>
           </div>
         </section>
       )}
@@ -175,7 +174,7 @@ export default async function PublicSessionPage({ params }: PublicSessionPagePro
                   <span className="font-heading text-lg">{entry.characterName}</span>
                 </div>
                 <div className="prose prose-sm prose-invert max-w-none">
-                  <ReactMarkdown remarkPlugins={[remarkBreaks]}>{entry.content}</ReactMarkdown>
+                  <PublicMarkdown>{entry.content}</PublicMarkdown>
                 </div>
               </article>
             ))}
