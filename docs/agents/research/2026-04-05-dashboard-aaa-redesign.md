@@ -65,13 +65,14 @@ Already the most visually rich component:
 - Border: `oklch(0.5 0 0 / 0.15)`
 
 **Glow Colors (oklch):**
-| Group | Hue | Border | Shadow |
-|-------|-----|--------|--------|
-| Warrior | 25 (red) | `oklch(0.6 0.22 25 / 0.4)` | 24px spread |
-| Priest | 80 (gold) | `oklch(0.75 0.15 80 / 0.4)` | 24px spread |
-| Rogue | 260 (blue) | `oklch(0.6 0.18 260 / 0.4)` | 24px spread |
-| Wizard | 185 (teal) | `oklch(0.7 0.14 185 / 0.4)` | 24px spread |
-| Neutral | 80 (gold) | `oklch(0.82 0.14 80 / 0.3)` | 16px spread |
+
+| Group   | Hue        | Border                      | Shadow      |
+| ------- | ---------- | --------------------------- | ----------- |
+| Warrior | 25 (red)   | `oklch(0.6 0.22 25 / 0.4)`  | 24px spread |
+| Priest  | 80 (gold)  | `oklch(0.75 0.15 80 / 0.4)` | 24px spread |
+| Rogue   | 260 (blue) | `oklch(0.6 0.18 260 / 0.4)` | 24px spread |
+| Wizard  | 185 (teal) | `oklch(0.7 0.14 185 / 0.4)` | 24px spread |
+| Neutral | 80 (gold)  | `oklch(0.82 0.14 80 / 0.3)` | 16px spread |
 
 **Primary color:** `oklch(0.82 0.14 80)` — vibrant gold
 

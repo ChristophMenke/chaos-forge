@@ -58,14 +58,7 @@ interface MasterDashboardProps {
 }
 
 export type TabId =
-  | "party"
-  | "items"
-  | "gold"
-  | "chat"
-  | "npcs"
-  | "bestiary"
-  | "combat"
-  | "bookmarks";
+  "party" | "items" | "gold" | "chat" | "npcs" | "bestiary" | "combat" | "bookmarks";
 
 export function MasterDashboard({
   partyData,

@@ -1110,13 +1110,11 @@ export function PrintSheet({
     },
 
     proficiencies: () => {
-      if (
-        !(
-          weaponProficiencies.length > 0 ||
-          nonweaponProficiencies.length > 0 ||
-          fightingStyles.length > 0
-        )
-      )
+      if (!(
+        weaponProficiencies.length > 0 ||
+        nonweaponProficiencies.length > 0 ||
+        fightingStyles.length > 0
+      ))
         return null;
       return (
         <section className="mb-4" data-testid="print-section-proficiencies">

@@ -141,13 +141,14 @@ gold_cp integer not null default 0
 **File**: `src/lib/navigation.ts`
 
 Current nav items:
-| Label Key | Path | Icon |
-|-----------|------|------|
-| dashboard | `/dashboard` | LayoutDashboard |
-| characters | `/characters` | Users |
-| sessions | `/sessions` | ScrollText |
-| import | `/characters/import` | FileUp |
-| rulebook | `/chat` | BookOpen |
+
+| Label Key  | Path                 | Icon            |
+| ---------- | -------------------- | --------------- |
+| dashboard  | `/dashboard`         | LayoutDashboard |
+| characters | `/characters`        | Users           |
+| sessions   | `/sessions`          | ScrollText      |
+| import     | `/characters/import` | FileUp          |
+| rulebook   | `/chat`              | BookOpen        |
 
 **Desktop**: `app-sidebar.tsx` — fixed left sidebar with icons + labels on XL
 **Mobile**: `app-nav.tsx` — bottom bar with icons + labels, "More" menu for settings
