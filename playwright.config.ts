@@ -72,6 +72,7 @@ export default defineConfig({
         "auth-redirect.spec.ts",
         "login.spec.ts",
         "layout.spec.ts",
+        "share-session-public.spec.ts",
       ],
     },
   ],

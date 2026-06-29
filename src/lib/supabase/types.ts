@@ -385,6 +385,7 @@ export interface SessionRow {
   image_generated_at: string | null;
   external_participants: string[];
   xp_awarded: number | null;
+  is_public: boolean;
 }
 
 export interface SessionParticipantRow {

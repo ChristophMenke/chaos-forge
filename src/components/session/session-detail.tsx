@@ -21,6 +21,7 @@ import { SessionEntryCard } from "./session-entry-card";
 import { TagManager } from "./tag-manager";
 import { SessionParticipants } from "./session-participants";
 import { SessionXpDistribute } from "./session-xp-distribute";
+import { ShareSessionButton } from "./share-session-button";
 import type {
   SessionRow,
   SessionEntryRow,
@@ -255,15 +256,20 @@ export function SessionDetail({
           )}
           <p className="mt-1 text-sm text-muted-foreground">{dateStr}</p>
         </div>
-        {isCreator && (
-          <Button
-            variant="destructive"
-            onClick={() => setShowDeleteConfirm(true)}
-            data-testid="session-delete-button"
-          >
-            {t("deleteTitle")}
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          <ApprovalGate>
+            <ShareSessionButton sessionId={session.id} initialIsPublic={session.is_public} />
+          </ApprovalGate>
+          {isCreator && (
+            <Button
+              variant="destructive"
+              onClick={() => setShowDeleteConfirm(true)}
+              data-testid="session-delete-button"
+            >
+              {t("deleteTitle")}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Mood image */}
