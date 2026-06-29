@@ -126,12 +126,7 @@ export interface MagicItemRow {
 }
 
 export type BookmarkEntityType =
-  | "weapon"
-  | "armor"
-  | "general_item"
-  | "magic_item"
-  | "npc"
-  | "monster";
+  "weapon" | "armor" | "general_item" | "magic_item" | "npc" | "monster";
 
 export interface GmBookmarkRow {
   id: string;
@@ -385,6 +380,7 @@ export interface SessionRow {
   image_generated_at: string | null;
   external_participants: string[];
   xp_awarded: number | null;
+  is_public: boolean;
 }
 
 export interface SessionParticipantRow {
@@ -640,12 +636,7 @@ export interface NotificationRow {
 export interface PartyLootLogRow {
   id: string;
   action:
-    | "add_gold"
-    | "add_item"
-    | "distribute_gold"
-    | "distribute_item"
-    | "remove_item"
-    | "remove_gold";
+    "add_gold" | "add_item" | "distribute_gold" | "distribute_item" | "remove_item" | "remove_gold";
   user_id: string;
   character_id: string | null;
   details: Record<string, unknown>;

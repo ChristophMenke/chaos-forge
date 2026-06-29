@@ -84,12 +84,13 @@ This catches: "Schild", "Shield", "Großer Schild", "Large Shield", "Buckler" (n
 ### 5. P.O: Skills & Powers Shield Proficiency Rules (from user's screenshot)
 
 **Table 51: Shield Proficiency Effects:**
-| Shield Type | AC Bonus | Attackers |
-|------------|----------|-----------|
-| Buckler | +1 | 1 |
-| Small Shield | +2 | 2 |
-| Medium Shield | +3 | 3 |
-| Body Shield | +3/+4 vs missiles | 4 |
+
+| Shield Type   | AC Bonus          | Attackers |
+| ------------- | ----------------- | --------- |
+| Buckler       | +1                | 1         |
+| Small Shield  | +2                | 2         |
+| Medium Shield | +3                | 3         |
+| Body Shield   | +3/+4 vs missiles | 4         |
 
 - Bonus is **in addition** to normal shield AC
 - Warriors: 1 slot, all others: 2 Weapon Proficiency Slots

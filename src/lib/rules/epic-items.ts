@@ -355,8 +355,7 @@ export function getUnlockedSpellAbilities(
 ): SpellAbility[] {
   const se = item.simple_effects as Record<string, unknown> | null;
   const raw = se?.spell_abilities as
-    | (SpellAbility & { unlock_level: number; replaces?: string })[]
-    | undefined;
+    (SpellAbility & { unlock_level: number; replaces?: string })[] | undefined;
   if (!raw || !Array.isArray(raw)) return [];
 
   const unlocked = raw.filter((a) => a.unlock_level <= unlockedLevel);

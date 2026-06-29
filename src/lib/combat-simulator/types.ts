@@ -10,13 +10,7 @@ export type CombatRole = "tank" | "striker" | "artillery" | "support";
 export type Side = "party" | "opposition";
 
 export type SpellCategory =
-  | "counter"
-  | "aoe_damage"
-  | "single_damage"
-  | "cc"
-  | "buff"
-  | "heal"
-  | "summon";
+  "counter" | "aoe_damage" | "single_damage" | "cc" | "buff" | "heal" | "summon";
 
 export type SaveType = keyof SavingThrows;
 

@@ -30,11 +30,7 @@ export function SimulationResults({ result }: SimulationResultsProps) {
 
   const difficultyKey =
     `combat${result.difficulty.charAt(0).toUpperCase() + result.difficulty.slice(1)}` as
-      | "combatTrivial"
-      | "combatEasy"
-      | "combatModerate"
-      | "combatHard"
-      | "combatDeadly";
+      "combatTrivial" | "combatEasy" | "combatModerate" | "combatHard" | "combatDeadly";
 
   return (
     <div className="space-y-3" data-testid="gm-combat-results">
