@@ -676,7 +676,7 @@
     "createFailed": "Fehler beim Erstellen.",
     "share": "Teilen",
     "shareTitle": "Session teilen",
-    "shareDescription": "Erstelle einen öffentlichen Link, über den auch nicht angemeldete Personen diese Session ansehen können. Sichtbar sind nur Titel, Datum und Zusammenfassung — keine persönlichen Einträge.",
+    "shareDescription": "Erstelle einen öffentlichen Link, über den auch nicht angemeldete Personen diese Session ansehen können. Sichtbar sind Titel, Datum, Zusammenfassung und die Charakter-Einträge (inkl. Charakternamen).",
     "sharePublic": "Öffentlich sichtbar",
     "sharePrivate": "Privat",
     "shareMakePublic": "Öffentlich machen",

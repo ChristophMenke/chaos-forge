@@ -676,7 +676,7 @@
     "createFailed": "Failed to create session.",
     "share": "Share",
     "shareTitle": "Share session",
-    "shareDescription": "Create a public link so people without an account can view this session. Only the title, date and summary are shown — no personal entries.",
+    "shareDescription": "Create a public link so people without an account can view this session. The title, date, summary and character entries (including character names) are shown.",
     "sharePublic": "Publicly visible",
     "sharePrivate": "Private",
     "shareMakePublic": "Make public",
