@@ -43,17 +43,50 @@ async function getPublicSession(id: string): Promise<SessionRow | null> {
   return data ?? null;
 }
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://adnd-chaos-forge.vercel.app";
+const DEFAULT_OG_IMAGE = `${SITE_URL}/images/login-bg.webp`;
+
 export async function generateMetadata({ params }: PublicSessionPageProps): Promise<Metadata> {
   const { id } = await params;
   const session = await getPublicSession(id);
   if (!session) {
     return { title: "Chaos Forge", robots: { index: false } };
   }
+
+  const title = `${session.title} — Chaos Forge`;
+  // Strip markdown-ish noise for the preview snippet shown by chat apps.
+  const description =
+    session.summary
+      ?.replace(/[#*_>`~]/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 200) || "Eine Chronik aus der Welt von Chaos Forge.";
+  const ogImage = session.image_url ?? DEFAULT_OG_IMAGE;
+  const url = `${SITE_URL}/share/sessions/${id}`;
+
   return {
-    title: `${session.title} — Chaos Forge`,
-    description: session.summary?.slice(0, 160) || undefined,
+    metadataBase: new URL(SITE_URL),
+    title,
+    description,
     // Share links carry random UUIDs and are not meant to be crawled.
     robots: { index: false, follow: false },
+    // Open Graph powers the rich link previews in WhatsApp, Discord, Signal,
+    // Telegram, iMessage, etc.
+    openGraph: {
+      type: "article",
+      title,
+      description,
+      url,
+      siteName: "Chaos Forge",
+      locale: "de_DE",
+      images: [{ url: ogImage, width: 1200, height: 630, alt: session.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
+    },
   };
 }
 
