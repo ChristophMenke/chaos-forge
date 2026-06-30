@@ -53,3 +53,19 @@ node_modules/
 # Supabase
 supabase/.temp/
 ressources/books/
+
+# local DB backups
+/chaos-forge-backup-*.sql
+
+# local debug screenshots (exploratory testing artifacts)
+/*.png
+
+# scratch / agent review output
+/CODE_REVIEW_FINDINGS.md
+
+# Claude Code local state
+.claude/scheduled_tasks.lock
+
+# large reference material (copyrighted rulebooks) + upload scratch
+ressources/monsters/
+ressources/upload/
