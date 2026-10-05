@@ -1,10 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { computeCharacterCombatData } from "./character-computed";
+import { applyLiveHp, computeCharacterCombatData } from "./character-computed";
 import type {
   CharacterRow,
   CharacterClassRow,
   CharacterEquipmentWithDetails,
   EpicItemRow,
+  CharacterEffectRow,
+  EffectModifier,
 } from "@/lib/supabase/types";
 
 // Helper: minimal CharacterRow with sensible defaults
@@ -1378,5 +1380,80 @@ describe("computeCharacterCombatData", () => {
       // thiefSkills wird null gesetzt, wenn thiefDisabled greift
       expect(result.thiefSkills).toBeNull();
     });
+  });
+});
+
+describe("computeCharacterCombatData with temporary effects", () => {
+  const classes = [makeClass("fighter", 5)];
+  const fx = (name: string, modifiers: EffectModifier[], extra: Partial<CharacterEffectRow> = {}) =>
+    ({
+      id: name,
+      character_id: "test-char",
+      name,
+      notes: "",
+      duration_text: "",
+      preset_key: null,
+      modifiers,
+      flags: [],
+      temp_hp_remaining: 0,
+      created_by: null,
+      created_at: "2026-10-05T10:00:00Z",
+      ended_at: null,
+      ...extra,
+    }) as CharacterEffectRow;
+  const compute = (effects: CharacterEffectRow[], character = makeCharacter()) =>
+    computeCharacterCombatData(character, classes, [], [], [], [], effects);
+
+  it("leaves everything unchanged without effects", () => {
+    const plain = compute([]);
+    expect(plain.thac0Effective).toBe(plain.thac0);
+    expect(plain.tempHp).toBe(0);
+  });
+
+  it("lowers THAC0 by an attack bonus and raises it by a penalty", () => {
+    const base = compute([]).thac0;
+    expect(
+      compute([fx("Segen", [{ target: "attack", op: "delta", value: 1 }])]).thac0Effective
+    ).toBe(base - 1);
+    expect(
+      compute([fx("Seuche", [{ target: "attack", op: "delta", value: -2 }])]).thac0Effective
+    ).toBe(base + 2);
+  });
+
+  it("applies save bonuses (lower number is better)", () => {
+    const base = compute([]).saves;
+    const prayed = compute([fx("Gebet", [{ target: "savesAll", op: "delta", value: 1 }])]).saves;
+    expect(prayed.spell).toBe(base.spell - 1);
+    expect(prayed.rod).toBe(base.rod - 1);
+  });
+
+  it("makes AC worse under Slow and reports temporary hit points", () => {
+    const base = compute([]).ac;
+    const slowed = compute([
+      fx("Verlangsamen", [{ target: "ac", op: "delta", value: -4 }]),
+      fx("Hilfe", [{ target: "tempHp", op: "delta", value: 6 }], { temp_hp_remaining: 6 }),
+    ]);
+    expect(slowed.ac).toBe(base + 4);
+    expect(slowed.tempHp).toBe(6);
+  });
+
+  it("feeds lowered abilities into perception and Dexterity-based AC", () => {
+    const base = compute([]);
+    const weakened = compute([fx("Gift", [{ target: "allAbilities", op: "factor", value: 0.5 }])]);
+    expect(weakened.perception).toBe(Math.floor((5 + 6) / 2));
+    expect(weakened.ac).toBeGreaterThanOrEqual(base.ac);
+  });
+});
+
+describe("applyLiveHp", () => {
+  const combat = { hpCurrent: 20, hpMax: 30, hpDelta: -4 };
+
+  it("falls back to the computed values without a live update", () => {
+    expect(applyLiveHp(combat, undefined)).toEqual({ current: 20, max: 30 });
+  });
+
+  it("applies the CON delta to the stored live values and clamps current", () => {
+    expect(applyLiveHp(combat, { current: 33, max: 34 })).toEqual({ current: 30, max: 30 });
+    expect(applyLiveHp(combat, { current: 12, max: 34 })).toEqual({ current: 12, max: 30 });
   });
 });

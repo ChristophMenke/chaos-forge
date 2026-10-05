@@ -25,6 +25,10 @@ interface PlayHpBarProps {
   priesthoodName?: string | null;
   readOnly?: boolean;
   onHpChange: (newHp: number) => void;
+  /** Temporary hit points from effects (absorbed first). */
+  tempHp?: number;
+  /** When set, damage is reported as an amount so temporary hit points can absorb it. */
+  onDamage?: (amount: number) => void;
 }
 
 function PlayHpBarInner({
@@ -42,8 +46,11 @@ function PlayHpBarInner({
   priesthoodName,
   readOnly = false,
   onHpChange,
+  tempHp = 0,
+  onDamage,
 }: PlayHpBarProps) {
   const t = useTranslations("playMode");
+  const te = useTranslations("effects");
   const [showDamageInput, setShowDamageInput] = useState(false);
   const [showHealInput, setShowHealInput] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -60,7 +67,8 @@ function PlayHpBarInner({
   function applyDamage() {
     const amount = parseInt(inputValue, 10);
     if (!isNaN(amount) && amount > 0) {
-      onHpChange(Math.max(getDeathThreshold(hpMax), hpCurrent - amount));
+      if (onDamage) onDamage(amount);
+      else onHpChange(Math.max(getDeathThreshold(hpMax), hpCurrent - amount));
     }
     setShowDamageInput(false);
     setInputValue("");
@@ -156,6 +164,15 @@ function PlayHpBarInner({
               )}
               <span className="font-mono text-sm font-bold" data-testid="play-hp-text">
                 {hpCurrent}/{hpMax}
+                {tempHp > 0 && (
+                  <span
+                    className="ml-1 text-emerald-400"
+                    title={te("tempHpTitle")}
+                    data-testid="play-temp-hp"
+                  >
+                    {te("tempHp", { count: tempHp })}
+                  </span>
+                )}
               </span>
               {status === "unconscious" && (
                 <Badge

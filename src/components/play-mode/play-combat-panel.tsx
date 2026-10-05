@@ -27,6 +27,11 @@ import type {
 import { localized } from "@/lib/utils/localize";
 import { findWeaponProf } from "@/lib/utils/proficiency-match";
 import type { EpicEffects } from "@/lib/rules/epic-items";
+import {
+  emptyEffectSummary,
+  scaleAttacksPerRound,
+  type EffectSummary,
+} from "@/lib/rules/temporary-effects";
 import { getKit, getKitArmorWarning } from "@/lib/rules/kits";
 import { getMulticlassArmorWarnings } from "@/lib/rules/multiclass";
 
@@ -57,6 +62,8 @@ interface PlayCombatPanelProps {
   singleWeaponStyleBonus?: number;
   shieldProficiencyBonus?: number;
   equippedShieldName?: string | null;
+  /** Temporary effects (damage, attacks per round, AC lines). */
+  effectSummary?: EffectSummary;
 }
 
 /** Parse AD&D APR string ("1", "3/2", "2", "5/2", ...) to a decimal number. */
@@ -98,6 +105,7 @@ function PlayCombatPanelInner({
   onEquipmentChange,
   epicEffects,
   magicAcBonus = 0,
+  effectSummary = EMPTY_EFFECTS,
   characterKit,
   singleWeaponStyleBonus = 0,
   shieldProficiencyBonus = 0,
@@ -145,17 +153,20 @@ function PlayCombatPanelInner({
         }
       }
     }
-    if (equippedShield) {
+    const shieldUsable = equippedShield && !effectSummary.noShield;
+    if (shieldUsable) {
       parts.push({ label: t("shield"), value: -1 });
     }
-    if (shieldProficiencyBonus > 0 && equippedShield) {
+    if (shieldProficiencyBonus > 0 && shieldUsable) {
       parts.push({
         label: t("shieldProficiency", { shield: equippedShieldName ?? "" }),
         value: -shieldProficiencyBonus,
       });
     }
-    if (dexDefenseAdj !== 0) {
-      parts.push({ label: t("dexBonus"), value: dexDefenseAdj });
+    // "No Dex bonus" (e.g. Slow, webs) removes a bonus, a penalty stays.
+    const dexLine = effectSummary.noDexAc ? Math.max(0, dexDefenseAdj) : dexDefenseAdj;
+    if (dexLine !== 0) {
+      parts.push({ label: t("dexBonus"), value: dexLine });
     }
     // Check for unarmored bonus (also applies with magical protection like Bracers)
     const isEffectivelyUnarmored = !equippedArmor?.armor || isMagicalProtection;
@@ -191,7 +202,19 @@ function PlayCombatPanelInner({
         value: magicAcBonus,
       });
     }
-    return parts;
+    // Temporary effects: a set-to AC replaces everything above, bonuses are
+    // in player terms (+ = better → lower AC).
+    const effectSources = effectSummary.sources.ac ?? [];
+    const setSource =
+      effectSummary.acSet != null
+        ? [...effectSources].reverse().find((src) => src.op === "set")
+        : undefined;
+    const effectLines = effectSources
+      .filter((src) => src.op === "delta")
+      .map((src) => ({ label: src.effectName, value: -src.value }));
+    if (setSource)
+      return [{ label: setSource.effectName, value: effectSummary.acSet! }, ...effectLines];
+    return [...parts, ...effectLines];
   })();
 
   const [showAcBreakdown, setShowAcBreakdown] = useState(false);
@@ -383,6 +406,7 @@ function PlayCombatPanelInner({
               readOnly={readOnly}
               onToggleEquip={toggleEquip}
               epicEffects={epicEffects}
+              effectSummary={effectSummary}
             />
           ))}
         </div>
@@ -413,6 +437,7 @@ function PlayCombatPanelInner({
                 readOnly={readOnly}
                 onToggleEquip={toggleEquip}
                 epicEffects={epicEffects}
+                effectSummary={effectSummary}
               />
             ))}
           </div>
@@ -578,6 +603,8 @@ function PlayCombatPanelInner({
 
 export const PlayCombatPanel = memo(PlayCombatPanelInner);
 
+const EMPTY_EFFECTS = emptyEffectSummary();
+
 // ─── WeaponCard — memoized sub-component ───────────────────────────────
 // Extracted from a local render function so React.memo can skip re-renders
 // when none of its props changed. In play mode the parent re-renders often
@@ -597,6 +624,7 @@ interface WeaponCardProps {
   readOnly: boolean;
   onToggleEquip: (id: string, currentlyEquipped: boolean) => void;
   epicEffects?: EpicEffects;
+  effectSummary: EffectSummary;
 }
 
 function WeaponCardInner({
@@ -613,8 +641,10 @@ function WeaponCardInner({
   readOnly,
   onToggleEquip,
   epicEffects,
+  effectSummary,
 }: WeaponCardProps) {
   const t = useTranslations("playMode");
+  const tfx = useTranslations("effects");
   const locale = useLocale();
 
   const weapon = eq.weapon!;
@@ -640,12 +670,12 @@ function WeaponCardInner({
 
   const damageSM = formatDamageWithBonus(
     weapon.damage_sm,
-    strMods.dmgAdj + specDmgBonus,
+    strMods.dmgAdj + specDmgBonus + effectSummary.damage,
     eq.damage_bonus
   );
   const damageL = formatDamageWithBonus(
     weapon.damage_l,
-    strMods.dmgAdj + specDmgBonus,
+    strMods.dmgAdj + specDmgBonus + effectSummary.damage,
     eq.damage_bonus
   );
 
@@ -708,7 +738,9 @@ function WeaponCardInner({
         </div>
         <div>
           <span className="text-xs text-muted-foreground">{t("attacksPerRound")}: </span>
-          <span className="font-mono">{apr}</span>
+          <span className="font-mono" data-testid={`play-weapon-apr-${eq.id}`}>
+            {effectSummary.noAttacks ? tfx("noAttacks") : scaleAttacksPerRound(apr, effectSummary)}
+          </span>
           {hasSpecAprBonus && <span className="ml-1 text-[10px] md:text-xs text-amber-400">★</span>}
         </div>
       </div>

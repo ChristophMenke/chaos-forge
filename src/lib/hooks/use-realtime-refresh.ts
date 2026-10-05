@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -38,6 +38,9 @@ export function useRealtimeRefresh(channelName: string, bindings: RealtimeTableB
   // Serialize bindings for a stable useEffect dep — callers may pass inline
   // array literals, and JSON.stringify gives a cheap structural equality check.
   const bindingsKey = JSON.stringify(bindings);
+  // Per-instance suffix: two mounted callers (or a remount before the old
+  // channel is gone) must not share a Supabase channel name.
+  const instanceId = useId();
 
   useEffect(() => {
     if (bindings.length === 0) return;
@@ -57,7 +60,7 @@ export function useRealtimeRefresh(channelName: string, bindings: RealtimeTableB
       }, 150);
     };
 
-    let channel = supabase.channel(channelName);
+    let channel = supabase.channel(`${channelName}-${instanceId}`);
     for (const binding of bindings) {
       channel = channel.on(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -90,5 +93,5 @@ export function useRealtimeRefresh(channelName: string, bindings: RealtimeTableB
       supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelName, bindingsKey]);
+  }, [channelName, bindingsKey, instanceId]);
 }

@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Datenbank & Auth:** Supabase (PostgreSQL + Row Level Security)
 - **Styling:** Tailwind CSS v4 + shadcn/ui + Glassmorphism Design-System
 - **i18n:** next-intl (Cookie-basiert, DE/EN) + `localized()` Utility für DB-Daten
-- **Unit-/Integrationstests:** Vitest (1764 Tests)
+- **Unit-/Integrationstests:** Vitest (2100+ Tests)
 - **E2E-Tests:** keine automatisierte E2E-Suite mehr (Playwright-Specs, Test-Login-Routen und QA-Test-Domain entfernt). UI-Verhalten wird explorativ über `playwright-cli` geprüft. Das Paket `playwright` bleibt nur für die Spell-Card-Render-Skripte unter `scripts/spell-cards/`.
 - **Linting/Formatting:** ESLint (next config) + Prettier (0 Warnings, 0 Errors)
 - **Hosting:** Vercel (Free-Tier)
@@ -74,6 +74,7 @@ src/
     play-mode/            # Play Mode (Kampf, Zauber, Fähigkeiten, Checks, Wahrnehmung, Inventar, Geldbörse, Untote vertreiben, Gestaltwandlung)
     spellbook/            # Standalone Spellbook-Seite (Suche, Filter, Prepare, Learn, Source-Book-Filter)
     print-sheet/          # Druckansicht + Word-Export (.docx), Customization Panel
+    effects/              # Temporäre Effekte: Chips, Dialog (Vorlagen, Auswirkungen, Zustände, Freitext), Warnungen, Effekt-Leiste (Play Mode), Abschnitt (Charakterbogen)
     level-up/             # Stufenaufstiegs-Assistent (TP-Wurf, Fertigkeitspunkte, Übersicht) + Banner „Stufenaufstieg verfügbar“
     session/              # Session-Einträge, Sprachnotizen (MediaRecorder)
     wizard/               # Character Wizard (8 Steps: Basics, Abilities, Race, Class, Kit, Priesthood, Combat, Summary)
@@ -90,6 +91,9 @@ src/
       fighting-styles.ts  # 4 Kampfstile (Single-Weapon, Two-Hander, Weapon & Shield, Two-Weapon)
       experience.ts       # XP-Tabellen, Stufen-Berechnung
       hitpoints.ts        # HP-Berechnung, CON-Bonus-Cap (Warrior +4, andere +2), Trefferwürfel-Grenze + feste TP ab Name-Level
+      temporary-effects.ts # Temporäre Effekte: aggregateEffects, applyEffectsToAbility, scaleAttacksPerRound, consumeTempHp, Schwellen-/Stapel-Warnungen
+      effect-presets.ts   # 37 Effekt-Vorlagen (Zauber, Monster, Zustände, Verletzungen, Umgebung) mit Quellen
+      effective-stats.ts  # resolveEffectiveStats() — einziger Resolver für effektive Attribute + Modifikatoren (Items + Overclock + Effekte)
       level-up.ts         # Stufenaufstieg: TP pro Stufe, ausstehende Aufstiege, Diebes-/Bardenpunkte, Änderungs-Übersicht
       kits.ts             # 20 Kit-Definitionen (Fighter, Thief, Wizard, Priest, Ranger, Bard)
       magic.ts            # Magie-Schulen, Priester-Sphären, Spezialisten
@@ -203,7 +207,18 @@ Die AD&D-Regeln sind als **reine TypeScript-Funktionen** implementiert (kein DB-
 - `scaleSubStat(baseStat, baseSub, overrideStat)` — Sub-Stats proportional skalieren bei Stat-Override
 - `applyThiefPenalty(baseValue, effects)` — Thief-Skill-Penalty anwenden
 - `getConBonusCap(classGroup)` — CON-HP-Bonus-Cap (+2 Non-Warrior, +4 Warrior)
-- `computeCharacterCombatData(character, classes, equipment, epicItems, profs, styles)` — Shared Utility für alle abgeleiteten Kampfwerte (THAC0, AC, Saves, Perception, Thief Skills). Genutzt von Play Mode + GM Dashboard.
+- `computeCharacterCombatData(character, classes, equipment, epicItems, profs, styles, effects?)` — Shared Utility für alle abgeleiteten Kampfwerte (THAC0 + `thac0Effective`, AC, Saves, Perception, Thief Skills, `hpDelta`, `tempHp`). Genutzt von GM Dashboard und Spieler-Dashboard. `applyLiveHp(combat, live)` verrechnet das CON-Delta mit Realtime-TP.
+
+**Temporäre Effekte (`temporary-effects.ts`, `effective-stats.ts`):**
+
+- Tabelle `character_effects` (Migration 00230): Name, Notiz (Freitext, z. B. Krit-Tabelle), Dauer als Text, `modifiers` (JSONB `{target, op, value, condition?}`), `flags` (Zustände), `temp_hp_remaining`. **Soft-Delete** über `ended_at` (Realtime kann DELETEs nicht filtern). Nur der Besitzer legt an/ändert/beendet (RLS + `enforce_approval`), alle sehen. Effekte werden manuell beendet, es gibt keinen Rundenzähler. NPC-Seiten zeigen keine Effekte.
+- Werte in Spielersicht (+ = Vorteil); die Engine dreht das Vorzeichen für absteigende Rettungswürfe/ETW0/RK. `op`: `delta` (alle), `set` (Attribute, RK), `factor` (Attribute, Bewegung, Angriffe/Runde; 2, 2/3, 1/2, 1/3, 0).
+- Reihenfolge pro Attribut: Items (Force ?? max(Basis, Epic, Magie) + Bonus, Cap 25; Overclock ersetzt CON) → `set` (neuester gewinnt) → `factor` (abrunden) → `delta` → Clamp 0..25. Unterwerte werden mitskaliert, Tabellen werden über `toModifierScore()` (3..25) gelesen — Werte unter 3 stürzen nicht ab.
+- `resolveEffectiveStats()` ist der **einzige** Resolver (Play Mode, Checks-Panel, Charakterbogen, `computeCharacterCombatData`). Der Charakterbogen zeigt Werte ohne Effekte und daneben „effektiv X“.
+- Bedingte Auswirkungen („+2 gegen Böse“) werden nur als Hinweis gezeigt, nie verrechnet. Mehrfach dieselbe Vorlage → Stapel-Warnung; Schwellen (STR 0 tödlich, CON < 3 bewusstlos, sonst < 3 handlungsunfähig) nur als Warnung.
+- Temporäre TP: eigener Puffer je Effekt, Schaden zieht zuerst dort ab (`consumeTempHp`, älteste zuerst), dann echte TP.
+- Ausnahmen ohne Effekte: Gestaltwandlung, Kampfsimulator (`simulatorCombat`), Druckansicht/DOCX.
+- Realtime: `useCharacterEffects` (Kanal mit `useId`-Suffix), GM-Dashboard per `useRealtimeRefresh` auf `character_effects`.
 
 **Stufenaufstieg (`level-up.ts`):**
 
@@ -314,7 +329,7 @@ Diese Abweichungen vom Standard-PHB gelten für die "Chaos RPG"-Gruppe:
 - **Env-Variablen:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_API_KEY` (alle KI-Features), `VOYAGE_API_KEY` (Regelbuch-Suche), `GM_PIN` (6-Digit), optional `GM_SESSION_SECRET` und `CRON_SECRET` in `.env.local`
 - **RLS:** Alle Tabellen nutzen Row Level Security — SELECT für alle Authentifizierten, INSERT/UPDATE/DELETE nur für Owner
 - **Storage:** `voice-notes` Bucket für Sprachnotizen, `avatars` für Character-Avatare
-- **Migrationen:** 223 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
+- **Migrationen:** 228 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
 - **User-Freigabe:** `profiles.is_approved` (default false, bestehende User via Backfill auf true) + `enforce_approval`-BEFORE-Trigger auf 20+ Tabellen (`characters`, `character_equipment`, `character_spells`, `chronicle_npcs`, `chronicle_quotes`, `sessions`, `tags`, `party_loot_*`, `monsters`, `magic_items`, `epic_items`, `gm_bookmarks`). `approve_user(uuid)` RPC nur für Admin. Items mit `simple_effects.base_<stat>` (Kondensator) gehen über `forceStatOverrides` — ersetzen Basiswert unbedingt (nicht max()).
 - **Tutorials:** `profiles.skip_tutorials` (Backfill = true) blendet Overlays für bestehende User aus. Client-Side localStorage-Key `chaos-forge-tutorial-dismissed`.
 - **Spieltermine:** `game_dates` (`event_date` als reines `date`, kein Zeitstempel — Countdown darf nicht von der Serverzeitzone abhängen). Jeder freigegebene Nutzer darf CRUD. Ein `AFTER`-Trigger verteilt Benachrichtigungen an alle anderen freigegebenen Spieler; Auslöser aus der QA-Domain und System-Kontext (kein `auth.uid()`) sind ausgenommen.
@@ -392,3 +407,5 @@ Finaler explorativer Test mit etablierten Testing-Heuristiken und gezielten "Tes
 24. **Ansichtsmodus & Tablet-Fix** — Einstellung „Ansicht: Automatisch / Mobil / Desktop“ pro Gerät (localStorage, Klasse auf `<html>`, Pre-Paint-Script), Tailwind-Breakpoints per `@custom-variant` mit `:where()` überschrieben, `useBreakpoint()` für JS-Breitenprüfungen, Toaster oben mittig im Mobil-Modus. Play-Mode-Grid mit `minmax(0,…)` statt `1fr`/Prozent (Galaxy Tab S6 Lite, 800 px, musste herauszoomen), innere Panel-Grids erst ab `lg`. Test-Setup nutzt unter Node ≥ 25 jsdoms `localStorage` ✅
 
 25. **Stufenaufstiegs-Assistent** — Aufstieg nur noch über einen Assistenten pro Klassenstufe: echter Trefferwürfel abgefragt (CON inkl. Fitness, Kit-Würfel, Multiclass-Teilung nach PHB, feste TP ab Name-Level, Dual-Class ruhend), Diebes-/Bardenpunkte verteilen (max. 15 je Fertigkeit, 95 %), Übersicht aller Änderungen inkl. Epic-Freischaltungen. Banner „Stufenaufstieg verfügbar“ in Charakterbogen und Play Mode; XP-Dialog und XP-Löschung ändern keine Stufen mehr; `characters.level` wird synchron gehalten. PHB-Korrekturen: Schurken +1 NWP-Slot alle 4 Stufen, feste TP für Schurken/Magier ab Stufe 11 ✅
+
+26. **Temporäre Effekte** — Zauber, Monsterangriffe, Zustände und Verletzungen als Effekte am Charakter: 37 Vorlagen mit Quellen oder frei definiert, Freitext-Notiz (z. B. Krit-Tabelle), Auswirkungen auf Attribute (auch CHA/CON-Verlust, Halbierung, „setzt auf“), Rettungswürfe (einzeln/alle, auch Auren), Angriff, Schaden, RK, Bewegung, Angriffe/Runde, Wahrnehmung, Proben, Diebesfertigkeiten, Zauberpatzer; Zustände wie bewusstlos, gehalten, kein GE-Bonus. Automatische Verrechnung in Play Mode, Charakterbogen („effektiv X“), GM-Karten und Dashboard; temporäre TP als Puffer. Nur der Spieler setzt Effekte, Ende manuell. Nebenbei: vier Attribut-Resolver zu `resolveEffectiveStats()` vereinheitlicht, Realtime-Kanäle mit Instanz-Suffix ✅

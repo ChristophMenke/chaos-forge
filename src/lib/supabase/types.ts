@@ -660,3 +660,74 @@ export interface PartyLootLogRow {
   details: Record<string, unknown>;
   created_at: string;
 }
+
+// ─── Temporäre Effekte (character_effects) ───────────────────────────────────
+
+/** Values a temporary effect can change (see src/lib/rules/temporary-effects.ts). */
+export type EffectTarget =
+  | "str"
+  | "dex"
+  | "con"
+  | "int"
+  | "wis"
+  | "cha"
+  | "allAbilities"
+  | "savesAll"
+  | "saveParalyzation"
+  | "saveRod"
+  | "savePetrification"
+  | "saveBreath"
+  | "saveSpell"
+  | "attack"
+  | "damage"
+  | "ac"
+  | "movement"
+  | "attacksPerRound"
+  | "tempHp"
+  | "perception"
+  | "abilityChecks"
+  | "thiefSkills"
+  | "spellFailure";
+
+/** delta: ±value · set: value replaces · factor: multiply (×2, ×½ …). */
+export type EffectOp = "delta" | "set" | "factor";
+
+/** One change of an effect. `value` is in player terms: positive = advantage. */
+export interface EffectModifier {
+  target: EffectTarget;
+  op: EffectOp;
+  value: number;
+  /** Only applies "against …" something (e.g. "Böse", "Furcht") — shown as a hint, not computed. */
+  condition?: string;
+}
+
+export type EffectFlag =
+  | "unconscious"
+  | "stunned"
+  | "prone"
+  | "held"
+  | "blinded"
+  | "deafened"
+  | "frightened"
+  | "nauseated"
+  | "helpless"
+  | "noAttacks"
+  | "cannotCast"
+  | "noDexAc"
+  | "noShield"
+  | "ongoingDamage";
+
+export interface CharacterEffectRow {
+  id: string;
+  character_id: string;
+  name: string;
+  notes: string;
+  duration_text: string;
+  preset_key: string | null;
+  modifiers: EffectModifier[];
+  flags: EffectFlag[];
+  temp_hp_remaining: number;
+  created_by: string | null;
+  created_at: string;
+  ended_at: string | null;
+}

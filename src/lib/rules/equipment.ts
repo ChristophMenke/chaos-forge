@@ -25,6 +25,14 @@ export interface ACCalculationInput {
   singleWeaponStyleBonus?: number;
   /** Shield Proficiency AC bonus (1-3, from P.O: Skills & Powers Table 51) */
   shieldProficiencyBonus?: number;
+  /** Temporary effects: AC bonus in player terms (+2 = AC 2 better, −4 = 4 worse) */
+  effectAcBonus?: number;
+  /** Temporary effects: AC becomes this value (replaces armor, Dex and shield) */
+  effectAcSet?: number | null;
+  /** Temporary effects: no Dexterity bonus (a Dexterity penalty still applies) */
+  noDexBonus?: boolean;
+  /** Temporary effects: shield unusable (does not unlock the single-weapon style bonus) */
+  noShield?: boolean;
 }
 
 /**
@@ -47,13 +55,22 @@ export function calculateAC(input: ACCalculationInput): number {
     epicAcBonus = 0,
     singleWeaponStyleBonus = 0,
     shieldProficiencyBonus = 0,
+    effectAcBonus = 0,
+    effectAcSet = null,
+    noDexBonus = false,
+    noShield = false,
   } = input;
+
+  if (effectAcSet != null) return effectAcSet - effectAcBonus;
 
   // Magical protection (Bracers +4, Ring +1) is a BONUS subtracted from base 10,
   // not an absolute AC replacement. Also still counts as "unarmored" for PO bonus.
   const isUnarmored = equippedArmorAC == null || isMagicalProtection;
   const baseAC = isMagicalProtection ? 10 - (equippedArmorAC ?? 0) : (equippedArmorAC ?? 10);
-  const shieldBonus = shieldEquipped ? -1 : 0;
+  const shieldUsable = shieldEquipped && !noShield;
+  const shieldBonus = shieldUsable ? -1 : 0;
+  // A Dexterity bonus is negative (better); "no Dex bonus" keeps penalties.
+  const dexAdj = noDexBonus ? Math.max(0, dexDefenseAdj) : dexDefenseAdj;
 
   // Player's Option: Skills & Powers — unarmored warrior/rogue bonus (-2)
   let unarmoredBonus = 0;
@@ -68,18 +85,19 @@ export function calculateAC(input: ACCalculationInput): number {
   // Single-Weapon Style bonus only applies when fighting without a shield
   const effectiveSWSBonus = shieldEquipped ? 0 : singleWeaponStyleBonus;
 
-  // Shield proficiency bonus only applies when a shield is equipped
-  const effectiveShieldProfBonus = shieldEquipped ? shieldProficiencyBonus : 0;
+  // Shield proficiency bonus only applies when a shield is equipped and usable
+  const effectiveShieldProfBonus = shieldUsable ? shieldProficiencyBonus : 0;
 
   return (
     baseAC +
     shieldBonus +
-    dexDefenseAdj +
+    dexAdj +
     magicACModifier +
     unarmoredBonus -
     epicAcBonus -
     effectiveSWSBonus -
-    effectiveShieldProfBonus
+    effectiveShieldProfBonus -
+    effectAcBonus
   );
 }
 

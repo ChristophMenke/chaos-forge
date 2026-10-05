@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { EffectChips } from "@/components/effects/effect-chips";
+import { EffectDialog } from "@/components/effects/effect-dialog";
 import { useTranslations, useLocale } from "next-intl";
 import { Eye, ChevronDown, Shield, Swords, Skull, Heart, Zap, Sparkles } from "lucide-react";
 import { HpBar } from "@/components/hp-bar";
@@ -10,8 +12,8 @@ import { localized } from "@/lib/utils/localize";
 import { RACES } from "@/lib/rules/races";
 import { CLASSES } from "@/lib/rules/classes";
 import { getHpStatus } from "@/lib/rules/hitpoints";
-import type { CharacterRow, CharacterClassRow } from "@/lib/supabase/types";
-import type { CharacterCombatData } from "@/lib/rules/character-computed";
+import type { CharacterRow, CharacterClassRow, CharacterEffectRow } from "@/lib/supabase/types";
+import { applyLiveHp, type CharacterCombatData } from "@/lib/rules/character-computed";
 import type { ClassId, RaceId } from "@/lib/rules/types";
 
 interface MasterCharacterCardProps {
@@ -20,6 +22,8 @@ interface MasterCharacterCardProps {
   combat: CharacterCombatData;
   /** Live HP override from Realtime subscription */
   liveHp?: { current: number; max: number } | null;
+  /** Active temporary effects (read-only for the GM) */
+  effects?: CharacterEffectRow[];
   /** Called when GM clicks to view character details */
   onViewCharacter?: (characterId: string) => void;
 }
@@ -65,16 +69,18 @@ export function MasterCharacterCard({
   classes,
   combat,
   liveHp,
+  effects = [],
   onViewCharacter,
 }: MasterCharacterCardProps) {
   const t = useTranslations("master");
+  const tfx = useTranslations("effects");
+  const [openEffect, setOpenEffect] = useState<CharacterEffectRow | null>(null);
   const locale = useLocale();
   const [expanded, setExpanded] = useState(false);
 
   const colors = getClassGroupColors(combat.primaryClassGroup);
   const activeClasses = classes.filter((cc) => cc.is_active);
-  const hpCurrent = liveHp?.current ?? combat.hpCurrent;
-  const hpMax = liveHp?.max ?? combat.hpMax;
+  const { current: hpCurrent, max: hpMax } = applyLiveHp(combat, liveHp);
   // Guard against hpMax=0 (newly created character without HP roll)
   const hpStatus = hpMax > 0 ? getHpStatus(hpCurrent, hpMax) : "alive";
   const hpPct = hpMax > 0 ? Math.round((hpCurrent / hpMax) * 100) : 0;
@@ -197,6 +203,14 @@ export function MasterCharacterCard({
             unconsciousLabel={t("unconscious")}
             deadLabel={t("dead")}
           />
+          {combat.tempHp > 0 && (
+            <div
+              className="mt-1 text-xs font-mono text-emerald-400"
+              data-testid={`gm-char-temp-hp-${character.id}`}
+            >
+              {tfx("tempHp", { count: combat.tempHp })}
+            </div>
+          )}
           {/* HP percentage indicator */}
           {hpStatus === "alive" && (
             <div className="mt-1 text-right text-xs uppercase tracking-wider text-muted-foreground">
@@ -223,7 +237,7 @@ export function MasterCharacterCard({
           <StatTile
             icon={<Swords className="h-3.5 w-3.5" />}
             label={t("thac0")}
-            value={combat.thac0}
+            value={combat.thac0Effective}
             accent={group}
           />
         </div>
@@ -245,6 +259,19 @@ export function MasterCharacterCard({
           </div>
         </div>
       </button>
+
+      {/* Temporary effects — set by the player, read-only here */}
+      {effects.length > 0 && (
+        <div className="relative px-4 pb-3" data-testid={`gm-char-effects-${character.id}`}>
+          <EffectChips effects={effects} readOnly maxVisible={4} onOpen={setOpenEffect} />
+          <EffectDialog
+            open={openEffect != null}
+            onOpenChange={(open) => !open && setOpenEffect(null)}
+            effect={openEffect}
+            readOnly
+          />
+        </div>
+      )}
 
       {/* Expandable: Perception + Thief Skills */}
       <div className="border-t border-border/30 px-4">

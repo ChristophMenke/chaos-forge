@@ -404,7 +404,7 @@ export default async function DashboardPage() {
   const partyCharIds = partyChars.map((c) => c.id);
 
   // ── Combat data queries (scoped to party characters) ──
-  const [allEquipment, allEpicItems, allWeaponProfs, allFightingStyles] =
+  const [allEquipment, allEpicItems, allWeaponProfs, allFightingStyles, allEffects] =
     partyCharIds.length > 0
       ? await Promise.all([
           supabase
@@ -431,8 +431,16 @@ export default async function DashboardPage() {
             .in("character_id", partyCharIds)
             .returns<import("@/lib/supabase/types").CharacterFightingStyleRow[]>()
             .then((r) => r.data ?? []),
+          supabase
+            .from("character_effects")
+            .select("*")
+            .in("character_id", partyCharIds)
+            .is("ended_at", null)
+            .order("created_at")
+            .returns<import("@/lib/supabase/types").CharacterEffectRow[]>()
+            .then((r) => r.data ?? []),
         ])
-      : [[], [], [], []];
+      : [[], [], [], [], []];
 
   const partyAvgLevel = (() => {
     if (partyChars.length === 0) return 0;
@@ -653,15 +661,31 @@ export default async function DashboardPage() {
     stylesByChar.set(fs.character_id, list);
   }
 
-  // Compute combat data for all party characters
+  const effectsByChar = new Map<string, import("@/lib/supabase/types").CharacterEffectRow[]>();
+  for (const fx of allEffects) {
+    const list = effectsByChar.get(fx.character_id) ?? [];
+    list.push(fx);
+    effectsByChar.set(fx.character_id, list);
+  }
+
+  // Compute combat data for all party characters (incl. temporary effects)
   const partyCombatData = partyChars.map((c) => {
     const classes = charClassMap.get(c.id) ?? [];
     const equipment = equipmentByChar.get(c.id) ?? [];
     const epicItems = epicByChar.get(c.id) ?? [];
     const profs = profsByChar.get(c.id) ?? [];
     const styles = stylesByChar.get(c.id) ?? [];
-    const combat = computeCharacterCombatData(c, classes, equipment, epicItems, profs, styles);
-    return { name: c.name, ...combat };
+    const effects = effectsByChar.get(c.id) ?? [];
+    const combat = computeCharacterCombatData(
+      c,
+      classes,
+      equipment,
+      epicItems,
+      profs,
+      styles,
+      effects
+    );
+    return { name: c.name, ...combat, thac0: combat.thac0Effective };
   });
 
   // Average AC
@@ -698,6 +722,7 @@ export default async function DashboardPage() {
         channelName="dashboard"
         bindings={[
           { table: "characters" },
+          { table: "character_effects" },
           { table: "chronicle_quotes" },
           { table: "chronicle_npcs" },
         ]}

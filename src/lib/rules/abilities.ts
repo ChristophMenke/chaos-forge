@@ -1059,3 +1059,12 @@ export function getTotalLanguageSlots(
   }
   return race.defaultLanguages.length + intMods.numberOfLanguages;
 }
+
+/**
+ * Score to use for the ability tables (which cover 3–25). Temporary effects
+ * can push an ability below 3 — the character shows the real value (with a
+ * warning), while the modifiers are read at the table floor.
+ */
+export function toModifierScore(score: number): number {
+  return Math.max(3, Math.min(25, Math.floor(score)));
+}

@@ -5,6 +5,10 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { LevelUpDialog } from "@/components/level-up/level-up-dialog";
+import { EffectsBar } from "@/components/effects/effects-bar";
+import { useCharacterEffects } from "@/lib/hooks/use-character-effects";
+import { aggregateEffects } from "@/lib/rules/temporary-effects";
+import { resolveEffectiveStats } from "@/lib/rules/effective-stats";
 import { PendingLevelUpBanner } from "@/components/level-up/pending-level-up-banner";
 import type { LevelUpPlan } from "@/lib/level-up/apply-level-up";
 import { PlayHpBar } from "./play-hp-bar";
@@ -26,14 +30,7 @@ import {
   getMulticlassHpDivisor,
 } from "@/lib/rules/multiclass";
 import type { ClassId, RaceId } from "@/lib/rules/types";
-import {
-  getStrengthModifiers,
-  getDexterityModifiers,
-  getConstitutionModifiers,
-  getIntelligenceModifiers,
-  getWisdomModifiers,
-  getCharismaModifiers,
-} from "@/lib/rules/abilities";
+import { getConstitutionModifiers } from "@/lib/rules/abilities";
 import {
   calculateAC,
   calculateEncumbrance,
@@ -41,9 +38,9 @@ import {
   getShieldProficiencyBonus,
 } from "@/lib/rules/equipment";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
-import { getConBonusCap, clampHpCurrentToMax } from "@/lib/rules/hitpoints";
+import { getConBonusCap, clampHpCurrentToMax, getDeathThreshold } from "@/lib/rules/hitpoints";
 import { CLASSES, getClassGroup } from "@/lib/rules/classes";
-import { getEpicEffects, scaleSubStat } from "@/lib/rules/epic-items";
+import { getEpicEffects } from "@/lib/rules/epic-items";
 import type { EpicEffects } from "@/lib/rules/epic-items";
 import { getMagicItemEffects, isMagicItem } from "@/lib/rules/magic-items";
 import { getClassGroupColors } from "@/lib/utils/class-colors";
@@ -66,6 +63,7 @@ import type {
   EpicItemRow,
   SpellRow,
   CharacterFightingStyleRow,
+  CharacterEffectRow,
 } from "@/lib/supabase/types";
 import type { CoinPurse } from "@/lib/rules/equipment";
 import { getSingleWeaponStyleBonus } from "@/lib/rules/fighting-styles";
@@ -200,6 +198,8 @@ interface PlayModeProps {
   inventory: CharacterInventoryWithDetails[];
   epicItems?: EpicItemRow[];
   fightingStyles?: CharacterFightingStyleRow[];
+  /** Active temporary effects (character_effects, ended_at is null). */
+  effects?: CharacterEffectRow[];
   priestAvailableSpells?: SpellRow[];
   basePath?: string;
 }
@@ -224,12 +224,14 @@ export function PlayMode({
   inventory: initialInventory,
   epicItems = [],
   fightingStyles = [],
+  effects: initialEffects = [],
   priestAvailableSpells = [],
   basePath = "/characters",
 }: PlayModeProps) {
   const t = useTranslations("playMode");
   const locale = useLocale();
   const [character, setCharacter] = useState(initialCharacter);
+  const effectsState = useCharacterEffects(initialCharacter.id, initialEffects);
   const router = useRouter();
   const [levelUpOpen, setLevelUpOpen] = useState(false);
   // Levels saved by the level-up assistant before the server props catch up
@@ -275,8 +277,6 @@ export function PlayMode({
   );
   const magicEffects = useMemo(() => getMagicItemEffects(equipment), [equipment]);
   const hasMagicItems = useMemo(() => equipment.some(isMagicItem), [equipment]);
-  const mb = magicEffects.statBonuses;
-  const mo = magicEffects.statOverrides;
   // Overclock state — read from epicItems simple_effects (persisted in DB via Epic Equipment page)
   // Plain function — React Compiler handles memoization automatically
   let overclockState = { active: false, endTime: null as number | null };
@@ -290,24 +290,32 @@ export function PlayMode({
   }
   const overclockActive = overclockState.active;
 
-  const eo = epicEffects.statOverrides;
-  const fo = epicEffects.forceStatOverrides;
-
   // Overclock is only effective when the ability exists and is active
   const overclockEffective = overclockActive && epicEffects.overclockAbility != null;
 
-  // Effective stats: forceStatOverride wins absolutely; otherwise
-  // max(base, epicOverride, magicOverride) + magic additive bonuses + overclock
-  const resolve = (base: number, force?: number, epic?: number, magic?: number): number =>
-    force ?? Math.max(base, epic ?? 0, magic ?? 0);
-  const effectiveStr = resolve(character.str, fo.str, eo.str, mo.str) + (mb.str ?? 0);
-  const effectiveDex = resolve(character.dex, fo.dex, eo.dex, mo.dex) + (mb.dex ?? 0);
-  const effectiveCon = overclockEffective
-    ? epicEffects.overclockAbility!.conOverride
-    : resolve(character.con, fo.con, eo.con, mo.con) + (mb.con ?? 0);
-  const effectiveInt = resolve(character.int, fo.int, eo.int, mo.int) + (mb.int ?? 0);
-  const effectiveWis = resolve(character.wis, fo.wis, eo.wis, mo.wis) + (mb.wis ?? 0);
-  const effectiveCha = resolve(character.cha, fo.cha, eo.cha, mo.cha) + (mb.cha ?? 0);
+  // Effective abilities and modifiers: items, overclock and temporary effects
+  // through the shared resolver (same rules as the GM dashboard and the sheet).
+  const effectSummary = useMemo(
+    () => aggregateEffects(effectsState.effects),
+    [effectsState.effects]
+  );
+  const effectiveStats = useMemo(
+    () =>
+      resolveEffectiveStats(
+        character,
+        { epicEffects, magicEffects, overclockActive: overclockEffective },
+        effectSummary
+      ),
+    [character, epicEffects, magicEffects, overclockEffective, effectSummary]
+  );
+  const {
+    str: effectiveStr,
+    dex: effectiveDex,
+    con: effectiveCon,
+    int: effectiveInt,
+    wis: effectiveWis,
+    cha: effectiveCha,
+  } = effectiveStats.values;
 
   // Derived rules engine values
   const activeClasses = useMemo(
@@ -346,113 +354,29 @@ export function PlayMode({
   );
   // Apply magic item save bonuses (lower is better in AD&D → subtract)
   const msb = magicEffects.saveBonuses;
+  // Temporary effect save bonuses are in player terms (+ = better) → subtract too.
+  const esb = effectSummary.saves;
   const saves = useMemo(
     () => ({
-      paralyzation: baseSaves.paralyzation - (msb.paralyzation ?? 0),
-      rod: baseSaves.rod - (msb.rod ?? 0),
-      petrification: baseSaves.petrification - (msb.petrification ?? 0),
-      breath: baseSaves.breath - (msb.breath ?? 0),
-      spell: baseSaves.spell - (msb.spell ?? 0),
+      paralyzation: baseSaves.paralyzation - (msb.paralyzation ?? 0) - esb.paralyzation,
+      rod: baseSaves.rod - (msb.rod ?? 0) - esb.rod,
+      petrification: baseSaves.petrification - (msb.petrification ?? 0) - esb.petrification,
+      breath: baseSaves.breath - (msb.breath ?? 0) - esb.breath,
+      spell: baseSaves.spell - (msb.spell ?? 0) - esb.spell,
     }),
-    [baseSaves, msb]
+    [baseSaves, msb, esb]
   );
+  // THAC0 including attack modifiers from temporary effects (+ = better → lower)
+  const effectiveThac0 = thac0 - effectSummary.attack;
 
-  const strOverridden = fo.str != null || eo.str != null || mo.str != null;
-  const strExceptional =
-    mo.str != null && mo.str >= (eo.str ?? 0) && magicEffects.strExceptionalOverride != null
-      ? magicEffects.strExceptionalOverride
-      : (character.str_exceptional ?? undefined);
-  const strMods = useMemo(
-    () =>
-      getStrengthModifiers(
-        effectiveStr,
-        strExceptional,
-        strOverridden
-          ? (scaleSubStat(character.str, character.str_muscle, effectiveStr) ?? undefined)
-          : (character.str_muscle ?? undefined),
-        strOverridden
-          ? (scaleSubStat(character.str, character.str_stamina, effectiveStr) ?? undefined)
-          : (character.str_stamina ?? undefined)
-      ),
-    [
-      effectiveStr,
-      character.str,
-      strExceptional,
-      character.str_muscle,
-      character.str_stamina,
-      strOverridden,
-    ]
-  );
-  const dexOverridden = fo.dex != null || eo.dex != null || mo.dex != null;
-  const dexMods = useMemo(
-    () =>
-      getDexterityModifiers(
-        effectiveDex,
-        dexOverridden
-          ? (scaleSubStat(character.dex, character.dex_aim, effectiveDex) ?? undefined)
-          : (character.dex_aim ?? undefined),
-        dexOverridden
-          ? (scaleSubStat(character.dex, character.dex_balance, effectiveDex) ?? undefined)
-          : (character.dex_balance ?? undefined)
-      ),
-    [effectiveDex, character.dex, character.dex_aim, character.dex_balance, dexOverridden]
-  );
-  const conIsOverridden = overclockEffective || fo.con != null || eo.con != null || mo.con != null;
-  const conMods = useMemo(
-    () =>
-      getConstitutionModifiers(
-        effectiveCon,
-        conIsOverridden
-          ? (scaleSubStat(character.con, character.con_health, effectiveCon) ?? undefined)
-          : (character.con_health ?? undefined),
-        conIsOverridden
-          ? (scaleSubStat(character.con, character.con_fitness, effectiveCon) ?? undefined)
-          : (character.con_fitness ?? undefined)
-      ),
-    [effectiveCon, character.con, character.con_health, character.con_fitness, conIsOverridden]
-  );
-  const intOverridden = fo.int != null || eo.int != null || mo.int != null;
-  const intMods = useMemo(
-    () =>
-      getIntelligenceModifiers(
-        effectiveInt,
-        intOverridden
-          ? (scaleSubStat(character.int, character.int_knowledge, effectiveInt) ?? undefined)
-          : (character.int_knowledge ?? undefined),
-        intOverridden
-          ? (scaleSubStat(character.int, character.int_reason, effectiveInt) ?? undefined)
-          : (character.int_reason ?? undefined)
-      ),
-    [effectiveInt, character.int, character.int_knowledge, character.int_reason, intOverridden]
-  );
-  const wisOverridden = fo.wis != null || eo.wis != null || mo.wis != null;
-  const wisMods = useMemo(
-    () =>
-      getWisdomModifiers(
-        effectiveWis,
-        wisOverridden
-          ? (scaleSubStat(character.wis, character.wis_intuition, effectiveWis) ?? undefined)
-          : (character.wis_intuition ?? undefined),
-        wisOverridden
-          ? (scaleSubStat(character.wis, character.wis_willpower, effectiveWis) ?? undefined)
-          : (character.wis_willpower ?? undefined)
-      ),
-    [effectiveWis, character.wis, character.wis_intuition, character.wis_willpower, wisOverridden]
-  );
-  const chaOverridden = fo.cha != null || eo.cha != null || mo.cha != null;
-  const chaMods = useMemo(
-    () =>
-      getCharismaModifiers(
-        effectiveCha,
-        chaOverridden
-          ? (scaleSubStat(character.cha, character.cha_leadership, effectiveCha) ?? undefined)
-          : (character.cha_leadership ?? undefined),
-        chaOverridden
-          ? (scaleSubStat(character.cha, character.cha_appearance, effectiveCha) ?? undefined)
-          : (character.cha_appearance ?? undefined)
-      ),
-    [effectiveCha, character.cha, character.cha_leadership, character.cha_appearance, chaOverridden]
-  );
+  const {
+    str: strMods,
+    dex: dexMods,
+    con: conMods,
+    int: intMods,
+    wis: wisMods,
+    cha: chaMods,
+  } = effectiveStats.mods;
 
   // HP adjustment from epic CON overrides
   // hp_max in DB is based on base CON. If epic items change CON, adjust HP accordingly.
@@ -507,10 +431,11 @@ export function PlayMode({
     () => calculateEncumbrance(totalWeight, strMods.weightAllow),
     [totalWeight, strMods.weightAllow]
   );
-  const movementRate = useMemo(
+  const baseMovementRate = useMemo(
     () => getMovementRate(12, character.ignore_encumbrance ? "unencumbered" : encumbranceLevel),
     [encumbranceLevel, character.ignore_encumbrance]
   );
+  const movementRate = Math.floor(baseMovementRate * effectSummary.movementFactor);
 
   const isMagicalProtection = equippedArmor?.armor?.is_magical_protection ?? false;
   const equippedShieldItem = useMemo(
@@ -546,8 +471,13 @@ export function PlayMode({
         epicAcBonus: epicEffects.acBonus,
         singleWeaponStyleBonus,
         shieldProficiencyBonus,
+        effectAcBonus: effectSummary.acBonus,
+        effectAcSet: effectSummary.acSet,
+        noDexBonus: effectSummary.noDexAc,
+        noShield: effectSummary.noShield,
       }),
     [
+      effectSummary,
       equippedArmor,
       equippedShield,
       dexMods.defensiveAdj,
@@ -682,6 +612,18 @@ export function PlayMode({
       updateCharacter({ hp_current: clampedBaseHp });
     },
     [hpDelta, character.hp_max, updateCharacter]
+  );
+
+  // Damage goes through temporary hit points (effects) first; the rest hits HP.
+  const { absorbDamage } = effectsState;
+  const handleDamage = useCallback(
+    async (amount: number) => {
+      const rest = await absorbDamage(amount);
+      if (rest > 0) {
+        handleHpChange(Math.max(getDeathThreshold(effectiveHpMax), effectiveHpCurrent - rest));
+      }
+    },
+    [absorbDamage, handleHpChange, effectiveHpMax, effectiveHpCurrent]
   );
 
   const handleCoinChange = useCallback(
@@ -879,14 +821,31 @@ export function PlayMode({
         hpCurrent={effectiveHpCurrent}
         hpMax={effectiveHpMax}
         ac={ac}
-        thac0={thac0}
+        thac0={effectiveThac0}
         classGroup={primaryGroup}
         kitName={kitDisplayName}
         deity={character.deity}
         priesthoodName={priesthoodDisplayName}
         readOnly={!isOwner}
         onHpChange={handleHpChange}
+        tempHp={effectsState.effects.reduce((sum, e) => sum + e.temp_hp_remaining, 0)}
+        onDamage={isOwner && !character.is_npc ? (amount) => void handleDamage(amount) : undefined}
       />
+
+      <div className={character.is_npc ? "hidden" : "px-4 pt-2"}>
+        <EffectsBar
+          state={effectsState}
+          readOnly={!isOwner}
+          values={{
+            str: effectiveStr,
+            dex: effectiveDex,
+            con: effectiveCon,
+            int: effectiveInt,
+            wis: effectiveWis,
+            cha: effectiveCha,
+          }}
+        />
+      </div>
 
       <div className="px-4 pt-2 empty:hidden">
         <PendingLevelUpBanner
@@ -952,7 +911,7 @@ export function PlayMode({
           <PlayCombatPanel
             equipment={equipment}
             weaponProficiencies={weaponProficiencies}
-            thac0={thac0}
+            thac0={effectiveThac0}
             strMods={strMods}
             dexMods={dexMods}
             classGroups={classGroups}
@@ -970,6 +929,7 @@ export function PlayMode({
             onEquipmentChange={setEquipment}
             epicEffects={epicEffects}
             magicAcBonus={magicEffects.acBonus}
+            effectSummary={effectSummary}
             characterKit={character.kit}
             singleWeaponStyleBonus={singleWeaponStyleBonus}
             shieldProficiencyBonus={shieldProficiencyBonus}
@@ -986,6 +946,8 @@ export function PlayMode({
               onCast={handleCastSpell}
               onRest={handleRest}
               epicSpellFailure={epicEffects.spellFailure}
+              effectCannotCast={effectSummary.cannotCast}
+              effectSpellFailure={effectSummary.spellFailure}
               epicWildMagic={epicEffects.wildMagic}
               epicBonusSpellPoints={epicEffects.bonusSpellPoints}
               hpToSpConversion={epicEffects.hpToSpConversion}
@@ -1027,11 +989,9 @@ export function PlayMode({
             nonweaponProficiencies={nonweaponProficiencies}
             epicEffects={epicEffects}
             poisonSavePenalty={poisonSavePenalty}
-            magicPerceptionBonus={magicEffects.perceptionBonus}
-            magicSaveBonuses={magicEffects.saveBonuses}
             magicThiefBonuses={magicEffects.thiefSkillBonuses}
-            magicStatOverrides={magicEffects.statOverrides}
-            magicStatBonuses={magicEffects.statBonuses}
+            effective={effectiveStats}
+            effectSummary={effectSummary}
           />
           {hasMagicItems && (
             <PlayMagicItemsPanel
@@ -1078,7 +1038,7 @@ export function PlayMode({
           <PlayCombatPanel
             equipment={equipment}
             weaponProficiencies={weaponProficiencies}
-            thac0={thac0}
+            thac0={effectiveThac0}
             strMods={strMods}
             dexMods={dexMods}
             classGroups={classGroups}
@@ -1096,6 +1056,7 @@ export function PlayMode({
             onEquipmentChange={setEquipment}
             epicEffects={epicEffects}
             magicAcBonus={magicEffects.acBonus}
+            effectSummary={effectSummary}
             characterKit={character.kit}
             singleWeaponStyleBonus={singleWeaponStyleBonus}
             shieldProficiencyBonus={shieldProficiencyBonus}
@@ -1113,6 +1074,8 @@ export function PlayMode({
             onCast={handleCastSpell}
             onRest={handleRest}
             epicSpellFailure={epicEffects.spellFailure}
+            effectCannotCast={effectSummary.cannotCast}
+            effectSpellFailure={effectSummary.spellFailure}
             epicWildMagic={epicEffects.wildMagic}
             epicBonusSpellPoints={epicEffects.bonusSpellPoints}
             hpToSpConversion={epicEffects.hpToSpConversion}
@@ -1161,11 +1124,9 @@ export function PlayMode({
             nonweaponProficiencies={nonweaponProficiencies}
             epicEffects={epicEffects}
             poisonSavePenalty={poisonSavePenalty}
-            magicPerceptionBonus={magicEffects.perceptionBonus}
-            magicSaveBonuses={magicEffects.saveBonuses}
             magicThiefBonuses={magicEffects.thiefSkillBonuses}
-            magicStatOverrides={magicEffects.statOverrides}
-            magicStatBonuses={magicEffects.statBonuses}
+            effective={effectiveStats}
+            effectSummary={effectSummary}
           />
         )}
         {effectivePanel === "inventory" && (

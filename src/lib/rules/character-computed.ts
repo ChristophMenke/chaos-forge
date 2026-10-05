@@ -11,6 +11,7 @@ import type {
   CharacterFightingStyleRow,
   EpicItemRow,
   MagicSpellAbility,
+  CharacterEffectRow,
 } from "@/lib/supabase/types";
 import type { ClassGroup, ClassId, SavingThrows } from "./types";
 import {
@@ -24,8 +25,10 @@ import { calculateAC, calculateEncumbrance, getShieldProficiencyBonus } from "./
 import { getEpicEffects } from "./epic-items";
 import type { EpicEffects } from "./epic-items";
 import { getMagicItemEffects } from "./magic-items";
-import { getStrengthModifiers, getDexterityModifiers, getConstitutionModifiers } from "./abilities";
-import { scaleSubStat, applyThiefPenalty } from "./epic-items";
+import { getConstitutionModifiers } from "./abilities";
+import { applyThiefPenalty } from "./epic-items";
+import { resolveEffectiveStats } from "./effective-stats";
+import { aggregateEffects, scaleAttacksPerRound, type EffectSummary } from "./temporary-effects";
 import { hasThiefSkills, getBackstabMultiplier } from "./thief";
 import { getSingleWeaponStyleBonus } from "./fighting-styles";
 import { getClassGroup } from "./classes";
@@ -59,7 +62,14 @@ export interface PrimaryWeaponData {
 }
 
 export interface CharacterCombatData {
+  /** Class THAC0 (best of active classes), without temporary effects */
   thac0: number;
+  /** THAC0 including attack modifiers from temporary effects */
+  thac0Effective: number;
+  /** Aggregated temporary effects (see temporary-effects.ts) */
+  effectSummary: EffectSummary;
+  /** Temporary hit points left on active effects */
+  tempHp: number;
   ac: number;
   saves: SavingThrows;
   /** floor((INT + WIS) / 2) + epicPerceptionBonus + magicPerceptionBonus — House Rule */
@@ -69,6 +79,8 @@ export interface CharacterCombatData {
   maxLevel: number;
   hpCurrent: number;
   hpMax: number;
+  /** Max HP change from CON overrides/effects, applied on top of the stored hp_max. */
+  hpDelta: number;
   backstabMultiplier: number | null;
   thiefSkills: ThiefSkillValues | null;
   poisonSavePenalty: number;
@@ -97,8 +109,10 @@ export function computeCharacterCombatData(
   equipment: CharacterEquipmentWithDetails[],
   epicItems: EpicItemRow[],
   weaponProficiencies: CharacterWeaponProficiencyRow[],
-  fightingStyles: CharacterFightingStyleRow[] = []
+  fightingStyles: CharacterFightingStyleRow[] = [],
+  effects: CharacterEffectRow[] = []
 ): CharacterCombatData {
+  const effectSummary = aggregateEffects(effects);
   const activeClasses = classes.filter((cc) => cc.is_active);
   const classIds = activeClasses.map((cc) => cc.class_id as ClassId);
   const classGroups = getMulticlassGroups(classIds);
@@ -113,75 +127,38 @@ export function computeCharacterCombatData(
 
   // Epic effects
   const epicEffects = getEpicEffects(epicItems, character.level);
-  const eo = epicEffects.statOverrides;
-  const fo = epicEffects.forceStatOverrides;
 
   // Magic item effects (additive bonuses + stat overrides)
   const magicEffects = getMagicItemEffects(equipment);
-  const mb = magicEffects.statBonuses;
-  const mo = magicEffects.statOverrides;
 
-  // Effective stats: forceStatOverride wins absolutely (replaces base regardless
-  // of direction); otherwise max(base, epicOverride, magicOverride) + magic
-  // additive bonuses (capped at 25). Force-overrides model items like the
-  // Kondensator where the biological stat replaces the stored buffed value.
-  const MAX_STAT = 25;
-  const resolve = (base: number, force?: number, epic?: number, magic?: number): number =>
-    force ?? Math.max(base, epic ?? 0, magic ?? 0);
-  const effectiveStr = Math.min(
-    resolve(character.str, fo.str, eo.str, mo.str) + (mb.str ?? 0),
-    MAX_STAT
-  );
-  const effectiveDex = Math.min(
-    resolve(character.dex, fo.dex, eo.dex, mo.dex) + (mb.dex ?? 0),
-    MAX_STAT
-  );
-  const effectiveInt = Math.min(
-    resolve(character.int, fo.int, eo.int, mo.int) + (mb.int ?? 0),
-    MAX_STAT
-  );
-  const effectiveWis = Math.min(
-    resolve(character.wis, fo.wis, eo.wis, mo.wis) + (mb.wis ?? 0),
-    MAX_STAT
-  );
+  // Overclock (Kondensator) replaces Constitution while active
+  const overclockActive = epicItems.some((item) => {
+    if (!item.equipped) return false;
+    const se = item.simple_effects as Record<string, unknown> | null;
+    return se?.overclock_active === true;
+  });
 
-  // Is STR overridden by any item?
-  const strOverridden = fo.str != null || eo.str != null || mo.str != null;
-  // For exceptional STR: use magic override if magic item provides the winning STR override
-  const strExceptional =
-    mo.str != null && mo.str >= (eo.str ?? 0) && magicEffects.strExceptionalOverride != null
-      ? magicEffects.strExceptionalOverride
-      : (character.str_exceptional ?? undefined);
-
-  // Modifiers (only STR and DEX needed for AC calc)
-  const strMods = getStrengthModifiers(
-    effectiveStr,
-    strExceptional,
-    strOverridden
-      ? (scaleSubStat(character.str, character.str_muscle, effectiveStr) ?? undefined)
-      : (character.str_muscle ?? undefined),
-    strOverridden
-      ? (scaleSubStat(character.str, character.str_stamina, effectiveStr) ?? undefined)
-      : (character.str_stamina ?? undefined)
+  // Effective abilities + modifiers: items, overclock and temporary effects
+  // through the shared resolver (same rules as play mode and the sheet).
+  const stats = resolveEffectiveStats(
+    character,
+    {
+      epicEffects,
+      magicEffects,
+      overclockActive: overclockActive && epicEffects.overclockAbility != null,
+    },
+    effectSummary
   );
-  const dexOverridden = fo.dex != null || eo.dex != null || mo.dex != null;
-  const dexMods = getDexterityModifiers(
-    effectiveDex,
-    dexOverridden
-      ? (scaleSubStat(character.dex, character.dex_aim, effectiveDex) ?? undefined)
-      : (character.dex_aim ?? undefined),
-    dexOverridden
-      ? (scaleSubStat(character.dex, character.dex_balance, effectiveDex) ?? undefined)
-      : (character.dex_balance ?? undefined)
+  const effectiveInt = stats.values.int;
+  const effectiveWis = stats.values.wis;
+  const strMods = stats.mods.str;
+  const dexMods = stats.mods.dex;
+  const conMods = stats.mods.con;
+  const baseConMods = getConstitutionModifiers(
+    character.con,
+    character.con_health,
+    character.con_fitness
   );
-
-  // CON adjustment for HP (same logic as play-mode.tsx)
-  const effectiveCon = Math.min(
-    resolve(character.con, fo.con, eo.con, mo.con) + (mb.con ?? 0),
-    MAX_STAT
-  );
-  const conMods = getConstitutionModifiers(effectiveCon);
-  const baseConMods = getConstitutionModifiers(character.con);
 
   let hpDelta = 0;
   if (conMods.hpAdj !== baseConMods.hpAdj) {
@@ -234,55 +211,69 @@ export function computeCharacterCombatData(
     epicAcBonus: epicEffects.acBonus,
     singleWeaponStyleBonus,
     shieldProficiencyBonus,
+    effectAcBonus: effectSummary.acBonus,
+    effectAcSet: effectSummary.acSet,
+    noDexBonus: effectSummary.noDexAc,
+    noShield: effectSummary.noShield,
   });
 
-  // Perception (House Rule) — base only, epic/magic bonuses are situational (e.g. sight-based)
-  const perception = Math.floor((effectiveInt + effectiveWis) / 2);
+  // Perception (House Rule) — epic/magic bonuses are situational (e.g. sight-based),
+  // temporary effects (e.g. deafness) apply.
+  const perception = Math.floor((effectiveInt + effectiveWis) / 2) + effectSummary.perception;
 
   // Saving throw bonuses from magic items (lower is better → subtract)
   const msb = magicEffects.saveBonuses;
+  const esb = effectSummary.saves;
   const adjustedSaves: SavingThrows = {
-    paralyzation: saves.paralyzation - (msb.paralyzation ?? 0),
-    rod: saves.rod - (msb.rod ?? 0),
-    petrification: saves.petrification - (msb.petrification ?? 0),
-    breath: saves.breath - (msb.breath ?? 0),
-    spell: saves.spell - (msb.spell ?? 0),
+    paralyzation: saves.paralyzation - (msb.paralyzation ?? 0) - esb.paralyzation,
+    rod: saves.rod - (msb.rod ?? 0) - esb.rod,
+    petrification: saves.petrification - (msb.petrification ?? 0) - esb.petrification,
+    breath: saves.breath - (msb.breath ?? 0) - esb.breath,
+    spell: saves.spell - (msb.spell ?? 0) - esb.spell,
   };
 
   // Thief skills (epic penalties + magic bonuses + epic bonuses)
   const mtb = magicEffects.thiefSkillBonuses;
   const etb = epicEffects.thiefBonuses;
+  const fxThief = effectSummary.thiefSkills;
   let thiefSkills: ThiefSkillValues | null = null;
   if (hasThiefSkills(classIds) && !epicEffects.thiefDisabled) {
     thiefSkills = {
       openLocks:
         applyThiefPenalty(character.thief_pick_locks, epicEffects) +
         (mtb.openLocks ?? 0) +
-        (etb.openLocks ?? 0),
+        (etb.openLocks ?? 0) +
+        fxThief,
       findTraps:
         applyThiefPenalty(character.thief_find_traps, epicEffects) +
         (mtb.findTraps ?? 0) +
-        (etb.findTraps ?? 0),
+        (etb.findTraps ?? 0) +
+        fxThief,
       moveSilently:
         applyThiefPenalty(character.thief_move_silently, epicEffects) +
         (mtb.moveSilently ?? 0) +
-        (etb.moveSilently ?? 0),
+        (etb.moveSilently ?? 0) +
+        fxThief,
       hideInShadows:
         applyThiefPenalty(character.thief_hide_shadows, epicEffects) +
         (mtb.hideInShadows ?? 0) +
-        (etb.hideInShadows ?? 0),
+        (etb.hideInShadows ?? 0) +
+        fxThief,
       detectNoise:
         applyThiefPenalty(character.thief_detect_noise, epicEffects) +
         (mtb.detectNoise ?? 0) +
-        (etb.detectNoise ?? 0),
+        (etb.detectNoise ?? 0) +
+        fxThief,
       climbWalls:
         applyThiefPenalty(character.thief_climb_walls, epicEffects) +
         (mtb.climbWalls ?? 0) +
-        (etb.climbWalls ?? 0),
+        (etb.climbWalls ?? 0) +
+        fxThief,
       readLanguages:
         applyThiefPenalty(character.thief_read_languages, epicEffects) +
         (mtb.readLanguages ?? 0) +
-        (etb.readLanguages ?? 0),
+        (etb.readLanguages ?? 0) +
+        fxThief,
     };
   }
 
@@ -298,11 +289,6 @@ export function computeCharacterCombatData(
   }
 
   // Poison save penalty (from overclock)
-  const overclockActive = epicItems.some((item) => {
-    if (!item.equipped) return false;
-    const se = item.simple_effects as Record<string, unknown> | null;
-    return se?.overclock_active === true;
-  });
   const poisonSavePenalty =
     overclockActive && epicEffects.overclockAbility
       ? epicEffects.overclockAbility.poisonSavePenalty
@@ -342,16 +328,20 @@ export function computeCharacterCombatData(
     }
 
     primaryWeapon = {
-      adjustedThac0: adjusted.melee,
+      adjustedThac0: adjusted.melee - effectSummary.attack,
       damageDice: weapon.damage_sm,
-      damageBonus: strMods.dmgAdj + specDmgBonus + equippedWeapon.damage_bonus,
-      attacksPerRound: apr,
+      damageBonus:
+        strMods.dmgAdj + specDmgBonus + equippedWeapon.damage_bonus + effectSummary.damage,
+      attacksPerRound: scaleAttacksPerRound(apr, effectSummary),
       speed: weapon.speed,
     };
   }
 
   return {
     thac0,
+    thac0Effective: thac0 - effectSummary.attack,
+    effectSummary,
+    tempHp: effectSummary.tempHp,
     ac,
     saves: adjustedSaves,
     perception,
@@ -360,6 +350,7 @@ export function computeCharacterCombatData(
     maxLevel,
     hpCurrent,
     hpMax,
+    hpDelta,
     backstabMultiplier,
     thiefSkills,
     poisonSavePenalty,
@@ -371,4 +362,18 @@ export function computeCharacterCombatData(
     magicSpellAbilities: magicEffects.spellAbilities,
     primaryWeapon,
   };
+}
+
+/**
+ * Applies the CON-based max HP delta to live HP from a realtime update
+ * (which carries the stored hp_max/hp_current), so the GM sees the same
+ * values as the player's play mode.
+ */
+export function applyLiveHp(
+  combat: Pick<CharacterCombatData, "hpCurrent" | "hpMax" | "hpDelta">,
+  live: { current: number; max: number } | null | undefined
+): { current: number; max: number } {
+  if (!live) return { current: combat.hpCurrent, max: combat.hpMax };
+  const max = Math.max(1, live.max + combat.hpDelta);
+  return { current: clampHpCurrentToMax(live.current, max), max };
 }

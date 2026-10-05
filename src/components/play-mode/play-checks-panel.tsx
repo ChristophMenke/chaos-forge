@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { GlassCard } from "@/components/glass-card";
 import { Badge } from "@/components/ui/badge";
@@ -15,12 +15,13 @@ import type {
   CharismaModifiers,
 } from "@/lib/rules/types";
 import type { CharacterRow, CharacterNWPWithDetails } from "@/lib/supabase/types";
-import { applyThiefPenalty, scaleSubStat } from "@/lib/rules/epic-items";
+import { applyThiefPenalty } from "@/lib/rules/epic-items";
+import type { EffectiveStats } from "@/lib/rules/effective-stats";
+import { ABILITY_KEYS, SAVE_KEYS, type EffectSummary } from "@/lib/rules/temporary-effects";
+import { formatModifier, signed } from "@/components/effects/effect-format";
 import type { EpicEffects } from "@/lib/rules/epic-items";
 import type { ThiefSkillBonuses } from "@/lib/rules/magic-items";
 import { localized } from "@/lib/utils/localize";
-
-type StatKey = "str" | "dex" | "con" | "int" | "wis" | "cha";
 
 interface PlayChecksPanelProps {
   saves: SavingThrows;
@@ -35,11 +36,11 @@ interface PlayChecksPanelProps {
   nonweaponProficiencies: CharacterNWPWithDetails[];
   epicEffects?: EpicEffects;
   poisonSavePenalty?: number;
-  magicPerceptionBonus?: number;
-  magicSaveBonuses?: Partial<SavingThrows>;
   magicThiefBonuses?: ThiefSkillBonuses;
-  magicStatOverrides?: Partial<Record<StatKey, number>>;
-  magicStatBonuses?: Partial<Record<StatKey, number>>;
+  /** Effective ability scores (items + temporary effects) from the shared resolver. */
+  effective: EffectiveStats;
+  /** Aggregated temporary effects (sources, conditional hints, check modifiers). */
+  effectSummary: EffectSummary;
 }
 
 function PlayChecksPanelInner({
@@ -55,12 +56,11 @@ function PlayChecksPanelInner({
   nonweaponProficiencies,
   epicEffects,
   poisonSavePenalty = 0,
-  magicPerceptionBonus: _magicPerceptionBonus = 0,
-  magicSaveBonuses: _magicSaveBonuses = {},
   magicThiefBonuses = {},
-  magicStatOverrides = {},
-  magicStatBonuses = {},
+  effective,
+  effectSummary,
 }: PlayChecksPanelProps) {
+  const tfx = useTranslations("effects");
   const t = useTranslations("playMode");
   const te = useTranslations("epic");
   const ts = useTranslations("sheet");
@@ -90,129 +90,93 @@ function PlayChecksPanelInner({
     []
   );
   const epic = epicEffects ?? defaultEpic;
-  const eo = epic.statOverrides;
-  const fo = epic.forceStatOverrides;
-  const mo = magicStatOverrides;
-  const mb = magicStatBonuses;
-
-  // Resolve effective stat: force ?? max(base, epicOverride, magicOverride) + magicBonus.
-  // Force-overrides (z.B. Kondensator) ersetzen den Base-Wert unbedingt.
-  // Memoized so that abilities and nwpChecks can reference it in their dep arrays
-  // instead of inlining a duplicate resolver body.
-  const eff = useCallback(
-    (base: number, stat: StatKey): number => {
-      const resolved = fo[stat] ?? Math.max(base, eo[stat] ?? 0, mo[stat] ?? 0);
-      return resolved + (mb[stat] ?? 0);
-    },
-    [fo, eo, mo, mb]
-  );
-
-  // Is a stat modified by any override or bonus?
-  const isModified = useCallback(
-    (base: number, stat: StatKey): boolean => eff(base, stat) !== base,
-    [eff]
-  );
-
-  // Helper: scale sub-stat if main stat is overridden by any source
-  const sub = useCallback(
-    (base: number, baseSub: number | null, stat: StatKey): number | null => {
-      if (baseSub == null) return null;
-      const effective = eff(base, stat);
-      if (effective !== base) return scaleSubStat(base, baseSub, effective);
-      return baseSub;
-    },
-    [eff]
-  );
-
   // Ability scores with names (using effective stats from epic + magic overrides + bonuses)
   const abilities = useMemo(
     () => [
       {
         name: "STR",
-        score: eff(character.str, "str"),
-        modified: isModified(character.str, "str"),
+        score: effective.values.str,
+        modified: effective.modified.str,
         subScores: [
           character.str_muscle != null
-            ? { name: ts("muscle"), score: sub(character.str, character.str_muscle, "str") }
+            ? { name: ts("muscle"), score: effective.subs.str[0] }
             : null,
           character.str_stamina != null
-            ? { name: ts("stamina"), score: sub(character.str, character.str_stamina, "str") }
+            ? { name: ts("stamina"), score: effective.subs.str[1] }
             : null,
         ].filter(Boolean),
       },
       {
         name: "DEX",
-        score: eff(character.dex, "dex"),
-        modified: isModified(character.dex, "dex"),
+        score: effective.values.dex,
+        modified: effective.modified.dex,
         subScores: [
-          character.dex_aim != null
-            ? { name: ts("aim"), score: sub(character.dex, character.dex_aim, "dex") }
-            : null,
+          character.dex_aim != null ? { name: ts("aim"), score: effective.subs.dex[0] } : null,
           character.dex_balance != null
-            ? { name: ts("balance"), score: sub(character.dex, character.dex_balance, "dex") }
+            ? { name: ts("balance"), score: effective.subs.dex[1] }
             : null,
         ].filter(Boolean),
       },
       {
         name: "CON",
-        score: eff(character.con, "con"),
-        modified: isModified(character.con, "con"),
+        score: effective.values.con,
+        modified: effective.modified.con,
         subScores: [
           character.con_health != null
-            ? { name: ts("health"), score: sub(character.con, character.con_health, "con") }
+            ? { name: ts("health"), score: effective.subs.con[0] }
             : null,
           character.con_fitness != null
-            ? { name: ts("fitness"), score: sub(character.con, character.con_fitness, "con") }
+            ? { name: ts("fitness"), score: effective.subs.con[1] }
             : null,
         ].filter(Boolean),
       },
       {
         name: "INT",
-        score: eff(character.int, "int"),
-        modified: isModified(character.int, "int"),
+        score: effective.values.int,
+        modified: effective.modified.int,
         subScores: [
           character.int_knowledge != null
-            ? { name: ts("knowledge"), score: sub(character.int, character.int_knowledge, "int") }
+            ? { name: ts("knowledge"), score: effective.subs.int[0] }
             : null,
           character.int_reason != null
-            ? { name: ts("reason"), score: sub(character.int, character.int_reason, "int") }
+            ? { name: ts("reason"), score: effective.subs.int[1] }
             : null,
         ].filter(Boolean),
       },
       {
         name: "WIS",
-        score: eff(character.wis, "wis"),
-        modified: isModified(character.wis, "wis"),
+        score: effective.values.wis,
+        modified: effective.modified.wis,
         subScores: [
           character.wis_intuition != null
-            ? { name: ts("intuition"), score: sub(character.wis, character.wis_intuition, "wis") }
+            ? { name: ts("intuition"), score: effective.subs.wis[0] }
             : null,
           character.wis_willpower != null
-            ? { name: ts("willpower"), score: sub(character.wis, character.wis_willpower, "wis") }
+            ? { name: ts("willpower"), score: effective.subs.wis[1] }
             : null,
         ].filter(Boolean),
       },
       {
         name: "CHA",
-        score: eff(character.cha, "cha"),
-        modified: isModified(character.cha, "cha"),
+        score: effective.values.cha,
+        modified: effective.modified.cha,
         subScores: [
           character.cha_leadership != null
             ? {
                 name: ts("leadership"),
-                score: sub(character.cha, character.cha_leadership, "cha"),
+                score: effective.subs.cha[0],
               }
             : null,
           character.cha_appearance != null
             ? {
                 name: ts("appearance"),
-                score: sub(character.cha, character.cha_appearance, "cha"),
+                score: effective.subs.cha[1],
               }
             : null,
         ].filter(Boolean),
       },
     ],
-    [character, ts, eff, isModified, sub]
+    [character, ts, effective]
   );
 
   // Thief skills (epic penalties + magic item bonuses + epic bonuses)
@@ -227,7 +191,8 @@ function PlayChecksPanelInner({
         value:
           applyThiefPenalty(character.thief_pick_locks, epic) +
           (mt.openLocks ?? 0) +
-          (et.openLocks ?? 0),
+          (et.openLocks ?? 0) +
+          effectSummary.thiefSkills,
       },
       {
         name: ts("findTraps"),
@@ -235,7 +200,8 @@ function PlayChecksPanelInner({
         value:
           applyThiefPenalty(character.thief_find_traps, epic) +
           (mt.findTraps ?? 0) +
-          (et.findTraps ?? 0),
+          (et.findTraps ?? 0) +
+          effectSummary.thiefSkills,
       },
       {
         name: ts("moveSilently"),
@@ -243,7 +209,8 @@ function PlayChecksPanelInner({
         value:
           applyThiefPenalty(character.thief_move_silently, epic) +
           (mt.moveSilently ?? 0) +
-          (et.moveSilently ?? 0),
+          (et.moveSilently ?? 0) +
+          effectSummary.thiefSkills,
       },
       {
         name: ts("hideInShadows"),
@@ -251,7 +218,8 @@ function PlayChecksPanelInner({
         value:
           applyThiefPenalty(character.thief_hide_shadows, epic) +
           (mt.hideInShadows ?? 0) +
-          (et.hideInShadows ?? 0),
+          (et.hideInShadows ?? 0) +
+          effectSummary.thiefSkills,
       },
       {
         name: ts("climbWalls"),
@@ -259,7 +227,8 @@ function PlayChecksPanelInner({
         value:
           applyThiefPenalty(character.thief_climb_walls, epic) +
           (mt.climbWalls ?? 0) +
-          (et.climbWalls ?? 0),
+          (et.climbWalls ?? 0) +
+          effectSummary.thiefSkills,
       },
       {
         name: ts("detectNoise"),
@@ -267,7 +236,8 @@ function PlayChecksPanelInner({
         value:
           applyThiefPenalty(character.thief_detect_noise, epic) +
           (mt.detectNoise ?? 0) +
-          (et.detectNoise ?? 0),
+          (et.detectNoise ?? 0) +
+          effectSummary.thiefSkills,
       },
       {
         name: ts("readLanguages"),
@@ -275,25 +245,20 @@ function PlayChecksPanelInner({
         value:
           applyThiefPenalty(character.thief_read_languages, epic) +
           (mt.readLanguages ?? 0) +
-          (et.readLanguages ?? 0),
+          (et.readLanguages ?? 0) +
+          effectSummary.thiefSkills,
       },
     ];
-  }, [showThiefSkills, character, ts, epic, mt, et]);
+  }, [showThiefSkills, character, ts, epic, mt, et, effectSummary.thiefSkills]);
 
   // NWP checks with target numbers (using effective stats from epic + magic overrides + bonuses).
   const nwpChecks = useMemo(() => {
-    const abilityMap: Record<string, number> = {
-      str: eff(character.str, "str"),
-      dex: eff(character.dex, "dex"),
-      con: eff(character.con, "con"),
-      int: eff(character.int, "int"),
-      wis: eff(character.wis, "wis"),
-      cha: eff(character.cha, "cha"),
-    };
+    const abilityMap: Record<string, number> = effective.values;
     return nonweaponProficiencies.map((nwp) => {
       const ability = nwp.proficiency.ability.toLowerCase();
       const baseScore = abilityMap[ability] ?? 10;
-      const target = baseScore + nwp.proficiency.modifier;
+      // Effects on ability/proficiency checks (e.g. heat exhaustion −2) apply here too.
+      const target = baseScore + nwp.proficiency.modifier + effectSummary.abilityChecks;
       return {
         name: localized(nwp.proficiency.name, nwp.proficiency.name_en, locale),
         ability: nwp.proficiency.ability.toUpperCase(),
@@ -305,9 +270,49 @@ function PlayChecksPanelInner({
           : null,
       };
     });
-  }, [nonweaponProficiencies, character, locale, eff]);
+  }, [nonweaponProficiencies, locale, effective, effectSummary.abilityChecks]);
 
   const [expandedNwp, setExpandedNwp] = useState<string | null>(null);
+
+  // Where effect changes on saves come from, and the "vs. …" ones that are
+  // only hints (the app cannot know what a save is against).
+  const saveSources = useMemo(() => {
+    const byEffect = new Map<string, { value: number; keys: Set<string> }>();
+    for (const key of SAVE_KEYS) {
+      for (const src of effectSummary.sources[key] ?? []) {
+        const entry = byEffect.get(src.effectName) ?? { value: src.value, keys: new Set<string>() };
+        entry.keys.add(key);
+        byEffect.set(src.effectName, entry);
+      }
+    }
+    return [...byEffect].map(([name, { value, keys }]) =>
+      keys.size === SAVE_KEYS.length
+        ? `${name} ${signed(value)}`
+        : `${name} ${signed(value)} (${[...keys].map((k) => t(k)).join(", ")})`
+    );
+  }, [effectSummary.sources, t]);
+  // "Seuche: Stärke −2, Geschicklichkeit −2" — which effect changed which ability.
+  const abilitySources = useMemo(() => {
+    const byEffect = new Map<string, string[]>();
+    for (const key of ABILITY_KEYS) {
+      for (const src of effectSummary.sources[key] ?? []) {
+        const parts = byEffect.get(src.effectName) ?? [];
+        parts.push(formatModifier({ target: key, op: src.op, value: src.value }, tfx));
+        byEffect.set(src.effectName, parts);
+      }
+    }
+    return [...byEffect].map(([name, parts]) => `${name}: ${parts.join(", ")}`);
+  }, [effectSummary.sources, tfx]);
+  const saveConditions = useMemo(
+    () =>
+      effectSummary.conditionalNotes
+        .filter((n) => n.target.startsWith("save"))
+        .map(
+          (n) =>
+            `${tfx("conditional", { value: signed(n.value), condition: n.condition })} (${n.effectName})`
+        ),
+    [effectSummary.conditionalNotes, tfx]
+  );
 
   return (
     <GlassCard hover={false} data-testid="play-checks-panel">
@@ -410,6 +415,23 @@ function PlayChecksPanelInner({
             );
           })}
         </div>
+        {(saveSources.length > 0 || saveConditions.length > 0) && (
+          <ul
+            className="mt-1 flex flex-col gap-0.5 text-[10px] md:text-xs"
+            data-testid="play-save-effects"
+          >
+            {saveSources.map((line) => (
+              <li key={line} className="text-purple-400">
+                {line}
+              </li>
+            ))}
+            {saveConditions.map((line) => (
+              <li key={line} className="text-muted-foreground">
+                {line}
+              </li>
+            ))}
+          </ul>
+        )}
         {wisMods.magicalDefenseAdj !== 0 && (
           <div className="mt-1 text-[10px] md:text-xs text-muted-foreground">
             {t("wisMagicalDefense")}: {wisMods.magicalDefenseAdj > 0 ? "+" : ""}
@@ -421,6 +443,24 @@ function PlayChecksPanelInner({
       {/* Ability Checks */}
       <div className="mb-4" data-testid="play-ability-checks">
         <h4 className="mb-1.5 text-xs font-medium text-muted-foreground">{t("abilityChecks")}</h4>
+        {effectSummary.abilityChecks !== 0 && (
+          <p
+            className="mb-1 text-[10px] md:text-xs text-purple-400"
+            data-testid="play-check-effect"
+          >
+            {`${tfx("targets.abilityChecks")} ${signed(effectSummary.abilityChecks)} (${tfx("fromEffects")})`}
+          </p>
+        )}
+        {abilitySources.length > 0 && (
+          <ul
+            className="mb-1 flex flex-col gap-0.5 text-[10px] md:text-xs text-purple-400"
+            data-testid="play-ability-effects"
+          >
+            {abilitySources.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        )}
         <div className="grid grid-cols-3 gap-1.5 lg:grid-cols-6">
           {abilities.map((ab) => (
             <div
@@ -473,7 +513,8 @@ function PlayChecksPanelInner({
             {t("perceptionFormula")}
           </div>
           <div className="font-mono text-lg font-bold">
-            {Math.floor((eff(character.int, "int") + eff(character.wis, "wis")) / 2)}
+            {Math.floor((effective.values.int + effective.values.wis) / 2) +
+              effectSummary.perception}
           </div>
         </div>
       </div>

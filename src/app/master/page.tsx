@@ -21,6 +21,7 @@ import type {
   SpellRow,
   MagicItemRow,
   GmBookmarkRow,
+  CharacterEffectRow,
 } from "@/lib/supabase/types";
 
 export default async function MasterPage() {
@@ -53,6 +54,7 @@ export default async function MasterPage() {
     { data: allCharSpells },
     { data: magicItems },
     { data: gmBookmarks },
+    { data: allEffects },
   ] = await Promise.all([
     service.from("characters").select("*").order("name").returns<CharacterRow[]>(),
     service.from("character_classes").select("*").returns<CharacterClassRow[]>(),
@@ -82,6 +84,12 @@ export default async function MasterPage() {
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .returns<GmBookmarkRow[]>(),
+    service
+      .from("character_effects")
+      .select("*")
+      .is("ended_at", null)
+      .order("created_at")
+      .returns<CharacterEffectRow[]>(),
   ]);
 
   // Build lookup maps for O(1) access per character
@@ -100,6 +108,7 @@ export default async function MasterPage() {
   const epicItemMap = buildGroupMap(allEpicItems);
   const weaponProfMap = buildGroupMap(allWeaponProfs);
   const fightingStyleMap = buildGroupMap(allFightingStyles);
+  const effectMap = buildGroupMap(allEffects);
 
   // Compute combat data for each character
   const partyData = (characters ?? []).map((char) => {
@@ -108,6 +117,7 @@ export default async function MasterPage() {
     const charEpicItems = epicItemMap.get(char.id) ?? [];
     const charWeaponProfs = weaponProfMap.get(char.id) ?? [];
     const charFightingStyles = fightingStyleMap.get(char.id) ?? [];
+    const charEffects = effectMap.get(char.id) ?? [];
 
     const combat = computeCharacterCombatData(
       char,
@@ -115,10 +125,25 @@ export default async function MasterPage() {
       charEquipment,
       charEpicItems,
       charWeaponProfs,
-      charFightingStyles
+      charFightingStyles,
+      charEffects
     );
 
-    return { character: char, classes: charClasses, combat };
+    // The combat simulator plans hypothetical fights: it works on the values
+    // without temporary effects.
+    const simulatorCombat =
+      charEffects.length > 0
+        ? computeCharacterCombatData(
+            char,
+            charClasses,
+            charEquipment,
+            charEpicItems,
+            charWeaponProfs,
+            charFightingStyles
+          )
+        : combat;
+
+    return { character: char, classes: charClasses, combat, simulatorCombat, effects: charEffects };
   });
 
   // Build character spell map for combat simulator
