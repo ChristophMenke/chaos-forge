@@ -9,6 +9,11 @@ import { localized } from "@/lib/utils/localize";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { buildCharacterSaveFields } from "@/lib/character/save-fields";
+import { useUndo, useUndoSync } from "@/components/undo/undo-context";
+import { rowDelete, rowInsert, rowUpdate } from "@/lib/undo/changes";
+import { patchList, patchRow } from "@/lib/undo/patch";
+import type { RowChange, UndoDirection, UndoLabel } from "@/lib/undo/types";
+import { levelUpChanges } from "@/lib/level-up/undo-changes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -205,6 +210,92 @@ export function CharacterSheet({
   const isOwner = character.user_id === userId;
   const effectsState = useCharacterEffects(initial.id, initialEffects);
 
+  // ── Undo/redo ──
+  // Unsaved input is recorded as draft steps; "Speichern" turns them into one
+  // database step: the difference to the last saved state below.
+  const tu = useTranslations("undo");
+  const undo = useUndo();
+  const savedRef = useRef({ fields: buildCharacterSaveFields(initial), classes: initialClasses });
+  const isDirty = undo ? undo.hasDraft : dirty;
+  const dropDraft = undo?.dropDraft;
+  // Leaving the sheet discards unsaved input, so its steps go too.
+  useEffect(() => () => dropDraft?.(), [dropDraft]);
+
+  /** Keeps the saved snapshot in step with direct database writes. */
+  function followSaved(changes: RowChange[], direction: UndoDirection = "redo") {
+    const fields = patchRow(
+      { ...savedRef.current.fields, id: initial.id } as CharacterRow,
+      "characters",
+      changes,
+      direction
+    );
+    savedRef.current = {
+      fields: buildCharacterSaveFields(fields),
+      classes: patchList(savedRef.current.classes, "character_classes", changes, direction),
+    };
+  }
+
+  /** Potion healing: hit points saved at once; the tab records it with the potion. */
+  async function handlePotionHeal(newHp: number): Promise<RowChange | null> {
+    const before = savedRef.current.fields.hp_current;
+    setCharacter((prev) => ({ ...prev, hp_current: newHp }));
+    const { error } = await createClient()
+      .from("characters")
+      .update({ hp_current: newHp })
+      .eq("id", character.id);
+    if (error) {
+      toast.error(t("saveFailed"));
+      return null;
+    }
+    const change = rowUpdate(
+      "characters",
+      { id: character.id },
+      { hp_current: before },
+      { hp_current: newHp }
+    );
+    if (change) followSaved([change]);
+    return change;
+  }
+
+  function recordDb(label: UndoLabel, changes: (RowChange | null)[]) {
+    const real = changes.filter((c): c is RowChange => c !== null);
+    if (real.length === 0) return;
+    undo?.record({ label, changes: real });
+    followSaved(real);
+  }
+
+  function draftLabel(change: RowChange): UndoLabel {
+    const fields = Object.keys(change.after ?? {});
+    if (fields.every((f) => f.startsWith("gold_"))) return { key: "coins" };
+    if (fields.length > 1) return { key: "draftFields" };
+    const field = fields[0];
+    const name = tu.has(`fields.${field}` as never) ? tu(`fields.${field}` as never) : field;
+    return { key: "draftField", values: { field: name } };
+  }
+
+  function recordDraft(change: RowChange | null, coalesceKey?: string) {
+    if (change)
+      undo?.record({ kind: "draft", label: draftLabel(change), changes: [change], coalesceKey });
+  }
+
+  useUndoSync((changes, direction, kind) => {
+    setCharacter((prev) => patchRow(prev, "characters", changes, direction));
+    setCharClasses((prev) => patchList(prev, "character_classes", changes, direction));
+    setEquipment((prev) => patchList(prev, "character_equipment", changes, direction));
+    setSpells((prev) => patchList(prev, "character_spells", changes, direction));
+    setWeaponProfs((prev) => patchList(prev, "character_weapon_proficiencies", changes, direction));
+    setNwProfs((prev) => patchList(prev, "character_nonweapon_proficiencies", changes, direction));
+    setInventory((prev) => patchList(prev, "character_inventory", changes, direction));
+    setLanguages((prev) => patchList(prev, "character_languages", changes, direction));
+    setFightingStyles((prev) => patchList(prev, "character_fighting_styles", changes, direction));
+    setXpHistory((prev) =>
+      patchList(prev, "xp_history", changes, direction).sort((a, b) =>
+        b.created_at.localeCompare(a.created_at)
+      )
+    );
+    if (kind === "db") followSaved(changes, direction);
+  });
+
   // Derive multiclass data
   const activeClasses = charClasses.filter((cc) => cc.is_active);
   const classIds = activeClasses.map((cc) => cc.class_id as ClassId);
@@ -375,18 +466,38 @@ export function CharacterSheet({
   );
 
   async function handleIgnoreEncumbranceChange(value: boolean) {
+    const before = character.ignore_encumbrance;
     setCharacter((prev) => ({ ...prev, ignore_encumbrance: value }));
     const supabase = createClient();
-    await supabase.from("characters").update({ ignore_encumbrance: value }).eq("id", character.id);
+    const { error } = await supabase
+      .from("characters")
+      .update({ ignore_encumbrance: value })
+      .eq("id", character.id);
+    if (error) return;
+    recordDb({ key: "ignoreEncumbrance" }, [
+      rowUpdate(
+        "characters",
+        { id: character.id },
+        { ignore_encumbrance: before },
+        { ignore_encumbrance: value }
+      ),
+    ]);
   }
 
   function update(
     field: keyof CharacterRow,
     value: string | number | null | TraitEntry[] | Record<string, unknown>
   ) {
+    updateMany({ [field]: value } as Partial<CharacterRow>, `draft-${field}`);
+  }
+
+  /** Several draft fields at once (one undo step), e.g. paying with several coins. */
+  function updateMany(fields: Partial<CharacterRow>, coalesceKey?: string) {
     if (!isOwner) return;
-    setCharacter((prev) => ({ ...prev, [field]: value }));
+    const before = character;
+    setCharacter((prev) => ({ ...prev, ...fields }));
     setDirty(true);
+    recordDraft(rowUpdate("characters", { id: before.id }, before, fields), coalesceKey);
   }
 
   function confirmRaceChange() {
@@ -407,8 +518,7 @@ export function CharacterSheet({
       }
     }
 
-    setCharacter((prev) => ({ ...prev, ...updates }));
-    setDirty(true);
+    updateMany(updates as Partial<CharacterRow>);
     setPendingRaceChange(null);
   }
 
@@ -436,21 +546,32 @@ export function CharacterSheet({
     if (!error && data) {
       setCharClasses((prev) => [...prev, data]);
       setAddClassId("");
+      recordDb({ key: "classAdded" }, [rowInsert("character_classes", data, data)]);
     }
   }
 
   async function handleRemoveClass(ccId: string) {
+    const row = charClasses.find((cc) => cc.id === ccId);
     const supabase = createClient();
-    await supabase.from("character_classes").delete().eq("id", ccId);
+    const { error } = await supabase.from("character_classes").delete().eq("id", ccId);
     setCharClasses((prev) => prev.filter((cc) => cc.id !== ccId));
+    if (!error && row)
+      recordDb({ key: "classRemoved" }, [rowDelete("character_classes", row, row)]);
   }
 
   function updateClassField(classId: string, field: "level" | "xp_current", value: number) {
     if (!isOwner) return;
+    const row = charClasses.find((cc) => cc.class_id === classId);
     setCharClasses((prev) =>
       prev.map((cc) => (cc.class_id === classId ? { ...cc, [field]: value } : cc))
     );
     setDirty(true);
+    if (row) {
+      recordDraft(
+        rowUpdate("character_classes", { id: row.id }, row, { [field]: value }),
+        `draft-class-${row.id}-${field}`
+      );
+    }
   }
 
   async function handleSave() {
@@ -482,6 +603,24 @@ export function CharacterSheet({
       toast.error(t("saveFailed"));
       return;
     }
+
+    // All draft steps become one step: saved state before → now.
+    const savedFields = buildCharacterSaveFields(character);
+    const saved = savedRef.current;
+    const changes = [
+      rowUpdate("characters", { id: character.id }, saved.fields, savedFields),
+      ...charClasses.map((cc) => {
+        const old = saved.classes.find((c) => c.id === cc.id);
+        return old
+          ? rowUpdate("character_classes", { id: cc.id }, old, {
+              level: cc.level,
+              xp_current: cc.xp_current,
+            })
+          : null;
+      }),
+    ].filter((c): c is RowChange => c !== null);
+    undo?.collapseDraft({ label: { key: "sheetSaved" }, changes });
+    savedRef.current = { fields: savedFields, classes: charClasses };
 
     setDirty(false);
     router.refresh();
@@ -596,10 +735,33 @@ export function CharacterSheet({
     );
 
     setCharClasses(updated);
+    recordDb({ key: "xpRemoved", values: { amount: entry.xp_amount } }, [
+      rowDelete("xp_history", entry, entry),
+      ...charClasses.map((cc, i) =>
+        rowUpdate(
+          "character_classes",
+          { id: cc.id },
+          { xp_current: cc.xp_current },
+          { xp_current: updated[i].xp_current },
+          { uiBefore: cc, uiAfter: updated[i] }
+        )
+      ),
+    ]);
   }
 
   /** Merges a saved level-up into the local state (protects it from a later handleSave). */
   function handleLevelUpApplied(plan: LevelUpPlan) {
+    const saved = savedRef.current;
+    recordDb(
+      { key: "levelUp", values: { level: plan.toLevel } },
+      levelUpChanges(plan, {
+        classLevel:
+          saved.classes.find((cc) => cc.id === plan.classRowId)?.level ?? plan.toLevel - 1,
+        hp_max: saved.fields.hp_max,
+        level: character.level,
+        thief: saved.fields as unknown as Record<string, number>,
+      })
+    );
     setCharClasses((prev) =>
       prev.map((cc) => (cc.id === plan.classRowId ? { ...cc, level: plan.toLevel } : cc))
     );
@@ -817,7 +979,7 @@ export function CharacterSheet({
               </Link>
             </ApprovalGate>
           )}
-          {dirty && isOwner && (
+          {isDirty && isOwner && (
             <Button
               size="sm"
               onClick={handleSave}
@@ -1667,7 +1829,18 @@ export function CharacterSheet({
             characterClasses={charClasses}
             sessions={sessions}
             onClose={() => setXpDialogOpen(false)}
-            onClassesChange={setCharClasses}
+            onClassesChange={(classes) => {
+              setCharClasses(classes);
+              // The dialog wrote xp_current directly; keep the saved snapshot in step.
+              savedRef.current = {
+                ...savedRef.current,
+                classes: savedRef.current.classes.map((c) => {
+                  const next = classes.find((x) => x.id === c.id);
+                  return next ? { ...c, xp_current: next.xp_current } : c;
+                }),
+              };
+            }}
+            onXpAdded={(entry) => setXpHistory((prev) => [entry, ...prev])}
             onLevelUpPending={() => setLevelUpOpen(true)}
             initialSessionId={initialSessionId}
             initialAmount={initialXpAmount}
@@ -1723,11 +1896,13 @@ export function CharacterSheet({
             <PayDialog
               purse={coinPurse}
               onPay={(remaining) => {
-                update("gold_pp", remaining.pp);
-                update("gold_gp", remaining.gp);
-                update("gold_ep", remaining.ep);
-                update("gold_sp", remaining.sp);
-                update("gold_cp", remaining.cp);
+                updateMany({
+                  gold_pp: remaining.pp,
+                  gold_gp: remaining.gp,
+                  gold_ep: remaining.ep,
+                  gold_sp: remaining.sp,
+                  gold_cp: remaining.cp,
+                });
                 setPayDialogOpen(false);
               }}
               onClose={() => setPayDialogOpen(false)}
@@ -1998,6 +2173,7 @@ export function CharacterSheet({
             hpCurrent={character.hp_current}
             hpMax={character.hp_max}
             onHpChange={(newHp) => update("hp_current", newHp)}
+            onPotionHeal={undo ? handlePotionHeal : undefined}
             onEquipmentChange={setEquipment}
             onInventoryChange={setInventory}
             onIgnoreEncumbranceChange={handleIgnoreEncumbranceChange}
@@ -2032,14 +2208,11 @@ export function CharacterSheet({
               alignment={character.alignment}
               allowedSpellBooks={character.allowed_spell_books}
               spellWhitelist={character.spell_whitelist}
-              onAllowedSpellBooksChange={(books) => {
-                setCharacter((prev) => ({ ...prev, allowed_spell_books: books }));
-                setDirty(true);
-              }}
-              onSpellWhitelistChange={(wl) => {
-                setCharacter((prev) => ({ ...prev, spell_whitelist: wl }));
-                setDirty(true);
-              }}
+              onAllowedSpellBooksChange={(books) =>
+                // Saved by the tab right away, not part of the draft.
+                setCharacter((prev) => ({ ...prev, allowed_spell_books: books }))
+              }
+              onSpellWhitelistChange={(wl) => updateMany({ spell_whitelist: wl })}
             />
           </TabsContent>
         )}
@@ -2080,6 +2253,9 @@ export function CharacterSheet({
             onNwProfsChange={setNwProfs}
             onLanguagesChange={setLanguages}
             onFightingStylesChange={setFightingStyles}
+            onSlotsAdjChange={(field, value) =>
+              setCharacter((prev) => ({ ...prev, [field]: value }))
+            }
           />
         </TabsContent>
       </Tabs>

@@ -25,7 +25,13 @@ interface DamageLevelCardProps {
   characterLevel?: number;
   onToggleEquip: (itemId: string) => void;
   onDamageLevelChange: (itemId: string, newLevel: number) => void;
-  onOverclockToggle?: (itemId: string, active: boolean, endTime: number | null) => void;
+  /** expired: the timer ran out (not a user action, not undoable). */
+  onOverclockToggle?: (
+    itemId: string,
+    active: boolean,
+    endTime: number | null,
+    expired?: boolean
+  ) => void;
 }
 
 function getGlowForDamage(level: number, max: number): "neutral" | "warrior" {
@@ -383,7 +389,9 @@ export function DamageLevelCard({
           endTime={(se.overclock_end_time as number | null) ?? null}
           locale={locale}
           isOwner={isOwner}
-          onToggle={(active, endTime) => onOverclockToggle?.(item.id, active, endTime)}
+          onToggle={(active, endTime, expired) =>
+            onOverclockToggle?.(item.id, active, endTime, expired)
+          }
         />
       )}
 
@@ -433,7 +441,7 @@ function OverclockPanel({
   endTime: number | null;
   locale: string;
   isOwner: boolean;
-  onToggle: (active: boolean, endTime: number | null) => void;
+  onToggle: (active: boolean, endTime: number | null, expired?: boolean) => void;
 }) {
   const t = useTranslations("epic");
   const name = locale === "en" && overclock.name_en ? overclock.name_en : overclock.name;
@@ -453,7 +461,7 @@ function OverclockPanel({
     const tick = () => {
       const remaining = endTime - Date.now();
       if (remaining <= 0) {
-        onToggle(false, null);
+        onToggle(false, null, true);
       } else {
         setMinutesLeft(Math.ceil(remaining / 60000));
       }

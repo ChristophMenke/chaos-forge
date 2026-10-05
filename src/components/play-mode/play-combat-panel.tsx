@@ -8,6 +8,9 @@ import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/client";
+import { useUndo } from "@/components/undo/undo-context";
+import { rowUpdate } from "@/lib/undo/changes";
+import { equipmentName } from "@/lib/undo/item-name";
 import {
   getAdjustedWeaponThac0,
   formatDamageWithBonus,
@@ -113,6 +116,7 @@ function PlayCombatPanelInner({
 }: PlayCombatPanelProps) {
   const t = useTranslations("playMode");
   const locale = useLocale();
+  const undo = useUndo();
 
   // Shapeshift & special attack client state
   const [activeShape, setActiveShape] = useState<string | null>(null);
@@ -228,13 +232,29 @@ function PlayCombatPanelInner({
   async function toggleEquip(equipmentId: string, currentlyEquipped: boolean) {
     if (readOnly) return;
     const supabase = createClient();
-    await supabase
+    const { error } = await supabase
       .from("character_equipment")
       .update({ equipped: !currentlyEquipped })
       .eq("id", equipmentId);
     onEquipmentChange(
       equipment.map((e) => (e.id === equipmentId ? { ...e, equipped: !currentlyEquipped } : e))
     );
+    const item = equipment.find((e) => e.id === equipmentId);
+    const change = rowUpdate(
+      "character_equipment",
+      { id: equipmentId },
+      { equipped: currentlyEquipped },
+      { equipped: !currentlyEquipped }
+    );
+    if (!error && item && change) {
+      undo?.record({
+        label: {
+          key: currentlyEquipped ? "unequip" : "equip",
+          values: { name: equipmentName(item, locale) },
+        },
+        changes: [change],
+      });
+    }
   }
 
   return (

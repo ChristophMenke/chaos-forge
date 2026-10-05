@@ -19,13 +19,18 @@ vi.mock("@/lib/supabase/client", () => ({
       }),
       insert: (values: Record<string, unknown>) => {
         inserts.push({ table, values });
-        return Promise.resolve({ error: null });
+        return {
+          select: () => ({
+            single: () => Promise.resolve({ data: { id: "xp-1", ...values }, error: null }),
+          }),
+        };
       },
     }),
   }),
 }));
 
 const { XpAddDialog } = await import("./xp-add-dialog");
+const { createUndoStub } = await import("@/components/undo/undo-test-utils");
 
 afterEach(cleanup);
 
@@ -93,5 +98,37 @@ describe("XpAddDialog", () => {
     renderDialog([thief(8, getXpThreshold("thief", 9) + 10)]);
     fireEvent.change(screen.getByTestId("xp-amount-input"), { target: { value: "10" } });
     expect(screen.queryByTestId("level-up-indicator-thief")).not.toBeInTheDocument();
+  });
+
+  it("records the XP and the history entry as one undo step", async () => {
+    const undo = createUndoStub();
+    const onXpAdded = vi.fn();
+    render(
+      <NextIntlClientProvider locale="de" messages={messages}>
+        <undo.Wrapper>
+          <XpAddDialog
+            open
+            characterId="c1"
+            characterClasses={[thief(3, 3000)]}
+            sessions={[]}
+            onClose={() => {}}
+            onClassesChange={() => {}}
+            onXpAdded={onXpAdded}
+          />
+        </undo.Wrapper>
+      </NextIntlClientProvider>
+    );
+    fireEvent.change(screen.getByTestId("xp-amount-input"), { target: { value: "500" } });
+    fireEvent.click(screen.getByTestId("xp-apply-button"));
+
+    await waitFor(() => expect(undo.entries).toHaveLength(1));
+    expect(undo.entries[0]).toMatchObject({
+      label: { key: "xpAdded", values: { amount: 500 } },
+      changes: [
+        { table: "character_classes", before: { xp_current: 3000 }, after: { xp_current: 3500 } },
+        { table: "xp_history", before: null, after: expect.objectContaining({ id: "xp-1" }) },
+      ],
+    });
+    expect(onXpAdded).toHaveBeenCalledWith(expect.objectContaining({ id: "xp-1", xp_amount: 500 }));
   });
 });

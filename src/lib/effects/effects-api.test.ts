@@ -94,6 +94,18 @@ describe("effects api", () => {
     expect(calls[0].filters).toEqual([["id", "e1"]]);
   });
 
+  it("returns the ended row as the database stored it (for undo)", async () => {
+    const stored = { id: "e1", ended_at: "2026-10-05 10:00:00+00" };
+    const result = await endEffect(fakeSupabase({ data: stored }).client, "e1");
+    expect(result.after).toEqual(stored);
+  });
+
+  it("returns every row ended at once", async () => {
+    const rows = [{ id: "e1" }, { id: "e2" }];
+    const result = await endAllEffects(fakeSupabase({ data: rows }).client, "c1");
+    expect(result.rows).toEqual(rows);
+  });
+
   it("ends all active effects of one character only", async () => {
     const { client, calls } = fakeSupabase();
     await endAllEffects(client, "c1");

@@ -4,6 +4,8 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { MarkdownRenderer as ReactMarkdown } from "@/components/markdown-renderer";
 import { useTranslations, useLocale } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
+import { useUndo } from "@/components/undo/undo-context";
+import { rowDelete, rowInsert, rowUpdate } from "@/lib/undo/changes";
 import { getSpellCatalog, invalidateSpellCatalog } from "@/lib/catalog/spell-catalog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -158,7 +160,9 @@ export function TabSpells({
   const locale = useLocale();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [slotsAdj, setSlotsAdj] = useState<Record<string, number>>(initialAdj ?? {});
+  // Slot adjustments and the spell system live in the parent (undo patches them there).
+  const slotsAdj = useMemo<Record<string, number>>(() => initialAdj ?? {}, [initialAdj]);
+  const undo = useUndo();
 
   // Lazy-loading for allSpells
   const [allSpellsLoaded, setAllSpellsLoaded] = useState<SpellRow[] | null>(
@@ -206,10 +210,29 @@ export function TabSpells({
     const key = String(spellLevel);
     const newVal = (slotsAdj[key] ?? 0) + delta;
     const newAdj = { ...slotsAdj, [key]: newVal };
-    setSlotsAdj(newAdj);
-    const supabase = createClient();
-    await supabase.from("characters").update({ spell_slots_adj: newAdj }).eq("id", characterId);
     onSpellSlotsAdjChange(newAdj);
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("characters")
+      .update({ spell_slots_adj: newAdj })
+      .eq("id", characterId);
+    if (error) {
+      onSpellSlotsAdjChange(slotsAdj);
+      return;
+    }
+    const change = rowUpdate(
+      "characters",
+      { id: characterId },
+      { spell_slots_adj: slotsAdj },
+      { spell_slots_adj: newAdj }
+    );
+    if (change) {
+      undo?.record({
+        label: { key: "spellSlots", values: { level: spellLevel } },
+        changes: [change],
+        coalesceKey: `spell-slots-${spellLevel}`,
+      });
+    }
   }
 
   const spellName = useCallback((spell: SpellRow) => getSpellName(spell, locale), [locale]);
@@ -223,7 +246,7 @@ export function TabSpells({
   const [showCustomForm, setShowCustomForm] = useState(false);
   const [customSpell, setCustomSpell] = useState<CustomSpellForm>(emptyCustomSpellForm);
 
-  const [spellSystem, setSpellSystem] = useState(initialSpellSystem);
+  const spellSystem = initialSpellSystem;
   const isBard = classId === "bard";
   const isWizard = classGroup === "wizard" || isBard;
   const isPriest = classGroup === "priest";
@@ -264,10 +287,27 @@ export function TabSpells({
 
   async function toggleSpellSystem() {
     const newSystem = spellSystem === "slots" ? "points" : "slots";
-    setSpellSystem(newSystem);
-    const supabase = createClient();
-    await supabase.from("characters").update({ spell_system: newSystem }).eq("id", characterId);
     onSpellSystemChange(newSystem);
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("characters")
+      .update({ spell_system: newSystem })
+      .eq("id", characterId);
+    if (error) {
+      onSpellSystemChange(spellSystem);
+      return;
+    }
+    undo?.record({
+      label: { key: "spellSystem" },
+      changes: [
+        rowUpdate(
+          "characters",
+          { id: characterId },
+          { spell_system: spellSystem },
+          { spell_system: newSystem }
+        )!,
+      ],
+    });
   }
 
   // Calculate spell slots
@@ -498,10 +538,25 @@ export function TabSpells({
       : [...current, book];
     onAllowedSpellBooksChange(newBooks);
     const supabase = createClient();
-    await supabase
+    const { error } = await supabase
       .from("characters")
       .update({ allowed_spell_books: newBooks })
       .eq("id", characterId);
+    if (error) {
+      onAllowedSpellBooksChange(current);
+      return;
+    }
+    undo?.record({
+      label: { key: "spellBooks" },
+      changes: [
+        rowUpdate(
+          "characters",
+          { id: characterId },
+          { allowed_spell_books: allowedSpellBooks ?? null },
+          { allowed_spell_books: newBooks }
+        )!,
+      ],
+    });
   }
 
   async function handleCreateCustomSpell() {
@@ -548,6 +603,10 @@ export function TabSpells({
         const learned = charSpell as CharacterSpellWithDetails;
         onSpellsChange([...spells, learned]);
         setAllSpellsLoaded((loaded) => (loaded ? [...loaded, learned.spell] : loaded));
+        undo?.record({
+          label: { key: "spellLearned", values: { name: spellName(learned.spell) } },
+          changes: [rowInsert("character_spells", learned, learned)],
+        });
       }
     }
 
@@ -580,12 +639,28 @@ export function TabSpells({
 
     setLoading(true);
     const supabase = createClient();
-    await supabase
+    const { error } = await supabase
       .from("character_spells")
       .update({ prepared: !currentlyPrepared })
       .eq("character_id", characterId)
       .eq("spell_id", spellId);
     setLoading(false);
+    if (!error) {
+      undo?.record({
+        label: {
+          key: currentlyPrepared ? "spellUnprepared" : "spellPrepared",
+          values: { name: spellName(spell.spell) },
+        },
+        changes: [
+          rowUpdate(
+            "character_spells",
+            { character_id: characterId, spell_id: spellId },
+            { prepared: currentlyPrepared },
+            { prepared: !currentlyPrepared }
+          )!,
+        ],
+      });
+    }
   }
 
   // Priest: prepare spell directly from browse dialog (no learn step)
@@ -608,21 +683,38 @@ export function TabSpells({
       setLoading(false);
       return;
     }
-    onSpellsChange([...spells, charSpell as CharacterSpellWithDetails]);
+    const prepared = charSpell as CharacterSpellWithDetails;
+    onSpellsChange([...spells, prepared]);
     setLoading(false);
+    undo?.record({
+      label: { key: "spellPrepared", values: { name: spellName(prepared.spell) } },
+      changes: [rowInsert("character_spells", prepared, prepared)],
+    });
   }
 
   // Priest: unprepare removes the character_spell entry (priests don't "know" spells)
   async function handlePriestUnprepare(spellId: string) {
+    await removeCharacterSpell(spellId, "spellUnprepared");
+  }
+
+  /** Deletes the character's spell row and records it (priest unprepare, remove). */
+  async function removeCharacterSpell(spellId: string, labelKey: string) {
+    const row = spells.find((s) => s.spell_id === spellId);
     setLoading(true);
     const supabase = createClient();
-    await supabase
+    const { error } = await supabase
       .from("character_spells")
       .delete()
       .eq("character_id", characterId)
       .eq("spell_id", spellId);
     onSpellsChange(spells.filter((s) => s.spell_id !== spellId));
     setLoading(false);
+    if (!error && row) {
+      undo?.record({
+        label: { key: labelKey, values: { name: spellName(row.spell) } },
+        changes: [rowDelete("character_spells", row, row)],
+      });
+    }
   }
 
   async function handleLearnSpell(spellId: string) {
@@ -644,20 +736,17 @@ export function TabSpells({
       setLoading(false);
       return;
     }
-    onSpellsChange([...spells, charSpell as CharacterSpellWithDetails]);
+    const learned = charSpell as CharacterSpellWithDetails;
+    onSpellsChange([...spells, learned]);
     setLoading(false);
+    undo?.record({
+      label: { key: "spellLearned", values: { name: spellName(learned.spell) } },
+      changes: [rowInsert("character_spells", learned, learned)],
+    });
   }
 
   async function handleRemoveSpell(spellId: string) {
-    setLoading(true);
-    const supabase = createClient();
-    await supabase
-      .from("character_spells")
-      .delete()
-      .eq("character_id", characterId)
-      .eq("spell_id", spellId);
-    onSpellsChange(spells.filter((s) => s.spell_id !== spellId));
-    setLoading(false);
+    await removeCharacterSpell(spellId, "spellRemoved");
   }
 
   if (!isWizard && !isPriest) {

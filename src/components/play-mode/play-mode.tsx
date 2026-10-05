@@ -7,6 +7,11 @@ import { createClient } from "@/lib/supabase/client";
 import { LevelUpDialog } from "@/components/level-up/level-up-dialog";
 import { EffectsBar } from "@/components/effects/effects-bar";
 import { useCharacterEffects } from "@/lib/hooks/use-character-effects";
+import { useUndo, useUndoSync } from "@/components/undo/undo-context";
+import { rowUpdate } from "@/lib/undo/changes";
+import { levelUpChanges } from "@/lib/level-up/undo-changes";
+import { patchList, patchRow, touches } from "@/lib/undo/patch";
+import type { RowChange, UndoLabel } from "@/lib/undo/types";
 import { aggregateEffects } from "@/lib/rules/temporary-effects";
 import { resolveEffectiveStats } from "@/lib/rules/effective-stats";
 import { PendingLevelUpBanner } from "@/components/level-up/pending-level-up-banner";
@@ -253,6 +258,28 @@ export function PlayMode({
   >([]);
 
   const isOwner = character.user_id === userId;
+
+  // Undo/redo: record own writes, follow undone/redone rows in the page state.
+  const undo = useUndo();
+  const characterRef = useRef(character);
+  useEffect(() => {
+    characterRef.current = character;
+  });
+  const recordChanges = useCallback(
+    (label: UndoLabel, changes: (RowChange | null)[], coalesceKey?: string) => {
+      const real = changes.filter((c): c is RowChange => c !== null);
+      if (real.length > 0) undo?.record({ label, changes: real, coalesceKey });
+    },
+    [undo]
+  );
+  useUndoSync((changes, direction) => {
+    setCharacter((prev) => patchRow(prev, "characters", changes, direction));
+    setSpells((prev) => patchList(prev, "character_spells", changes, direction));
+    setEquipment((prev) => patchList(prev, "character_equipment", changes, direction));
+    setInventory((prev) => patchList(prev, "character_inventory", changes, direction));
+    // Class levels are props (router.refresh() brings them); drop the bridge.
+    if (touches(changes, "character_classes")) setAppliedLevels({});
+  });
 
   // Fetch active characters for trading
   useEffect(() => {
@@ -591,86 +618,139 @@ export function PlayMode({
     [character.gold_pp, character.gold_gp, character.gold_ep, character.gold_sp, character.gold_cp]
   );
 
-  // Instant DB write helper
+  // Instant DB write helper; returns the change for undo (null on error).
   const updateCharacter = useCallback(
-    async (updates: Partial<CharacterRow>) => {
+    async (updates: Partial<CharacterRow>): Promise<RowChange | null> => {
+      const before = characterRef.current;
       setCharacter((prev) => ({ ...prev, ...updates }));
       const supabase = createClient();
-      const { error } = await supabase.from("characters").update(updates).eq("id", character.id);
-      if (error) toast.error(t("saveFailed"));
+      const { error } = await supabase.from("characters").update(updates).eq("id", before.id);
+      if (error) {
+        toast.error(t("saveFailed"));
+        return null;
+      }
+      return rowUpdate("characters", { id: before.id }, before, updates);
     },
-    [character.id, t]
+    [t]
   );
 
+  /** Sets hit points; `record: false` lets a caller record them with more rows. */
   const handleHpChange = useCallback(
-    (newEffectiveHp: number) => {
+    async (newEffectiveHp: number, options: { record?: boolean } = {}) => {
       // Inverse of asymmetric formula: effective = base + min(0, delta)
       // => base = effective - min(0, delta)
       // HP can go negative (down to -maxHP = death threshold)
       const baseHp = newEffectiveHp - Math.min(0, hpDelta);
       const clampedBaseHp = Math.max(-character.hp_max, Math.min(character.hp_max, baseHp));
-      updateCharacter({ hp_current: clampedBaseHp });
+      const change = await updateCharacter({ hp_current: clampedBaseHp });
+      if (options.record !== false) {
+        recordChanges(
+          { key: "hp", values: { from: effectiveHpCurrent, to: newEffectiveHp } },
+          [change],
+          "hp"
+        );
+      }
+      return change;
     },
-    [hpDelta, character.hp_max, updateCharacter]
+    [hpDelta, character.hp_max, updateCharacter, recordChanges, effectiveHpCurrent]
   );
 
   // Damage goes through temporary hit points (effects) first; the rest hits HP.
   const { absorbDamage } = effectsState;
   const handleDamage = useCallback(
     async (amount: number) => {
-      const rest = await absorbDamage(amount);
-      if (rest > 0) {
-        handleHpChange(Math.max(getDeathThreshold(effectiveHpMax), effectiveHpCurrent - rest));
-      }
+      const { remainingDamage, changes } = await absorbDamage(amount);
+      const hpChange =
+        remainingDamage > 0
+          ? await handleHpChange(
+              Math.max(getDeathThreshold(effectiveHpMax), effectiveHpCurrent - remainingDamage),
+              { record: false }
+            )
+          : null;
+      recordChanges({ key: "damage", values: { amount } }, [...changes, hpChange]);
     },
-    [absorbDamage, handleHpChange, effectiveHpMax, effectiveHpCurrent]
+    [absorbDamage, handleHpChange, effectiveHpMax, effectiveHpCurrent, recordChanges]
   );
 
+  /** Coin purse; money sent to another character is not undoable. */
   const handleCoinChange = useCallback(
-    (newPurse: CoinPurse) => {
-      updateCharacter({
+    async (newPurse: CoinPurse, options: { record?: boolean } = {}) => {
+      const change = await updateCharacter({
         gold_pp: newPurse.pp,
         gold_gp: newPurse.gp,
         gold_ep: newPurse.ep,
         gold_sp: newPurse.sp,
         gold_cp: newPurse.cp,
       });
+      if (options.record !== false) recordChanges({ key: "coins" }, [change]);
     },
-    [updateCharacter]
+    [updateCharacter, recordChanges]
+  );
+
+  const spellLabel = useCallback(
+    (spellId: string) => {
+      const spell =
+        spells.find((s) => s.spell_id === spellId)?.spell ??
+        priestAvailableSpells.find((s) => s.id === spellId);
+      return spell ? localized(spell.name, spell.name_en, locale) : "";
+    },
+    [spells, priestAvailableSpells, locale]
   );
 
   const handleCastSpell = useCallback(
     async (spellId: string, pointsCost: number) => {
+      const spellName = spellLabel(spellId);
+      const label: UndoLabel = { key: "spellCast", values: { name: spellName } };
       if (character.spell_system === "points") {
         const newUsed = character.spell_points_used + pointsCost;
-        updateCharacter({ spell_points_used: newUsed });
+        recordChanges(label, [await updateCharacter({ spell_points_used: newUsed })]);
       } else {
-        // Slots mode: mark first non-expended instance as expended
-        let marked = false;
+        // Slots mode: one row per spell (key character_id + spell_id)
         setSpells((prev) =>
-          prev.map((s) => {
-            if (!marked && s.spell_id === spellId && s.prepared && !s.expended) {
-              marked = true;
-              return { ...s, expended: true };
-            }
-            return s;
-          })
+          prev.map((s) =>
+            s.spell_id === spellId && s.prepared && !s.expended ? { ...s, expended: true } : s
+          )
         );
         const supabase = createClient();
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from("character_spells")
           .update({ expended: true })
           .eq("character_id", character.id)
           .eq("spell_id", spellId)
           .eq("prepared", true)
-          .eq("expended", false);
+          .eq("expended", false)
+          .select("character_id, spell_id");
         if (error) toast.error(t("spellCastFailed"));
+        else if (data && data.length > 0) {
+          const key = { character_id: character.id, spell_id: spellId };
+          recordChanges(label, [
+            rowUpdate("character_spells", key, { expended: false }, { expended: true }),
+          ]);
+        }
       }
     },
-    [character.id, character.spell_system, character.spell_points_used, updateCharacter, t]
+    [
+      character.id,
+      character.spell_system,
+      character.spell_points_used,
+      updateCharacter,
+      recordChanges,
+      spellLabel,
+      t,
+    ]
   );
 
   function handleLevelUpApplied(plan: LevelUpPlan) {
+    const classRow = levelUpClasses.find((cc) => cc.id === plan.classRowId);
+    recordChanges(
+      { key: "levelUp", values: { level: plan.toLevel } },
+      levelUpChanges(plan, {
+        classLevel: classRow?.level ?? plan.toLevel - 1,
+        hp_max: character.hp_max,
+        level: character.level,
+        thief: character as unknown as Record<string, number>,
+      })
+    );
     setAppliedLevels((prev) => ({ ...prev, [plan.classRowId]: plan.toLevel }));
     setCharacter((prev) => ({
       ...prev,
@@ -683,19 +763,35 @@ export function PlayMode({
 
   const handleRest = useCallback(async () => {
     if (character.spell_system === "points") {
-      updateCharacter({ spell_points_used: 0 });
+      recordChanges({ key: "rest" }, [await updateCharacter({ spell_points_used: 0 })]);
     } else {
       setSpells((prev) => prev.map((s) => (s.prepared ? { ...s, expended: false } : s)));
       const supabase = createClient();
-      const { error } = await supabase
+      // Only rows that were expended change — those are the undo step.
+      const { data, error } = await supabase
         .from("character_spells")
         .update({ expended: false })
         .eq("character_id", character.id)
-        .eq("prepared", true);
+        .eq("prepared", true)
+        .eq("expended", true)
+        .select("character_id, spell_id");
       if (error) toast.error(t("restFailed"));
-      else toast.success(t("restSuccess"));
+      else {
+        toast.success(t("restSuccess"));
+        recordChanges(
+          { key: "rest" },
+          (data ?? []).map((row) =>
+            rowUpdate(
+              "character_spells",
+              { character_id: row.character_id, spell_id: row.spell_id },
+              { expended: true },
+              { expended: false }
+            )
+          )
+        );
+      }
     }
-  }, [character.id, character.spell_system, updateCharacter, t]);
+  }, [character.id, character.spell_system, updateCharacter, recordChanges, t]);
 
   // Netherese Blooded (Lvl9-10): convert current HP into bonus spell points.
   // No floor clamp here — handleHpChange already allows hp_current down to
@@ -703,18 +799,20 @@ export function PlayMode({
   // incorrectly "heal" a character who is already at or below 0 HP. The UI
   // instead disables the action once hp_current <= 1 (see PlaySpellbookPanel).
   const handleConvertHpToSp = useCallback(
-    (hpAmount: number) => {
+    async (hpAmount: number) => {
       const ratio = epicEffects.hpToSpConversion?.ratio ?? 0;
-      updateCharacter({
+      const change = await updateCharacter({
         hp_current: character.hp_current - hpAmount,
         spell_points_used: character.spell_points_used - hpAmount * ratio,
       });
+      recordChanges({ key: "hpToSp", values: { amount: hpAmount } }, [change]);
     },
     [
       character.hp_current,
       character.spell_points_used,
       epicEffects.hpToSpConversion,
       updateCharacter,
+      recordChanges,
     ]
   );
 

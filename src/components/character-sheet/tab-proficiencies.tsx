@@ -4,6 +4,10 @@ import { useState, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { localized } from "@/lib/utils/localize";
 import { createClient } from "@/lib/supabase/client";
+import { useUndo } from "@/components/undo/undo-context";
+import { rowDelete, rowInsert, rowUpdate } from "@/lib/undo/changes";
+import type { UndoTable } from "@/lib/undo/tables";
+import type { UndoLabel } from "@/lib/undo/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -96,7 +100,11 @@ interface TabProficienciesProps {
   onNwProfsChange: (profs: CharacterNWPWithDetails[]) => void;
   onLanguagesChange: (langs: CharacterLanguageRow[]) => void;
   onFightingStylesChange: (styles: CharacterFightingStyleRow[]) => void;
+  /** Slot adjustments live in the parent (undo patches them there). */
+  onSlotsAdjChange: (field: SlotAdjField, value: number) => void;
 }
+
+type SlotAdjField = "weapon_slots_adj" | "nwp_slots_adj" | "language_slots_adj";
 
 export function TabProficiencies({
   characterId,
@@ -112,15 +120,17 @@ export function TabProficiencies({
   allWeapons,
   languages,
   fightingStyles,
-  weaponSlotsAdj: initialWeaponSlotsAdj,
-  nwpSlotsAdj: initialNwpSlotsAdj,
-  languageSlotsAdj: initialLanguageSlotsAdj,
+  weaponSlotsAdj,
+  nwpSlotsAdj,
+  languageSlotsAdj,
   readOnly = false,
   onWeaponProfsChange,
   onNwProfsChange,
   onLanguagesChange,
   onFightingStylesChange,
+  onSlotsAdjChange,
 }: TabProficienciesProps) {
+  const undo = useUndo();
   const t = useTranslations("proficiencies");
   const tcom = useTranslations("common");
   const tg = useTranslations("nwpGroups");
@@ -141,18 +151,42 @@ export function TabProficiencies({
   const group = classGroup as ClassGroup;
   const baseWeaponSlots = getWeaponProficiencySlots(group, level);
   const baseNwpSlots = getNonweaponProficiencySlots(group, level, intScore);
-  const [weaponSlotsAdj, setWeaponSlotsAdj] = useState(initialWeaponSlotsAdj);
-  const [nwpSlotsAdj, setNwpSlotsAdj] = useState(initialNwpSlotsAdj);
-  const [languageSlotsAdj, setLanguageSlotsAdj] = useState(initialLanguageSlotsAdj);
   const weaponSlots = baseWeaponSlots + weaponSlotsAdj;
   const nwpSlots = baseNwpSlots + nwpSlotsAdj;
 
-  async function updateSlotAdj(field: string, value: number) {
+  const slotAdj: Record<SlotAdjField, number> = {
+    weapon_slots_adj: weaponSlotsAdj,
+    nwp_slots_adj: nwpSlotsAdj,
+    language_slots_adj: languageSlotsAdj,
+  };
+
+  async function updateSlotAdj(field: SlotAdjField, value: number) {
+    const previous = slotAdj[field];
+    onSlotsAdjChange(field, value);
     const supabase = createClient();
-    await supabase
+    const { error } = await supabase
       .from("characters")
       .update({ [field]: value })
       .eq("id", characterId);
+    if (error) {
+      onSlotsAdjChange(field, previous);
+      return;
+    }
+    const change = rowUpdate(
+      "characters",
+      { id: characterId },
+      { [field]: previous },
+      { [field]: value }
+    );
+    if (change) {
+      undo?.record({ label: { key: "slotsAdj" }, changes: [change], coalesceKey: field });
+    }
+  }
+
+  /** Records an added or removed row (the row doubles as UI object). */
+  function recordRow(kind: "added" | "removed", table: UndoTable, row: object, label: UndoLabel) {
+    const change = kind === "added" ? rowInsert(table, row, row) : rowDelete(table, row, row);
+    undo?.record({ label, changes: [change] });
   }
   const penalty = getNonproficiencyPenalty(group);
   const showSpecialization = canSpecialize(classId as ClassId);
@@ -243,6 +277,10 @@ export function TabProficiencies({
       return;
     }
     onWeaponProfsChange([...weaponProficiencies, data]);
+    recordRow("added", "character_weapon_proficiencies", data, {
+      key: "profAdded",
+      values: { name: data.weapon_name },
+    });
     setNewWeaponName("");
     setNewWeaponSpecialized(false);
     setLoading(false);
@@ -250,19 +288,39 @@ export function TabProficiencies({
 
   async function removeWeaponProficiency(id: string) {
     setLoading(true);
+    const row = weaponProficiencies.find((wp) => wp.id === id);
     const supabase = createClient();
-    await supabase.from("character_weapon_proficiencies").delete().eq("id", id);
+    const { error } = await supabase.from("character_weapon_proficiencies").delete().eq("id", id);
     onWeaponProfsChange(weaponProficiencies.filter((wp) => wp.id !== id));
     setLoading(false);
+    if (!error && row) {
+      recordRow("removed", "character_weapon_proficiencies", row, {
+        key: "profRemoved",
+        values: { name: row.weapon_name },
+      });
+    }
   }
 
   async function toggleSpecialization(wp: CharacterWeaponProficiencyRow) {
     setLoading(true);
     const supabase = createClient();
-    await supabase
+    const { error } = await supabase
       .from("character_weapon_proficiencies")
       .update({ specialization: !wp.specialization })
       .eq("id", wp.id);
+    if (!error) {
+      undo?.record({
+        label: { key: "specialization", values: { name: wp.weapon_name } },
+        changes: [
+          rowUpdate(
+            "character_weapon_proficiencies",
+            { id: wp.id },
+            { specialization: wp.specialization },
+            { specialization: !wp.specialization }
+          )!,
+        ],
+      });
+    }
     onWeaponProfsChange(
       weaponProficiencies.map((w) =>
         w.id === wp.id ? { ...w, specialization: !w.specialization } : w
@@ -287,16 +345,34 @@ export function TabProficiencies({
       setLoading(false);
       return;
     }
-    onNwProfsChange([...nonweaponProficiencies, data as CharacterNWPWithDetails]);
+    const added = data as CharacterNWPWithDetails;
+    onNwProfsChange([...nonweaponProficiencies, added]);
     setLoading(false);
+    recordRow("added", "character_nonweapon_proficiencies", added, {
+      key: "profAdded",
+      values: { name: nwpName(added) },
+    });
   }
+
+  const nwpName = (nwp: CharacterNWPWithDetails) =>
+    nwp.proficiency ? localized(nwp.proficiency.name, nwp.proficiency.name_en, locale) : "";
 
   async function removeNonweaponProficiency(id: string) {
     setLoading(true);
+    const row = nonweaponProficiencies.find((n) => n.id === id);
     const supabase = createClient();
-    await supabase.from("character_nonweapon_proficiencies").delete().eq("id", id);
+    const { error } = await supabase
+      .from("character_nonweapon_proficiencies")
+      .delete()
+      .eq("id", id);
     onNwProfsChange(nonweaponProficiencies.filter((n) => n.id !== id));
     setLoading(false);
+    if (!error && row) {
+      recordRow("removed", "character_nonweapon_proficiencies", row, {
+        key: "profRemoved",
+        values: { name: nwpName(row) },
+      });
+    }
   }
 
   async function createCustomNwp() {
@@ -333,7 +409,12 @@ export function TabProficiencies({
         .single();
 
       if (data) {
-        onNwProfsChange([...nonweaponProficiencies, data as CharacterNWPWithDetails]);
+        const added = data as CharacterNWPWithDetails;
+        onNwProfsChange([...nonweaponProficiencies, added]);
+        recordRow("added", "character_nonweapon_proficiencies", added, {
+          key: "profAdded",
+          values: { name: trimmed },
+        });
       }
     }
 
@@ -368,44 +449,64 @@ export function TabProficiencies({
     }
     onFightingStylesChange([...fightingStyles, data]);
     setLoading(false);
+    recordRow("added", "character_fighting_styles", data, {
+      key: "profAdded",
+      values: { name: styleName(data) },
+    });
   }
+
+  const styleName = (fs: CharacterFightingStyleRow) => {
+    const style = getFightingStyle(fs.style_id);
+    return style ? localized(style.name, style.name_en, locale) : fs.style_id;
+  };
 
   async function removeFightingStyle(id: string) {
     setLoading(true);
+    const row = fightingStyles.find((f) => f.id === id);
     const supabase = createClient();
-    await supabase.from("character_fighting_styles").delete().eq("id", id);
+    const { error } = await supabase.from("character_fighting_styles").delete().eq("id", id);
     onFightingStylesChange(fightingStyles.filter((f) => f.id !== id));
     setLoading(false);
+    if (!error && row) {
+      recordRow("removed", "character_fighting_styles", row, {
+        key: "profRemoved",
+        values: { name: styleName(row) },
+      });
+    }
+  }
+
+  async function setFightingStyleSlots(fs: CharacterFightingStyleRow, slots: number) {
+    setLoading(true);
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("character_fighting_styles")
+      .update({ slots_invested: slots })
+      .eq("id", fs.id);
+    onFightingStylesChange(
+      fightingStyles.map((f) => (f.id === fs.id ? { ...f, slots_invested: slots } : f))
+    );
+    setLoading(false);
+    const change = rowUpdate(
+      "character_fighting_styles",
+      { id: fs.id },
+      { slots_invested: fs.slots_invested },
+      { slots_invested: slots }
+    );
+    if (!error && change) {
+      undo?.record({
+        label: { key: "fightingStyleSlots", values: { name: styleName(fs), slots } },
+        changes: [change],
+        coalesceKey: `fs-${fs.id}`,
+      });
+    }
   }
 
   async function upgradeFightingStyle(fs: CharacterFightingStyleRow) {
-    setLoading(true);
-    const supabase = createClient();
-    await supabase
-      .from("character_fighting_styles")
-      .update({ slots_invested: fs.slots_invested + 1 })
-      .eq("id", fs.id);
-    onFightingStylesChange(
-      fightingStyles.map((f) =>
-        f.id === fs.id ? { ...f, slots_invested: f.slots_invested + 1 } : f
-      )
-    );
-    setLoading(false);
+    await setFightingStyleSlots(fs, fs.slots_invested + 1);
   }
 
   async function downgradeFightingStyle(fs: CharacterFightingStyleRow) {
-    setLoading(true);
-    const supabase = createClient();
-    await supabase
-      .from("character_fighting_styles")
-      .update({ slots_invested: Math.max(1, fs.slots_invested - 1) })
-      .eq("id", fs.id);
-    onFightingStylesChange(
-      fightingStyles.map((f) =>
-        f.id === fs.id ? { ...f, slots_invested: Math.max(1, f.slots_invested - 1) } : f
-      )
-    );
-    setLoading(false);
+    await setFightingStyleSlots(fs, Math.max(1, fs.slots_invested - 1));
   }
 
   const raceData = RACES[raceId as keyof typeof RACES];
@@ -443,16 +544,27 @@ export function TabProficiencies({
       return;
     }
     onLanguagesChange([...languages, data]);
+    recordRow("added", "character_languages", data, {
+      key: "profAdded",
+      values: { name: data.language_name },
+    });
     setNewLanguage("");
     setLoading(false);
   }
 
   async function removeLanguage(id: string) {
     setLoading(true);
+    const row = languages.find((l) => l.id === id);
     const supabase = createClient();
-    await supabase.from("character_languages").delete().eq("id", id);
+    const { error } = await supabase.from("character_languages").delete().eq("id", id);
     onLanguagesChange(languages.filter((l) => l.id !== id));
     setLoading(false);
+    if (!error && row) {
+      recordRow("removed", "character_languages", row, {
+        key: "profRemoved",
+        values: { name: row.language_name },
+      });
+    }
   }
 
   return (
@@ -475,7 +587,6 @@ export function TabProficiencies({
                 className="rounded px-1.5 text-sm text-muted-foreground hover:text-foreground"
                 onClick={() => {
                   const v = weaponSlotsAdj - 1;
-                  setWeaponSlotsAdj(v);
                   updateSlotAdj("weapon_slots_adj", v);
                 }}
                 aria-label={t("removeSlot")}
@@ -494,7 +605,6 @@ export function TabProficiencies({
                 className="rounded px-1.5 text-sm text-muted-foreground hover:text-foreground"
                 onClick={() => {
                   const v = weaponSlotsAdj + 1;
-                  setWeaponSlotsAdj(v);
                   updateSlotAdj("weapon_slots_adj", v);
                 }}
                 aria-label={t("addSlot")}
@@ -748,7 +858,6 @@ export function TabProficiencies({
                 className="rounded px-1.5 text-sm text-muted-foreground hover:text-foreground"
                 onClick={() => {
                   const v = nwpSlotsAdj - 1;
-                  setNwpSlotsAdj(v);
                   updateSlotAdj("nwp_slots_adj", v);
                 }}
                 aria-label={t("removeSlot")}
@@ -767,7 +876,6 @@ export function TabProficiencies({
                 className="rounded px-1.5 text-sm text-muted-foreground hover:text-foreground"
                 onClick={() => {
                   const v = nwpSlotsAdj + 1;
-                  setNwpSlotsAdj(v);
                   updateSlotAdj("nwp_slots_adj", v);
                 }}
                 aria-label={t("addSlot")}
@@ -1053,7 +1161,6 @@ export function TabProficiencies({
                 className="rounded px-1.5 text-sm text-muted-foreground hover:text-foreground"
                 onClick={() => {
                   const v = languageSlotsAdj - 1;
-                  setLanguageSlotsAdj(v);
                   updateSlotAdj("language_slots_adj", v);
                 }}
                 aria-label={t("removeLanguage")}
@@ -1077,7 +1184,6 @@ export function TabProficiencies({
                 className="rounded px-1.5 text-sm text-muted-foreground hover:text-foreground"
                 onClick={() => {
                   const v = languageSlotsAdj + 1;
-                  setLanguageSlotsAdj(v);
                   updateSlotAdj("language_slots_adj", v);
                 }}
                 aria-label={t("addLanguage")}

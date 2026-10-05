@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useState, useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,10 @@ import { isMagicItem, isDepleted } from "@/lib/rules/magic-items";
 import { canUseConsumable, getConsumableType } from "@/lib/rules/consumables";
 import { createClient } from "@/lib/supabase/client";
 import type { CharacterEquipmentWithDetails } from "@/lib/supabase/types";
+import { useUndo } from "@/components/undo/undo-context";
+import { rowDelete, rowUpdate } from "@/lib/undo/changes";
+import { equipmentName } from "@/lib/undo/item-name";
+import type { RowChange } from "@/lib/undo/types";
 
 interface PlayMagicItemsPanelProps {
   equipment: CharacterEquipmentWithDetails[];
@@ -20,7 +24,8 @@ interface PlayMagicItemsPanelProps {
   hpMax: number;
   readOnly: boolean;
   onEquipmentChange: (equipment: CharacterEquipmentWithDetails[]) => void;
-  onHpChange: (newHp: number) => void;
+  /** record: false → returns the change so the potion use is one undo step. */
+  onHpChange: (newHp: number, options?: { record?: boolean }) => Promise<RowChange | null>;
 }
 
 function PlayMagicItemsPanelInner({
@@ -31,6 +36,8 @@ function PlayMagicItemsPanelInner({
   onEquipmentChange,
   onHpChange,
 }: PlayMagicItemsPanelProps) {
+  const locale = useLocale();
+  const undo = useUndo();
   const t = useTranslations("playMode");
   const [loading, setLoading] = useState(false);
   const [usingItem, setUsingItem] = useState<CharacterEquipmentWithDetails | null>(null);
@@ -55,13 +62,29 @@ function PlayMagicItemsPanelInner({
     setLoading(true);
     const supabase = createClient();
     try {
-      await supabase
+      const { error } = await supabase
         .from("character_equipment")
         .update({ equipped: !currentlyEquipped })
         .eq("id", itemId);
       onEquipmentChange(
         equipment.map((e) => (e.id === itemId ? { ...e, equipped: !currentlyEquipped } : e))
       );
+      const item = equipment.find((e) => e.id === itemId);
+      const change = rowUpdate(
+        "character_equipment",
+        { id: itemId },
+        { equipped: currentlyEquipped },
+        { equipped: !currentlyEquipped }
+      );
+      if (!error && item && change) {
+        undo?.record({
+          label: {
+            key: currentlyEquipped ? "unequip" : "equip",
+            values: { name: equipmentName(item, locale) },
+          },
+          changes: [change],
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -76,29 +99,51 @@ function PlayMagicItemsPanelInner({
 
     setLoading(true);
     const supabase = createClient();
+    const changes: (RowChange | null)[] = [];
     try {
       if (consumableType === "potion") {
         if (result.hpHealed) {
-          onHpChange(Math.min(hpMax, hpCurrent + result.hpHealed));
+          changes.push(
+            await onHpChange(Math.min(hpMax, hpCurrent + result.hpHealed), { record: false })
+          );
         }
-        await supabase.from("character_equipment").delete().eq("id", item.id);
+        const { error } = await supabase.from("character_equipment").delete().eq("id", item.id);
         onEquipmentChange(equipment.filter((e) => e.id !== item.id));
+        if (!error) changes.push(rowDelete("character_equipment", item, item));
       } else if (consumableType === "scroll") {
-        await supabase.from("character_equipment").delete().eq("id", item.id);
+        const { error } = await supabase.from("character_equipment").delete().eq("id", item.id);
         onEquipmentChange(equipment.filter((e) => e.id !== item.id));
+        if (!error) changes.push(rowDelete("character_equipment", item, item));
       } else if (consumableType === "charged" && result.chargesUsed) {
         const newCharges = Math.max(
           0,
           (item.magic_effects?.current_charges ?? 0) - result.chargesUsed
         );
         const updatedEffects = { ...item.magic_effects, current_charges: newCharges };
-        await supabase
+        const { error } = await supabase
           .from("character_equipment")
           .update({ magic_effects: updatedEffects })
           .eq("id", item.id);
         onEquipmentChange(
           equipment.map((e) => (e.id === item.id ? { ...e, magic_effects: updatedEffects } : e))
         );
+        if (!error) {
+          changes.push(
+            rowUpdate(
+              "character_equipment",
+              { id: item.id },
+              { magic_effects: item.magic_effects },
+              { magic_effects: updatedEffects }
+            )
+          );
+        }
+      }
+      const real = changes.filter((c): c is RowChange => c !== null);
+      if (real.length > 0) {
+        undo?.record({
+          label: { key: "consume", values: { name: equipmentName(item, locale) } },
+          changes: real,
+        });
       }
     } finally {
       setUsingItem(null);
@@ -110,9 +155,16 @@ function PlayMagicItemsPanelInner({
     setLoading(true);
     const supabase = createClient();
     try {
-      await supabase.from("character_equipment").delete().eq("id", itemId);
+      const item = equipment.find((e) => e.id === itemId);
+      const { error } = await supabase.from("character_equipment").delete().eq("id", itemId);
       onEquipmentChange(equipment.filter((e) => e.id !== itemId));
       setRemoveConfirm(null);
+      if (!error && item) {
+        undo?.record({
+          label: { key: "itemRemoved", values: { name: equipmentName(item, locale) } },
+          changes: [rowDelete("character_equipment", item, item)],
+        });
+      }
     } finally {
       setLoading(false);
     }

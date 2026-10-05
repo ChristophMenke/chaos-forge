@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { PenLine, Swords, Sparkles } from "lucide-react";
+import { UndoButtons } from "@/components/undo/undo-buttons";
 
 interface CharacterModeNavProps {
   characterId: string;
@@ -73,6 +74,7 @@ export function CharacterModeNav({
           </Link>
         );
       })}
+      <UndoButtons />
     </nav>
   );
 }
