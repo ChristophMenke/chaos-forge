@@ -15,7 +15,7 @@
  * Run: npx tsx scripts/translate-monster-narrative.ts
  */
 
-import Anthropic from "@anthropic-ai/sdk";
+import { generateText } from "../src/lib/gemini/generate-text";
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import crypto from "crypto";
 import dotenv from "dotenv";
@@ -165,29 +165,29 @@ function buildUserPrompt(m: ParsedMonster): string {
   return parts.join("\n");
 }
 
-async function translateMonster(
-  client: Anthropic,
-  m: ParsedMonster
-): Promise<TranslationRecord | null> {
+async function translateMonster(m: ParsedMonster): Promise<TranslationRecord | null> {
   // Defence in depth: Promise.race with a wall-clock timeout. The SDK's
   // internal abort/timeout handling has been observed to silently hang on
   // long responses (vampire0, sirine), so we guarantee termination.
-  const apiCall = client.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 4096,
+  const apiCall = generateText({
+    precise: true,
     system: SYSTEM_PROMPT,
-    messages: [{ role: "user", content: buildUserPrompt(m) }],
+    prompt: buildUserPrompt(m),
+    // Vier Erzählabschnitte auf Deutsch; auf Gemini 3 zählt zusätzlich das
+    // Nachdenken des Modells gegen dieses Budget.
+    maxOutputTokens: 12000,
   });
   const timeoutError = new Promise<never>((_, reject) =>
     setTimeout(() => reject(new Error("timeout after 120s")), 120_000)
   );
-  const response = await Promise.race([apiCall, timeoutError]);
+  const { text, truncated } = await Promise.race([apiCall, timeoutError]);
 
-  if (response.stop_reason === "max_tokens") {
-    console.warn(`  [WARN] ${m.monster_key}: max_tokens reached, translation may be truncated`);
+  if (truncated) {
+    console.warn(
+      `  [WARN] ${m.monster_key}: Token-Limit erreicht, Übersetzung evtl. abgeschnitten`
+    );
   }
 
-  const text = response.content[0]?.type === "text" ? response.content[0].text : "";
   if (!text) return null;
 
   const name = extractSection(text, "NAME") ?? m.name_en;
@@ -210,9 +210,8 @@ async function translateMonster(
 // ─── CLI runner ───────────────────────────────────────────────────────
 
 async function main(): Promise<void> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    console.error("ANTHROPIC_API_KEY fehlt in .env.local");
+  if (!process.env.GOOGLE_API_KEY) {
+    console.error("GOOGLE_API_KEY fehlt in .env.local");
     process.exit(1);
   }
 
@@ -226,7 +225,6 @@ async function main(): Promise<void> {
     : [];
   const existingByKey = new Map(existing.map((e) => [e.monster_key, e]));
 
-  const client = new Anthropic({ apiKey });
   const results: TranslationRecord[] = [];
   let translated = 0;
   let cached = 0;
@@ -251,7 +249,7 @@ async function main(): Promise<void> {
     process.stdout.write(`${progress} ${m.monster_key}... `);
 
     try {
-      const record = await translateMonster(client, m);
+      const record = await translateMonster(m);
       if (record) {
         results.push(record);
         translated++;

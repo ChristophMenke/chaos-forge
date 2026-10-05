@@ -304,8 +304,8 @@ Dependencies: **Phase 2**, **Phase 3**
 - [x] `format:check` grün, `typecheck` grün, `npm test` grün (1604 Tests), `npm run build` grün.
 - [x] `eslint src e2e` grün (exit 0) — aller getrackter Feature-Code lint-sauber.
 - [~] `npm run lint` (gesamt): scheitert nur an **vorbestehenden** Lint-Fehlern in `scripts/`-Dateien
-      (`scripts/spell-cards/*` sind gitignored/untracked; `scripts/screenshot-login-viewports.mjs` ist
-      bereits auf `main` fehlerhaft, committet in #133) — **nicht durch dieses Feature verursacht**.
+  (`scripts/spell-cards/*` sind gitignored/untracked; `scripts/screenshot-login-viewports.mjs` ist
+  bereits auf `main` fehlerhaft, committet in #133) — **nicht durch dieses Feature verursacht**.
 
 **Manual Verification**:
 

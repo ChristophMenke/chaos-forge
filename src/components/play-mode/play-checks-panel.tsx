@@ -84,6 +84,8 @@ function PlayChecksPanelInner({
       passiveAbilities: [],
       overclockAbility: null,
       spellAbilities: [],
+      bonusSpellPoints: 0,
+      hpToSpConversion: null,
     }),
     []
   );
@@ -419,7 +421,7 @@ function PlayChecksPanelInner({
       {/* Ability Checks */}
       <div className="mb-4" data-testid="play-ability-checks">
         <h4 className="mb-1.5 text-xs font-medium text-muted-foreground">{t("abilityChecks")}</h4>
-        <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-6">
+        <div className="grid grid-cols-3 gap-1.5 lg:grid-cols-6">
           {abilities.map((ab) => (
             <div
               key={ab.name}

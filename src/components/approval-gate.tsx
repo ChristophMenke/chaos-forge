@@ -1,10 +1,9 @@
 "use client";
 
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Lock } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { useApprovalStatus } from "@/lib/hooks/use-approval-status";
+import { useApproval } from "@/components/approval-provider";
 
 interface ApprovalGateProps {
   /** What to render when the user is approved (the normal action). */
@@ -24,13 +23,7 @@ interface ApprovalGateProps {
  */
 export function ApprovalGate({ children, fallback }: ApprovalGateProps) {
   const t = useTranslations("approval");
-  const [userId, setUserId] = useState<string | null>(null);
-  const { isApproved, isLoading } = useApprovalStatus(userId);
-
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
-  }, []);
+  const { userId, isApproved, isLoading } = useApproval();
 
   // Be permissive during load to avoid UI flash; the DB trigger is the final
   // safety net anyway.

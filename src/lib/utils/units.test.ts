@@ -183,4 +183,47 @@ describe("convertImperialText", () => {
       "between 1.5-3 m and up to 6.1 m"
     );
   });
+
+  describe("square units (area)", () => {
+    it("converts 'sq. ft.' to square meters", () => {
+      expect(convertImperialText("20 sq. ft.")).toBe("1.9 m²");
+    });
+
+    it("converts 'square ft./level'", () => {
+      expect(convertImperialText("800 square ft./level")).toBe("74.3 m²/level");
+    });
+
+    it("converts 'square yd./level'", () => {
+      expect(convertImperialText("1 square yd./level")).toBe("0.8 m²/level");
+    });
+
+    it("converts the OCR variant with a comma after 'sq'", () => {
+      // Real DB value of Improved Phantasmal Force.
+      expect(convertImperialText("200 sq, ft. + 50 sq. ft./level")).toBe("18.6 m² + 4.6 m²/level");
+    });
+
+    it("converts German 'Quadratfuß'", () => {
+      expect(convertImperialText("200 Quadratfuß")).toBe("18.6 m²");
+    });
+
+    // A "10-foot square" is a square measuring 10 ft per EDGE — a length, not
+    // an area. The unit precedes the word "square" there, which is what keeps
+    // these out of the area branch.
+    it("treats '10-ft square' as an edge length, not an area", () => {
+      expect(convertImperialText("10-ft square/level")).toBe("3-Meter square/level");
+    });
+
+    it("treats German '30 Fuß Quadrat' as an edge length", () => {
+      expect(convertImperialText("30 Fuß Quadrat")).toBe("9.1 m Quadrat");
+    });
+
+    it("treats '10-yd. square' as an edge length", () => {
+      expect(convertImperialText("10-yd. square")).toBe("9.1-Meter square");
+    });
+
+    it("leaves already-metric 'sq.' forms alone", () => {
+      expect(convertImperialText("10 sq. m.")).toBe("10 sq. m.");
+      expect(convertImperialText("1 page, up to 0.6 m sq.")).toBe("1 page, up to 0.6 m sq.");
+    });
+  });
 });

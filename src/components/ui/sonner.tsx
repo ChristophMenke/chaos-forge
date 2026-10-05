@@ -2,6 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
+import { useViewMode } from "@/lib/hooks/use-view-mode";
 import {
   CircleCheckIcon,
   InfoIcon,
@@ -10,12 +11,16 @@ import {
   Loader2Icon,
 } from "lucide-react";
 
-const Toaster = ({ ...props }: ToasterProps) => {
+const Toaster = ({ position, ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme();
+  // Sonner only switches to its mobile layout by width; in forced mobile view
+  // the bottom nav would cover bottom-anchored toasts on wide screens.
+  const [viewMode] = useViewMode();
 
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
+      position={viewMode === "mobile" ? "top-center" : position}
       className="toaster group"
       icons={{
         success: <CircleCheckIcon className="size-4" />,

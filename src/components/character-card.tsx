@@ -24,6 +24,8 @@ interface CharacterCardProps {
   unconsciousLabel?: string;
   deadLabel?: string;
   locale: string;
+  /** Preload the avatar with high priority — only for cards above the fold. */
+  priority?: boolean;
 }
 
 /**
@@ -48,6 +50,7 @@ export function CharacterCard({
   unconsciousLabel,
   deadLabel,
   locale,
+  priority = false,
 }: CharacterCardProps) {
   const activeClasses = classes.filter((cc) => cc.is_active);
   const classGroup = getPrimaryClassGroup(activeClasses);
@@ -113,7 +116,7 @@ export function CharacterCard({
                     alt={character.name}
                     width={110}
                     height={130}
-                    priority
+                    priority={priority}
                     className="h-full w-full object-cover"
                     data-testid="character-card-avatar"
                   />

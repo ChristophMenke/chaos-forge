@@ -1,0 +1,37 @@
+[
+  {
+    "id": "eded2c10-0fa0-48d0-918e-a1104cdf57eb",
+    "name": "Hold Portal",
+    "old": "20 qm/Stufe"
+  },
+  {
+    "id": "23ad76bb-eb4c-405d-9f2c-a5a6b027c8bd",
+    "name": "Knock",
+    "old": "10 qm/Stufe"
+  },
+  {
+    "id": "005b15f5-08be-4bdd-882d-c916657af177",
+    "name": "Phantasmal Force",
+    "old": "400 qm + 100 qm/Stufe"
+  },
+  {
+    "id": "fe5cebcf-827f-469a-8213-80ca2869a9c2",
+    "name": "Wall of Iron",
+    "old": "15 qm/Stufe"
+  },
+  {
+    "id": "5eff6024-08a5-46e9-8496-4857d25350e9",
+    "name": "Wall of Stone",
+    "old": "20 qm/Stufe"
+  },
+  {
+    "id": "0e5e6837-e5d8-4e8e-bbf0-a29c3e0a2d34",
+    "name": "Web",
+    "old": "80 qm"
+  },
+  {
+    "id": "a7bd90f9-b9e3-4e20-ad1f-f727dcabb376",
+    "name": "Wizard Lock",
+    "old": "30 qm/Stufe"
+  }
+]

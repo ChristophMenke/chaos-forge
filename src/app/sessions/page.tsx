@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getOptionalUser } from "@/lib/supabase/auth";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/glass-card";
@@ -38,9 +39,7 @@ export default async function SessionsPage() {
   const tc = await getTranslations("chronicle");
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getOptionalUser();
   const currentUserId = user?.id ?? "";
 
   // Wave 1: Sessions + independent data in parallel

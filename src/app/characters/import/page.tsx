@@ -7,9 +7,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
+import { getSpellNameIndex } from "@/lib/catalog/spell-catalog";
 import type { RaceId, ClassId } from "@/lib/rules/types";
 import { ALL_ALIGNMENTS, getAlignmentLabel } from "@/lib/rules/alignment";
 import { validateImportFiles } from "./import-validation";
+import {
+  matchesName,
+  parseItemName,
+  parseImperialHeight,
+  normalizeRaceId,
+  resolveFightingStyleId,
+  isFightingStyleEntry,
+  normalizeNwpName,
+  matchNwp,
+  matchSpell,
+  normalizeWeaponProfName,
+  VALID_CLASS_IDS,
+  VALID_KIT_IDS,
+} from "@/lib/scan/character-matching";
 
 interface ScannedClassEntry {
   class: ClassId;
@@ -63,15 +78,6 @@ interface ScannedCharacter {
   equipment: { name: string; magicBonus: number }[];
   nwps: string[];
   spells: { name: string; level: number }[];
-}
-
-/** Parse imperial height like 5'10" or "5 ft 10 in" to centimeters */
-function parseImperialHeight(h: string): number {
-  const match = h.match(/(\d+)'?\s*(\d+)?/);
-  if (!match) return 0;
-  const feet = parseInt(match[1]) || 0;
-  const inches = parseInt(match[2]) || 0;
-  return (feet * 12 + inches) * 2.54;
 }
 
 interface FilePreview {
@@ -193,23 +199,7 @@ export default function ImportCharacterPage({
       } else {
         const char = data.character;
         // Normalize race subraces to base race
-        const raceMap: Record<string, string> = {
-          stout_halfling: "halfling",
-          tallfellow_halfling: "halfling",
-          hairfeet_halfling: "halfling",
-          standard_half_elf: "half_elf",
-          wood_elf: "elf",
-          high_elf: "elf",
-          grey_elf: "elf",
-          wild_elf: "elf",
-          hill_dwarf: "dwarf",
-          mountain_dwarf: "dwarf",
-          rock_gnome: "gnome",
-          deep_gnome: "gnome",
-        };
-        if (char.race && raceMap[char.race]) {
-          char.race = raceMap[char.race];
-        }
+        char.race = normalizeRaceId(char.race);
         // Normalize equipment: support both string[] (legacy) and {name, magicBonus}[]
         if (Array.isArray(char.equipment)) {
           char.equipment = char.equipment.map(
@@ -264,24 +254,6 @@ export default function ImportCharacterPage({
       }
 
       // Resolve classes: new multiclass format or legacy single-class
-      const validClassIds = [
-        "fighter",
-        "ranger",
-        "paladin",
-        "mage",
-        "abjurer",
-        "conjurer",
-        "diviner",
-        "enchanter",
-        "illusionist",
-        "invoker",
-        "necromancer",
-        "transmuter",
-        "cleric",
-        "druid",
-        "thief",
-        "bard",
-      ];
       const resolvedClasses: ScannedClassEntry[] = (
         scanned.classes?.length
           ? scanned.classes
@@ -293,36 +265,17 @@ export default function ImportCharacterPage({
           ...cc,
           class: cc.class.toLowerCase().trim() as ClassId,
         }))
-        .filter((cc) => validClassIds.includes(cc.class));
+        .filter((cc) => (VALID_CLASS_IDS as readonly string[]).includes(cc.class));
 
       const primaryClass = resolvedClasses[0]?.class ?? null;
       const primaryLevel = resolvedClasses[0]?.level ?? 1;
       const primaryXp = resolvedClasses[0]?.xp ?? 0;
 
       // Validate kit: only allow known kits
-      const validKits = [
-        "barbarian",
-        "cavalier",
-        "swashbuckler",
-        "berserker",
-        "gladiator",
-        "myrmidon",
-        "assassin",
-        "bounty_hunter",
-        "acrobat",
-        "scout",
-        "burglar",
-        "spy",
-        "witch",
-        "militant_wizard",
-        "savage_wizard",
-        "academician",
-        "fighting_monk",
-        "pacifist_priest",
-        "beastmaster",
-        "blade",
-      ];
-      const validatedKit = scanned.kit && validKits.includes(scanned.kit) ? scanned.kit : null;
+      const validatedKit =
+        scanned.kit && (VALID_KIT_IDS as readonly string[]).includes(scanned.kit)
+          ? scanned.kit
+          : null;
 
       const { data, error: insertError } = await supabase
         .from("characters")
@@ -395,26 +348,13 @@ export default function ImportCharacterPage({
 
       // Separate fighting styles from weapon proficiencies
       const fightingStyleEntries =
-        scanned.weaponProficiencies?.filter((wp) =>
-          wp.name.toLowerCase().startsWith("fighting style")
-        ) ?? [];
+        scanned.weaponProficiencies?.filter((wp) => isFightingStyleEntry(wp.name)) ?? [];
       const actualWeaponProfs =
-        scanned.weaponProficiencies?.filter(
-          (wp) => !wp.name.toLowerCase().startsWith("fighting style")
-        ) ?? [];
+        scanned.weaponProficiencies?.filter((wp) => !isFightingStyleEntry(wp.name)) ?? [];
 
       // Insert fighting styles
       for (const fs of fightingStyleEntries) {
-        const styleId = fs.name.toLowerCase().includes("two weapon")
-          ? "two_weapon"
-          : fs.name.toLowerCase().includes("two-hander") ||
-              fs.name.toLowerCase().includes("two handed")
-            ? "two_hander"
-            : fs.name.toLowerCase().includes("shield")
-              ? "weapon_and_shield"
-              : fs.name.toLowerCase().includes("single")
-                ? "single_weapon"
-                : null;
+        const styleId = resolveFightingStyleId(fs.name);
         if (styleId) {
           await supabase.from("character_fighting_styles").insert({
             character_id: data.id,
@@ -426,18 +366,11 @@ export default function ImportCharacterPage({
 
       // Insert weapon proficiencies (normalize to canonical DE name)
       if (actualWeaponProfs.length > 0) {
-        const wpRows = actualWeaponProfs.map((wp) => {
-          const matchedWeapon = allWeapons?.find(
-            (w) =>
-              w.name.toLowerCase() === wp.name.toLowerCase() ||
-              (w.name_en ?? "").toLowerCase() === wp.name.toLowerCase()
-          );
-          return {
-            character_id: data.id,
-            weapon_name: matchedWeapon ? matchedWeapon.name : wp.name,
-            specialization: wp.specialized,
-          };
-        });
+        const wpRows = actualWeaponProfs.map((wp) => ({
+          character_id: data.id,
+          weapon_name: normalizeWeaponProfName(wp.name, allWeapons ?? []),
+          specialization: wp.specialized,
+        }));
         await supabase.from("character_weapon_proficiencies").insert(wpRows);
       }
 
@@ -449,18 +382,9 @@ export default function ImportCharacterPage({
         if (allNwps) {
           const insertedNwpIds = new Set<string>();
           for (const nwpName of scanned.nwps) {
-            const nwpLower = nwpName
-              .toLowerCase()
-              .replace(/^native languages?:\s*/i, "")
-              .trim();
-            if (nwpLower.startsWith("common") || nwpLower.startsWith("native")) continue;
-            const match = allNwps.find(
-              (n) =>
-                n.name.toLowerCase() === nwpLower ||
-                n.name_en?.toLowerCase() === nwpLower ||
-                n.name.toLowerCase().includes(nwpLower) ||
-                (n.name_en && n.name_en.toLowerCase().includes(nwpLower))
-            );
+            const normalized = normalizeNwpName(nwpName);
+            if (!normalized) continue;
+            const match = matchNwp(normalized, allNwps);
             if (match && !insertedNwpIds.has(match.id)) {
               insertedNwpIds.add(match.id);
               await supabase.from("character_nonweapon_proficiencies").insert({
@@ -478,36 +402,13 @@ export default function ImportCharacterPage({
 
         for (const item of scanned.equipment) {
           // Strip magic bonus and quantity from name for matching
-          const baseName = item.name
-            .replace(/\s*\+\d+/, "")
-            .replace(/\s*x\d+$/, "")
-            .toLowerCase()
-            .trim();
+          const { baseName, quantity: qty } = parseItemName(item.name);
           if (!baseName) continue;
-          const qty = item.name.match(/x(\d+)$/)?.[1]
-            ? parseInt(item.name.match(/x(\d+)$/)![1])
-            : 1;
           const bonus = item.magicBonus ?? 0;
-
-          // Tokenize for flexible matching (e.g. "Axe, hand/throwing" matches "Hand Axe")
-          const baseTokens = baseName.split(/[\s,/]+/).filter((t) => t.length > 2);
-          const matchesName = (dbName: string) => {
-            const db = dbName.toLowerCase();
-            // Direct substring match
-            if (db.includes(baseName) || baseName.includes(db)) return true;
-            // Token-based: all DB name words appear in the scanned name
-            const dbTokens = db.split(/[\s,/]+/).filter((t) => t.length > 2);
-            if (
-              dbTokens.length > 0 &&
-              dbTokens.every((dt) => baseTokens.some((bt) => bt.includes(dt) || dt.includes(bt)))
-            )
-              return true;
-            return false;
-          };
 
           // Try to match weapon
           const weapon = allWeapons?.find(
-            (w) => matchesName(w.name) || (w.name_en && matchesName(w.name_en))
+            (w) => matchesName(w.name, baseName) || (w.name_en && matchesName(w.name_en, baseName))
           );
           if (weapon) {
             await supabase.from("character_equipment").insert({
@@ -523,7 +424,7 @@ export default function ImportCharacterPage({
 
           // Try to match armor
           const armor = allArmor?.find(
-            (a) => matchesName(a.name) || (a.name_en && matchesName(a.name_en))
+            (a) => matchesName(a.name, baseName) || (a.name_en && matchesName(a.name_en, baseName))
           );
           if (armor) {
             await supabase.from("character_equipment").insert({
@@ -546,45 +447,14 @@ export default function ImportCharacterPage({
 
       // Try to match and insert spells
       if (scanned.spells?.length > 0) {
-        // Fetch all spells from DB (paginated for >1000 rows)
-        let allSpells: { id: string; name: string; name_en: string | null; level: number }[] = [];
-        let from = 0;
-        const batchSize = 1000;
-        let hasMore = true;
-        while (hasMore) {
-          const { data: batch } = await supabase
-            .from("spells")
-            .select("id, name, name_en, level")
-            .range(from, from + batchSize - 1);
-          if (batch && batch.length > 0) {
-            allSpells = allSpells.concat(batch);
-            from += batchSize;
-            hasMore = batch.length === batchSize;
-          } else {
-            hasMore = false;
-          }
-        }
+        // All spells of both types — beyond the 1000-row response cap
+        const allSpells = await getSpellNameIndex();
 
         const spellInserts: { character_id: string; spell_id: string; prepared: boolean }[] = [];
         const matchedIds = new Set<string>();
 
         for (const scannedSpell of scanned.spells) {
-          if (!scannedSpell.name.trim()) continue;
-          const spellLower = scannedSpell.name.toLowerCase().trim();
-
-          const match = allSpells.find((s) => {
-            if (s.level !== scannedSpell.level) return false;
-            const nameLower = s.name.toLowerCase();
-            const nameEnLower = s.name_en?.toLowerCase() ?? "";
-            return (
-              nameLower === spellLower ||
-              nameEnLower === spellLower ||
-              nameLower.includes(spellLower) ||
-              (nameEnLower && nameEnLower.includes(spellLower)) ||
-              spellLower.includes(nameLower) ||
-              (nameEnLower && spellLower.includes(nameEnLower))
-            );
-          });
+          const match = matchSpell(scannedSpell, allSpells);
 
           if (match && !matchedIds.has(match.id)) {
             matchedIds.add(match.id);

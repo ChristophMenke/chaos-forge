@@ -16,6 +16,10 @@ export interface RealtimeTableBinding {
  * realtime channel fails to connect. Used by shared pages where multiple
  * users look at the same server-rendered data.
  *
+ * A refresh re-runs every server query of the page, so tabs in the background
+ * don't refresh: they remember that something changed and refresh once when
+ * the user comes back.
+ *
  * `bindings` is serialized to a stable string key so callers can pass inline
  * array literals without causing infinite re-subscriptions. `router.refresh`
  * is stored in a ref so that Next.js router identity changes (which happen
@@ -39,7 +43,13 @@ export function useRealtimeRefresh(channelName: string, bindings: RealtimeTableB
     if (bindings.length === 0) return;
 
     const supabase = createClient();
+    let pendingWhileHidden = false;
+
     const scheduleRefresh = () => {
+      if (document.visibilityState !== "visible") {
+        pendingWhileHidden = true;
+        return;
+      }
       if (refreshTimer.current) clearTimeout(refreshTimer.current);
       refreshTimer.current = setTimeout(() => {
         refreshRef.current();
@@ -63,7 +73,16 @@ export function useRealtimeRefresh(channelName: string, bindings: RealtimeTableB
     }
     channel.subscribe();
 
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && pendingWhileHidden) {
+        pendingWhileHidden = false;
+        scheduleRefresh();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       if (refreshTimer.current) {
         clearTimeout(refreshTimer.current);
         refreshTimer.current = null;

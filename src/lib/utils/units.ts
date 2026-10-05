@@ -34,6 +34,21 @@ export function convertImperialText(text: string): string {
 
   let result = text;
 
+  // 0. Square units — AREA (e.g., "200 sq. ft.", "1 square yd./level").
+  //    Must run first: once converted to "m²" no later pattern can touch it.
+  //    Note the word order — an area writes the "square" BEFORE the unit.
+  //    "10-ft square" / "30 Fuß Quadrat" put it AFTER and mean an EDGE LENGTH
+  //    (a square 10 ft to a side), so they must fall through to the length
+  //    patterns below. The comma in "sq," is an OCR artifact found in the data.
+  result = result.replace(
+    /(\d+(?:[.,]\d+)?)\s*(?:sq[.,]?|square|Quadrat-?)\s*(?:feet|foot|ft\.?|Fuß)/gi,
+    (_, n) => `${formatMetric(parseFloat(n) * 0.0929)} m²`
+  );
+  result = result.replace(
+    /(\d+(?:[.,]\d+)?)\s*(?:sq[.,]?|square|Quadrat-?)\s*(?:yards?|yds?\.?)/gi,
+    (_, n) => `${formatMetric(parseFloat(n) * 0.8361)} m²`
+  );
+
   // 1. Hyphenated adjective forms (e.g., "10-foot radius", "20-Fuß Radius").
   //    Must come before non-hyphenated AND before range forms — the range
   //    patterns below require a NUMBER after the dash, so "10-foot" (word

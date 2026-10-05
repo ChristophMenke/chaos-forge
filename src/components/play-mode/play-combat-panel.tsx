@@ -684,7 +684,7 @@ function WeaponCardInner({
           <Badge className="bg-primary/20 text-[10px] md:text-xs text-primary">★</Badge>
         )}
       </div>
-      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm lg:grid-cols-4">
         <div>
           <span className="text-xs text-muted-foreground">THAC0 {t("melee")}: </span>
           <span className="font-mono font-bold">{adjusted.melee}</span>

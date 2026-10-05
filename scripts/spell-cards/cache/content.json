@@ -1,0 +1,2176 @@
+{
+  "a0a1a372-2aff-4800-9746-bfbc8185a669": {
+    "rules": "Alters the caster's appearance—including clothing and equipment—to seem up to 30 cm shorter or taller, and to look thin, fat, or in between. Form must remain generally the same: a biped stays bipedal. The illusion cannot mimic a specific individual convincingly, nor add or remove limbs. Those interacting with the caster may notice discrepancies; the disguise is visual only and does not withstand touch. The caster may end it at will.",
+    "art": "A hooded wizard mid-transformation, their body and garments shimmering with translucent overlapping silhouettes as height and girth shift like rippling water, features blurring between forms in soft candlelit gloom.",
+    "stats": {
+      "casting_time": "1",
+      "range": "0",
+      "duration": "2d6 rds. + 1 rd./level",
+      "area_of_effect": "The caster",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "733f2a9e-ce4e-43f2-8473-68d34f66877f": {
+    "rules": "Shapes semireal illusions of one or more monsters from shadow-stuff. Total Hit Dice cannot exceed the caster's level; all created monsters must be the same type. Each has 20% (×.2) of normal hit points (fractions <.4 dropped, monsters of 1 HD or less that yield 0 are not created). They fight with real AC and attack forms. Viewers may attempt to disbelieve at a -2 penalty. Believers take full real damage;",
+    "art": "A wizard's hands trail wisps of living darkness that coil into the snarling, half-transparent forms of shadowy beasts lunging across a torchlit dungeon, their claws flickering between solid menace and smoky nothingness.",
+    "stats": {
+      "casting_time": "4",
+      "range": "27 m",
+      "duration": "1 rd./level",
+      "area_of_effect": "20-m cube",
+      "saving_throw": "Special",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "1070f813-ce57-48f7-8123-45072f8dbe71": {
+    "rules": "A fan of clashing colors strikes 1d6 creatures, affected in order of increasing distance. Creatures above the caster's level, and any of 6+ HD/level, get a save to negate. Blind creatures are unaffected. Effect by target's HD vs. caster's level: HD equal or less than caster's level struck unconscious 2d4 rds.; 1-2 HD above are blinded 1d4 rds.; 3+ HD above are stunned (reeling, unable to act) 1 rd.",
+    "art": "A blinding fan of clashing rainbow light bursts from an outstretched hand, engulfing a cluster of enemies who collapse and stagger amid swirling prismatic sparks in a dim dungeon corridor.",
+    "stats": {
+      "casting_time": "1",
+      "range": "0",
+      "duration": "Instantaneous",
+      "area_of_effect": "1.5 m × 6 m × 6 m wedge",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "7f24f813-8464-413e-b4e9-9c794e2ee529": {
+    "rules": "Creates 1d4+1 illusory duplicates of the caster (max 6), which mimic the caster's movements and are indistinguishable from the original. Each attack against the caster is randomly assigned: a hit that lands on an image destroys it instantly; an attack that misses the group does not strike the caster. As images are destroyed the odds shift toward hitting the real caster. Area effects destroy all images at once.",
+    "art": "A lone robed spellcaster stands amid a shimmering fan of identical translucent doppelgangers spreading in an arc around them, each mirroring the same gesture as an enemy's blade slices harmlessly through one that dissolves into fading light.",
+    "stats": {
+      "casting_time": "2",
+      "range": "0",
+      "duration": "3 rds./level",
+      "area_of_effect": "1.8 m radius",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "e35637e7-9242-49d8-a6a0-d742f5118c4b": {
+    "rules": "Creates an invisible, vertical curtain of forceful wind. Dimensions are set at casting: up to 3 m long and 1.5 m high per level. Small missiles (arrows, bolts, sling stones) are automatically deflected and cannot pass. Small flying creatures such as bats, birds and insects cannot fly through. Gases, fog and similar vapors are blocked. Large missiles (catapult stones, ballista bolts) pass through but suffer -4 to hit.",
+    "art": "A shimmering column of gale-force air rises from the earth, dust and torn leaves swirling within it as a volley of arrows scatters harmlessly aside and startled birds veer away.",
+    "stats": {
+      "casting_time": "3",
+      "range": "3 m/level",
+      "duration": "1 rd./level",
+      "area_of_effect": "Up to 3 m long and 1.5 m high per level",
+      "saving_throw": "Special",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "16543941-42c9-4df0-8e9b-dcf5081f54a9": {
+    "rules": "Alters any or all nonmagical fires, from torch- to full-area size. The caster may reduce them to dim coals, or increase brightness to full daylight and double their illumination radius. Intensities can be changed at will with a single gesture while active. Does not change fuel consumption or fire damage. The caster may instead extinguish all flames, which ends the spell immediately. No effect on magical fire, fire elementals, or similar creatures.",
+    "art": "A hooded wizard sweeps an outstretched hand across a dim campfire that erupts into a brilliant sunlike blaze, flooding the surrounding stone chamber with blinding golden daylight while distant torches flare in unison.",
+    "stats": {
+      "casting_time": "1",
+      "range": "4.5 m/level",
+      "duration": "2 rds./level",
+      "area_of_effect": "10-m radius",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "584876d1-26a4-40b1-b8ee-623dce851302": {
+    "rules": "Grants the touched creature a force field granting AC 6. No effect on anyone already wearing armor or with natural AC 6 or better. Not cumulative with a shield spell, but cumulative with Dexterity bonuses (and, for fighter/mages, a physical shield's bonus). Adds no weight, encumbrance, or hindrance and permits spellcasting. The wearer takes full damage from attacks (armor absorbs none).",
+    "art": "A robed wizard touches a comrade whose body shimmers with a translucent lattice of interlocking overlapping plates of glowing force, faint blue scales of light rippling across skin and clothing in a dim torchlit chamber.",
+    "stats": {
+      "casting_time": "1 round",
+      "range": "Touch",
+      "duration": "Until destroyed by damage",
+      "area_of_effect": "1 creature",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "fc5c43e4-2513-4115-af45-d8fd6b32cbdf": {
+    "rules": "Creates illusory sound at any chosen point, which may approach, recede, or stay fixed. At 1st level the volume equals up to 4 men; each additional caster level adds a like amount (8 men at 2nd, etc.). Any sound is possible so long as its volume matches: 8 men = a swarm of rats, 16 men = a roaring lion, 24 men = a roaring dragon. A character who states disbelief gets a save; success reveals a faint, obviously false noise coming from the caster. Enhances phantasmal force.",
+    "art": "A dark cavern mouth where ghostly, translucent sound-ripples surge outward like the phantom roar of an unseen dragon, echoing shapes of stampeding rats and marching feet shimmering faintly in the air.",
+    "stats": {
+      "casting_time": "1",
+      "range": "55 m + 9 m/level",
+      "duration": "3 rds./level",
+      "area_of_effect": "Hearing range",
+      "saving_throw": "vs. Spell (Special)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "80947916-5f72-48cc-9a76-78fde9b771e6": {
+    "rules": "Repairs one small break or tear in an object, so long as the break is no larger than 30 cm. Works on wood, ceramic, bone, glass, rope, leather, and similar materials, restoring broken rings, chain links, medallions, arrow shafts, bags, or wineskins to whole condition. Fails on items of stone, metal, or adamantite. Does not restore magical function to a broken magic item, though the physical break may close. Has no effect on creatures, including constructs.",
+    "art": "A cracked ceramic goblet on a wooden table knitting itself whole, hairline fractures glowing with soft golden light as shards drift back into place under a spellcaster's outstretched fingers.",
+    "stats": {
+      "casting_time": "1",
+      "range": "9.1 m",
+      "duration": "Permanent",
+      "area_of_effect": "1 object",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "b51b6249-299a-4f46-8182-a04934e38359": {
+    "rules": "A fan of flame springs from the caster's spread fingers, thumbs touching. Any creature caught takes 1d3 fire damage +2 per caster level, to a maximum of 1d3+20; a successful save halves this. Flammable materials touched (cloth, paper, parchment, thin wood) ignite and burn, but can be extinguished next round if no other action is taken.",
+    "art": "A wizard thrusts both hands forward with thumbs joined and fingers spread, unleashing a roaring 120-degree fan of searing orange flame that engulfs a snarling attacker, embers and smoke swirling in the scorched air.",
+    "stats": {
+      "casting_time": "1",
+      "range": "0",
+      "duration": "Instantaneous",
+      "area_of_effect": "1.5 m arc, ~120 degrees",
+      "saving_throw": "vs. Spell (½)",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "7160ee94-d05a-4dc9-a2c3-40773677df7d": {
+    "rules": "Creates 1-4 mobile lights, chosen at casting: torches or lanterns (shedding that much light), glowing spheres like will-o-wisps, or a single faintly glowing, vaguely manlike fiery shape. The lights move as the caster wills—forward, back, or turning corners—without requiring concentration. They cannot cause blindness and wink out if their range or duration is exceeded.",
+    "art": "Four flickering orbs of pale flame drift and weave through a dark stone corridor, one coalescing into a faintly glowing man-shaped figure of fire, casting dancing shadows on damp walls.",
+    "stats": {
+      "casting_time": "1",
+      "range": "37 m + 9 m/level",
+      "duration": "2 rds./level",
+      "area_of_effect": "Up to 4 lights",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "57d89eaa-03d0-4643-9620-2c07e9c57e0e": {
+    "rules": "Reveals the presence and direction of all undead creatures in the scanned path, 3 m wide, extending in the direction the caster faces. Each round of scanning covers one direction, during which the caster must remain motionless. Indicates only direction, not exact location, distance, number, or type of undead. Detection passes through obstacles but is blocked by 0.3 m of solid stone, 0.9 m of wood or loose earth, or a thin coating of metal.",
+    "art": "A robed figure standing rigidly still in a shadowed crypt, eyes glowing faintly, as a translucent cone of pale spectral light sweeps forward and outlines ghostly silhouettes of skeletal and wraithlike shapes lurking beyond a stone wall.",
+    "stats": {
+      "casting_time": "1 round",
+      "range": "0",
+      "duration": "3 turns",
+      "area_of_effect": "3 m wide path, 18.3 m long + 3 m/level",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "914bf084-29b2-406c-a638-5c9ff6e1ef9c": {
+    "rules": "Removes magical or mundane writing from a scroll or up to two pages. Nonmagical writing is erased automatically if the caster touches the surface; if not touched, success is 90%. Magical writings must be touched and succeed only 30% + 5% per caster level (max 90%). Can remove explosive runes, glyph of warding, sepia snake sigil, and wizard mark. Does not affect illusory script, a symbol, or other exempted spells.",
+    "art": "A mage's outstretched hand hovering over an unfurled parchment, glowing inked runes dissolving into wisps of pale luminous mist that curl upward off the blank page, faint sparks fading in a dim candlelit study.",
+    "stats": {
+      "casting_time": "1",
+      "range": "27 m",
+      "duration": "Instantaneous",
+      "area_of_effect": "1 scroll or 2 pages",
+      "saving_throw": "Special",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "7ec3ceed-cbaf-460c-b5dd-86782d3d8aab": {
+    "rules": "Affected creatures/objects fall gently at 36 m/round, taking no damage on landing while active; when the spell ends, normal falling resumes. Affects one or more targets in a 3 m cube whose combined weight does not exceed 91 kg + 91 kg/level. Works only on free-falling, flying, or propelled objects (including missiles); does not affect sword blows or charging creatures. Combines with Gust of Wind and similar effects.",
+    "art": "A knight in plate armor tumbling from a cliff edge, suddenly drifting downward as slow and weightless as a feather, wisps of glowing air swirling beneath them against a dizzying canyon backdrop.",
+    "stats": {
+      "casting_time": "1",
+      "range": "3 m/level",
+      "duration": "1 rd./level",
+      "area_of_effect": "3 m cube",
+      "saving_throw": "None",
+      "components": [
+        "V"
+      ]
+    }
+  },
+  "71c19afa-a362-4329-8298-6d270e81ec99": {
+    "rules": "The caster gains 2d4 points of Charisma. Intelligent creatures present when cast must make an immediate reaction check against the caster's new Charisma. Those reacting favorably are impressed and try to befriend or aid the caster as the situation allows; hostile creatures may spare or capture rather than kill him. When the spell ends, affected creatures realize they were influenced and their new reactions are set by the DM (often unfavorable).",
+    "art": "A hooded wizard with ceremonial white-and-red painted markings across his face stands radiant with a warm golden aura, as a ring of grim guards and snarling orcs around him soften, lowering their weapons and gazing at him with sudden admiration.",
+    "stats": {
+      "casting_time": "1",
+      "range": "0",
+      "duration": "1d4 rds. + 1 rd./level",
+      "area_of_effect": "18.3 m radius",
+      "saving_throw": "Special",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "60b17b1e-57a6-44bc-973a-909b5cb04452": {
+    "rules": "Creates a mirrorlike distortion of air before the caster that moves with them, reflecting any gaze attack requiring eye contact (basilisk, eyes of charming, vampire's gaze, eyebite, etc.) back on its user; the caster suffers no effect. A reflected creature gets a saving throw against its own gaze effect. Only works versus attacks where the attacker's gaze must be met. Does not affect normal vision or lighting.",
+    "art": "A wizard stands unflinching as a shimmering pane of mirrored air hovers before him, catching a basilisk's baleful stare and hurling the deadly green glare back into the beast's own widening eyes as its scales begin to petrify.",
+    "stats": {
+      "casting_time": "1",
+      "range": "0",
+      "duration": "2 rds. + 1 rd./level",
+      "area_of_effect": "The caster",
+      "saving_throw": "Special",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "ad68d220-b2a8-4e95-809e-b7e242829773": {
+    "rules": "1d6 creatures fall susceptible to a single reasonable-sounding suggestion (as the 3rd-level spell), spoken after casting. The caster must share a language the subject understands; the suggestion is mere vocalized urging, not magic. Wary or hostile creatures save at +1 to +3. If cast at a lone creature that meets the caster's gaze, it saves at -2. Those that fail obey and do not recall being enspelled; those that succeed are unaffected.",
+    "art": "A robed wizard weaving slow rhythmic gestures before a knot of wide-eyed villagers, their faces slack and glazed, faint shimmering spirals of amber light drifting from his fingertips into their dazed stares within a dim torchlit hall.",
+    "stats": {
+      "casting_time": "1",
+      "range": "4.5 m",
+      "duration": "1 rd. + 1 rd./level",
+      "area_of_effect": "9.1 m cube, 1d6 creatures",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "d64df0e0-8e03-49e2-bcef-3d26b82fb303": {
+    "rules": "Reveals one magical property of a touched item, with a 10% chance per level to correctly determine a single function, plus its number of charges if any. Each item requires the caster to spend 8 hours; only one item may be attempted per casting. The attempt drains 8 points of Constitution, recovered at 1 point per 24 hours of rest. If Con reaches 0 the caster falls unconscious. Cursed items may give false readings;",
+    "art": "A robed mage in a candlelit study cradling an ancient ring as a lustrous pearl dissolves into shimmering motes, threads of pale luminescence coiling from the item into the caster's outstretched palm while faint runic glimmers hover in the smoky air.",
+    "stats": {
+      "casting_time": "1 hour",
+      "range": "Touch",
+      "duration": "Instantaneous",
+      "area_of_effect": "1 object",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "15c87fd3-db7a-4132-aad5-ba2a55f7c7f6": {
+    "rules": "The creature touched can leap once per round: about 9 m forward, or 3 m straight up, or 3 m backward. Forward and backward leaps arc gently, roughly 0.6 m of height per 3 m traveled. The recipient gains one such jump per round, the number scaling with the duration granted by caster level (one leap each round it persists). The spell does not ensure a safe landing or grasp at the end of a leap—the jumper must still cope with the arrival.",
+    "art": "A leather-clad adventurer springs impossibly high off a cobblestone street, a faint green shimmer trailing from their boots as they soar over rooftops against a dusk sky, a broken grasshopper leg glinting in the caster's hand below.",
+    "stats": {
+      "casting_time": "1",
+      "range": "Touch",
+      "duration": "1d3 rds. + 1 rd./level",
+      "area_of_effect": "Creature touched",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "a4d60f1d-d6be-4fc0-8553-fd7da24f7a8c": {
+    "rules": "Creates a glow equal to torchlight, either fixed to a point or cast onto an object that can be carried as a portable light source. If cast at a creature's eyes, a failed save blinds it, giving –4 to its attacks and +4 penalty to its AC; blindness lasts the full duration unless the light is shielded or negated. Cancelled by Darkness, and cancels Darkness in turn. Reversible: the reverse, Darkness, creates a like radius of magical gloom.",
+    "art": "A radiant orb of warm golden light blooms in a shadowed cavern, casting long dancing shadows while a hooded figure recoils, shielding streaming eyes from the sudden brilliance.",
+    "stats": {
+      "casting_time": "1",
+      "range": "18.3 m",
+      "duration": "1 hr./level",
+      "area_of_effect": "6.1 m radius",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "034444f9-d712-409b-ad65-7f2a0f02c4a5": {
+    "rules": "Detects magical auras in a 3 m wide, 18 m long path ahead. Reveals relative intensity (dim, faint, moderate, strong, overwhelming). The caster has a 10% chance per level to identify the school of magic present (alteration, conjuration, etc.). Scans a 60-degree arc per round by turning. Blocked by 30 cm+ stone, 2.5 cm+ solid metal, or 1 m of wood. Overlapping or strong emanations may confuse or mask weaker auras. Does not reveal alignment or good/evil.",
+    "art": "A robed wizard sweeping their gaze across a dim vault, a translucent cone of shimmering blue light fanning out from their eyes, enchanted objects glowing softly with varying halos of intensity in the darkness.",
+    "stats": {
+      "casting_time": "1",
+      "range": "0",
+      "duration": "2 rds./level",
+      "area_of_effect": "3 m wide x 18 m long path",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "16002e11-3785-4240-b29d-561182a2afbe": {
+    "rules": "The caster deciphers magical inscriptions on scrolls, spellbooks, and similar items, reading runes safely without triggering their magic — cursed writings are the exception and may still activate. Normal books and mundane writing are unaffected. Once a text is read via this spell, the caster may read it thereafter without recasting. Grants only the ability to read the script, not comprehension of the magical concepts behind it.",
+    "art": "A robed wizard peers through a glowing crystal prism at an open ancient tome, arcane runes flaring with soft luminescence and unfurling into readable light, dust motes drifting in the candlelit chamber.",
+    "stats": {
+      "casting_time": "1 round",
+      "range": "0",
+      "duration": "2 rds./level",
+      "area_of_effect": "The caster",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "bbabbcd6-bc76-4eb1-b608-865d37163d76": {
+    "rules": "Inscribes the caster's personal sigil, up to 30 cm², onto any object or surface. The mark may be made visible or invisible at the caster's choice. An invisible mark glows faintly when detect magic is used, and the caster may weave up to 6 words into it that appear only under such detection. The mark bears no magical effect of its own and cannot trigger traps or reactions. It endures until removed by erase or dispel magic.",
+    "art": "A wizard's fingertip traces a glowing arcane sigil onto ancient stone, luminous runes flaring softly then fading into the surface amid drifting motes of magical light.",
+    "stats": {
+      "casting_time": "1",
+      "range": "Touch",
+      "duration": "Permanent",
+      "area_of_effect": "30 cm² surface",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "49407aa8-f95c-4473-9070-31e84bc81ae5": {
+    "rules": "Sends a whispered message to targets the caster points at, and receives whispered replies from them. The message travels in a straight line (30 m + 3 m/level) and can be blocked by intervening solid obstacles. Recipients recognize the message as magical and may reply in kind if they choose. Overcomes ordinary background noise but is blocked by magical silence or barriers. Spells cannot be cast through the link.",
+    "art": "A robed spellcaster points an outstretched finger across a crowded torchlit hall, a faint shimmering thread of pale light streaking in a perfectly straight line toward a distant startled listener whose ear glows softly with an unheard whisper.",
+    "stats": {
+      "casting_time": "1",
+      "range": "30 m + 3 m/level",
+      "duration": "5 rds./level",
+      "area_of_effect": "One or more creatures the caster points to",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "b8aa2775-05fb-4a02-bf77-1d7c590a8fff": {
+    "rules": "Creates an obscuring fog cloud that the caster may shape as desired. Vision within is limited to 60 cm. The vapors do not impair breathing. A strong wind (e.g. gust of wind) disperses the fog in 1 round; a moderate wind in 4 rounds, and the cloud drifts with any wind. Any fire spell (such as fireball) instantly burns it away.",
+    "art": "A dense billowing bank of pale grey mist rolling across a shadowed forest clearing, swallowing tree trunks and adventurers into blind whiteness under a dim overcast sky.",
+    "stats": {
+      "casting_time": "1",
+      "range": "9.1 m",
+      "duration": "2d4 rds. + 1 rd./level",
+      "area_of_effect": "20x10x3 m",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "4726b7ff-1eab-4ee4-947c-ce21e38e65fa": {
+    "rules": "Grants one touched object (max 2.3 kg/level) a false magical aura detectable by magic-detection effects. The caster chooses the aura's apparent school, masking the item's true aura unless that aura is exceptionally powerful (e.g. an artifact). A creature using identify or similar examination has a 50% chance to recognize the aura as a deliberate deception; otherwise the false aura is fully believed and no testing reveals the true magic.",
+    "art": "A gloved hand draws a shimmering square of silk over an ancient ring, leaving a faint prismatic false glow rippling across its surface in a dim candlelit study.",
+    "stats": {
+      "casting_time": "1 round",
+      "range": "Touch",
+      "duration": "1 day/level",
+      "area_of_effect": "One object",
+      "saving_throw": "Special",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "f2c305db-152f-417c-8aea-302d3c85a208": {
+    "rules": "Affects one bipedal human, demihuman, or humanoid of man-size or smaller (fighters yes, ogres no). Wisdom adjustments modify the target's roll; if the caster's group damages it the same round the charm is cast, add +1 per hit point suffered. A failed save makes the victim regard the caster as a trusted friend, viewing all words and actions favorably, but it is not an automaton and refuses obviously suicidal orders.",
+    "art": "A hooded traveler extends an open hand as a soft rose-gold shimmer drifts into the wide, softening eyes of an armored guard whose grip on his spear loosens, his hostile expression melting into warm trust beneath a torchlit gate.",
+    "stats": {
+      "casting_time": "1",
+      "range": "36.6 m",
+      "duration": "Special",
+      "area_of_effect": "1 creature",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "005b15f5-08be-4bdd-882d-c916657af177": {
+    "rules": "Creates a purely visual illusion (no sound, smell, texture, or temperature) that lasts as long as the caster concentrates. Only simple movement is possible (a door opening, a beast lumbering). Creatures physically touching the illusion or actively disbelieving get a save; success reveals it as false. Illusory attacks that a believer accepts inflict phantom damage;",
+    "art": "A snarling spectral ogre shimmers into being in a torchlit dungeon corridor, translucent and faintly wrong at its edges, as a terrified adventurer recoils and collapses before its ghostly swinging club, the wizard behind concentrating with an outstretched hand.",
+    "stats": {
+      "casting_time": "1",
+      "range": "18.3 m + 3 m/level",
+      "duration": "Special (concentration)",
+      "area_of_effect": "400 sq. m + 100 sq. m/level",
+      "saving_throw": "vs. Spell (to disbelieve)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "eded2c10-0fa0-48d0-918e-a1104cdf57eb": {
+    "rules": "Magically holds fast a door, gate, or valve of wood, metal, or stone, sealing it as if securely closed and locked. The portal can still be physically forced or battered down. Any extraplanar creature (djinni, elemental, etc.) of 4+ Hit Dice can shatter the closure and burst it open. A wizard 4+ levels higher than the caster opens it at will. A knock spell or successful dispel magic negates the effect.",
+    "art": "A heavy iron-banded oak door glowing with a faint arcane seal along its frame, straining shut against a snarling elemental clawing from the shadows beyond.",
+    "stats": {
+      "casting_time": "1",
+      "range": "6.1 m/level",
+      "duration": "1 rd./level",
+      "area_of_effect": "20 sq. m/level",
+      "saving_throw": "None",
+      "components": [
+        "V"
+      ]
+    }
+  },
+  "88f68111-67a6-4474-a66e-293540ba07a3": {
+    "rules": "Summons a normal mount to serve the caster: a light warhorse or, for weaker casters, a large pony. It appears equipped with a bit, bridle, saddle, saddle blanket, and saddlebags, and serves willingly as a riding animal, carrying rider and gear up to its normal capacity. The mount cannot attack and flees from combat or danger. It vanishes when the duration ends or if slain.",
+    "art": "A shimmering conjuration circle flares on a dusty road as a saddled light horse materializes from swirling motes of golden light, tossing its mane while its rider reaches for the bridle at dusk.",
+    "stats": {
+      "casting_time": "1 turn",
+      "range": "3 m",
+      "duration": "2 hrs. + 1 hr./level",
+      "area_of_effect": "One summoned mount",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "8a75b32e-39c5-42c4-bc99-10f7dd21829d": {
+    "rules": "Puts 2d4 HD of creatures into magical slumber; no save. Lowest-HD creatures affected first; among equal HD, those nearest center first. Does not affect undead or creatures over 4+3 HD. Monsters below 1 HD count fractionally. Sleepers are helpless and slain by a single attack.",
+    "art": "A band of goblins collapsing mid-stride into deep slumber as a shimmering veil of glittering sand and drifting rose petals settles over them under moonlight, eyelids heavy, weapons slipping from limp hands.",
+    "stats": {
+      "casting_time": "1",
+      "range": "9.1 m + 3 m/level",
+      "duration": "5 rds./level",
+      "area_of_effect": "9.1 m radius",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "7d16b986-15f7-47cb-b879-642baf4870bf": {
+    "rules": "Coats a surface with a slippery layer. Creatures entering or caught when it appears must save or slip and fall; those who save reach the nearest non-greased footing by round's end. Those remaining make a new save each round. The DM adjusts saves by circumstance (e.g. charging downhill). Alternatively coats an object (rope, weapon handle, ladder rung): the wielder saves or drops it immediately, and saves again each round it is used. The caster can dismiss it with a word.",
+    "art": "A patch of stone floor gleams with an unnatural slick sheen as an armored warrior's boots fly out from under him, arms flailing, sword clattering away amid glistening greasy streaks.",
+    "stats": {
+      "casting_time": "1",
+      "range": "3 m",
+      "duration": "3 rds. + 1 rd./level",
+      "area_of_effect": "10x3 m",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "8c627229-00ab-4f5c-933c-c52097b03bad": {
+    "rules": "The caster's hand builds an electrical charge, discharged upon touching a foe or a conductor contacting the foe. On a successful touch attack it deals 1d8+1 point per caster level in damage. The charge is held until it strikes a target or the effect ends. Being touched by the opponent does not discharge it.",
+    "art": "A wizard lunges forward, palm crackling with jagged blue-white arcs of electricity that leap into an enemy's chest, hair standing on end as sparks scatter through the dim air.",
+    "stats": {
+      "casting_time": "1",
+      "range": "Touch",
+      "duration": "1 round/level or until discharged",
+      "area_of_effect": "Creature touched",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "ec8723f8-aca4-42c0-8d73-92699e16dfd6": {
+    "rules": "Affects 2d4 Hit Dice of creatures, all of which must lie within 9.1 m of a chosen center point. Those with fewest HD fall into comatose slumber first; partial HD are wasted. Creatures of 4+3 HD or more, undead, and certain excluded monsters are immune. Slapping or wounding wakes a sleeper, requiring 1 full round; normal noise does not. Sleeping foes may be attacked with substantial bonuses (auto-hit for coup de grace).",
+    "art": "A cluster of goblinoid warriors slumping mid-charge into a deep enchanted sleep, weapons slipping from limp hands, faint drifting motes of golden sand and rose petals settling over their peaceful faces on a moonlit battlefield.",
+    "stats": {
+      "casting_time": "1",
+      "range": "27 m",
+      "duration": "5 rds./level",
+      "area_of_effect": "Creatures within a 9.1 m spread",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "c4533e99-332c-48b2-a2f1-215590a6ada3": {
+    "rules": "The recipient can climb walls and ceilings like a spider at a movement rate of 18 m/round. Hands and feet must be bare and free; the subject cannot wield weapons or shields while climbing, but may cling to a surface and free one hand. May be cast on the caster or another. An unwilling target that succeeds on its save negates the effect. When it ends, a climber on an overhang or ceiling falls unless otherwise supported.",
+    "art": "A leather-clad adventurer scuttles head-downward across a dripping stone ceiling, fingertips and bare feet clinging to the rock as faint spidery threads of shimmering magic trail from his palms in the torchlit gloom.",
+    "stats": {
+      "casting_time": "1",
+      "range": "Touch",
+      "duration": "3 rds. + 1 rd./level",
+      "area_of_effect": "1 creature",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "b8268441-65de-4444-9ea1-06bbf8c14fe8": {
+    "rules": "Preys on a target's fears, causing it to perceive the caster as menacing. A creature that fails its save turns and flees at maximum speed away from the caster, retaining carried items. The initial save suffers a -1 penalty per two caster levels (max -6 at 12th); a natural 20 always succeeds. A phantasm from the creature's own mind pursues it; each round thereafter it saves again without penalty until it succeeds, ending the effect. Only affects creatures of Intelligence 2+.",
+    "art": "A hooded wizard steps menacingly toward a wide-eyed goblin who flees in terror, chased by a shadowy translucent phantom conjured from the fleeing creature's own imagination, moonlit forest gloom swirling behind them.",
+    "stats": {
+      "casting_time": "1",
+      "range": "9 m",
+      "duration": "Special",
+      "area_of_effect": "1 creature",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "784c5cdf-aecf-4ea8-a35a-be3ea482523e": {
+    "rules": "The caster understands the spoken words of one touched creature or reads one touched piece of otherwise incomprehensible writing. Reading grants comprehension of the characters but not necessarily of the subject matter, and does not let the caster speak or write the language. Written text is read at 1 page/round. Magical writing cannot be read, only identified as magical; hidden messages in normal text stay concealed. Foiled by secret page and illusionary script.",
+    "art": "A hooded scholar rests fingertips upon a weathered scroll, alien glyphs rippling and rearranging into readable lines beneath a soft golden glow, faint spirals of soot and salt drifting from the parchment in a dim candlelit study.",
+    "stats": {
+      "casting_time": "1 round",
+      "range": "Touch",
+      "duration": "5 rds./level",
+      "area_of_effect": "The caster",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "64dc0c8a-5905-4651-98e2-d681559ade33": {
+    "rules": "Jeers at one type of creature with Intelligence 2+; the caster need not share their language. Choose one creature type if the group is mixed. Those that fail rush into melee to attack the caster, using body or hand-held weapons rather than missiles or spells. Creatures under a strong leader (Charisma bonus, higher HD) may gain a +1 to +4 save bonus at the DM's discretion. An impenetrable or uncrossable barrier separating caster and victims breaks the effect.",
+    "art": "A defiant mage flings a glistening slug while mocking a snarling war-band of orcs, whose faces twist into blind rage as they abandon their bows and charge headlong across a rocky field toward him.",
+    "stats": {
+      "casting_time": "1",
+      "range": "55 m",
+      "duration": "1 rd.",
+      "area_of_effect": "30-m radius",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "7b929369-2f35-4c8b-9eb1-d7dfea93a651": {
+    "rules": "Creates a slightly concave circular disc of force about 1 m across that floats roughly 1 m above the ground and follows the caster, staying about 2 m away. It bears up to 50 kg per caster level; exceeding this load ends the spell instantly. The disc moves only over horizontal surfaces and gentle slopes, unable to climb stairs or steep inclines. When the spell ends the disc vanishes, dropping whatever it carried.",
+    "art": "A shimmering translucent disc of pale blue force hovers just above a stone corridor floor, laden with chests and sacks, trailing obediently behind a robed traveler whose fingertips still glow with residual arcane light.",
+    "stats": {
+      "casting_time": "1",
+      "range": "6.1 m",
+      "duration": "3 hrs. + 1 hr./level",
+      "area_of_effect": "1 m disc",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "7b8e19c1-8a2c-4e05-9d05-ee9957d922f3": {
+    "rules": "Creates an invisible, mindless, shapeless force that performs simple tasks: cleaning, carrying up to 10 kg, opening and holding doors, holding curtains, and similar labor. It moves in only one direction per round, up to 9 m/round, and stays near the caster. It cannot fight, cannot trigger traps, and cannot cast spells. Having no physical form, it cannot be attacked or harmed; it is dispelled by dispel magic or ends when the caster leaves its range.",
+    "art": "A ghostly unseen presence lifts a candlestick and sweeps dust across a dim stone chamber, curtains parting and a heavy door swinging open by no visible hand, faint disturbed air shimmering in the candlelight.",
+    "stats": {
+      "casting_time": "1",
+      "range": "0",
+      "duration": "1 hr. + 1 hr./level",
+      "area_of_effect": "9.1 m radius",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "5421a901-ffbf-4aee-9702-6327cdc21850": {
+    "rules": "Makes the caster's voice, another's voice, or a similar sound seem to issue from another creature, object, or location. The caster may speak any language he knows or produce any sound he can normally make. Listeners who succeed at a save with a -2 penalty detect the ruse. If combined with other illusions, the DM may impose greater save penalties or disallow a separate save, folding this effect into the larger illusion.",
+    "art": "A hooded wizard stands silent while a shimmering ribbon of sound curls invisibly across a torchlit corridor toward a stone statue whose parted lips seem to whisper, startled guards spinning toward the deceptive voice.",
+    "stats": {
+      "casting_time": "1",
+      "range": "9 m/level, max 82 m",
+      "duration": "4 rds. + 1 rd./level",
+      "area_of_effect": "1 creature or object",
+      "saving_throw": "vs. Spell (-2, to detect)",
+      "components": [
+        "V",
+        "M"
+      ]
+    }
+  },
+  "1a5bd0f5-3d64-46f8-aea5-394ae087ee7e": {
+    "rules": "Instantly grows one creature, or an object of up to 0.28 m\\u00b3/level, by up to 10%/level in height, width, and weight; the caster chooses the amount. Worn and carried equipment enlarges too. An unwilling target that fails resists the growth (a save negates). If space is cramped, maximum possible size is reached\\u2014weak enclosures burst, stronger ones constrain harmlessly. Magical bonuses are unchanged.",
+    "art": "A warrior mid-stride swelling to giant proportions, armor and blade stretching to towering scale as glittering iron dust swirls around him, dwarfing his awestruck companions beneath a vast sky.",
+    "stats": {
+      "casting_time": "1",
+      "range": "1.5 m/level",
+      "duration": "5 rds./level",
+      "area_of_effect": "1 creature or object",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "82d03bdb-0bdf-4536-b10e-87cc61f423f3": {
+    "rules": "Attempts to summon a familiar. A d20 roll on the familiar table (modified by terrain) determines the result; the caster may reject the outcome but then loses the material components with no familiar. The familiar has 2-4 HP +1 HP/level and AC 7, and grants its master a +1 bonus to surprise rolls plus its special senses. An empathic link lets the caster issue mental commands, but not see through its eyes. If separated, the familiar loses 1 HP/day.",
+    "art": "A robed wizard kneels before a glowing brass brazier trailing curls of fragrant smoke in a candlelit chamber, as a small sleek black cat steps from the swirling haze, its eyes shining with unnatural intelligence toward its new master.",
+    "stats": {
+      "casting_time": "2d12 hours",
+      "range": "1.6 km/level",
+      "duration": "Permanent",
+      "area_of_effect": "Special",
+      "saving_throw": "Special",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "c44aab30-ff48-40a7-8e89-66725c142613": {
+    "rules": "Commands one nonliving ropelike object (string, cord, rope, cable). Affects the printed length of a 2.5 cm rope; length halves per extra 2.5 cm of thickness, +50% per 1.25 cm thinner. One command per round: Coil, Coil & Knot, Loop, Loop & Knot, Tie & Knot, or any reverse. Rope enwraps only a creature or object within 0.3 m of it—it cannot snake out and must be thrown near the target. A failed save lets it entangle one opponent; may also serve as a trip line.",
+    "art": "A coil of rope leaps to life in midair, whipping and looping itself into tightening knots around a struggling swordsman as the caster gestures from across a torchlit hall.",
+    "stats": {
+      "casting_time": "2",
+      "range": "27 m",
+      "duration": "1 rd./level",
+      "area_of_effect": "15.2 m + 1.5 m/level of rope",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "c6da31d0-142b-4057-8cf6-199ed0cb2d09": {
+    "rules": "Blinds one creature; a successful save negates. The blindness is permanent until removed by cure blindness or deafness, heal, or dispel magic. A blinded victim attacks at -4, suffers +4 penalty to its AC, and loses all Dexterity bonuses to Armor Class. Reversed, the spell cures magically induced blindness.",
+    "art": "A hooded warrior staggers back clutching his face as a pale swirl of shimmering illusory darkness closes over his eyes, his sword wavering uselessly toward empty air in a dim torchlit chamber.",
+    "stats": {
+      "casting_time": "2",
+      "range": "9.1 m + 3 m/level",
+      "duration": "Permanent until cured",
+      "area_of_effect": "1 creature",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V"
+      ]
+    }
+  },
+  "3ff41cf0-4481-4bc3-99dc-4131be2bd9f0": {
+    "rules": "Reveals whether creatures, objects, or areas emanate an evil aura along a path the caster faces, showing the intensity of the aura (faint, moderate, strong, or overwhelming). The caster must concentrate, focusing on one target at a time; each object requires 1 round of study. Evil intentions or thoughts are detected only if directed against the caster. Traps, poison, and cursed items are not inherently evil and may not radiate.",
+    "art": "A cloaked figure extends a hand as a narrow beam of pale searching light sweeps a dim hall, its glow curdling to sickly crimson where it touches a lurking shadowed creature.",
+    "stats": {
+      "casting_time": "2",
+      "range": "0",
+      "duration": "5 rds./level",
+      "area_of_effect": "3 m wide path, 18 m long",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "c0961ff0-90a0-4828-879c-f6213f4aecee": {
+    "rules": "Creates a glow as bright as full daylight, brighter than the Light spell but not equal to true sunlight. Can be cast on an object, making it a mobile light source; if the object is covered the light is blocked. May be aimed at a creature's eyes—those who fail are permanently blinded. Cancels and is cancelled by Continual Darkness on the same area; either can be ended by Dispel Magic. Reversed as Continual Darkness, producing lasting magical gloom over the same radius.",
+    "art": "A radiant orb of pure daylight blazes above a shadowy stone chamber, banishing every shadow into corners while a hooded figure recoils, one hand shielding searing white brilliance from wide, stricken eyes.",
+    "stats": {
+      "casting_time": "2",
+      "range": "18.3 m",
+      "duration": "Permanent",
+      "area_of_effect": "18.3 m radius",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "0d85bc4b-5706-4237-a517-3845ec59a272": {
+    "rules": "Prepares a specially sewn garment (min. 50 gp, at least 12 hand-sized pockets) so its pockets become extradimensional holding spaces, causing no visible bulges. Choose one configuration at casting: 12+ pockets holding a total 45.4 kg (5 cubic m) that weigh only 4.5 kg; or 10 pockets each holding 4.5 kg; or a 100+ pocket garment (min. 200 gp) with 100 pockets each holding ~0.45 kg.",
+    "art": "A finely embroidered robe held aloft in a candlelit workshop, its many pockets glowing faintly as bundles and treasures vanish soundlessly into shimmering pockets of folded space, a golden needle and twisted ribbon hovering nearby.",
+    "stats": {
+      "casting_time": "1 turn",
+      "range": "Touch",
+      "duration": "12 hrs. + 1 hr./level",
+      "area_of_effect": "1 garment",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "72d3e871-b2a8-4d91-86a5-40c36e41563a": {
+    "rules": "The caster clearly sees invisible, astral, ethereal, or out-of-phase creatures and objects, and detects concealed or hidden creatures (thieves in shadows, halflings in underbrush, etc.) along a path following his line of sight. Astral travelers' silver cords become visible. Does not reveal the method of concealment or invisibility, does not expose illusions, and does not grant sight through solid objects.",
+    "art": "A robed wizard's eyes glowing with pale silver light as ghostly translucent figures and shimmering ethereal forms materialize along a widening beam of shimmering awareness through a shadowed hall.",
+    "stats": {
+      "casting_time": "2",
+      "range": "0",
+      "duration": "5 rds./level",
+      "area_of_effect": "3 m wide path/level along line of sight",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "2ef9309f-5971-45f7-9e6c-a09f6e1bdbcb": {
+    "rules": "Fills a globe with utter magical darkness that blots out normal vision and infravision completely; nonmagical light such as torches and lanterns cannot penetrate it. May be centered on a point in space, on an object, or on a creature, allowing mobile darkness. Suppresses a Continual Light or other light spell of lower level; a light spell of equal or higher level negates it, and each cancels the other in overlapping areas. Ends early via Dispel Magic.",
+    "art": "A swelling sphere of absolute inky blackness swallowing a torchlit dungeon corridor, its edges devouring the surrounding firelight while startled adventurers grope blindly at its impenetrable boundary.",
+    "stats": {
+      "casting_time": "2",
+      "range": "3 m/level",
+      "duration": "1 rd./level + 1 rd.",
+      "area_of_effect": "4.6 m radius",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "acbb49d3-bf40-4f9e-9e46-600ac0840c6e": {
+    "rules": "Detects the surface thoughts of one creature the caster concentrates on each round, within a 3 m wide path; direction may be changed freely each round. The caster reads any single mind at a time, learning its immediate surface thoughts even through language barriers (though alien minds may be confusing). Multiple minds in the path can be sensed but only one read per round. Blocked by 60 cm of stone, 2.5 cm of most metals, or a thin sheet of lead.",
+    "art": "A robed diviner holds a glowing copper coin to their brow as faint luminous threads of thought stream from a distant figure's head, curling through the air toward the caster like drifting silver smoke.",
+    "stats": {
+      "casting_time": "2",
+      "range": "0",
+      "duration": "1 rd./level",
+      "area_of_effect": "Path 1.5 m/level long, 3 m wide (max 27.4 m)",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "0dc1a1ed-641d-48ec-b501-cfedeeb68ca3": {
+    "rules": "Turns copper coins into gold pieces, or brass items into solid gold (about 150 gold coins' worth per volume). Any creature examining the false gold may disbelieve; it subtracts 1 from its roll per caster level (Wisdom may modify), and success reveals the deception. If struck hard by cold-wrought iron, the gold may revert: chance depends on the powdered gem used — 25gp citrine 30%, 50gp amber 25%, 250gp topaz 10%, 500gp corundum topaz 1%.",
+    "art": "A wizard's outstretched hand sprinkling sparkling powdered citrine over a heap of dull copper coins that shimmer and transmute into gleaming golden pieces, warm amber light glinting off their false luster in a dim treasury vault.",
+    "stats": {
+      "casting_time": "1 rd.",
+      "range": "9 m",
+      "duration": "1 hr./level",
+      "area_of_effect": "164 cu. cm/level",
+      "saving_throw": "vs. Spell (special)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "0ca25db7-b803-4ca2-99d9-25ecf015e2d0": {
+    "rules": "Chosen targets forget the events of the previous 5 minutes. The caster affects 1 creature, plus 1 additional creature per three caster levels above 1st. Each target may resist; those that fail lose the memories, each successful resister is unaffected. The save is adjusted by Wisdom. This does not negate charm, suggestion, geas, quest, or similar spells, though the being who cast them may be forgotten.",
+    "art": "A robed figure raises a hand as pale luminous tendrils of mist unspool from the eyes of several startled warriors, their gazes going blank and distant as fragments of shimmering memory dissolve into the air around them.",
+    "stats": {
+      "casting_time": "1",
+      "range": "27 m",
+      "duration": "Instantaneous",
+      "area_of_effect": "1 or more creatures in a 20 m cube",
+      "saving_throw": "vs. Spell at -2 (neg.)",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "7b09283e-62bc-468e-8c77-e45fdf66f293": {
+    "rules": "Coats all creatures in the area with golden dust that outlines them, negating invisibility: attacks against affected creatures gain +2 (instead of the normal -4 for unseen foes). Each affected creature that fails its save is blinded for 1d4+1 rounds, suffering -4 to attack rolls and losing any Dexterity bonus to AC. The clinging dust marks creatures for 1d4 rounds +1 round/level and cannot be brushed or wiped away.",
+    "art": "A burst of shimmering golden mica dust explodes over a cluster of startled creatures, clinging to their forms and revealing a once-invisible attacker whose glittering silhouette blazes bright, some figures shielding their eyes against the blinding sparkle in a dim cavern.",
+    "stats": {
+      "casting_time": "2",
+      "range": "3 m",
+      "duration": "Special",
+      "area_of_effect": "6.1 m cube",
+      "saving_throw": "vs. Spell (neg. blindness)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "0bbc4e9a-3c6f-4798-93df-d961bbe93d01": {
+    "rules": "Creates a visual illusion of any object, creature, or force, including minor sounds (but no intelligible speech). The caster maintains it with minimal concentration and may move at half speed, but cannot cast other spells while concentrating. The illusion persists for 2 rounds after concentration ends. Creatures interacting with the phantasm may disbelieve with a successful save; those who fail perceive it as real and suffer its apparent effects.",
+    "art": "A shimmering translucent monster half-formed from wavering light looms over startled adventurers in a torchlit dungeon corridor, its edges dissolving into faint glowing motes as reality bends around it.",
+    "stats": {
+      "casting_time": "2",
+      "range": "55 m + 9 m/level",
+      "duration": "Special",
+      "area_of_effect": "18.6 sq m + 4.6 sq m/level",
+      "saving_throw": "vs. Spell (to disbelieve)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "56816535-b4c2-482e-ab96-1d0ab16c7fb6": {
+    "rules": "Misdirects divinations (detect magic, ESP, clairvoyance, crystal ball, know alignment, etc.) attempted against one creature or object the caster touches. Such divinations sense the false information the caster designates rather than the true nature of the subject. The diviner attempting the reading may resist; on a successful save it recognizes the response as false or misdirected, though it does not learn the true information.",
+    "art": "A cloaked figure gestures over a companion as a shimmering scrying eye of blue light gazes at them, its beam bending sideways to reveal a false phantom image instead of the true target, arcane threads twisting the vision astray in a dim candlelit chamber.",
+    "stats": {
+      "casting_time": "2",
+      "range": "9.1 m",
+      "duration": "1 rd./level",
+      "area_of_effect": "One creature or object",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "f8ca07f8-e845-4c3d-b86f-230e6e0fda56": {
+    "rules": "Affects the exposed skin of living creatures; those with very thick, insensitive, or scaled hides are immune. Choose one version at casting. Itch: each subject feels sudden itching. A subject that fails must spend the next round scratching or else spends 3 rounds squirming, worsening AC by 4 and attack rolls by 2. Spellcasting is ruined the first round only. Rash: one creature only; after 1d4 rounds red welts erupt, itching.",
+    "art": "A warrior mid-battle clawing frantically at his reddened, welt-covered arms, his sword arm faltering as blotchy inflamed skin spreads across his neck and face under a faint shimmering glow.",
+    "stats": {
+      "casting_time": "2",
+      "range": "9 m/level",
+      "duration": "Special",
+      "area_of_effect": "1 to 4 creatures",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "23ad76bb-eb4c-405d-9f2c-a5a6b027c8bd": {
+    "rules": "Opens stuck, barred, locked, or wizard locked doors, chests, boxes, shackles, chains, and similar closures. Undoes up to two separate means of closure on one object per casting (e.g. a door both locked and barred). Suppresses a Hold Portal entirely; opens a Wizard Locked portal for 1 hour, after which the Wizard Lock resumes. Has no effect on walls, seals, or barriers lacking an actual opening mechanism. Does not lock or bar anything.",
+    "art": "A heavy iron-bound dungeon door shudders as glowing arcane ripples burst across its lock and bar, the bolt sliding free and chains snapping loose in a shimmer of pale magical light.",
+    "stats": {
+      "casting_time": "1",
+      "range": "18.3 m",
+      "duration": "Special",
+      "area_of_effect": "10 sq. m/level",
+      "saving_throw": "None",
+      "components": [
+        "V"
+      ]
+    }
+  },
+  "71d7a106-5f22-4dd0-a779-f223a5d9bf03": {
+    "rules": "One target per three caster levels perceives everything as hysterically funny; a successful save negates the effect entirely. Affected creatures feel only a tingle the first round, then the following round collapse into uncontrollable laughter, unable to act. The round after that is spent recovering. For the remaining rounds they suffer -2 Strength (or -2 to attack and damage rolls). All targets must be within 9.1 m of one another.",
+    "art": "A grim armored warrior doubled over in helpless, tearful laughter amid battle, weapon dropped, tiny golden tarts and a drifting feather scattered around him as his stunned companions look on in the smoky torchlit hall.",
+    "stats": {
+      "casting_time": "2",
+      "range": "55 m",
+      "duration": "1 rd./level",
+      "area_of_effect": "1 or more creatures in a 30-m cube",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "2960253c-a9ee-4077-a362-ec6dd45b1fe8": {
+    "rules": "Places an illusory trap on any small mechanism or device (lock, hinge, hasp, cap, ratchet, etc.). Any character who detects traps, or uses a spell or device to detect traps, is 100% certain a real trap exists. The trap is wholly illusory; nothing happens if it is \"sprung.\" Its purpose is to frighten thieves or make them waste time. Casting fails if another Leomund's trap lies within 15.2 m.",
+    "art": "A tarnished iron lock on a wooden chest crawling with a faint spectral shimmer of menacing runes and phantom needle-mechanisms, a wary thief's hand hovering back in the dim candlelit gloom.",
+    "stats": {
+      "casting_time": "3 rds.",
+      "range": "Touch",
+      "duration": "Permanent",
+      "area_of_effect": "Object touched",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "c4d05bfc-d5a8-4681-ba83-a9f01677b8b2": {
+    "rules": "Enables vertical movement of one willing creature or object (max 50 kg/level) at up to 6 m/round up or down; the caster controls altitude mentally. No horizontal propulsion is granted, but a levitator can push off solid surfaces to drift sideways. If cast on the caster, control is direct; a target creature levitated is moved at the caster's will. Unwilling targets that succeed resist the effect. Cannot exceed the weight limit.",
+    "art": "A robed figure floats serenely in midair above a chasm, arms outstretched, faint golden ripples of magic swirling beneath their feet as they rise toward a shadowed cavern ceiling.",
+    "stats": {
+      "casting_time": "2",
+      "range": "6.1 m/level",
+      "duration": "1 hour/level",
+      "area_of_effect": "1 creature or object",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "a7bd90f9-b9e3-4e20-ad1f-f727dcabb376": {
+    "rules": "Magically seals a portal, door, chest, lid, or similar closure. The caster may freely open and close it. A knock spell suppresses the lock for 1 hour (the caster senses this); dispel magic ends it permanently. A wizard at least 4 levels higher than the caster passes freely. The barrier can still be forced or broken physically, but its resistance to such Strength attempts is greatly increased.",
+    "art": "A heavy iron-bound oaken door glowing with shimmering arcane sigils that snap shut across the seam, a spectral latch of light binding it fast in a dim stone corridor.",
+    "stats": {
+      "casting_time": "2",
+      "range": "Touch",
+      "duration": "Permanent",
+      "area_of_effect": "30 sq. m/level",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "c887b95e-fa24-4cb4-a5a9-936d16ee8cda": {
+    "rules": "Enchants one object with a hidden message of up to 25 words in a language the caster knows. When the trigger conditions set at casting are met, a magical mouth appears on the object and speaks the message, its lips moving appropriately. Triggers may be sight (up to 3 m + 3 m/level range, and the caster may specify a particular person, condition, or day) but not smell, darkness, or invisibility. The mouth cannot cast spells or activate magic.",
+    "art": "An ornate stone door where a ghostly pair of glowing lips materializes from the carved surface, mouth open mid-speech as faint magical ripples spread across the object in dim torchlight.",
+    "stats": {
+      "casting_time": "2",
+      "range": "3 m",
+      "duration": "Special",
+      "area_of_effect": "1 object",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "8f74a656-7376-4c38-aeac-a24f377d9faa": {
+    "rules": "An acid arrow streaks at one target; the caster makes a ranged attack roll (missile attack modifiers apply). A hit deals 2d4 acid damage that round. The acid continues burning for extra rounds based on caster level: 1 extra round at 3rd-4th, 2 extra at 5th-6th, and 1 more per 3 levels thereafter, each dealing 2d4 per round. The arrow has no physical form; damage is magical and ignores armor. No save.",
+    "art": "A glowing green dart of hissing acid arcs across a dim battlefield, splashing into an armored figure whose breastplate steams and dissolves in bubbling emerald fumes.",
+    "stats": {
+      "casting_time": "2",
+      "range": "54.9 m",
+      "duration": "Special",
+      "area_of_effect": "1 creature",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "d5e70f57-3559-4c40-8c37-7cde2c251248": {
+    "rules": "Creates a dense, billowing fog that obscures normal and infravision almost completely at its center. Breathing is unimpaired. Moderate winds (11+ km/h) disperse it in 4 rounds; strong winds disperse it in 1 round. Large amounts of heat or fire (fireball, wall of fire) dissolve it instantly. Generates no heat or moisture.",
+    "art": "A thick roiling wall of pale grey fog surging up from a wizard's outstretched hands, swallowing torch-lit figures whose silhouettes fade into the impenetrable mist across a darkened battlefield.",
+    "stats": {
+      "casting_time": "2",
+      "range": "3 m",
+      "duration": "4 rds. + 1 rd./level",
+      "area_of_effect": "12 m long, 6 m high, 6 m wide",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "4c4eb0cc-ab35-4fec-93b0-c832b7b24a84": {
+    "rules": "Turns one existing fire into either: Fireworks—blinding sparks flash out, dazzling all who watch for 1d4+1 rounds (creatures of 6+ HD are immune); or Smoke—a thick, obscuring cloud 30 m across and 6 m high blocks all sight. Creatures caught inside must exit or choke, suffering -2 to attack rolls and saving throws while within. The source fire is consumed. The caster chooses one effect when casting.",
+    "art": "A campfire erupts into a dazzling cascade of golden sparks and searing white flashes, warriors shielding their eyes as brilliant light scatters across a darkened battlefield, thick roiling smoke curling upward on one side.",
+    "stats": {
+      "casting_time": "2",
+      "range": "36.6 m",
+      "duration": "Special",
+      "area_of_effect": "Special",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "63e0f656-bff8-4e0f-80c0-e902e5463f8a": {
+    "rules": "Creatures with fewer than 6 Hit Dice or levels are struck with trembling fear. Frightened creatures suffer a -2 reaction adjustment and may drop held items if encumbered. If cornered they fight at -1 to attack rolls, damage rolls, and saves. Only elves, half-elves, and priests are allowed a save, which negates the effect. Has no effect on undead or on upper/lower planar creatures of any kind.",
+    "art": "A hooded caster thrusts a splintered bone forward as a wave of ghostly dread ripples outward, a cluster of soldiers recoiling and trembling, weapons slipping from their shaking hands amid pale spectral light.",
+    "stats": {
+      "casting_time": "2",
+      "range": "27 m + 9 m/level",
+      "duration": "1d4 rds. + 1 rd./level",
+      "area_of_effect": "15-m radius",
+      "saving_throw": "vs. Spell (neg., limited)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "149db34b-9b48-42c3-bc5d-9442d7cc17bf": {
+    "rules": "A ray weakens a single living creature that fails its save, reducing Strength by 1d4 +1 per 2 caster levels. Strength cannot drop below 5. A warrior's exceptional Strength (18/xx) is reduced first, then the normal score. The penalty affects to-hit, damage, and other Strength-based rolls. A successful save negates the effect. Lost Strength is restored when the effect ends. Has no effect on creatures lacking a Strength score.",
+    "art": "A pale, sickly ray of grey-green energy lances from a mage's outstretched finger toward a hulking warrior, whose muscles visibly slacken and shoulders sag as strength drains from his trembling sword arm.",
+    "stats": {
+      "casting_time": "2",
+      "range": "3 m + 1.5 m/level",
+      "duration": "1 rd./level",
+      "area_of_effect": "1 creature",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "8c7cc06a-d1b9-44fb-965b-8b700b28acc1": {
+    "rules": "When one end of the rope is thrown into the air, it rises and stays rigid, its upper end anchored to an extradimensional space. Up to eight man-sized creatures may climb the rope and hide within; the caster plus six others is the typical limit. Those inside can see out through the entry via a hazy portal but attacks and spells cannot cross it in either direction. The rope may be pulled up from inside, hiding the entrance. Fresh air is provided.",
+    "art": "A frayed rope stands impossibly upright in a forest clearing, its top end vanishing into a shimmering tear in the air, while faces peer down through the wavering rift as the rope's lower end lifts free of the ground.",
+    "stats": {
+      "casting_time": "2",
+      "range": "Touch",
+      "duration": "2 hours/level",
+      "area_of_effect": "Special",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "80a4e726-40ac-47fb-b0b8-7dbc78367ebb": {
+    "rules": "Changes the caster's own appearance, including clothing and equipment, to any generally man-shaped bipedal creature (human, humanoid, or similar). The form may be up to 30 cm shorter or taller and any build from thin to fat. A specific individual cannot be duplicated. Grants none of the chosen form's abilities, attacks, or mannerisms. Tactile properties are unchanged, so touch or close inspection can reveal the ruse. Affects only the caster.",
+    "art": "A hooded wizard mid-transformation, his silhouette rippling and blurring as his features shift shape amid a shimmer of soft arcane light, one arm already stretched into an unfamiliar form.",
+    "stats": {
+      "casting_time": "2",
+      "range": "0",
+      "duration": "3d4 rds. + 2 rds./level",
+      "area_of_effect": "The caster",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "854d6673-e6b0-4d74-a434-dc253e1f812d": {
+    "rules": "Increases the touched creature's Strength for the duration. Points gained by class: Priest 1d6, Rogue 1d6, Warrior 1d8, Wizard 1d4. Multi-class characters use the best die. A warrior already at 18 Strength instead adds 10%-80% to the exceptional-Strength percentile roll. Cannot raise Strength to 19 or higher, and doesn't stack with other Strength-boosting magic. Creatures with no Strength score gain +1 to attack and damage rolls.",
+    "art": "A weary adventurer's arm bulging with new power as a faint amber aura of coiled muscle and beastly vigor sweeps up from clenched fist to shoulder, tufts of animal hair drifting away in the glow.",
+    "stats": {
+      "casting_time": "1 turn",
+      "range": "Touch",
+      "duration": "1 hr./level",
+      "area_of_effect": "Creature touched",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "056ba9d0-d12a-4ea3-9634-dfab6a004d02": {
+    "rules": "Conjures a swarm of small animals (DM's choice or roll: 01-40 rats, 41-70 bats, 71-80 spiders, 81-90 centipedes/beetles, 91-00 flying insects) that viciously attacks every creature present. A victim who does nothing but defend takes 1 point/round; anyone taking any other action, including fleeing, takes 1d4 +1 per three caster levels each round. Spellcasting inside is impossible.",
+    "art": "A dark churning cloud of countless rats and biting insects boils up from cracked flagstones, engulfing a terrified adventurer who flails helplessly amid the seething mass, a robed conjurer standing rigid and focused at the edge of the writhing horde.",
+    "stats": {
+      "casting_time": "2",
+      "range": "55 m",
+      "duration": "Special",
+      "area_of_effect": "10-m cube",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "4c921311-6c7a-48d0-a9e2-c3741319d7fb": {
+    "rules": "Renders one creature permanently deaf; a save at -1 negates. Deafened targets suffer a -1 penalty to initiative and cannot perceive any sounds, so sneaking or unseen opponents go automatically unnoticed. Deaf spellcasters have a 20% chance of failure when casting spells requiring verbal components. The condition lasts until removed by cure blindness or deafness, heal, or dispel magic. Reversible, to restore hearing lost to magical deafness.",
+    "art": "A robed figure recoils clutching their ears as shimmering ripples of silence collapse inward around their head, the surrounding air visibly dampened and muted in a dim, hushed chamber.",
+    "stats": {
+      "casting_time": "2",
+      "range": "18.3 m",
+      "duration": "Permanent",
+      "area_of_effect": "1 creature",
+      "saving_throw": "vs. Spell at -1 (neg.)",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "c3e4b3ca-b17f-4bf7-9df6-e71dc0790267": {
+    "rules": "The recipient and its worn/carried equipment vanish from sight. Items picked up afterward remain visible unless hidden by an invisible container; anything set down becomes visible again. Effect lasts up to 24 hours or until the subject attacks or takes any offensive action (striking, casting at a foe, etc.), which ends it instantly. Invisible beings can still be detected by sound, smell, or tracking, and are attacked at -4 by those aware of them.",
+    "art": "A cloaked figure fading into shimmering transparency mid-stride, their outline blurring into the misty air as startled onlookers stare at the empty space where they stood.",
+    "stats": {
+      "casting_time": "2",
+      "range": "Touch",
+      "duration": "Special (up to 24 hours)",
+      "area_of_effect": "1 creature or object",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "45a09e4b-bffc-425d-a099-4c3302ea6c54": {
+    "rules": "The caster's outline becomes hazy and indistinct. Melee and missile attacks against the caster suffer -4 on the first attack roll and -2 on all subsequent attacks. The caster gains +1 to saving throws against spells directed specifically at him (e.g. lightning bolt, finger of death), but not against area effects such as fireball. The concealment is not defeated by detection or perception magic like true seeing, though dispel magic ends it.",
+    "art": "A cloaked mage stands mid-battle with a shimmering, smeared silhouette, his form doubling and rippling like a heat mirage as an enemy's spear thrust passes through the blurred afterimage.",
+    "stats": {
+      "casting_time": "2",
+      "range": "0",
+      "duration": "3 rds. + 1 rd./level",
+      "area_of_effect": "The caster",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "184f34cf-cd42-430b-91f3-c65ad1f3eb35": {
+    "rules": "Sends a whisper-quiet spoken message of up to 25 words, one round of other sound, or a faint susurrant stirring of air to a specific location the caster knows. The breeze travels unnoticed as a gentle zephyr, moving at a speed chosen from as slow as 1.6 km per hour up to 1.6 km per turn. It delivers its message whether or not anyone is present to hear, swirls and lingers until the message completes, then dissipates. No spells may be cast through it.",
+    "art": "A barely visible ribbon of shimmering air winds through a moonlit valley, curling over rooftops and swirling into an open tower window where dust and curtains stir softly.",
+    "stats": {
+      "casting_time": "2",
+      "range": "1.6 km/level",
+      "duration": "Special",
+      "area_of_effect": "2-m radius",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "39c27c8a-5edb-4628-a8e8-24af1fa47f61": {
+    "rules": "Shatters brittle nonmagical objects (crystal, glass, ceramic, porcelain, stone, metal). Target volume max 28 dm³ per level. Objects save based on material—stone/metal with a bonus, glass/crystal with a penalty; magical items save automatically and are unaffected. Alternatively, deals 1d6 damage per level to crystalline creatures, which save at −1 to negate. Loud, focused sound is the medium of destruction.",
+    "art": "A jagged wave of invisible sound erupting outward, glass goblets and crystalline statues bursting into glittering shards that hang suspended in a fractured cloud of sparkling fragments.",
+    "stats": {
+      "casting_time": "2",
+      "range": "9.1 m + 3 m/level",
+      "duration": "Instantaneous",
+      "area_of_effect": "0.9 m radius, 28 dm³/level",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "1fde1b11-0d52-498a-a128-aa7bf0b25aef": {
+    "rules": "The caster \"blinks,\" teleporting randomly 60 cm to 3 m in a random direction at the start of each round. Attackers suffer a -2 penalty to hit; rear attacks against the caster are impossible. Area-effect spells have only a 25% chance to catch the caster, who often shifts out of range. The caster may act normally each round—attacking, casting, etc. If a blink would place the caster in a solid object, they are shifted to the nearest open space, taking no damage.",
+    "art": "A robed spellcaster flickers between solid and translucent, afterimages of their body strobing across the battlefield as enemy blades pass harmlessly through fading phantoms, faint blue teleportation sparks trailing where flesh vanishes and reappears.",
+    "stats": {
+      "casting_time": "1",
+      "range": "0",
+      "duration": "1 rd./level",
+      "area_of_effect": "The caster",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "4d7fffb0-cbe4-44b2-94b6-898eca8cda99": {
+    "rules": "Lets the caster concentrate on a known or obvious locale (behind a door, around a corner, etc.) and hear in his mind any sound normally audible to him at that point. Distance is irrelevant, but the spot must be familiar or clearly indicated. Creates an invisible, immobile sensor (like that of a crystal ball) that can be dispelled. Lead sheeting or magical protection blocks the spell, and the caster senses when it is so blocked. Functions only on the caster's current plane.",
+    "art": "A robed wizard sits with eyes closed and a small ornate horn raised, ghostly sound-ripples radiating from a distant shadowed doorway across a vast hall back into his mind as a faint shimmering thread of listening.",
+    "stats": {
+      "casting_time": "3",
+      "range": "Unlimited",
+      "duration": "1 rd./level",
+      "area_of_effect": "18.3-m radius",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "6c594f43-2696-48ee-a876-01d16b1e5575": {
+    "rules": "The caster masks his own alignment aura, adopting that of one creature of greater than animal intelligence present when cast. If that creature fails its save the spell fails. The chosen creature's alignment is unchanged; the caster's own remains as well, but detection magic reads only the assumed alignment. Know alignment, detect good/detect evil (if the aura is strong) reveal the false alignment. The source creature radiates magic;",
+    "art": "A cloaked wizard standing amid a crowd, his true shadow-aura dissolving and reshaping to mimic the shimmering colored halo of a nearby knight, ghostly threads of alignment light weaving between them under a dim tavern glow.",
+    "stats": {
+      "casting_time": "3",
+      "range": "0",
+      "duration": "1 turn/level",
+      "area_of_effect": "9.1-m radius (assumed creature); caster",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "a2ab89a4-6821-4037-83e5-1b3bc050c262": {
+    "rules": "Places invisible, magically charged runes on a written surface (book, scroll, map, etc.). When anyone but the caster reads them, they explode in flame for 6d4+6 damage to the reader, who gets no save. Other creatures nearby take half that damage, reduced to a quarter on a successful save. The caster reads the protected writing freely and may remove the runes at will. Detect Magic reveals them; Read Magic triggers them 60% of the time.",
+    "art": "A scholar recoils in terror as glowing arcane sigils on an open tome erupt into a searing fireball, engulfing the reader in roaring orange flame while parchment and ash swirl through a dim candlelit library.",
+    "stats": {
+      "casting_time": "3",
+      "range": "Touch",
+      "duration": "Special",
+      "area_of_effect": "3 m radius",
+      "saving_throw": "vs. Spell (½)",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "a3547b79-dc3a-4826-bb53-b177a5683e96": {
+    "rules": "Two modes. (1) Enchant existing arrows or bolts, one per experience level, touched together. Each fires as a normal ranged attack; on a hit it deals its normal missile damage plus 1d6 fire damage and may ignite flammable materials. (2) At 5th level and up, create fiery darts (one per five levels) that the caster hurls, each requiring a ranged attack roll. A dart deals 4d6+1 fire damage on a hit and can set combustibles alight. Enchantment lasts one round;",
+    "art": "An archer loolooses a volley of arrows that ignite into roaring trails of orange fire mid-flight, streaking across a dusk battlefield as a robed mage hurls a blazing dart of flame from his fingertips, sparks and embers raining onto scorched grass.",
+    "stats": {
+      "casting_time": "3",
+      "range": "Touch",
+      "duration": "1 round",
+      "area_of_effect": "1 arrow or bolt per level; 1 fiery dart per 5 levels",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "fed8ad8e-795d-4313-8dad-1ff3c8c0b3fc": {
+    "rules": "The recipient gains flight at MV 54 m/round (halved if encumbered over 50% of carrying capacity). Full maneuverability: hover, or move forward, backward, up, and down. Ascending costs double movement, descending costs half. Grants no protection—the flyer can be struck and made to crash. The exact duration is hidden from caster and recipient; the subject gets 1 round of warning (sudden sinking) before the effect ends.",
+    "art": "A robed figure soars weightlessly above a misty mountain valley, arms outstretched with a faint shimmering aura trailing from their heels as a single white feather drifts on the wind beside them.",
+    "stats": {
+      "casting_time": "3",
+      "range": "Touch",
+      "duration": "1 hr./level + 1d6 hrs.",
+      "area_of_effect": "Creature touched",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "c7e123f8-7d34-4f48-999c-a578c3c09379": {
+    "rules": "Affects 1 creature per caster level, caster's choice. Each affected creature doubles its movement rate and number of melee/missile attacks per round, and gains a +2 bonus to initiative. Hasted creatures age 1 year. Does not stack with other haste effects. Negates a slow spell, and is negated by slow (the two cancel). The caster may include himself among those chosen.",
+    "art": "A band of warriors surges forward in a blur of overlapping motion, their limbs trailing luminous afterimages as time itself seems to accelerate around them on a war-torn field.",
+    "stats": {
+      "casting_time": "3",
+      "range": "18.3 m",
+      "duration": "3 rds. + 1 rd./level",
+      "area_of_effect": "12.2 m cube",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "e3ec0e67-118d-4649-9449-3d0e2d659dd8": {
+    "rules": "Enables the caster to see, through the eyes of another creature at a known or obvious location, or to view a familiar place as if standing there, including own infravision if possessed. Purely visual; transmits no sound. The caster cannot switch viewpoints during the spell and must concentrate throughout; other actions break it. Blocked by 30 cm of stone, 2.5 cm of common metal, or a thin sheet of lead. Detectable by detect magic and endable by dispel magic.",
+    "art": "A translucent shimmering eye of pale light hovers unseen in a distant torchlit chamber, ghostly threads of arcane energy trailing back through walls toward a robed mage sitting in deep concentration.",
+    "stats": {
+      "casting_time": "3",
+      "range": "Unlimited",
+      "duration": "1 rd./level",
+      "area_of_effect": "Special",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "5cf35ce4-bbc0-4aa4-9818-bfbe6d2a4815": {
+    "rules": "Writes hidden instructions that appear as foreign or magical writing; only those the caster designates may read the true message. An illusionist recognizes it as illusionary script. An unauthorized creature glancing at it that saves looks away with mild disorientation; on a failure it is subject to a suggestion the caster embedded when casting (task must take no more than 3 turns, e.g. close the book, forget it exists). A successful dispel magic removes the script;",
+    "art": "An open parchment scrawled with shimmering, alien glyphs that writhe and glow with a sickly leaden sheen, a robed reader's eyes glazing as ghostly compulsion tendrils curl from the page into their mind, candlelight flickering across the mystic ink.",
+    "stats": {
+      "casting_time": "Special",
+      "range": "Touch",
+      "duration": "1 day/level",
+      "area_of_effect": "Script reader",
+      "saving_throw": "vs. Spell (special)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "75744e6a-e0ea-43f7-b445-b64010f9619d": {
+    "rules": "Grants the touched creature infravision (heat perception) out to 18 m, allowing sight in total darkness: warm creatures show in reddish tones, cold areas in bluish. Bright light (daylight, continual light) temporarily suppresses the effect, and the eyes need 1 round to adjust whenever light conditions change sharply. May be cast on the caster or another.",
+    "art": "A cloaked figure in a pitch-black cavern, their eyes glowing faint amber, the surrounding darkness resolving into ghostly reds and warm oranges around living bodies while cold stone walls shimmer in eerie blues.",
+    "stats": {
+      "casting_time": "1 round",
+      "range": "Touch",
+      "duration": "2 hrs. + 1 hr./level",
+      "area_of_effect": "1 creature",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "078c3f55-d123-46c7-9c09-89ccd60831e7": {
+    "rules": "Shrinks one nonmagical object to 1/12 of its normal size. Optionally the caster may also change the shrunken item's composition to a clothlike material for easy carrying. An object held or worn by another creature gets a save to resist; unattended items are affected automatically. Even a burning fire and its fuel may be shrunk. The item returns to full size and original composition by tossing it onto any solid surface or by the caster's command word.",
+    "art": "A blacksmith's massive anvil collapsing inward in a swirl of glittering arcane light, dwindling to a tiny cloth-soft trinket resting in a wizard's outstretched palm.",
+    "stats": {
+      "casting_time": "3",
+      "range": "Touch",
+      "duration": "4 hrs./level",
+      "area_of_effect": "1 object, up to 0.06 cu. m/level",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "662e4029-e711-463d-b117-5c4e04a951dc": {
+    "rules": "Creates an unmoving, opaque sphere of force of any desired color centered on the caster, its upper half a hemisphere above ground, lower half passing through it. Shelters the caster plus up to seven man-sized creatures, who may freely pass in and out; if the caster leaves, the spell ends. Holds interior at 21°C when outside is between -18°C and 38°C, otherwise shifting 1° per external degree beyond. Blocks rain, dust, wind up to hurricane force (stronger winds destroy it);",
+    "art": "A translucent colored dome of shimmering force arches over a small camp on a windswept moor, rain and dust sheeting harmlessly around its curved surface while warm amber light glows softly within, travelers resting dry inside as a storm rages beyond.",
+    "stats": {
+      "casting_time": "3",
+      "range": "0",
+      "duration": "4 hrs. + 1 hr./level",
+      "area_of_effect": "15-m diameter sphere",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "8831c160-fc7b-46ac-aef9-81af421a3483": {
+    "rules": "Creates one fiery globe per caster level. Each meteor is a magical missile attack, made with a +2 to hit and no range penalty; a hit bursts into a small fire sphere dealing 1d4 damage and can ignite combustibles. A miss lands as a grenadelike missile, dealing 1 point to creatures within 0.9 m. Fire in one of two modes: A) five meteors per round (may carry into following rounds);",
+    "art": "A robed wizard's fingertips streaming a rapid volley of tiny glowing fireballs that arc across a dim dungeon corridor, each bursting into a small blossom of orange flame against a shrieking foe amid drifting sparks and smoke.",
+    "stats": {
+      "casting_time": "3",
+      "range": "64 m + 9 m/level",
+      "duration": "Special",
+      "area_of_effect": "1 target per meteor",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "a36b1953-8530-4bde-93cf-0340bf1e5ae2": {
+    "rules": "Summons 2d4 first-level monsters (typically 1 HD, AC 7, 1 attack for 1d8) determined by the DM according to terrain and environment. They appear 1d4 rounds after casting at a chosen spot and obey simple mental commands (attack, guard, follow), fighting to the death or until the spell expires, whereupon survivors vanish. The summoned creatures cannot be summoned into occupied or enclosed spaces.",
+    "art": "A swirling arcane vortex erupts on a battlefield as a pack of snarling beasts materializes from glowing mist, forming a protective ring around a robed conjurer who directs them with an outstretched hand.",
+    "stats": {
+      "casting_time": "3",
+      "range": "Special",
+      "duration": "2 rds. + 1 rd./level",
+      "area_of_effect": "9.1 m radius",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "046be728-1df9-4090-80e4-8fc412582d94": {
+    "rules": "Holds 1-4 humans, demihumans, or humanoids up to ogre size immobile: targets cannot speak, move, or cast spells, but still think, perceive, and breathe. Those failing their save are paralyzed. Aiming at a single creature imposes -1 to its save; against 3 or 4 creatures targets gain +1. Only creatures the caster can see may be affected. Removable by Dispel Magic or Free Action.",
+    "art": "Three armored warriors mid-charge frozen rigid in glowing blue-white bands of arcane force, weapons locked in place, eyes wide with desperate awareness as faint runic light coils around their motionless bodies on a dusk battlefield.",
+    "stats": {
+      "casting_time": "3",
+      "range": "36.6 m",
+      "duration": "2 rds./level",
+      "area_of_effect": "1-4 creatures",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "46593bc1-7097-4670-ae02-0d8ebdb18b8c": {
+    "rules": "Conjures a quasi-real, horse-like mount usable only by the caster. AC 2; 7 HP +1 HP/level. Move rate 12 m/round per caster level, to a maximum of 72 m at 6th level or higher. The steed gallops tirelessly and needs no rest. At 7th level it can walk on water as though solid ground; at 10th it flies at 54 m/round; at 12th it can travel on the Ethereal Plane. The steed vanishes if reduced to 0 HP or when the magic ends.",
+    "art": "A shimmering, translucent black stallion of coalescing mist and starlight gallops across a moonlit moor, its hooves trailing pale luminous vapor as a cloaked rider mounts its ghostly form.",
+    "stats": {
+      "casting_time": "1 turn",
+      "range": "Touch",
+      "duration": "1 hr./level",
+      "area_of_effect": "One conjured mount",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "f1eb0a15-7bad-47d1-ac40-76eb6ecb22d0": {
+    "rules": "Alters the visible contents of a written page so it appears to be entirely different text (e.g. a map becomes a mundane treatise, a spell becomes a ledger). The caster reveals the true contents by speaking a command word to peruse the page, then restores its disguised form; double repetition of the command word removes the spell. Comprehend languages alone cannot read it; true seeing works only if combined with comprehend languages.",
+    "art": "An ancient parchment on a scholar's desk shimmering with faint arcane light, its inked words rippling and rearranging as a hidden treasure map dissolves into innocuous prose beneath a glowing sigil.",
+    "stats": {
+      "casting_time": "1 turn",
+      "range": "Touch",
+      "duration": "Permanent",
+      "area_of_effect": "1 page, up to 0.6 m sq.",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "1e4504ed-3291-42f8-9c49-37647b572ba4": {
+    "rules": "A hidden magical symbol is placed within written text. When any creature other than the caster reads it, a sepia snake springs forth and strikes the nearest living creature (never the caster), attacking as a monster of Hit Dice equal to caster level. A hit engulfs the victim in a shimmering amber force: frozen, immobilized, unaware, needing no food, air, or sleep, and not aging. It lasts 1d4 days +1 day/level, or ends at the caster's command or by dispel magic.",
+    "art": "An unwary reader bent over an ancient tome recoils as a coiling serpent of pure amber light erupts from the page, striking and sealing them within a glowing frozen crystalline shell of shimmering force, their pose locked mid-gasp in eerie stillness.",
+    "stats": {
+      "casting_time": "3",
+      "range": "4.5 m",
+      "duration": "Special",
+      "area_of_effect": "1 sigil",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "20b1b627-ecc4-465a-90ba-a3a4a7171ac4": {
+    "rules": "Creates a fully realized illusion including sight, sound, smell, and temperature, obeying the caster's will. Effect persists 3 rounds after concentration ends, allowing the caster to move or act while it continues. Viewers who interact with or study the illusion may attempt to disbelieve; success reveals it as translucent and harmless. A believed illusion can inflict apparent damage, but such damage vanishes and is not real. Requires ongoing concentration to change or direct.",
+    "art": "A phantom dragon rears over a crumbling bridge, its illusory flames radiating shimmering heat and acrid smoke as terrified adventurers recoil, unaware the beast is woven from colored light and sound.",
+    "stats": {
+      "casting_time": "3",
+      "range": "55 m + 9.1 m/level",
+      "duration": "Special",
+      "area_of_effect": "40-m cube + 10-m cube/level",
+      "saving_throw": "vs. Spell (to disbelieve)",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "3bb5fc4a-235f-4576-b8be-12902ad9b9ab": {
+    "rules": "The caster understands and speaks any spoken language, including regional tongues and secret languages such as thieves' cant and druidic, but not magical languages. Only one language is understood and spoken at a time. Grants no ability to read or write; written texts remain unintelligible. Affects all speech heard within the radius. Reversed (Babble), it garbles the target's speech and comprehension so communication fails; a successful save negates this effect.",
+    "art": "A robed mage stands amid a crowd of many races, glowing golden runes of countless alphabets swirling from his lips and dissolving into shimmering motes of shared understanding, a small clay ziggurat radiating warm light in his palm.",
+    "stats": {
+      "casting_time": "3",
+      "range": "0",
+      "duration": "1 rd./level",
+      "area_of_effect": "18.3 m radius",
+      "saving_throw": "None (reverse: vs. Spell neg.)",
+      "components": [
+        "V",
+        "M"
+      ]
+    }
+  },
+  "fa81b55d-a817-4fec-b703-8c50cf80c7ce": {
+    "rules": "Influences the actions of one creature by verbally suggesting (1-2 sentences) a reasonable course of action. The target obeys as if of its own free will. Suggestions must be phrased so they sound plausible; obviously harmful, dangerous, or suicidal suggestions are ignored. A particularly reasonable suggestion imposes -1 to -2 on the target's save; a failed save means the suggestion is followed. The action is carried out when the stated conditions arise.",
+    "art": "A cloaked mage leans close, whispering, faint shimmering tendrils of soft golden light drifting from his lips into the wide, glazed eyes of an entranced guard whose spear droops as his will bends.",
+    "stats": {
+      "casting_time": "3",
+      "range": "9.1 m",
+      "duration": "1 hr. + 1 hr./level",
+      "area_of_effect": "1 creature",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "e0b230bf-5d82-4517-826c-562e90ee36d0": {
+    "rules": "Renders the caster and all creatures moving with the group (up to 10 persons) invisible. Invisibility is broken for an individual the instant they attack or perform an offensive action; the remaining members stay invisible. A creature that leaves the radius becomes visible at once and cannot regain invisibility by returning. The caster must remain at the group's center. Invisible beings can be detected only by special means. Lasts until each individual acts offensively.",
+    "art": "A cluster of adventurers standing close together fading into shimmering transparency at the heart of a faint rippling sphere, their outlines dissolving into the surrounding stone corridor.",
+    "stats": {
+      "casting_time": "3",
+      "range": "Touch",
+      "duration": "Special (up to 24 hours)",
+      "area_of_effect": "3 m radius",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "5efdfc3b-b03b-4b81-9097-cfd1055826cf": {
+    "rules": "Affects up to 1 creature per caster level, chosen from those within the area (each may attempt a save to negate). Affected creatures have movement rate and number of attacks per round halved, suffer -4 to initiative, and double casting times (adding a round to most spells). Cancels a Haste effect (and vice versa); a creature under both has them negate one another rather than being slowed.",
+    "art": "A cluster of warriors mid-charge frozen into sluggish, syrup-like motion, their limbs trailing amber blurs as a shimmering golden distortion warps the air around them while an unaffected foe surges past.",
+    "stats": {
+      "casting_time": "3",
+      "range": "27.4 m + 3 m/level",
+      "duration": "3 rds. + 1 rd./level",
+      "area_of_effect": "12.2 m cube",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "d89ab36c-f5c7-404a-b113-0e27a1d0b171": {
+    "rules": "The touched creature breathes water freely as if it were air, while still able to breathe surface air normally. The duration may be divided evenly among several touched creatures (e.g. a 6th-level caster may grant 3 creatures 2 hours each). Reversed (Air Breathing) lets water-breathing creatures such as fish or sahuagin breathe air for the same duration.",
+    "art": "A diver drifts serenely beneath sunlit ocean waves, silver bubbles streaming from parted lips as glowing motes of enchantment swirl around the throat, fish darting curiously through the shimmering shafts of light.",
+    "stats": {
+      "casting_time": "3",
+      "range": "Touch",
+      "duration": "1 hr./level + 1d4 hrs.",
+      "area_of_effect": "1 creature",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "2bab56f7-d18d-4fbb-a900-83ebbaf9b1cb": {
+    "rules": "A strong blast of wind blows from the caster in a straight line. Small flying creatures (below man-size) are blown back 1d6×3 m. Man-sized creatures are forced to the ground, unable to move or take physical action while the gust lasts. Larger (ogre-size and up) flying creatures have flight movement halved. Extinguishes unprotected flames (candles, torches), causes protected flames (lanterns) to flicker, and disperses gases and fog. Can fill and drive the sails of ships.",
+    "art": "A robed mage flings out a hand as a fierce funnel of wind roars forward across a battlefield, flattening a warrior to the muddy ground while tiny bat-winged imps tumble backward and torch flames are torn out into streaming smoke.",
+    "stats": {
+      "casting_time": "3",
+      "range": "0",
+      "duration": "1 rd.",
+      "area_of_effect": "3 m wide, 3 m long per level",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "3f90da92-1a2e-47c4-9273-d40486357aa8": {
+    "rules": "Transforms one creature into any other life form known to the caster; a successful save negates. Apply +1/-1 to the target's save per 1 HD of difference between it and the new form. The victim must immediately make a system shock roll or die from the change. It gains the new form's physical capabilities (movement, attacks, poison, flight, etc.) but keeps its own mind at first.",
+    "art": "A terrified knight mid-transformation, armor splitting as scaled wings erupt from his back and his screaming face elongates into a serpent's snout, swirling green arcane energy coiling around his contorting body.",
+    "stats": {
+      "casting_time": "4",
+      "range": "1.5 m/level",
+      "duration": "Permanent",
+      "area_of_effect": "1 creature",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "de529dc2-d2c5-4202-aaaa-6b21e85270ba": {
+    "rules": "Reveals any attempt to magically observe the caster by clairvoyance, clairaudience, crystal ball, ESP, or similar scrying magic directed at the moving area. The caster becomes instantly aware each time such spying occurs. There is a percentage chance to glimpse the scryer's identity and general location (direction and distance). The detection zone travels with the caster throughout.",
+    "art": "A wizard stands within a shimmering translucent dome of protective divination, a spectral eye of an unseen spy dissolving into faint glowing ripples at the barrier's edge, a ghostly image of the distant watcher flickering into view.",
+    "stats": {
+      "casting_time": "3",
+      "range": "0",
+      "duration": "1d6 rds. + 1 rd./level",
+      "area_of_effect": "36.6 m radius",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "7a3e0bac-1068-4bc8-ad00-d2b26732dd1c": {
+    "rules": "Creates a billowing mass of dense fog. Creatures inside are slowed to 3 m/round movement (1.5 m/round for flyers), and visibility drops to 60 cm. The fog cannot be dispersed by normal wind; only magical winds such as gust of wind or control winds can move or disperse it. It blocks all ranged attacks passing through it and prevents spells requiring line of sight to targets within or beyond it.",
+    "art": "A thick roiling wall of pearl-grey fog hangs unnaturally still in a forest clearing, so dense it looks almost solid, arrows frozen mid-flight where they strike its surface as a struggling knight wades helplessly through its churning depths.",
+    "stats": {
+      "casting_time": "4",
+      "range": "9.1 m",
+      "duration": "2d4 rds. + 1 rd./level",
+      "area_of_effect": "6.1 m cube",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "ad74e8d2-cbcf-4c20-8d5d-f473d5aa4099": {
+    "rules": "Instantly transfers the caster to a chosen point up to 27 m per level away, by visualizing the spot or stating a precise direction and distance. Arrival is exact—no error. Carried nonliving matter up to 227 kg (or half that living) travels along. If the destination is occupied by a solid body, the caster is trapped in the Astral Plane and suffers grave harm; if no support exists below, the caster falls. The caster cannot act for 1 round after arrival.",
+    "art": "A robed wizard mid-stride vanishing through a shimmering vertical rift of blue light, his trailing edge dissolving into motes as the far side of the doorway opens onto a distant torchlit corridor.",
+    "stats": {
+      "casting_time": "1",
+      "range": "0",
+      "duration": "Instantaneous",
+      "area_of_effect": "The caster",
+      "saving_throw": "None",
+      "components": [
+        "V"
+      ]
+    }
+  },
+  "17f03212-367f-464f-8ddb-33ad7af32429": {
+    "rules": "Instills one emotion in all creatures in the area; those failing are affected while the caster concentrates. Choose one: Courage: +1 attack, +3 damage, +5 temporary hp, immune to fear/morale, will not retreat. Fear: flee in panic for 2d4 rounds. Friendship: more positive reactions. Happiness: +4 reaction rolls, attack very unlikely. Hate: more negative reactions. Hope: +2 to morale, saves, attack, damage. Hopelessness: 25% surrender, 25% do nothing, 25% retreat.",
+    "art": "A crowd of soldiers frozen mid-stride as a shimmering wave of colored aura washes over them, some faces contorted in terror while others glow with radiant courage, an eerie split of light and shadow rippling through the ranks.",
+    "stats": {
+      "casting_time": "4",
+      "range": "3 m/level",
+      "duration": "Special",
+      "area_of_effect": "6.1 m cube",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "42973016-3e20-4fea-b636-283610e63817": {
+    "rules": "The recipient becomes invisible, but unlike normal invisibility remains unseen even while attacking. Opponents suffer a -4 penalty to attack rolls against the invisible subject, and the subject gains a +4 bonus to saving throws against attacks directed at it. The subject is not wholly undetectable: attacking reveals its approximate location, and effects such as faint outlines, footprints, or disturbances may still betray it. Ends if dispelled.",
+    "art": "A cloaked warrior mid-swing dissolving into a shimmer of bent light, his blade a faint distortion in the air as startled foes lash out blindly around empty space.",
+    "stats": {
+      "casting_time": "4",
+      "range": "Touch",
+      "duration": "4 rds. + 1 rd./level",
+      "area_of_effect": "Creature touched",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "a958f981-bfd4-41c5-bc24-15b59824a26e": {
+    "rules": "Summons 1d4+1 rubbery black tentacles that erupt from the ground and grapple creatures. Each tentacle has AC 4 and Hit Dice equal to the caster's level; it is destroyed by damage equal to the caster's level. Each round every trapped creature is attacked by 1d4 tentacles. A tentacle that hits deals 1d4 damage and holds the victim, constricting for 1d4 each subsequent round. STR 19 per grappling tentacle;",
+    "art": "Writhing slick black tentacles burst up through cracking earth, coiling around panicked warriors and dragging them down amid clouds of dust and torn soil.",
+    "stats": {
+      "casting_time": "1 round",
+      "range": "9.1 m",
+      "duration": "1 round/level",
+      "area_of_effect": "9 m x 9 m square",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "905ec31c-da24-4c48-b15c-45276cc9710d": {
+    "rules": "Prolongs the duration of one previously cast 1st-, 2nd-, or 3rd-level spell by 50%. Affects only spells that have a duration. Must be cast immediately after the target spell, by the original caster or another wizard; if a full round or more elapses before casting, the extension fails and is wasted.",
+    "art": "A shimmering golden thread of arcane energy loops back on itself around a fading magical aura, rekindling it into renewed radiant life as a wizard gestures with outstretched hands.",
+    "stats": {
+      "casting_time": "2",
+      "range": "0",
+      "duration": "Special",
+      "area_of_effect": "One spell",
+      "saving_throw": "None",
+      "components": [
+        "V"
+      ]
+    }
+  },
+  "48cab1a9-637d-450d-9d01-99ddee4f6b3b": {
+    "rules": "A normal fire source (brazier, bonfire) is ringed by a gossamer veil of multihued flame 1.5 m out. Creatures viewing the fire or veil are charmed, standing motionless and transfixed, unless they save. Charmed creatures can each be given one suggestion of 12 words or fewer, saving at -3 (adjusted for Wisdom) to resist; a suggestion lasts up to 1 hour regardless of caster level.",
+    "art": "A great bonfire encircled by a shimmering ring of translucent multicolored flame, ghostly firelight reflecting in the wide entranced eyes of motionless figures standing hypnotized in a darkened hall.",
+    "stats": {
+      "casting_time": "4",
+      "range": "9 m",
+      "duration": "2 rds./level",
+      "area_of_effect": "15-m radius",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "481cbfeb-d5b9-47f7-8aa6-af123fbb4b82": {
+    "rules": "Emanates an invisible cone of supernatural dread. Creatures caught within must save or flee in panic away from the caster at maximum movement for 1 round per caster level, dropping everything held or carried. Creatures of 6+ HD/levels save at +2; those under 1 HD are automatically affected with no save. Cornered fleeing creatures get a new save each round to break the effect.",
+    "art": "A robed figure thrusts out a hand as a translucent shimmering cone of dark psychic energy fans outward, warriors within it dropping their weapons and fleeing wide-eyed in blind terror, shadows lengthening and clawing at their heels.",
+    "stats": {
+      "casting_time": "4",
+      "range": "0",
+      "duration": "Special (1 rd./level)",
+      "area_of_effect": "18.3 m cone, 9 m wide at end",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "49167a52-a134-4f16-b8ff-a0e0018784c1": {
+    "rules": "Creates an item of nonliving, plant-based material—cloth, rope, wood, leather, paper, or similar vegetable matter. The caster must have at least a tiny piece of the material to be made as a focus. Up to about 0.03 cubic meters of matter per level may be created. The item is real while it lasts, then vanishes. Cannot produce animal or mineral substances such as meat, metal, stone, or gems.",
+    "art": "A wizard's outstretched hands weave glowing threads of green-gold light that spin and knit themselves into a coil of rope and folds of woven cloth, motes of leaf-like sparks drifting away as the objects take solid form.",
+    "stats": {
+      "casting_time": "1 rd.",
+      "range": "Touch",
+      "duration": "1 hr./level",
+      "area_of_effect": "About 0.03 m³/level",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "07dc7c7d-85d0-402d-89f5-e39428932649": {
+    "rules": "Alters the appearance of natural terrain, making one type seem like another (fields as forests, roads as swamps, etc.), complete with matching sounds and smells. Physical contact does not dispel it, but a creature that touches or interacts and actively disbelieves is allowed a save to see through it. May hide pits, obstacles, or safe paths. Affects only terrain features, not creatures or structures. Persists until dispelled.",
+    "art": "A dusty caravan road shimmering into a fetid black swamp with hanging mist and phantom reeds, travelers hesitating at the edge as the true dry path faintly ghosts beneath the illusory bog.",
+    "stats": {
+      "casting_time": "1 turn",
+      "range": "6.1 m/level",
+      "duration": "Special (until dispelled)",
+      "area_of_effect": "3 m cube/level (max 400 m x 400 m)",
+      "saving_throw": "vs. Spell (to disbelieve)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "f5713a52-58d9-4ff8-9d38-a9775baa4d03": {
+    "rules": "Creates the image of a wall, floor, ceiling, or door up to 3m x 3m x 30cm that appears wholly real, blocking sight and even offering faint tactile resistance to a light touch. The illusion cannot be disbelieved by observation alone, but any creature that firmly presses or resolutely walks into or through it passes without harm and recognizes it as false. Blocks vision and normal detection until dispelled or physically penetrated.",
+    "art": "A cracked stone corridor sealed by a seemingly solid grey wall, an armored adventurer's outstretched hand sinking eerily through its surface as faint shimmering ripples betray the deception, torchlight glinting off a fragment of green jade on the floor.",
+    "stats": {
+      "casting_time": "4",
+      "range": "9.1 m",
+      "duration": "Permanent",
+      "area_of_effect": "3 m x 3 m x 30 cm",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "68acc5d3-7e11-46aa-bc5d-88452228cfdf": {
+    "rules": "Creates a sturdy cottage or lodge of local stone, timber, or sod, with a level, clean, dry floor. Includes a sturdy door, two or more shuttered windows, and a small fireplace. As strong as stone; resists fire and normal missiles (not siege/giant missiles). Door and shutters are wizard locked; chimney has an iron grate and narrow flue. These three points carry an alarm spell. An unseen servant is conjured to serve the caster.",
+    "art": "A snug stone cottage shimmering into existence on a windswept hillside, warm light glowing through shuttered windows as a faint translucent servant stacks logs by the door, magical wards glimmering faintly around the frame.",
+    "stats": {
+      "casting_time": "4 turns",
+      "range": "18 m",
+      "duration": "1d4+1 hrs. + 1 hr./level",
+      "area_of_effect": "30 sq. m/level",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "bd43644c-6ff2-4a79-96c7-c9b515f72e9d": {
+    "rules": "Transforms a finely wrought polished silver mirror (worth at least 1,000 gp) into a scrying device functioning like a crystal ball, letting the caster view distant persons or places (resolve as a crystal ball, per DMG). The subject retains the standard crystal ball chance to detect the scrying. Certain spells may be cast through the mirror: comprehend languages, read magic, tongues, and infravision function normally;",
+    "art": "A tall silver mirror in a candlelit study, its glassy surface glowing with a swirling window onto a distant moonlit castle, ghostly light spilling across the sorcerer's face.",
+    "stats": {
+      "casting_time": "1 hour",
+      "range": "Touch",
+      "duration": "1 round/level",
+      "area_of_effect": "One silver mirror",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "ab302179-eb54-4dc3-b77c-d8ea1b542b27": {
+    "rules": "Creates an invisible, mobile sensor that transmits sight to the caster's mind, relaying infravision if the caster possesses it. The eye flies and looks around corners, moving 9 m/rd. (18 m/rd. if only moving in a straight line, per some interpretations); it passes through openings as small as 2.5 cm but not solid barriers. It has 1 hp and AC 18. Detect magic or true seeing reveals it; dispel magic destroys it.",
+    "art": "A shimmering translucent orb of arcane sight drifts silently down a torchlit dungeon corridor, peering around a stone corner while faint threads of ghostly light connect it back toward a distant seated mage lost in trance.",
+    "stats": {
+      "casting_time": "1 turn",
+      "range": "0",
+      "duration": "1 rd./level",
+      "area_of_effect": "Special",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "742b8f00-c699-4ee4-8c55-110151d5e0c5": {
+    "rules": "Makes up to 10 man-sized (or smaller) willing creatures per level appear as trees or bushes. Transformed creatures remain conscious and can see and hear but cannot move, speak, or take action. They are indistinguishable from real vegetation except by true seeing or detect magic. Damage dealt to a disguised creature affects it normally. The caster may end the effect at will; it also ends via dispel magic. Larger creatures count as multiples of man-sized.",
+    "art": "A marching column of armored soldiers frozen mid-stride and blossoming into a silent grove of oaks and shrubs, faint spectral faces flickering within the bark under dappled forest light.",
+    "stats": {
+      "casting_time": "1 turn",
+      "range": "3 m/level",
+      "duration": "Special",
+      "area_of_effect": "3 m cube/level",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "80b55b7c-a2de-45b3-b7d7-7d05eb43c2e4": {
+    "rules": "Affects living creatures, making those that fail regard the caster as a trusted friend and ally, obeying reasonable requests within their nature (weighing self-endangering or clearly harmful orders normally). Affects 2d4 HD of creatures; a single target of 4+ HD is affected regardless of the roll. Wisdom adjustments to the save apply. Hostile action by the caster ends the charm or grants a new save.",
+    "art": "A towering horned beast bows its head in serene devotion beside a robed mage, its once-savage eyes softened by a shimmering rose-gold glow that curls between them like silken threads in a torchlit cavern.",
+    "stats": {
+      "casting_time": "4",
+      "range": "18.3 m",
+      "duration": "Special",
+      "area_of_effect": "1 or more creatures",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "377e38eb-dd55-4285-9dc3-c629910c6872": {
+    "rules": "Summons 1d6 2nd-level monsters within range 1d4 rds. after casting. They appear anywhere in the area and attack the caster's foes until slain, dismissed, or duration ends. They never check morale and vanish when killed.",
+    "art": "A swirling vortex of arcane light tears open in a torchlit dungeon corridor, disgorging a snarling pack of summoned beasts that lunge toward unseen enemies as their bodies shimmer half-formed from the ether.",
+    "stats": {
+      "casting_time": "4",
+      "range": "Special",
+      "duration": "3 rds. + 1 rd./level",
+      "area_of_effect": "36.6 m radius",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "7a3a0a84-de02-4c1e-ac38-c4a1aea1e80f": {
+    "rules": "Summons 1d6 second-level monsters of a type chosen by the DM, appearing 1d4 rounds after casting at a spot the caster designates and fighting on the caster's next action. They obey simple mental commands (attack, guard, follow, retreat) and serve until slain or the spell ends. If no enemies are present they attack whatever the caster directs. Cannot be summoned into solid objects or spaces too small to hold them.",
+    "art": "A shimmering circle of arcane light tears open in a torchlit dungeon hall as six snarling beasts materialize from swirling motes, fangs bared and claws ready, their forms coalescing from luminous smoke around a robed conjurer.",
+    "stats": {
+      "casting_time": "4",
+      "range": "Special",
+      "duration": "3 rds. + 1 rd./level",
+      "area_of_effect": "12.2 m radius",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "7f944329-710b-4401-bc5e-5ce1cc47ce6e": {
+    "rules": "Encloses a single creature in a globe of shimmering force. The subject may voluntarily fail its save to be protected; otherwise a successful save negates the effect. The sphere is immune to all physical and magical attacks from either side, save that Disintegrate destroys it and Dispel Magic collapses it. Nothing passes the barrier except air, so the trapped creature cannot move, attack, cast, or hurl anything, but breathes freely.",
+    "art": "A warrior frozen mid-stride inside a glassy, faintly glowing translucent orb, fists uselessly pressed against the curved inner wall as spears and fireballs burst harmlessly against its shimmering surface.",
+    "stats": {
+      "casting_time": "4",
+      "range": "6.1 m",
+      "duration": "1 rd./level",
+      "area_of_effect": "0.3 m diameter/level",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "0f2c7a47-3ef1-466f-8f10-a5b04c67d299": {
+    "rules": "Causes normal vegetation to grow densely into an impassable thicket of briars, brush, and creepers covering a square area of up to 9 sq m per caster level (the caster shapes the boundaries as desired). Man-sized creatures are slowed to 3 m/round while forcing through; larger creatures to 1.5 m/round; small creatures cannot pass at all. Serves as a barricade or trap. Requires existing plants—useless on bare stone, desert, or barren ground.",
+    "art": "A tangled wall of thorned briars and vines erupts skyward across a forest clearing, choking the path as gnarled branches interlace into an impenetrable green barricade.",
+    "stats": {
+      "casting_time": "4",
+      "range": "3 m/level",
+      "duration": "Permanent",
+      "area_of_effect": "9 sq m/level",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "b7b3a111-5be2-4634-b3ac-4a51b0bab7f6": {
+    "rules": "Fashions a deadly phantom drawn from the victim's own subconscious fears, visible and real only to the target. Each round the victim may attempt to disbelieve; success (aided by high Wisdom/Intelligence bonuses) dispels the phantasm. The killer attacks as AC -4 versus the target. If it strikes, the victim must save or die instantly of fright; a successful save instead inflicts 3d6 points of damage. The phantom cannot be harmed by others, existing only in the target's mind.",
+    "art": "A cowering warrior recoils in terror from a shadowy nightmare-beast conjured from his own mind, its clawed shape flickering half-real in dim torchlight while unseen companions stand oblivious beside him.",
+    "stats": {
+      "casting_time": "4",
+      "range": "1.5 m/level",
+      "duration": "1 rd./level",
+      "area_of_effect": "1 creature",
+      "saving_throw": "Special",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "7087f549-a18b-461b-af2b-568384106c3e": {
+    "rules": "Caster assumes the shape of any known nonmagical creature, from toad-sized up to twice the caster's size. Gains the form's movement modes, senses, natural armor, and physical attacks, but keeps his own hit points, THAC0, saves, and mind. No spellcasting or magical/special abilities; spells with only a V component may be cast if the form can speak. Adopting a form radically unlike the caster's may require a system shock survival roll or the change fails.",
+    "art": "A robed mage caught mid-transformation, his outstretched arms sprouting feathers as skin ripples into an eagle's plumage, wings unfurling in a swirl of shimmering arcane light, feet elongating into talons.",
+    "stats": {
+      "casting_time": "4",
+      "range": "0",
+      "duration": "2 hrs./level",
+      "area_of_effect": "The caster",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "b99c1ffc-5a1a-4354-bc75-831ebb547c7e": {
+    "rules": "The recipient's flesh hardens, negating the next 1d4+1 physical attacks (weapon blows, claws, bites, thrown objects, falls, and crushing), regardless of the damage each would deal. Each such attack expends one charge. Magical attacks (fireball, lightning bolt, magic missile, etc.) are not blocked and do not consume charges. Protection ends when all charges are spent or the spell is dispelled. Multiple castings on one creature are not cumulative.",
+    "art": "A lone warrior stands amid a hail of arrows and axe blows, skin gleaming like polished grey granite as blades shatter and shafts splinter harmlessly against the stony surface, faint dust motes of diamond and rock swirling around the impacts.",
+    "stats": {
+      "casting_time": "1",
+      "range": "Touch",
+      "duration": "Special",
+      "area_of_effect": "1 creature",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "b0eb2bbb-bc39-4f6e-a01b-c243dfb6c895": {
+    "rules": "One creature becomes clumsy and uncoordinated. On a failed save the target immediately falls prone and can neither move nor act that round. Each following round it must make a Dexterity check to perform any action; failure means the attempt goes awry — weapons dropped, spells bungled, movement causing a fall, items fumbled or broken. A successful save reduces the effect: the target merely moves and attacks at half normal rate for the duration rather than falling helpless.",
+    "art": "A charging warrior's legs tangle mid-stride as his sword flies from splayed fingers, feet skidding out from under him in a spray of dust, arms flailing helplessly beneath a faint shimmering enchantment.",
+    "stats": {
+      "casting_time": "4",
+      "range": "3 m/level",
+      "duration": "1 rd./level",
+      "area_of_effect": "1 creature",
+      "saving_throw": "vs. Spell (special)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "74d16160-c960-47aa-b5ab-c2e213aaf540": {
+    "rules": "Makes an area appear vacant, neglected, and long abandoned—covering it with illusory dust, cobwebs, dirt, and decay. Observers see false tracks and torn cobwebs as they pass through, and the place seems empty. Only nonliving things are cloaked; living creatures are unaffected and cannot be hidden. Merely brushing an invisible object does not disturb the effect—only forceful contact with a cloaked object may reveal that something unseen is present.",
+    "art": "A pristine treasure chamber overlaid with a shimmering veil of illusion, its polished floors blanketed in phantom dust and drifting cobwebs, gilded objects fading into apparent ruin and decay under a dim, forgotten gloom.",
+    "stats": {
+      "casting_time": "4",
+      "range": "9 m/level",
+      "duration": "1 hour/level",
+      "area_of_effect": "10-m radius/level",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "06df83f7-7b13-48f8-ba53-476608af516a": {
+    "rules": "Affects 1d4+1 creatures/level, causing madness. Each affected creature saves at -2 (plus its Wisdom defense adjustment); those that fail become confused. Confused creatures roll 1d10 each round: 1 = wander away for the rest of the effect; 2-6 = stand confused doing nothing; 7-9 = attack the nearest creature; 10 = act normally that round. Creatures attacked by a confused creature may respond as their nature dictates.",
+    "art": "A cluster of warriors staggering and clutching their heads in a shimmering violet haze, some swinging blades wildly at their own comrades while others stumble away dazed, wisps of spiraling enchantment coiling above them.",
+    "stats": {
+      "casting_time": "4",
+      "range": "36.6 m",
+      "duration": "2 rds. + 1 rd./level",
+      "area_of_effect": "18.3 m cube",
+      "saving_throw": "vs. Spell (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "b1006d60-5379-447f-a858-1e05cad4e7a7": {
+    "rules": "Turns an ordinary weapon into a magical +1 weapon, granting +1 to attack and damage rolls. Affects either two small weapons (arrows, bolts, daggers) or one large weapon (axe, bow, hammer, sword). Also works on existing magical weapons so long as the total combined bonus does not exceed +3. Enchanted missile weapons lose the enchantment after a successful hit; melee weapons retain it until the effect ends.",
+    "art": "A plain steel longsword held aloft in a candlelit workshop, its blade wreathed in a shimmering silver-blue aura as fine glowing dust settles along the edge and sparks of enchantment dance across the metal.",
+    "stats": {
+      "casting_time": "1 turn",
+      "range": "Touch",
+      "duration": "5 rds./level",
+      "area_of_effect": "1 weapon",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "d81ddb28-19b2-452a-8e5f-c13da6464a4f": {
+    "rules": "Wards a chosen surface or passage (portal, floor, stairs, etc.) so it reacts to any creature over about 1.4 kg. Entering, touching, or contacting the ward without speaking the caster's password triggers a loud ring audible to an 18 m radius, reduced 3 m per interposing door and 6 m per substantial wall. The sound lasts 1 round. Flying, levitating, invisible, incorporeal, or gaseous creatures trigger it; ethereal or astral creatures do not.",
+    "art": "A shadowy figure freezes mid-step upon a moonlit stone stairway as a shimmering translucent web of arcane energy flares gold across the steps, ghostly ripples of sound radiating outward through a dim vaulted corridor.",
+    "stats": {
+      "casting_time": "1 round",
+      "range": "3 m",
+      "duration": "4 hrs. + 0.5 hr./level",
+      "area_of_effect": "6.1 m cube",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "d6da997a-9d74-4d86-988e-0ba266ee94cd": {
+    "rules": "Creates one glowing missile of force that unerringly strikes any target the caster can see and identify; each hits automatically for 1d4+1 damage. An extra missile is gained per two levels beyond 1st: 2 at 3rd, 3 at 5th, 4 at 7th, 5 at 9th (maximum). Multiple missiles may be split among several creatures or concentrated on one. Cannot target inanimate objects or specific body parts; near-total concealment foils it. Wholly negated by a shield spell.",
+    "art": "Several darts of crackling blue-white arcane energy streak from a mage's outstretched fingertips in curving trails, slamming unerringly into a snarling foe amid bursts of luminous force.",
+    "stats": {
+      "casting_time": "1",
+      "range": "18.3 m + 3 m/level",
+      "duration": "Instantaneous",
+      "area_of_effect": "1-5 missiles",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "796dd788-880a-46b1-a721-904f7f98b2ad": {
+    "rules": "Creates a billowing yellowish-green gas cloud. Each creature within must save each round or be helpless with choking and retching, unable to act that round. Those who leave the cloud remain nauseated 1d4+1 rounds (-2 to attack rolls and saving throws). A strong wind disperses the cloud in 1 round; otherwise it drifts 3 m/round downwind. Creatures with Hit Dice 2 or more above the caster's level are unaffected.",
+    "art": "A thick, roiling cloud of sickly yellow-green vapor pooling low over a stone corridor as armored adventurers stagger and double over, retching, hands clutching their throats amid swirling noxious tendrils.",
+    "stats": {
+      "casting_time": "2",
+      "range": "9.1 m",
+      "duration": "1 rd./level",
+      "area_of_effect": "6.1 m cube",
+      "saving_throw": "vs. Poison (neg.)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "dcf10ed6-4bd3-44ec-95f0-02b25132533b": {
+    "rules": "A pea-sized bead streaks to the target point and detonates in a burst of flame, dealing 1d6 damage per caster level (maximum 10d6). A successful save halves the damage. The blast bursts, bends around corners, and fills its full volume (about 904 m³ for the standard radius); in an enclosed space too small to contain it, the flames expand into adjacent open areas. It ignites combustibles and may melt soft metals. Damage is not reduced by cover from corners.",
+    "art": "A blazing orange-red sphere erupts in a stone dungeon corridor, tongues of fire curling around a corner and licking hungrily along the walls, silhouetted figures thrown back amid billowing smoke and glowing embers.",
+    "stats": {
+      "casting_time": "3",
+      "range": "30.5 m + 3 m/level",
+      "duration": "Instantaneous",
+      "area_of_effect": "6.1 m radius sphere",
+      "saving_throw": "vs. Spell (½)",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "d37f7fef-2178-411f-b874-976970290d90": {
+    "rules": "A beam of concussive force lashes from the caster's hand, striking all creatures in its path for 5d4 damage +2 per caster level, to a maximum of 5d4+20. A successful save halves the damage. Creatures with amorphous or nonsolid bodies (fire or air elementals, some oozes and slimes) take only half damage, or one-quarter with a successful save.",
+    "art": "A searing lance of translucent, rippling force erupts from a wizard's outstretched palm, its shockwave splintering a wooden door and cracking stone walls as caught creatures are hurled back amid a burst of concussive light and flying debris.",
+    "stats": {
+      "casting_time": "3",
+      "range": "0",
+      "duration": "Instantaneous",
+      "area_of_effect": "1.5 m wide, 18.3 m long beam",
+      "saving_throw": "vs. Spell (½)",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "7ea460db-8cbd-4d59-a20a-95aca55e328b": {
+    "rules": "Attempts to end ongoing spells and magical effects on a target creature, object, or area. Base success 50%, adjusted +5% per level the caster exceeds the effect's original caster and −5% per level below (min 5%, max 95%). Against magical items, treat the item as 12th level and grant it +2 to resist. When cast on an area, every magical effect present is checked—including the caster's allies' spells. The caster automatically ends his own active spells.",
+    "art": "A sweeping wave of translucent silver-blue energy rolls across a battlefield, shattering glowing enchantments into dissolving motes as a robed mage thrusts an open palm forward, arcane wards flickering and collapsing around startled combatants.",
+    "stats": {
+      "casting_time": "3",
+      "range": "36.6 m",
+      "duration": "Instantaneous",
+      "area_of_effect": "9.1 m cube or one item/creature",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  },
+  "b036bcc4-a448-4e87-bff3-7fb335e957cc": {
+    "rules": "Excavates 125 cubic m of earth, sand or mud per round (a 1.5 m cube), or expands/starts holes each later round; spoil scatters around the pit. Earth past 6.1 m deep has 15% collapse chance per 1.5 m; sand collapses past 3 m, mud past 1.5 m, quicksand refills instantly. A creature within 0.3 m of a pit falls in unless it makes a Dexterity check; one rushing at a fresh pit falls in on a failed save. Occupants may climb out (DM's rate);",
+    "art": "A yawning square pit tearing open in a hillside as unseen force flings arcs of dark soil outward, a startled armored figure tumbling over the crumbling brink into the shadowed depths.",
+    "stats": {
+      "casting_time": "4",
+      "range": "27 m",
+      "duration": "1 rd./level",
+      "area_of_effect": "5-m cube/level",
+      "saving_throw": "Special",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ]
+    }
+  },
+  "d5002d56-d334-44a5-8637-e4d0ceb62e7e": {
+    "rules": "Grants the caster the ability to perform minor, harmless magical tricks and simple tasks. During the spell, the caster can execute one minor effect per round (taking 1 segment each), such as lighting a candle, chilling or warming food, cleaning or dirtying garments, creating small sparks or colored lights, tying loose knots, or spicing a meal. Cantrips cannot deal damage, disrupt concentration, directly alter combat stats, or replicate higher-level spell effects.",
+    "art": "A young wizard playfully gestures, causing small glowing orbs, tiny sparks, and a gentle swirl of multicolored sparkles to dance around his fingertips while casually lighting a distant candle.",
+    "stats": {
+      "casting_time": "1",
+      "range": "9.1 m",
+      "duration": "1 hr./level",
+      "area_of_effect": "0.9-m cube",
+      "saving_throw": "None",
+      "components": [
+        "V",
+        "S"
+      ]
+    }
+  }
+}

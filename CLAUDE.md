@@ -14,11 +14,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Datenbank & Auth:** Supabase (PostgreSQL + Row Level Security)
 - **Styling:** Tailwind CSS v4 + shadcn/ui + Glassmorphism Design-System
 - **i18n:** next-intl (Cookie-basiert, DE/EN) + `localized()` Utility für DB-Daten
-- **Unit-/Integrationstests:** Vitest (1564 Tests)
-- **E2E-Tests:** Playwright (120+ E2E inkl. Responsive, A11y, Sidebar, XP-Management, GM-Dashboard, Master, Mobile, Approval-Flow)
+- **Unit-/Integrationstests:** Vitest (1764 Tests)
+- **E2E-Tests:** keine automatisierte E2E-Suite mehr (Playwright-Specs, Test-Login-Routen und QA-Test-Domain entfernt). UI-Verhalten wird explorativ über `playwright-cli` geprüft. Das Paket `playwright` bleibt nur für die Spell-Card-Render-Skripte unter `scripts/spell-cards/`.
 - **Linting/Formatting:** ESLint (next config) + Prettier (0 Warnings, 0 Errors)
 - **Hosting:** Vercel (Free-Tier)
-- **AI:** Anthropic Claude API (Character Import, Monster Import, Session Summaries) + Google Gemini (Imagen für Bild-Generierung)
+- **AI:** Google Gemini (Character Import, Monster Import, Session Summaries, Rulebook Chat via `gemini-flash-latest`/`gemini-pro-latest` + Imagen für Bild-Generierung), Voyage AI (Embeddings für die Regelbuch-Suche)
 - **Export:** `docx` + `file-saver` für Word-Export
 - **Image Compression:** Client-seitige Canvas API für iPhone-Fotos vor Upload
 - **UI-Theme:** Glassmorphism Dark Fantasy (Cinzel Headings, Geist Sans Body, klassenbasierte Akzentfarben, 3D-Tilt-Cards, Stagger-Reveal)
@@ -36,8 +36,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | `npm run format:check` | Prettier: Formatierung prüfen              |
 | `npm test`             | Unit-Tests einmalig ausführen              |
 | `npm run test:watch`   | Unit-Tests im Watch-Modus                  |
-| `npm run test:e2e`     | Playwright E2E-Tests ausführen             |
-| `npm run test:e2e:ui`  | Playwright im UI-Modus                     |
 | `npm run verify`       | **CI lokal spiegeln** (alle obigen Checks) |
 
 **Wichtig:** Vor jedem Commit/Push `npm run verify` ausführen — dieser Befehl spiegelt exakt die CI-Pipeline (`format:check`, `lint`, `typecheck`, `test`, `build`). `npm run build` allein reicht nicht, weil Turbopack keine `*.test.ts` Dateien kompiliert, `tsc --noEmit` im CI aber schon.
@@ -48,11 +46,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 src/
   app/                    # Next.js App Router (Pages, Layouts)
     characters/[id]/      # Charakterbogen, Druckansicht, Zauberbuch, Play Mode, Epische Ausrüstung
+    characters/[id]/rescan/ # Bogen erneut scannen → kuratierbare Änderungsliste
     characters/new/       # Charakter-Erstellung (Auswahl: Wizard oder Import)
-    characters/import/    # OCR/Vision-Import (Claude API)
-    api/scan-character/   # Claude Vision Endpoint für Character-Import
-    api/scan-monster/     # Claude Vision Endpoint für Monster-Import (Haiku/Sonnet Precise Mode)
-    api/rulebook-chat/    # Claude Endpoint für GM Rulebook Chat
+    characters/import/    # OCR/Vision-Import (Gemini Vision)
+    api/scan-character/   # Gemini Vision Endpoint für Character-Import (mode=create|update)
+    api/scan-monster/     # Gemini Vision Endpoint für Monster-Import (Flash/Pro Precise Mode)
+    api/rulebook-chat/    # Gemini Endpoint für GM Rulebook Chat (Streaming, Realms-Persona)
     dashboard/            # Dashboard mit 8 Widgets (Zitat, NPCs, XP, Tags, Party-Übersicht, etc.)
     party/                # Party-Inventar & Loot-Verteilung (Gold + Items + Audit-Log)
     master/               # GM-Dashboard: PIN-Gate, Party-Übersicht, Loot-Verteilung, Gold, Chat
@@ -68,8 +67,10 @@ src/
     app-nav.tsx           # Mobile Bottom-Nav + More-Menu
     master/               # GM-Dashboard: Immersive PIN-Gate (Chaos-Artwork), Party Panel (Council of Heroes mit Aggregat-Stats), Gold Panel (Treasury Vault mit Multi-Select + Split), Items Panel (CRUD + In-Use-Check), Bestiary Panel (Monster CRUD + AI Import + Precise-Mode-Toggle), MonsterForm (Create/Edit), MonsterVariantPicker (Multi-Variant-Scan), NPCs, Combat Simulator, Bookmarks, Rulebook Chat, Sidebar, Bottom Nav
     notifications/        # Notification Bell mit Delete-Funktion (einzeln + alle)
+    character-rescan/     # Rescan: Upload-Panel, Änderungsliste, Änderungs-Zeile
     epic-equipment/       # Epische Ausrüstung (Schadensstufen-Cards, Simple Items, Blade System, Spell Abilities)
     party/                # Party-Inventar (Gold-Panel, Items-Panel, Log-Panel, Loot-Verteilung)
+    settings/             # Einstellungen: Spieltermine-Panel (CRUD)
     play-mode/            # Play Mode (Kampf, Zauber, Fähigkeiten, Checks, Wahrnehmung, Inventar, Geldbörse, Untote vertreiben, Gestaltwandlung)
     spellbook/            # Standalone Spellbook-Seite (Suche, Filter, Prepare, Learn, Source-Book-Filter)
     print-sheet/          # Druckansicht + Word-Export (.docx), Customization Panel
@@ -112,21 +113,26 @@ src/
       treasure-codes.ts   # DMG-Treasure-Code-Legende (A-Z → DE-Kurzbeschreibung, Tooltip im Bestiary)
     rules/
       magic-items.ts      # getMagicItemEffects(equipment) — Aggregiert AC-Bonus, Saves etc. aus character_equipment.magic_effects
-    gemini/               # Google Gemini Imagen Client für Bild-Generierung (Rassen, Klassen, Banner)
-    scan/                 # AI-Scan-Prompts
-      monster-scan-prompt.ts # Claude Vision Prompt für Monster-Import (ScannedMonsterVariant-Schema)
-    test/                 # Test-Infrastruktur
-      constants.ts        # TEST_DOMAIN (@qa.chaosforge.test), TEST_PRIMARY_EMAIL, TEST_SECONDARY_EMAIL
+    gemini/               # Google Gemini: Imagen-Client für Bilder + `generate-text.ts`/`text-request.ts` für alle Text- und Vision-Aufrufe (Rassen, Klassen, Banner)
+    game-dates/           # Spieltermine: reine Datumslogik (index.ts) + Supabase-I/O (api.ts)
+    scan/                 # AI-Scan-Prompts + Charakterbogen-Rescan-Engine
+      monster-scan-prompt.ts # Gemini Vision Prompt für Monster-Import (ScannedMonsterVariant-Schema)
+      character-scan-prompt.ts # Create-/Update-Prompt, Typen, parseUpdateScanResponse()
+      character-matching.ts # Fuzzy-Matching gegen Stammdaten (Waffen, NWPs, Zauber), Whitelists
+      character-diff.ts     # buildChangeSet() — DB-Stand vs. Scan-Payload → ScanChange[]
+      character-apply.ts    # buildApplyPlan() — ausgewählte Änderungen → ApplyOperation[]
+      execute-apply-plan.ts # Dünner I/O-Layer mit Fehler-Sammlung
+    catalog/              # Session-Cache für Stammdaten im Browser (spell-catalog.ts, equipment-catalog.ts)
+    master/               # Server-only GM-Helfer (auto-share.ts, läuft per after())
     hooks/                # Custom React Hooks
       use-print-preferences.ts # Print-Layout-Preferences pro Charakter (localStorage)
+      use-view-mode.ts    # Ansichtsmodus (auto/mobile/desktop) als Hook
+      use-breakpoint.ts   # useBreakpoint("sm"|"lg") — JS-Breitenprüfung, die den Ansichtsmodus respektiert
+    view-mode.ts          # Ansichtsmodus pro Gerät: localStorage, Klasse auf <html>, Pre-Paint-Script
     print-config.ts       # Print-Section-IDs, Preferences-Typen, Persistence
-  middleware.ts           # Next.js Middleware (Supabase Session-Refresh)
+  proxy.ts                # Next.js Proxy (ehem. Middleware): Supabase Session-Refresh per getClaims()
   test/                   # Vitest Setup, Smoke- & Regressionstests
-e2e/                      # Playwright E2E-Tests
-  responsive-a11y.spec.ts # Mobile Responsive, Desktop Sidebar, FAB + WCAG 2 AA (axe-core)
-  pages/                  # Page Object Models (character-sheet, spellbook, login, master, party)
-  helpers/                # Auth-Helper (Cookie-basierter Test-Login, Test-Domain: @qa.chaosforge.test)
-scripts/                  # Einmalige Daten-Pipeline-Scripts (nicht committed, siehe docs/monster-import.md)
+scripts/                  # Einmalige Daten-Pipeline-Scripts (spell-cards/ ist versioniert, out/ nicht)
 messages/                 # i18n-Dateien (de.json, en.json)
 supabase/
   migrations/             # 213 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items + Realtime + Gold RPC + Monsters + Notifications + Weapon Proficiency Split + Monster Narrative + Profiles)
@@ -261,6 +267,15 @@ CSS-Klassen in `globals.css`:
 - `.hp-bar-warrior/priest/rogue/wizard` — Gradient-HP-Balken
 - `.hex-badge` — Hexagonaler Clip-Path für Level-Badge
 
+### Ansichtsmodus (Automatisch / Mobil / Desktop)
+
+Pro Gerät wählbar unter Einstellungen → Darstellung (`ViewModeSelector`), gespeichert in localStorage `chaos-forge-view-mode`. `src/lib/view-mode.ts` setzt die Klasse `view-mobile` bzw. `view-desktop` auf `<html>`, ein Inline-Script in `layout.tsx` schon vor dem ersten Paint.
+
+- `globals.css` definiert die Tailwind-Breakpoints `sm`–`2xl` per `@custom-variant` neu (Breiten = Defaults): `.view-mobile` schaltet alle ab, `.view-desktop` erzwingt nur `sm` (den Layout-Breakpoint). `:where()` hält Spezifität und Reihenfolge wie bei den Defaults.
+- **JS-Breitenprüfungen nur über `useBreakpoint()`**, nie direkt `matchMedia`/`useMediaQuery` mit `min-width` — sonst ignorieren sie den Modus (`src/test/view-mode-guard.test.ts` prüft das).
+- `max-*`-Varianten sind nicht überschrieben und ignorieren den Modus.
+- Panels im halbbreiten Play-Mode-Grid (`PLAY_DESKTOP_GRID_CLASS`) breite innere Grids erst ab `lg`, nicht ab `sm`.
+
 ### Klassenfarben (`src/lib/utils/class-colors.ts`)
 
 | Klassengruppe | Glow | Badge          | HP-Bar        |
@@ -282,14 +297,16 @@ Diese Abweichungen vom Standard-PHB gelten für die "Chaos RPG"-Gruppe:
 
 ## Supabase
 
-- **Client-Helfer:** `src/lib/supabase/client.ts` (Browser), `server.ts` (Server Components), `service.ts` (Service Role, RLS-Bypass), `middleware.ts` (Session-Refresh)
-- **Env-Variablen:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GM_PIN` (6-Digit), optional `GM_SESSION_SECRET` in `.env.local`
+- **Client-Helfer:** `src/lib/supabase/client.ts` (Browser), `server.ts` (Server Components), `service.ts` (Service Role, RLS-Bypass), `middleware.ts` (`updateSession` für `src/proxy.ts`)
+- **Auth-Prüfung:** Pages/Layouts nutzen `requireAuth()`/`getOptionalUser()` aus `src/lib/supabase/auth.ts` — lokale JWT-Prüfung per `getClaims()` (ES256-Signing-Keys, kein Roundtrip zum Auth-Server), pro Request per React `cache()` dedupliziert, Rückgabe `AuthUser { id, email }`. API-Routen mit sensiblen Aktionen (Konto löschen, Admin) prüfen weiter per `getUser()` gegen den Auth-Server. Der Freigabe-Status kommt im Browser aus `ApprovalProvider`/`useApproval()` (eine Query, ein Realtime-Channel pro Seite).
+- **Kataloge im Browser:** `src/lib/catalog/` hält Zauber (`getSpellCatalog`, `getSpellNameIndex`) und Ausrüstung (`getEquipmentCatalogs`) als Session-Cache; nach eigenen Inserts `invalidate*()` aufrufen. Tabellen mit mehr als 1000 Zeilen immer über `fetchAllRows()` (`src/lib/supabase/fetch-all-rows.ts`) laden — PostgREST kappt jede Antwort bei 1000 Zeilen, `.limit()` darüber wirkt nicht.
+- **Env-Variablen:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_API_KEY` (alle KI-Features), `VOYAGE_API_KEY` (Regelbuch-Suche), `GM_PIN` (6-Digit), optional `GM_SESSION_SECRET` und `CRON_SECRET` in `.env.local`
 - **RLS:** Alle Tabellen nutzen Row Level Security — SELECT für alle Authentifizierten, INSERT/UPDATE/DELETE nur für Owner
 - **Storage:** `voice-notes` Bucket für Sprachnotizen, `avatars` für Character-Avatare
-- **Migrationen:** 219 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
+- **Migrationen:** 223 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
 - **User-Freigabe:** `profiles.is_approved` (default false, bestehende User via Backfill auf true) + `enforce_approval`-BEFORE-Trigger auf 20+ Tabellen (`characters`, `character_equipment`, `character_spells`, `chronicle_npcs`, `chronicle_quotes`, `sessions`, `tags`, `party_loot_*`, `monsters`, `magic_items`, `epic_items`, `gm_bookmarks`). `approve_user(uuid)` RPC nur für Admin. Items mit `simple_effects.base_<stat>` (Kondensator) gehen über `forceStatOverrides` — ersetzen Basiswert unbedingt (nicht max()).
 - **Tutorials:** `profiles.skip_tutorials` (Backfill = true) blendet Overlays für bestehende User aus. Client-Side localStorage-Key `chaos-forge-tutorial-dismissed`.
-- **Test-Domain:** E2E-Tests nutzen `@qa.chaosforge.test` (RFC-reservierte `.test`-TLD). Zentrale Constants in `src/lib/test/constants.ts`. Alle API-Routes (`test-login`, `test-cleanup`, `test-seed*`) whitelisten nur diese Domain. `share-dialog.tsx` filtert die Test-Domain aus dem Share-Dropdown.
+- **Spieltermine:** `game_dates` (`event_date` als reines `date`, kein Zeitstempel — Countdown darf nicht von der Serverzeitzone abhängen). Jeder freigegebene Nutzer darf CRUD. Ein `AFTER`-Trigger verteilt Benachrichtigungen an alle anderen freigegebenen Spieler; Auslöser aus der QA-Domain und System-Kontext (kein `auth.uid()`) sind ausgenommen.
 
 ## AD&D 2e Regelwerk-Spezifika
 
@@ -305,7 +322,7 @@ Das Datenmodell und die Regelwerk-Engine müssen folgende AD&D 2e Besonderheiten
 - **Shield Proficiency:** P.O: Skills & Powers Table 51 — Buckler +1, Small +2, Medium +3, Large +3 (über `armor.shield_type` + Weapon Proficiency)
 - **Traits & Disadvantages:** P.O: Skills & Powers — JSONB-Arrays auf `characters` mit Name, Beschreibung, CP-Kosten (bilingual)
 - **Source Books:** Jedes Item/Waffe/Zauber hat ein `source_book` Feld (PHB, AEG, ToM, etc.)
-- **Monster Stat Blocks:** Vollständige Monstrous Manual Struktur (AC, HD, THAC0, APR, Damage, Special Attacks/Defenses, Morale, XP Value, Size, Climate, Treasure, Alignment, Typical Spells, No. Appearing). Narrative Sektionen: `intro_text`, `combat_tactics`, `habitat_society`, `ecology`. Sub-Varianten via `variant_of_id` (FK Self-Reference) + `variant_name`. `parseHitDiceValue()` unterstützt `"1/2"`, `"3+3"` und `"8"` Notation. GM kann alle Monster (auch canonical) über `MonsterForm` bearbeiten. AI-Import (Claude Vision) mit Multi-Variant-Picker für Stat-Blocks mit Sub-Varianten (z.B. Orc + Orog). Precise-Mode (Sonnet vs. Haiku) als Settings-Cog am Import-Button.
+- **Monster Stat Blocks:** Vollständige Monstrous Manual Struktur (AC, HD, THAC0, APR, Damage, Special Attacks/Defenses, Morale, XP Value, Size, Climate, Treasure, Alignment, Typical Spells, No. Appearing). Narrative Sektionen: `intro_text`, `combat_tactics`, `habitat_society`, `ecology`. Sub-Varianten via `variant_of_id` (FK Self-Reference) + `variant_name`. `parseHitDiceValue()` unterstützt `"1/2"`, `"3+3"` und `"8"` Notation. GM kann alle Monster (auch canonical) über `MonsterForm` bearbeiten. AI-Import (Gemini Vision) mit Multi-Variant-Picker für Stat-Blocks mit Sub-Varianten (z.B. Orc + Orog). Precise-Mode (`gemini-pro-latest` vs. `gemini-flash-latest`) als Settings-Cog am Import-Button.
 - **Magic Items AC:** `getMagicItemEffects(equipment)` aggregiert `ac_bonus` aus `character_equipment.magic_effects`. AD&D nutzt absteigende AC → Magic-Boni sind **negativ** (z.B. Ring of Protection +1 = `ac_bonus: -1`). `calculateAC()` akzeptiert `magicACModifier` Parameter — muss an **jeder** Aufrufstelle (Character-Sheet, Tab-Equipment, Play-Mode, Print-Sheet, DOCX-Export) mitgegeben werden.
 - **Custom Weapons:** `weapons.name` = Display-Name, `weapons.proficiency_name` = Waffenfertigkeits-Kategorie (getrennt seit Migration 00200) — ermöglicht z.B. ein "Krassreißer +2" mit Proficiency-Kategorie "Long Sword"
 
@@ -320,7 +337,7 @@ Analysiere Anforderungen, sammle offene Fragen und Edge Cases, generiere Lösung
 ### Phase 2: Implementierung
 
 - Strikt nach **Test-Driven Development (TDD)** und **Clean Code**
-- Tests gemäß Testpyramide: Unit > Integration > E2E
+- Tests gemäß Testpyramide: Unit > Integration (keine automatisierte E2E-Suite)
 - Explorative Tests via `playwright-cli` durchführen; für jeden gefundenen Bug erst einen fehlschlagenden Test schreiben, dann beheben
 
 ### Phase 3: Code Review
@@ -352,3 +369,13 @@ Finaler explorativer Test mit etablierten Testing-Heuristiken und gezielten "Tes
 17. **Immersive Screens & QA-Migration** — PIN-Gate + Login-Screens mit Chaos-Artwork (Parchment-Cards, Party-Background mit allen aktiven Chars), NPC-Card-Layout-Polish + Confirm-Dialog, Bestiary-Header-Redesign (konsistente Buttons + Settings-Cog für Precise-Mode), Test-Domain Migration auf `@qa.chaosforge.test` (RFC .test TLD, zentrale Constants, 0 Spam-Risiko), 5 pre-existing E2E-Failures gefixt ✅
 18. **Landing Page, Tutorial & User-Freigabe** — Landing-Redesign (Hero + 4 Feature-Cards mit Klassen-Glows + How-It-Works + Footer-CTA), Custom Tutorial-Overlay mit Spotlight-Clip-Path (Dashboard, Charakterbogen, Party, Chronik), Rulebook Chat im Dual-Mode (Regeln + App-Hilfe), `profiles.is_approved` mit BEFORE-Trigger auf 20+ Tabellen, Approval-Banner + Realtime, Admin-Approve/Reject-Page `/admin/approve/[id]`, Discord-Webhook-Ping, Legacy-User-Heal-Migration, Larry-Artwork-Replacement via Gemini Image-Edit ✅
 19. **Settings, Legal & Kondensator** — `/settings` (Profil, Theme, Sprache, Tutorial-Reset, DSGVO-Self-Delete), `/impressum` + `/datenschutz` + Footer mit externen Diensten + DSGVO-Rechten, `forceStatOverrides`-Semantik für Epic Items mit `simple_effects.base_<stat>` (Kondensator CON-Fallback: beim Ablegen → CON 5, beim Anlegen → 18), `computeEffectiveMaxHp` Delta-Helper mit asymmetrischer Current-HP-Clamping-Regel (CON↑ max steigt/current bleibt, CON↓ current geclamped), ApprovalGate + Server-403 um Chronik-Actions (Bild-Gen/KI-Summary), KI-Summary max_tokens 500→1500, `skip_tutorials`-Flag für bestehende User ✅
+
+20. **Charakterbogen-Rescan** — Zweiter Scan-Pfad, der einen bestehenden Charakter aktualisiert statt einen neuen anzulegen: `/characters/[id]/rescan` mit kuratierbarer Änderungsliste (jede Änderung ab-/anwählbar und im Wert editierbar). Der Update-Prompt erfasst gedruckte UND handschriftliche Werte getrennt; bei Konflikt gewinnt die Handschrift, beide Werte bleiben sichtbar und umschaltbar. Reine, unit-getestete Pipeline in `src/lib/scan/` (Diff → Apply-Plan → Executor). Entfernungs-Vorschläge, aktuelle TP, Stammdaten und Notizen starten sichtbar-aber-abgewählt; nicht gelesene Felder erzeugen nie einen Vorschlag. Ausrüstung wird per Namens-Fuzzy-Match wiedererkannt. Nebenbei: `is_approved`-Check für `/api/scan-character` nachgerüstet, Matching-Logik aus dem Create-Import extrahiert und erstmals testabgedeckt ✅
+
+21. **Wechsel auf Google Gemini** — Alle KI-Features von der Anthropic-API auf Gemini umgestellt: Regelbuch-Chat (Streaming), Charakterbogen-Scan, Monster-Scan und Session-Zusammenfassungen. Gemeinsamer Layer unter `src/lib/gemini/` (`text-request.ts` rein und unit-getestet, `generate-text.ts` als dünner I/O-Layer mit `generateText()`/`streamText()`). Alias-Modelle statt gepinnter IDs, weil Google gepinnte Versionen abschaltet. JSON-Modus (`responseMimeType`) für die Scan-Routen, Truncation über `finishReason: MAX_TOKENS`. Der Chat spricht als Gelehrter aus den Reichen, hält sich kurz und antwortet nur zu AD&D und zur App. Datenschutzerklärung auf Google als Empfänger umgestellt, `@anthropic-ai/sdk` entfernt ✅
+
+22. **Spieltermine** — Gemeinsam gepflegte Liste der nächsten Rollenspielabende: `game_dates`-Tabelle (Kalenderdatum ohne Zeitzone, optionaler Titel), CRUD-Sektion in `/settings` (anlegen, bearbeiten, löschen mit Bestätigung, vergangene Termine eingeklappt), Dashboard-Banner aus der DB statt aus einer hart kodierten Konstante, In-App-Benachrichtigung an alle freigegebenen Spieler via DB-Trigger (angelegt / verschoben / abgesagt). Datumslogik rein und unit-getestet in `src/lib/game-dates/`; Termine in der Vergangenheit werden gewarnt, nie blockiert ✅
+
+23. **Performance-Runde & E2E-Abbau** — Auth ohne Roundtrip (`getClaims()` in `proxy.ts` und `requireAuth`, React-`cache()`-Deduplizierung), `ApprovalProvider` statt Query + Channel pro Banner/Gate, Session-Detail in 2 statt 10 sequenziellen Queries, Epic-Seite in einer Welle, GM-Auto-Share per `after()`, Realtime-Refresh nur im sichtbaren Tab, Zauber-/Ausrüstungskataloge als Session-Cache, Fix: Zauber-Lernen-Dialog zeigte nur 1000 Zauber (`fetchAllRows`), Cache-Header für `public/`-Bilder, Bildprioritäten, GM-Panels per `next/dynamic` (−32 % JS auf `/master`). Playwright-E2E-Suite, Test-Login-Hintertür und QA-Test-Domain entfernt ✅
+
+24. **Ansichtsmodus & Tablet-Fix** — Einstellung „Ansicht: Automatisch / Mobil / Desktop“ pro Gerät (localStorage, Klasse auf `<html>`, Pre-Paint-Script), Tailwind-Breakpoints per `@custom-variant` mit `:where()` überschrieben, `useBreakpoint()` für JS-Breitenprüfungen, Toaster oben mittig im Mobil-Modus. Play-Mode-Grid mit `minmax(0,…)` statt `1fr`/Prozent (Galaxy Tab S6 Lite, 800 px, musste herauszoomen), innere Panel-Grids erst ab `lg`. Test-Setup nutzt unter Node ≥ 25 jsdoms `localStorage` ✅

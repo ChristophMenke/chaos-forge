@@ -1,33 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import { generateText, type AiInputFile } from "@/lib/gemini/generate-text";
 import sharp from "sharp";
 import { createClient } from "@/lib/supabase/server";
 import { validateImportFiles } from "@/app/characters/import/import-validation";
-
-type ImageMediaType = "image/jpeg" | "image/png" | "image/webp" | "image/gif";
-
-function buildContentBlock(
-  base64: string,
-  mediaType: string,
-  isPdf: boolean
-):
-  | { type: "document"; source: { type: "base64"; media_type: "application/pdf"; data: string } }
-  | { type: "image"; source: { type: "base64"; media_type: ImageMediaType; data: string } } {
-  if (isPdf) {
-    return {
-      type: "document" as const,
-      source: { type: "base64" as const, media_type: "application/pdf" as const, data: base64 },
-    };
-  }
-  return {
-    type: "image" as const,
-    source: {
-      type: "base64" as const,
-      media_type: mediaType as ImageMediaType,
-      data: base64,
-    },
-  };
-}
+import {
+  buildCharacterScanPrompt,
+  parseUpdateScanResponse,
+} from "@/lib/scan/character-scan-prompt";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -39,10 +18,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Nicht authentifiziert." }, { status: 401 });
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  // Approval gate — nicht freigegebene Nutzer scheitern ohnehin am
+  // enforce_approval-Trigger beim Schreiben. Der Check hier verhindert, dass
+  // vorher unnötig Vision-Tokens verbraucht werden.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_approved")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (profile && profile.is_approved === false) {
+    return NextResponse.json(
+      { error: "Du musst erst freigeschaltet werden, bevor du Charakterbögen scannen kannst." },
+      { status: 403 }
+    );
+  }
+
+  const apiKey = process.env.GOOGLE_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "Vision-Import ist nicht konfiguriert (ANTHROPIC_API_KEY fehlt)." },
+      { error: "Vision-Import ist nicht konfiguriert (GOOGLE_API_KEY fehlt)." },
       { status: 503 }
     );
   }
@@ -63,7 +57,7 @@ export async function POST(request: NextRequest) {
     if (!validation.valid) {
       const errorMessages: Record<string, string> = {
         noFiles: "Keine Dateien hochgeladen.",
-        tooManyFiles: "Maximal 5 Dateien erlaubt.",
+        tooManyFiles: "Maximal 15 Dateien erlaubt.",
         fileTooLarge: `Datei "${validation.errorParams?.name ?? ""}" ist zu groß (max. 10 MB pro Datei).`,
         totalTooLarge: "Gesamtgröße darf 50 MB nicht überschreiten.",
       };
@@ -73,131 +67,67 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Build content blocks for all files
-    const contentBlocks: Array<
-      | {
-          type: "document";
-          source: { type: "base64"; media_type: "application/pdf"; data: string };
-        }
-      | { type: "image"; source: { type: "base64"; media_type: ImageMediaType; data: string } }
-    > = [];
+    // Build the file parts for all uploads
+    const files: AiInputFile[] = [];
 
     for (const file of allFiles) {
       const bytes = Buffer.from(await file.arrayBuffer());
       const isPdf = file.type === "application/pdf";
 
       if (isPdf) {
-        const base64 = bytes.toString("base64");
-        contentBlocks.push(buildContentBlock(base64, file.type, true));
+        files.push({ data: bytes.toString("base64"), mimeType: "application/pdf" });
       } else {
-        // Resize images to max 1568px (Anthropic recommended limit)
-        // Reduces token cost and prevents request size issues
+        // Auf 1568px verkleinern: hält die Token-Kosten unten und die Anfrage
+        // klein genug, ohne der Handschrift-Erkennung Auflösung zu nehmen.
         const resized = await sharp(bytes)
           .rotate() // Auto-rotate based on EXIF orientation
           .resize(1568, 1568, { fit: "inside", withoutEnlargement: true })
           .jpeg({ quality: 85 })
           .toBuffer();
-        const base64 = resized.toString("base64");
-        contentBlocks.push(buildContentBlock(base64, "image/jpeg", false));
+        files.push({ data: resized.toString("base64"), mimeType: "image/jpeg" });
       }
     }
 
     const isMultiFile = allFiles.length > 1;
     const preciseMode = formData.get("precise") === "true";
+    const mode = formData.get("mode") === "update" ? "update" : "create";
 
-    const client = new Anthropic({ apiKey });
-
-    const message = await client.messages.create({
-      model: preciseMode ? "claude-sonnet-4-6" : "claude-haiku-4-5-20251001",
-      max_tokens: 4096,
-      messages: [
-        {
-          role: "user",
-          content: [
-            ...contentBlocks,
-            {
-              type: "text",
-              text: `Analysiere diesen AD&D 2nd Edition Charakterbogen und extrahiere ALLE verfügbaren Werte als JSON.
-Antworte NUR mit validem JSON, kein anderer Text.
-
-WICHTIG: Verwende NUR die MASCHINENGEDRUCKTEN Werte aus dem Charakterbogen. IGNORIERE alle handschriftlichen Notizen, Durchstreichungen und handschriftlichen Korrekturen vollständig. Wenn ein gedruckter Wert durchgestrichen und ein neuer Wert handschriftlich daneben geschrieben wurde, verwende trotzdem den GEDRUCKTEN Wert.
-
-${isMultiFile ? "Dieser Charakterbogen erstreckt sich über mehrere Seiten/Dateien. Kombiniere die Informationen aus allen Seiten zu einem einzelnen Charakter.\n" : ""}
-Erwartetes Format:
-{
-  "name": "Charaktername",
-  "race": "human|elf|half_elf|dwarf|gnome|halfling|half_orc|kobold",
-  "classes": [
-    {"class": "fighter", "level": 3, "xp": 5500}
-  ],
-  "kit": null,
-  "alignment": "chaotic_neutral",
-  "str": 10,
-  "strExceptional": null,
-  "dex": 10,
-  "con": 10,
-  "int": 10,
-  "wis": 10,
-  "cha": 10,
-  "strStamina": null,
-  "strMuscle": null,
-  "dexAim": null,
-  "dexBalance": null,
-  "conHealth": null,
-  "conFitness": null,
-  "intReason": null,
-  "intKnowledge": null,
-  "wisIntuition": null,
-  "wisWillpower": null,
-  "chaLeadership": null,
-  "chaAppearance": null,
-  "hpMax": 10,
-  "hpCurrent": 10,
-  "goldPp": 0,
-  "goldGp": 0,
-  "goldSp": 0,
-  "goldCp": 0,
-  "playerName": null,
-  "age": null,
-  "gender": null,
-  "height": null,
-  "weight": null,
-  "weaponProficiencies": [],
-  "equipment": [{"name": "Quarterstaff +2", "magicBonus": 2}],
-  "nwps": [],
-  "spells": []
-}
-
-Hinweise:
-- "race" muss einer dieser IDs sein: human, elf, half_elf, dwarf, gnome, halfling, half_orc, kobold. "Stout Halfling" → "halfling", "Standard half-elf" → "half_elf". Subrassen werden auf die Hauptrasse gemappt
-- "classes" ist ein ARRAY — Multiclass-Charaktere haben MEHRERE Einträge! Z.B. "Fighter/Thief" → [{"class":"fighter","level":4,"xp":8000},{"class":"thief","level":5,"xp":10330}]. "class" muss einer dieser IDs sein: fighter, ranger, paladin, mage, illusionist, abjurer, conjurer, diviner, enchanter, invoker, necromancer, transmuter, cleric, druid, thief, bard
-- "kit" NUR verwenden wenn im Bogen explizit "Kit:" steht. Gültige Kits: barbarian, cavalier, swashbuckler, berserker, gladiator, myrmidon, assassin, bounty_hunter, acrobat, scout, burglar, spy, witch, militant_wizard, savage_wizard, academician, fighting_monk, pacifist_priest, beastmaster, blade. Wenn das Kit nicht in dieser Liste ist → null
-- "alignment" muss eine ID sein: lawful_good, neutral_good, chaotic_good, lawful_neutral, true_neutral, chaotic_neutral, lawful_evil, neutral_evil, chaotic_evil
-- "strExceptional" ist nur relevant bei STR 18 und Krieger-Klassen (1-100, wobei 100 = "18/00")
-- Sub-Stats (strStamina, strMuscle, etc.) sind Player's Option Werte. Extrahiere sie wenn vorhanden, sonst null
-- "weaponProficiencies" MUSS ein Array von {"name": "Waffenname", "specialized": true/false} sein. NICHT detaillierte Stats — nur Name und ob Specialist (true) oder nicht (false). Wenn "(Specialist)" hinter dem Namen steht → specialized: true
-- "equipment" ist ein Array von {"name": "Gegenstandsname", "magicBonus": 0}. Extrahiere ALLE Gegenstände aus ALLEN Inventar-Bereichen: "Items Carried", "Items Readied", "Items Worn", "Items Stored" und dem allgemeinen "Inventory"-Bereich. Dazu gehören Waffen, Rüstungen, Schilde, magische Gegenstände, Alltagsgegenstände (Backpack, Spellbook, Wineskin, etc.), Schmuck, Tiere und alles andere. Magische Gegenstände wie "Dagger +1" oder "Chain Mail +2" haben magicBonus > 0. Den Bonus aus dem Namen extrahieren (z.B. "+2" → magicBonus: 2). Wenn kein magischer Bonus → magicBonus: 0
-- "nwps" ist ein Array von Strings mit den Non-Weapon Proficiency Namen
-- "height" und "weight" als Strings/Zahlen wie im Bogen angegeben
-- "xp" in "classes" ist der GEDRUCKTE "XP:"-Wert (NICHT "Next Level:"). Wenn "XP: 78,150" und "Next Level: 90,000" steht, verwende 78150
-- Munition (quarrel, arrow, bolt, bullet) sind KEINE Waffen — nicht in weaponProficiencies aufnehmen
-- "spells" ist ein Array von {"name": "Zaubername", "level": 1}. Extrahiere ALLE Zauber aus "Spells Known" oder ähnlichen Bereichen. Der Level ist die Zauberstufe (1st Level → 1, 2nd Level → 2, etc.). Zaubernamen EXAKT wie gedruckt übernehmen (üblicherweise Englisch)
-- Wenn ein Wert nicht lesbar ist, verwende null
-- Übersetze deutsche Bezeichnungen (z.B. "Mensch" → "human", "Kämpfer" → "fighter")`,
-            },
-          ],
-        },
-      ],
+    const { text: responseText, truncated } = await generateText({
+      precise: preciseMode,
+      files,
+      prompt: buildCharacterScanPrompt({ mode, isMultiFile }),
+      // Der Update-Modus liefert zwei Blöcke plus fünf annotierte Listen und
+      // braucht damit spürbar mehr Platz als der flache Create-Payload. Auf
+      // Gemini 3 zählt zusätzlich das Nachdenken gegen dieses Budget.
+      maxOutputTokens: mode === "update" ? 24000 : 16000,
+      // Erzwingt rohes JSON statt eines Markdown-Blocks. Die Parser kommen mit
+      // beidem klar, aber so entfällt eine Fehlerquelle.
+      json: true,
     });
 
-    const responseText = message.content[0].type === "text" ? message.content[0].text : "";
-
     // Check if response was truncated
-    if (message.stop_reason === "max_tokens") {
+    if (truncated) {
       return NextResponse.json(
         { error: "Antwort wurde abgeschnitten — bitte erneut versuchen." },
         { status: 422 }
       );
+    }
+
+    // Update mode returns the two-block payload, parsed by the shared helper.
+    if (mode === "update") {
+      try {
+        return NextResponse.json({ payload: parseUpdateScanResponse(responseText) });
+      } catch (parseErr) {
+        return NextResponse.json(
+          {
+            error:
+              parseErr instanceof Error
+                ? parseErr.message
+                : "Konnte keine Charakterdaten aus dem Bild extrahieren.",
+          },
+          { status: 422 }
+        );
+      }
     }
 
     // Extract JSON from response (handle potential markdown code blocks)

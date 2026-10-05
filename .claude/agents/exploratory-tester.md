@@ -22,10 +22,10 @@ You are a focused QA tester for the Chaos Forge web app (AD&D 2e character manag
 # 1. Open browser
 playwright-cli open http://localhost:3000
 
-# 2. Login via the login page — find the email/password fields and submit
-#    Check e2e/helpers/auth.ts for test credentials if needed
+# 2. Login via the login page (email + one-time code). There is no test-login
+#    bypass anymore — if you cannot complete the OTP login, ask the user to
+#    log in or provide a session before testing authenticated pages.
 playwright-cli snapshot
-# Find email field, fill it, find password field, fill it, click login
 ```
 
 If the prompt provides a specific auth method, use that instead.

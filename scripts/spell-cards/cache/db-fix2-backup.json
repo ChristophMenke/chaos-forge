@@ -1,0 +1,1153 @@
+[
+  {
+    "id": "11ddffb3-5df1-4443-b642-7d1c879d642c",
+    "name": "Spiritual Hammer",
+    "old": {
+      "duration": "3 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "7cc81085-0dd8-4c43-bb82-3afc0c86e8cb",
+    "name": "Command",
+    "old": {
+      "duration": "1 Runde"
+    }
+  },
+  {
+    "id": "d64df0e0-8e03-49e2-bcef-3d26b82fb303",
+    "name": "Identify",
+    "old": {
+      "duration": "Sofort"
+    }
+  },
+  {
+    "id": "42973016-3e20-4fea-b636-283610e63817",
+    "name": "Improved Invisibility",
+    "old": {
+      "duration": "4 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "784c5cdf-aecf-4ea8-a35a-be3ea482523e",
+    "name": "Comprehend Languages",
+    "old": {
+      "duration": "5 Runden/Stufe"
+    }
+  },
+  {
+    "id": "034444f9-d712-409b-ad65-7f2a0f02c4a5",
+    "name": "Detect Magic",
+    "old": {
+      "duration": "2 Runden/Stufe"
+    }
+  },
+  {
+    "id": "2233896a-9d56-4872-971d-88aac5e34333",
+    "name": "Hold Monster",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "75b34b81-0be1-4f1c-b385-b9d96830ebe1",
+    "name": "Rainbow",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "7e89fa8d-d281-461b-96ce-05dc39a57aed",
+    "name": "Animal Growth",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "babcf6ed-d96f-412d-9dea-e87daf4b29d4",
+    "name": "Animate Rock",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "71c19afa-a362-4329-8298-6d270e81ec99",
+    "name": "Friends",
+    "old": {
+      "duration": "1d4 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "7d16b986-15f7-47cb-b879-642baf4870bf",
+    "name": "Grease",
+    "old": {
+      "duration": "3 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "eded2c10-0fa0-48d0-918e-a1104cdf57eb",
+    "name": "Hold Portal",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "49407aa8-f95c-4473-9070-31e84bc81ae5",
+    "name": "Message",
+    "old": {
+      "duration": "5 Runden/Stufe"
+    }
+  },
+  {
+    "id": "66c1d8d6-52f3-4390-970d-f3304f6d4cef",
+    "name": "Protection from Evil",
+    "old": {
+      "duration": "2 Runden/Stufe"
+    }
+  },
+  {
+    "id": "16002e11-3785-4240-b29d-561182a2afbe",
+    "name": "Read Magic",
+    "old": {
+      "duration": "2 Runden/Stufe"
+    }
+  },
+  {
+    "id": "c4533e99-332c-48b2-a2f1-215590a6ada3",
+    "name": "Spider Climb",
+    "old": {
+      "duration": "3 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "b8aa2775-05fb-4a02-bf77-1d7c590a8fff",
+    "name": "Wall of Fog",
+    "old": {
+      "duration": "2d4 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "80a4e726-40ac-47fb-b0b8-7dbc78367ebb",
+    "name": "Alter Self",
+    "old": {
+      "duration": "2d6 Runden + 2 Runden/Stufe"
+    }
+  },
+  {
+    "id": "2ef9309f-5971-45f7-9e6c-a09f6e1bdbcb",
+    "name": "Darkness, 15' Radius",
+    "old": {
+      "duration": "1 Runde/Stufe + 1 Runde"
+    }
+  },
+  {
+    "id": "45a09e4b-bffc-425d-a099-4c3302ea6c54",
+    "name": "Blur",
+    "old": {
+      "duration": "3 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "35592d41-3df0-461b-81ec-85232635b992",
+    "name": "Flaming Sphere",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "d5e70f57-3559-4c40-8c37-7cde2c251248",
+    "name": "Fog Cloud",
+    "old": {
+      "duration": "4 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "149db34b-9b48-42c3-bc5d-9442d7cc17bf",
+    "name": "Ray of Enfeeblement",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "7f24f813-8464-413e-b4e9-9c794e2ee529",
+    "name": "Mirror Image",
+    "old": {
+      "duration": "3 Runden/Stufe"
+    }
+  },
+  {
+    "id": "796dd788-880a-46b1-a721-904f7f98b2ad",
+    "name": "Stinking Cloud",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "1fde1b11-0d52-498a-a128-aa7bf0b25aef",
+    "name": "Blink",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "e3ec0e67-118d-4649-9449-3d0e2d659dd8",
+    "name": "Clairvoyance",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "a3547b79-dc3a-4826-bb53-b177a5683e96",
+    "name": "Flame Arrow",
+    "old": {
+      "duration": "1 Runde"
+    }
+  },
+  {
+    "id": "2bab56f7-d18d-4fbb-a900-83ebbaf9b1cb",
+    "name": "Gust of Wind",
+    "old": {
+      "duration": "1 Runde"
+    }
+  },
+  {
+    "id": "046be728-1df9-4090-80e4-8fc412582d94",
+    "name": "Hold Person",
+    "old": {
+      "duration": "2 Runden/Stufe"
+    }
+  },
+  {
+    "id": "7160ee94-d05a-4dc9-a2c3-40773677df7d",
+    "name": "Dancing Lights",
+    "old": {
+      "duration": "2 rds./level"
+    }
+  },
+  {
+    "id": "1a57d246-8179-4290-bdc4-1466fd24458a",
+    "name": "Protection from Evil, 10' Radius",
+    "old": {
+      "duration": "2 Runden/Stufe"
+    }
+  },
+  {
+    "id": "3bb5fc4a-235f-4576-b8be-12902ad9b9ab",
+    "name": "Tongues",
+    "old": {
+      "area_of_effect": "60 Fuß Radius",
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "06df83f7-7b13-48f8-ba53-476608af516a",
+    "name": "Confusion",
+    "old": {
+      "duration": "2 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "de529dc2-d2c5-4202-aaaa-6b21e85270ba",
+    "name": "Detect Scrying",
+    "old": {
+      "duration": "1d6+1 Runden"
+    }
+  },
+  {
+    "id": "b1006d60-5379-447f-a858-1e05cad4e7a7",
+    "name": "Enchanted Weapon",
+    "old": {
+      "duration": "5 Runden/Stufe"
+    }
+  },
+  {
+    "id": "095aa580-21c3-477c-812a-a39306c40a0d",
+    "name": "Fire Shield",
+    "old": {
+      "duration": "2 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "f28eff5e-bc9b-460f-b8dd-1eec9c4c2917",
+    "name": "Minor Globe of Invulnerability",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "b7b3a111-5be2-4634-b3ac-4a51b0bab7f6",
+    "name": "Phantasmal Killer",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "ab302179-eb54-4dc3-b77c-d8ea1b542b27",
+    "name": "Wizard Eye",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "29a14da9-c865-40cb-87b0-facfd6d259ba",
+    "name": "Bigby's Interposing Hand",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "c368dbe4-fcf1-494c-8018-2271dac229d3",
+    "name": "Globe of Invulnerability",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "06e14332-fc92-4964-9d6a-1ef2c1af2d94",
+    "name": "Tenser's Transformation",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "045c58b0-e029-4324-a6f8-21d175841ddc",
+    "name": "True Seeing",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "15c87fd3-db7a-4132-aad5-ba2a55f7c7f6",
+    "name": "Jump",
+    "old": {
+      "duration": "1d3 rds. + 1 rd./level"
+    }
+  },
+  {
+    "id": "f5343cd0-72bd-41a1-8062-3bd7d31d18e9",
+    "name": "Veil",
+    "old": {
+      "area_of_effect": "Speziell"
+    }
+  },
+  {
+    "id": "f478935e-ba22-4b71-a594-3011a682ae31",
+    "name": "Monster Summoning III",
+    "old": {
+      "duration": "4 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "52a1d1ec-f5cb-448d-8a94-6cfd33da9239",
+    "name": "Monster Summoning IV",
+    "old": {
+      "duration": "5 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "bbfc28b6-0de5-41ee-8946-ac73b14952f8",
+    "name": "Shadow Door",
+    "old": {
+      "duration": "1 Runde"
+    }
+  },
+  {
+    "id": "94d0bbeb-d74d-45c4-b9dc-e6978efce76f",
+    "name": "Control Undead",
+    "old": {
+      "duration": "3d4 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "c85ca494-d3cc-47e5-bf12-6a7345040307",
+    "name": "Project Image",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "c63560d9-dd1e-4b74-a0e9-c4fe5f1cadc9",
+    "name": "Duo-Dimension",
+    "old": {
+      "duration": "3 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "b580bd1e-a6a3-403b-921f-ad6e526f6001",
+    "name": "Monster Summoning V",
+    "old": {
+      "duration": "6 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "95022a61-5406-432c-a75b-54d9898c8dcc",
+    "name": "Mordenkainen's Sword",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "f5b4fb44-f2a1-4217-b5f9-8ae2c068833f",
+    "name": "Reverse Gravity",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "1a5bd0f5-3d64-46f8-aea5-394ae087ee7e",
+    "name": "Enlarge",
+    "old": {
+      "duration": "5 Runden/Stufe"
+    }
+  },
+  {
+    "id": "279ed374-3036-4dcd-bda5-be2198555538",
+    "name": "Bigby's Clenched Fist",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "0ce57191-fee7-4016-9891-ba35f2613d78",
+    "name": "Monster Summoning VI",
+    "old": {
+      "duration": "7 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "9837bd62-cdfa-4793-b458-345c8fba6c9d",
+    "name": "Otto's Irresistible Dance",
+    "old": {
+      "duration": "1d4+1 Runden"
+    }
+  },
+  {
+    "id": "7ec3ceed-cbaf-460c-b5dd-86782d3d8aab",
+    "name": "Feather Fall",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "251d54cb-010f-496a-a907-99645ee9ce16",
+    "name": "Monster Summoning VII",
+    "old": {
+      "duration": "8 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "7ccf81ad-33e7-48e9-9cd0-ca88b6c0f47c",
+    "name": "Power Word, Kill",
+    "old": {
+      "area_of_effect": "1 Kreatur"
+    }
+  },
+  {
+    "id": "398a5bf0-2821-421b-9c88-50ec6e1d0214",
+    "name": "Invisibility to Animals",
+    "old": {
+      "duration": "1 Runde/Stufe + 1 Runde"
+    }
+  },
+  {
+    "id": "f18bccf9-08d8-46db-b5d1-408760bfcdcc",
+    "name": "Faerie Fire",
+    "old": {
+      "duration": "4 Runden/Stufe"
+    }
+  },
+  {
+    "id": "90c76bab-2f50-4ea2-982c-2398c86eabd1",
+    "name": "Sanctuary",
+    "old": {
+      "duration": "2 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "fbefea0c-e822-45e0-a446-17fd617ac4cb",
+    "name": "Shillelagh",
+    "old": {
+      "duration": "4 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "b3fc574d-0bda-4d1a-af0e-d449d5f0eacc",
+    "name": "Barkskin",
+    "old": {
+      "duration": "4 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "57d89eaa-03d0-4643-9620-2c07e9c57e0e",
+    "name": "Detect Undead",
+    "old": {
+      "duration": "3 turns"
+    }
+  },
+  {
+    "id": "009b58ea-6637-4b83-be22-e252716cb28b",
+    "name": "Enthrall",
+    "old": {
+      "area_of_effect": "Speziell"
+    }
+  },
+  {
+    "id": "ed2462b3-c6f8-4b91-a23f-9ac75101f4b2",
+    "name": "Find Traps",
+    "old": {
+      "area_of_effect": "Speziell"
+    }
+  },
+  {
+    "id": "fcd2f4da-bfb9-46bc-af6e-8f7c6f4cec9a",
+    "name": "Resist Fire/Resist Cold",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "97724111-cfcb-43e0-ac6c-fd3ba2827343",
+    "name": "Hold Person",
+    "old": {
+      "duration": "2 Runden/Stufe"
+    }
+  },
+  {
+    "id": "0453e308-a5c0-4356-9ac4-c74a9db9fbe8",
+    "name": "Know Alignment",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "ec035027-538e-4cef-a6ee-b209d04fc2f0",
+    "name": "Speak with Animals",
+    "old": {
+      "duration": "2 Runden/Stufe"
+    }
+  },
+  {
+    "id": "a4d60f1d-d6be-4fc0-8553-fd7da24f7a8c",
+    "name": "Light",
+    "old": {
+      "duration": "1 Stunde/Stufe"
+    }
+  },
+  {
+    "id": "f4c338d7-902c-4dab-9e3d-680d3f719ec8",
+    "name": "Spiritual Hammer",
+    "old": {
+      "duration": "3 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "3e90f357-5efe-4fc9-aed4-89a3ef5d365c",
+    "name": "Magical Vestment",
+    "old": {
+      "duration": "5 Runden/Stufe"
+    }
+  },
+  {
+    "id": "73172f5c-13d1-4a77-bed3-e0f356ead10a",
+    "name": "Meld into Stone",
+    "old": {
+      "duration": "8 Runden + 1d8 Runden"
+    }
+  },
+  {
+    "id": "974a4773-7e11-4fbf-a714-75046e03c9cd",
+    "name": "Water Walk",
+    "old": {
+      "duration": "1 Runde/Stufe + 1 Runde"
+    }
+  },
+  {
+    "id": "56851e4e-b2a0-4b6f-8817-a01139556123",
+    "name": "Reflecting Pool",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "99f86f8d-f1c1-4a9b-a568-53335717dd29",
+    "name": "Speak with Plants",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "f329d7bd-5852-475f-a24c-c31dbb88c454",
+    "name": "Tongues",
+    "old": {
+      "area_of_effect": "60 Fuß Radius",
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "b456d206-d43a-4e0c-888c-0e6af8044368",
+    "name": "Dispel Evil",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "ece32b09-cde7-4a54-8b80-85304134b53f",
+    "name": "Moonbeam",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "16f08fff-e6e9-4482-b1b0-e1c9314cbe81",
+    "name": "True Seeing",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "b523d1c8-cc38-4bcc-9b1d-d595d52220c6",
+    "name": "Blade Barrier",
+    "old": {
+      "duration": "3 Runden/Stufe"
+    }
+  },
+  {
+    "id": "f1275e3a-84d4-4124-aeab-d48277161f54",
+    "name": "Find the Path",
+    "old": {
+      "duration": "1 Stunde/Stufe"
+    }
+  },
+  {
+    "id": "c7e123f8-7d34-4f48-999c-a578c3c09379",
+    "name": "Haste",
+    "old": {
+      "duration": "3 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "a36b1953-8530-4bde-93cf-0340bf1e5ae2",
+    "name": "Monster Summoning I",
+    "old": {
+      "duration": "2 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "5efdfc3b-b03b-4b81-9097-cfd1055826cf",
+    "name": "Slow",
+    "old": {
+      "duration": "3 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "bdc6c90f-8fcb-468f-a6e6-c31ecb45665a",
+    "name": "Stone Tell",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "27312bfb-a91d-42e8-8fe6-165063253d73",
+    "name": "Turn Wood",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "e35637e7-9242-49d8-a6a0-d742f5118c4b",
+    "name": "Wind Wall",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "b0eb2bbb-bc39-4f6e-a01b-c243dfb6c895",
+    "name": "Fumble",
+    "old": {
+      "area_of_effect": "1 Kreatur",
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "07dc7c7d-85d0-402d-89f5-e39428932649",
+    "name": "Hallucinatory Terrain",
+    "old": {
+      "duration": "Speziell"
+    }
+  },
+  {
+    "id": "7f944329-710b-4401-bc5e-5ce1cc47ce6e",
+    "name": "Otiluke's Resilient Sphere",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "7a3e0bac-1068-4bc8-ad00-d2b26732dd1c",
+    "name": "Solid Fog",
+    "old": {
+      "duration": "2d4 Runden + 1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "96bd400a-cfa3-4228-b377-e8c860c5b92f",
+    "name": "Cloudkill",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "ae5395a7-cb2d-46df-a12c-7675c00ddd44",
+    "name": "Chaos",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "c98fcb98-1390-4d5e-8ab4-4f2774bada8a",
+    "name": "Bigby's Crushing Hand",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "7258350c-f3a3-43fe-8166-f705ccae3dfe",
+    "name": "Entangle",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "74312085-24be-4e81-8a98-4ae3da20621b",
+    "name": "Locate Animals or Plants",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "c61a0d91-df25-4987-ac99-681d4ed48363",
+    "name": "Dust Devil",
+    "old": {
+      "duration": "2 Runden/Stufe"
+    }
+  },
+  {
+    "id": "e779d56e-a242-45af-a225-48821227cde4",
+    "name": "Heat Metal",
+    "old": {
+      "duration": "7 Runden"
+    }
+  },
+  {
+    "id": "b85fd172-6e2f-49fc-ac19-0e59719be700",
+    "name": "Snake Charm",
+    "old": {
+      "area_of_effect": "Speziell"
+    }
+  },
+  {
+    "id": "e62671df-cc98-4910-9a9e-b5d7cb86cd90",
+    "name": "Hold Animal",
+    "old": {
+      "duration": "2 Runden/Stufe"
+    }
+  },
+  {
+    "id": "cc9cdc7f-ea21-44be-a023-f0ff2cccf90c",
+    "name": "Summon Insects",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "9fe987af-ed35-42c4-97ca-2761b792a78e",
+    "name": "Detect Lie",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "37c26c2a-60bf-4460-a738-1b56ecc06f99",
+    "name": "Produce Fire",
+    "old": {
+      "area_of_effect": "Speziell",
+      "duration": "1 Runde"
+    }
+  },
+  {
+    "id": "964aec4a-920f-4c58-b5f2-ec742bb1db3a",
+    "name": "Sticks to Snakes",
+    "old": {
+      "duration": "2 Runden/Stufe"
+    }
+  },
+  {
+    "id": "a7c14591-5cbc-4c8f-8d52-9dd9f64d5c9f",
+    "name": "Insect Plague",
+    "old": {
+      "duration": "2 Runden/Stufe"
+    }
+  },
+  {
+    "id": "90fb60c4-0b87-4a0b-b436-3d099eec0ee5",
+    "name": "Animate Object",
+    "old": {
+      "duration": "1 Runde/Stufe"
+    }
+  },
+  {
+    "id": "18bc4b27-e530-468b-bb75-cf8359fce0a8",
+    "name": "Earthquake",
+    "old": {
+      "duration": "1 Runde"
+    }
+  },
+  {
+    "id": "16543941-42c9-4df0-8e9b-dcf5081f54a9",
+    "name": "Affect Normal Fires",
+    "old": {
+      "area_of_effect": "10-m radius",
+      "duration": "2 rds./level"
+    }
+  },
+  {
+    "id": "6890912f-0836-449c-bd91-6f06dd4e8e1e",
+    "name": "Spectral Hand",
+    "old": {
+      "duration": "2 rds./level"
+    }
+  },
+  {
+    "id": "60b17b1e-57a6-44bc-973a-909b5cb04452",
+    "name": "Gaze Reflection",
+    "old": {
+      "duration": "2 rds. + 1 rd./level"
+    }
+  },
+  {
+    "id": "fc5c43e4-2513-4115-af45-d8fd6b32cbdf",
+    "name": "Audible Glamer",
+    "old": {
+      "duration": "3 rds./level"
+    }
+  },
+  {
+    "id": "7310e666-06a2-4c39-9542-7a96a08351f0",
+    "name": "Chill Touch",
+    "old": {
+      "duration": "3 rds. + 1 rd./level"
+    }
+  },
+  {
+    "id": "6fb8375f-dc30-4870-9934-ccda74f7a8ee",
+    "name": "Produce Flame",
+    "old": {
+      "duration": "1 rd./level"
+    }
+  },
+  {
+    "id": "078c3f55-d123-46c7-9c09-89ccd60831e7",
+    "name": "Item",
+    "old": {
+      "duration": "4 hrs./level"
+    }
+  },
+  {
+    "id": "ad68d220-b2a8-4e95-809e-b7e242829773",
+    "name": "Hypnotism",
+    "old": {
+      "area_of_effect": "9.1 m cube, 1d6 creatures",
+      "duration": "1 rd. + 1 rd./level"
+    }
+  },
+  {
+    "id": "ec8723f8-aca4-42c0-8d73-92699e16dfd6",
+    "name": "Sleep",
+    "old": {
+      "duration": "5 rds./level"
+    }
+  },
+  {
+    "id": "64dc0c8a-5905-4651-98e2-d681559ade33",
+    "name": "Taunt",
+    "old": {
+      "area_of_effect": "30-m radius",
+      "duration": "1 rd."
+    }
+  },
+  {
+    "id": "5421a901-ffbf-4aee-9702-6327cdc21850",
+    "name": "Ventriloquism",
+    "old": {
+      "duration": "4 rds. + 1 rd./level"
+    }
+  },
+  {
+    "id": "c44aab30-ff48-40a7-8e89-66725c142613",
+    "name": "Bind",
+    "old": {
+      "duration": "1 rd./level"
+    }
+  },
+  {
+    "id": "72d3e871-b2a8-4d91-86a5-40c36e41563a",
+    "name": "Detect Invisibility",
+    "old": {
+      "area_of_effect": "3 m x 3 m/level path",
+      "duration": "5 rds./level"
+    }
+  },
+  {
+    "id": "0d85bc4b-5706-4237-a517-3845ec59a272",
+    "name": "Deeppockets",
+    "old": {
+      "duration": "12 hrs. + 1 hr./level"
+    }
+  },
+  {
+    "id": "0dc1a1ed-641d-48ec-b501-cfedeeb68ca3",
+    "name": "Fools' Gold",
+    "old": {
+      "duration": "1 hr./level"
+    }
+  },
+  {
+    "id": "0ca25db7-b803-4ca2-99d9-25ecf015e2d0",
+    "name": "Forget",
+    "old": {
+      "area_of_effect": "Special"
+    }
+  },
+  {
+    "id": "71d7a106-5f22-4dd0-a779-f223a5d9bf03",
+    "name": "Laughter",
+    "old": {
+      "duration": "1 rd./level"
+    }
+  },
+  {
+    "id": "193a8097-517a-46d7-8f54-38d1c4db11dd",
+    "name": "Protection From Cantrips",
+    "old": {
+      "duration": "5 hrs. + 1 hr./level"
+    }
+  },
+  {
+    "id": "63e0f656-bff8-4e0f-80c0-e902e5463f8a",
+    "name": "Scare",
+    "old": {
+      "area_of_effect": "15-m radius",
+      "duration": "1d4 rds. + 1 rd./level"
+    }
+  },
+  {
+    "id": "854d6673-e6b0-4d74-a434-dc253e1f812d",
+    "name": "Strength",
+    "old": {
+      "duration": "1 hr./level"
+    }
+  },
+  {
+    "id": "056ba9d0-d12a-4ea3-9634-dfab6a004d02",
+    "name": "Summon Swarm",
+    "old": {
+      "area_of_effect": "10-m cube"
+    }
+  },
+  {
+    "id": "184f34cf-cd42-430b-91f3-c65ad1f3eb35",
+    "name": "Whispering Wind",
+    "old": {
+      "area_of_effect": "2-m radius"
+    }
+  },
+  {
+    "id": "4d7fffb0-cbe4-44b2-94b6-898eca8cda99",
+    "name": "Clairaudience",
+    "old": {
+      "duration": "1 rd./level"
+    }
+  },
+  {
+    "id": "6c594f43-2696-48ee-a876-01d16b1e5575",
+    "name": "Delude",
+    "old": {
+      "duration": "1 turn/level"
+    }
+  },
+  {
+    "id": "a5eb2f67-976d-4b9f-a605-9abd72eb301d",
+    "name": "Fireball",
+    "old": {
+      "area_of_effect": "20-m radius",
+      "saving_throw": "4"
+    }
+  },
+  {
+    "id": "5cf35ce4-bbc0-4aa4-9818-bfbe6d2a4815",
+    "name": "Illusionary Script",
+    "old": {
+      "duration": "1 day/level"
+    }
+  },
+  {
+    "id": "662e4029-e711-463d-b117-5c4e04a951dc",
+    "name": "Leomund's Tiny Hut",
+    "old": {
+      "duration": "4 hrs. + 1 hr./level"
+    }
+  },
+  {
+    "id": "b036bcc4-a448-4e87-bff3-7fb335e957cc",
+    "name": "Dig",
+    "old": {
+      "area_of_effect": "5-m cube/level",
+      "duration": "1 rd./level"
+    }
+  },
+  {
+    "id": "0600547f-154c-4c25-85b6-ba66f03e1351",
+    "name": "Enervation",
+    "old": {
+      "duration": "1d4 hrs. + 1 hr/level"
+    }
+  },
+  {
+    "id": "48cab1a9-637d-450d-9d01-99ddee4f6b3b",
+    "name": "Fire Charm",
+    "old": {
+      "duration": "2 rds./level"
+    }
+  },
+  {
+    "id": "68acc5d3-7e11-46aa-bc5d-88452228cfdf",
+    "name": "Leomund's Secure Shelter",
+    "old": {
+      "duration": "1d4+1 hrs. + 1 hr./level"
+    }
+  },
+  {
+    "id": "bd43644c-6ff2-4a79-96c7-c9b515f72e9d",
+    "name": "Magic Mirror",
+    "old": {
+      "duration": "1 rd./level"
+    }
+  },
+  {
+    "id": "733f2a9e-ce4e-43f2-8473-68d34f66877f",
+    "name": "Shadow Monsters",
+    "old": {
+      "area_of_effect": "20-m cube",
+      "duration": "1 rd./level"
+    }
+  },
+  {
+    "id": "74d16160-c960-47aa-b5ab-c2e213aaf540",
+    "name": "Vacancy",
+    "old": {
+      "area_of_effect": "10-m radius/level",
+      "duration": "1 hr/level"
+    }
+  },
+  {
+    "id": "98de43ff-3f8d-43da-8636-94172451b581",
+    "name": "Advanced Illusion",
+    "old": {
+      "duration": "1 rd./level"
+    }
+  },
+  {
+    "id": "cec2b2e7-5f4b-48bf-82b3-0cc9f29ea6de",
+    "name": "Distance Distortion",
+    "old": {
+      "duration": "2 turns/level"
+    }
+  },
+  {
+    "id": "0a94ae67-4727-41c5-b022-a0576887b03d",
+    "name": "False Vision",
+    "old": {
+      "area_of_effect": "30-m radius",
+      "duration": "1d4 rds. + 1 rd./level"
+    }
+  },
+  {
+    "id": "79e77099-57fa-450e-833e-f851150e6376",
+    "name": "Summon Shadow",
+    "old": {
+      "area_of_effect": "10-m cube",
+      "duration": "1 rd. + 1 rd./level"
+    }
+  },
+  {
+    "id": "6853fe7f-ce70-492b-ac7d-47c2235d71d9",
+    "name": "Bigby's Forceful Hand",
+    "old": {
+      "duration": "1 rd./level"
+    }
+  },
+  {
+    "id": "719b7862-423a-438b-b0c9-f755aa3bd817",
+    "name": "Shades",
+    "old": {
+      "area_of_effect": "20-m cube",
+      "duration": "1 rd./level"
+    }
+  },
+  {
+    "id": "698f28af-a85d-4d0a-8f9d-b35ab0619f72",
+    "name": "Detect Snares & Pits",
+    "old": {
+      "duration": "4 rds/level"
+    }
+  },
+  {
+    "id": "3303d7b2-75cb-4103-abb3-4294b77ca3f5",
+    "name": "Invisibility to Undead",
+    "old": {
+      "duration": "6 rds."
+    }
+  },
+  {
+    "id": "ba07473b-07d9-4aaa-835f-e5d8d78cc431",
+    "name": "Obscurement",
+    "old": {
+      "duration": "4 rds./level"
+    }
+  },
+  {
+    "id": "146a24b4-6d24-4e46-af7b-aac0c0b67948",
+    "name": "Silence, 15' Radius",
+    "old": {
+      "duration": "2 rds./level"
+    }
+  },
+  {
+    "id": "e5ef5eae-d8d6-4cd8-b2a8-cefe540e8cec",
+    "name": "Prayer",
+    "old": {
+      "area_of_effect": "60-m radius",
+      "duration": "1 rd./level"
+    }
+  },
+  {
+    "id": "a369c62e-a12c-489b-bbfa-cf6d1c35e904",
+    "name": "Starshine",
+    "old": {
+      "duration": "1 turn/level"
+    }
+  },
+  {
+    "id": "ddf1932f-81ad-4e9e-9a47-937249ccc84c",
+    "name": "Hold Plant",
+    "old": {
+      "duration": "1 rd./level"
+    }
+  },
+  {
+    "id": "8c39b158-4708-4f59-821c-bd66ecb1ca31",
+    "name": "Anti-Plant Shell",
+    "old": {
+      "duration": "1 turn/level"
+    }
+  }
+]

@@ -1,0 +1,3247 @@
+[
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Alteration",
+    "chars": 451,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Range is 10 yards/level (~9 m/level), not 4.5 m/level. Area is a 5-yard cube... actually canon area is variable; printed 10-m radius is acceptable-ish, but range should be ~9 m/level."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "minor",
+    "summary": "Range should be ~9 m/level (10 yd/level), printed 4.5 m/level is wrong."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Abjuration",
+    "chars": 443,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Conjuration / Summoning",
+    "chars": 389,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": false,
+      "note": "Duration threshold omitted: spell ends when wearer takes cumulative damage exceeding 8 + 1 per caster level."
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "minor",
+    "summary": "Missing the specific damage threshold (8 +1/level) that ends the spell."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Illusion",
+    "chars": 474,
+    "save_printed": "vs. Spell (Special)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Alteration",
+    "chars": 337,
+    "save_printed": "vs. Spell (½)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Illusion",
+    "chars": 436,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Enchantment / Charm",
+    "chars": 418,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Alteration",
+    "chars": 401,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Alteration",
+    "chars": 467,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Alteration",
+    "chars": 370,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Divination",
+    "chars": 455,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Divination",
+    "chars": 443,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Alteration",
+    "chars": 399,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Alteration",
+    "chars": 416,
+    "save_printed": "Special",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Alteration",
+    "chars": 419,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Conjuration / Summoning",
+    "chars": 450,
+    "save_printed": "Special",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Range should be Special (the 1.6 km is the empathic-command distance, not a casting range); range/level is not canonical. Duration is Permanent - ok."
+    },
+    "complete": {
+      "ok": false,
+      "note": "Omits the critical consequence of familiar death: caster must roll system shock check or die, and permanently loses 1 point of Constitution. Also once/year limit."
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "major",
+    "summary": "Missing the system-shock/Con-loss consequence on familiar death (core mechanic)."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Enchantment / Charm",
+    "chars": 448,
+    "save_printed": "Special",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Alteration",
+    "chars": 413,
+    "save_printed": "Special",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Conjuration / Summoning",
+    "chars": 474,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Area is 3 m x 3 m per canon, not 10x3 m. Also duration should be constant (canon has no explicit duration listed here; PHB Grease is 3 rds.+1/level per some sources but area is the clear error)."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates save category ('save or slip') and the dismissal is fine, but 'must save vs. Spell' is not restated—only 'save' used, acceptable. Area '10x3 m' contradicts stat block anyway."
+    },
+    "severity": "major",
+    "summary": "Area is wrong: canon is 3 m x 3 m, not 10x3 m."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Alteration",
+    "chars": 404,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Enchantment / Charm",
+    "chars": 439,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Range should be 9.1 m (30 yards) per PHB; card lists 4.5 m. Also the '9.1 m cube' area — the effect radiates from the caster in a 30-yard range, area of effect is 1d6 creatures in a 30-ft cube. Range is the likely error."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates the save modifiers (+1 to +3, -2) which appear in canon, but does not restate stat-block fields improperly; acceptable as describing save effects."
+    },
+    "severity": "minor",
+    "summary": "Range likely wrong (should be 9.1 m / 30 yds)."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Divination",
+    "chars": 417,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": false,
+      "note": "Constitution is not permanently drained to 0 causing unconsciousness per attempt; canon: 8 Con points are lost temporarily (drained) and recovered by rest at 1/24 hours. Drain of 8 per item is correct, but the '8 hours per item' vs stat block conflicts (see below)."
+    },
+    "stats": {
+      "ok": false,
+      "note": "Casting Time is canonically 1 hour (as printed), but rules text says 8 hours per item — the 8 hours is research/prep time. Range/duration/area OK."
+    },
+    "complete": {
+      "ok": false,
+      "note": "Omits the required material component: a pearl worth at least 100 gp (consumed), plus the target must be examined within 1 hour of the caster obtaining it and only known properties are revealed with 5% chance of false reading."
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates 'per level' scaling fine, but repeats 'only one item per casting' and touch — minor; mainly repeats Constitution mechanics already central. Acceptable."
+    },
+    "severity": "minor",
+    "summary": "Missing pearl material component and Con-drain described as permanent/unconsciousness rather than temporary loss."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Alteration",
+    "chars": 439,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": false,
+      "note": "Straight-up leap is 3 m per canon; card says 3 m up but originally the up leap equals forward (9.1 m/30 ft)? No—canon: up to 30 ft forward or straight upward, or 10 ft backward. Card gives 3 m (10 ft) straight up, which is wrong; should be 9 m straight up."
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "minor",
+    "summary": "Straight-up leap should be ~9 m (30 ft), not 3 m."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Alteration",
+    "chars": 439,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Range should be ~55 m (60 yd) per canon, not 18.3 m. Duration reversed (Darkness) is 1 turn/level in 2e, but Light 1 hr/level is fine."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates area radius (6.1 m) and the save category/effect."
+    },
+    "severity": "minor",
+    "summary": "Range printed as 18.3 m but canon is ~55 m (60 yd)."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Invocation / Evocation",
+    "chars": 452,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Alteration",
+    "chars": 460,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Alteration",
+    "chars": 414,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Conjuration / Summoning",
+    "chars": 375,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Illusion",
+    "chars": 440,
+    "save_printed": "Special",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Illusion",
+    "chars": 366,
+    "save_printed": "vs. Spell (to disbelieve)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Divination",
+    "chars": 431,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Alteration",
+    "chars": 308,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": false,
+      "note": "Damage is 1d8 +1 per caster level, not '1d8+1 point per level'. A 3rd-level caster does 1d8+3, not 1d8+3 via that reading is fine but the wording implies +1/level added to a base of 1; correct: 1d8 + 1/level."
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates the None saving throw indirectly? No — but 'held until it strikes a target or the effect ends' duplicates Duration: Special; minor."
+    },
+    "severity": "minor",
+    "summary": "Damage wording ('1d8+1 point per level') is ambiguous; should be 1d8 + 1 point per caster level."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Enchantment / Charm",
+    "chars": 422,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules restate range/area '9.1 m' and 'Saving Throw: None' implied; the 9.1 m repeats the stat block area."
+    },
+    "severity": "minor",
+    "summary": "Minor duplication of the 9.1 m distance from stat block."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Alteration",
+    "chars": 422,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates duration end condition fine, but 'succeeds on its save negates the effect' restates the stat-block save value/category."
+    },
+    "severity": "minor",
+    "summary": "Minor: rules text restates the saving-throw field already in the stat block."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Illusion",
+    "chars": 478,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": false,
+      "note": "Omits that undead are not affected at all."
+    },
+    "dup": {
+      "ok": false,
+      "note": "Restates saving throw category/effect ('turns and flees' after 'fails its save') — minor; the -6 max and Intelligence limits are fine."
+    },
+    "severity": "minor",
+    "summary": "Missing the 'undead not affected' clause."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Enchantment / Charm",
+    "chars": 462,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Range should be 60 yд (~55 m ok). Area is wrong: Taunt affects creatures in a 30-yard radius (~27 m), not 30-m radius; minor but printed as m. Actually canon range is 60 yards and area 30-yard radius — printed 55m range is fine, area 30m acceptable rounding."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Alteration",
+    "chars": 415,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Duration is wrong: canon is 3 hours + 1 hour/level (3 turns + 1 turn/level in PHB), not 3 rds. + 1 rd./level."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates range ('about 2 m away') matching the 2 m stat-block field."
+    },
+    "severity": "major",
+    "summary": "Duration is wrong (should be 3 turns/hours + 1 per level, not rounds)."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Conjuration / Summoning",
+    "chars": 452,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Duration should be 1 hour + 1 hour/level (canon says 6 turns + 1 turn/level in some printings, but DB gives 1 hr + 1 hr/level); card printed '1 hr. + 1 rd./level' which is wrong — should be per level in turns/hours, not rounds."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates range ('9 m/round' movement is fine, but 'ends when the caster leaves its range' duplicates area/range field)."
+    },
+    "severity": "minor",
+    "summary": "Duration scaling printed as +1 rd./level instead of +1 hr./level."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Illusion",
+    "chars": 422,
+    "save_printed": "vs. Spell (-2, to detect)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Alteration",
+    "chars": 327,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Area is 6m×6m×6m + 3m/level length, not '20x10x3 m'. Duration 2d4 rds. +1 rd./level is correct. Components should be V, S (no M)."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates duration ('drifts with any wind' is fine, but wind dispersal timing is duration detail) — acceptable; main issue is components V,S,M includes M not in canon."
+    },
+    "severity": "minor",
+    "summary": "Area dimensions wrong (should be 6m cube +3m/level) and components list an extra M."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 1,
+    "school": "Alteration",
+    "chars": 425,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Alteration",
+    "chars": 445,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": false,
+      "note": "Duration is wrong: canon is 3d4 rounds + 2 rounds/level, not 2d6 rounds + 2 rounds/level."
+    },
+    "stats": {
+      "ok": false,
+      "note": "Duration should be 3d4 rds. + 2 rds./level, not 2d6 rds. + 2 rds./level."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates area ('Affects only the caster') which duplicates the Area field 'The caster'."
+    },
+    "severity": "major",
+    "summary": "Duration wrong: should be 3d4+2/level rounds, not 2d6+2/level."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Enchantment / Charm",
+    "chars": 462,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Illusion",
+    "chars": 307,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Range: canon is 9.1 m (30 yds) flat, not '9.1 m + 3 m/level'; DB says 18 m. Standard PHB range is 30 yards."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "minor",
+    "summary": "Range likely wrong — Blindness range is 30 yards (9.1 m) flat, no per-level increment."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Illusion",
+    "chars": 443,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Components should be V, S (printed only V)"
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates duration and saving-throw 'None' concept; mentions true seeing/dispel which is fine, but repeats save value indirectly — main issue is duration restated"
+    },
+    "severity": "minor",
+    "summary": "Components missing S; duration restated in rules text."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Alteration",
+    "chars": 472,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Alteration",
+    "chars": 455,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Illusion",
+    "chars": 444,
+    "save_printed": "vs. Spell at -1 (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Alteration",
+    "chars": 383,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": false,
+      "note": "Omits that expiry/dispel or command causes contents to appear and drop around wearer — an important resolution mechanic, though char-cap limited."
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules restate Saving Throw: None indirectly? No — but restates 'extradimensional holding' fine. Minor: repeats components (specially sewn garment/gp) which is fine as flavor."
+    },
+    "severity": "minor",
+    "summary": "Missing the contents-drop-on-expiry/command-empty mechanic."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Divination",
+    "chars": 431,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Area/range wrong. Path is 3 m wide by 18 m long (10 ft x 60 ft). Printed '10x54.9 m' is far too large; should be ~3 x 18 m. Range 0 is acceptable (emanates from caster)."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Saving Throw None is restated as no save mechanic implied — acceptable; but duration '5 rds./level' not restated. Minor: intensity list fine. Actually rules text does not duplicate stat fields."
+    },
+    "severity": "major",
+    "summary": "Detection path dimensions wrong (should be ~3 m wide x 18 m long, not 10 x 54.9 m)."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Divination",
+    "chars": 408,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Area: canon is a path 3 m wide (not 3m x 3m/level); range is 3 m/level (10 yd/level). The printed area/range fields are garbled — should be Range 3 m/level, Area path 3 m wide."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "minor",
+    "summary": "Area/range fields mangled — path is 3 m wide, range 3 m/level, not '3m x 3m/level'."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Divination",
+    "chars": 450,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Range should be 0 with max reach ~18 m (canon max), not scaling '1.5 m/level (max 27.4 m)'. ESP range is fixed 0/self with a 18 m (90 ft) max reach; the per-level 1.5 m/level cap max is 27 m at level 18 which does not match canon 18 m."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates the 3 m path width (area) from the stat block."
+    },
+    "severity": "minor",
+    "summary": "Range/area figures partly off vs. canonical 18 m max reach; minor duplication of path width."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Alteration",
+    "chars": 322,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Fog Cloud is not a wizard spell in the PHB — this appears to conflate with the wizard 'Fog Cloud'. Regardless, area is wrong: canon is 12 m long x 6 m high x 6 m wide, not 40x20x6.1 m. Also infravision blocking isn't canon (says obscures sight)."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Duration '4 rds. + 1 rd./level' restated in rules text (canon DB also repeats it, but stat block already carries it)."
+    },
+    "severity": "major",
+    "summary": "Area is wrong: should be 12x6x6 m, not 40x20x6.1 m."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Alteration",
+    "chars": 441,
+    "save_printed": "vs. Spell (special)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Enchantment / Charm",
+    "chars": 404,
+    "save_printed": "vs. Spell at -2 (neg.)",
+    "save": {
+      "ok": false,
+      "note": "The -2 modifier only applies when affecting a single creature; two creatures save at -1, three or four save normally. Printing a flat -2 is wrong."
+    },
+    "rules": {
+      "ok": false,
+      "note": "Number affected is 1-4 at caster's discretion (not scaling by level). Level scaling affects DURATION of memory lost: base 1 minute (1 round), +1 minute per 3 levels — not '5 minutes' flat and not additional creatures per level."
+    },
+    "stats": {
+      "ok": false,
+      "note": "Casting Time should be 2 (not 1). Duration should be Special/Instantaneous is arguable but canon says Special. Range 20-m cube area — card lists 27 m range which is inflated (should be ~18 m / 20-m cube area)."
+    },
+    "complete": {
+      "ok": false,
+      "note": "Omits that heal/restoration, limited wish, or wish can restore the lost memories."
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "major",
+    "summary": "Wrong save-modifier rule, invented creature-scaling, wrong memory duration, and wrong casting time."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Conjuration / Summoning",
+    "chars": 418,
+    "save_printed": "vs. Spell (neg. blindness)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Area is a 3 m (10-ft) radius, not a 6.1 m cube."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates the vs. save (blinded) and the duration (1d4 rounds +1/level) already in the stat block."
+    },
+    "severity": "minor",
+    "summary": "Area wrong (should be 3 m radius, not 6.1 m cube) and minor stat-block duplication."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Illusion",
+    "chars": 450,
+    "save_printed": "vs. Spell (to disbelieve)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Illusion",
+    "chars": 450,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Alteration",
+    "chars": 441,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": false,
+      "note": "Rash: Charisma loss is 1/day for 4 days (max -4), which the card has; but the card invents 'after a week, 1 Dexterity' loss which is not in canon. Also the itch save penalty scaling (-3 for 1 creature, -1 for 2, normal for 3-4) is omitted/replaced."
+    },
+    "stats": {
+      "ok": false,
+      "note": "Range is canonically 10 yds/level (~9 m/level) — OK. Area: canon is 15-m (15 yd) radius per version, but card says '1 to 4 creatures'; itch affects creatures in radius. Duration Special OK."
+    },
+    "complete": {
+      "ok": false,
+      "note": "Missing the save-penalty scaling by number of targets (-3 for one, -1 for two, normal for three or four), which is the key balancing mechanic of the itch version."
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates 'a save negates' which duplicates the stat-block Saving Throw field."
+    },
+    "severity": "major",
+    "summary": "Invented Dexterity-loss mechanic in Rash and omitted per-target save-penalty scaling for Itch."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Alteration",
+    "chars": 438,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Area should be a single object/portal (one 3m x 3m or ~10 sq ft area per level range is for how large a portal it affects). Range is 60 yds = ~54.9 m, not 18.3 m (60 ft)."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates 'None' save indirectly and the 1 hour duration (Duration is Special in block); minor overlap acceptable but 1-hour detail duplicates Special."
+    },
+    "severity": "major",
+    "summary": "Range is wrong: Knock range is 60 yards (~54.9 m), not 18.3 m."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Illusion",
+    "chars": 393,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates the 15.2 m range/failure condition already implied; minor, acceptable. Actually it's a mechanic not a stat field."
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Alteration",
+    "chars": 430,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Duration is wrong: canon Levitate lasts 1 turn/level (1 hour/level per DB), not 1 rd./level."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates the 50 kg/level weight limit and the vs.-Spell save-negates already in the stat block."
+    },
+    "severity": "major",
+    "summary": "Duration should be 1 turn/level (canon), not 1 round/level."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Alteration",
+    "chars": 445,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates range (3 m) and saving throw (None implied by mechanics) — the '3 m + 3 m/level range' repeats the stat block range field."
+    },
+    "severity": "minor",
+    "summary": "Range restated in rules text; otherwise accurate."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Conjuration / Summoning",
+    "chars": 403,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Illusion",
+    "chars": 413,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": false,
+      "note": "Maximum is 8 images, not 6. Number created is 1d4 plus 1 (card's 1d4+1 is correct)."
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": false,
+      "note": "Omits that the spell has no effect on blind or non-visual attackers who cannot see the images."
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "minor",
+    "summary": "Maximum image count should be 8, not 6."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Illusion",
+    "chars": 431,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": false,
+      "note": "Per canon Misdirection allows NO saving throw; the diviner rolls a save only against the reception (PHB: the response is believed unless a save vs. spell recognizes it as false). Actually canon here says 'No saving throw' — the invented save should be removed."
+    },
+    "rules": {
+      "ok": false,
+      "note": "Wrong mechanic: the spell redirects a divination FROM the subject TO another creature/object the caster touches; it does not simply feed 'false information the caster designates.' Duration per DB is 8 hours (though PHB standard is 1 rd/level — DB conflicts)."
+    },
+    "stats": {
+      "ok": false,
+      "note": "Range should be touch/9m to the redirect target; duration per DB is 8 hours, not 1 rd/level (though PHB gives 1 turn/level). Saving Throw should be None."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "major",
+    "summary": "Invented save and altered mechanic: spell redirects divination to a touched target with no save, not 'false info' with a save."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Alteration",
+    "chars": 401,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Enchantment / Charm",
+    "chars": 427,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Range should be 3 m + 3 m/level per canon, not 3 m + 1.5 m/level."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates the save ('A successful save negates the effect')."
+    },
+    "severity": "minor",
+    "summary": "Range per-level increment wrong (should be 3 m/level, not 1.5 m)."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Alteration",
+    "chars": 448,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": false,
+      "note": "Rope holds the caster plus up to 6 others (not 'up to eight'); the '8' figure is wrong. Also duration is 2 turns/level (2 hours/level per DB), not 2 rounds/level."
+    },
+    "stats": {
+      "ok": false,
+      "note": "Duration is wrong: canon is 2 turns/level (10-minute turns), not 2 rounds/level. Printed 'Special' area acceptable."
+    },
+    "complete": {
+      "ok": false,
+      "note": "Missing that spells CAN be cast out through the portal (a head must poke out); and that anyone still inside when the spell ends falls/appears on the ground below."
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules restates Saving Throw effect and components indirectly, but 'attacks/spells cannot cross' partly contradicts canon rather than duplicates."
+    },
+    "severity": "major",
+    "summary": "Duration should be 2 turns/level not 2 rounds/level, and capacity is caster+6 (max 7), not 8."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Enchantment / Charm",
+    "chars": 395,
+    "save_printed": "vs. Spell (neg., limited)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Range is wrong: Scare is range 10 yds (~9 m), not 27 m + 9/level. Area is 15-ft cube (~4.5 m), not 15-m radius. Duration is correct."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "major",
+    "summary": "Range and area are wrong — should be 10 yds (~9 m) range and 15-ft cube area."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Alteration",
+    "chars": 409,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Invocation / Evocation",
+    "chars": 413,
+    "save_printed": "vs. Poison (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": "Canon area is 6m radius sphere, not a 6.1m cube, but roughly equivalent"
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "minor",
+    "summary": "Area described as cube rather than canon 6m radius/height sphere."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Alteration",
+    "chars": 433,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Conjuration / Summoning",
+    "chars": 382,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": false,
+      "note": "Omits that swarm disperses after 2 pts/caster level damage from fire/area effects, and that caster must remain stationary/concentrating or swarm disperses in 2 rounds — key to duration ('Special')."
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "minor",
+    "summary": "Missing dispersal conditions (damage threshold and caster concentration) that define the Special duration."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Enchantment / Charm",
+    "chars": 435,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": false,
+      "note": "Save is modified by target Intelligence: Int 4- unaffected, 5-7 save at -6, 8-12 at -4, 13-14 at -2, 15+ unmodified. Card omits this. Also duration structure: laughter lasts 1 round, next round recovering, then -2 Str for remaining rounds; card's phrasing is roughly right."
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": false,
+      "note": "Missing the Intelligence-based save modifiers, a core mechanic of this spell."
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates the 9.1 m grouping which duplicates area, and restates 'a successful save negates' (save field already says neg.)."
+    },
+    "severity": "major",
+    "summary": "Omits the Intelligence-based saving-throw modifiers central to the spell."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Alteration",
+    "chars": 453,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 2,
+    "school": "Alteration",
+    "chars": 395,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 3,
+    "school": "Alteration",
+    "chars": 463,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 3,
+    "school": "Divination",
+    "chars": 477,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Area is 18.3-m radius (60-ft), not 60-m radius. Range is unlimited/'not a factor' but canon is effectively personal-sensor; the printed 'Unlimited' is acceptable but area figure is wrong."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "major",
+    "summary": "Area should be 18.3-m radius (60 ft), not 60-m radius."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 3,
+    "school": "Divination",
+    "chars": 462,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": false,
+      "note": "Clairvoyance creates a fixed magical sensor at a known/obvious location; it does NOT let you see through another creature's eyes (that describes Clairaudience/ESP-style mechanics but not the standard Clairvoyance—the DB text explicitly describes a sensor, not another creature's eyes)."
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates Range (unlimited via 'known or obvious location') and Saving Throw/None concepts; also 'concentrate throughout' vs duration is borderline—minor."
+    },
+    "severity": "major",
+    "summary": "Rules invents 'see through another creature's eyes'; canonical Clairvoyance uses a fixed sensor at a known location."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 3,
+    "school": "Alteration",
+    "chars": 436,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Area radius is wrong: canon is 9.1-m radius (30 ft), not 30-m radius."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates the saving throw (vs. spell, fails/negates)."
+    },
+    "severity": "minor",
+    "summary": "Area printed as 30-m radius but should be 9.1-m radius."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 3,
+    "school": "Abjuration",
+    "chars": 454,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 3,
+    "school": "Alteration",
+    "chars": 438,
+    "save_printed": "vs. Spell (½, bystanders)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates the 3 m radius area and the save-halving effect already in the stat block."
+    },
+    "severity": "minor",
+    "summary": "Minor duplication of area/save; otherwise accurate."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 3,
+    "school": "Invocation / Evocation",
+    "chars": 459,
+    "save_printed": "vs. Spell (½)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 3,
+    "school": "Conjuration / Summoning",
+    "chars": 459,
+    "save_printed": "None",
+    "save": {
+      "ok": false,
+      "note": "Printed 'None' is wrong for the fiery bolt mode; the exploding bolt allows save vs. Spell for half damage."
+    },
+    "rules": {
+      "ok": false,
+      "note": "Fiery bolt should deal 5d6 fire in a ~1.5m radius (like a small fireball) with save vs Spell for half — NOT 4d6+1 to a single target. Also arrow mode grants +1 to hit (omitted). Missile+1d6 fire is correct otherwise."
+    },
+    "stats": {
+      "ok": false,
+      "note": "Saving Throw should be '½' (vs. Spell) for the bolt mode, not None."
+    },
+    "complete": {
+      "ok": false,
+      "note": "Missing the +1 to hit for enchanted arrows and the area/explosion nature of the fiery bolt."
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "major",
+    "summary": "Fiery bolt is a 5d6 exploding area (save vs Spell for half), not a single-target 4d6+1 with no save."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 3,
+    "school": "Alteration",
+    "chars": 420,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Duration is wrong: should be 1 turn/level + 1d6 turns (canon: 1 hour/level + 1d6 hours in this DB), not 1 rd./level + 1d6 rds."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "major",
+    "summary": "Duration printed in rounds instead of turns/hours."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 3,
+    "school": "Alteration",
+    "chars": 474,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Area is wrong. Gust of Wind is a straight line 3 m wide over a range/length of 10 ft (3 m) per level, not '3 m x 3 m/level'. Width is fixed 3 m; length scales."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "minor",
+    "summary": "Area field mis-states the effect (fixed 3 m width, length ~3 m/level)."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 3,
+    "school": "Alteration",
+    "chars": 369,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": false,
+      "note": "Haste doubles attacks but does NOT double missile attacks in the same way — actually it grants extra attacks; more importantly, canon haste does not give +2 initiative in PHB. However DB confirms +2 initiative, so acceptable. The card also invents 'melee/missile' distinction not in canon but harmless."
+    },
+    "stats": {
+      "ok": false,
+      "note": "Area is 12 m radius (per DB), not a 12.2 m cube."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates duration mechanic (3 rds +1/level) already in stat block."
+    },
+    "severity": "minor",
+    "summary": "Area should be a ~12 m radius, not a 12.2 m cube."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 3,
+    "school": "Enchantment / Charm",
+    "chars": 379,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Range is wrong: canon range is 120 yds? No — priest Hold Person range is 9 m (30 yds actually the priest spell). Printed 36.6 m (120 ft) contradicts canon 9 m."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates duration effect and save modifiers already implied; also restates 'vs. Spell (neg.)' save via 'Those failing their save are paralyzed' — acceptable, but the -1/+1 modifiers are fine to describe."
+    },
+    "severity": "major",
+    "summary": "Printed range 36.6 m contradicts canonical 9 m."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 3,
+    "school": "Illusion",
+    "chars": 469,
+    "save_printed": "vs. Spell (special)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Casting Time is 'Special' printed but canon lists casting time; PHB gives casting time equal to duration/number of pages — 'Special' is acceptable. Duration should be 'Special' rather than 1 day/level per PHB (illusionary script lasts until read/dispelled)."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates the saving throw ('that saves' / 'on a failure') and Components (V,S,M) implicitly, but mainly redundantly names the save already in stat block."
+    },
+    "severity": "minor",
+    "summary": "Duration 'Special' (until read/dispelled), not 1 day/level."
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 3,
+    "school": "Alteration",
+    "chars": 356,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 3,
+    "school": "Illusion",
+    "chars": 474,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 3,
+    "school": "Alteration",
+    "chars": 454,
+    "save_printed": "vs. Spell (neg.)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": false,
+      "note": "Canon shrinks item to 1/12 of normal size (the '2' in DB is OCR for 1/12). Card says 1/12 which is correct — matches PHB. No error."
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": false,
+      "note": "Rules text restates the save ('gets a save to resist') already in the stat block, though describing what it does is acceptable."
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 3,
+    "school": "Invocation / Evocation",
+    "chars": 343,
+    "save_printed": "vs. Spell (½)",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": true,
+      "note": ""
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "ok",
+    "summary": "clean"
+  },
+  {
+    "name": {
+      "ok": true,
+      "note": ""
+    },
+    "level": 3,
+    "school": "Alteration",
+    "chars": 477,
+    "save_printed": "None",
+    "save": {
+      "ok": true,
+      "note": ""
+    },
+    "rules": {
+      "ok": true,
+      "note": ""
+    },
+    "stats": {
+      "ok": false,
+      "note": "Area is a 5-m diameter (½ diameter above ground) sphere per canon — the field is small (approx. 5 m diameter to fit caster + 7); 15-m diameter is too large."
+    },
+    "complete": {
+      "ok": true,
+      "note": ""
+    },
+    "dup": {
+      "ok": true,
+      "note": ""
+    },
+    "severity": "minor",
+    "summary": "Sphere diameter overstated (should be ~5 m, not 15 m)."
+  },
+  {
+    "name": "Melf's Minute Meteors",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Monster Summoning I",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Phantom Steed",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Secret Page",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Sepia Snake Sigil",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Slow",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Spectral Force",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Suggestion",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Tongues",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Water Breathing",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Wind Wall",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Charm Monster",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Confusion",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Detect Scrying",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Dig",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Dimension Door",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Emotion",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Enchanted Weapon",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Evard's Black Tentacles",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Extension I",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Fear",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Fire Charm",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Fumble",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Hallucinatory Terrain",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Illusionary Wall",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Improved Invisibility",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Leomund's Secure Shelter",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Magic Mirror",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Massmorph",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Minor Creation",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Monster Summoning II",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Otiluke's Resilient Sphere",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Phantasmal Killer",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Plant Growth",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Polymorph Other",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Polymorph Self",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Shadow Monsters",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Solid Fog",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Stoneskin",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Vacancy",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Wizard Eye",
+    "level": 4,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  }
+]

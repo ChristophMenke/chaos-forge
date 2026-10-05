@@ -1,48 +1,55 @@
 import { getTranslations, getLocale } from "next-intl/server";
 import { CalendarDays } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
+import { createClient } from "@/lib/supabase/server";
+import {
+  daysUntil,
+  formatGameDate,
+  resolveGameDateTitle,
+  toDateInputValue,
+  todayInGroupTimezone,
+} from "@/lib/game-dates";
+import type { GameDateRow } from "@/lib/supabase/types";
 
 /**
- * Nächster Spielabend — aktuell hart kodiert. Wenn mehrere Termine oder
- * Editierbarkeit gebraucht werden, Wert in eine `system_settings`-Tabelle
- * oder ein eigenes Admin-Panel migrieren.
+ * Nächster Spielabend aus `game_dates` — gepflegt unter /settings.
+ * Ohne kommenden Termin rendert der Banner nichts.
  */
-const NEXT_SESSION_ISO = "2026-06-20";
+async function getNextGameDate(today: Date): Promise<GameDateRow | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("game_dates")
+    .select("*")
+    .gte("event_date", toDateInputValue(today))
+    .order("event_date", { ascending: true })
+    .limit(1)
+    .maybeSingle();
 
-function parseSessionDate(): Date {
-  const [y, m, d] = NEXT_SESSION_ISO.split("-").map(Number);
-  return new Date(y, m - 1, d);
-}
-
-function daysUntil(target: Date): number {
-  const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const diffMs = target.getTime() - startOfToday.getTime();
-  return Math.round(diffMs / 86_400_000);
+  if (error) {
+    console.error("[NextSessionBanner] Failed to load next game date:", error.message);
+    return null;
+  }
+  return (data as GameDateRow | null) ?? null;
 }
 
 export async function NextSessionBanner() {
   const t = await getTranslations("dashboard");
   const locale = await getLocale();
-  const target = parseSessionDate();
-  const days = daysUntil(target);
+  // Server Components laufen in UTC — "heute" muss die Zeitzone der Gruppe sein.
+  const today = todayInGroupTimezone();
+  const nextDate = await getNextGameDate(today);
 
-  if (days < 0) return null;
+  if (!nextDate) return null;
 
-  const dateFormatter = new Intl.DateTimeFormat(locale, {
-    weekday: "short",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-  const formattedDate = dateFormatter.format(target);
-
+  const days = daysUntil(nextDate.event_date, today);
   const countdownLabel =
     days === 0
       ? t("nextSessionToday")
       : days === 1
         ? t("nextSessionTomorrow")
         : t("nextSessionInDays", { count: days });
+
+  const title = resolveGameDateTitle(nextDate.title, "");
 
   return (
     <GlassCard
@@ -58,7 +65,14 @@ export async function NextSessionBanner() {
           <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             {t("nextSessionLabel")}
           </p>
-          <p className="font-heading text-lg text-primary sm:text-xl">{formattedDate}</p>
+          <p className="font-heading text-lg text-primary sm:text-xl">
+            {formatGameDate(nextDate.event_date, locale)}
+          </p>
+          {title && (
+            <p className="truncate text-sm text-foreground" data-testid="next-session-title">
+              {title}
+            </p>
+          )}
           <p className="text-sm text-muted-foreground" data-testid="next-session-countdown">
             {countdownLabel}
           </p>

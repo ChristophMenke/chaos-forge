@@ -16,6 +16,7 @@ import {
   Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ViewModeSelector } from "@/components/settings/view-mode-selector";
 import { Input } from "@/components/ui/input";
 import { GlassCard } from "@/components/glass-card";
 import { createClient } from "@/lib/supabase/client";
@@ -34,6 +35,8 @@ interface SettingsClientProps {
   email: string;
   initialDisplayName: string;
   initialAvatarUrl: string | null;
+  /** Spieltermine-Sektion — serverseitig mit Daten befüllt und hier eingehängt. */
+  gameDatesSlot?: React.ReactNode;
 }
 
 const ADMIN_EMAIL = "christoph.menke@gmail.com";
@@ -43,6 +46,7 @@ export function SettingsClient({
   email,
   initialDisplayName,
   initialAvatarUrl,
+  gameDatesSlot,
 }: SettingsClientProps) {
   const t = useTranslations("settings");
   const router = useRouter();
@@ -155,6 +159,9 @@ export function SettingsClient({
       toast.success(t("accountDeleted"));
       const supabase = createClient();
       await supabase.auth.signOut();
+      // Full reload on purpose: the account is gone and the session was
+      // signed out — nothing of the old client state may survive.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.href = "/";
     } catch {
       toast.error(t("accountDeleteError"));
@@ -305,7 +312,16 @@ export function SettingsClient({
             {t("language")}
           </Button>
         </div>
+
+        <div className="mt-4 flex flex-col gap-2" data-testid="settings-view-mode">
+          <span className="text-sm font-medium">{t("viewMode")}</span>
+          <ViewModeSelector />
+          <p className="text-xs text-muted-foreground">{t("viewModeHint")}</p>
+        </div>
       </GlassCard>
+
+      {/* ── Spieltermine ──────────────────────────────────── */}
+      {gameDatesSlot}
 
       {/* ── Tutorials ─────────────────────────────────────── */}
       <GlassCard hover={false} data-testid="settings-section-tutorials">

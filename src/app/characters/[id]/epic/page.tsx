@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/supabase/auth";
 import { EpicEquipmentView } from "@/components/epic-equipment/epic-equipment-view";
+import { getHighestActiveClassLevel } from "@/lib/rules/multiclass";
 import type { CharacterRow, CharacterClassRow, EpicItemRow } from "@/lib/supabase/types";
 
 interface EpicPageProps {
@@ -13,7 +14,9 @@ export default async function EpicEquipmentPage({ params }: EpicPageProps) {
   const user = await requireAuth();
   const supabase = await createClient();
 
-  const [{ data: character }, { data: classesForLevel }, { data: characterClasses }] =
+  // One wave: the share and the epic items are cheap to load even when the
+  // owner check below makes one of them unnecessary.
+  const [{ data: character }, { data: characterClasses }, { data: share }, { data: epicItems }] =
     await Promise.all([
       supabase
         .from("characters")
@@ -21,7 +24,7 @@ export default async function EpicEquipmentPage({ params }: EpicPageProps) {
           "id, name, avatar_url, user_id, level, con, con_health, con_fitness, hp_max, hp_current"
         )
         .eq("id", id)
-        .single<
+        .maybeSingle<
           Pick<
             CharacterRow,
             | "id"
@@ -38,14 +41,16 @@ export default async function EpicEquipmentPage({ params }: EpicPageProps) {
         >(),
       supabase
         .from("character_classes")
-        .select("level")
-        .eq("character_id", id)
-        .eq("is_active", true),
-      supabase
-        .from("character_classes")
         .select("*")
         .eq("character_id", id)
         .returns<CharacterClassRow[]>(),
+      supabase
+        .from("character_shares")
+        .select("id")
+        .eq("character_id", id)
+        .eq("shared_with_user_id", user.id)
+        .maybeSingle(),
+      supabase.from("epic_items").select("*").eq("character_id", id).returns<EpicItemRow[]>(),
     ]);
 
   if (!character) {
@@ -55,29 +60,12 @@ export default async function EpicEquipmentPage({ params }: EpicPageProps) {
   const isOwner = character.user_id === user.id;
 
   // Allow shared users to view epic items (read-only)
-  if (!isOwner) {
-    const { data: share } = await supabase
-      .from("character_shares")
-      .select("id")
-      .eq("character_id", id)
-      .eq("shared_with_user_id", user.id)
-      .maybeSingle();
-    if (!share) {
-      redirect(`/characters/${id}`);
-    }
+  if (!isOwner && !share) {
+    redirect(`/characters/${id}`);
   }
 
   // Use highest class level for multiclass characters
-  const highestLevel =
-    classesForLevel && classesForLevel.length > 0
-      ? Math.max(...classesForLevel.map((c) => c.level))
-      : character.level;
-
-  const { data: epicItems } = await supabase
-    .from("epic_items")
-    .select("*")
-    .eq("character_id", id)
-    .returns<EpicItemRow[]>();
+  const highestLevel = getHighestActiveClassLevel(characterClasses ?? [], character.level);
 
   return (
     <EpicEquipmentView

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
+import { useBreakpoint } from "@/lib/hooks/use-breakpoint";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
@@ -49,8 +50,9 @@ import { AvatarDisplay } from "@/components/avatar-display";
 import { ImageLightbox } from "@/components/image-lightbox";
 import { WebresearchBadge } from "@/components/webresearch-badge";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { ApprovalGate } from "@/components/approval-gate";
 import { ShareDialog } from "./share-dialog";
-import { Share2, Printer, EyeOff, Eye, Trash2, Copy, Plus, X } from "lucide-react";
+import { Share2, Printer, EyeOff, Eye, Trash2, Copy, Plus, X, ScanLine } from "lucide-react";
 import { CharacterModeNav } from "@/components/character-mode-nav";
 import Link from "next/link";
 import type {
@@ -146,6 +148,7 @@ export function CharacterSheet({
   const tc = useTranslations("characters");
   const tcom = useTranslations("common");
   const ts = useTranslations("sharing");
+  const tr = useTranslations("rescan");
   const [character, setCharacter] = useState(initial);
   const [charClasses, setCharClasses] = useState(initialClasses);
   const [equipmentState, setEquipment] = useState(equipment);
@@ -155,20 +158,16 @@ export function CharacterSheet({
   // tabs. On mobile (stacked layout) it keeps its default size.
   const infoColRef = useRef<HTMLDivElement>(null);
   const [headerFitSize, setHeaderFitSize] = useState<number | null>(null);
+  const isDesktopLayout = useBreakpoint("sm");
   useEffect(() => {
     const el = infoColRef.current;
     if (!el || typeof window === "undefined") return;
-    const mq = window.matchMedia("(min-width: 640px)");
-    const measure = () => setHeaderFitSize(mq.matches ? el.offsetHeight : null);
+    const measure = () => setHeaderFitSize(isDesktopLayout ? el.offsetHeight : null);
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
-    mq.addEventListener("change", measure);
-    return () => {
-      ro.disconnect();
-      mq.removeEventListener("change", measure);
-    };
-  }, []);
+    return () => ro.disconnect();
+  }, [isDesktopLayout]);
   // Clamp so a very tall info column can't blow the avatar up unreasonably.
   const avatarFitSize = headerFitSize ? Math.min(headerFitSize, 220) : 80;
   const [spellsState, setSpells] = useState(spells);
@@ -886,6 +885,16 @@ export function CharacterSheet({
               <span className="hidden sm:inline">{tc("printView")}</span>
             </Button>
           </Link>
+          {isOwner && !character.is_npc && (
+            <ApprovalGate fallback={null}>
+              <Link href={`${basePath}/${character.id}/rescan`}>
+                <Button variant="outline" size="sm" data-testid="sheet-rescan-button">
+                  <ScanLine className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">{tr("title")}</span>
+                </Button>
+              </Link>
+            </ApprovalGate>
+          )}
           {dirty && isOwner && (
             <Button
               size="sm"

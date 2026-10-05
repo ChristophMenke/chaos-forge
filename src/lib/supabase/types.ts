@@ -610,6 +610,21 @@ export interface PartyLootItemWithDetails extends PartyLootItemRow {
   item: GeneralItemRow | null;
 }
 
+// ── Game Dates ──────────────────────────────────────────
+
+/**
+ * Geplanter Spieltermin. `event_date` ist bewusst ein reines Kalenderdatum
+ * (kein Zeitstempel) — siehe `src/lib/game-dates/`.
+ */
+export interface GameDateRow {
+  id: string;
+  event_date: string;
+  title: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 // ── Notifications ───────────────────────────────────────
 
 export type NotificationType =
@@ -621,7 +636,10 @@ export type NotificationType =
   | "trade_gold_received"
   | "session_xp_awarded"
   | "new_user_registered"
-  | "user_approved";
+  | "user_approved"
+  | "game_date_created"
+  | "game_date_changed"
+  | "game_date_cancelled";
 
 export interface NotificationRow {
   id: string;

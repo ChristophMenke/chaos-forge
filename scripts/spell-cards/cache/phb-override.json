@@ -1,0 +1,203 @@
+{
+  "80947916-5f72-48cc-9a76-78fde9b771e6": {
+    "range": "27.4 m"
+  },
+  "1070f813-ce57-48f7-8123-45072f8dbe71": {
+    "area_of_effect": "1.5 m x 6.1 m x 6.1 m wedge"
+  },
+  "7ec3ceed-cbaf-460c-b5dd-86782d3d8aab": {
+    "range": "9.1 m/level"
+  },
+  "d64df0e0-8e03-49e2-bcef-3d26b82fb303": {
+    "duration": "1 round/level"
+  },
+  "a4d60f1d-d6be-4fc0-8553-fd7da24f7a8c": {
+    "range": "54.9 m",
+    "duration": "1 turn/level"
+  },
+  "034444f9-d712-409b-ad65-7f2a0f02c4a5": {
+    "area_of_effect": "3 m path, 18.3 m long"
+  },
+  "b8aa2775-05fb-4a02-bf77-1d7c590a8fff": {
+    "range": "27.4 m",
+    "area_of_effect": "6.1 m cube + 3 m cube/level"
+  },
+  "f2c305db-152f-417c-8aea-302d3c85a208": {
+    "range": "109.7 m"
+  },
+  "005b15f5-08be-4bdd-882d-c916657af177": {
+    "range": "54.9 m + 9.1 m/level"
+  },
+  "eded2c10-0fa0-48d0-918e-a1104cdf57eb": {
+    "range": "18.3 m/level"
+  },
+  "88f68111-67a6-4474-a66e-293540ba07a3": {
+    "range": "9.1 m"
+  },
+  "7d16b986-15f7-47cb-b879-642baf4870bf": {
+    "range": "9.1 m",
+    "area_of_effect": "3 m x 3 m"
+  },
+  "b8268441-65de-4444-9ea1-06bbf8c14fe8": {
+    "range": "0"
+  },
+  "784c5cdf-aecf-4ea8-a35a-be3ea482523e": {
+    "area_of_effect": "1 speaking creature or written object"
+  },
+  "7b929369-2f35-4c8b-9eb1-d7dfea93a651": {
+    "range": "18.3 m",
+    "duration": "3 turns + 1 turn/level"
+  },
+  "7b8e19c1-8a2c-4e05-9d05-ee9957d922f3": {
+    "duration": "1 hour + 1 turn/level"
+  },
+  "1a5bd0f5-3d64-46f8-aea5-394ae087ee7e": {
+    "range": "4.6 m/level"
+  },
+  "c6da31d0-142b-4057-8cf6-199ed0cb2d09": {
+    "range": "27.4 m + 9.1 m/level"
+  },
+  "c0961ff0-90a0-4828-879c-f6213f4aecee": {
+    "range": "54.9 m"
+  },
+  "72d3e871-b2a8-4d91-86a5-40c36e41563a": {
+    "range": "9.1 m/level"
+  },
+  "2ef9309f-5971-45f7-9e6c-a09f6e1bdbcb": {
+    "range": "9.1 m/level",
+    "duration": "1 turn + 1 round/level"
+  },
+  "7b09283e-62bc-468e-8c77-e45fdf66f293": {
+    "range": "9.1 m/level"
+  },
+  "56816535-b4c2-482e-ab96-1d0ab16c7fb6": {
+    "range": "27.4 m",
+    "duration": "8 hours"
+  },
+  "23ad76bb-eb4c-405d-9f2c-a5a6b027c8bd": {
+    "range": "54.9 m"
+  },
+  "c4d05bfc-d5a8-4681-ba83-a9f01677b8b2": {
+    "range": "18.3 m/level",
+    "duration": "1 turn/level"
+  },
+  "c887b95e-fa24-4cb4-a5a9-936d16ee8cda": {
+    "range": "9.1 m"
+  },
+  "d5e70f57-3559-4c40-8c37-7cde2c251248": {
+    "range": "9.1 m"
+  },
+  "4c4eb0cc-ab35-4fec-93b0-c832b7b24a84": {
+    "range": "109.7 m"
+  },
+  "149db34b-9b48-42c3-bc5d-9442d7cc17bf": {
+    "range": "9.1 m + 4.6 m/level"
+  },
+  "8c7cc06a-d1b9-44fb-965b-8b700b28acc1": {
+    "duration": "2 turns/level"
+  },
+  "80a4e726-40ac-47fb-b0b8-7dbc78367ebb": {
+    "duration": "3d4 rounds + 2 rounds/level"
+  },
+  "4c921311-6c7a-48d0-a9e2-c3741319d7fb": {
+    "range": "54.9 m"
+  },
+  "39c27c8a-5edb-4628-a8e8-24af1fa47f61": {
+    "range": "27.4 m + 9.1 m/level"
+  },
+  "a3547b79-dc3a-4826-bb53-b177a5683e96": {
+    "range": "27.4 m + 9.1 m/level"
+  },
+  "fed8ad8e-795d-4313-8dad-1ff3c8c0b3fc": {
+    "duration": "1 turn/level + 1d6 turns"
+  },
+  "c7e123f8-7d34-4f48-999c-a578c3c09379": {
+    "range": "54.9 m"
+  },
+  "078c3f55-d123-46c7-9c09-89ccd60831e7": {
+    "area_of_effect": "0.1 m³/level"
+  },
+  "a36b1953-8530-4bde-93cf-0340bf1e5ae2": {
+    "range": "27.4 m"
+  },
+  "046be728-1df9-4090-80e4-8fc412582d94": {
+    "range": "109.7 m"
+  },
+  "20b1b627-ecc4-465a-90ba-a3a4a7171ac4": {
+    "area_of_effect": "12.2 m cube + a 3 m cube/level"
+  },
+  "fa81b55d-a817-4fec-b703-8c50cf80c7ce": {
+    "range": "27.4 m"
+  },
+  "5efdfc3b-b03b-4b81-9097-cfd1055826cf": {
+    "range": "82.3 m + 9.1 m/level"
+  },
+  "e35637e7-9242-49d8-a6a0-d742f5118c4b": {
+    "range": "9.1 m/level",
+    "area_of_effect": "A 3 m wide x 1.5 m high area per caster level"
+  },
+  "3f90da92-1a2e-47c4-9273-d40486357aa8": {
+    "range": "4.6 m/level"
+  },
+  "de529dc2-d2c5-4202-aaaa-6b21e85270ba": {
+    "duration": "1d6 turns + 1 turn/level"
+  },
+  "7a3e0bac-1068-4bc8-ad00-d2b26732dd1c": {
+    "range": "27.4 m",
+    "area_of_effect": "6.1 m x 3 m x 3 m/level"
+  },
+  "17f03212-367f-464f-8ddb-33ad7af32429": {
+    "range": "9.1 m/level"
+  },
+  "a958f981-bfd4-41c5-bc24-15b59824a26e": {
+    "range": "27.4 m"
+  },
+  "481cbfeb-d5b9-47f7-8aa6-af123fbb4b82": {
+    "area_of_effect": "18.3 m long cone, 9.1 m diameter at end, 1.5 m at base"
+  },
+  "f5713a52-58d9-4ff8-9d38-a9775baa4d03": {
+    "range": "27.4 m",
+    "area_of_effect": "0.3 m x 3 m x 3 m"
+  },
+  "742b8f00-c699-4ee4-8c55-110151d5e0c5": {
+    "range": "9.1 m/level"
+  },
+  "80b55b7c-a2de-45b3-b7d7-7d05eb43c2e4": {
+    "range": "54.9 m"
+  },
+  "7f944329-710b-4401-bc5e-5ce1cc47ce6e": {
+    "range": "18.3 m"
+  },
+  "0f2c7a47-3ef1-466f-8f10-a5b04c67d299": {
+    "range": "9.1 m/level",
+    "area_of_effect": "An area 3 m per side/level"
+  },
+  "b7b3a111-5be2-4634-b3ac-4a51b0bab7f6": {
+    "range": "4.6 m/level"
+  },
+  "7087f549-a18b-461b-af2b-568384106c3e": {
+    "duration": "2 turns/level"
+  },
+  "b0eb2bbb-bc39-4f6e-a01b-c243dfb6c895": {
+    "range": "9.1 m/level"
+  },
+  "06df83f7-7b13-48f8-ba53-476608af516a": {
+    "range": "109.7 m"
+  },
+  "d81ddb28-19b2-452a-8e5f-c13da6464a4f": {
+    "range": "9.1 m",
+    "duration": "4 hours + 1/2 hour/level"
+  },
+  "d6da997a-9d74-4d86-988e-0ba266ee94cd": {
+    "range": "54.9 m + 9.1 m/level"
+  },
+  "796dd788-880a-46b1-a721-904f7f98b2ad": {
+    "range": "27.4 m"
+  },
+  "dcf10ed6-4bd3-44ec-95f0-02b25132533b": {
+    "range": "9.1 m + 9.1 m/level"
+  },
+  "7ea460db-8cbd-4d59-a20a-95aca55e328b": {
+    "range": "109.7 m"
+  }
+}

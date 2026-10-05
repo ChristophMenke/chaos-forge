@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useId, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Bell, CheckCheck, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -19,6 +19,7 @@ export function NotificationBell({
   variant = "sidebar",
   onUnreadCountChange,
 }: NotificationBellProps) {
+  const instanceId = useId().replace(/:/g, "");
   const t = useTranslations("notifications");
   const [notifications, setNotifications] = useState<NotificationRow[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -51,7 +52,11 @@ export function NotificationBell({
     fetchNotifications();
 
     const channel = supabase
-      .channel("user-notifications")
+      // Die Glocke hängt gleichzeitig in der Desktop-Sidebar und in der mobilen
+      // Navigation — beide sind im DOM, nur per CSS unterschiedlich sichtbar.
+      // Unter einem gemeinsamen Kanalnamen bekäme die zweite Instanz den bereits
+      // abonnierten Kanal und .on() würde werfen, siehe approval-provider.tsx.
+      .channel(`user-notifications-${instanceId}`)
       .on(
         "postgres_changes",
         {
@@ -70,7 +75,7 @@ export function NotificationBell({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId]);
+  }, [userId, instanceId]);
 
   // Click-outside handler
   useEffect(() => {

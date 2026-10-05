@@ -42,6 +42,9 @@ interface PlaySpellbookPanelProps {
   onRest: () => void;
   epicSpellFailure?: number;
   epicWildMagic?: number;
+  epicBonusSpellPoints?: number;
+  hpToSpConversion?: { ratio: number } | null;
+  onConvertHpToSp?: (hpAmount: number) => void;
   characterKit?: string | null;
   hasArmor?: boolean;
   priestAvailableSpells?: SpellRow[];
@@ -58,6 +61,9 @@ function PlaySpellbookPanelInner({
   onRest,
   epicSpellFailure = 0,
   epicWildMagic = 0,
+  epicBonusSpellPoints = 0,
+  hpToSpConversion = null,
+  onConvertHpToSp,
   characterKit,
   hasArmor = false,
   priestAvailableSpells = [],
@@ -108,13 +114,29 @@ function PlaySpellbookPanelInner({
   const totalPoints = useMemo(() => {
     if (!isPointsMode) return 0;
     if (isWizard) {
-      return getWizardSpellPoints(casterLevel) + getWizardBonusSpellPoints(character.int);
+      return (
+        getWizardSpellPoints(casterLevel) +
+        getWizardBonusSpellPoints(character.int) +
+        epicBonusSpellPoints
+      );
     }
     if (isPriest) {
-      return getPriestSpellPoints(casterLevel) + getPriestBonusSpellPoints(wisScore);
+      return (
+        getPriestSpellPoints(casterLevel) +
+        getPriestBonusSpellPoints(wisScore) +
+        epicBonusSpellPoints
+      );
     }
     return 0;
-  }, [isPointsMode, isWizard, isPriest, casterLevel, character.int, wisScore]);
+  }, [
+    isPointsMode,
+    isWizard,
+    isPriest,
+    casterLevel,
+    character.int,
+    wisScore,
+    epicBonusSpellPoints,
+  ]);
 
   const pointsRemaining = totalPoints - character.spell_points_used;
 
@@ -328,7 +350,33 @@ function PlaySpellbookPanelInner({
             <div className="text-[10px] md:text-xs text-muted-foreground">/ {totalPoints}</div>
           </div>
         </div>
-      ) : (
+      ) : null}
+
+      {isPointsMode && hpToSpConversion && !readOnly && (
+        <div
+          className="mb-3 flex items-center justify-between gap-2 rounded-lg border border-purple-500/30 bg-purple-500/5 px-3 py-2"
+          data-testid="play-hp-to-sp-conversion"
+        >
+          <div>
+            <span className="text-sm font-medium">{te("hpToSpConversion")}</span>
+            <p className="text-xs text-muted-foreground">
+              {te("hpToSpConversionRatio", { ratio: hpToSpConversion.ratio })}
+            </p>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 shrink-0"
+            disabled={character.hp_current <= 1}
+            onClick={() => onConvertHpToSp?.(1)}
+            data-testid="play-hp-to-sp-convert-btn"
+          >
+            {te("hpToSpConvertButton")}
+          </Button>
+        </div>
+      )}
+
+      {!isPointsMode && (
         <div className="mb-3 flex flex-wrap gap-1.5" data-testid="play-spell-slots">
           {Array.from({ length: maxSpellLevel }, (_, i) => i + 1).map((lvl) => {
             const available = totalSlots[lvl - 1] ?? 0;

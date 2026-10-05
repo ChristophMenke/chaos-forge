@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { requireAuth } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
+import { fetchGameDates } from "@/lib/game-dates/api";
+import { GameDatesPanel } from "@/components/settings/game-dates-panel";
 import { SettingsClient } from "./settings-client";
 
 export default async function SettingsPage() {
@@ -11,13 +13,15 @@ export default async function SettingsPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, avatar_url, email")
+    .select("display_name, avatar_url, email, is_approved")
     .eq("id", user.id)
     .maybeSingle();
 
   if (!profile) {
     redirect("/login");
   }
+
+  const gameDates = await fetchGameDates(supabase);
 
   return (
     <div
@@ -31,6 +35,13 @@ export default async function SettingsPage() {
         email={profile.email ?? user.email ?? ""}
         initialDisplayName={profile.display_name}
         initialAvatarUrl={profile.avatar_url}
+        gameDatesSlot={
+          <GameDatesPanel
+            initialDates={gameDates}
+            userId={user.id}
+            canEdit={profile.is_approved === true}
+          />
+        }
       />
     </div>
   );

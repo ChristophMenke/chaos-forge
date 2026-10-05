@@ -21,7 +21,10 @@ const eslintConfig = defineConfig([
       ],
     },
   },
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  // scripts/spell-cards/: einmalige Node-Pipeline für den Kartendruck (kein
+  // App-Code, kein Build-Input) — nutzt bewusst require() und CommonJS in der
+  // 1:1-Kopie der Regel-Engine unter rules-js/.
+  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "scripts/spell-cards/**"]),
 ]);
 
 export default eslintConfig;

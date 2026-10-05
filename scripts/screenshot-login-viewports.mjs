@@ -1,12 +1,8 @@
-import { chromium } from "@playwright/test";
+import { chromium } from "playwright";
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
-import crypto from "node:crypto";
-import dotenv from "dotenv";
-dotenv.config({ path: ".env.local" });
 
 const OUT = "screenshots/login";
-const GM_PIN = process.env.GM_PIN;
 
 const VIEWPORTS = [
   { name: "iphone-se", width: 375, height: 667 },
@@ -35,7 +31,6 @@ async function main() {
     console.log(`${vp.name} login: ${vp.width}x${vp.height}`);
 
     // 2. Master PIN gate
-    const secret = process.env.GM_SESSION_SECRET ?? GM_PIN;
     // Don't set GM cookie - we WANT to see the PIN gate
     await page.goto("http://localhost:3000/master", { waitUntil: "networkidle" });
     await page.waitForTimeout(1000);

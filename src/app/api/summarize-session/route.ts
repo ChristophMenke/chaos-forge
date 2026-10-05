@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import { generateText } from "@/lib/gemini/generate-text";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
@@ -29,10 +29,10 @@ export async function POST(request: NextRequest) {
   }
 
   // Check API key
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.GOOGLE_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "KI-Zusammenfassung ist nicht konfiguriert (ANTHROPIC_API_KEY fehlt)." },
+      { error: "KI-Zusammenfassung ist nicht konfiguriert (GOOGLE_API_KEY fehlt)." },
       { status: 503 }
     );
   }
@@ -54,13 +54,10 @@ export async function POST(request: NextRequest) {
       )
       .join("\n\n---\n\n");
 
-    const client = new Anthropic({ apiKey });
-
-    const message = await client.messages.create({
-      model: "claude-haiku-4-5-20251001",
-      // 200-400 Wörter Deutsch ≈ 400-800 Tokens; mit Markdown + Headings
-      // lieber deutlich Puffer lassen damit nichts abgeschnitten wird.
-      max_tokens: 1500,
+    const { text: summary, truncated } = await generateText({
+      // 200-400 Wörter Deutsch ≈ 400-800 Tokens; auf Gemini 3 zählt das
+      // Nachdenken des Modells mit, deshalb reichlich Puffer.
+      maxOutputTokens: 6000,
       system: `Du bist ein erfahrener Chronist einer AD&D 2nd Edition Rollenspielgruppe namens "Chaos RPG".
 Erstelle aus den verschiedenen Charakter-Perspektiven eine zusammenhängende, stimmungsvolle Zusammenfassung der Spielsitzung auf Deutsch.
 - Fasse die wichtigsten Ereignisse, Begegnungen und Entscheidungen zusammen
@@ -69,15 +66,15 @@ Erstelle aus den verschiedenen Charakter-Perspektiven eine zusammenhängende, st
 - Halte die Zusammenfassung auf 200-400 Wörter (max. 400 Wörter — nicht überschreiten!)
 - Das Hardlimit für deine Antwort sind ~1500 Tokens, deine Zusammenfassung darf also nicht länger sein. Wenn du sicher nicht abschließen kannst, kürze statt abzubrechen.
 - Nutze Markdown-Formatierung (Fettdruck für wichtige Namen)`,
-      messages: [
-        {
-          role: "user",
-          content: `Fasse die folgenden Charakter-Beiträge zu einer Session-Zusammenfassung zusammen:\n\n${formattedEntries}`,
-        },
-      ],
+      prompt: `Fasse die folgenden Charakter-Beiträge zu einer Session-Zusammenfassung zusammen:\n\n${formattedEntries}`,
     });
 
-    const summary = message.content[0].type === "text" ? message.content[0].text : "";
+    if (truncated) {
+      return NextResponse.json(
+        { error: "Zusammenfassung wurde abgeschnitten — bitte erneut versuchen." },
+        { status: 422 }
+      );
+    }
 
     return NextResponse.json({ summary });
   } catch (err) {

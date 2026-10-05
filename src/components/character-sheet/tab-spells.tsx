@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { MarkdownRenderer as ReactMarkdown } from "@/components/markdown-renderer";
 import { useTranslations, useLocale } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
+import { getSpellCatalog, invalidateSpellCatalog } from "@/lib/catalog/spell-catalog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -178,18 +179,14 @@ export function TabSpells({
   async function loadAllSpells() {
     if (allSpellsLoaded) return;
     setLoadingSpells(true);
-    const supabase = createClient();
-    // Pre-filter by spell type on the server to reduce payload
     const spellType = isPriestCaster(classId as ClassId) ? "priest" : "wizard";
-    const { data } = await supabase
-      .from("spells")
-      .select("*")
-      .eq("spell_type", spellType)
-      .order("level")
-      .order("name")
-      .limit(5000);
-    setAllSpellsLoaded((data as SpellRow[]) ?? []);
-    setLoadingSpells(false);
+    try {
+      setAllSpellsLoaded(await getSpellCatalog(spellType));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLoadingSpells(false);
+    }
   }
 
   async function openLearnDialog() {
@@ -537,6 +534,7 @@ export function TabSpells({
       .single();
 
     if (!error && newSpell) {
+      invalidateSpellCatalog();
       const { data: charSpell } = await supabase
         .from("character_spells")
         .insert({
@@ -547,7 +545,9 @@ export function TabSpells({
         .select("*, spell:spells(*)")
         .single();
       if (charSpell) {
-        onSpellsChange([...spells, charSpell as CharacterSpellWithDetails]);
+        const learned = charSpell as CharacterSpellWithDetails;
+        onSpellsChange([...spells, learned]);
+        setAllSpellsLoaded((loaded) => (loaded ? [...loaded, learned.spell] : loaded));
       }
     }
 

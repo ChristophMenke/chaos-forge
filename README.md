@@ -52,7 +52,7 @@ Chaos Forge ersetzt umständliche Offline-Editoren aus den 90er Jahren durch ein
 - **Notifications** — Live-Notifications für Item/Gold-Transfer, XP-Vergabe, Freigabe-Events etc. mit Delete-Funktion (einzeln + alle)
 - **Avatar-Silhouetten** — Rassen-/Klassen-spezifische Silhouetten als Fallback wenn Character kein Avatar hat
 - **Responsive Design** — Desktop Left-Sidebar, Mobile Bottom-Nav mit More-Menu, Glassmorphism Cards
-- **Accessibility** — WCAG 2 AA geprüft via axe-core Playwright Tests, ARIA-konforme Dialoge, Screenreader-Labels
+- **Accessibility** — ARIA-konforme Dialoge, Screenreader-Labels
 - **Regelwerk-Engine** — Reine TypeScript-Funktionen für alle PHB-Regeln + Player's Option
 - **Landing Page** — Immersives Showcase mit Party-Artwork, 4 Feature-Cards mit Klassen-Glows, How-It-Works Timeline, Footer-CTA
 - **User-Freigabe-System** — Neue Registrierungen bekommen Read-Only-Zugriff bis der Admin sie via `/admin/approve/[id]` freischaltet oder ablehnt (Account-Delete). Persistenter Banner für Wartende. BEFORE-Trigger auf 20+ Tabellen blocken Writes konsistent (auch durch SECURITY DEFINER RPCs). In-App-Notification + Discord-Webhook bei neuen Usern
@@ -68,7 +68,7 @@ Chaos Forge ersetzt umständliche Offline-Editoren aus den 90er Jahren durch ein
 - **Datenbank & Auth:** Supabase (PostgreSQL + Row Level Security)
 - **Styling:** Tailwind CSS v4 + shadcn/ui + Glassmorphism Design-System
 - **i18n:** next-intl (Cookie-basiert, DE/EN) + `localized()` Utility für DB-Daten
-- **Testing:** Vitest (1564 Unit-Tests), Playwright (120+ E2E inkl. Responsive, A11y, Sidebar, XP-Management, GM-Dashboard, Master, Mobile, Approval-Flow)
+- **Testing:** Vitest (1564 Unit-Tests)
 - **Hosting:** Vercel (Free-Tier optimiert)
 - **AI:** Anthropic Claude API (Character Import, Monster Import, Session Summaries) + Google Gemini (Imagen für Bild-Generierung)
 - **Export:** `docx` Paket für Word-Export
@@ -106,7 +106,6 @@ Chaos Forge ersetzt umständliche Offline-Editoren aus den 90er Jahren durch ein
 
    ```bash
    npm test              # Unit-Tests (Vitest)
-   npm run test:e2e      # E2E-Tests (Playwright)
    ```
 
 6. **CI-Pipeline lokal spiegeln**
@@ -196,10 +195,6 @@ src/
       audio-recorder.ts   # MediaRecorder Wrapper für Sprachnotizen
       units.ts            # lbsToKg, feetToMeters
   test/                   # Vitest Setup, Smoke- & Regressionstests
-e2e/                      # Playwright E2E-Tests (POM-Pattern)
-  responsive-a11y.spec.ts # Mobile Responsive + WCAG 2 AA Tests
-  pages/                  # Page Object Models
-  helpers/                # Auth-Helper
 messages/                 # i18n-Dateien (de.json, en.json)
 supabase/
   migrations/             # 219 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items + Priest + Party + Shield + Traits + Realtime + Gold RPC + Monsters + Notifications + Weapon Proficiency Split + Monster Narrative + Profiles + is_approved + skip_tutorials)

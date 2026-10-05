@@ -3,35 +3,10 @@
 // Client-side image compression (src/lib/utils/image-compression.ts) targets 3 MB per
 // file so that a multi-file upload stays within the platform limit.
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import { generateText, type AiInputFile } from "@/lib/gemini/generate-text";
 import sharp from "sharp";
 import { createClient } from "@/lib/supabase/server";
 import { MONSTER_SCAN_PROMPT, parseScanResponse } from "@/lib/scan/monster-scan-prompt";
-
-type ImageMediaType = "image/jpeg" | "image/png" | "image/webp" | "image/gif";
-
-function buildContentBlock(
-  base64: string,
-  mediaType: string,
-  isPdf: boolean
-):
-  | { type: "document"; source: { type: "base64"; media_type: "application/pdf"; data: string } }
-  | { type: "image"; source: { type: "base64"; media_type: ImageMediaType; data: string } } {
-  if (isPdf) {
-    return {
-      type: "document" as const,
-      source: { type: "base64" as const, media_type: "application/pdf" as const, data: base64 },
-    };
-  }
-  return {
-    type: "image" as const,
-    source: {
-      type: "base64" as const,
-      media_type: mediaType as ImageMediaType,
-      data: base64,
-    },
-  };
-}
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -43,10 +18,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Nicht authentifiziert." }, { status: 401 });
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.GOOGLE_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "AI-Import ist nicht konfiguriert (ANTHROPIC_API_KEY fehlt)." },
+      { error: "AI-Import ist nicht konfiguriert (GOOGLE_API_KEY fehlt)." },
       { status: 503 }
     );
   }
@@ -97,13 +72,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const contentBlocks: Array<
-      | {
-          type: "document";
-          source: { type: "base64"; media_type: "application/pdf"; data: string };
-        }
-      | { type: "image"; source: { type: "base64"; media_type: ImageMediaType; data: string } }
-    > = [];
+    const files: AiInputFile[] = [];
 
     for (const file of allFiles) {
       if (file.size > MAX_FILE_SIZE) {
@@ -116,36 +85,30 @@ export async function POST(request: NextRequest) {
       const isPdf = file.type === "application/pdf";
 
       if (isPdf) {
-        const base64 = bytes.toString("base64");
-        contentBlocks.push(buildContentBlock(base64, file.type, true));
+        files.push({ data: bytes.toString("base64"), mimeType: "application/pdf" });
       } else {
         const resized = await sharp(bytes)
           .rotate()
           .resize(1568, 1568, { fit: "inside", withoutEnlargement: true })
           .jpeg({ quality: 85 })
           .toBuffer();
-        const base64 = resized.toString("base64");
-        contentBlocks.push(buildContentBlock(base64, "image/jpeg", false));
+        files.push({ data: resized.toString("base64"), mimeType: "image/jpeg" });
       }
     }
 
     const preciseMode = formData.get("precise") === "true";
-    const client = new Anthropic({ apiKey });
 
-    const message = await client.messages.create({
-      model: preciseMode ? "claude-sonnet-4-6" : "claude-haiku-4-5-20251001",
-      max_tokens: 8192,
-      messages: [
-        {
-          role: "user",
-          content: [...contentBlocks, { type: "text", text: MONSTER_SCAN_PROMPT }],
-        },
-      ],
+    const { text: responseText, truncated } = await generateText({
+      precise: preciseMode,
+      files,
+      prompt: MONSTER_SCAN_PROMPT,
+      // Stat-Blöcke mit Sub-Varianten werden lang, und auf Gemini 3 zählt das
+      // Nachdenken des Modells gegen dieses Budget.
+      maxOutputTokens: 24000,
+      json: true,
     });
 
-    const responseText = message.content[0].type === "text" ? message.content[0].text : "";
-
-    if (message.stop_reason === "max_tokens") {
+    if (truncated) {
       return NextResponse.json(
         { error: "Antwort wurde abgeschnitten — bitte erneut versuchen." },
         { status: 422 }

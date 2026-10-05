@@ -100,6 +100,10 @@ export interface EpicEffects {
   overclockAbility: OverclockAbility | null;
   /** Spell-like abilities from epic items (e.g., Water Walk, Cone of Cold) */
   spellAbilities: SpellAbility[];
+  /** Bonus spell points from epic items (e.g., Netherese Blooded: level × 2) */
+  bonusSpellPoints: number;
+  /** HP-to-spell-points conversion ability, if unlocked (e.g., Netherese Blooded Lvl9-10) */
+  hpToSpConversion: { ratio: number } | null;
 }
 
 /**
@@ -223,6 +227,8 @@ export function getEpicEffects(items: EpicItemRow[], characterLevel?: number): E
     passiveAbilities: [],
     overclockAbility: null,
     spellAbilities: [],
+    bonusSpellPoints: 0,
+    hpToSpConversion: null,
   };
 
   let overclockCandidate: OverclockAbility | null = null;
@@ -310,6 +316,12 @@ export function getEpicEffects(items: EpicItemRow[], characterLevel?: number): E
       // Parse spell abilities from simple_effects
       result.spellAbilities.push(...getUnlockedSpellAbilities(item, unlockedLevel));
 
+      // Parse HP-to-spell-points conversion ability (tier-gated, e.g. Netherese Blooded Lvl9-10)
+      const conv = se?.hp_to_sp_conversion as { unlock_level: number; ratio: number } | undefined;
+      if (conv && conv.unlock_level <= unlockedLevel && !result.hpToSpConversion) {
+        result.hpToSpConversion = { ratio: conv.ratio };
+      }
+
       // Collect overclock candidate (resolved after loop to ensure device_offline is fully known)
       if (se?.overclock && typeof se.overclock === "object" && !overclockCandidate) {
         const oc = se.overclock as Record<string, unknown>;
@@ -328,10 +340,17 @@ export function getEpicEffects(items: EpicItemRow[], characterLevel?: number): E
       }
     }
 
-    // Simple effects (items without damage levels)
+    // Simple effects (apply regardless of whether the item has damage levels —
+    // e.g. Netherese Blooded's bonus spell points are a base effect, not tied
+    // to its own level_thresholds tier)
     if (se && typeof se === "object") {
       const pb = se.perception_bonus;
       if (typeof pb === "number") result.perceptionBonus += pb;
+
+      const spMultiplier = se.spell_points_bonus_multiplier;
+      if (typeof spMultiplier === "number" && characterLevel != null) {
+        result.bonusSpellPoints += spMultiplier * characterLevel;
+      }
     }
   }
 

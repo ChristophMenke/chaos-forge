@@ -27,23 +27,6 @@ export default function LoginPage() {
         return;
       }
 
-      // Test-User Bypass: try auto-login, API checks if email matches
-      const testRes = await fetch("/api/test-login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      if (testRes.ok) {
-        const testData = await testRes.json();
-        const supabase = createClient();
-        await supabase.auth.setSession({
-          access_token: testData.access_token,
-          refresh_token: testData.refresh_token,
-        });
-        window.location.href = "/characters";
-        return;
-      }
-
       // Send OTP code (no emailRedirectTo = sends 6-digit code instead of magic link)
       const supabase = createClient();
       const { error: otpError } = await supabase.auth.signInWithOtp({ email });
@@ -80,6 +63,9 @@ export default function LoginPage() {
         // Ping admin via Discord webhook if this user is still unapproved.
         // Fire-and-forget — the server derives whether this is a fresh signup.
         fetch("/api/notify-new-user", { method: "POST" }).catch(() => {});
+        // Full reload on purpose — see above: the OTP verify just wrote new
+        // auth cookies.
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
         window.location.href = "/characters";
       }
     } catch (err) {
@@ -125,6 +111,7 @@ export default function LoginPage() {
           <img
             src="/images/login/login-party-portrait.webp"
             alt=""
+            fetchPriority="high"
             className={`absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-500 ${
               step === "email" ? "opacity-100" : "opacity-0"
             }`}
@@ -138,7 +125,9 @@ export default function LoginPage() {
           <img
             src="/images/login/login-party-grimace-portrait.webp"
             alt=""
-            fetchPriority="high"
+            // Only shown in the code step — load it without competing with the first image
+            fetchPriority="low"
+            decoding="async"
             className={`absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-500 ${
               step === "code" ? "opacity-100" : "opacity-0"
             }`}

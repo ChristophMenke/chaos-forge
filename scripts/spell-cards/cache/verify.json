@@ -1,0 +1,219 @@
+[
+  {
+    "name": "Affect Normal Fires",
+    "level": 1,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Find Familiar",
+    "level": 1,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Grease",
+    "level": 1,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Hypnotism",
+    "level": 1,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Identify",
+    "level": 1,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Jump",
+    "level": 1,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Light",
+    "level": 1,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Shocking Grasp",
+    "level": 1,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Taunt",
+    "level": 1,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Tenser's Floating Disc",
+    "level": 1,
+    "no_phb": true,
+    "claims": [
+      "STATS: Duration is wrong: canon is 3 hours + 1 hour/level (3 turns + 1 turn/level in PHB), not 3 rds. + 1 rd./level."
+    ]
+  },
+  {
+    "name": "Unseen Servant",
+    "level": 1,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Wall of Fog",
+    "level": 1,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Alter Self",
+    "level": 2,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Blindness",
+    "level": 2,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Blur",
+    "level": 2,
+    "no_phb": true,
+    "claims": [
+      "STATS: Components should be V, S (printed only V)"
+    ]
+  },
+  {
+    "name": "Detect Evil",
+    "level": 2,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Detect Invisibility",
+    "level": 2,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "ESP",
+    "level": 2,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Fog Cloud",
+    "level": 2,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Forget",
+    "level": 2,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Glitterdust",
+    "level": 2,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Irritation",
+    "level": 2,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Knock",
+    "level": 2,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Levitate",
+    "level": 2,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Mirror Image",
+    "level": 2,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Misdirection",
+    "level": 2,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Ray of Enfeeblement",
+    "level": 2,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Rope Trick",
+    "level": 2,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Scare",
+    "level": 2,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Tasha's Hideous Laughter",
+    "level": 2,
+    "no_phb": true,
+    "claims": [
+      "RULES: Save is modified by target Intelligence: Int 4- unaffected, 5-7 save at -6, 8-12 at -4, 13-14 at -2, 15+ unmodified. Card omits this. Also duration structure: laughter lasts 1 round, next round recovering, then -2 Str for remaining rounds; card's phrasing is roughly right."
+    ]
+  },
+  {
+    "name": "Clairaudience",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Clairvoyance",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Delude",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Flame Arrow",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Fly",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Gust of Wind",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Haste",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Hold Person",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Illusionary Script",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Item",
+    "level": 3,
+    "error": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too lo"
+  },
+  {
+    "name": "Leomund's Tiny Hut",
+    "level": 3,
+    "no_phb": true,
+    "claims": [
+      "STATS: Area is a 5-m diameter (½ diameter above ground) sphere per canon — the field is small (approx. 5 m diameter to fit caster + 7); 15-m diameter is too large."
+    ]
+  }
+]

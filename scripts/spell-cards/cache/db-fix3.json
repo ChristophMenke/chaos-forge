@@ -1,0 +1,72 @@
+[
+  {
+    "id": "eded2c10-0fa0-48d0-918e-a1104cdf57eb",
+    "name": "Hold Portal",
+    "phb": "Area of Effect: 20 square feet/level",
+    "old": "20 qm/Stufe",
+    "patch": {
+      "area_of_effect": "20 Quadratfuß/Stufe"
+    },
+    "preview": "1.9 m²/Stufe"
+  },
+  {
+    "id": "23ad76bb-eb4c-405d-9f2c-a5a6b027c8bd",
+    "name": "Knock",
+    "phb": "Area of Effect: 10 square feet/level",
+    "old": "10 qm/Stufe",
+    "patch": {
+      "area_of_effect": "10 Quadratfuß/Stufe"
+    },
+    "preview": "0.9 m²/Stufe"
+  },
+  {
+    "id": "005b15f5-08be-4bdd-882d-c916657af177",
+    "name": "Phantasmal Force",
+    "phb": "Area of Effect: 400 sq. ft. + 100 sq. ft./level",
+    "old": "400 qm + 100 qm/Stufe",
+    "patch": {
+      "area_of_effect": "400 Quadratfuß + 100 Quadratfuß/Stufe"
+    },
+    "preview": "37.2 m² + 9.3 m²/Stufe"
+  },
+  {
+    "id": "fe5cebcf-827f-469a-8213-80ca2869a9c2",
+    "name": "Wall of Iron",
+    "phb": "kein Statblock im OCR — Zahl unverändert übernommen, nur Einheit korrigiert",
+    "old": "15 qm/Stufe",
+    "patch": {
+      "area_of_effect": "15 Quadratfuß/Stufe"
+    },
+    "preview": "1.4 m²/Stufe"
+  },
+  {
+    "id": "5eff6024-08a5-46e9-8496-4857d25350e9",
+    "name": "Wall of Stone",
+    "phb": "Fließtext: \"up to 20 square feet per level\" (Statblock sagt \"Special\")",
+    "old": "20 qm/Stufe",
+    "patch": {
+      "area_of_effect": "20 Quadratfuß/Stufe"
+    },
+    "preview": "1.9 m²/Stufe"
+  },
+  {
+    "id": "0e5e6837-e5d8-4e8e-bbf0-a29c3e0a2d34",
+    "name": "Web",
+    "phb": "Fließtext: \"eight 10' x 10' x 10' cubes\" — Volumen, keine Fläche",
+    "old": "80 qm",
+    "patch": {
+      "area_of_effect": "Acht Würfel à 10 Fuß Kantenlänge"
+    },
+    "preview": "Acht Würfel à 3 m Kantenlänge"
+  },
+  {
+    "id": "a7bd90f9-b9e3-4e20-ad1f-f727dcabb376",
+    "name": "Wizard Lock",
+    "phb": "Area of Effect: 30 square feet/level",
+    "old": "30 qm/Stufe",
+    "patch": {
+      "area_of_effect": "30 Quadratfuß/Stufe"
+    },
+    "preview": "2.8 m²/Stufe"
+  }
+]

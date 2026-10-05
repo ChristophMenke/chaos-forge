@@ -72,7 +72,10 @@ export default async function CharactersPage() {
     (c) => c.user_id !== user.id && !sharedCharacterIds.has(c.id) && c.is_public
   );
 
-  function renderCard(character: CharacterRow) {
+  // Only the first row of the user's own active characters is above the fold.
+  const PRIORITY_CARD_COUNT = 4;
+
+  function renderCard(character: CharacterRow, priority = false) {
     const classes = charClassMap.get(character.id) ?? [];
     const isOwner = character.user_id === user.id;
     const isSharedWithMe = sharedCharacterIds.has(character.id);
@@ -93,6 +96,7 @@ export default async function CharactersPage() {
         unconsciousLabel={tp("unconscious")}
         deadLabel={tp("dead")}
         locale={locale}
+        priority={priority}
       />
     );
   }
@@ -136,7 +140,9 @@ export default async function CharactersPage() {
               className="stagger-reveal grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
               data-testid="active-characters-grid"
             >
-              {ownActive.map(renderCard)}
+              {ownActive.map((character, index) =>
+                renderCard(character, index < PRIORITY_CARD_COUNT)
+              )}
             </div>
           )}
 
@@ -155,7 +161,7 @@ export default async function CharactersPage() {
                 className="stagger-reveal grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
                 data-testid="shared-characters-grid"
               >
-                {sharedWithMe.map(renderCard)}
+                {sharedWithMe.map((character) => renderCard(character))}
               </div>
             </div>
           )}
@@ -170,7 +176,7 @@ export default async function CharactersPage() {
                 className="stagger-reveal grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
                 data-testid="public-characters-grid"
               >
-                {publicChars.map(renderCard)}
+                {publicChars.map((character) => renderCard(character))}
               </div>
             </div>
           )}
@@ -185,7 +191,7 @@ export default async function CharactersPage() {
                 className="stagger-reveal mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
                 data-testid="inactive-characters-grid"
               >
-                {ownInactive.map(renderCard)}
+                {ownInactive.map((character) => renderCard(character))}
               </div>
             </details>
           )}

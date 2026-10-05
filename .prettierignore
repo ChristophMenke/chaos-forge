@@ -1,9 +1,11 @@
 .next
 node_modules
 coverage
-playwright-report
-test-results
 
 # External snapshots and test fixtures (immutable source material)
 ressources/compendium-snapshot/
 scripts/fixtures/
+
+# Einmalige Kartendruck-Pipeline: bewusst kompakter Skript-Stil, dazu eine
+# 1:1-Kopie der Regel-Engine unter rules-js/ — nicht Teil der App.
+scripts/spell-cards/

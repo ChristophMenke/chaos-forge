@@ -49,10 +49,12 @@ export default function DatenschutzPage() {
             Authentifizierung.
           </li>
           <li>
-            <strong>KI-Interaktionen:</strong> Deine Fragen an den Regelbuch-Chat und Ergebnis-Texte
-            werden zur Bearbeitung an Anthropic (Claude) und Voyage AI (Embeddings) übermittelt.
-            Charakter-/NPC-Bilder werden via Google Gemini generiert. Keine dauerhafte Speicherung
-            durch die Anbieter im Rahmen der Standardverträge.
+            <strong>KI-Interaktionen:</strong> Deine Fragen an den Regelbuch-Chat, hochgeladene
+            Charakterbögen und Monster-Statblocks sowie Session-Beiträge zur Zusammenfassung werden
+            zur Bearbeitung an Google (Gemini) übermittelt; für die Regelbuch-Suche zusätzlich an
+            Voyage AI (Embeddings). Charakter-/NPC-Bilder werden ebenfalls via Google Gemini
+            generiert. Keine dauerhafte Speicherung durch die Anbieter im Rahmen der
+            Standardverträge.
           </li>
         </ul>
 
@@ -96,18 +98,8 @@ export default function DatenschutzPage() {
             </a>
           </li>
           <li>
-            <strong>Anthropic PBC</strong> (USA) — KI-Chat, Charakter-Import, Monster-Import.{" "}
-            <a
-              href="https://www.anthropic.com/legal/privacy"
-              target="_blank"
-              rel="noreferrer"
-              className="text-primary hover:underline"
-            >
-              Datenschutzerklärung
-            </a>
-          </li>
-          <li>
-            <strong>Google LLC / Google Gemini</strong> (USA) — Bildgenerierung.{" "}
+            <strong>Google LLC / Google Gemini</strong> (USA) — KI-Chat, Charakter-Import,
+            Monster-Import, Session-Zusammenfassungen und Bildgenerierung.{" "}
             <a
               href="https://policies.google.com/privacy"
               target="_blank"

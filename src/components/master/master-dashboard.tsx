@@ -3,17 +3,54 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Shield, Zap, ArrowLeft } from "lucide-react";
+import { invalidateEquipmentCatalogs } from "@/lib/catalog/equipment-catalog";
 import { createClient } from "@/lib/supabase/client";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
 import { MasterPartyPanel } from "./master-party-panel";
-import { MasterItemsPanel } from "./master-items-panel";
-import { MasterGoldPanel } from "./master-gold-panel";
-import { MasterNpcsPanel } from "./master-npcs-panel";
-import { MasterBestiaryPanel } from "./master-bestiary-panel";
-import { MasterCombatSimulator } from "./master-combat-simulator";
-import { RulebookChat } from "@/components/rulebook-chat/rulebook-chat";
 import { MasterBottomNav } from "./master-bottom-nav";
 import { MasterSidebar } from "./master-sidebar";
-import { MasterBookmarksPanel } from "./master-bookmarks-panel";
+
+// Only the party panel is visible on load; every other panel renders just for
+// its own tab, so its code is fetched when the GM opens that tab.
+function PanelSkeleton() {
+  return (
+    <div className="space-y-3 p-4" data-testid="master-panel-loading">
+      <Skeleton className="h-10 w-1/3" />
+      <Skeleton className="h-40 w-full" />
+      <Skeleton className="h-40 w-full" />
+    </div>
+  );
+}
+
+const MasterItemsPanel = dynamic(
+  () => import("./master-items-panel").then((m) => m.MasterItemsPanel),
+  { loading: PanelSkeleton }
+);
+const MasterGoldPanel = dynamic(
+  () => import("./master-gold-panel").then((m) => m.MasterGoldPanel),
+  { loading: PanelSkeleton }
+);
+const MasterNpcsPanel = dynamic(
+  () => import("./master-npcs-panel").then((m) => m.MasterNpcsPanel),
+  { loading: PanelSkeleton }
+);
+const MasterBestiaryPanel = dynamic(
+  () => import("./master-bestiary-panel").then((m) => m.MasterBestiaryPanel),
+  { loading: PanelSkeleton }
+);
+const MasterCombatSimulator = dynamic(
+  () => import("./master-combat-simulator").then((m) => m.MasterCombatSimulator),
+  { loading: PanelSkeleton }
+);
+const RulebookChat = dynamic(
+  () => import("@/components/rulebook-chat/rulebook-chat").then((m) => m.RulebookChat),
+  { loading: PanelSkeleton }
+);
+const MasterBookmarksPanel = dynamic(
+  () => import("./master-bookmarks-panel").then((m) => m.MasterBookmarksPanel),
+  { loading: PanelSkeleton }
+);
 import type {
   CharacterRow,
   CharacterClassRow,
@@ -92,6 +129,7 @@ export function MasterDashboard({
     setMonsters(await fetchMonstersGm());
   }, []);
   const refreshAllItems = useCallback(async () => {
+    invalidateEquipmentCatalogs(); // character sheets in this tab must not show stale items
     const [w, a, g] = await Promise.all([fetchWeaponsGm(), fetchArmorGm(), fetchGeneralItemsGm()]);
     setWeapons(w);
     setArmor(a);
@@ -141,15 +179,15 @@ export function MasterDashboard({
   );
 
   const refreshMagicItems = useCallback(async () => {
+    invalidateEquipmentCatalogs();
     const [items, dist] = await Promise.all([fetchMagicItems(), fetchMagicItemDistribution()]);
     setMagicItems(items);
     setMagicItemDistribution(dist);
   }, []);
 
-  // Load magic item distribution on mount (items already come from SSR)
+  // Load magic item distribution on mount — the items themselves come from SSR.
   useEffect(() => {
-    void refreshMagicItems();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    void fetchMagicItemDistribution().then(setMagicItemDistribution);
   }, []);
 
   // Shared state: monsters queued from Bestiary for the Combat Simulator

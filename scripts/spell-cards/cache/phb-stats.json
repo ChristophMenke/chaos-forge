@@ -1,0 +1,828 @@
+{
+  "Affect Normal Fires": {
+    "range": "4.6 m/level Componenrts: V, S",
+    "dur": "2 rounds/level",
+    "aoe": "3-m radius",
+    "save": "None",
+    "ct": "1"
+  },
+  "Armor": {
+    "range": "Touch",
+    "dur": "Special",
+    "aoe": "1 creature",
+    "save": "None",
+    "ct": "1 round"
+  },
+  "Audible Glamer": {
+    "range": "54.9 m + 9.1 m/level",
+    "dur": "3 rounds/level",
+    "aoe": "Hearing range",
+    "save": "Special",
+    "ct": "1"
+  },
+  "Mending": {
+    "range": "27.4 m",
+    "dur": "Permanent",
+    "aoe": "1 object",
+    "save": "None",
+    "ct": "1"
+  },
+  "Burning Hands": {
+    "range": "0",
+    "dur": "Instantaneous",
+    "aoe": "The caster",
+    "save": "1/2",
+    "ct": "1"
+  },
+  "Dancing Lights": {
+    "range": "36.6 m + 9.1 m/level",
+    "dur": "2 rounds/level",
+    "aoe": "Special",
+    "save": "None",
+    "ct": "1"
+  },
+  "Detect Undead": {
+    "range": "0",
+    "dur": "3 turns",
+    "aoe": "60’ + 10'/level",
+    "save": "None",
+    "ct": "1 round"
+  },
+  "Erase": {
+    "range": "27.4 m",
+    "dur": "Permanent",
+    "aoe": "1 scroll or 2 pages",
+    "save": "Special",
+    "ct": "1"
+  },
+  "Color Spray": {
+    "range": "",
+    "dur": "Instantaneous",
+    "aoe": "5’ x 20' x 20’ wedge",
+    "save": "Special",
+    "ct": "1"
+  },
+  "Feather Fall": {
+    "range": "9.1 m/level",
+    "dur": "1 round/level",
+    "aoe": "Special",
+    "save": "None",
+    "ct": "1"
+  },
+  "Friends": {
+    "range": "0",
+    "dur": "1d4 rounds + 1 round/level",
+    "aoe": "18.3-m radius",
+    "save": "Special",
+    "ct": "1"
+  },
+  "Gaze Reflection": {
+    "range": "0",
+    "dur": "2 rounds + 1 round/level",
+    "aoe": "Special",
+    "save": "None",
+    "ct": "1"
+  },
+  "Hypnotism": {
+    "range": "4.6 m",
+    "dur": "1 round + 1 round/level",
+    "aoe": "9.1-m cube",
+    "save": "Neg.",
+    "ct": "1"
+  },
+  "Identify": {
+    "range": "0 Components; V, S, M",
+    "dur": "1 round/level",
+    "aoe": "1 item/level",
+    "save": "None",
+    "ct": "Special"
+  },
+  "Jump": {
+    "range": "Touch",
+    "dur": "1d3 rounds + 1 round/level",
+    "aoe": "Creature touched",
+    "save": "None",
+    "ct": "1"
+  },
+  "Light": {
+    "range": "54.9 m",
+    "dur": "1 turn/level",
+    "aoe": "6.1-m-radius globe",
+    "save": "Special",
+    "ct": "1"
+  },
+  "Detect Magic": {
+    "range": "0",
+    "dur": "2 rounds/level",
+    "aoe": "10’ path, 60’ long",
+    "save": "None",
+    "ct": "1"
+  },
+  "Read Magic": {
+    "range": "0",
+    "dur": "2 rounds/level",
+    "aoe": "Special",
+    "save": "None",
+    "ct": "1 round"
+  },
+  "Wizard Mark": {
+    "range": "Touch",
+    "dur": "Permanent",
+    "aoe": "Up to 1 square foot",
+    "save": "None",
+    "ct": "1"
+  },
+  "Message": {
+    "range": "0",
+    "dur": "5 rounds/level",
+    "aoe": "Special",
+    "save": "None",
+    "ct": "1"
+  },
+  "Wall of Fog": {
+    "range": "27.4 m",
+    "dur": "2d4 rounds + 1 round/level",
+    "aoe": "20’ cube + 10’ cube/level",
+    "save": "None",
+    "ct": "1"
+  },
+  "Charm Person": {
+    "range": "109.7 m",
+    "dur": "Special",
+    "aoe": "1 person",
+    "save": "Neg.",
+    "ct": "1"
+  },
+  "Phantasmal Force": {
+    "range": "54.9 m + 9.1 m/level",
+    "dur": "Special",
+    "aoe": "200 sq. ft./ + 50.sq.ft./level",
+    "save": "Special",
+    "ct": "2"
+  },
+  "Hold Portal": {
+    "range": "18.3 m/level",
+    "dur": "1 round/level",
+    "aoe": "20 square feet/level",
+    "save": "None",
+    "ct": "1"
+  },
+  "Mount": {
+    "range": "9.1 m",
+    "dur": "2 hours + 1 hour/level",
+    "aoe": "1 mount",
+    "save": "None",
+    "ct": "1 turn"
+  },
+  "Grease": {
+    "range": "9.1 m",
+    "dur": "3 rounds + 1 round/level",
+    "aoe": "10’ X 10' square area",
+    "save": "Special",
+    "ct": "1"
+  },
+  "Shocking Grasp": {
+    "range": "Touch",
+    "dur": "Special",
+    "aoe": "Creature touched",
+    "save": "None",
+    "ct": "1"
+  },
+  "Sleep": {
+    "range": "27.4 m",
+    "dur": "5 rounds/level",
+    "aoe": "Special",
+    "save": "None",
+    "ct": "1"
+  },
+  "Spider Climb": {
+    "range": "Touch",
+    "dur": "3 rounds + 1 round/level",
+    "aoe": "Creature touched",
+    "save": "Neg.",
+    "ct": "1"
+  },
+  "Spook": {
+    "range": "0",
+    "dur": "Special",
+    "aoe": "1 creature within 9.1 m",
+    "save": "Neg.",
+    "ct": "1"
+  },
+  "Comprehend Languages": {
+    "range": "Touch",
+    "dur": "5 rounds/level",
+    "aoe": "1 speaking creature or written object",
+    "save": "None",
+    "ct": "1 round"
+  },
+  "Taunt": {
+    "range": "54.9 m",
+    "dur": "1 round",
+    "aoe": "9.1-m radius",
+    "save": "Neg.",
+    "ct": "1"
+  },
+  "Unseen Servant": {
+    "range": "0",
+    "dur": "1 hour + 1 turn/level",
+    "aoe": "9.1-m radius",
+    "save": "None",
+    "ct": "1"
+  },
+  "Ventriloquism": {
+    "range": "9.1 m/level, maximum 82.3 m",
+    "dur": "4 rounds + 1 round/level",
+    "aoe": "1 creature or object",
+    "save": "Special",
+    "ct": "1"
+  },
+  "Enlarge": {
+    "range": "4.6 m/level",
+    "dur": "5 rounds/level",
+    "aoe": "1 creature or object",
+    "save": "Neg.",
+    "ct": "1"
+  },
+  "Find Familiar": {
+    "range": "1.6 km/level",
+    "dur": "Special",
+    "aoe": "1 familiar",
+    "save": "Special",
+    "ct": "2d12 hours"
+  },
+  "Bind": {
+    "range": "27.4 m",
+    "dur": "1 round/level",
+    "aoe": "Special",
+    "save": "None",
+    "ct": "2"
+  },
+  "Blindness": {
+    "range": "27.4 m + 9.1 m/level",
+    "dur": "Special",
+    "aoe": "1 creature",
+    "save": "Neg.",
+    "ct": "2"
+  },
+  "Detect Evil": {
+    "range": "54.9 m",
+    "dur": "5 rounds/level",
+    "aoe": "3-m path",
+    "save": "None",
+    "ct": "2"
+  },
+  "Continual Light": {
+    "range": "54.9 m",
+    "dur": "Permanent",
+    "aoe": "18.3-m radius",
+    "save": "Special",
+    "ct": "2"
+  },
+  "Deeppockets": {
+    "range": "Touch",
+    "dur": "12 hours + 1 hour/level",
+    "aoe": "1 garment",
+    "save": "None",
+    "ct": "1 turn"
+  },
+  "Detect Invisibility": {
+    "range": "9.1 m/level",
+    "dur": "5 rounds/level",
+    "aoe": "3-m path",
+    "save": "None",
+    "ct": "2"
+  },
+  "ESP": {
+    "range": "4.6 m/level, 82.3 m maximum",
+    "dur": "1 round/level",
+    "aoe": "1 creature per probe",
+    "save": "None",
+    "ct": "2"
+  },
+  "Forget": {
+    "range": "27.4 m",
+    "dur": "Permanent",
+    "aoe": "6.1-m cube",
+    "save": "Neg.",
+    "ct": "2"
+  },
+  "Glitterdust": {
+    "range": "9.1 m/level",
+    "dur": "Special",
+    "aoe": "6.1-m cube",
+    "save": "Special",
+    "ct": "2"
+  },
+  "Improved Phantasmal Force": {
+    "range": "54.9 m + 9.1 m/level",
+    "dur": "Special",
+    "aoe": "200 sq. ft./ + 50.sq.ft./level",
+    "save": "Special",
+    "ct": "2"
+  },
+  "Misdirection": {
+    "range": "27.4 m",
+    "dur": "8 hours",
+    "aoe": "1 creature or object",
+    "save": "Neg.",
+    "ct": "2"
+  },
+  "Irritation": {
+    "range": "9.1 m/level",
+    "dur": "Special",
+    "aoe": "1 to 4 creatures in a 4.6-m- radius area",
+    "save": "Neg.",
+    "ct": "2"
+  },
+  "Knock": {
+    "range": "54.9 m",
+    "dur": "Special",
+    "aoe": "10 square feet/level",
+    "save": "None",
+    "ct": "1"
+  },
+  "Levitate": {
+    "range": "18.3 m/level",
+    "dur": "1 turn/level",
+    "aoe": "1 creature or object",
+    "save": "Neg.",
+    "ct": "2"
+  },
+  "Wizard Lock": {
+    "range": "Touch",
+    "dur": "Permanent",
+    "aoe": "30 square feet/level",
+    "save": "None",
+    "ct": "2"
+  },
+  "Magic Mouth": {
+    "range": "9.1 m",
+    "dur": "Special",
+    "aoe": "1 object",
+    "save": "None",
+    "ct": "2"
+  },
+  "Fog Cloud": {
+    "range": "9.1 m",
+    "dur": "4 rounds + 1 round/level",
+    "aoe": "Special",
+    "save": "None",
+    "ct": "2"
+  },
+  "Pyrotechnics": {
+    "range": "109.7 m",
+    "dur": "Special",
+    "aoe": "1 fire source (special)",
+    "save": "None",
+    "ct": "2"
+  },
+  "Scare": {
+    "range": "27.4 m + 9.1 m/level",
+    "dur": "1d4 rounds + 1 round/level",
+    "aoe": "4.6-m radius",
+    "save": "Special",
+    "ct": "2"
+  },
+  "Ray of Enfeeblement": {
+    "range": "9.1 m + 4.6 m/level",
+    "dur": "1 round/level",
+    "aoe": "1 creature",
+    "save": "Neg.",
+    "ct": "2"
+  },
+  "Rope Trick": {
+    "range": "Touch",
+    "dur": "2 turns/level",
+    "aoe": "Special",
+    "save": "None",
+    "ct": "2"
+  },
+  "Alter Self": {
+    "range": "0",
+    "dur": "3d4 rounds + 2 rounds/level",
+    "aoe": "The caster",
+    "save": "None",
+    "ct": "2"
+  },
+  "Mirror Image": {
+    "range": "0",
+    "dur": "3 rounds/level",
+    "aoe": "1.8-m radius",
+    "save": "None",
+    "ct": "2"
+  },
+  "Strength": {
+    "range": "Touch",
+    "dur": "1 hour/level",
+    "aoe": "Person touched",
+    "save": "None",
+    "ct": "1 turn"
+  },
+  "Summon Swarm": {
+    "range": "54.9 m",
+    "dur": "Special",
+    "aoe": "3-m cube",
+    "save": "Neg.",
+    "ct": "2"
+  },
+  "Deafness": {
+    "range": "54.9 m",
+    "dur": "Special",
+    "aoe": "1 creature",
+    "save": "Neg.",
+    "ct": "2"
+  },
+  "Invisibility": {
+    "range": "9.1 m/level",
+    "dur": "5 rounds/level",
+    "aoe": "3-m path",
+    "save": "None",
+    "ct": "2"
+  },
+  "Whispering Wind": {
+    "range": "1.6 km/level",
+    "dur": "Special",
+    "aoe": "0.6-m radius",
+    "save": "None",
+    "ct": "1"
+  },
+  "Shatter": {
+    "range": "27.4 m + 9.1 m/level",
+    "dur": "Instantaneous",
+    "aoe": "0.9-m radius",
+    "save": "Neg.",
+    "ct": "2"
+  },
+  "Blink": {
+    "range": "0",
+    "dur": "1 round/level",
+    "aoe": "The caster",
+    "save": "None",
+    "ct": "1"
+  },
+  "Clairaudience": {
+    "range": "Special",
+    "dur": "1 round/level",
+    "aoe": "Special",
+    "save": "None",
+    "ct": "3"
+  },
+  "Delude": {
+    "range": "0",
+    "dur": "1 turn/level",
+    "aoe": "The caster",
+    "save": "Neg.",
+    "ct": "3"
+  },
+  "Explosive Runes": {
+    "range": "Touch",
+    "dur": "Special",
+    "aoe": "3-m radius",
+    "save": "None",
+    "ct": "3"
+  },
+  "Flame Arrow": {
+    "range": "27.4 m + 9.1 m/level",
+    "dur": "1 round",
+    "aoe": "Special",
+    "save": "None",
+    "ct": "3"
+  },
+  "Fly": {
+    "range": "Touch",
+    "dur": "1 turn/level + 1d6 turns",
+    "aoe": "Creature touched",
+    "save": "None",
+    "ct": "3"
+  },
+  "Haste": {
+    "range": "54.9 m",
+    "dur": "3 rounds + 1 round/level",
+    "aoe": "40’ cube, 1 creature/level",
+    "save": "None",
+    "ct": "3"
+  },
+  "Clairvoyance": {
+    "range": "Special",
+    "dur": "1 round/level",
+    "aoe": "Special",
+    "save": "None",
+    "ct": "3"
+  },
+  "Illusionary Script": {
+    "range": "Touch",
+    "dur": "1 day/level",
+    "aoe": "Creature reading the script",
+    "save": "Special",
+    "ct": "Special"
+  },
+  "Infravision": {
+    "range": "Touch",
+    "dur": "2 hours + 1 hour/level",
+    "aoe": "Creature touched",
+    "save": "None",
+    "ct": "1 round"
+  },
+  "Item": {
+    "range": "Touch",
+    "dur": "4 hours/level",
+    "aoe": "2 cu. ft./level",
+    "save": "Special",
+    "ct": "3"
+  },
+  "Monster Summoning I": {
+    "range": "27.4 m",
+    "dur": "2 rounds + 1 round/level",
+    "aoe": "Special",
+    "save": "None",
+    "ct": "3"
+  },
+  "Hold Person": {
+    "range": "109.7 m",
+    "dur": "2 rounds/level",
+    "aoe": "1 to 4 persons in a 6.1-m cube",
+    "save": "Neg.",
+    "ct": "3"
+  },
+  "Phantom Steed": {
+    "range": "Touch",
+    "dur": "1 hour/level",
+    "aoe": "Special",
+    "save": "None",
+    "ct": "1 turn"
+  },
+  "Secret Page": {
+    "range": "Touch",
+    "dur": "Until dispelled",
+    "aoe": "1 page of any size, up to 0.6 m square",
+    "save": "None",
+    "ct": "1 turn"
+  },
+  "Sepia Snake Sigil": {
+    "range": "4.6 m",
+    "dur": "Special",
+    "aoe": "1 sigil",
+    "save": "None",
+    "ct": "3"
+  },
+  "Spectral Force": {
+    "range": "54.9 m + 0.9 m/level",
+    "dur": "Special",
+    "aoe": "40’ cube + a 10’ cube/level",
+    "save": "Special",
+    "ct": "3"
+  },
+  "Tongues": {
+    "range": "0",
+    "dur": "1 round/level",
+    "aoe": "9.1-m radius",
+    "save": "None",
+    "ct": "3"
+  },
+  "Suggestion": {
+    "range": "27.4 m",
+    "dur": "1 hour + 1 hour/level",
+    "aoe": "1 creature",
+    "save": "Neg.",
+    "ct": "3"
+  },
+  "Slow": {
+    "range": "82.3 m + 9.1 m/level",
+    "dur": "3 rounds + 1 round/level",
+    "aoe": "40’ cube, 1 creature/level",
+    "save": "Neg.",
+    "ct": "3"
+  },
+  "Water Breathing": {
+    "range": "Touch",
+    "dur": "",
+    "aoe": "Creature touched",
+    "save": "None",
+    "ct": "3"
+  },
+  "Wind Wall": {
+    "range": "9.1 m/level",
+    "dur": "1 round/level",
+    "aoe": "A 10’ wide * 5’ high area per caster level",
+    "save": "Special",
+    "ct": "3"
+  },
+  "Gust of Wind": {
+    "range": "0",
+    "dur": "1 round",
+    "aoe": "3-m wide path, 9.1 m/level long",
+    "save": "None",
+    "ct": "3"
+  },
+  "Polymorph Other": {
+    "range": "4.6 m/level",
+    "dur": "Permanent",
+    "aoe": "1 creature",
+    "save": "Neg.",
+    "ct": "4"
+  },
+  "Detect Scrying": {
+    "range": "0",
+    "dur": "1d6 turns + 1 turn/level",
+    "aoe": "36.6-m radius",
+    "save": "Special",
+    "ct": "3"
+  },
+  "Solid Fog": {
+    "range": "27.4 m",
+    "dur": "2d4 rounds + 1 round/level",
+    "aoe": "20’ X 10’ X 10' volume/ level of caster",
+    "save": "None",
+    "ct": "4"
+  },
+  "Dimension Door": {
+    "range": "0",
+    "dur": "Instantaneous",
+    "aoe": "The caster",
+    "save": "None",
+    "ct": "1"
+  },
+  "Emotion": {
+    "range": "9.1 m/level",
+    "dur": "Special",
+    "aoe": "6.1-m cube",
+    "save": "Neg.",
+    "ct": "4"
+  },
+  "Improved Invisibility": {
+    "range": "Touch",
+    "dur": "4 rounds + 1 round/level",
+    "aoe": "Creature touched",
+    "save": "None",
+    "ct": "4"
+  },
+  "Extension I": {
+    "range": "0",
+    "dur": "Special",
+    "aoe": "Special",
+    "save": "None",
+    "ct": "2"
+  },
+  "Fire Charm": {
+    "range": "9.1 m",
+    "dur": "2 rounds/level",
+    "aoe": "4.6-m radius of fire",
+    "save": "Neg.",
+    "ct": "4"
+  },
+  "Fear": {
+    "range": "0",
+    "dur": "Special",
+    "aoe": "60’ long cone, 30' diameter at end, 5’ at base",
+    "save": "Neg.",
+    "ct": "4"
+  },
+  "Minor Creation": {
+    "range": "Touch",
+    "dur": "1 hour/level",
+    "aoe": "Special",
+    "save": "None",
+    "ct": "1 turn"
+  },
+  "Illusionary Wall": {
+    "range": "27.4 m",
+    "dur": "Permanent",
+    "aoe": "1’ X 10’ X 10’",
+    "save": "None",
+    "ct": "4"
+  },
+  "Magic Mirror": {
+    "range": "Touch",
+    "dur": "1 round/level",
+    "aoe": "Special",
+    "save": "None",
+    "ct": "1 hour"
+  },
+  "Wizard Eye": {
+    "range": "0",
+    "dur": "1 round/level",
+    "aoe": "Special",
+    "save": "None",
+    "ct": "1 turn"
+  },
+  "Massmorph": {
+    "range": "9.1 m/level",
+    "dur": "Special",
+    "aoe": "One 3-m cube/level",
+    "save": "None",
+    "ct": "4"
+  },
+  "Charm Monster": {
+    "range": "54.9 m",
+    "dur": "Special",
+    "aoe": "1 or more creatures in a 20- foot radius",
+    "save": "Neg.",
+    "ct": "4"
+  },
+  "Plant Growth": {
+    "range": "9.1 m/level",
+    "dur": "Permanent",
+    "aoe": "An area 10’ per side/level",
+    "save": "None",
+    "ct": "4"
+  },
+  "Phantasmal Killer": {
+    "range": "4.6 m/level",
+    "dur": "1 round/level",
+    "aoe": "1 creature",
+    "save": "Special",
+    "ct": "4"
+  },
+  "Polymorph Self": {
+    "range": "0",
+    "dur": "2 turns/level",
+    "aoe": "The caster",
+    "save": "None",
+    "ct": "4"
+  },
+  "Shadow Monsters": {
+    "range": "27.4 m",
+    "dur": "1 round/level",
+    "aoe": "6.1-m cube",
+    "save": "Special",
+    "ct": "4"
+  },
+  "Stoneskin": {
+    "range": "Touch",
+    "dur": "Special",
+    "aoe": "1 creature",
+    "save": "None",
+    "ct": "1"
+  },
+  "Fumble": {
+    "range": "9.1 m/level",
+    "dur": "1 round/level",
+    "aoe": "9.1-m cube",
+    "save": "Special",
+    "ct": "4"
+  },
+  "Vacancy": {
+    "range": "9.1 m/level",
+    "dur": "1 hour/level",
+    "aoe": "3-m radius/level",
+    "save": "None",
+    "ct": "4"
+  },
+  "Confusion": {
+    "range": "109.7 m",
+    "dur": "2 rounds + 1 round/level",
+    "aoe": "Up to 18.3-m cube",
+    "save": "Special",
+    "ct": "4"
+  },
+  "Enchanted Weapon": {
+    "range": "Touch —omponents: V, S, M",
+    "dur": "5 rounds/level",
+    "aoe": "Weapon(s) touched",
+    "save": "None",
+    "ct": "1 turn"
+  },
+  "Alarm": {
+    "range": "9.1 m",
+    "dur": "4 hours + !/2 hour/level",
+    "aoe": "Up to a 6.1-m cube",
+    "save": "None",
+    "ct": "1 round"
+  },
+  "Magic Missile": {
+    "range": "54.9 m + 9.1 m/level",
+    "dur": "Instantaneous",
+    "aoe": "1 or more creatures in a 3-m cube",
+    "save": "None",
+    "ct": "1"
+  },
+  "Stinking Cloud": {
+    "range": "27.4 m",
+    "dur": "1 round/level",
+    "aoe": "6.1-m cube",
+    "save": "Special",
+    "ct": "2"
+  },
+  "Fireball": {
+    "range": "9.1 m + 9.1 m/level",
+    "dur": "Instantaneous",
+    "aoe": "6.1-m radius",
+    "save": "1/2",
+    "ct": "3"
+  },
+  "Dispel Magic": {
+    "range": "109.7 m",
+    "dur": "Instantaneous",
+    "aoe": "9.1-m cube",
+    "save": "None",
+    "ct": "3"
+  },
+  "Dig": {
+    "range": "27.4 m",
+    "dur": "1 round/level",
+    "aoe": "1.5-m cube/level",
+    "save": "Special",
+    "ct": "4"
+  }
+}

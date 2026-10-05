@@ -186,28 +186,6 @@ export async function injectItemToParty(
   return { success: true };
 }
 
-// ─── Auto-Share Characters ─────────────────────────────────────────────
-
-export async function autoShareCharacters(userId: string): Promise<void> {
-  if (!(await checkGmSession())) return;
-
-  const service = createServiceClient();
-
-  const { data: characters } = await service.from("characters").select("id").eq("is_active", true);
-
-  if (!characters || characters.length === 0) return;
-
-  const shares = characters.map((c) => ({
-    character_id: c.id,
-    shared_with_user_id: userId,
-  }));
-
-  await service.from("character_shares").upsert(shares, {
-    onConflict: "character_id,shared_with_user_id",
-    ignoreDuplicates: true,
-  });
-}
-
 // ─── Gold Distribution ─────────────────────────────────────────────────
 
 export async function distributeGold(

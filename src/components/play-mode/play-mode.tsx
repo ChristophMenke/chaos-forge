@@ -200,6 +200,15 @@ interface PlayModeProps {
   basePath?: string;
 }
 
+/**
+ * Two-column layout from `sm` on. `minmax(0, …)` lets the columns shrink below
+ * their content width — plain `1fr` (= minmax(auto, 1fr)) let a wide panel push
+ * the page past the viewport on 800px tablets. 11fr/9fr keeps the former
+ * 55/45 split at `lg` without percentages overflowing together with the gap.
+ */
+export const PLAY_DESKTOP_GRID_CLASS =
+  "hidden gap-4 p-4 sm:grid sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,11fr)_minmax(0,9fr)]";
+
 export function PlayMode({
   character: initialCharacter,
   characterClasses,
@@ -719,6 +728,27 @@ export function PlayMode({
     }
   }, [character.id, character.spell_system, updateCharacter, t]);
 
+  // Netherese Blooded (Lvl9-10): convert current HP into bonus spell points.
+  // No floor clamp here — handleHpChange already allows hp_current down to
+  // -hp_max for the unconsciousness/death spiral, so clamping to 1 here would
+  // incorrectly "heal" a character who is already at or below 0 HP. The UI
+  // instead disables the action once hp_current <= 1 (see PlaySpellbookPanel).
+  const handleConvertHpToSp = useCallback(
+    (hpAmount: number) => {
+      const ratio = epicEffects.hpToSpConversion?.ratio ?? 0;
+      updateCharacter({
+        hp_current: character.hp_current - hpAmount,
+        spell_points_used: character.spell_points_used - hpAmount * ratio,
+      });
+    },
+    [
+      character.hp_current,
+      character.spell_points_used,
+      epicEffects.hpToSpConversion,
+      updateCharacter,
+    ]
+  );
+
   const panels = useMemo(
     () => [
       {
@@ -871,9 +901,9 @@ export function PlayMode({
       </div>
 
       {/* Desktop: All panels visible in 2-column grid */}
-      <div className="hidden gap-4 p-4 sm:grid sm:grid-cols-[1fr_1fr] lg:grid-cols-[55%_45%]">
+      <div className={PLAY_DESKTOP_GRID_CLASS}>
         {/* Left column */}
-        <div className="flex flex-col gap-4">
+        <div className="flex min-w-0 flex-col gap-4">
           <PlayCombatPanel
             equipment={equipment}
             weaponProficiencies={weaponProficiencies}
@@ -912,6 +942,9 @@ export function PlayMode({
               onRest={handleRest}
               epicSpellFailure={epicEffects.spellFailure}
               epicWildMagic={epicEffects.wildMagic}
+              epicBonusSpellPoints={epicEffects.bonusSpellPoints}
+              hpToSpConversion={epicEffects.hpToSpConversion}
+              onConvertHpToSp={handleConvertHpToSp}
               characterKit={character.kit}
               hasArmor={!!equippedArmor}
               priestAvailableSpells={priestAvailableSpells}
@@ -935,7 +968,7 @@ export function PlayMode({
         </div>
 
         {/* Right column */}
-        <div className="flex flex-col gap-4">
+        <div className="flex min-w-0 flex-col gap-4">
           <PlayChecksPanel
             saves={saves}
             character={character}
@@ -1036,6 +1069,9 @@ export function PlayMode({
             onRest={handleRest}
             epicSpellFailure={epicEffects.spellFailure}
             epicWildMagic={epicEffects.wildMagic}
+            epicBonusSpellPoints={epicEffects.bonusSpellPoints}
+            hpToSpConversion={epicEffects.hpToSpConversion}
+            onConvertHpToSp={handleConvertHpToSp}
             characterKit={character.kit}
             hasArmor={!!equippedArmor}
             priestAvailableSpells={priestAvailableSpells}
