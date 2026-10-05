@@ -4,7 +4,7 @@ git_commit: 0b38f9a02fd11f48522e7ab9c4b403e80330ba30
 branch: feat/view-mode-setting
 topic: "Ansichtsmodus-Einstellung: Automatisch / Mobil / Desktop"
 tags: [plan, responsive, tailwind, settings, play-mode]
-status: draft
+status: implemented
 ---
 
 # Ansichtsmodus-Einstellung Implementation Plan
@@ -265,24 +265,24 @@ Unabhängig von Phase 1 und 2. Auch im Modus „Automatisch“ läuft das Grid b
 
 **Tasks**:
 
-- [ ] `src/components/play-mode/play-mode.tsx:895`: Die Grid-Klassen als exportierte Konstante `PLAY_DESKTOP_GRID_CLASS` extrahieren und die Spalten auf ein Minimum von 0 setzen. Das Verhältnis 55/45 bleibt über `fr`-Anteile erhalten, inklusive Gap.
+- [x] `src/components/play-mode/play-mode.tsx:895`: Die Grid-Klassen als exportierte Konstante `PLAY_DESKTOP_GRID_CLASS` extrahieren und die Spalten auf ein Minimum von 0 setzen. Das Verhältnis 55/45 bleibt über `fr`-Anteile erhalten, inklusive Gap.
   ```ts
   export const PLAY_DESKTOP_GRID_CLASS =
     "hidden gap-4 p-4 sm:grid sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,11fr)_minmax(0,9fr)]";
   ```
-- [ ] Beide Spalten-Container (`:897`, `:962`) bekommen `min-w-0`, damit verschachtelte Flex-Kinder schrumpfen dürfen.
-- [ ] Innere Panel-Grids, die bei `sm` von voller Breite ausgehen, im halbbreiten Grid aber zu eng werden, auf `lg` verschieben:
+- [x] Beide Spalten-Container (`:897`, `:962`) bekommen `min-w-0`, damit verschachtelte Flex-Kinder schrumpfen dürfen.
+- [x] Innere Panel-Grids, die bei `sm` von voller Breite ausgehen, im halbbreiten Grid aber zu eng werden, auf `lg` verschieben:
   - `play-checks-panel.tsx:401`: `grid-cols-3 sm:grid-cols-6` → `grid-cols-3 lg:grid-cols-6` (Attributwerte wie „18/00“ in `font-mono text-lg`)
   - `play-combat-panel.tsx:687`: `grid-cols-2 sm:grid-cols-4` → `grid-cols-2 lg:grid-cols-4`
   - Bei 800 px hat eine Spalte ~340 px, ab `lg` (1024 px) ~480 px.
 
 **Automated Verification**:
 
-- [ ] Unit `src/components/play-mode/play-desktop-grid.test.ts`:
+- [x] Unit `src/components/play-mode/play-desktop-grid.test.ts`:
   - `PLAY_DESKTOP_GRID_CLASS` enthält für `sm` und `lg` nur Spalten mit `minmax(0,…)`, also kein nacktes `1fr` und keine Prozentwerte.
   - Die Klasse enthält `hidden` und `sm:grid`, damit das Mobile-Verhalten unverändert bleibt.
-- [ ] Unit (`play-checks-panel` bzw. `play-combat-panel`, Quelltext-Guard im selben Test): Kein `sm:grid-cols-6` bzw. `sm:grid-cols-4` mehr in den Panels.
-- [ ] `npm run verify` ist grün.
+- [x] Unit (`play-checks-panel` bzw. `play-combat-panel`, Quelltext-Guard im selben Test): Kein `sm:grid-cols-6` bzw. `sm:grid-cols-4` mehr in den Panels.
+- [x] `npm run verify` ist grün.
 
 **Manual Verification**:
 
@@ -292,14 +292,14 @@ Unabhängig von Phase 1 und 2. Auch im Modus „Automatisch“ läuft das Grid b
 
 ## Abschluss
 
-- [ ] `CLAUDE.md`:
+- [x] `CLAUDE.md`:
   - Design-System-Abschnitt: „Ansichtsmodus“ mit localStorage-Key, Klassen und überschriebenen Varianten. Hinweise:
     - Neue JS-Breitenprüfungen immer über `useBreakpoint`, nie direkt `matchMedia`.
     - `max-*`-Varianten ignorieren den Modus.
     - Panels im halbbreiten Play-Grid nicht an `sm` hängen.
   - Projektstruktur: `src/lib/view-mode.ts`, `use-view-mode.ts`, `use-breakpoint.ts`.
   - Roadmap-Eintrag 24.
-- [ ] Research-Dokument: Status-Notiz mit Verweis auf diesen Plan.
+- [x] Research-Dokument: Status-Notiz mit Verweis auf diesen Plan.
 
 ## References
 

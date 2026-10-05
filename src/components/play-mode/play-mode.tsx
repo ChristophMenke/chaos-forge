@@ -200,6 +200,15 @@ interface PlayModeProps {
   basePath?: string;
 }
 
+/**
+ * Two-column layout from `sm` on. `minmax(0, …)` lets the columns shrink below
+ * their content width — plain `1fr` (= minmax(auto, 1fr)) let a wide panel push
+ * the page past the viewport on 800px tablets. 11fr/9fr keeps the former
+ * 55/45 split at `lg` without percentages overflowing together with the gap.
+ */
+export const PLAY_DESKTOP_GRID_CLASS =
+  "hidden gap-4 p-4 sm:grid sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,11fr)_minmax(0,9fr)]";
+
 export function PlayMode({
   character: initialCharacter,
   characterClasses,
@@ -892,9 +901,9 @@ export function PlayMode({
       </div>
 
       {/* Desktop: All panels visible in 2-column grid */}
-      <div className="hidden gap-4 p-4 sm:grid sm:grid-cols-[1fr_1fr] lg:grid-cols-[55%_45%]">
+      <div className={PLAY_DESKTOP_GRID_CLASS}>
         {/* Left column */}
-        <div className="flex flex-col gap-4">
+        <div className="flex min-w-0 flex-col gap-4">
           <PlayCombatPanel
             equipment={equipment}
             weaponProficiencies={weaponProficiencies}
@@ -959,7 +968,7 @@ export function PlayMode({
         </div>
 
         {/* Right column */}
-        <div className="flex flex-col gap-4">
+        <div className="flex min-w-0 flex-col gap-4">
           <PlayChecksPanel
             saves={saves}
             character={character}

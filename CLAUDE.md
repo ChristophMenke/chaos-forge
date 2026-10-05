@@ -126,6 +126,9 @@ src/
     master/               # Server-only GM-Helfer (auto-share.ts, läuft per after())
     hooks/                # Custom React Hooks
       use-print-preferences.ts # Print-Layout-Preferences pro Charakter (localStorage)
+      use-view-mode.ts    # Ansichtsmodus (auto/mobile/desktop) als Hook
+      use-breakpoint.ts   # useBreakpoint("sm"|"lg") — JS-Breitenprüfung, die den Ansichtsmodus respektiert
+    view-mode.ts          # Ansichtsmodus pro Gerät: localStorage, Klasse auf <html>, Pre-Paint-Script
     print-config.ts       # Print-Section-IDs, Preferences-Typen, Persistence
   proxy.ts                # Next.js Proxy (ehem. Middleware): Supabase Session-Refresh per getClaims()
   test/                   # Vitest Setup, Smoke- & Regressionstests
@@ -264,6 +267,15 @@ CSS-Klassen in `globals.css`:
 - `.hp-bar-warrior/priest/rogue/wizard` — Gradient-HP-Balken
 - `.hex-badge` — Hexagonaler Clip-Path für Level-Badge
 
+### Ansichtsmodus (Automatisch / Mobil / Desktop)
+
+Pro Gerät wählbar unter Einstellungen → Darstellung (`ViewModeSelector`), gespeichert in localStorage `chaos-forge-view-mode`. `src/lib/view-mode.ts` setzt die Klasse `view-mobile` bzw. `view-desktop` auf `<html>`, ein Inline-Script in `layout.tsx` schon vor dem ersten Paint.
+
+- `globals.css` definiert die Tailwind-Breakpoints `sm`–`2xl` per `@custom-variant` neu (Breiten = Defaults): `.view-mobile` schaltet alle ab, `.view-desktop` erzwingt nur `sm` (den Layout-Breakpoint). `:where()` hält Spezifität und Reihenfolge wie bei den Defaults.
+- **JS-Breitenprüfungen nur über `useBreakpoint()`**, nie direkt `matchMedia`/`useMediaQuery` mit `min-width` — sonst ignorieren sie den Modus (`src/test/view-mode-guard.test.ts` prüft das).
+- `max-*`-Varianten sind nicht überschrieben und ignorieren den Modus.
+- Panels im halbbreiten Play-Mode-Grid (`PLAY_DESKTOP_GRID_CLASS`) breite innere Grids erst ab `lg`, nicht ab `sm`.
+
 ### Klassenfarben (`src/lib/utils/class-colors.ts`)
 
 | Klassengruppe | Glow | Badge          | HP-Bar        |
@@ -365,3 +377,5 @@ Finaler explorativer Test mit etablierten Testing-Heuristiken und gezielten "Tes
 22. **Spieltermine** — Gemeinsam gepflegte Liste der nächsten Rollenspielabende: `game_dates`-Tabelle (Kalenderdatum ohne Zeitzone, optionaler Titel), CRUD-Sektion in `/settings` (anlegen, bearbeiten, löschen mit Bestätigung, vergangene Termine eingeklappt), Dashboard-Banner aus der DB statt aus einer hart kodierten Konstante, In-App-Benachrichtigung an alle freigegebenen Spieler via DB-Trigger (angelegt / verschoben / abgesagt). Datumslogik rein und unit-getestet in `src/lib/game-dates/`; Termine in der Vergangenheit werden gewarnt, nie blockiert ✅
 
 23. **Performance-Runde & E2E-Abbau** — Auth ohne Roundtrip (`getClaims()` in `proxy.ts` und `requireAuth`, React-`cache()`-Deduplizierung), `ApprovalProvider` statt Query + Channel pro Banner/Gate, Session-Detail in 2 statt 10 sequenziellen Queries, Epic-Seite in einer Welle, GM-Auto-Share per `after()`, Realtime-Refresh nur im sichtbaren Tab, Zauber-/Ausrüstungskataloge als Session-Cache, Fix: Zauber-Lernen-Dialog zeigte nur 1000 Zauber (`fetchAllRows`), Cache-Header für `public/`-Bilder, Bildprioritäten, GM-Panels per `next/dynamic` (−32 % JS auf `/master`). Playwright-E2E-Suite, Test-Login-Hintertür und QA-Test-Domain entfernt ✅
+
+24. **Ansichtsmodus & Tablet-Fix** — Einstellung „Ansicht: Automatisch / Mobil / Desktop“ pro Gerät (localStorage, Klasse auf `<html>`, Pre-Paint-Script), Tailwind-Breakpoints per `@custom-variant` mit `:where()` überschrieben, `useBreakpoint()` für JS-Breitenprüfungen, Toaster oben mittig im Mobil-Modus. Play-Mode-Grid mit `minmax(0,…)` statt `1fr`/Prozent (Galaxy Tab S6 Lite, 800 px, musste herauszoomen), innere Panel-Grids erst ab `lg`. Test-Setup nutzt unter Node ≥ 25 jsdoms `localStorage` ✅

@@ -9,6 +9,8 @@ status: complete
 
 # Research: Ansichtsmodus-Einstellung (Web vs. Mobile)
 
+> **Status:** Umgesetzt über `docs/agents/plans/2026-10-05-view-mode-setting.md` (Branch `feat/view-mode-setting`).
+
 ## Research Question
 
 Auf einem Samsung Galaxy Tab S6 Lite sind „Charakter spielen“ (`/characters/[id]/play`) und „Charakter verwalten“ (`/characters/[id]/manage`) nicht mehr responsiv. Untersucht wird:
