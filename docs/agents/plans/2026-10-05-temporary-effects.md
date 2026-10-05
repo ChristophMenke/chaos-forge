@@ -333,46 +333,46 @@ Betroffene Dateien:
 
 **Tasks**:
 
-- [ ] `effects-api.ts`: `createEffect`, `updateEffect`, `endEffect` (setzt `ended_at`), `endAllEffects`, `saveTempHp`. Rückgabe `{ ok, error, before?, after? }`; `user_not_approved` wird als eigener Fehler erkannt.
-- [ ] `modifier-row.tsx`:
+- [x] `effects-api.ts`: `createEffect`, `updateEffect`, `endEffect` (setzt `ended_at`), `endAllEffects`, `saveTempHp`. Rückgabe `{ ok, error, before?, after? }`; `user_not_approved` wird als eigener Fehler erkannt.
+- [x] `modifier-row.tsx`:
   - Ziel-Select (gruppiert), nur erlaubte Operationen.
   - Faktor als Auswahl, Delta als Zahl.
   - Optional „gegen …“ (max. 40 Zeichen); entfernen.
-- [ ] `effect-dialog.tsx`:
+- [x] `effect-dialog.tsx`:
   - Vorlagen nach Gruppen.
   - Name, Notiz, Dauer, Auswirkungen, Zustände.
   - Validierung; Anlegen und Bearbeiten.
   - `tempHp`-Wert setzt initial `temp_hp_remaining`.
-- [ ] `effect-chips.tsx`: Chips (Icon, Name, ✕ mit Bestätigung, Klick → Details), „+ Effekt“, Readonly-Variante mit „+N“-Zusammenfassung.
-- [ ] `effect-warnings.tsx`.
-- [ ] `effects-section.tsx` (Charakterbogen): Titel „Temporäre Effekte“, Liste mit Kurzfassung, Bearbeiten/Beenden, „Rast: alle beenden“.
-- [ ] `play/page.tsx`, `manage/page.tsx`: `character_effects` laden (aktiv, sortiert nach `created_at`). NPC-Seiten übergeben `[]`.
-- [ ] `play-mode.tsx`, `character-sheet.tsx`:
+- [x] `effect-chips.tsx`: Chips (Icon, Name, ✕ mit Bestätigung, Klick → Details), „+ Effekt“, Readonly-Variante mit „+N“-Zusammenfassung.
+- [x] `effect-warnings.tsx`.
+- [x] `effects-section.tsx` (Charakterbogen): Titel „Temporäre Effekte“, Liste mit Kurzfassung, Bearbeiten/Beenden, „Rast: alle beenden“.
+- [x] `play/page.tsx`, `manage/page.tsx`: `character_effects` laden (aktiv, sortiert nach `created_at`). NPC-Seiten übergeben `[]`.
+- [x] `play-mode.tsx`, `character-sheet.tsx`:
   - Effekte als State, Chips bzw. Abschnitt (nur Owner editierbar).
   - Realtime auf `character_effects` (UPDATE/INSERT; Beenden ist ein UPDATE), Channel mit `useId`-Suffix.
-- [ ] `play-hp-bar.tsx`:
+- [x] `play-hp-bar.tsx`:
   - Neue Props `tempHp` und `onDamage(amount)`. Schaden meldet den Betrag, Heilung weiter `onHpChange`.
   - Anzeige „+N“.
-- [ ] `play-mode.tsx`: `handleDamage(amount)` → `consumeTempHp` → `saveTempHp` für betroffene Effekte → Rest über die bestehende `handleHpChange`-Logik.
-- [ ] i18n `effects`.
+- [x] `play-mode.tsx`: `handleDamage(amount)` → `consumeTempHp` → `saveTempHp` für betroffene Effekte → Rest über die bestehende `handleHpChange`-Logik.
+- [x] i18n `effects`.
 
 **Automated Verification**:
 
-- [ ] Unit `effects-api.test.ts`:
+- [x] Unit `effects-api.test.ts`:
   - Felder und Tabellen stimmen.
   - `endEffect` setzt `ended_at` statt zu löschen.
   - `endAllEffects` betrifft nur diesen Charakter.
   - Fehler, inkl. `user_not_approved`, werden zurückgegeben.
-- [ ] Unit `effect-dialog.test.tsx`:
+- [x] Unit `effect-dialog.test.tsx`:
   - Vorlage „Verlangsamen“ füllt Bewegung ×½, Angriffe ×½, Angriff −4, RK −4.
   - Eigener Effekt mit Notiz und bedingter Rettung.
   - Faktor auf Angriff ist nicht auswählbar.
   - Leerer Name blockiert.
-- [ ] Unit `effect-chips.test.tsx`: Beenden mit Bestätigung; Readonly ohne ✕/+, „+N“ ab 4 Effekten.
-- [ ] Unit `play-hp-bar.test.tsx`: „+6“ sichtbar; 8 Schaden → `onDamage(8)`.
-- [ ] Unit (`play-mode`-Helfer): Schaden verbraucht zuerst den Puffer, dann TP.
-- [ ] Unit Realtime-Hook: ein UPDATE mit `ended_at` entfernt den Chip.
-- [ ] `npm run verify` ist grün.
+- [x] Unit `effect-chips.test.tsx`: Beenden mit Bestätigung; Readonly ohne ✕/+, „+N“ ab 4 Effekten.
+- [x] Unit `play-hp-bar.test.tsx`: „+6“ sichtbar; 8 Schaden → `onDamage(8)`.
+- [x] Unit `use-character-effects.test.ts` (`absorbDamage`): Schaden verbraucht zuerst den Puffer, dann TP. State, Realtime, optimistisches Beenden und Kanal-Suffix stecken im gemeinsamen Hook `useCharacterEffects`; die Container sind `effects-bar.tsx` (Spielmodus) und `effects-section.tsx` (Charakterbogen). Bei NPCs ist der Bereich ausgeblendet.
+- [x] Unit Realtime-Hook: ein UPDATE mit `ended_at` entfernt den Chip.
+- [x] `npm run verify` ist grün.
 
 **Manual Verification**:
 

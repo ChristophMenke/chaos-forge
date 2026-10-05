@@ -5,6 +5,8 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { LevelUpDialog } from "@/components/level-up/level-up-dialog";
+import { EffectsBar } from "@/components/effects/effects-bar";
+import { useCharacterEffects } from "@/lib/hooks/use-character-effects";
 import { PendingLevelUpBanner } from "@/components/level-up/pending-level-up-banner";
 import type { LevelUpPlan } from "@/lib/level-up/apply-level-up";
 import { PlayHpBar } from "./play-hp-bar";
@@ -41,7 +43,7 @@ import {
   getShieldProficiencyBonus,
 } from "@/lib/rules/equipment";
 import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
-import { getConBonusCap, clampHpCurrentToMax } from "@/lib/rules/hitpoints";
+import { getConBonusCap, clampHpCurrentToMax, getDeathThreshold } from "@/lib/rules/hitpoints";
 import { CLASSES, getClassGroup } from "@/lib/rules/classes";
 import { getEpicEffects, scaleSubStat } from "@/lib/rules/epic-items";
 import type { EpicEffects } from "@/lib/rules/epic-items";
@@ -66,6 +68,7 @@ import type {
   EpicItemRow,
   SpellRow,
   CharacterFightingStyleRow,
+  CharacterEffectRow,
 } from "@/lib/supabase/types";
 import type { CoinPurse } from "@/lib/rules/equipment";
 import { getSingleWeaponStyleBonus } from "@/lib/rules/fighting-styles";
@@ -200,6 +203,8 @@ interface PlayModeProps {
   inventory: CharacterInventoryWithDetails[];
   epicItems?: EpicItemRow[];
   fightingStyles?: CharacterFightingStyleRow[];
+  /** Active temporary effects (character_effects, ended_at is null). */
+  effects?: CharacterEffectRow[];
   priestAvailableSpells?: SpellRow[];
   basePath?: string;
 }
@@ -224,12 +229,14 @@ export function PlayMode({
   inventory: initialInventory,
   epicItems = [],
   fightingStyles = [],
+  effects: initialEffects = [],
   priestAvailableSpells = [],
   basePath = "/characters",
 }: PlayModeProps) {
   const t = useTranslations("playMode");
   const locale = useLocale();
   const [character, setCharacter] = useState(initialCharacter);
+  const effectsState = useCharacterEffects(initialCharacter.id, initialEffects);
   const router = useRouter();
   const [levelUpOpen, setLevelUpOpen] = useState(false);
   // Levels saved by the level-up assistant before the server props catch up
@@ -684,6 +691,18 @@ export function PlayMode({
     [hpDelta, character.hp_max, updateCharacter]
   );
 
+  // Damage goes through temporary hit points (effects) first; the rest hits HP.
+  const { absorbDamage } = effectsState;
+  const handleDamage = useCallback(
+    async (amount: number) => {
+      const rest = await absorbDamage(amount);
+      if (rest > 0) {
+        handleHpChange(Math.max(getDeathThreshold(effectiveHpMax), effectiveHpCurrent - rest));
+      }
+    },
+    [absorbDamage, handleHpChange, effectiveHpMax, effectiveHpCurrent]
+  );
+
   const handleCoinChange = useCallback(
     (newPurse: CoinPurse) => {
       updateCharacter({
@@ -886,7 +905,24 @@ export function PlayMode({
         priesthoodName={priesthoodDisplayName}
         readOnly={!isOwner}
         onHpChange={handleHpChange}
+        tempHp={effectsState.effects.reduce((sum, e) => sum + e.temp_hp_remaining, 0)}
+        onDamage={isOwner && !character.is_npc ? (amount) => void handleDamage(amount) : undefined}
       />
+
+      <div className={character.is_npc ? "hidden" : "px-4 pt-2"}>
+        <EffectsBar
+          state={effectsState}
+          readOnly={!isOwner}
+          values={{
+            str: effectiveStr,
+            dex: effectiveDex,
+            con: effectiveCon,
+            int: effectiveInt,
+            wis: effectiveWis,
+            cha: effectiveCha,
+          }}
+        />
+      </div>
 
       <div className="px-4 pt-2 empty:hidden">
         <PendingLevelUpBanner

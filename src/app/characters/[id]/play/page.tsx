@@ -15,6 +15,7 @@ import type {
   CharacterInventoryWithDetails,
   EpicItemRow,
   CharacterFightingStyleRow,
+  CharacterEffectRow,
 } from "@/lib/supabase/types";
 
 interface PlayPageProps {
@@ -52,6 +53,7 @@ export default async function PlayPage({ params }: PlayPageProps) {
     { data: inventory },
     { data: epicItems },
     { data: fightingStyles },
+    { data: activeEffects },
   ] = await Promise.all([
     supabase
       .from("character_classes")
@@ -79,6 +81,13 @@ export default async function PlayPage({ params }: PlayPageProps) {
       .select("*")
       .eq("character_id", id)
       .returns<CharacterFightingStyleRow[]>(),
+    supabase
+      .from("character_effects")
+      .select("*")
+      .eq("character_id", id)
+      .is("ended_at", null)
+      .order("created_at")
+      .returns<CharacterEffectRow[]>(),
   ]);
 
   // Wave 3: Priest spells (only if character has a priest class)
@@ -101,6 +110,7 @@ export default async function PlayPage({ params }: PlayPageProps) {
       inventory={(inventory as CharacterInventoryWithDetails[]) ?? []}
       epicItems={epicItems ?? []}
       fightingStyles={fightingStyles ?? []}
+      effects={activeEffects ?? []}
       priestAvailableSpells={priestAvailableSpells}
     />
   );

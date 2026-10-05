@@ -19,6 +19,8 @@ import { CLASSES } from "@/lib/rules/classes";
 import { getAlignmentLabel, ALL_ALIGNMENTS } from "@/lib/rules/alignment";
 import { getXpForNextLevel, getXpThreshold, deductXpFromClasses } from "@/lib/rules/experience";
 import { LevelUpDialog } from "@/components/level-up/level-up-dialog";
+import { EffectsSection } from "@/components/effects/effects-section";
+import { useCharacterEffects } from "@/lib/hooks/use-character-effects";
 import { PendingLevelUpBanner } from "@/components/level-up/pending-level-up-banner";
 import type { LevelUpPlan } from "@/lib/level-up/apply-level-up";
 import type { ClassId, RaceId } from "@/lib/rules/types";
@@ -65,6 +67,7 @@ import type {
   XpHistoryRow,
   TraitEntry,
   MagicItemRow,
+  CharacterEffectRow,
 } from "@/lib/supabase/types";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -119,6 +122,8 @@ interface CharacterSheetProps {
   sessions: Pick<SessionRow, "id" | "title" | "session_date">[];
   xpHistory: XpHistoryRow[];
   epicItems?: EpicItemRow[];
+  /** Active temporary effects (character_effects, ended_at is null). */
+  effects?: CharacterEffectRow[];
   basePath?: string;
 }
 
@@ -142,6 +147,7 @@ export function CharacterSheet({
   sessions,
   xpHistory,
   epicItems = [],
+  effects: initialEffects = [],
   basePath = "/characters",
 }: CharacterSheetProps) {
   const router = useRouter();
@@ -201,6 +207,7 @@ export function CharacterSheet({
   const [addClassId, setAddClassId] = useState("");
 
   const isOwner = character.user_id === userId;
+  const effectsState = useCharacterEffects(initial.id, initialEffects);
 
   // Derive multiclass data
   const activeClasses = charClasses.filter((cc) => cc.is_active);
@@ -1088,6 +1095,13 @@ export function CharacterSheet({
             setCharacter((prev) => ({ ...prev, is_public: val }));
           }}
         />
+      )}
+
+      {/* NPCs (GM area) carry no temporary effects */}
+      {!character.is_npc && (
+        <div className="glass mb-6 rounded-xl p-4">
+          <EffectsSection state={effectsState} readOnly={!isOwner} />
+        </div>
       )}
 
       <Tabs defaultValue="stats" className="w-full">

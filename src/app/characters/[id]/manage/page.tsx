@@ -14,6 +14,7 @@ import type {
   NonweaponProficiencyRow,
   CharacterLanguageRow,
   CharacterFightingStyleRow,
+  CharacterEffectRow,
   SessionRow,
   XpHistoryRow,
   EpicItemRow,
@@ -54,6 +55,7 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
     { data: inventoryData },
     { data: languages },
     { data: fightingStyles },
+    { data: activeEffects },
     { data: epicItems },
     { data: xpHistoryData },
     { data: sessionsData },
@@ -89,6 +91,13 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
       .select("*")
       .eq("character_id", character.id)
       .returns<CharacterFightingStyleRow[]>(),
+    supabase
+      .from("character_effects")
+      .select("*")
+      .eq("character_id", character.id)
+      .is("ended_at", null)
+      .order("created_at")
+      .returns<CharacterEffectRow[]>(),
     supabase.from("epic_items").select("*").eq("character_id", id).returns<EpicItemRow[]>(),
     supabase
       .from("xp_history")
@@ -131,6 +140,7 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
         allNonweaponProficiencies={allNWPs ?? []}
         languages={languages ?? []}
         fightingStyles={fightingStyles ?? []}
+        effects={activeEffects ?? []}
         sessions={sessionsData ?? []}
         xpHistory={xpHistoryData ?? []}
         epicItems={epicItems ?? []}
