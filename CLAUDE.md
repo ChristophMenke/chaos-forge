@@ -74,6 +74,7 @@ src/
     play-mode/            # Play Mode (Kampf, Zauber, Fähigkeiten, Checks, Wahrnehmung, Inventar, Geldbörse, Untote vertreiben, Gestaltwandlung)
     spellbook/            # Standalone Spellbook-Seite (Suche, Filter, Prepare, Learn, Source-Book-Filter)
     print-sheet/          # Druckansicht + Word-Export (.docx), Customization Panel
+    level-up/             # Stufenaufstiegs-Assistent (TP-Wurf, Fertigkeitspunkte, Übersicht) + Banner „Stufenaufstieg verfügbar“
     session/              # Session-Einträge, Sprachnotizen (MediaRecorder)
     wizard/               # Character Wizard (8 Steps: Basics, Abilities, Race, Class, Kit, Priesthood, Combat, Summary)
     ui/                   # shadcn/ui Komponenten
@@ -88,7 +89,8 @@ src/
       equipment.ts        # RK-Berechnung, Belastung, Bewegungsrate, Shield Proficiency
       fighting-styles.ts  # 4 Kampfstile (Single-Weapon, Two-Hander, Weapon & Shield, Two-Weapon)
       experience.ts       # XP-Tabellen, Stufen-Berechnung
-      hitpoints.ts        # HP-Berechnung, CON-Bonus-Cap (Warrior +4, andere +2)
+      hitpoints.ts        # HP-Berechnung, CON-Bonus-Cap (Warrior +4, andere +2), Trefferwürfel-Grenze + feste TP ab Name-Level
+      level-up.ts         # Stufenaufstieg: TP pro Stufe, ausstehende Aufstiege, Diebes-/Bardenpunkte, Änderungs-Übersicht
       kits.ts             # 20 Kit-Definitionen (Fighter, Thief, Wizard, Priest, Ranger, Bard)
       magic.ts            # Magie-Schulen, Priester-Sphären, Spezialisten
       multiclass.ts       # THAC0/Saves-Optimierung, Regeltreue-Check, HP-Divisor
@@ -178,7 +180,7 @@ Die AD&D-Regeln sind als **reine TypeScript-Funktionen** implementiert (kein DB-
 **Priester & Turn Undead:**
 
 - `getPriesthood(id)` / `getAllPriesthoods()` / `getActivePowers(priesthoodId, level)`
-- `getTurnTarget(level, undead)` / `resolveTurnAttempt(level, undead, roll)` — Untote vertreiben
+- `getTurnTarget(undeadType, clericLevel)` / `resolveTurnAttempt(clericLevel, undeadType, d20Roll, …)` — Untote vertreiben (Paladin: `getPaladinTurnLevel`)
 
 **Multiclass:**
 
@@ -202,6 +204,15 @@ Die AD&D-Regeln sind als **reine TypeScript-Funktionen** implementiert (kein DB-
 - `applyThiefPenalty(baseValue, effects)` — Thief-Skill-Penalty anwenden
 - `getConBonusCap(classGroup)` — CON-HP-Bonus-Cap (+2 Non-Warrior, +4 Warrior)
 - `computeCharacterCombatData(character, classes, equipment, epicItems, profs, styles)` — Shared Utility für alle abgeleiteten Kampfwerte (THAC0, AC, Saves, Perception, Thief Skills). Genutzt von Play Mode + GM Dashboard.
+
+**Stufenaufstieg (`level-up.ts`):**
+
+- `getPendingLevelUps(classes)` — Klassen mit XP über ihrer Stufe, je eine Stufe pro Schritt. **Die Stufe steigt nur über den Assistenten** (XP-Dialog und XP-Löschung schreiben nur `xp_current`)
+- `getLevelUpHitPoints({classId, newLevel, kit, conHpAdj, classes, dieRoll?})` — echter Würfel + CON (Cap +4 bei aktiver Kriegerklasse, sonst +2), min. 1; feste TP 3/2/2/1 ab Stufe 10 (Krieger/Priester) bzw. 11 (Schurke/Magier); Multiclass teilt Würfel und CON getrennt (feste TP ebenfalls geteilt — Annahme); Dual-Class ruhend → keine TP. Nur `hp_max` steigt, `hp_current` bleibt
+- `getLevelUpSkillPoints(classId)` / `validateSkillAllocation(...)` — Dieb 30, Barde 15 (Klettern, Geräusche, Sprachen), max. 15 je Fertigkeit, max. 95 %, Restpunkte erlaubt (Taschendiebstahl hat kein Feld)
+- `buildLevelUpSummary(...)` — Vorher/Nachher für THAC0, Rettungswürfe (über `getEffectiveClassEntries`), Angriffe, Slots, Zauber, Hinterhalt, Untote vertreiben, Granted Powers, Epic-Freischaltungen, Hinweise
+- `applyLevelUp` (`src/lib/level-up/`) schreibt `character_classes.level`, `characters.hp_max`, `characters.level` (= höchste aktive Klassenstufe, steuert Epic-Schwellen) und `thief_*`
+- Hinweis: Die CON-Delta-Rechnung für Epic-CON-Overrides (`play-mode.tsx`, `epic-equipment-view.tsx`) kappt pro Klassengruppe, der Aufstieg nach PHB für den ganzen Multiclass-Charakter
 
 **Sonstiges:**
 
@@ -379,3 +390,5 @@ Finaler explorativer Test mit etablierten Testing-Heuristiken und gezielten "Tes
 23. **Performance-Runde & E2E-Abbau** — Auth ohne Roundtrip (`getClaims()` in `proxy.ts` und `requireAuth`, React-`cache()`-Deduplizierung), `ApprovalProvider` statt Query + Channel pro Banner/Gate, Session-Detail in 2 statt 10 sequenziellen Queries, Epic-Seite in einer Welle, GM-Auto-Share per `after()`, Realtime-Refresh nur im sichtbaren Tab, Zauber-/Ausrüstungskataloge als Session-Cache, Fix: Zauber-Lernen-Dialog zeigte nur 1000 Zauber (`fetchAllRows`), Cache-Header für `public/`-Bilder, Bildprioritäten, GM-Panels per `next/dynamic` (−32 % JS auf `/master`). Playwright-E2E-Suite, Test-Login-Hintertür und QA-Test-Domain entfernt ✅
 
 24. **Ansichtsmodus & Tablet-Fix** — Einstellung „Ansicht: Automatisch / Mobil / Desktop“ pro Gerät (localStorage, Klasse auf `<html>`, Pre-Paint-Script), Tailwind-Breakpoints per `@custom-variant` mit `:where()` überschrieben, `useBreakpoint()` für JS-Breitenprüfungen, Toaster oben mittig im Mobil-Modus. Play-Mode-Grid mit `minmax(0,…)` statt `1fr`/Prozent (Galaxy Tab S6 Lite, 800 px, musste herauszoomen), innere Panel-Grids erst ab `lg`. Test-Setup nutzt unter Node ≥ 25 jsdoms `localStorage` ✅
+
+25. **Stufenaufstiegs-Assistent** — Aufstieg nur noch über einen Assistenten pro Klassenstufe: echter Trefferwürfel abgefragt (CON inkl. Fitness, Kit-Würfel, Multiclass-Teilung nach PHB, feste TP ab Name-Level, Dual-Class ruhend), Diebes-/Bardenpunkte verteilen (max. 15 je Fertigkeit, 95 %), Übersicht aller Änderungen inkl. Epic-Freischaltungen. Banner „Stufenaufstieg verfügbar“ in Charakterbogen und Play Mode; XP-Dialog und XP-Löschung ändern keine Stufen mehr; `characters.level` wird synchron gehalten. PHB-Korrekturen: Schurken +1 NWP-Slot alle 4 Stufen, feste TP für Schurken/Magier ab Stufe 11 ✅

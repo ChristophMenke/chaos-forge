@@ -2,7 +2,11 @@
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { LevelUpDialog } from "@/components/level-up/level-up-dialog";
+import { PendingLevelUpBanner } from "@/components/level-up/pending-level-up-banner";
+import type { LevelUpPlan } from "@/lib/level-up/apply-level-up";
 import { PlayHpBar } from "./play-hp-bar";
 import { PlayCombatPanel } from "./play-combat-panel";
 import { PlaySpellbookPanel } from "./play-spellbook-panel";
@@ -226,6 +230,18 @@ export function PlayMode({
   const t = useTranslations("playMode");
   const locale = useLocale();
   const [character, setCharacter] = useState(initialCharacter);
+  const router = useRouter();
+  const [levelUpOpen, setLevelUpOpen] = useState(false);
+  // Levels saved by the level-up assistant before the server props catch up
+  // (characterClasses is a plain prop here, refreshed via router.refresh()).
+  const [appliedLevels, setAppliedLevels] = useState<Record<string, number>>({});
+  const levelUpClasses = useMemo(
+    () =>
+      characterClasses.map((cc) =>
+        (appliedLevels[cc.id] ?? 0) > cc.level ? { ...cc, level: appliedLevels[cc.id] } : cc
+      ),
+    [characterClasses, appliedLevels]
+  );
   const [equipment, setEquipment] = useState(initialEquipment);
   const [spells, setSpells] = useState(initialSpells);
   const [inventory, setInventory] = useState(initialInventory);
@@ -712,6 +728,17 @@ export function PlayMode({
     [character.id, character.spell_system, character.spell_points_used, updateCharacter, t]
   );
 
+  function handleLevelUpApplied(plan: LevelUpPlan) {
+    setAppliedLevels((prev) => ({ ...prev, [plan.classRowId]: plan.toLevel }));
+    setCharacter((prev) => ({
+      ...prev,
+      hp_max: plan.hpMaxAfter,
+      level: plan.characterLevelAfter,
+      ...plan.thiefSkillUpdates,
+    }));
+    router.refresh();
+  }
+
   const handleRest = useCallback(async () => {
     if (character.spell_system === "points") {
       updateCharacter({ spell_points_used: 0 });
@@ -860,6 +887,24 @@ export function PlayMode({
         readOnly={!isOwner}
         onHpChange={handleHpChange}
       />
+
+      <div className="px-4 pt-2 empty:hidden">
+        <PendingLevelUpBanner
+          classes={levelUpClasses}
+          isOwner={isOwner}
+          onStart={() => setLevelUpOpen(true)}
+        />
+      </div>
+      {isOwner && (
+        <LevelUpDialog
+          open={levelUpOpen}
+          onOpenChange={setLevelUpOpen}
+          character={character}
+          classes={levelUpClasses}
+          epicItems={epicItems}
+          onApplied={handleLevelUpApplied}
+        />
+      )}
 
       {/* Overclock banner (Kondensator) — read-only display of active overclock */}
       {overclockEffective && epicEffects.overclockAbility && (

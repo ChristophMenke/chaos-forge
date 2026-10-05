@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { getXpForNextLevel, getXpThreshold, previewXpGain, getLevelForXp } from "./experience";
+import {
+  getXpForNextLevel,
+  getXpThreshold,
+  previewXpGain,
+  getLevelForXp,
+  deductXpFromClasses,
+} from "./experience";
 
 describe("XP-001 XP-002 XP-003: Experience Points", () => {
   it("should return 2000 XP for fighter level 2", () => {
@@ -255,5 +261,43 @@ describe("getLevelForXp", () => {
   it("returns correct level after XP reduction", () => {
     // Fighter had 32000 XP (L6), lost 10000 → 22000 XP = L5 (16000 needed for L5)
     expect(getLevelForXp("fighter", 22000)).toBe(5);
+  });
+});
+
+describe("deductXpFromClasses", () => {
+  const row = (
+    id: string,
+    class_id: string,
+    level: number,
+    xp_current: number,
+    is_active = true
+  ) => ({
+    id,
+    class_id,
+    level,
+    xp_current,
+    is_active,
+  });
+
+  it("splits the removed XP evenly across active classes, remainder to the first", () => {
+    const result = deductXpFromClasses(
+      [row("a", "fighter", 3, 5000), row("b", "thief", 3, 4000), row("c", "mage", 2, 3000, false)],
+      1001
+    );
+    expect(result).toEqual([
+      row("a", "fighter", 3, 4499),
+      row("b", "thief", 3, 3500),
+      row("c", "mage", 2, 3000, false),
+    ]);
+  });
+
+  // Levels only change through the level-up assistant (hit points, skill points).
+  it("never changes a level, even when the XP drop below it", () => {
+    const [fighter] = deductXpFromClasses([row("a", "fighter", 5, 16000)], 15000);
+    expect(fighter).toMatchObject({ level: 5, xp_current: 1000 });
+  });
+
+  it("does not go below zero XP", () => {
+    expect(deductXpFromClasses([row("a", "fighter", 1, 100)], 500)[0].xp_current).toBe(0);
   });
 });

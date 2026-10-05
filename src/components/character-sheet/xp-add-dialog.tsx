@@ -13,7 +13,9 @@ import {
   getXpForNextLevel,
   getXpThreshold,
   getNextLevelChanges,
+  getLevelForXp,
 } from "@/lib/rules/experience";
+import { getPendingLevelUps } from "@/lib/rules/level-up";
 import { CLASSES } from "@/lib/rules/classes";
 import type { CharacterClassRow, SessionRow } from "@/lib/supabase/types";
 import type { ClassId } from "@/lib/rules/types";
@@ -27,6 +29,8 @@ interface XpAddDialogProps {
   onClassesChange: (classes: CharacterClassRow[]) => void;
   initialSessionId?: string;
   initialAmount?: number;
+  /** Called after saving when a class now has the XP for its next level. */
+  onLevelUpPending?: () => void;
 }
 
 export function XpAddDialog({
@@ -38,6 +42,7 @@ export function XpAddDialog({
   onClassesChange,
   initialSessionId,
   initialAmount,
+  onLevelUpPending,
 }: XpAddDialogProps) {
   const t = useTranslations("sheet");
   const tc = useTranslations("common");
@@ -88,10 +93,12 @@ export function XpAddDialog({
       const cls = CLASSES[cc.class_id as ClassId];
       const className = cls ? localized(cls.name, cls.name_en, locale) : cc.class_id;
 
-      // XP gain preview
+      // XP gain preview. Levels are applied by the level-up assistant, so a
+      // level-up that is already pending is not announced again.
+      const reachedLevel = Math.max(cc.level, getLevelForXp(cc.class_id as ClassId, cc.xp_current));
       const preview =
         classXp > 0
-          ? previewXpGain(cc.class_id as ClassId, cc.level, cc.xp_current, classXp)
+          ? previewXpGain(cc.class_id as ClassId, reachedLevel, cc.xp_current, classXp)
           : null;
 
       const effectiveNewLevel = preview?.newLevel ?? cc.level;
@@ -136,15 +143,15 @@ export function XpAddDialog({
     try {
       const supabase = createClient();
 
-      // Update each class's XP and level (parallel)
+      // Update each class's XP (parallel). The level itself is raised by the
+      // level-up assistant, together with hit points and skill points.
       const classUpdates = activeClasses
         .map((cc) => {
           const classXp = classXpValues.find((v) => v.classId === cc.class_id)?.xp ?? 0;
           if (classXp <= 0) return null;
-          const preview = previewXpGain(cc.class_id as ClassId, cc.level, cc.xp_current, classXp);
           return supabase
             .from("character_classes")
-            .update({ xp_current: preview.newXp, level: preview.newLevel })
+            .update({ xp_current: cc.xp_current + classXp })
             .eq("id", cc.id);
         })
         .filter(Boolean);
@@ -164,10 +171,10 @@ export function XpAddDialog({
         if (!cc.is_active) return cc;
         const classXp = classXpValues.find((v) => v.classId === cc.class_id)?.xp ?? 0;
         if (classXp <= 0) return cc;
-        const preview = previewXpGain(cc.class_id as ClassId, cc.level, cc.xp_current, classXp);
-        return { ...cc, xp_current: preview.newXp, level: preview.newLevel };
+        return { ...cc, xp_current: cc.xp_current + classXp };
       });
       onClassesChange(updatedClasses);
+      const levelUpPending = getPendingLevelUps(updatedClasses).length > 0;
 
       setXpAmount("");
       setNote("");
@@ -175,6 +182,7 @@ export function XpAddDialog({
       setClassXpOverrides({});
       setHasManualOverride(false);
       onClose();
+      if (levelUpPending) onLevelUpPending?.();
     } catch (err) {
       console.error("Failed to save XP:", err);
     } finally {

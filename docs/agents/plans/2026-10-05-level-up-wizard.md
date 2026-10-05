@@ -4,7 +4,7 @@ git_commit: 261dcfde8e482e3598c97f216cdd347ad61a7884
 branch: feat/level-up-wizard
 topic: "Stufenaufstiegs-Assistent: TP-Wurf, Diebespunkte, Übersicht"
 tags: [plan, level-up, hitpoints, experience, thief, character-sheet]
-status: draft
+status: implemented
 ---
 
 # Stufenaufstiegs-Assistent Implementation Plan
@@ -344,49 +344,50 @@ Reine, vollständig getestete Engine-Funktionen ohne UI.
 
 **Tasks**:
 
-- [ ] `src/lib/level-up/apply-level-up.ts`: `applyLevelUp(supabase, { classRowId, toLevel, characterId, hpMaxAfter, characterLevelAfter, thiefSkillUpdates })`. Parallel `character_classes.update({level})` und `characters.update({hp_max, level, ...thief_*})`, Fehler werden gesammelt zurückgegeben.
-- [ ] `level-up-hp-step.tsx`:
+- [x] `src/lib/level-up/apply-level-up.ts`: `applyLevelUp(supabase, { classRowId, toLevel, characterId, hpMaxAfter, characterLevelAfter, thiefSkillUpdates })`. Parallel `character_classes.update({level})` und `characters.update({hp_max, level, ...thief_*})`, Fehler werden gesammelt zurückgegeben.
+- [x] `level-up-hp-step.tsx`:
   - Ziffern-Eingabe 1…N mit `inputMode="numeric"` (Tablet) und Live-Rechnung.
   - Bei `fixed`/`none` nur ein Text, keine Eingabe.
-- [ ] `level-up-skills-step.tsx`:
+- [x] `level-up-skills-step.tsx`:
   - Pro Fertigkeit: aktueller Wert, ±-Buttons (Schritt 5, Feinjustierung 1 per Eingabe), Vorschau.
   - Anzeige „Übrig X / N“.
   - Weiter nur ohne Fehler. Bei Restpunkten erscheint der Hinweis „nicht verteilt (z. B. Taschendiebstahl)“.
-- [ ] `level-up-summary-step.tsx`: Rendert `LevelUpChange[]` gruppiert (TP, Kampf, Rettungswürfe, Fertigkeiten, Magie, Freischaltungen, Hinweise) mit i18n.
-- [ ] `level-up-dialog.tsx`:
+- [x] `level-up-summary-step.tsx`: Rendert `LevelUpChange[]` gruppiert (TP, Kampf, Rettungswürfe, Fertigkeiten, Magie, Freischaltungen, Hinweise) mit i18n.
+- [x] `level-up-dialog.tsx`:
   - Stepper ①–③. Schritt ② entfällt ohne Punkte.
   - Titel „Stufenaufstieg · Name · Klasse X → Y“.
   - Bei mehreren ausstehenden Aufstiegen startet nach dem Übernehmen direkt der nächste („Weiter mit Stufe 11“).
   - Abbrechen jederzeit, ohne Änderung.
-- [ ] `pending-level-up-banner.tsx`: Zeigt den ersten ausstehenden Aufstieg und öffnet den Dialog. Nur für den Owner (`isOwner`); andere sehen nichts.
-- [ ] `character-sheet.tsx` `handleDeleteXpEntry` (`:665-708`): schreibt nur noch `xp_current`, kein `getLevelForXp`-Level mehr. Sonst würde das Löschen eines XP-Eintrags den Aufstieg ohne TP und Punkte auslösen oder Stufen absenken.
-- [ ] `xp-add-dialog.tsx`:
+- [x] `pending-level-up-banner.tsx`: Zeigt den ersten ausstehenden Aufstieg und öffnet den Dialog. Nur für den Owner (`isOwner`); andere sehen nichts.
+- [x] `character-sheet.tsx` `handleDeleteXpEntry` (`:665-708`): schreibt nur noch `xp_current`, kein `getLevelForXp`-Level mehr. Sonst würde das Löschen eines XP-Eintrags den Aufstieg ohne TP und Punkte auslösen oder Stufen absenken.
+- [x] `xp-add-dialog.tsx`:
   - `handleApply` schreibt nur noch `xp_current` (keine `level`).
   - Die Vorschau „Stufenaufstieg!“ zeigt nur, wenn durch diesen Eintrag **zusätzlich** ein Aufstieg ausstehend wird. Basis ist `max(level, getLevelForXp(xp_current))`.
   - Der optimistische Update setzt nur XP.
   - Der Callback `onLevelUpPending()` ruft den Bogen, wenn `getPendingLevelUps` nicht leer ist.
   - Die Vorschau „Stufenaufstieg!“ bleibt.
-- [ ] `character-sheet.tsx`:
+- [x] `character-sheet.tsx`:
   - Banner unter dem Kopf.
   - `LevelUpDialog` mit Klassen, Charakter und Epic-Items.
   - Nach dem Übernehmen den lokalen State (`charClasses`, `character.hp_max`, `character.level`, `thief_*`) **mergen**. Das schützt vor dem Überschreiben durch `handleSave`, das alle Felder aus dem lokalen State schreibt (`:503-570`).
   - Nach dem XP-Eintrag automatisch öffnen.
-- [ ] `play-mode.tsx`: Banner unter der TP-Leiste und Dialog (Owner). Nach dem Übernehmen `character` optimistisch aktualisieren (`hp_max`, `level`, `thief_*`) und `router.refresh()`. `characterClasses` ist hier nur ein Prop.
-- [ ] `messages/de.json`, `messages/en.json`: Namespace `levelUpWizard` (Titel, Schritte, Würfel-Labels, Fehlertexte, Change-Labels, Hinweise). `sheet.levelUp` existiert bereits.
+- [x] `play-mode.tsx`: Banner unter der TP-Leiste und Dialog (Owner). Nach dem Übernehmen `character` optimistisch aktualisieren (`hp_max`, `level`, `thief_*`) und `router.refresh()`. `characterClasses` ist hier nur ein Prop.
+- [x] `messages/de.json`, `messages/en.json`: Namespace `levelUpWizard` (Titel, Schritte, Würfel-Labels, Fehlertexte, Change-Labels, Hinweise). `sheet.levelUp` existiert bereits.
 
 **Automated Verification**:
 
-- [ ] Unit `apply-level-up.test.ts`: Schreibt die richtigen Felder in beide Tabellen, gibt Fehler zurück statt zu werfen, und `characters.level` = höchste aktive Klassenstufe.
-- [ ] Unit `level-up-dialog.test.tsx`:
+- [x] Unit `apply-level-up.test.ts`: Schreibt die richtigen Felder in beide Tabellen, gibt Fehler zurück statt zu werfen, und `characters.level` = höchste aktive Klassenstufe.
+- [x] Unit `level-up-dialog.test.tsx`:
   - **Dieb:** Würfel 4 eingeben → „+5“, „31 → 36“. Weiter → Punkte verteilen (Weiter erst bei 0 übrig) → Übersicht enthält TP, Hinterhalt/NWP und Fertigkeiten. Übernehmen ruft `applyLevelUp` mit `hp_max` 36 und den neuen `thief_*`.
   - **Kämpfer:** Schritt ② entfällt.
   - **Schurke 10→11:** keine Würfeleingabe.
   - **Abbrechen:** kein `applyLevelUp`.
   - **Zwei ausstehende Aufstiege:** Nach dem ersten folgt der zweite.
-- [ ] Unit `pending-level-up-banner.test.tsx`: Sichtbar bei XP über der Schwelle, unsichtbar sonst und für Nicht-Owner.
-- [ ] Unit `xp-add-dialog.test.tsx` (neu): Apply schreibt `xp_current` ohne `level` und meldet einen ausstehenden Aufstieg. Bei bereits ausstehendem Aufstieg zeigt ein kleiner XP-Eintrag kein neues „Stufenaufstieg!“.
-- [ ] Unit (Charakterbogen-Helfer bzw. extrahierte Funktion): Löschen eines XP-Eintrags ändert die Stufe nicht.
-- [ ] `npm run verify` ist grün.
+- [x] Unit `pending-level-up-banner.test.tsx`: Sichtbar bei XP über der Schwelle, unsichtbar sonst und für Nicht-Owner.
+- [x] Unit `xp-add-dialog.test.tsx` (neu): Apply schreibt `xp_current` ohne `level` und meldet einen ausstehenden Aufstieg. Bei bereits ausstehendem Aufstieg zeigt ein kleiner XP-Eintrag kein neues „Stufenaufstieg!“.
+- [x] Unit `deductXpFromClasses` (`experience.test.ts`): Löschen eines XP-Eintrags ändert die Stufe nicht.
+- [x] Optik geprüft (temporäre Vorschauseite, Playwright-Screenshots bei 800 px und 390 px, danach gelöscht): alle drei Schritte lesbar, kein Überlauf.
+- [x] `npm run verify` ist grün.
 
 **Manual Verification**:
 
@@ -404,13 +405,13 @@ Reine, vollständig getestete Engine-Funktionen ohne UI.
 
 ## Abschluss
 
-- [ ] `CLAUDE.md`:
+- [x] `CLAUDE.md`:
   - Hausregeln/Hinweis: CON-Cap beim Aufstieg nach PHB (Krieger-Cap für den ganzen Multiclass-Charakter) vs. Cap pro Klassengruppe bei der Epic-CON-Delta-Rechnung. Feste TP bei Multiclass werden geteilt (Annahme).
   - `getTurnTarget(undeadType, level)`: Argumentreihenfolge in der Doku korrigieren.
   - Kernfunktionen: Abschnitt „Stufenaufstieg“ (`getLevelUpHitPoints`, `getPendingLevelUps`, `getLevelUpSkillPoints`, `buildLevelUpSummary`)
   - Projektstruktur: `src/lib/rules/level-up.ts`, `src/lib/level-up/`, `src/components/level-up/`
   - Roadmap-Eintrag
-- [ ] Research-Dokument: Status-Notiz mit Verweis auf diesen Plan.
+- [x] Research-Dokument: Status-Notiz mit Verweis auf diesen Plan.
 
 ## References
 
