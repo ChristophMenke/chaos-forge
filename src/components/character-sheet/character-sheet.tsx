@@ -17,7 +17,10 @@ import { RACES, getAllRaces } from "@/lib/rules/races";
 import type { AbilityName } from "@/lib/rules/types";
 import { CLASSES } from "@/lib/rules/classes";
 import { getAlignmentLabel, ALL_ALIGNMENTS } from "@/lib/rules/alignment";
-import { getXpForNextLevel, getXpThreshold, getLevelForXp } from "@/lib/rules/experience";
+import { getXpForNextLevel, getXpThreshold, deductXpFromClasses } from "@/lib/rules/experience";
+import { LevelUpDialog } from "@/components/level-up/level-up-dialog";
+import { PendingLevelUpBanner } from "@/components/level-up/pending-level-up-banner";
+import type { LevelUpPlan } from "@/lib/level-up/apply-level-up";
 import type { ClassId, RaceId } from "@/lib/rules/types";
 import {
   getMulticlassThac0,
@@ -193,6 +196,7 @@ export function CharacterSheet({
   const initialXpAmount = xpAmountParam ? parseInt(xpAmountParam, 10) : undefined;
 
   const [xpDialogOpen, setXpDialogOpen] = useState(openXpParam === "1");
+  const [levelUpOpen, setLevelUpOpen] = useState(false);
   const [payDialogOpen, setPayDialogOpen] = useState(false);
   const [addClassId, setAddClassId] = useState("");
 
@@ -672,39 +676,31 @@ export function CharacterSheet({
     // Remove from local state
     setXpHistory((prev) => prev.filter((xh) => xh.id !== entry.id));
 
-    // Recalculate XP and level for all active classes
-    const activeCC = charClasses.filter((cc) => cc.is_active);
-    const classCount = activeCC.length;
-    if (classCount === 0) return;
+    // Take the XP back from the active classes. Levels stay as they are — they
+    // only change through the level-up assistant (hit points, skill points).
+    const updated = deductXpFromClasses(charClasses, entry.xp_amount);
+    const changed = updated.filter((cc, i) => cc !== charClasses[i]);
 
-    // Distribute the deleted XP evenly across active classes
-    const perClass = Math.floor(entry.xp_amount / classCount);
-    const remainder = entry.xp_amount % classCount;
-
-    const updates = activeCC.map((cc, i) => {
-      const deduction = perClass + (i === 0 ? remainder : 0);
-      const newXp = Math.max(0, cc.xp_current - deduction);
-      const newLevel = getLevelForXp(cc.class_id as ClassId, newXp);
-      return { ...cc, xp_current: newXp, level: newLevel };
-    });
-
-    // Update DB
     await Promise.all(
-      updates.map((cc) =>
-        supabase
-          .from("character_classes")
-          .update({ xp_current: cc.xp_current, level: cc.level })
-          .eq("id", cc.id)
+      changed.map((cc) =>
+        supabase.from("character_classes").update({ xp_current: cc.xp_current }).eq("id", cc.id)
       )
     );
 
-    // Update local state
+    setCharClasses(updated);
+  }
+
+  /** Merges a saved level-up into the local state (protects it from a later handleSave). */
+  function handleLevelUpApplied(plan: LevelUpPlan) {
     setCharClasses((prev) =>
-      prev.map((cc) => {
-        const updated = updates.find((u) => u.id === cc.id);
-        return updated ?? cc;
-      })
+      prev.map((cc) => (cc.id === plan.classRowId ? { ...cc, level: plan.toLevel } : cc))
     );
+    setCharacter((prev) => ({
+      ...prev,
+      hp_max: plan.hpMaxAfter,
+      level: plan.characterLevelAfter,
+      ...plan.thiefSkillUpdates,
+    }));
   }
 
   return (
@@ -717,6 +713,24 @@ export function CharacterSheet({
           basePath={basePath}
         />
       </div>
+
+      <div className="mb-4 empty:hidden">
+        <PendingLevelUpBanner
+          classes={charClasses}
+          isOwner={isOwner}
+          onStart={() => setLevelUpOpen(true)}
+        />
+      </div>
+      {isOwner && (
+        <LevelUpDialog
+          open={levelUpOpen}
+          onOpenChange={setLevelUpOpen}
+          character={character}
+          classes={charClasses}
+          epicItems={epicItems}
+          onApplied={handleLevelUpApplied}
+        />
+      )}
 
       {/* Header */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -1733,6 +1747,7 @@ export function CharacterSheet({
             sessions={sessions}
             onClose={() => setXpDialogOpen(false)}
             onClassesChange={setCharClasses}
+            onLevelUpPending={() => setLevelUpOpen(true)}
             initialSessionId={initialSessionId}
             initialAmount={initialXpAmount}
           />

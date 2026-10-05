@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import type { ClassId } from "./types";
+import type { CharacterClassRow } from "@/lib/supabase/types";
 import {
+  getEffectiveClassEntries,
   getHighestActiveClassLevel,
   getMulticlassThac0,
   getMulticlassSaves,
@@ -414,5 +416,45 @@ describe("getHighestActiveClassLevel", () => {
   it("falls back to the character level without active classes", () => {
     expect(getHighestActiveClassLevel([], 3)).toBe(3);
     expect(getHighestActiveClassLevel([{ level: 6, is_active: false }], 3)).toBe(3);
+  });
+});
+
+describe("getEffectiveClassEntries", () => {
+  const row = (class_id: string, level: number, extra: Partial<CharacterClassRow> = {}) =>
+    ({
+      id: `${class_id}-row`,
+      character_id: "c1",
+      class_id,
+      level,
+      xp_current: 0,
+      is_active: true,
+      switch_level: null,
+      ...extra,
+    }) as CharacterClassRow;
+
+  it("uses every active class of a multiclass character", () => {
+    expect(getEffectiveClassEntries([row("fighter", 5), row("thief", 6)])).toEqual([
+      { classId: "fighter", level: 5 },
+      { classId: "thief", level: 6 },
+    ]);
+  });
+
+  it("ignores inactive classes", () => {
+    expect(
+      getEffectiveClassEntries([row("fighter", 5), row("mage", 3, { is_active: false })])
+    ).toEqual([{ classId: "fighter", level: 5 }]);
+  });
+
+  it("only counts the new class while a dual-class character is dormant", () => {
+    const classes = [row("cleric", 5, { switch_level: 5 }), row("fighter", 5)];
+    expect(getEffectiveClassEntries(classes)).toEqual([{ classId: "fighter", level: 5 }]);
+  });
+
+  it("adds the original class at its switch level once the new class exceeds it", () => {
+    const classes = [row("cleric", 5, { switch_level: 5 }), row("fighter", 6)];
+    expect(getEffectiveClassEntries(classes)).toEqual([
+      { classId: "cleric", level: 5 },
+      { classId: "fighter", level: 6 },
+    ]);
   });
 });

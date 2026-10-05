@@ -18,6 +18,7 @@ import {
   getMulticlassSaves,
   getMulticlassGroups,
   getMulticlassHpDivisor,
+  getEffectiveClassEntries,
 } from "./multiclass";
 import { calculateAC, calculateEncumbrance, getShieldProficiencyBonus } from "./equipment";
 import { getEpicEffects } from "./epic-items";
@@ -104,26 +105,7 @@ export function computeCharacterCombatData(
   const primaryClassGroup = classGroups[0] ?? "warrior";
 
   // Dual-class effective entries
-  const classEntries = activeClasses.map((cc) => ({
-    classId: cc.class_id as ClassId,
-    level: cc.level,
-  }));
-  const dualOrig = classes.find((cc) => cc.switch_level != null);
-  let effectiveClassEntries = classEntries;
-  if (dualOrig) {
-    const dualNew = activeClasses.find((cc) => cc.class_id !== dualOrig.class_id);
-    if (dualNew) {
-      const dormant = dualNew.level <= dualOrig.switch_level!;
-      if (dormant) {
-        effectiveClassEntries = [{ classId: dualNew.class_id as ClassId, level: dualNew.level }];
-      } else {
-        effectiveClassEntries = [
-          { classId: dualOrig.class_id as ClassId, level: dualOrig.switch_level! },
-          { classId: dualNew.class_id as ClassId, level: dualNew.level },
-        ];
-      }
-    }
-  }
+  const effectiveClassEntries = getEffectiveClassEntries(classes);
 
   const thac0 = getMulticlassThac0(effectiveClassEntries);
   const saves = getMulticlassSaves(effectiveClassEntries);

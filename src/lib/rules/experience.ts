@@ -221,3 +221,26 @@ export function getLevelForXp(classId: ClassId, xp: number): number {
   }
   return level;
 }
+
+/**
+ * Removes an XP award again (e.g. a deleted XP history entry): split evenly
+ * across active classes, remainder to the first, never below 0. Levels stay —
+ * they only change through the level-up assistant, which also handles hit
+ * points and skill points.
+ */
+export function deductXpFromClasses<T extends { xp_current: number; is_active: boolean }>(
+  classes: T[],
+  amount: number
+): T[] {
+  const active = classes.filter((cc) => cc.is_active);
+  if (active.length === 0) return classes;
+  const perClass = Math.floor(amount / active.length);
+  const remainder = amount % active.length;
+
+  return classes.map((cc) => {
+    const index = active.indexOf(cc);
+    if (index < 0) return cc;
+    const deduction = perClass + (index === 0 ? remainder : 0);
+    return { ...cc, xp_current: Math.max(0, cc.xp_current - deduction) };
+  });
+}
