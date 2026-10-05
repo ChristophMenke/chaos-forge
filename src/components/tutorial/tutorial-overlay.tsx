@@ -186,12 +186,13 @@ export function TutorialOverlay({ page, forceShow = false, onClose }: TutorialOv
     (async () => {
       try {
         const supabase = createClient();
-        const { data } = await supabase.auth.getUser();
-        if (cancelled || !data.user) return;
+        const { data } = await supabase.auth.getClaims();
+        const userId = data?.claims?.sub;
+        if (cancelled || !userId) return;
         const { data: profile } = await supabase
           .from("profiles")
           .select("skip_tutorials")
-          .eq("id", data.user.id)
+          .eq("id", userId)
           .maybeSingle();
         if (cancelled) return;
         if (profile?.skip_tutorials === true) {

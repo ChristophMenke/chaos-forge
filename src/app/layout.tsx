@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppHeader } from "@/components/app-header";
 import { AppFooter } from "@/components/app-footer";
 import { ApprovalBanner } from "@/components/approval-banner";
+import { ApprovalProvider } from "@/components/approval-provider";
 import { ApprovalErrorToast } from "@/components/approval-error-toast";
 import { SkipToMain } from "@/components/skip-to-main";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -86,17 +87,19 @@ export default async function RootLayout({
         />
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
-            <TooltipProvider>
-              <SkipToMain />
-              <AppHeader />
-              <ApprovalBanner />
-              <ApprovalErrorToast />
+            <ApprovalProvider>
+              <TooltipProvider>
+                <SkipToMain />
+                <AppHeader />
+                <ApprovalBanner />
+                <ApprovalErrorToast />
 
-              <main id="main" className="flex flex-1 flex-col pb-16 sm:pb-0">
-                {children}
-              </main>
-              <AppFooter />
-            </TooltipProvider>
+                <main id="main" className="flex flex-1 flex-col pb-16 sm:pb-0">
+                  {children}
+                </main>
+                <AppFooter />
+              </TooltipProvider>
+            </ApprovalProvider>
             <Toaster richColors position="bottom-right" />
           </ThemeProvider>
         </NextIntlClientProvider>
