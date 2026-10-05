@@ -111,6 +111,7 @@ export default function LoginPage() {
           <img
             src="/images/login/login-party-portrait.webp"
             alt=""
+            fetchPriority="high"
             className={`absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-500 ${
               step === "email" ? "opacity-100" : "opacity-0"
             }`}
@@ -124,7 +125,9 @@ export default function LoginPage() {
           <img
             src="/images/login/login-party-grimace-portrait.webp"
             alt=""
-            fetchPriority="high"
+            // Only shown in the code step — load it without competing with the first image
+            fetchPriority="low"
+            decoding="async"
             className={`absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-500 ${
               step === "code" ? "opacity-100" : "opacity-0"
             }`}

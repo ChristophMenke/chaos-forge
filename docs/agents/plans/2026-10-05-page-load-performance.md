@@ -281,19 +281,19 @@ Statische Bilder werden cachebar, und das sichtbare Bild bekommt die richtige Pr
 
 **Tasks**:
 
-- [ ] `next.config.ts` `headers()`:
+- [x] `next.config.ts` `headers()`:
   - `/:file(.*\\.(?:webp|png|ico))` → `Cache-Control: public, max-age=86400, stale-while-revalidate=604800`. Das deckt auch `/images/**` ab.
   - `/:file(.*\\.webmanifest)` → `public, max-age=86400`.
-- [ ] `next.config.ts` `images.minimumCacheTTL: 86400` setzen.
-- [ ] `src/app/login/page.tsx:126-153`: `fetchPriority="high"` vom Grimassen-Bild auf das Party-Bild verschieben. Das Grimassen-Bild bekommt `fetchPriority="low"` und `decoding="async"`.
-- [ ] `src/components/character-card.tsx`: Neues Prop `priority?: boolean` (Default `false`), das `next/image` `priority` steuert.
-- [ ] `src/app/characters/page.tsx`: `priority` nur für die ersten 4 Karten der Sektion `ownActive` setzen. Andere Aufrufer setzen kein `priority`.
+- [x] `next.config.ts` `images.minimumCacheTTL: 86400` setzen.
+- [x] `src/app/login/page.tsx:126-153`: `fetchPriority="high"` vom Grimassen-Bild auf das Party-Bild verschieben. Das Grimassen-Bild bekommt `fetchPriority="low"` und `decoding="async"`.
+- [x] `src/components/character-card.tsx`: Neues Prop `priority?: boolean` (Default `false`), das `next/image` `priority` steuert.
+- [x] `src/app/characters/page.tsx`: `priority` nur für die ersten 4 Karten der Sektion `ownActive` setzen. Andere Aufrufer setzen kein `priority`.
 
 **Automated Verification**:
 
-- [ ] Unit (`next-config.test.ts`, neu): `headers()` enthält die Regel mit dem erwarteten `Cache-Control`-Wert für das Bild-Pattern, und `images.minimumCacheTTL === 86400`.
-- [ ] Unit (`character-card.test.tsx`, neu): Ohne Prop rendert das Avatar-Bild ohne Preload-Priorität (`loading="lazy"`), mit `priority` ohne `loading="lazy"`.
-- [ ] `npm run verify` ist grün.
+- [x] Unit (`next-config.test.ts`, neu): `headers()` enthält die Regel mit dem erwarteten `Cache-Control`-Wert für das Bild-Pattern, und `images.minimumCacheTTL === 86400`.
+- [x] Unit (`character-card.test.tsx`, neu): Ohne Prop rendert das Avatar-Bild mit `loading="lazy"`, mit `priority` ohne. Lokal per `next start` geprüft: Bilder und `/_next/image` liefern `max-age=86400`, HTML bleibt `no-store`.
+- [x] `npm run verify` ist grün.
 - ~~E2E Login- und Landing-Specs~~ entfällt (E2E-Suite entfernt)
 
 **Manual Verification**:
