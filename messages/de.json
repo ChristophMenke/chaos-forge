@@ -1339,7 +1339,10 @@
     "coldDamage": "+1d6 Kälteschaden",
     "hpToSpConversion": "Netherese Blooded",
     "hpToSpConversionRatio": "Trefferpunkte in Zauberpunkte umwandeln (1 TP → {ratio} SP)",
-    "hpToSpConvertButton": "Umwandeln"
+    "hpToSpConvertButton": "Umwandeln",
+    "thiefBonusHide": "Im Schatten verstecken: +{bonus}%",
+    "thiefBonusMove": "Leise bewegen: +{bonus}%",
+    "unlimited": "Unbegrenzt"
   },
   "rulebook": {
     "title": "Regelwerk & App-Hilfe",

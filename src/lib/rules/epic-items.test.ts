@@ -634,3 +634,108 @@ describe("getEpicEffects — base_<stat> unequipped semantic", () => {
     expect(scaleSubStat(18, 12, 5)).toBe(3);
   });
 });
+
+// ── Thief Skill Bonuses (positive, from epic items) ──────────
+
+function makeShadowdancer(overrides: Partial<EpicItemRow> = {}): EpicItemRow {
+  return {
+    id: "test-shadowdancer",
+    character_id: "char-1",
+    slug: "schattentaenzer",
+    name: "Schattentänzer",
+    name_en: "Shadowdancer",
+    description: "",
+    description_en: null,
+    icon: "sparkles",
+    equipped: true,
+    damage_level: 0,
+    max_damage_level: 4,
+    damage_levels: {
+      "0": { description: "Base", description_en: "Base", effects: [] },
+      "1": { description: "L3-4", description_en: "L3-4", effects: [] },
+      "2": {
+        description: "L5-6",
+        description_en: "L5-6",
+        effects: ["thief_bonus_hide_10", "thief_bonus_move_10"],
+      },
+      "3": { description: "L7-8", description_en: "L7-8", effects: [] },
+      "4": { description: "L9-10", description_en: "L9-10", effects: [] },
+    },
+    simple_effects: {
+      level_thresholds: [3, 5, 7, 9],
+      spell_abilities: [
+        {
+          key: "shadow_meld",
+          name: "Schattenverschmelzung",
+          name_en: "Shadow Meld",
+          unlock_level: 1,
+          usesPerDay: 3,
+          usesPerWeek: 0,
+          effect: "Im Schatten verschwinden",
+          effect_en: "Vanish into shadows",
+        },
+        {
+          key: "shadow_travel",
+          name: "Schattenreise",
+          name_en: "Shadow Travel",
+          unlock_level: 3,
+          usesPerDay: 3,
+          usesPerWeek: 0,
+          effect: "Durch Schatten reisen",
+          effect_en: "Travel through shadows",
+        },
+        {
+          key: "shadow_travel_unlimited",
+          name: "Schattenreise (unbegrenzt)",
+          name_en: "Shadow Travel (unlimited)",
+          unlock_level: 4,
+          usesPerDay: -1,
+          usesPerWeek: 0,
+          replaces: "shadow_travel",
+          effect: "Bei Nacht beliebig oft durch Schatten reisen",
+          effect_en: "Travel through shadows at will at night",
+        },
+      ],
+    },
+    notes: "",
+    created_at: "",
+    updated_at: "",
+    ...overrides,
+  };
+}
+
+describe("thief bonuses", () => {
+  // thresholds [3,5,7,9], max_damage_level=4:
+  // tier 0 = base (< L3), tier 1 = L3-4, tier 2 = L5-6, tier 3 = L7-8, tier 4 = L9-10
+  it("has no thief bonus by default (condenser)", () => {
+    expect(getEpicEffects([makeCondenser()]).thiefBonuses).toEqual({});
+  });
+
+  it("has no thief bonus below tier 2 (level 4)", () => {
+    expect(getEpicEffects([makeShadowdancer()], 4).thiefBonuses).toEqual({});
+  });
+
+  it("accumulates hide/move bonus from tier 2 at level 5", () => {
+    const fx = getEpicEffects([makeShadowdancer()], 5);
+    expect(fx.thiefBonuses.hideInShadows).toBe(10);
+    expect(fx.thiefBonuses.moveSilently).toBe(10);
+  });
+
+  it("keeps the cumulative bonus at higher tiers (level 9)", () => {
+    const fx = getEpicEffects([makeShadowdancer()], 9);
+    expect(fx.thiefBonuses.hideInShadows).toBe(10);
+    expect(fx.thiefBonuses.moveSilently).toBe(10);
+  });
+
+  it("ignores thief bonus when unequipped", () => {
+    expect(getEpicEffects([makeShadowdancer({ equipped: false })], 9).thiefBonuses).toEqual({});
+  });
+
+  it("replaces shadow_travel with unlimited variant at tier 4 (level 9)", () => {
+    const fx = getEpicEffects([makeShadowdancer()], 9);
+    const keys = fx.spellAbilities.map((a) => a.key);
+    expect(keys).toContain("shadow_meld");
+    expect(keys).toContain("shadow_travel_unlimited");
+    expect(keys).not.toContain("shadow_travel");
+  });
+});

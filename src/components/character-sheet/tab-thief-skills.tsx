@@ -28,14 +28,42 @@ const SKILL_FIELDS: {
   key: keyof ThiefSkills;
   dbField: keyof CharacterRow;
   i18nKey: string;
+  // Corresponding key in EpicEffects.thiefBonuses (ThiefSkillBonuses uses
+  // "openLocks" where ThiefSkills uses "pickLocks").
+  bonusKey: keyof EpicEffects["thiefBonuses"];
 }[] = [
-  { key: "pickLocks", dbField: "thief_pick_locks", i18nKey: "pickLocks" },
-  { key: "findTraps", dbField: "thief_find_traps", i18nKey: "findTraps" },
-  { key: "moveSilently", dbField: "thief_move_silently", i18nKey: "moveSilently" },
-  { key: "hideInShadows", dbField: "thief_hide_shadows", i18nKey: "hideInShadows" },
-  { key: "climbWalls", dbField: "thief_climb_walls", i18nKey: "climbWalls" },
-  { key: "detectNoise", dbField: "thief_detect_noise", i18nKey: "detectNoise" },
-  { key: "readLanguages", dbField: "thief_read_languages", i18nKey: "readLanguages" },
+  { key: "pickLocks", dbField: "thief_pick_locks", i18nKey: "pickLocks", bonusKey: "openLocks" },
+  { key: "findTraps", dbField: "thief_find_traps", i18nKey: "findTraps", bonusKey: "findTraps" },
+  {
+    key: "moveSilently",
+    dbField: "thief_move_silently",
+    i18nKey: "moveSilently",
+    bonusKey: "moveSilently",
+  },
+  {
+    key: "hideInShadows",
+    dbField: "thief_hide_shadows",
+    i18nKey: "hideInShadows",
+    bonusKey: "hideInShadows",
+  },
+  {
+    key: "climbWalls",
+    dbField: "thief_climb_walls",
+    i18nKey: "climbWalls",
+    bonusKey: "climbWalls",
+  },
+  {
+    key: "detectNoise",
+    dbField: "thief_detect_noise",
+    i18nKey: "detectNoise",
+    bonusKey: "detectNoise",
+  },
+  {
+    key: "readLanguages",
+    dbField: "thief_read_languages",
+    i18nKey: "readLanguages",
+    bonusKey: "readLanguages",
+  },
 ];
 
 export function TabThiefSkills({
@@ -53,6 +81,8 @@ export function TabThiefSkills({
   const backstab = getBackstabMultiplier(level);
 
   const hasEpicPenalty = epicEffects && (epicEffects.thiefDisabled || epicEffects.thiefPenalty > 0);
+  const hasEpicBonus =
+    epicEffects && Object.values(epicEffects.thiefBonuses).some((v) => (v ?? 0) > 0);
 
   return (
     <div className="flex flex-col gap-6" data-testid="tab-thief-skills">
@@ -73,11 +103,13 @@ export function TabThiefSkills({
         </div>
       )}
       <div className="grid gap-3 sm:grid-cols-2">
-        {SKILL_FIELDS.map(({ key, dbField, i18nKey }) => {
+        {SKILL_FIELDS.map(({ key, dbField, i18nKey, bonusKey }) => {
           const base = baseSkills[key];
           const racial = racialAdj[key] ?? 0;
           const rawValue = (character[dbField] as number) ?? 0;
-          const currentValue = epicEffects ? applyThiefPenalty(rawValue, epicEffects) : rawValue;
+          const epicBonus = epicEffects ? (epicEffects.thiefBonuses[bonusKey] ?? 0) : 0;
+          const currentValue =
+            (epicEffects ? applyThiefPenalty(rawValue, epicEffects) : rawValue) + epicBonus;
 
           return (
             <div
@@ -104,8 +136,11 @@ export function TabThiefSkills({
                   data-testid={`thief-input-${key}`}
                 />
                 <span className="text-sm text-muted-foreground">%</span>
-                {hasEpicPenalty && currentValue !== rawValue && (
-                  <Badge variant="secondary" className="text-xs text-red-400">
+                {(hasEpicPenalty || hasEpicBonus) && currentValue !== rawValue && (
+                  <Badge
+                    variant="secondary"
+                    className={`text-xs ${currentValue > rawValue ? "text-green-400" : "text-red-400"}`}
+                  >
                     → {currentValue}%
                   </Badge>
                 )}

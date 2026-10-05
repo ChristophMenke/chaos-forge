@@ -206,6 +206,52 @@ describe("computeCharacterCombatData", () => {
     expect(result.classGroups).toContain("rogue");
   });
 
+  it("adds epic thief bonuses (hide/move) to computed thief skills", () => {
+    const char = makeCharacter({
+      level: 9,
+      thief_move_silently: 70,
+      thief_hide_shadows: 75,
+      thief_pick_locks: 55,
+    });
+    const classes = [makeClass("thief", 9)];
+    const epicItems: EpicItemRow[] = [
+      {
+        id: "epic-shadowdancer",
+        character_id: "test-char",
+        slug: "schattentaenzer",
+        name: "Schattentänzer",
+        name_en: "Shadowdancer",
+        description: "",
+        description_en: "",
+        icon: "sparkles",
+        equipped: true,
+        damage_level: 0,
+        max_damage_level: 4,
+        damage_levels: {
+          "0": { description: "", description_en: "", effects: [] },
+          "1": { description: "", description_en: "", effects: [] },
+          "2": {
+            description: "",
+            description_en: "",
+            effects: ["thief_bonus_hide_10", "thief_bonus_move_10"],
+          },
+          "3": { description: "", description_en: "", effects: [] },
+          "4": { description: "", description_en: "", effects: [] },
+        },
+        simple_effects: { level_thresholds: [3, 5, 7, 9] },
+        notes: "",
+        created_at: "",
+        updated_at: "",
+      },
+    ];
+
+    const result = computeCharacterCombatData(char, classes, [], epicItems, []);
+    expect(result.thiefSkills).not.toBeNull();
+    expect(result.thiefSkills!.hideInShadows).toBe(85); // 75 + 10
+    expect(result.thiefSkills!.moveSilently).toBe(80); // 70 + 10
+    expect(result.thiefSkills!.openLocks).toBe(55); // unaffected
+  });
+
   it("computes perception with epic bonus", () => {
     const char = makeCharacter({ int: 14, wis: 16 });
     const classes = [makeClass("fighter", 5)];

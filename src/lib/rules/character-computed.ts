@@ -267,23 +267,40 @@ export function computeCharacterCombatData(
     spell: saves.spell - (msb.spell ?? 0),
   };
 
-  // Thief skills (epic penalties + magic bonuses)
+  // Thief skills (epic penalties + magic bonuses + epic bonuses)
   const mtb = magicEffects.thiefSkillBonuses;
+  const etb = epicEffects.thiefBonuses;
   let thiefSkills: ThiefSkillValues | null = null;
   if (hasThiefSkills(classIds) && !epicEffects.thiefDisabled) {
     thiefSkills = {
-      openLocks: applyThiefPenalty(character.thief_pick_locks, epicEffects) + (mtb.openLocks ?? 0),
-      findTraps: applyThiefPenalty(character.thief_find_traps, epicEffects) + (mtb.findTraps ?? 0),
+      openLocks:
+        applyThiefPenalty(character.thief_pick_locks, epicEffects) +
+        (mtb.openLocks ?? 0) +
+        (etb.openLocks ?? 0),
+      findTraps:
+        applyThiefPenalty(character.thief_find_traps, epicEffects) +
+        (mtb.findTraps ?? 0) +
+        (etb.findTraps ?? 0),
       moveSilently:
-        applyThiefPenalty(character.thief_move_silently, epicEffects) + (mtb.moveSilently ?? 0),
+        applyThiefPenalty(character.thief_move_silently, epicEffects) +
+        (mtb.moveSilently ?? 0) +
+        (etb.moveSilently ?? 0),
       hideInShadows:
-        applyThiefPenalty(character.thief_hide_shadows, epicEffects) + (mtb.hideInShadows ?? 0),
+        applyThiefPenalty(character.thief_hide_shadows, epicEffects) +
+        (mtb.hideInShadows ?? 0) +
+        (etb.hideInShadows ?? 0),
       detectNoise:
-        applyThiefPenalty(character.thief_detect_noise, epicEffects) + (mtb.detectNoise ?? 0),
+        applyThiefPenalty(character.thief_detect_noise, epicEffects) +
+        (mtb.detectNoise ?? 0) +
+        (etb.detectNoise ?? 0),
       climbWalls:
-        applyThiefPenalty(character.thief_climb_walls, epicEffects) + (mtb.climbWalls ?? 0),
+        applyThiefPenalty(character.thief_climb_walls, epicEffects) +
+        (mtb.climbWalls ?? 0) +
+        (etb.climbWalls ?? 0),
       readLanguages:
-        applyThiefPenalty(character.thief_read_languages, epicEffects) + (mtb.readLanguages ?? 0),
+        applyThiefPenalty(character.thief_read_languages, epicEffects) +
+        (mtb.readLanguages ?? 0) +
+        (etb.readLanguages ?? 0),
     };
   }
 

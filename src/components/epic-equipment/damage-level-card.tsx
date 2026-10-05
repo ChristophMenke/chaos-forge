@@ -44,6 +44,10 @@ function getEffectBadges(effects: string[], t: ReturnType<typeof useTranslations
       badges.push({ label: t("wildMagic", { percent: 50 }), variant: "amber" });
     } else if (effect === "thief_penalty_10") {
       badges.push({ label: t("thiefPenalty", { penalty: -10 }), variant: "amber" });
+    } else if (effect === "thief_bonus_hide_10") {
+      badges.push({ label: t("thiefBonusHide", { bonus: 10 }), variant: "blue" });
+    } else if (effect === "thief_bonus_move_10") {
+      badges.push({ label: t("thiefBonusMove", { bonus: 10 }), variant: "blue" });
     } else if (effect === "thief_disabled") {
       badges.push({ label: t("thiefDisabled"), variant: "red" });
     } else if (effect === "electric_damage_1") {
@@ -274,9 +278,11 @@ export function DamageLevelCard({
             {spellAbilities.map((ability) => {
               const isUsed = usedSpellAbilities.has(ability.key);
               const usesLabel =
-                ability.usesPerDay > 0
-                  ? t("perDay", { count: ability.usesPerDay })
-                  : t("perWeek", { count: ability.usesPerWeek });
+                ability.usesPerDay === -1
+                  ? t("unlimited")
+                  : ability.usesPerDay > 0
+                    ? t("perDay", { count: ability.usesPerDay })
+                    : t("perWeek", { count: ability.usesPerWeek });
               return (
                 <div
                   key={ability.key}

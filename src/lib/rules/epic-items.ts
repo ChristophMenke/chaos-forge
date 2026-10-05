@@ -1,4 +1,5 @@
 import type { EpicItemRow, DamageLevelEffect } from "@/lib/supabase/types";
+import type { ThiefSkillBonuses } from "./magic-items";
 
 // ── Stat Override Types ──────────────────────────────────────
 
@@ -73,6 +74,12 @@ export interface EpicEffects {
   thiefPenalty: number;
   /** Whether thief skills are completely disabled */
   thiefDisabled: boolean;
+  /**
+   * Positive thief skill bonuses from epic items (e.g., +10% Hide in Shadows).
+   * Mirrors the magic-item ThiefSkillBonuses shape so both systems compose
+   * additively at the call sites. Only skills present in the map are affected.
+   */
+  thiefBonuses: ThiefSkillBonuses;
   /** Spell failure percentage (e.g., 10 = 10% failure chance) */
   spellFailure: number;
   /** Wild magic percentage (e.g., 50 = 50% wild magic chance) */
@@ -209,6 +216,7 @@ export function getEpicEffects(items: EpicItemRow[], characterLevel?: number): E
     miscEffects: [],
     thiefPenalty: 0,
     thiefDisabled: false,
+    thiefBonuses: {},
     spellFailure: 0,
     wildMagic: 0,
     perceptionBonus: 0,
@@ -273,6 +281,15 @@ export function getEpicEffects(items: EpicItemRow[], characterLevel?: number): E
         if (effect.startsWith("ac_bonus_")) result.acBonus += parseInt(effect.split("_")[2]) || 0;
         if (effect.startsWith("perception_bonus_"))
           result.perceptionBonus += parseInt(effect.split("_")[2]) || 0;
+        if (effect.startsWith("thief_bonus_")) {
+          // thief_bonus_hide_10 → ["thief","bonus","hide","10"]
+          const [, , skill, amt] = effect.split("_");
+          const n = parseInt(amt) || 0;
+          if (skill === "hide")
+            result.thiefBonuses.hideInShadows = (result.thiefBonuses.hideInShadows ?? 0) + n;
+          if (skill === "move")
+            result.thiefBonuses.moveSilently = (result.thiefBonuses.moveSilently ?? 0) + n;
+        }
         if (effect.startsWith("str_override_"))
           result.temporaryStrOverride = parseInt(effect.split("_")[2]) || null;
         if (effect === "speak_with_animals") result.passiveAbilities.push(effect);

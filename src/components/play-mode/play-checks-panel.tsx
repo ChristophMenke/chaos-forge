@@ -73,6 +73,7 @@ function PlayChecksPanelInner({
       miscEffects: [],
       thiefPenalty: 0,
       thiefDisabled: false,
+      thiefBonuses: {},
       spellFailure: 0,
       wildMagic: 0,
       perceptionBonus: 0,
@@ -214,48 +215,70 @@ function PlayChecksPanelInner({
     [character, ts, eff, isModified, sub]
   );
 
-  // Thief skills (epic penalties + magic item bonuses)
+  // Thief skills (epic penalties + magic item bonuses + epic bonuses)
   const mt = magicThiefBonuses;
+  const et = epic.thiefBonuses;
   const thiefSkills = useMemo(() => {
     if (!showThiefSkills) return [];
     return [
       {
         name: ts("pickLocks"),
         base: character.thief_pick_locks,
-        value: applyThiefPenalty(character.thief_pick_locks, epic) + (mt.openLocks ?? 0),
+        value:
+          applyThiefPenalty(character.thief_pick_locks, epic) +
+          (mt.openLocks ?? 0) +
+          (et.openLocks ?? 0),
       },
       {
         name: ts("findTraps"),
         base: character.thief_find_traps,
-        value: applyThiefPenalty(character.thief_find_traps, epic) + (mt.findTraps ?? 0),
+        value:
+          applyThiefPenalty(character.thief_find_traps, epic) +
+          (mt.findTraps ?? 0) +
+          (et.findTraps ?? 0),
       },
       {
         name: ts("moveSilently"),
         base: character.thief_move_silently,
-        value: applyThiefPenalty(character.thief_move_silently, epic) + (mt.moveSilently ?? 0),
+        value:
+          applyThiefPenalty(character.thief_move_silently, epic) +
+          (mt.moveSilently ?? 0) +
+          (et.moveSilently ?? 0),
       },
       {
         name: ts("hideInShadows"),
         base: character.thief_hide_shadows,
-        value: applyThiefPenalty(character.thief_hide_shadows, epic) + (mt.hideInShadows ?? 0),
+        value:
+          applyThiefPenalty(character.thief_hide_shadows, epic) +
+          (mt.hideInShadows ?? 0) +
+          (et.hideInShadows ?? 0),
       },
       {
         name: ts("climbWalls"),
         base: character.thief_climb_walls,
-        value: applyThiefPenalty(character.thief_climb_walls, epic) + (mt.climbWalls ?? 0),
+        value:
+          applyThiefPenalty(character.thief_climb_walls, epic) +
+          (mt.climbWalls ?? 0) +
+          (et.climbWalls ?? 0),
       },
       {
         name: ts("detectNoise"),
         base: character.thief_detect_noise,
-        value: applyThiefPenalty(character.thief_detect_noise, epic) + (mt.detectNoise ?? 0),
+        value:
+          applyThiefPenalty(character.thief_detect_noise, epic) +
+          (mt.detectNoise ?? 0) +
+          (et.detectNoise ?? 0),
       },
       {
         name: ts("readLanguages"),
         base: character.thief_read_languages,
-        value: applyThiefPenalty(character.thief_read_languages, epic) + (mt.readLanguages ?? 0),
+        value:
+          applyThiefPenalty(character.thief_read_languages, epic) +
+          (mt.readLanguages ?? 0) +
+          (et.readLanguages ?? 0),
       },
     ];
-  }, [showThiefSkills, character, ts, epic, mt]);
+  }, [showThiefSkills, character, ts, epic, mt, et]);
 
   // NWP checks with target numbers (using effective stats from epic + magic overrides + bonuses).
   const nwpChecks = useMemo(() => {

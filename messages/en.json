@@ -1339,7 +1339,10 @@
     "coldDamage": "+1d6 Cold Damage",
     "hpToSpConversion": "Netherese Blooded",
     "hpToSpConversionRatio": "Convert hit points to spell points (1 HP → {ratio} SP)",
-    "hpToSpConvertButton": "Convert"
+    "hpToSpConvertButton": "Convert",
+    "thiefBonusHide": "Hide in Shadows: +{bonus}%",
+    "thiefBonusMove": "Move Silently: +{bonus}%",
+    "unlimited": "Unlimited"
   },
   "rulebook": {
     "title": "Rules & App Help",
