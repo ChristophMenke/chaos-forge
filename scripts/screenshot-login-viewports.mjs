@@ -1,4 +1,4 @@
-import { chromium } from "@playwright/test";
+import { chromium } from "playwright";
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 

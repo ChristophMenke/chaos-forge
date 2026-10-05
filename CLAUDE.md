@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Styling:** Tailwind CSS v4 + shadcn/ui + Glassmorphism Design-System
 - **i18n:** next-intl (Cookie-basiert, DE/EN) + `localized()` Utility für DB-Daten
 - **Unit-/Integrationstests:** Vitest (1764 Tests)
-- **E2E-Tests:** Playwright (12 Specs: GM-Dashboard/Master, Dashboard, Auth-Redirect, Layout, Accessibility, Notifications, Rulebook-Chat, Landing, Login, Session-Share, Not-Found, Smoke). **Regel: E2E-Tests legen keine Charaktere an** — sie liefen gegen die Produktiv-DB und ließen dort Datenmüll zurück.
+- **E2E-Tests:** keine automatisierte E2E-Suite mehr (Playwright-Specs, Test-Login-Routen und QA-Test-Domain entfernt). UI-Verhalten wird explorativ über `playwright-cli` geprüft. Das Paket `playwright` bleibt nur für die Spell-Card-Render-Skripte unter `scripts/spell-cards/`.
 - **Linting/Formatting:** ESLint (next config) + Prettier (0 Warnings, 0 Errors)
 - **Hosting:** Vercel (Free-Tier)
 - **AI:** Google Gemini (Character Import, Monster Import, Session Summaries, Rulebook Chat via `gemini-flash-latest`/`gemini-pro-latest` + Imagen für Bild-Generierung), Voyage AI (Embeddings für die Regelbuch-Suche)
@@ -36,8 +36,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | `npm run format:check` | Prettier: Formatierung prüfen              |
 | `npm test`             | Unit-Tests einmalig ausführen              |
 | `npm run test:watch`   | Unit-Tests im Watch-Modus                  |
-| `npm run test:e2e`     | Playwright E2E-Tests ausführen             |
-| `npm run test:e2e:ui`  | Playwright im UI-Modus                     |
 | `npm run verify`       | **CI lokal spiegeln** (alle obigen Checks) |
 
 **Wichtig:** Vor jedem Commit/Push `npm run verify` ausführen — dieser Befehl spiegelt exakt die CI-Pipeline (`format:check`, `lint`, `typecheck`, `test`, `build`). `npm run build` allein reicht nicht, weil Turbopack keine `*.test.ts` Dateien kompiliert, `tsc --noEmit` im CI aber schon.
@@ -122,18 +120,11 @@ src/
       character-diff.ts     # buildChangeSet() — DB-Stand vs. Scan-Payload → ScanChange[]
       character-apply.ts    # buildApplyPlan() — ausgewählte Änderungen → ApplyOperation[]
       execute-apply-plan.ts # Dünner I/O-Layer mit Fehler-Sammlung
-    test/                 # Test-Infrastruktur
-      constants.ts        # TEST_DOMAIN (@qa.chaosforge.test), TEST_PRIMARY_EMAIL, TEST_SECONDARY_EMAIL
     hooks/                # Custom React Hooks
       use-print-preferences.ts # Print-Layout-Preferences pro Charakter (localStorage)
     print-config.ts       # Print-Section-IDs, Preferences-Typen, Persistence
-  middleware.ts           # Next.js Middleware (Supabase Session-Refresh)
+  proxy.ts                # Next.js Proxy (ehem. Middleware): Supabase Session-Refresh per getClaims()
   test/                   # Vitest Setup, Smoke- & Regressionstests
-e2e/                      # Playwright E2E-Tests (legen KEINE Charaktere an)
-  accessibility.spec.ts   # WCAG 2 AA (axe-core)
-  master.spec.ts          # GM-Dashboard (größte Suite)
-  pages/                  # Page Object Models (character-sheet, spellbook, login, master, party)
-  helpers/                # Auth-Helper (Cookie-basierter Test-Login, Test-Domain: @qa.chaosforge.test)
 scripts/                  # Einmalige Daten-Pipeline-Scripts (spell-cards/ ist versioniert, out/ nicht)
 messages/                 # i18n-Dateien (de.json, en.json)
 supabase/
@@ -297,7 +288,6 @@ Diese Abweichungen vom Standard-PHB gelten für die "Chaos RPG"-Gruppe:
 - **Migrationen:** 219 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
 - **User-Freigabe:** `profiles.is_approved` (default false, bestehende User via Backfill auf true) + `enforce_approval`-BEFORE-Trigger auf 20+ Tabellen (`characters`, `character_equipment`, `character_spells`, `chronicle_npcs`, `chronicle_quotes`, `sessions`, `tags`, `party_loot_*`, `monsters`, `magic_items`, `epic_items`, `gm_bookmarks`). `approve_user(uuid)` RPC nur für Admin. Items mit `simple_effects.base_<stat>` (Kondensator) gehen über `forceStatOverrides` — ersetzen Basiswert unbedingt (nicht max()).
 - **Tutorials:** `profiles.skip_tutorials` (Backfill = true) blendet Overlays für bestehende User aus. Client-Side localStorage-Key `chaos-forge-tutorial-dismissed`.
-- **Test-Domain:** E2E-Tests nutzen `@qa.chaosforge.test` (RFC-reservierte `.test`-TLD). Zentrale Constants in `src/lib/test/constants.ts`. Alle API-Routes (`test-login`, `test-cleanup`, `test-seed*`) whitelisten nur diese Domain. `share-dialog.tsx` filtert die Test-Domain aus dem Share-Dropdown.
 
 ## AD&D 2e Regelwerk-Spezifika
 
@@ -328,7 +318,7 @@ Analysiere Anforderungen, sammle offene Fragen und Edge Cases, generiere Lösung
 ### Phase 2: Implementierung
 
 - Strikt nach **Test-Driven Development (TDD)** und **Clean Code**
-- Tests gemäß Testpyramide: Unit > Integration > E2E
+- Tests gemäß Testpyramide: Unit > Integration (keine automatisierte E2E-Suite)
 - Explorative Tests via `playwright-cli` durchführen; für jeden gefundenen Bug erst einen fehlschlagenden Test schreiben, dann beheben
 
 ### Phase 3: Code Review

@@ -43,14 +43,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Playwright
-node_modules/
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-/playwright/.auth/
-/e2e/.auth/
+# playwright-cli (explorative Tests)
 .playwright-cli/
 
 # Supabase

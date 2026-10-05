@@ -1,8 +1,6 @@
 .next
 node_modules
 coverage
-playwright-report
-test-results
 
 # External snapshots and test fixtures (immutable source material)
 ressources/compendium-snapshot/
