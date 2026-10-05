@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { SendItemDialog } from "./send-item-dialog";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { createClient } from "@/lib/supabase/client";
+import { useUndo } from "@/components/undo/undo-context";
+import { rowDelete, rowInsert, rowUpdate } from "@/lib/undo/changes";
 import { getEncumbranceLabel } from "@/lib/rules/equipment";
 import type { EncumbranceLevel } from "@/lib/rules/equipment";
 import type { CharacterInventoryWithDetails } from "@/lib/supabase/types";
@@ -50,6 +52,7 @@ function PlayInventoryPanelInner({
   const [newItemQty, setNewItemQty] = useState(1);
   const [sendingItem, setSendingItem] = useState<CharacterInventoryWithDetails | null>(null);
   const [pendingDelete, setPendingDelete] = useState<CharacterInventoryWithDetails | null>(null);
+  const undo = useUndo();
 
   async function addItem() {
     if (!newItemName.trim()) return;
@@ -66,7 +69,12 @@ function PlayInventoryPanelInner({
       .single();
 
     if (data) {
-      onInventoryChange([...inventory, data as CharacterInventoryWithDetails]);
+      const row = data as CharacterInventoryWithDetails;
+      onInventoryChange([...inventory, row]);
+      undo?.record({
+        label: { key: "itemAdded", values: { name: itemName(row) } },
+        changes: [rowInsert("character_inventory", row, row)],
+      });
       setNewItemName("");
       setNewItemQty(1);
     }
@@ -74,8 +82,15 @@ function PlayInventoryPanelInner({
 
   async function removeItem(itemId: string) {
     const supabase = createClient();
-    await supabase.from("character_inventory").delete().eq("id", itemId);
+    const item = inventory.find((i) => i.id === itemId);
+    const { error } = await supabase.from("character_inventory").delete().eq("id", itemId);
     onInventoryChange(inventory.filter((i) => i.id !== itemId));
+    if (!error && item) {
+      undo?.record({
+        label: { key: "itemRemoved", values: { name: itemName(item) } },
+        changes: [rowDelete("character_inventory", item, item)],
+      });
+    }
   }
 
   async function updateQuantity(itemId: string, newQty: number) {
@@ -85,8 +100,27 @@ function PlayInventoryPanelInner({
       return;
     }
     const supabase = createClient();
-    await supabase.from("character_inventory").update({ quantity: newQty }).eq("id", itemId);
+    const item = inventory.find((i) => i.id === itemId);
+    const { error } = await supabase
+      .from("character_inventory")
+      .update({ quantity: newQty })
+      .eq("id", itemId);
     onInventoryChange(inventory.map((i) => (i.id === itemId ? { ...i, quantity: newQty } : i)));
+    const change =
+      item &&
+      rowUpdate(
+        "character_inventory",
+        { id: itemId },
+        { quantity: item.quantity },
+        { quantity: newQty }
+      );
+    if (!error && item && change) {
+      undo?.record({
+        label: { key: "quantity", values: { name: itemName(item), quantity: newQty } },
+        changes: [change],
+        coalesceKey: `inv-qty-${itemId}`,
+      });
+    }
   }
 
   function handleItemSent(itemId: string, qty: number) {

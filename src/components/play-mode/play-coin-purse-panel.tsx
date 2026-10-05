@@ -22,7 +22,8 @@ interface PlayCoinPursePanelProps {
   coinPurse: CoinPurse;
   readOnly: boolean;
   tradeCharacters?: TradeCharacter[];
-  onCoinChange: (purse: CoinPurse) => void;
+  /** record: false for money sent to another character (not undoable). */
+  onCoinChange: (purse: CoinPurse, options?: { record?: boolean }) => void;
 }
 
 function PlayCoinPursePanelInner({
@@ -73,7 +74,7 @@ function PlayCoinPursePanelInner({
       sp: coinPurse.sp - deducted.sp,
       cp: coinPurse.cp - deducted.cp,
     };
-    onCoinChange(newPurse);
+    onCoinChange(newPurse, { record: false });
     setShowSendDialog(false);
   }
 

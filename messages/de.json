@@ -2252,7 +2252,25 @@
     "failed": "Rückgängig hat nicht geklappt. Bitte erneut versuchen.",
     "labels": {
       "hp": "TP {from} → {to}",
-      "damage": "Schaden {amount}"
+      "damage": "Schaden {amount}",
+      "coins": "Geldbörse",
+      "spellCast": "Zauber gewirkt: {name}",
+      "rest": "Rast",
+      "hpToSp": "{amount} TP in Zauberpunkte",
+      "equip": "{name} angelegt",
+      "unequip": "{name} abgelegt",
+      "consume": "{name} verwendet",
+      "itemAdded": "{name} hinzugefügt",
+      "itemRemoved": "{name} entfernt",
+      "quantity": "{name}: Menge {quantity}",
+      "effectAdded": "Effekt „{name}“ hinzugefügt",
+      "effectEdited": "Effekt „{name}“ geändert",
+      "effectEnded": "Effekt „{name}“ beendet",
+      "effectsEndedAll": "Alle Effekte beendet",
+      "damageLevel": "{name}: Schadensstufe {level}",
+      "blades": "{name}: Klingen",
+      "overclockOn": "{name}: Overclock an",
+      "overclockOff": "{name}: Overclock aus"
     }
   }
 }

@@ -14,6 +14,8 @@ export interface EffectWriteResult {
   notApproved: boolean;
   before?: CharacterEffectRow;
   after?: CharacterEffectRow;
+  /** All rows a bulk write changed, as stored. */
+  rows?: CharacterEffectRow[];
 }
 
 type DbError = { message: string; code?: string } | null;
@@ -70,23 +72,26 @@ export async function endEffect(
   supabase: SupabaseClient,
   effectId: string
 ): Promise<EffectWriteResult> {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("character_effects")
     .update({ ended_at: new Date().toISOString() })
-    .eq("id", effectId);
-  return toResult(error);
+    .eq("id", effectId)
+    .select()
+    .single();
+  return toResult(error, data ? { after: data as CharacterEffectRow } : {});
 }
 
 export async function endAllEffects(
   supabase: SupabaseClient,
   characterId: string
 ): Promise<EffectWriteResult> {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("character_effects")
     .update({ ended_at: new Date().toISOString() })
     .eq("character_id", characterId)
-    .is("ended_at", null);
-  return toResult(error);
+    .is("ended_at", null)
+    .select();
+  return toResult(error, { rows: (data as CharacterEffectRow[] | null) ?? [] });
 }
 
 export async function saveTempHp(

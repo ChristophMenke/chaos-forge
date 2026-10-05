@@ -18,7 +18,7 @@ function isIgnored(column: string): boolean {
 }
 
 /** The row as stored in the table: without joined relations. */
-export function toDbRow(row: Row): Row {
+export function toDbRow(row: object): Row {
   const copy: Row = {};
   for (const [k, v] of Object.entries(row)) {
     if (!(JOIN_FIELDS as readonly string[]).includes(k)) copy[k] = v;
@@ -26,8 +26,8 @@ export function toDbRow(row: Row): Row {
   return copy;
 }
 
-function keyOf(table: UndoTable, row: Row): Record<string, string> {
-  return Object.fromEntries(tableKeyColumns(table).map((c) => [c, String(row[c])]));
+function keyOf(table: UndoTable, row: object): Record<string, string> {
+  return Object.fromEntries(tableKeyColumns(table).map((c) => [c, String((row as Row)[c])]));
 }
 
 interface UiObjects {
@@ -39,10 +39,12 @@ interface UiObjects {
 export function rowUpdate(
   table: UndoTable,
   key: Record<string, string>,
-  before: Row,
-  after: Row,
+  beforeRow: object,
+  afterRow: object,
   ui: UiObjects = {}
 ): RowChange | null {
+  const before = beforeRow as Row;
+  const after = toDbRow(afterRow);
   const columns = Object.keys(after).filter(
     (c) => !isIgnored(c) && !deepEqual(before[c], after[c])
   );
@@ -56,7 +58,7 @@ export function rowUpdate(
   };
 }
 
-export function rowInsert(table: UndoTable, row: Row, uiAfter?: unknown): RowChange {
+export function rowInsert(table: UndoTable, row: object, uiAfter?: unknown): RowChange {
   return {
     table,
     key: keyOf(table, row),
@@ -66,7 +68,7 @@ export function rowInsert(table: UndoTable, row: Row, uiAfter?: unknown): RowCha
   };
 }
 
-export function rowDelete(table: UndoTable, row: Row, uiBefore?: unknown): RowChange {
+export function rowDelete(table: UndoTable, row: object, uiBefore?: unknown): RowChange {
   return {
     table,
     key: keyOf(table, row),

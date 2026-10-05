@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 import {
   Swords,
   RotateCcw,
@@ -19,7 +18,6 @@ import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { createClient } from "@/lib/supabase/client";
 import { localized } from "@/lib/utils/localize";
 import { feetToMeters, lbsToKg } from "@/lib/utils/units";
 import {
@@ -33,46 +31,46 @@ import {
   type BladeSystemData,
 } from "@/lib/rules/blades";
 import type { EpicItemRow } from "@/lib/supabase/types";
+import type { UndoLabel } from "@/lib/undo/types";
 
 interface BladeSystemCardProps {
   item: EpicItemRow;
   locale: string;
   isOwner: boolean;
   onToggleEquip: (itemId: string) => void;
+  /** Saves blades/mixtures through the parent (state, rollback, undo). */
+  onSimpleEffectsChange: (
+    itemId: string,
+    effects: Record<string, unknown>,
+    label: UndoLabel
+  ) => Promise<void>;
 }
 
-export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeSystemCardProps) {
+export function BladeSystemCard({
+  item,
+  locale,
+  isOwner,
+  onToggleEquip,
+  onSimpleEffectsChange,
+}: BladeSystemCardProps) {
   const t = useTranslations("epic");
   const tcom = useTranslations("common");
   const data = item.simple_effects as unknown as BladeSystemData;
-  const [blades, setBlades] = useState<Blade[]>(data.blades);
-  const [mixtures, setMixtures] = useState<Record<string, MixtureInfo>>(data.mixtures);
+  // Derived from the item, so undo/redo in the parent shows up here too.
+  const blades: Blade[] = data.blades;
+  const mixtures: Record<string, MixtureInfo> = data.mixtures;
   const [saving, setSaving] = useState(false);
   const [loadingBlade, setLoadingBlade] = useState<number | null>(null);
   const [collectingBlade, setCollectingBlade] = useState<number | null>(null);
 
   async function persistState(newBlades: Blade[], newMixtures: Record<string, MixtureInfo>) {
-    // Closure still holds the pre-update state, so we can roll back on failure.
-    const prevBlades = blades;
-    const prevMixtures = mixtures;
     setSaving(true);
     try {
-      const supabase = createClient();
-      const { error } = await supabase
-        .from("epic_items")
-        .update({
-          simple_effects: { ...data, blades: newBlades, mixtures: newMixtures },
-        })
-        .eq("id", item.id);
-      if (error) {
-        setBlades(prevBlades);
-        setMixtures(prevMixtures);
-        toast.error(t("saveError"));
-      }
-    } catch {
-      setBlades(prevBlades);
-      setMixtures(prevMixtures);
-      toast.error(t("saveError"));
+      await onSimpleEffectsChange(
+        item.id,
+        { ...data, blades: newBlades, mixtures: newMixtures },
+        { key: "blades", values: { name: localized(item.name, item.name_en, locale) } }
+      );
     } finally {
       setSaving(false);
     }
@@ -82,34 +80,28 @@ export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeS
     const result = loadBlade(blades, mixtures, bladeId, mixtureKey);
     setLoadingBlade(null);
     if (result.blades === blades && result.mixtures === mixtures) return;
-    setBlades(result.blades);
-    setMixtures(result.mixtures);
     persistState(result.blades, result.mixtures);
   }
 
   function handleThrow(bladeId: number, outcome: "hit" | "miss") {
     const newBlades = throwBlade(blades, bladeId, outcome);
-    setBlades(newBlades);
     persistState(newBlades, mixtures);
   }
 
   function handleCollect(bladeId: number, vialIntact: boolean) {
     const newBlades = collectBlade(blades, bladeId, vialIntact);
     setCollectingBlade(null);
-    setBlades(newBlades);
     persistState(newBlades, mixtures);
   }
 
   function handleLose(bladeId: number) {
     const newBlades = loseBlade(blades, bladeId);
-    setBlades(newBlades);
     persistState(newBlades, mixtures);
   }
 
   function handleForge() {
     const newBlades = forgeBlade(blades, data.max_prepared);
     if (newBlades === blades) return;
-    setBlades(newBlades);
     persistState(newBlades, mixtures);
   }
 
@@ -120,7 +112,6 @@ export function BladeSystemCard({ item, locale, isOwner, onToggleEquip }: BladeS
       ...mixtures,
       [mixtureKey]: { ...mix, count: mix.count + 1 },
     };
-    setMixtures(newMixtures);
     persistState(blades, newMixtures);
   }
 

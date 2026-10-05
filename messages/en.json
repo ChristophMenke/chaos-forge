@@ -2252,7 +2252,25 @@
     "failed": "Undo failed. Please try again.",
     "labels": {
       "hp": "HP {from} → {to}",
-      "damage": "Damage {amount}"
+      "damage": "Damage {amount}",
+      "coins": "Coin purse",
+      "spellCast": "Spell cast: {name}",
+      "rest": "Rest",
+      "hpToSp": "{amount} HP into spell points",
+      "equip": "{name} equipped",
+      "unequip": "{name} unequipped",
+      "consume": "{name} used",
+      "itemAdded": "{name} added",
+      "itemRemoved": "{name} removed",
+      "quantity": "{name}: quantity {quantity}",
+      "effectAdded": "Effect “{name}” added",
+      "effectEdited": "Effect “{name}” changed",
+      "effectEnded": "Effect “{name}” ended",
+      "effectsEndedAll": "All effects ended",
+      "damageLevel": "{name}: damage level {level}",
+      "blades": "{name}: blades",
+      "overclockOn": "{name}: overclock on",
+      "overclockOff": "{name}: overclock off"
     }
   }
 }

@@ -6,6 +6,12 @@ import { useTranslations, useLocale } from "next-intl";
 import { Sparkles } from "lucide-react";
 import { CharacterModeNav } from "@/components/character-mode-nav";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
+import { useUndo, useUndoSync } from "@/components/undo/undo-context";
+import { rowUpdate } from "@/lib/undo/changes";
+import { patchList, patchRow } from "@/lib/undo/patch";
+import { localized } from "@/lib/utils/localize";
+import type { RowChange, UndoLabel } from "@/lib/undo/types";
 import { DamageLevelCard } from "./damage-level-card";
 import { SimpleEpicCard } from "./simple-epic-card";
 import { BladeSystemCard } from "./blade-system-card";
@@ -69,6 +75,23 @@ export function EpicEquipmentView({
   const locale = useLocale();
   const [items, setItems] = useState<EpicItemRow[]>(epicItems);
   const [hpCurrent, setHpCurrent] = useState(character.hp_current);
+  const undo = useUndo();
+
+  useUndoSync((changes, direction) => {
+    setItems((prev) => patchList(prev, "epic_items", changes, direction));
+    setHpCurrent(
+      (prev) =>
+        patchRow({ id: character.id, hp_current: prev }, "characters", changes, direction)
+          .hp_current
+    );
+  });
+
+  function record(label: UndoLabel, changes: (RowChange | null)[]) {
+    const real = changes.filter((c): c is RowChange => c !== null);
+    if (real.length > 0) undo?.record({ label, changes: real });
+  }
+
+  const itemName = (item: EpicItemRow) => localized(item.name, item.name_en, locale);
 
   /**
    * After toggling equipped/damage_level for an item that changes effective CON,
@@ -76,7 +99,7 @@ export function EpicEquipmentView({
    * "heal" the character back to a higher current_hp. Christoph's rule:
    * CON↑ → max_hp rises, current_hp stays. CON↓ → current_hp is clamped down.
    */
-  async function persistHpAfterConChange(newItems: EpicItemRow[]): Promise<void> {
+  async function persistHpAfterConChange(newItems: EpicItemRow[]): Promise<RowChange | null> {
     const activeClasses = characterClasses.filter((cc) => cc.is_active);
     const effectsBefore = getEpicEffects(items, character.level);
     const effectsAfter = getEpicEffects(newItems, character.level);
@@ -85,7 +108,7 @@ export function EpicEquipmentView({
     const after = effectsAfter.forceStatOverrides.con ?? effectsAfter.statOverrides.con;
     const effectiveConBefore = before ?? character.con;
     const effectiveConAfter = after ?? character.con;
-    if (effectiveConBefore === effectiveConAfter) return;
+    if (effectiveConBefore === effectiveConAfter) return null;
 
     // Compute effective max/current BEFORE and AFTER the toggle and apply the
     // asymmetric clamping rule on the stored current_hp.
@@ -114,13 +137,20 @@ export function EpicEquipmentView({
     // After toggle, the effective view will be min(new stored + min(0, delta
     // from stored→after), effectiveMaxAfter). With delta=0 for the new stored
     // baseline, visible = new stored = desiredEffectiveCurrent.
-    if (desiredEffectiveCurrent === hpCurrent) return;
+    if (desiredEffectiveCurrent === hpCurrent) return null;
     setHpCurrent(desiredEffectiveCurrent);
     const supabase = createClient();
-    await supabase
+    const { error } = await supabase
       .from("characters")
       .update({ hp_current: desiredEffectiveCurrent })
       .eq("id", character.id);
+    if (error) return null;
+    return rowUpdate(
+      "characters",
+      { id: character.id },
+      { hp_current: hpCurrent },
+      { hp_current: desiredEffectiveCurrent }
+    );
   }
 
   async function handleToggleEquip(itemId: string) {
@@ -145,7 +175,16 @@ export function EpicEquipmentView({
       return;
     }
 
-    await persistHpAfterConChange(newItems);
+    const hpChange = await persistHpAfterConChange(newItems);
+    record({ key: newEquipped ? "equip" : "unequip", values: { name: itemName(item) } }, [
+      rowUpdate(
+        "epic_items",
+        { id: itemId },
+        { equipped: item.equipped },
+        { equipped: newEquipped }
+      ),
+      hpChange,
+    ]);
   }
 
   async function handleDamageLevelChange(itemId: string, newLevel: number) {
@@ -171,47 +210,60 @@ export function EpicEquipmentView({
     }
 
     // Damage level changes alter the CON override on items like the Kondensator
-    await persistHpAfterConChange(newItems);
+    const hpChange = await persistHpAfterConChange(newItems);
+    record({ key: "damageLevel", values: { name: itemName(item), level: newLevel } }, [
+      rowUpdate(
+        "epic_items",
+        { id: itemId },
+        { damage_level: oldLevel },
+        { damage_level: newLevel }
+      ),
+      hpChange,
+    ]);
   }
 
-  async function handleOverclockToggle(itemId: string, active: boolean, endTime: number | null) {
+  /** Saves simple_effects (blades, overclock) optimistically and records it. */
+  async function updateSimpleEffects(
+    itemId: string,
+    newEffects: Record<string, unknown>,
+    label: UndoLabel
+  ) {
     const item = items.find((i) => i.id === itemId);
     if (!item || !isOwner) return;
-
-    const oldEffects = { ...item.simple_effects } as Record<string, unknown>;
-
-    // Optimistic update
+    const oldEffects = item.simple_effects as Record<string, unknown>;
     setItems((prev) =>
-      prev.map((i) =>
-        i.id === itemId
-          ? {
-              ...i,
-              simple_effects: {
-                ...i.simple_effects,
-                overclock_active: active,
-                overclock_end_time: endTime,
-              },
-            }
-          : i
-      )
+      prev.map((i) => (i.id === itemId ? { ...i, simple_effects: newEffects } : i))
     );
-
     const supabase = createClient();
-    const newEffects = {
-      ...item.simple_effects,
-      overclock_active: active,
-      overclock_end_time: endTime,
-    };
     const { error } = await supabase
       .from("epic_items")
       .update({ simple_effects: newEffects })
       .eq("id", itemId);
-
     if (error) {
       setItems((prev) =>
         prev.map((i) => (i.id === itemId ? { ...i, simple_effects: oldEffects } : i))
       );
+      toast.error(t("saveError"));
+      return;
     }
+    record(label, [
+      rowUpdate(
+        "epic_items",
+        { id: itemId },
+        { simple_effects: oldEffects },
+        { simple_effects: newEffects }
+      ),
+    ]);
+  }
+
+  async function handleOverclockToggle(itemId: string, active: boolean, endTime: number | null) {
+    const item = items.find((i) => i.id === itemId);
+    if (!item) return;
+    await updateSimpleEffects(
+      itemId,
+      { ...item.simple_effects, overclock_active: active, overclock_end_time: endTime },
+      { key: active ? "overclockOn" : "overclockOff", values: { name: itemName(item) } }
+    );
   }
 
   return (
@@ -282,6 +334,7 @@ export function EpicEquipmentView({
                   locale={locale}
                   isOwner={isOwner}
                   onToggleEquip={handleToggleEquip}
+                  onSimpleEffectsChange={updateSimpleEffects}
                 />
               );
             }
