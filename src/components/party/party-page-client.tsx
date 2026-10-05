@@ -8,7 +8,7 @@ import { PartyGoldPanel } from "@/components/party/party-gold-panel";
 import { PartyItemsPanel } from "@/components/party/party-items-panel";
 import { PartyLogPanel } from "@/components/party/party-log-panel";
 import { useRealtimeRefresh } from "@/lib/hooks/use-realtime-refresh";
-import { useMediaQuery } from "@/lib/hooks/use-media-query";
+import { useBreakpoint } from "@/lib/hooks/use-breakpoint";
 import type {
   PartyLootGoldRow,
   PartyLootItemWithDetails,
@@ -57,7 +57,7 @@ export function PartyPageClient({
 
   const rawView = searchParams.get("view") as ViewId | null;
   const activeView: ViewId = rawView && VIEW_IDS.includes(rawView) ? rawView : DEFAULT_VIEW;
-  const isDesktop = useMediaQuery("(min-width: 1024px)");
+  const isDesktop = useBreakpoint("lg");
 
   const myCharacters = useMemo(
     () => characters.filter((c) => c.user_id === userId),

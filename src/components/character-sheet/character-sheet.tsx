@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
+import { useBreakpoint } from "@/lib/hooks/use-breakpoint";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
@@ -157,20 +158,16 @@ export function CharacterSheet({
   // tabs. On mobile (stacked layout) it keeps its default size.
   const infoColRef = useRef<HTMLDivElement>(null);
   const [headerFitSize, setHeaderFitSize] = useState<number | null>(null);
+  const isDesktopLayout = useBreakpoint("sm");
   useEffect(() => {
     const el = infoColRef.current;
     if (!el || typeof window === "undefined") return;
-    const mq = window.matchMedia("(min-width: 640px)");
-    const measure = () => setHeaderFitSize(mq.matches ? el.offsetHeight : null);
+    const measure = () => setHeaderFitSize(isDesktopLayout ? el.offsetHeight : null);
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
-    mq.addEventListener("change", measure);
-    return () => {
-      ro.disconnect();
-      mq.removeEventListener("change", measure);
-    };
-  }, []);
+    return () => ro.disconnect();
+  }, [isDesktopLayout]);
   // Clamp so a very tall info column can't blow the avatar up unreasonably.
   const avatarFitSize = headerFitSize ? Math.min(headerFitSize, 220) : 80;
   const [spellsState, setSpells] = useState(spells);

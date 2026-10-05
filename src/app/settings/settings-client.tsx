@@ -16,6 +16,7 @@ import {
   Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ViewModeSelector } from "@/components/settings/view-mode-selector";
 import { Input } from "@/components/ui/input";
 import { GlassCard } from "@/components/glass-card";
 import { createClient } from "@/lib/supabase/client";
@@ -310,6 +311,12 @@ export function SettingsClient({
             <Globe className="mr-2 h-4 w-4" />
             {t("language")}
           </Button>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-2" data-testid="settings-view-mode">
+          <span className="text-sm font-medium">{t("viewMode")}</span>
+          <ViewModeSelector />
+          <p className="text-xs text-muted-foreground">{t("viewModeHint")}</p>
         </div>
       </GlassCard>
 
