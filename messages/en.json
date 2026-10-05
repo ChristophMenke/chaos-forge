@@ -2238,5 +2238,21 @@
     "fromEffects": "from effects",
     "effective": "effective {value}",
     "more": "+{count}"
+  },
+  "undo": {
+    "undo": "Undo",
+    "redo": "Redo",
+    "undoAction": "Undo: {label}",
+    "redoAction": "Redo: {label}",
+    "nothingToUndo": "Nothing to undo",
+    "nothingToRedo": "Nothing to redo",
+    "undone": "Undone: {label}",
+    "redone": "Redone: {label}",
+    "conflict": "Cannot be undone – it was changed in the meantime.",
+    "failed": "Undo failed. Please try again.",
+    "labels": {
+      "hp": "HP {from} → {to}",
+      "damage": "Damage {amount}"
+    }
   }
 }

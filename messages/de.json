@@ -2238,5 +2238,21 @@
     "fromEffects": "durch Effekte",
     "effective": "effektiv {value}",
     "more": "+{count}"
+  },
+  "undo": {
+    "undo": "Rückgängig",
+    "redo": "Wiederherstellen",
+    "undoAction": "Rückgängig: {label}",
+    "redoAction": "Wiederherstellen: {label}",
+    "nothingToUndo": "Nichts rückgängig zu machen",
+    "nothingToRedo": "Nichts wiederherzustellen",
+    "undone": "Rückgängig: {label}",
+    "redone": "Wiederhergestellt: {label}",
+    "conflict": "Kann nicht rückgängig gemacht werden – wurde inzwischen geändert.",
+    "failed": "Rückgängig hat nicht geklappt. Bitte erneut versuchen.",
+    "labels": {
+      "hp": "TP {from} → {to}",
+      "damage": "Schaden {amount}"
+    }
   }
 }

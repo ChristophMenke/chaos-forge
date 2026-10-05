@@ -13,6 +13,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
+import { useUndo } from "@/components/undo/undo-context";
 import { getSpellNameIndex } from "@/lib/catalog/spell-catalog";
 import { Button } from "@/components/ui/button";
 import { buildChangeSet } from "@/lib/scan/character-diff";
@@ -72,6 +73,7 @@ async function loadCatalogs(
 
 export function RescanView({ snapshot, basePath = "/characters" }: RescanViewProps) {
   const t = useTranslations("rescan");
+  const undo = useUndo();
   const router = useRouter();
 
   const [scanning, setScanning] = useState(false);
@@ -115,6 +117,8 @@ export function RescanView({ snapshot, basePath = "/characters" }: RescanViewPro
     try {
       const operations = buildApplyPlan(selected, snapshot);
       const result = await executeApplyPlan(createClient(), operations);
+      // Rescan writes are not recorded; older steps would only conflict.
+      undo?.clear();
 
       if (result.failed.length > 0) {
         // Teilerfolge bleiben stehen — der Nutzer erfährt, was nicht durchkam,
