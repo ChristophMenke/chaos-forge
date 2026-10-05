@@ -1,0 +1,15 @@
+-- Platzhalter — bewusst ohne Inhalt.
+--
+-- Die Migration 00222 steht in der Migrations-History der Remote-Datenbank
+-- (supabase_migrations.schema_migrations), es existiert dazu aber in keinem
+-- Branch dieses Repos eine SQL-Datei: sie wurde seinerzeit direkt im Supabase
+-- SQL-Editor ausgefuehrt. Ihr Inhalt ist damit nicht mehr rekonstruierbar.
+--
+-- Diese Datei haelt die Luecke fest und sorgt dafuer, dass `supabase db push`
+-- wieder laeuft (die CLI bricht ab, sobald die Remote-History Versionen
+-- enthaelt, zu denen lokal nichts liegt). Angewendet wird hier nichts —
+-- 00222 gilt remote laengst als ausgefuehrt und wird uebersprungen.
+--
+-- ACHTUNG beim Wiederherstellen auf einer frischen Datenbank (siehe BACKUP.md):
+-- was auch immer 00222 getan hat, fehlt dort. Der Weg dahin ist ein Dump der
+-- bestehenden Instanz, nicht ein Neuaufbau ueber diese Migrationen.

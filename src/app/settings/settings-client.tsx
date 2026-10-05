@@ -34,6 +34,8 @@ interface SettingsClientProps {
   email: string;
   initialDisplayName: string;
   initialAvatarUrl: string | null;
+  /** Spieltermine-Sektion — serverseitig mit Daten befüllt und hier eingehängt. */
+  gameDatesSlot?: React.ReactNode;
 }
 
 const ADMIN_EMAIL = "christoph.menke@gmail.com";
@@ -43,6 +45,7 @@ export function SettingsClient({
   email,
   initialDisplayName,
   initialAvatarUrl,
+  gameDatesSlot,
 }: SettingsClientProps) {
   const t = useTranslations("settings");
   const router = useRouter();
@@ -309,6 +312,9 @@ export function SettingsClient({
           </Button>
         </div>
       </GlassCard>
+
+      {/* ── Spieltermine ──────────────────────────────────── */}
+      {gameDatesSlot}
 
       {/* ── Tutorials ─────────────────────────────────────── */}
       <GlassCard hover={false} data-testid="settings-section-tutorials">

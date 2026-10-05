@@ -175,3 +175,11 @@ Die App richtet sich an eine private Spielgruppe ("Chaos RPG") mit maximal 10 Nu
 - [x] Chronik-Aktionen (Bild-Gen, KI-Zusammenfassung) hinter ApprovalGate + server-seitigem 403-Block.
 - [x] `skip_tutorials`-Flag für bestehende User (Backfill, damit keiner mit "alte Hasen"-Status das Tutorial bekommt).
 - [x] Dashboard Party-Stats: Dedup in `partyChars` gegen Self-Share-Duplikate.
+
+## Epic 22: Spieltermine
+
+- [x] `game_dates`-Tabelle (Kalenderdatum ohne Zeitzone, optionaler Titel) + RLS + `enforce_approval`-Trigger.
+- [x] CRUD-Sektion in `/settings` (anlegen, bearbeiten, löschen mit Bestätigung, vergangene Termine eingeklappt).
+- [x] Dashboard-Banner liest den nächsten Termin aus der DB statt aus einer hart kodierten Konstante.
+- [x] In-App-Benachrichtigung an alle freigegebenen Spieler via DB-Trigger (angelegt / verschoben / abgesagt), QA-Domain ausgenommen.
+- [x] Reine, unit-getestete Datumslogik in `src/lib/game-dates/` (Countdown, Upcoming/Past-Split, Validierung).

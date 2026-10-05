@@ -70,6 +70,7 @@ src/
     character-rescan/     # Rescan: Upload-Panel, Änderungsliste, Änderungs-Zeile
     epic-equipment/       # Epische Ausrüstung (Schadensstufen-Cards, Simple Items, Blade System, Spell Abilities)
     party/                # Party-Inventar (Gold-Panel, Items-Panel, Log-Panel, Loot-Verteilung)
+    settings/             # Einstellungen: Spieltermine-Panel (CRUD)
     play-mode/            # Play Mode (Kampf, Zauber, Fähigkeiten, Checks, Wahrnehmung, Inventar, Geldbörse, Untote vertreiben, Gestaltwandlung)
     spellbook/            # Standalone Spellbook-Seite (Suche, Filter, Prepare, Learn, Source-Book-Filter)
     print-sheet/          # Druckansicht + Word-Export (.docx), Customization Panel
@@ -113,6 +114,7 @@ src/
     rules/
       magic-items.ts      # getMagicItemEffects(equipment) — Aggregiert AC-Bonus, Saves etc. aus character_equipment.magic_effects
     gemini/               # Google Gemini: Imagen-Client für Bilder + `generate-text.ts`/`text-request.ts` für alle Text- und Vision-Aufrufe (Rassen, Klassen, Banner)
+    game-dates/           # Spieltermine: reine Datumslogik (index.ts) + Supabase-I/O (api.ts)
     scan/                 # AI-Scan-Prompts + Charakterbogen-Rescan-Engine
       monster-scan-prompt.ts # Gemini Vision Prompt für Monster-Import (ScannedMonsterVariant-Schema)
       character-scan-prompt.ts # Create-/Update-Prompt, Typen, parseUpdateScanResponse()
@@ -289,9 +291,10 @@ Diese Abweichungen vom Standard-PHB gelten für die "Chaos RPG"-Gruppe:
 - **Env-Variablen:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_API_KEY` (alle KI-Features), `VOYAGE_API_KEY` (Regelbuch-Suche), `GM_PIN` (6-Digit), optional `GM_SESSION_SECRET` und `CRON_SECRET` in `.env.local`
 - **RLS:** Alle Tabellen nutzen Row Level Security — SELECT für alle Authentifizierten, INSERT/UPDATE/DELETE nur für Owner
 - **Storage:** `voice-notes` Bucket für Sprachnotizen, `avatars` für Character-Avatare
-- **Migrationen:** 219 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
+- **Migrationen:** 223 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
 - **User-Freigabe:** `profiles.is_approved` (default false, bestehende User via Backfill auf true) + `enforce_approval`-BEFORE-Trigger auf 20+ Tabellen (`characters`, `character_equipment`, `character_spells`, `chronicle_npcs`, `chronicle_quotes`, `sessions`, `tags`, `party_loot_*`, `monsters`, `magic_items`, `epic_items`, `gm_bookmarks`). `approve_user(uuid)` RPC nur für Admin. Items mit `simple_effects.base_<stat>` (Kondensator) gehen über `forceStatOverrides` — ersetzen Basiswert unbedingt (nicht max()).
 - **Tutorials:** `profiles.skip_tutorials` (Backfill = true) blendet Overlays für bestehende User aus. Client-Side localStorage-Key `chaos-forge-tutorial-dismissed`.
+- **Spieltermine:** `game_dates` (`event_date` als reines `date`, kein Zeitstempel — Countdown darf nicht von der Serverzeitzone abhängen). Jeder freigegebene Nutzer darf CRUD. Ein `AFTER`-Trigger verteilt Benachrichtigungen an alle anderen freigegebenen Spieler; Auslöser aus der QA-Domain und System-Kontext (kein `auth.uid()`) sind ausgenommen.
 
 ## AD&D 2e Regelwerk-Spezifika
 
@@ -359,4 +362,6 @@ Finaler explorativer Test mit etablierten Testing-Heuristiken und gezielten "Tes
 
 21. **Wechsel auf Google Gemini** — Alle KI-Features von der Anthropic-API auf Gemini umgestellt: Regelbuch-Chat (Streaming), Charakterbogen-Scan, Monster-Scan und Session-Zusammenfassungen. Gemeinsamer Layer unter `src/lib/gemini/` (`text-request.ts` rein und unit-getestet, `generate-text.ts` als dünner I/O-Layer mit `generateText()`/`streamText()`). Alias-Modelle statt gepinnter IDs, weil Google gepinnte Versionen abschaltet. JSON-Modus (`responseMimeType`) für die Scan-Routen, Truncation über `finishReason: MAX_TOKENS`. Der Chat spricht als Gelehrter aus den Reichen, hält sich kurz und antwortet nur zu AD&D und zur App. Datenschutzerklärung auf Google als Empfänger umgestellt, `@anthropic-ai/sdk` entfernt ✅
 
-22. **Performance-Runde & E2E-Abbau** — Auth ohne Roundtrip (`getClaims()` in `proxy.ts` und `requireAuth`, React-`cache()`-Deduplizierung), `ApprovalProvider` statt Query + Channel pro Banner/Gate, Session-Detail in 2 statt 10 sequenziellen Queries, Epic-Seite in einer Welle, GM-Auto-Share per `after()`, Realtime-Refresh nur im sichtbaren Tab, Zauber-/Ausrüstungskataloge als Session-Cache, Fix: Zauber-Lernen-Dialog zeigte nur 1000 Zauber (`fetchAllRows`), Cache-Header für `public/`-Bilder, Bildprioritäten, GM-Panels per `next/dynamic` (−32 % JS auf `/master`). Playwright-E2E-Suite, Test-Login-Hintertür und QA-Test-Domain entfernt ✅
+22. **Spieltermine** — Gemeinsam gepflegte Liste der nächsten Rollenspielabende: `game_dates`-Tabelle (Kalenderdatum ohne Zeitzone, optionaler Titel), CRUD-Sektion in `/settings` (anlegen, bearbeiten, löschen mit Bestätigung, vergangene Termine eingeklappt), Dashboard-Banner aus der DB statt aus einer hart kodierten Konstante, In-App-Benachrichtigung an alle freigegebenen Spieler via DB-Trigger (angelegt / verschoben / abgesagt). Datumslogik rein und unit-getestet in `src/lib/game-dates/`; Termine in der Vergangenheit werden gewarnt, nie blockiert ✅
+
+23. **Performance-Runde & E2E-Abbau** — Auth ohne Roundtrip (`getClaims()` in `proxy.ts` und `requireAuth`, React-`cache()`-Deduplizierung), `ApprovalProvider` statt Query + Channel pro Banner/Gate, Session-Detail in 2 statt 10 sequenziellen Queries, Epic-Seite in einer Welle, GM-Auto-Share per `after()`, Realtime-Refresh nur im sichtbaren Tab, Zauber-/Ausrüstungskataloge als Session-Cache, Fix: Zauber-Lernen-Dialog zeigte nur 1000 Zauber (`fetchAllRows`), Cache-Header für `public/`-Bilder, Bildprioritäten, GM-Panels per `next/dynamic` (−32 % JS auf `/master`). Playwright-E2E-Suite, Test-Login-Hintertür und QA-Test-Domain entfernt ✅

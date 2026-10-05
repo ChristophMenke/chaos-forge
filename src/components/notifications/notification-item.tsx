@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import {
   Package,
   Coins,
@@ -12,9 +12,11 @@ import {
   UserPlus,
   CheckCircle2,
   XCircle,
+  CalendarDays,
 } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { formatGameDate } from "@/lib/game-dates";
 import type { NotificationRow } from "@/lib/supabase/types";
 
 interface NotificationItemProps {
@@ -39,6 +41,7 @@ function getRelativeTime(
 
 export function NotificationItem({ notification, onMarkRead, onDelete }: NotificationItemProps) {
   const t = useTranslations("notifications");
+  const locale = useLocale();
   const router = useRouter();
   const [approving, setApproving] = useState(false);
   const [rejecting, setRejecting] = useState(false);
@@ -49,6 +52,9 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Notific
   const item = (details.item_name as string) ?? "";
   const from = (details.from_character as string) ?? "";
   const quantity = (details.quantity as number) ?? 1;
+  const isGameDate = notification.type.startsWith("game_date");
+  const gameDate = (details.event_date as string) ?? "";
+  const gameDateLabel = gameDate ? formatGameDate(gameDate, locale) : "";
 
   const messageMap: Record<string, string> = {
     gm_item_received: t("gmItemReceived", { character, item }),
@@ -66,12 +72,24 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Notific
       email: (details.user_email as string) ?? "",
     }),
     user_approved: t("userApproved"),
+    game_date_created: t("gameDateCreated", { date: gameDateLabel }),
+    game_date_changed: t("gameDateChanged", { date: gameDateLabel }),
+    game_date_cancelled: t("gameDateCancelled", { date: gameDateLabel }),
   };
 
   const message = messageMap[notification.type] ?? notification.type;
 
   let subtitle = "";
-  if (notification.type.includes("gold") && !notification.type.includes("item")) {
+  if (isGameDate) {
+    const parts: string[] = [];
+    const gameDateTitle = (details.title as string) ?? "";
+    if (gameDateTitle) parts.push(gameDateTitle);
+    const previous = (details.previous_event_date as string) ?? "";
+    if (notification.type === "game_date_changed" && previous) {
+      parts.push(t("gameDatePrevious", { date: formatGameDate(previous, locale) }));
+    }
+    subtitle = parts.join(" · ");
+  } else if (notification.type.includes("gold") && !notification.type.includes("item")) {
     const pp = (details.pp as number) ?? 0;
     const gp = (details.gp as number) ?? 0;
     const sp = (details.sp as number) ?? 0;
@@ -90,24 +108,31 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Notific
     notification.is_read ? "text-muted-foreground" : "text-primary"
   }`;
 
-  const icon =
-    notification.type === "new_user_registered" ? (
-      <UserPlus className={iconClassName} />
-    ) : notification.type === "user_approved" ? (
-      <CheckCircle2 className={iconClassName} />
-    ) : notification.type === "session_xp_awarded" ? (
-      <Sparkles className={iconClassName} />
-    ) : notification.type.includes("gold") ? (
-      <Coins className={iconClassName} />
-    ) : notification.type.includes("trade") ? (
-      <ArrowRightLeft className={iconClassName} />
-    ) : (
-      <Package className={iconClassName} />
-    );
+  const icon = isGameDate ? (
+    <CalendarDays className={iconClassName} />
+  ) : notification.type === "new_user_registered" ? (
+    <UserPlus className={iconClassName} />
+  ) : notification.type === "user_approved" ? (
+    <CheckCircle2 className={iconClassName} />
+  ) : notification.type === "session_xp_awarded" ? (
+    <Sparkles className={iconClassName} />
+  ) : notification.type.includes("gold") ? (
+    <Coins className={iconClassName} />
+  ) : notification.type.includes("trade") ? (
+    <ArrowRightLeft className={iconClassName} />
+  ) : (
+    <Package className={iconClassName} />
+  );
 
   function handleClick() {
     if (!notification.is_read) {
       onMarkRead(notification.id);
+    }
+
+    // Spieltermine werden in den Einstellungen gepflegt.
+    if (isGameDate) {
+      router.push("/settings");
+      return;
     }
 
     // Navigate to XP dialog for session_xp_awarded notifications
