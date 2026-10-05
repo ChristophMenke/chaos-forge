@@ -346,7 +346,8 @@
     "xpHistory": "XP History",
     "xpDeleteConfirm": "Delete this XP entry ({amount} XP)? The character's XP and level will be recalculated.",
     "xpHistoryEmpty": "No XP awarded yet.",
-    "xpEarned": "Experience Points"
+    "xpEarned": "Experience Points",
+    "saveFailed": "Changes could not be saved. Please try again."
   },
   "equipment": {
     "title": "Equipment",
