@@ -120,6 +120,8 @@ src/
       character-diff.ts     # buildChangeSet() — DB-Stand vs. Scan-Payload → ScanChange[]
       character-apply.ts    # buildApplyPlan() — ausgewählte Änderungen → ApplyOperation[]
       execute-apply-plan.ts # Dünner I/O-Layer mit Fehler-Sammlung
+    catalog/              # Session-Cache für Stammdaten im Browser (spell-catalog.ts, equipment-catalog.ts)
+    master/               # Server-only GM-Helfer (auto-share.ts, läuft per after())
     hooks/                # Custom React Hooks
       use-print-preferences.ts # Print-Layout-Preferences pro Charakter (localStorage)
     print-config.ts       # Print-Section-IDs, Preferences-Typen, Persistence
@@ -281,7 +283,9 @@ Diese Abweichungen vom Standard-PHB gelten für die "Chaos RPG"-Gruppe:
 
 ## Supabase
 
-- **Client-Helfer:** `src/lib/supabase/client.ts` (Browser), `server.ts` (Server Components), `service.ts` (Service Role, RLS-Bypass), `middleware.ts` (Session-Refresh)
+- **Client-Helfer:** `src/lib/supabase/client.ts` (Browser), `server.ts` (Server Components), `service.ts` (Service Role, RLS-Bypass), `middleware.ts` (`updateSession` für `src/proxy.ts`)
+- **Auth-Prüfung:** Pages/Layouts nutzen `requireAuth()`/`getOptionalUser()` aus `src/lib/supabase/auth.ts` — lokale JWT-Prüfung per `getClaims()` (ES256-Signing-Keys, kein Roundtrip zum Auth-Server), pro Request per React `cache()` dedupliziert, Rückgabe `AuthUser { id, email }`. API-Routen mit sensiblen Aktionen (Konto löschen, Admin) prüfen weiter per `getUser()` gegen den Auth-Server. Der Freigabe-Status kommt im Browser aus `ApprovalProvider`/`useApproval()` (eine Query, ein Realtime-Channel pro Seite).
+- **Kataloge im Browser:** `src/lib/catalog/` hält Zauber (`getSpellCatalog`, `getSpellNameIndex`) und Ausrüstung (`getEquipmentCatalogs`) als Session-Cache; nach eigenen Inserts `invalidate*()` aufrufen. Tabellen mit mehr als 1000 Zeilen immer über `fetchAllRows()` (`src/lib/supabase/fetch-all-rows.ts`) laden — PostgREST kappt jede Antwort bei 1000 Zeilen, `.limit()` darüber wirkt nicht.
 - **Env-Variablen:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_API_KEY` (alle KI-Features), `VOYAGE_API_KEY` (Regelbuch-Suche), `GM_PIN` (6-Digit), optional `GM_SESSION_SECRET` und `CRON_SECRET` in `.env.local`
 - **RLS:** Alle Tabellen nutzen Row Level Security — SELECT für alle Authentifizierten, INSERT/UPDATE/DELETE nur für Owner
 - **Storage:** `voice-notes` Bucket für Sprachnotizen, `avatars` für Character-Avatare
@@ -354,3 +358,5 @@ Finaler explorativer Test mit etablierten Testing-Heuristiken und gezielten "Tes
 20. **Charakterbogen-Rescan** — Zweiter Scan-Pfad, der einen bestehenden Charakter aktualisiert statt einen neuen anzulegen: `/characters/[id]/rescan` mit kuratierbarer Änderungsliste (jede Änderung ab-/anwählbar und im Wert editierbar). Der Update-Prompt erfasst gedruckte UND handschriftliche Werte getrennt; bei Konflikt gewinnt die Handschrift, beide Werte bleiben sichtbar und umschaltbar. Reine, unit-getestete Pipeline in `src/lib/scan/` (Diff → Apply-Plan → Executor). Entfernungs-Vorschläge, aktuelle TP, Stammdaten und Notizen starten sichtbar-aber-abgewählt; nicht gelesene Felder erzeugen nie einen Vorschlag. Ausrüstung wird per Namens-Fuzzy-Match wiedererkannt. Nebenbei: `is_approved`-Check für `/api/scan-character` nachgerüstet, Matching-Logik aus dem Create-Import extrahiert und erstmals testabgedeckt ✅
 
 21. **Wechsel auf Google Gemini** — Alle KI-Features von der Anthropic-API auf Gemini umgestellt: Regelbuch-Chat (Streaming), Charakterbogen-Scan, Monster-Scan und Session-Zusammenfassungen. Gemeinsamer Layer unter `src/lib/gemini/` (`text-request.ts` rein und unit-getestet, `generate-text.ts` als dünner I/O-Layer mit `generateText()`/`streamText()`). Alias-Modelle statt gepinnter IDs, weil Google gepinnte Versionen abschaltet. JSON-Modus (`responseMimeType`) für die Scan-Routen, Truncation über `finishReason: MAX_TOKENS`. Der Chat spricht als Gelehrter aus den Reichen, hält sich kurz und antwortet nur zu AD&D und zur App. Datenschutzerklärung auf Google als Empfänger umgestellt, `@anthropic-ai/sdk` entfernt ✅
+
+22. **Performance-Runde & E2E-Abbau** — Auth ohne Roundtrip (`getClaims()` in `proxy.ts` und `requireAuth`, React-`cache()`-Deduplizierung), `ApprovalProvider` statt Query + Channel pro Banner/Gate, Session-Detail in 2 statt 10 sequenziellen Queries, Epic-Seite in einer Welle, GM-Auto-Share per `after()`, Realtime-Refresh nur im sichtbaren Tab, Zauber-/Ausrüstungskataloge als Session-Cache, Fix: Zauber-Lernen-Dialog zeigte nur 1000 Zauber (`fetchAllRows`), Cache-Header für `public/`-Bilder, Bildprioritäten, GM-Panels per `next/dynamic` (−32 % JS auf `/master`). Playwright-E2E-Suite, Test-Login-Hintertür und QA-Test-Domain entfernt ✅

@@ -4,7 +4,7 @@ git_commit: 41d55189457c00e0cf25e6e9b2fe374044a8480a
 branch: perf/page-load-optimization
 topic: "Seitenaufbau-Performance: Auth, Waterfalls, Kataloge, Caching, Bundle"
 tags: [plan, performance, auth, caching, supabase, spells, bundle]
-status: draft
+status: implemented
 ---
 
 # Seitenaufbau-Performance Implementation Plan
@@ -311,14 +311,14 @@ Verkleinert das initiale JS des GM-Dashboards.
 
 **Tasks**:
 
-- [ ] `src/components/master/master-dashboard.tsx:7-16`: Alle 8 Nicht-Party-Panels (Items, Gold, NPCs, Bestiarium, Combat Simulator, Chat, Bookmarks usw.) per `next/dynamic` laden, mit einem `Skeleton` als `loading`. Das Party-Panel bleibt statisch.
-- [ ] Bundle-Größe vorher und nachher messen (gzip-Summe der Chunks aus `page_client-reference-manifest.js`, Skript aus der Research) und im PR dokumentieren.
+- [x] `src/components/master/master-dashboard.tsx:7-16`: Alle 8 Nicht-Party-Panels (Items, Gold, NPCs, Bestiarium, Combat Simulator, Chat, Bookmarks usw.) per `next/dynamic` laden, mit einem `Skeleton` als `loading`. Das Party-Panel bleibt statisch.
+- [x] Bundle-Größe vorher und nachher messen (gzip-Summe der Chunks aus `page_client-reference-manifest.js`, Skript aus der Research) und im PR dokumentieren.
 
 **Automated Verification**:
 
-- [ ] `npm run verify` ist grün.
+- [x] `npm run verify` ist grün.
 - ~~`npm run test:e2e`~~ entfällt (E2E-Suite am 2026-10-05 auf Wunsch entfernt)
-- [ ] Gemessenes initiales gzip-JS von `/master` ist kleiner als 275 KB.
+- [x] Gemessenes initiales gzip-JS von `/master`: 275 KB → 187 KB (−32 %).
 
 **Manual Verification**:
 
@@ -328,12 +328,12 @@ Verkleinert das initiale JS des GM-Dashboards.
 
 ## Abschluss
 
-- [ ] `CLAUDE.md` aktualisieren:
+- [x] `CLAUDE.md` aktualisieren:
   - Projektstruktur und Supabase-Abschnitt: `src/proxy.ts` statt `middleware.ts`
   - `src/lib/catalog/`
   - Auth-Strategie: `requireAuth` über `getClaims()` (lokal), API-Routen über `getUser()`
   - Roadmap-Eintrag 22 „Performance-Runde“
-- [ ] Research-Dokument: Status-Notiz mit Verweis auf diesen Plan.
+- [x] Research-Dokument: Status-Notiz mit Verweis auf diesen Plan.
 - [ ] Code Review und explorative QA laut Workflow in `CLAUDE.md`.
 
 ## References

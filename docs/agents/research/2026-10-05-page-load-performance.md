@@ -9,6 +9,8 @@ status: complete
 
 # Research: Seitenaufbau-Performance von Chaos Forge
 
+> **Status:** Umgesetzt über `docs/agents/plans/2026-10-05-page-load-performance.md` (Branch `perf/page-load-optimization`).
+
 ## Research Question
 
 Warum dauert der Aufbau der Seiten lange? Untersucht werden Server-Rendering (Server Components, DB-Waterfalls, Middleware/Auth pro Request, dynamisches Rendering), Client-Bundle, Bilder, Fonts, Caching (Browser, Next.js Data Cache, Static Generation, Prefetching, Streaming, Service Worker), Supabase-Query-Effizienz und Realtime.
