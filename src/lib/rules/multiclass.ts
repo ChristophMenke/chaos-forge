@@ -223,3 +223,16 @@ export function getDualclassSaves(dualclass: DualclassInfo, newClassLevel: numbe
     spell: Math.min(newSaves.spell, origSaves.spell),
   };
 }
+
+/**
+ * Highest level among a character's active classes — the level that unlocks
+ * level-gated features for multiclass characters. Dormant classes of a
+ * dual-class character don't count. Falls back to the character's level.
+ */
+export function getHighestActiveClassLevel(
+  classes: { level: number; is_active: boolean }[],
+  fallbackLevel: number
+): number {
+  const activeLevels = classes.filter((c) => c.is_active).map((c) => c.level);
+  return activeLevels.length > 0 ? Math.max(...activeLevels) : fallbackLevel;
+}

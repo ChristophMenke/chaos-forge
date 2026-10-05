@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { createClient } from "@/lib/supabase/client";
-import { useApprovalStatus } from "@/lib/hooks/use-approval-status";
+import { useApproval } from "@/components/approval-provider";
 import { Hourglass } from "lucide-react";
 
 const IMMERSIVE_ROUTES_PREFIX = ["/login", "/master"];
@@ -12,13 +10,7 @@ const IMMERSIVE_ROUTES_PREFIX = ["/login", "/master"];
 export function ApprovalBanner() {
   const t = useTranslations("approval");
   const pathname = usePathname();
-  const [userId, setUserId] = useState<string | null>(null);
-  const { isApproved, isLoading } = useApprovalStatus(userId);
-
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
-  }, []);
+  const { userId, isApproved, isLoading } = useApproval();
 
   if (!userId || isLoading || isApproved) return null;
   if (

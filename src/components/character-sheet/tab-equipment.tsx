@@ -3,6 +3,7 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { createClient } from "@/lib/supabase/client";
+import { getEquipmentCatalogs, invalidateEquipmentCatalogs } from "@/lib/catalog/equipment-catalog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -133,29 +134,25 @@ export function TabEquipment({
   const [lazyMagicItems, setLazyMagicItems] = useState<MagicItemRow[] | null>(
     allMagicItems.length > 0 ? allMagicItems : null
   );
-  const [, setLoadingCatalogs] = useState(false);
   const catalogsLoadedRef = useRef(false);
 
-  // Load catalogs once on mount (component is dynamically imported, so this fires when tab opens)
+  // Load catalogs once on mount (component is dynamically imported, so this fires when tab opens).
+  // getEquipmentCatalogs() caches per browser session, so re-opening the tab is instant.
   useEffect(() => {
     if (catalogsLoadedRef.current) return;
     if (allWeapons.length > 0 && allArmor.length > 0) return; // already have data via props
     catalogsLoadedRef.current = true;
-    setLoadingCatalogs(true);
-    const supabase = createClient();
-    Promise.all([
-      supabase.from("weapons").select("*").order("name"),
-      supabase.from("armor").select("*").order("ac", { ascending: false }),
-      supabase.from("general_items").select("*").order("name"),
-      supabase.from("magic_items").select("*").order("name"),
-    ])
-      .then(([w, a, g, m]) => {
-        if (w.data) setLazyWeapons(w.data as WeaponRow[]);
-        if (a.data) setLazyArmor(a.data as ArmorRow[]);
-        if (g.data) setLazyGeneralItems(g.data as GeneralItemRow[]);
-        if (m.data) setLazyMagicItems(m.data as MagicItemRow[]);
+    getEquipmentCatalogs()
+      .then((catalogs) => {
+        setLazyWeapons(catalogs.weapons);
+        setLazyArmor(catalogs.armor);
+        setLazyGeneralItems(catalogs.generalItems);
+        setLazyMagicItems(catalogs.magicItems);
       })
-      .finally(() => setLoadingCatalogs(false));
+      .catch((err) => {
+        catalogsLoadedRef.current = false;
+        console.error("[TabEquipment] Kataloge konnten nicht geladen werden:", err);
+      });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Use lazy-loaded data (falls back to empty arrays while loading).
@@ -502,6 +499,8 @@ export function TabEquipment({
       .single();
 
     if (!error && data) {
+      invalidateEquipmentCatalogs();
+      setLazyWeapons((weapons) => (weapons ? [...weapons, data as WeaponRow] : weapons));
       // Add to character equipment with custom weapon's magic bonus and quantity
       const { data: eqData } = await supabase
         .from("character_equipment")
@@ -564,6 +563,8 @@ export function TabEquipment({
       .single();
 
     if (!error && data) {
+      invalidateEquipmentCatalogs();
+      setLazyArmor((armor) => (armor ? [...armor, data as ArmorRow] : armor));
       await addItem("armor", data.id);
       setCustomArmor({
         name: "",

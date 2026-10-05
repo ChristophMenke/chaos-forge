@@ -27,26 +27,6 @@ export default function LoginPage() {
         return;
       }
 
-      // Test-User Bypass: try auto-login, API checks if email matches
-      const testRes = await fetch("/api/test-login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      if (testRes.ok) {
-        const testData = await testRes.json();
-        const supabase = createClient();
-        await supabase.auth.setSession({
-          access_token: testData.access_token,
-          refresh_token: testData.refresh_token,
-        });
-        // Full reload on purpose: the auth cookies just changed, and the
-        // middleware has to hand the server components a fresh session.
-        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-        window.location.href = "/characters";
-        return;
-      }
-
       // Send OTP code (no emailRedirectTo = sends 6-digit code instead of magic link)
       const supabase = createClient();
       const { error: otpError } = await supabase.auth.signInWithOtp({ email });
@@ -131,6 +111,7 @@ export default function LoginPage() {
           <img
             src="/images/login/login-party-portrait.webp"
             alt=""
+            fetchPriority="high"
             className={`absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-500 ${
               step === "email" ? "opacity-100" : "opacity-0"
             }`}
@@ -144,7 +125,9 @@ export default function LoginPage() {
           <img
             src="/images/login/login-party-grimace-portrait.webp"
             alt=""
-            fetchPriority="high"
+            // Only shown in the code step — load it without competing with the first image
+            fetchPriority="low"
+            decoding="async"
             className={`absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-500 ${
               step === "code" ? "opacity-100" : "opacity-0"
             }`}

@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { ClassId } from "./types";
 import {
+  getHighestActiveClassLevel,
   getMulticlassThac0,
   getMulticlassSaves,
   getMulticlassHpDivisor,
@@ -382,5 +383,36 @@ describe("CLASS-013: getDualclassSaves", () => {
     // Should pick the better of fighter L5 and cleric L6 for each category
     expect(saves.paralyzation).toBeGreaterThan(0);
     expect(saves.paralyzation).toBeLessThanOrEqual(20);
+  });
+});
+
+describe("getHighestActiveClassLevel", () => {
+  it("uses the highest level among active classes", () => {
+    expect(
+      getHighestActiveClassLevel(
+        [
+          { level: 5, is_active: true },
+          { level: 7, is_active: true },
+        ],
+        1
+      )
+    ).toBe(7);
+  });
+
+  it("ignores inactive (dual-class dormant) classes", () => {
+    expect(
+      getHighestActiveClassLevel(
+        [
+          { level: 9, is_active: false },
+          { level: 4, is_active: true },
+        ],
+        1
+      )
+    ).toBe(4);
+  });
+
+  it("falls back to the character level without active classes", () => {
+    expect(getHighestActiveClassLevel([], 3)).toBe(3);
+    expect(getHighestActiveClassLevel([{ level: 6, is_active: false }], 3)).toBe(3);
   });
 });

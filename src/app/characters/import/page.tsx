@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
+import { getSpellNameIndex } from "@/lib/catalog/spell-catalog";
 import type { RaceId, ClassId } from "@/lib/rules/types";
 import { ALL_ALIGNMENTS, getAlignmentLabel } from "@/lib/rules/alignment";
 import { validateImportFiles } from "./import-validation";
@@ -446,24 +447,8 @@ export default function ImportCharacterPage({
 
       // Try to match and insert spells
       if (scanned.spells?.length > 0) {
-        // Fetch all spells from DB (paginated for >1000 rows)
-        let allSpells: { id: string; name: string; name_en: string | null; level: number }[] = [];
-        let from = 0;
-        const batchSize = 1000;
-        let hasMore = true;
-        while (hasMore) {
-          const { data: batch } = await supabase
-            .from("spells")
-            .select("id, name, name_en, level")
-            .range(from, from + batchSize - 1);
-          if (batch && batch.length > 0) {
-            allSpells = allSpells.concat(batch);
-            from += batchSize;
-            hasMore = batch.length === batchSize;
-          } else {
-            hasMore = false;
-          }
-        }
+        // All spells of both types — beyond the 1000-row response cap
+        const allSpells = await getSpellNameIndex();
 
         const spellInserts: { character_id: string; spell_id: string; prepared: boolean }[] = [];
         const matchedIds = new Set<string>();

@@ -55,7 +55,7 @@ export function NotificationBell({
       // Die Glocke hängt gleichzeitig in der Desktop-Sidebar und in der mobilen
       // Navigation — beide sind im DOM, nur per CSS unterschiedlich sichtbar.
       // Unter einem gemeinsamen Kanalnamen bekäme die zweite Instanz den bereits
-      // abonnierten Kanal und .on() würde werfen, siehe use-approval-status.ts.
+      // abonnierten Kanal und .on() würde werfen, siehe approval-provider.tsx.
       .channel(`user-notifications-${instanceId}`)
       .on(
         "postgres_changes",

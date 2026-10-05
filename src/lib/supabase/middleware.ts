@@ -26,8 +26,10 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  // Refresh the auth token
-  await supabase.auth.getUser();
+  // Refresh the auth token. getClaims() verifies the JWT locally against the
+  // project's asymmetric signing keys (no round trip to the auth server) and
+  // refreshes an expiring session through setAll() above.
+  await supabase.auth.getClaims();
 
   return supabaseResponse;
 }
