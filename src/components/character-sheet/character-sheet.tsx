@@ -21,6 +21,8 @@ import { getXpForNextLevel, getXpThreshold, deductXpFromClasses } from "@/lib/ru
 import { LevelUpDialog } from "@/components/level-up/level-up-dialog";
 import { EffectsSection } from "@/components/effects/effects-section";
 import { useCharacterEffects } from "@/lib/hooks/use-character-effects";
+import { resolveEffectiveStats } from "@/lib/rules/effective-stats";
+import { aggregateEffects } from "@/lib/rules/temporary-effects";
 import { PendingLevelUpBanner } from "@/components/level-up/pending-level-up-banner";
 import type { LevelUpPlan } from "@/lib/level-up/apply-level-up";
 import type { ClassId, RaceId } from "@/lib/rules/types";
@@ -30,14 +32,6 @@ import {
   multiclassHasExceptionalStr,
   getMulticlassGroups,
 } from "@/lib/rules/multiclass";
-import {
-  getStrengthModifiers,
-  getDexterityModifiers,
-  getConstitutionModifiers,
-  getIntelligenceModifiers,
-  getWisdomModifiers,
-  getCharismaModifiers,
-} from "@/lib/rules/abilities";
 import { getAttacksPerRound } from "@/lib/rules/combat";
 import {
   calculateAC,
@@ -83,7 +77,7 @@ import { TabThiefSkills } from "./tab-thief-skills";
 import { TabProficiencies } from "./tab-proficiencies";
 import { XpAddDialog } from "./xp-add-dialog";
 import { PayDialog } from "./pay-dialog";
-import { getEpicEffects, scaleSubStat } from "@/lib/rules/epic-items";
+import { getEpicEffects } from "@/lib/rules/epic-items";
 import type { EpicEffects } from "@/lib/rules/epic-items";
 import { getMagicItemEffects } from "@/lib/rules/magic-items";
 import type {
@@ -280,8 +274,6 @@ export function CharacterSheet({
 
   // Epic item effects (stat overrides, thief penalties, spell failure warnings)
   const epicEffects: EpicEffects = useMemo(() => getEpicEffects(epicItems), [epicItems]);
-  const eo = epicEffects.statOverrides;
-  const fo = epicEffects.forceStatOverrides;
 
   // Regular magic item effects — needed so the manage-view AC display
   // includes things like a Ring of Protection or Cloak of Protection.
@@ -289,111 +281,37 @@ export function CharacterSheet({
   // ring's bonus while the play mode showed the corrected value.
   const magicEffects = useMemo(() => getMagicItemEffects(equipmentState), [equipmentState]);
 
-  // Apply epic stat overrides (e.g., Kondensator overrides CON).
-  // Matches the resolve() semantics in character-computed.ts:
-  //   forceStatOverrides win unconditionally (Kondensator sets biological base);
-  //   otherwise max(base, epicOverride, magicOverride) so a lower override
-  //   never silently drops the stat below base.
-  const mo = magicEffects.statOverrides;
-  const effectiveStr = fo.str ?? Math.max(character.str, eo.str ?? 0, mo.str ?? 0);
-  const effectiveDex = fo.dex ?? Math.max(character.dex, eo.dex ?? 0, mo.dex ?? 0);
-  const effectiveCon = fo.con ?? Math.max(character.con, eo.con ?? 0, mo.con ?? 0);
-  const effectiveInt = fo.int ?? Math.max(character.int, eo.int ?? 0, mo.int ?? 0);
-  const effectiveWis = fo.wis ?? Math.max(character.wis, eo.wis ?? 0, mo.wis ?? 0);
-  const effectiveCha = fo.cha ?? Math.max(character.cha, eo.cha ?? 0, mo.cha ?? 0);
-
-  // Scale sub-stats proportionally when a main stat is overridden (by epic,
-  // force-override, or magic-item override — all three change the effective stat)
-  const conOverridden = fo.con != null || eo.con != null || mo.con != null;
-  const strOverridden = fo.str != null || eo.str != null || mo.str != null;
-  const dexOverridden = fo.dex != null || eo.dex != null || mo.dex != null;
-  const effectiveConHealth = conOverridden
-    ? scaleSubStat(character.con, character.con_health, effectiveCon)
-    : character.con_health;
-  const effectiveConFitness = conOverridden
-    ? scaleSubStat(character.con, character.con_fitness, effectiveCon)
-    : character.con_fitness;
-
-  const strMods = useMemo(
-    () =>
-      getStrengthModifiers(
-        effectiveStr,
-        character.str_exceptional ?? undefined,
-        strOverridden
-          ? scaleSubStat(character.str, character.str_muscle, effectiveStr)
-          : character.str_muscle,
-        strOverridden
-          ? scaleSubStat(character.str, character.str_stamina, effectiveStr)
-          : character.str_stamina
-      ),
-    [
-      effectiveStr,
-      character.str_exceptional,
-      character.str_muscle,
-      character.str_stamina,
-      strOverridden,
-      character.str,
-    ]
+  // Effective abilities from items through the shared resolver (same rules as
+  // play mode and the GM dashboard). The sheet is the management view: its
+  // values stay without temporary effects; those show up as "effective X".
+  const itemStats = useMemo(
+    () => resolveEffectiveStats(character, { epicEffects, magicEffects }),
+    [character, epicEffects, magicEffects]
   );
-  const dexMods = useMemo(
-    () =>
-      getDexterityModifiers(
-        effectiveDex,
-        dexOverridden
-          ? scaleSubStat(character.dex, character.dex_aim, effectiveDex)
-          : character.dex_aim,
-        dexOverridden
-          ? scaleSubStat(character.dex, character.dex_balance, effectiveDex)
-          : character.dex_balance
-      ),
-    [effectiveDex, character.dex, character.dex_aim, character.dex_balance, dexOverridden]
+  const effectSummary = useMemo(
+    () => aggregateEffects(effectsState.effects),
+    [effectsState.effects]
   );
-  const conMods = useMemo(
-    () => getConstitutionModifiers(effectiveCon, effectiveConHealth, effectiveConFitness),
-    [effectiveCon, effectiveConHealth, effectiveConFitness]
+  const effectStats = useMemo(
+    () => resolveEffectiveStats(character, { epicEffects, magicEffects }, effectSummary),
+    [character, epicEffects, magicEffects, effectSummary]
   );
-  const intOverridden = fo.int != null || eo.int != null;
-  const intMods = useMemo(
-    () =>
-      getIntelligenceModifiers(
-        effectiveInt,
-        intOverridden
-          ? scaleSubStat(character.int, character.int_knowledge, effectiveInt)
-          : character.int_knowledge,
-        intOverridden
-          ? scaleSubStat(character.int, character.int_reason, effectiveInt)
-          : character.int_reason
-      ),
-    [effectiveInt, character.int, character.int_knowledge, character.int_reason, intOverridden]
-  );
-  const wisOverridden = fo.wis != null || eo.wis != null;
-  const wisMods = useMemo(
-    () =>
-      getWisdomModifiers(
-        effectiveWis,
-        wisOverridden
-          ? scaleSubStat(character.wis, character.wis_intuition, effectiveWis)
-          : character.wis_intuition,
-        wisOverridden
-          ? scaleSubStat(character.wis, character.wis_willpower, effectiveWis)
-          : character.wis_willpower
-      ),
-    [effectiveWis, character.wis, character.wis_intuition, character.wis_willpower, wisOverridden]
-  );
-  const chaOverridden = fo.cha != null || eo.cha != null;
-  const chaMods = useMemo(
-    () =>
-      getCharismaModifiers(
-        effectiveCha,
-        chaOverridden
-          ? scaleSubStat(character.cha, character.cha_leadership, effectiveCha)
-          : character.cha_leadership,
-        chaOverridden
-          ? scaleSubStat(character.cha, character.cha_appearance, effectiveCha)
-          : character.cha_appearance
-      ),
-    [effectiveCha, character.cha, character.cha_leadership, character.cha_appearance, chaOverridden]
-  );
+  const {
+    str: effectiveStr,
+    dex: effectiveDex,
+    con: effectiveCon,
+    int: effectiveInt,
+    wis: effectiveWis,
+    cha: effectiveCha,
+  } = itemStats.values;
+  const {
+    str: strMods,
+    dex: dexMods,
+    con: conMods,
+    int: intMods,
+    wis: wisMods,
+    cha: chaMods,
+  } = itemStats.mods;
   // AC calculation using equipped armor + shield + DEX + class bonuses (reactive to equipmentState)
   const equippedArmor = equipmentState.find((e) => e.equipped && e.armor && !e.armor.is_shield);
   const hasShield = equipmentState.some((e) => e.equipped && e.armor && e.armor.is_shield);
@@ -419,6 +337,28 @@ export function CharacterSheet({
       equippedShieldItem?.armor?.name ?? null,
       weaponProfsState
     ),
+  });
+  // Same AC with temporary effects (shown as "effective X" next to the AC)
+  const effectAC = calculateAC({
+    equippedArmorAC: equippedArmor?.armor?.ac ?? null,
+    shieldEquipped: hasShield,
+    dexDefenseAdj: effectStats.mods.dex.defensiveAdj,
+    magicACModifier: magicEffects.acBonus,
+    epicAcBonus: epicEffects.acBonus,
+    classGroups,
+    encumbrance: encumbranceLevel,
+    ignoreEncumbrance: character.ignore_encumbrance,
+    isMagicalProtection: equippedArmor?.armor?.is_magical_protection ?? false,
+    singleWeaponStyleBonus: getSingleWeaponStyleBonus(fightingStylesState),
+    shieldProficiencyBonus: getShieldProficiencyBonus(
+      equippedShieldItem?.armor?.shield_type ?? null,
+      equippedShieldItem?.armor?.name ?? null,
+      weaponProfsState
+    ),
+    effectAcBonus: effectSummary.acBonus,
+    effectAcSet: effectSummary.acSet,
+    noDexBonus: effectSummary.noDexAc,
+    noShield: effectSummary.noShield,
   });
 
   const coinPurse = useMemo(
@@ -1395,6 +1335,12 @@ export function CharacterSheet({
                       data-testid={`sheet-ability-${key}`}
                     />
                     <div className="mt-1 text-xs md:text-sm text-muted-foreground">{mods}</div>
+                    {effectStats.values[key] !== value && (
+                      <EffectiveBadge
+                        value={effectStats.values[key]}
+                        testId={`sheet-effective-${key}`}
+                      />
+                    )}
                     {key === "str" && character.str === 18 && hasExceptionalStr && (
                       <div className="mt-2 flex flex-col gap-1">
                         <Label
@@ -1927,12 +1873,21 @@ export function CharacterSheet({
               <div className="font-heading text-3xl text-primary" data-testid="sheet-thac0">
                 {thac0}
               </div>
+              {effectSummary.attack !== 0 && (
+                <EffectiveBadge
+                  value={thac0 - effectSummary.attack}
+                  testId="sheet-effective-thac0"
+                />
+              )}
             </div>
             <div className="rounded-md border border-border p-4 text-center">
               <div className="text-xs md:text-sm text-muted-foreground">{t("armorClass")}</div>
               <div className="font-heading text-3xl text-primary" data-testid="sheet-ac">
                 {effectiveAC}
               </div>
+              {effectAC !== effectiveAC && (
+                <EffectiveBadge value={effectAC} testId="sheet-effective-ac" />
+              )}
             </div>
             <div className="rounded-md border border-border p-4 text-center">
               <div className="text-xs md:text-sm text-muted-foreground">{t("hitDamage")}</div>
@@ -1982,17 +1937,30 @@ export function CharacterSheet({
               <h3 className="mb-3 font-heading text-lg">{t("savingThrows")}</h3>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
                 {[
-                  { label: t("savePoison"), value: saves.paralyzation },
-                  { label: t("saveRod"), value: saves.rod },
-                  { label: t("savePetrification"), value: saves.petrification },
-                  { label: t("saveBreath"), value: saves.breath },
-                  { label: t("saveSpell"), value: saves.spell },
-                ].map(({ label, value }) => (
-                  <div key={label} className="rounded-md border border-border p-3 text-center">
-                    <div className="text-xs md:text-sm text-muted-foreground">{label}</div>
-                    <div className="font-mono text-xl">{value}</div>
-                  </div>
-                ))}
+                  { key: "paralyzation", label: t("savePoison"), value: saves.paralyzation },
+                  { key: "rod", label: t("saveRod"), value: saves.rod },
+                  {
+                    key: "petrification",
+                    label: t("savePetrification"),
+                    value: saves.petrification,
+                  },
+                  { key: "breath", label: t("saveBreath"), value: saves.breath },
+                  { key: "spell", label: t("saveSpell"), value: saves.spell },
+                ].map(({ key, label, value }) => {
+                  const bonus = effectSummary.saves[key as keyof typeof effectSummary.saves];
+                  return (
+                    <div key={label} className="rounded-md border border-border p-3 text-center">
+                      <div className="text-xs md:text-sm text-muted-foreground">{label}</div>
+                      <div className="font-mono text-xl">{value}</div>
+                      {bonus !== 0 && (
+                        <EffectiveBadge
+                          value={value - bonus}
+                          testId={`sheet-effective-save-${key}`}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -2350,6 +2318,16 @@ function TraitSection({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/** "effektiv X" — the value with temporary effects, next to the stored one. */
+function EffectiveBadge({ value, testId }: { value: number; testId: string }) {
+  const t = useTranslations("effects");
+  return (
+    <div className="mt-1 text-xs font-medium text-purple-400" data-testid={testId}>
+      {t("effective", { value })}
     </div>
   );
 }

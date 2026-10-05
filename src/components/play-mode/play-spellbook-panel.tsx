@@ -41,6 +41,9 @@ interface PlaySpellbookPanelProps {
   onCast: (spellId: string, pointsCost: number) => void;
   onRest: () => void;
   epicSpellFailure?: number;
+  /** Temporary effects: cannot cast (silence, held …) and miscast chance in % */
+  effectCannotCast?: boolean;
+  effectSpellFailure?: number;
   epicWildMagic?: number;
   epicBonusSpellPoints?: number;
   hpToSpConversion?: { ratio: number } | null;
@@ -60,6 +63,8 @@ function PlaySpellbookPanelInner({
   onCast,
   onRest,
   epicSpellFailure = 0,
+  effectCannotCast = false,
+  effectSpellFailure = 0,
   epicWildMagic = 0,
   epicBonusSpellPoints = 0,
   hpToSpConversion = null,
@@ -70,6 +75,7 @@ function PlaySpellbookPanelInner({
 }: PlaySpellbookPanelProps) {
   const t = useTranslations("playMode");
   const te = useTranslations("epic");
+  const tfx = useTranslations("effects");
   const tSpells = useTranslations("spells");
   const locale = useLocale();
   const [expandedSpell, setExpandedSpell] = useState<string | null>(null);
@@ -274,6 +280,16 @@ function PlaySpellbookPanelInner({
           </Button>
         )}
       </div>
+
+      {/* Temporary effects */}
+      {(effectCannotCast || effectSpellFailure > 0) && (
+        <div
+          className="mb-3 rounded-lg border border-amber-500/50 bg-amber-500/10 p-2 text-xs text-amber-400"
+          data-testid="play-effect-spell-warning"
+        >
+          {effectCannotCast ? tfx("cannotCast") : tfx("spellFailure", { pct: effectSpellFailure })}
+        </div>
+      )}
 
       {/* Epic Spell Failure Warnings */}
       {epicWildMagic > 0 && (

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeCharacterCombatData } from "./character-computed";
+import { applyLiveHp, computeCharacterCombatData } from "./character-computed";
 import type {
   CharacterRow,
   CharacterClassRow,
@@ -1442,5 +1442,18 @@ describe("computeCharacterCombatData with temporary effects", () => {
     const weakened = compute([fx("Gift", [{ target: "allAbilities", op: "factor", value: 0.5 }])]);
     expect(weakened.perception).toBe(Math.floor((5 + 6) / 2));
     expect(weakened.ac).toBeGreaterThanOrEqual(base.ac);
+  });
+});
+
+describe("applyLiveHp", () => {
+  const combat = { hpCurrent: 20, hpMax: 30, hpDelta: -4 };
+
+  it("falls back to the computed values without a live update", () => {
+    expect(applyLiveHp(combat, undefined)).toEqual({ current: 20, max: 30 });
+  });
+
+  it("applies the CON delta to the stored live values and clamps current", () => {
+    expect(applyLiveHp(combat, { current: 33, max: 34 })).toEqual({ current: 30, max: 30 });
+    expect(applyLiveHp(combat, { current: 12, max: 34 })).toEqual({ current: 12, max: 30 });
   });
 });

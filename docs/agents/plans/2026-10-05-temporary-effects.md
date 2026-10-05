@@ -389,7 +389,7 @@ Betroffene Dateien:
 
 **Tasks**:
 
-- [ ] `play-mode.tsx`: `resolveEffectiveStats` + `aggregateEffects`.
+- [x] `play-mode.tsx`: `resolveEffectiveStats` + `aggregateEffects`.
   - Attribute und Modifikatoren (über `toModifierScore`)
   - Rettungswürfe
   - RK über die neuen `calculateAC`-Parameter
@@ -397,42 +397,42 @@ Betroffene Dateien:
   - Angriff und Schaden an die Panels
   - Bewegung × Faktor
   - Temporäre TP
-- [ ] `play-combat-panel.tsx`:
+- [x] `play-combat-panel.tsx`:
   - Angriffe/Runde × Faktor (Formatierung 1/2, 3/2 …); bei `noAttacks` „keine (Effekt)“.
   - THAC0 und Schaden pro Waffe.
   - RK-Aufschlüsselung: Effekt-Zeilen; bei `noDexBonus`/`noShield`/`effectAcSet` die betroffenen Zeilen ausblenden, damit die Summe stimmt.
-- [ ] `play-checks-panel.tsx`:
+- [x] `play-checks-panel.tsx`:
   - Den eigenen Resolver entfernen; effektive Werte und Unterwerte kommen aus `play-mode`.
   - Rettungswürfe mit Herkunft und bedingten Hinweisen.
   - Attributsproben ± Effekt; Wahrnehmung (Hausregel-Basis) ± Effekt; Diebesfertigkeiten ± Punkte.
   - Ungenutzte Props `magicSaveBonuses`/`magicPerceptionBonus` entfernen bzw. konsistent machen.
-- [ ] `play-spellbook-panel.tsx`: Hinweis „kann nicht zaubern“ bzw. „Zauberpatzer X %“.
-- [ ] `effect-warnings.tsx` im Spielmodus mit den effektiven Attributen.
-- [ ] `character-sheet.tsx`: eigenen Resolver durch `resolveEffectiveStats` ersetzen; Badges „effektiv X“ an Attributen, RK, THAC0 und Rettungswürfen.
-- [ ] `master/page.tsx` und `dashboard/page.tsx`: Effekte der Charaktere laden und an `computeCharacterCombatData` übergeben. Der Simulator-Adapter übergibt nichts (dokumentiert).
-- [ ] `master-character-card.tsx` und `master-party-panel.tsx`:
+- [x] `play-spellbook-panel.tsx`: Hinweis „kann nicht zaubern“ bzw. „Zauberpatzer X %“.
+- [x] `effect-warnings.tsx` im Spielmodus mit den effektiven Attributen.
+- [x] `character-sheet.tsx`: eigenen Resolver durch `resolveEffectiveStats` ersetzen; Badges „effektiv X“ an Attributen, RK, THAC0 und Rettungswürfen.
+- [x] `master/page.tsx` und `dashboard/page.tsx`: Effekte der Charaktere laden und an `computeCharacterCombatData` übergeben. Der Simulator-Adapter übergibt nichts (dokumentiert).
+- [x] `master-character-card.tsx` und `master-party-panel.tsx`:
   - THAC0 = `thac0Effective`.
   - Live-TP kombiniert mit dem Delta `combat.hpMax − character.hp_max` und `tempHp`.
   - Readonly-Chips.
-- [ ] `master-dashboard.tsx`:
+- [x] `master-dashboard.tsx`:
   - `useRealtimeRefresh` auf `character_effects` (Filter auf die angezeigten Charaktere).
   - HP-Kanal hängt nur noch an den IDs.
-- [ ] `use-realtime-refresh.ts`: Channel-Name mit Instanz-Suffix (#174).
-- [ ] `CLAUDE.md`:
+- [x] `use-realtime-refresh.ts`: Channel-Name mit Instanz-Suffix (#174).
+- [x] `CLAUDE.md`:
   - Abschnitt „Temporäre Effekte“: Tabelle/Soft-Delete, Spielersicht, Reihenfolge, Unterwerte, `toModifierScore`, bedingte Hinweise, temporäre TP, Ausnahmen (Gestaltwandlung, Simulator, Druck), vereinheitlichter Resolver
   - Projektstruktur, Roadmap
 
 **Automated Verification**:
 
-- [ ] Unit `play-checks-panel.test.tsx`: Mit Seuche zeigt die CHA-Probe den reduzierten Wert samt Herkunft; „+2 gegen Böse“ erscheint als Hinweis, die Zahl bleibt.
-- [ ] Unit `play-combat-panel.test.tsx`:
+- [x] Unit `play-checks-panel.test.tsx`: Mit Seuche zeigt die CHA-Probe den reduzierten Wert samt Herkunft; „+2 gegen Böse“ erscheint als Hinweis, die Zahl bleibt.
+- [x] Unit `play-combat-panel.test.tsx`:
   - Verlangsamen → Angriffe ½, RK-Aufschlüsselung mit „Verlangsamen“, Summe stimmt.
   - Stinkwolke → „keine (Effekt)“.
   - `noDexBonus` blendet die GE-Zeile aus.
-- [ ] Unit `master-character-card.test.tsx`: Effektiver THAC0 und Live-TP mit Effekt-Delta und „+N temp.“.
-- [ ] Unit `use-realtime-refresh.test.ts`: Zwei Instanzen erzeugen verschiedene Channel-Namen.
-- [ ] Quelltext-Guard: `master/page.tsx` und `dashboard/page.tsx` übergeben Effekte; die NPC-Seiten übergeben `[]`.
-- [ ] `npm run verify` ist grün.
+- [x] Unit `master-character-card.test.tsx`: Effektiver THAC0 und Live-TP mit Effekt-Delta und „+N temp.“.
+- [x] Unit `use-realtime-refresh.test.ts`: Zwei Instanzen erzeugen verschiedene Channel-Namen.
+- [x] Quelltext-Guard: `master/page.tsx` und `dashboard/page.tsx` übergeben Effekte; die NPC-Seiten übergeben `[]`.
+- [x] `npm run verify` ist grün.
 
 **Manual Verification**:
 

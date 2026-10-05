@@ -47,6 +47,11 @@ export interface EffectiveStats {
   values: Record<AbilityKey, number>;
   /** Score differs from the stored base value. */
   modified: Record<AbilityKey, boolean>;
+  /**
+   * Sub-stats in the order of SUB_STATS (e.g. str: [muscle, stamina]),
+   * scaled when the score changed; undefined when the character has none.
+   */
+  subs: Record<AbilityKey, [number | undefined, number | undefined]>;
   mods: {
     str: ReturnType<typeof getStrengthModifiers>;
     dex: ReturnType<typeof getDexterityModifiers>;
@@ -59,7 +64,7 @@ export interface EffectiveStats {
 
 type SubStatPair = [keyof CharacterRow, keyof CharacterRow];
 
-const SUB_STATS: Record<AbilityKey, SubStatPair> = {
+export const SUB_STATS: Record<AbilityKey, SubStatPair> = {
   str: ["str_muscle", "str_stamina"],
   dex: ["dex_aim", "dex_balance"],
   con: ["con_health", "con_fitness"],
@@ -123,6 +128,7 @@ export function resolveEffectiveStats(
   return {
     values,
     modified,
+    subs,
     mods: {
       str: getStrengthModifiers(toModifierScore(values.str), strException, ...subs.str),
       dex: getDexterityModifiers(toModifierScore(values.dex), ...subs.dex),

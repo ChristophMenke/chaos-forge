@@ -5,13 +5,14 @@ import { useTranslations } from "next-intl";
 import { ChevronDown, ChevronUp, Users, Heart, Shield, Swords, Skull } from "lucide-react";
 import { MasterCharacterCard } from "./master-character-card";
 import { getHpStatus } from "@/lib/rules/hitpoints";
-import type { CharacterRow, CharacterClassRow } from "@/lib/supabase/types";
-import type { CharacterCombatData } from "@/lib/rules/character-computed";
+import type { CharacterRow, CharacterClassRow, CharacterEffectRow } from "@/lib/supabase/types";
+import { applyLiveHp, type CharacterCombatData } from "@/lib/rules/character-computed";
 
 interface PartyMember {
   character: CharacterRow;
   classes: CharacterClassRow[];
   combat: CharacterCombatData;
+  effects?: CharacterEffectRow[];
 }
 
 interface MasterPartyPanelProps {
@@ -53,16 +54,17 @@ function computePartyStats(
   let lowestAc = Infinity;
   let bestThac0 = Infinity;
   for (const member of active) {
-    const live = liveHpMap.get(member.character.id);
-    const hpCurrent = live?.current ?? member.combat.hpCurrent;
-    const hpMax = live?.max ?? member.combat.hpMax;
+    const { current: hpCurrent, max: hpMax } = applyLiveHp(
+      member.combat,
+      liveHpMap.get(member.character.id)
+    );
     totalLevel += member.combat.maxLevel;
     partyHp += Math.max(0, hpCurrent);
     partyMaxHp += hpMax;
     const status = getHpStatus(hpCurrent, hpMax);
     if (status !== "alive") downCount++;
     if (member.combat.ac < lowestAc) lowestAc = member.combat.ac;
-    if (member.combat.thac0 < bestThac0) bestThac0 = member.combat.thac0;
+    if (member.combat.thac0Effective < bestThac0) bestThac0 = member.combat.thac0Effective;
   }
   // Defensive: lowestAc/bestThac0 are only Infinity if active.length === 0, which is
   // handled by the early return above. Keep the real computed values — no misleading 0 fallback.
@@ -184,13 +186,14 @@ export function MasterPartyPanel({ partyData, liveHpMap, onViewCharacter }: Mast
 
       {/* ═══ Active Heroes Grid ═══ */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-        {active.map(({ character, classes, combat }) => (
+        {active.map(({ character, classes, combat, effects }) => (
           <MasterCharacterCard
             key={character.id}
             character={character}
             classes={classes}
             combat={combat}
             liveHp={liveHpMap.get(character.id)}
+            effects={effects}
             onViewCharacter={onViewCharacter}
           />
         ))}
@@ -224,13 +227,14 @@ export function MasterPartyPanel({ partyData, liveHpMap, onViewCharacter }: Mast
               id="gm-inactive-section"
               className="grid grid-cols-1 gap-4 opacity-60 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
             >
-              {inactive.map(({ character, classes, combat }) => (
+              {inactive.map(({ character, classes, combat, effects }) => (
                 <MasterCharacterCard
                   key={character.id}
                   character={character}
                   classes={classes}
                   combat={combat}
                   liveHp={liveHpMap.get(character.id)}
+                  effects={effects}
                   onViewCharacter={onViewCharacter}
                 />
               ))}

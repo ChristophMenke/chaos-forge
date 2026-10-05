@@ -7,6 +7,7 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh }) }));
 type Handler = () => void;
 const handlers: Handler[] = [];
 const removedChannels: unknown[] = [];
+const channelNames: string[] = [];
 
 const channel = {
   on: vi.fn((_event: string, _filter: unknown, handler: Handler) => {
@@ -18,7 +19,10 @@ const channel = {
 
 vi.mock("@/lib/supabase/client", () => ({
   createClient: () => ({
-    channel: () => channel,
+    channel: (name: string) => {
+      channelNames.push(name);
+      return channel;
+    },
     removeChannel: (c: unknown) => removedChannels.push(c),
   }),
 }));
@@ -42,6 +46,7 @@ describe("useRealtimeRefresh", () => {
     refresh.mockClear();
     handlers.length = 0;
     removedChannels.length = 0;
+    channelNames.length = 0;
     visibility = "visible";
     vi.spyOn(document, "visibilityState", "get").mockImplementation(() => visibility);
   });
@@ -49,6 +54,16 @@ describe("useRealtimeRefresh", () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.restoreAllMocks();
+  });
+
+  // Two mounted callers with the same name must not share a channel (#174).
+  it("gives every instance its own channel name", () => {
+    renderHook(() => useRealtimeRefresh("dash", [{ table: "characters" }]));
+    renderHook(() => useRealtimeRefresh("dash", [{ table: "characters" }]));
+
+    expect(channelNames).toHaveLength(2);
+    expect(channelNames[0]).toMatch(/^dash-/);
+    expect(channelNames[0]).not.toBe(channelNames[1]);
   });
 
   it("refreshes a visible page after the debounce", () => {

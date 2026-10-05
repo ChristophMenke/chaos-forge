@@ -79,6 +79,8 @@ export interface CharacterCombatData {
   maxLevel: number;
   hpCurrent: number;
   hpMax: number;
+  /** Max HP change from CON overrides/effects, applied on top of the stored hp_max. */
+  hpDelta: number;
   backstabMultiplier: number | null;
   thiefSkills: ThiefSkillValues | null;
   poisonSavePenalty: number;
@@ -348,6 +350,7 @@ export function computeCharacterCombatData(
     maxLevel,
     hpCurrent,
     hpMax,
+    hpDelta,
     backstabMultiplier,
     thiefSkills,
     poisonSavePenalty,
@@ -359,4 +362,18 @@ export function computeCharacterCombatData(
     magicSpellAbilities: magicEffects.spellAbilities,
     primaryWeapon,
   };
+}
+
+/**
+ * Applies the CON-based max HP delta to live HP from a realtime update
+ * (which carries the stored hp_max/hp_current), so the GM sees the same
+ * values as the player's play mode.
+ */
+export function applyLiveHp(
+  combat: Pick<CharacterCombatData, "hpCurrent" | "hpMax" | "hpDelta">,
+  live: { current: number; max: number } | null | undefined
+): { current: number; max: number } {
+  if (!live) return { current: combat.hpCurrent, max: combat.hpMax };
+  const max = Math.max(1, live.max + combat.hpDelta);
+  return { current: clampHpCurrentToMax(live.current, max), max };
 }

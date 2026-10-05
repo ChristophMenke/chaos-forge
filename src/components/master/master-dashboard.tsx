@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useCallback, useId, useRef, useMemo } from "react";
+import { useRealtimeRefresh } from "@/lib/hooks/use-realtime-refresh";
 import { useTranslations } from "next-intl";
 import { Shield, Zap, ArrowLeft } from "lucide-react";
 import { invalidateEquipmentCatalogs } from "@/lib/catalog/equipment-catalog";
@@ -53,6 +54,7 @@ const MasterBookmarksPanel = dynamic(
 );
 import type {
   CharacterRow,
+  CharacterEffectRow,
   CharacterClassRow,
   WeaponRow,
   ArmorRow,
@@ -78,6 +80,9 @@ interface PartyMember {
   character: CharacterRow;
   classes: CharacterClassRow[];
   combat: CharacterCombatData;
+  /** Same values without temporary effects (combat simulator). */
+  simulatorCombat?: CharacterCombatData;
+  effects?: CharacterEffectRow[];
 }
 
 interface MasterDashboardProps {
@@ -208,10 +213,27 @@ export function MasterDashboard({
     setActiveTab("combat");
   }, []);
 
+  // Keyed on the IDs: a router.refresh (e.g. after an effect change) creates
+  // a new partyData array but must not tear down the HP channel.
+  const characterIdsKey = partyData.map((p) => p.character.id).join(",");
+  // Effects are set by the players: re-run the server query on any change
+  // so cards show chips, temp HP and effective values.
+  useRealtimeRefresh(
+    "gm-effects",
+    characterIdsKey
+      ? [{ table: "character_effects", filter: `character_id=in.(${characterIdsKey})` }]
+      : []
+  );
+  const simulatorPartyData = useMemo(
+    () => partyData.map((p) => ({ ...p, combat: p.simulatorCombat ?? p.combat })),
+    [partyData]
+  );
+
   // Realtime subscription with fallback polling
+  const channelSuffix = useId();
   const setupRealtime = useCallback(() => {
     const supabase = createClient();
-    const characterIds = partyData.map((p) => p.character.id);
+    const characterIds = characterIdsKey ? characterIdsKey.split(",") : [];
     if (characterIds.length === 0) return () => {};
     let fallbackTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -232,7 +254,7 @@ export function MasterDashboard({
     }
 
     const channel = supabase
-      .channel("gm-hp-updates")
+      .channel(`gm-hp-updates-${channelSuffix}`)
       .on(
         "postgres_changes",
         {
@@ -286,7 +308,7 @@ export function MasterDashboard({
       }
       supabase.removeChannel(channel);
     };
-  }, [partyData]);
+  }, [characterIdsKey, channelSuffix]);
 
   useEffect(() => {
     return setupRealtime();
@@ -472,7 +494,7 @@ export function MasterDashboard({
         )}
         {activeTab === "combat" && (
           <MasterCombatSimulator
-            partyData={partyData}
+            partyData={simulatorPartyData}
             monsters={monsters}
             characterSpells={characterSpells}
             initialMonsters={pendingCombatMonsters}
