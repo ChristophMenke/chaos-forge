@@ -223,25 +223,25 @@ Der User kann den Modus in den Einstellungen wählen.
 
 **Tasks**:
 
-- [ ] `src/components/settings/view-mode-selector.tsx` (neu) anlegen:
+- [x] `src/components/settings/view-mode-selector.tsx` (neu) anlegen:
   - Segmented Control auf Basis von `@base-ui/react/radio-group` + `radio`; Pfeiltasten und `aria-checked` kommen mit.
   - Icons: Automatisch = `MonitorSmartphone`, Mobil = `Smartphone`, Desktop = `Monitor` (lucide).
   - Optik angelehnt an die Segment-Buttons in `master-bestiary-panel.tsx:496-509`.
   - Nutzt `useViewMode()`, testids `view-mode-auto|mobile|desktop`.
-- [ ] `settings-client.tsx:284-314`: Im Abschnitt „Darstellung“ unter den bestehenden Buttons ein Label „Ansicht“, den `ViewModeSelector` und den Hinweistext ergänzen.
-- [ ] `messages/de.json` und `messages/en.json`, Namespace `settings`:
+- [x] `settings-client.tsx:284-314`: Im Abschnitt „Darstellung“ unter den bestehenden Buttons ein Label „Ansicht“, den `ViewModeSelector` und den Hinweistext ergänzen.
+- [x] `messages/de.json` und `messages/en.json`, Namespace `settings`:
   - `viewMode` („Ansicht“ / „View“)
   - `viewModeAuto`, `viewModeMobile`, `viewModeDesktop`
   - `viewModeHint`
 
 **Automated Verification**:
 
-- [ ] Unit `src/components/settings/view-mode-selector.test.tsx`:
+- [x] Unit `src/components/settings/view-mode-selector.test.tsx`:
   - Initial ist `auto` ausgewählt (`aria-checked`).
   - Ein Klick auf „Mobil“ setzt `view-mobile` auf `<html>` und speichert in localStorage.
-  - Pfeil-rechts wechselt auf die nächste Option.
+  - ~~Pfeil-rechts wechselt auf die nächste Option~~: Die Navigation von `@base-ui` braucht Layout-Geometrie, die jsdom nicht liefert. Die Tastaturbedienung ist Bibliotheksverhalten und wird manuell geprüft (siehe unten).
   - Nach erneutem Mount ist der gespeicherte Wert vorausgewählt.
-- [ ] `npm run verify` ist grün.
+- [x] `npm run verify` ist grün.
 
 **Manual Verification**:
 
@@ -249,6 +249,7 @@ Der User kann den Modus in den Einstellungen wählen.
   1. Einstellungen → Darstellung → „Mobil“ wählen: Die App zeigt sofort Bottom-Nav, Play-Tabs und den gestapelten Header.
   2. Neu laden: Mobil bleibt aktiv, ohne kurz das Desktop-Layout aufblitzen zu lassen.
   3. „Automatisch“ wählen: Alles ist wie vorher.
+  4. Mit Tab in die Auswahl springen und mit den Pfeiltasten zwischen den drei Optionen wechseln.
 - [ ] Am Galaxy Tab S6 Lite (Hochformat, 800 px):
   1. „Mobil“ wählen.
   2. Charakter spielen: Die Tabs zeigen ein Panel in voller Breite, kein Rauszoomen nötig.
