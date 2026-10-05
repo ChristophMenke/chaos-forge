@@ -3,6 +3,10 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { createClient } from "@/lib/supabase/client";
+import { useUndo } from "@/components/undo/undo-context";
+import { rowDelete, rowInsert, rowUpdate } from "@/lib/undo/changes";
+import type { RowChange, UndoLabel } from "@/lib/undo/types";
+import { useDebouncedRowWrite, type RowWrite } from "@/lib/hooks/use-debounced-row-write";
 import { getEquipmentCatalogs, invalidateEquipmentCatalogs } from "@/lib/catalog/equipment-catalog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -109,6 +113,24 @@ export function TabEquipment({
   const t = useTranslations("equipment");
   const ts = useTranslations("sheet");
   const locale = useLocale();
+  const undo = useUndo();
+
+  function record(label: UndoLabel, changes: (RowChange | null)[], coalesceKey?: string) {
+    const real = changes.filter((c): c is RowChange => c !== null);
+    if (real.length > 0) undo?.record({ label, changes: real, coalesceKey });
+  }
+
+  /** Quantity and bonus inputs: one write and one undo step per typing burst. */
+  const writeField = useDebouncedRowWrite((write: RowWrite, ok: boolean) => {
+    if (!ok) return;
+    const change = rowUpdate(
+      write.table,
+      { id: write.id },
+      { [write.field]: write.before },
+      { [write.field]: write.value }
+    );
+    record({ key: write.field === "quantity" ? "quantityChanged" : "bonusChanged" }, [change]);
+  });
   const [loading, setLoading] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [addTab, setAddTab] = useState<"weapons" | "armor" | "magic">("weapons");
@@ -333,7 +355,18 @@ export function TabEquipment({
       }
     }
 
-    await supabase.from("character_equipment").update({ equipped: newEquipped }).eq("id", item.id);
+    const { error } = await supabase
+      .from("character_equipment")
+      .update({ equipped: newEquipped })
+      .eq("id", item.id);
+    if (!error) {
+      const equipChange = (id: string, from: boolean, to: boolean) =>
+        rowUpdate("character_equipment", { id }, { equipped: from }, { equipped: to });
+      record({ key: newEquipped ? "equip" : "unequip", values: { name: getItemName(item) } }, [
+        ...armorsToUnequip.map((id) => equipChange(id, true, false)),
+        equipChange(item.id, item.equipped, newEquipped),
+      ]);
+    }
 
     const updatedEquipment = equipment.map((e) => {
       if (e.id === item.id) return { ...e, equipped: newEquipped };
@@ -346,10 +379,22 @@ export function TabEquipment({
 
   async function removeItem(itemId: string) {
     setLoading(true);
+    const item = equipment.find((e) => e.id === itemId);
     const supabase = createClient();
-    await supabase.from("character_equipment").delete().eq("id", itemId);
+    const { error } = await supabase.from("character_equipment").delete().eq("id", itemId);
     onEquipmentChange(equipment.filter((e) => e.id !== itemId));
     setLoading(false);
+    if (!error && item) {
+      record({ key: "itemRemoved", values: { name: getItemName(item) } }, [
+        rowDelete("character_equipment", item, item),
+      ]);
+    }
+  }
+
+  function recordEquipmentAdded(row: CharacterEquipmentWithDetails) {
+    record({ key: "itemAdded", values: { name: getItemName(row) } }, [
+      rowInsert("character_equipment", row, row),
+    ]);
   }
 
   async function handleUseConsumable(
@@ -361,29 +406,39 @@ export function TabEquipment({
 
     setLoading(true);
     const supabase = createClient();
+    const label: UndoLabel = { key: "consume", values: { name: getItemName(item) } };
     try {
-      if (consumableType === "potion") {
-        if (result.hpHealed && onHpChange) {
+      if (consumableType === "potion" || consumableType === "scroll") {
+        // Healing goes into the sheet draft (saved with "Speichern").
+        if (consumableType === "potion" && result.hpHealed && onHpChange) {
           onHpChange(Math.min(hpMax, hpCurrent + result.hpHealed));
         }
-        await supabase.from("character_equipment").delete().eq("id", item.id);
+        const { error } = await supabase.from("character_equipment").delete().eq("id", item.id);
         onEquipmentChange(equipment.filter((e) => e.id !== item.id));
-      } else if (consumableType === "scroll") {
-        await supabase.from("character_equipment").delete().eq("id", item.id);
-        onEquipmentChange(equipment.filter((e) => e.id !== item.id));
+        if (!error) record(label, [rowDelete("character_equipment", item, item)]);
       } else if (consumableType === "charged" && result.chargesUsed) {
         const newCharges = Math.max(
           0,
           (item.magic_effects?.current_charges ?? 0) - result.chargesUsed
         );
         const updatedEffects = { ...item.magic_effects, current_charges: newCharges };
-        await supabase
+        const { error } = await supabase
           .from("character_equipment")
           .update({ magic_effects: updatedEffects })
           .eq("id", item.id);
         onEquipmentChange(
           equipment.map((e) => (e.id === item.id ? { ...e, magic_effects: updatedEffects } : e))
         );
+        if (!error) {
+          record(label, [
+            rowUpdate(
+              "character_equipment",
+              { id: item.id },
+              { magic_effects: item.magic_effects },
+              { magic_effects: updatedEffects }
+            ),
+          ]);
+        }
       }
       setUsingConsumableId(null);
     } finally {
@@ -409,6 +464,7 @@ export function TabEquipment({
       .single();
     if (data) {
       onEquipmentChange([...equipment, data as CharacterEquipmentWithDetails]);
+      recordEquipmentAdded(data as CharacterEquipmentWithDetails);
     }
     setLoading(false);
     setShowAddDialog(false);
@@ -470,6 +526,7 @@ export function TabEquipment({
         .single();
       if (data) {
         onEquipmentChange([...equipment, data as CharacterEquipmentWithDetails]);
+        recordEquipmentAdded(data as CharacterEquipmentWithDetails);
         setShowAddDialog(false);
       }
     } finally {
@@ -519,6 +576,7 @@ export function TabEquipment({
         .single();
       if (eqData) {
         onEquipmentChange([...equipment, eqData as CharacterEquipmentWithDetails]);
+        recordEquipmentAdded(eqData as CharacterEquipmentWithDetails);
       }
       setCustomWeapon({
         name: "",
@@ -611,6 +669,7 @@ export function TabEquipment({
     }
     if (data) {
       onEquipmentChange([...equipment, data as CharacterEquipmentWithDetails]);
+      recordEquipmentAdded(data as CharacterEquipmentWithDetails);
     }
     setShowAddDialog(false);
     setLoading(false);
@@ -634,11 +693,20 @@ export function TabEquipment({
       setLoading(false);
       return;
     }
+    const before = equipment.find((e) => e.id === id);
     onEquipmentChange(
       equipment.map((e) =>
         e.id === id ? { ...e, magic_effects: formData.effects, custom_label: label } : e
       )
     );
+    if (before) {
+      record({ key: "itemEdited", values: { name: label } }, [
+        rowUpdate("character_equipment", { id }, before, {
+          magic_effects: formData.effects,
+          custom_label: label,
+        }),
+      ]);
+    }
     setEditingMagicItemId(null);
     setLoading(false);
   }
@@ -676,7 +744,11 @@ export function TabEquipment({
       .select("*, item:general_items(*)")
       .single();
     if (data) {
-      onInventoryChange([...inventory, data as CharacterInventoryWithDetails]);
+      const row = data as CharacterInventoryWithDetails;
+      onInventoryChange([...inventory, row]);
+      record({ key: "itemAdded", values: { name: inventoryName(row) } }, [
+        rowInsert("character_inventory", row, row),
+      ]);
     }
     setLoading(false);
     setShowAddInventory(false);
@@ -684,41 +756,56 @@ export function TabEquipment({
     setCustomItemName("");
   }
 
+  function inventoryName(item: CharacterInventoryWithDetails): string {
+    if (item.custom_name) return item.custom_name;
+    return item.item ? localized(item.item.name, item.item.name_en, locale) : "";
+  }
+
   async function removeInventoryItem(id: string) {
     setLoading(true);
+    const item = inventory.find((i) => i.id === id);
     const supabase = createClient();
-    await supabase.from("character_inventory").delete().eq("id", id);
+    const { error } = await supabase.from("character_inventory").delete().eq("id", id);
     onInventoryChange(inventory.filter((i) => i.id !== id));
     setLoading(false);
+    if (!error && item) {
+      record({ key: "itemRemoved", values: { name: inventoryName(item) } }, [
+        rowDelete("character_inventory", item, item),
+      ]);
+    }
   }
 
-  async function updateInventoryQuantity(id: string, quantity: number) {
-    setLoading(true);
-    const supabase = createClient();
-    await supabase.from("character_inventory").update({ quantity }).eq("id", id);
+  function updateInventoryQuantity(id: string, quantity: number) {
+    const item = inventory.find((i) => i.id === id);
+    if (!item) return;
     onInventoryChange(inventory.map((i) => (i.id === id ? { ...i, quantity } : i)));
-    setLoading(false);
+    writeField({
+      table: "character_inventory",
+      id,
+      field: "quantity",
+      value: quantity,
+      before: item.quantity,
+    });
   }
 
-  async function updateEquipmentQuantity(id: string, quantity: number) {
-    setLoading(true);
-    const supabase = createClient();
-    await supabase.from("character_equipment").update({ quantity }).eq("id", id);
+  function updateEquipmentQuantity(id: string, quantity: number) {
+    const item = equipment.find((e) => e.id === id);
+    if (!item) return;
     onEquipmentChange(equipment.map((e) => (e.id === id ? { ...e, quantity } : e)));
-    setLoading(false);
+    writeField({
+      table: "character_equipment",
+      id,
+      field: "quantity",
+      value: quantity,
+      before: item.quantity,
+    });
   }
 
-  async function updateEquipmentBonus(
-    id: string,
-    field: "hit_bonus" | "damage_bonus",
-    value: number
-  ) {
-    const supabase = createClient();
-    await supabase
-      .from("character_equipment")
-      .update({ [field]: value })
-      .eq("id", id);
+  function updateEquipmentBonus(id: string, field: "hit_bonus" | "damage_bonus", value: number) {
+    const item = equipment.find((e) => e.id === id);
+    if (!item) return;
     onEquipmentChange(equipment.map((e) => (e.id === id ? { ...e, [field]: value } : e)));
+    writeField({ table: "character_equipment", id, field, value, before: item[field] });
   }
 
   function getItemName(item: CharacterEquipmentWithDetails): string {

@@ -17,7 +17,10 @@ import {
 } from "@/lib/rules/experience";
 import { getPendingLevelUps } from "@/lib/rules/level-up";
 import { CLASSES } from "@/lib/rules/classes";
-import type { CharacterClassRow, SessionRow } from "@/lib/supabase/types";
+import type { CharacterClassRow, SessionRow, XpHistoryRow } from "@/lib/supabase/types";
+import { useUndo } from "@/components/undo/undo-context";
+import { rowInsert, rowUpdate } from "@/lib/undo/changes";
+import type { RowChange } from "@/lib/undo/types";
 import type { ClassId } from "@/lib/rules/types";
 
 interface XpAddDialogProps {
@@ -31,6 +34,8 @@ interface XpAddDialogProps {
   initialAmount?: number;
   /** Called after saving when a class now has the XP for its next level. */
   onLevelUpPending?: () => void;
+  /** The stored XP history row (for the list and the saved-state snapshot). */
+  onXpAdded?: (entry: XpHistoryRow) => void;
 }
 
 export function XpAddDialog({
@@ -43,7 +48,9 @@ export function XpAddDialog({
   initialSessionId,
   initialAmount,
   onLevelUpPending,
+  onXpAdded,
 }: XpAddDialogProps) {
+  const undo = useUndo();
   const t = useTranslations("sheet");
   const tc = useTranslations("common");
   const locale = useLocale();
@@ -159,12 +166,16 @@ export function XpAddDialog({
       await Promise.all(classUpdates);
 
       // Save to XP history
-      await supabase.from("xp_history").insert({
-        character_id: characterId,
-        session_id: selectedSessionId || null,
-        xp_amount: xpNum,
-        note: note.trim(),
-      });
+      const { data: entry } = await supabase
+        .from("xp_history")
+        .insert({
+          character_id: characterId,
+          session_id: selectedSessionId || null,
+          xp_amount: xpNum,
+          note: note.trim(),
+        })
+        .select()
+        .single();
 
       // Optimistic update (only on success)
       const updatedClasses = characterClasses.map((cc) => {
@@ -174,6 +185,22 @@ export function XpAddDialog({
         return { ...cc, xp_current: cc.xp_current + classXp };
       });
       onClassesChange(updatedClasses);
+      if (entry) onXpAdded?.(entry as XpHistoryRow);
+
+      const changes: (RowChange | null)[] = characterClasses.map((cc, i) =>
+        rowUpdate(
+          "character_classes",
+          { id: cc.id },
+          { xp_current: cc.xp_current },
+          { xp_current: updatedClasses[i].xp_current },
+          { uiBefore: cc, uiAfter: updatedClasses[i] }
+        )
+      );
+      if (entry) changes.push(rowInsert("xp_history", entry, entry));
+      const real = changes.filter((c): c is RowChange => c !== null);
+      if (real.length > 0) {
+        undo?.record({ label: { key: "xpAdded", values: { amount: xpNum } }, changes: real });
+      }
       const levelUpPending = getPendingLevelUps(updatedClasses).length > 0;
 
       setXpAmount("");

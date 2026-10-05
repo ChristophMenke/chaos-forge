@@ -9,6 +9,7 @@ import { EffectsBar } from "@/components/effects/effects-bar";
 import { useCharacterEffects } from "@/lib/hooks/use-character-effects";
 import { useUndo, useUndoSync } from "@/components/undo/undo-context";
 import { rowUpdate } from "@/lib/undo/changes";
+import { levelUpChanges } from "@/lib/level-up/undo-changes";
 import { patchList, patchRow, touches } from "@/lib/undo/patch";
 import type { RowChange, UndoLabel } from "@/lib/undo/types";
 import { aggregateEffects } from "@/lib/rules/temporary-effects";
@@ -740,6 +741,16 @@ export function PlayMode({
   );
 
   function handleLevelUpApplied(plan: LevelUpPlan) {
+    const classRow = levelUpClasses.find((cc) => cc.id === plan.classRowId);
+    recordChanges(
+      { key: "levelUp", values: { level: plan.toLevel } },
+      levelUpChanges(plan, {
+        classLevel: classRow?.level ?? plan.toLevel - 1,
+        hp_max: character.hp_max,
+        level: character.level,
+        thief: character as unknown as Record<string, number>,
+      })
+    );
     setAppliedLevels((prev) => ({ ...prev, [plan.classRowId]: plan.toLevel }));
     setCharacter((prev) => ({
       ...prev,

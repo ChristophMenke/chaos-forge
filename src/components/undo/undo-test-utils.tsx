@@ -26,14 +26,17 @@ export function createUndoStub() {
     },
     dropDraft: vi.fn(),
     collapseDraft: vi.fn(),
-    hasDraft: false,
+    // Read at render time; pages re-render after recording a draft step.
+    get hasDraft() {
+      return entries.some((e) => e.kind === "draft");
+    },
     clear: vi.fn(),
   };
 
   /** Plays the last (or given) recorded entry back into the page. */
   function replay(direction: UndoDirection, entry: NewEntry = entries[entries.length - 1]) {
     act(() => {
-      for (const listener of listeners) listener(entry.changes, direction);
+      for (const listener of listeners) listener(entry.changes, direction, entry.kind ?? "db");
     });
   }
 

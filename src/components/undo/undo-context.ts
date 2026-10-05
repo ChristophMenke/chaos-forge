@@ -2,10 +2,14 @@
 
 import { createContext, useContext, useEffect, useRef } from "react";
 import type { NewEntry } from "@/lib/undo/history";
-import type { RowChange, UndoDirection, UndoLabel } from "@/lib/undo/types";
+import type { RowChange, UndoDirection, UndoEntry, UndoLabel } from "@/lib/undo/types";
 
 /** Patches page state after an undo/redo; must be idempotent. */
-export type UndoListener = (changes: RowChange[], direction: UndoDirection) => void;
+export type UndoListener = (
+  changes: RowChange[],
+  direction: UndoDirection,
+  kind: UndoEntry["kind"]
+) => void;
 
 export interface UndoContextValue {
   /** Records a successful write (changes that changed nothing are skipped). */
@@ -41,6 +45,6 @@ export function useUndoSync(listener: UndoListener) {
   const subscribe = undo?.subscribe;
   useEffect(() => {
     if (!subscribe) return;
-    return subscribe((changes, direction) => ref.current(changes, direction));
+    return subscribe((changes, direction, kind) => ref.current(changes, direction, kind));
   }, [subscribe]);
 }

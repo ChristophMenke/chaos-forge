@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Datenbank & Auth:** Supabase (PostgreSQL + Row Level Security)
 - **Styling:** Tailwind CSS v4 + shadcn/ui + Glassmorphism Design-System
 - **i18n:** next-intl (Cookie-basiert, DE/EN) + `localized()` Utility für DB-Daten
-- **Unit-/Integrationstests:** Vitest (2100+ Tests)
+- **Unit-/Integrationstests:** Vitest (2150+ Tests)
 - **E2E-Tests:** keine automatisierte E2E-Suite mehr (Playwright-Specs, Test-Login-Routen und QA-Test-Domain entfernt). UI-Verhalten wird explorativ über `playwright-cli` geprüft. Das Paket `playwright` bleibt nur für die Spell-Card-Render-Skripte unter `scripts/spell-cards/`.
 - **Linting/Formatting:** ESLint (next config) + Prettier (0 Warnings, 0 Errors)
 - **Hosting:** Vercel (Free-Tier)
@@ -76,6 +76,7 @@ src/
     print-sheet/          # Druckansicht + Word-Export (.docx), Customization Panel
     effects/              # Temporäre Effekte: Chips, Dialog (Vorlagen, Auswirkungen, Zustände, Freitext), Warnungen, Effekt-Leiste (Play Mode), Abschnitt (Charakterbogen)
     level-up/             # Stufenaufstiegs-Assistent (TP-Wurf, Fertigkeitspunkte, Übersicht) + Banner „Stufenaufstieg verfügbar“
+    undo/                 # Rückgängig/Wiederherstellen: UndoProvider (pro Charakter), useUndo/useUndoSync, Buttons in der Modus-Leiste, Test-Stub
     session/              # Session-Einträge, Sprachnotizen (MediaRecorder)
     wizard/               # Character Wizard (8 Steps: Basics, Abilities, Race, Class, Kit, Priesthood, Combat, Summary)
     ui/                   # shadcn/ui Komponenten
@@ -130,7 +131,8 @@ src/
       execute-apply-plan.ts # Dünner I/O-Layer mit Fehler-Sammlung
     catalog/              # Session-Cache für Stammdaten im Browser (spell-catalog.ts, equipment-catalog.ts)
     master/               # Server-only GM-Helfer (auto-share.ts, läuft per after())
-    hooks/                # Custom React Hooks
+    hooks/                # Custom React Hooks (u. a. use-debounced-row-write.ts: Zahlenfelder entprellt speichern)
+    undo/                 # Undo-Kern (rein): history.ts (Stapel, Coalescing, Entwurf), changes.ts (RowChange), apply.ts (DB-Umkehr mit Konfliktprüfung), patch.ts (State-Patch), tables.ts
       use-print-preferences.ts # Print-Layout-Preferences pro Charakter (localStorage)
       use-view-mode.ts    # Ansichtsmodus (auto/mobile/desktop) als Hook
       use-breakpoint.ts   # useBreakpoint("sm"|"lg") — JS-Breitenprüfung, die den Ansichtsmodus respektiert
@@ -219,6 +221,17 @@ Die AD&D-Regeln sind als **reine TypeScript-Funktionen** implementiert (kein DB-
 - Temporäre TP: eigener Puffer je Effekt, Schaden zieht zuerst dort ab (`consumeTempHp`, älteste zuerst), dann echte TP.
 - Ausnahmen ohne Effekte: Gestaltwandlung, Kampfsimulator (`simulatorCombat`), Druckansicht/DOCX.
 - Realtime: `useCharacterEffects` (Kanal mit `useId`-Suffix), GM-Dashboard per `useRealtimeRefresh` auf `character_effects`.
+
+**Rückgängig/Wiederherstellen (`src/lib/undo/`, `src/components/undo/`):**
+
+- Nur für eigene Charaktere: `src/app/characters/[id]/layout.tsx` setzt den `UndoProvider` für den Besitzer. Das Layout bleibt beim Wechsel Verwalten/Spielen/Episch montiert, die Historie (max. 50 Schritte, pro Tab, nur im Speicher) also auch; Neuladen leert sie. NPC-Seiten im GM-Bereich haben keinen Provider (`useUndo()` → `null`). Keine Tastenkürzel, nur die Buttons in `CharacterModeNav`.
+- Ein Schritt = `RowChange[]` (Tabelle, Schlüssel, Spalten vorher/nachher, optional UI-Objekte). **Nur nach erfolgreichem Write aufzeichnen**, mit Zeilen aus `.select()` statt lokal erzeugter Werte; **eine Nutzeraktion = ein `record()`** (z. B. Schaden = temporäre TP + TP).
+- `applyEntry()` lädt alle Zeilen und vergleicht sie mit dem Stand nach dem Schritt; weicht etwas ab (jemand hat geändert), wird nichts geschrieben und der Schritt verworfen („wurde inzwischen geändert“). Gelöschte Zeilen kommen mit gleicher `id` zurück (Joins entfernt), `character_effects` per `ended_at`.
+- Seiten patchen ihren State in `useUndoSync` (idempotent, über `patchList`/`patchRow`); danach `router.refresh()` für Daten, die nur als Props vorliegen. Reiter halten keinen eigenen Kopie-State von Charakterfeldern (Tabs werden beim Verstecken ausgehängt).
+- Charakterbogen: Eingaben vor „Speichern“ sind `draft`-Schritte (kein DB-Zugriff); Speichern fasst sie zu „Charakterbogen gespeichert“ zusammen (Diff zu `savedRef`, das auch direkte Writes wie Stufenaufstieg/XP nachzieht); Verlassen des Bogens verwirft sie.
+- Coalescing: gleicher `coalesceKey` innerhalb 1 s = ein Schritt; Mengen-/Bonusfelder schreiben entprellt (`useDebouncedRowWrite`).
+- Nicht umkehrbar: Charakter löschen/duplizieren, Avatar, Rescan (leert die Historie), Teilen, Archivieren, Gold/Item an andere senden, Katalogeinträge.
+- `src/test/undo-coverage.test.ts` prüft, dass jede Schreibstelle im Umfang aufzeichnet (oder begründete Ausnahme ist) und jede Beschriftung in `messages/*.json` unter `undo.labels` steht.
 
 **Stufenaufstieg (`level-up.ts`):**
 
@@ -409,3 +422,5 @@ Finaler explorativer Test mit etablierten Testing-Heuristiken und gezielten "Tes
 25. **Stufenaufstiegs-Assistent** — Aufstieg nur noch über einen Assistenten pro Klassenstufe: echter Trefferwürfel abgefragt (CON inkl. Fitness, Kit-Würfel, Multiclass-Teilung nach PHB, feste TP ab Name-Level, Dual-Class ruhend), Diebes-/Bardenpunkte verteilen (max. 15 je Fertigkeit, 95 %), Übersicht aller Änderungen inkl. Epic-Freischaltungen. Banner „Stufenaufstieg verfügbar“ in Charakterbogen und Play Mode; XP-Dialog und XP-Löschung ändern keine Stufen mehr; `characters.level` wird synchron gehalten. PHB-Korrekturen: Schurken +1 NWP-Slot alle 4 Stufen, feste TP für Schurken/Magier ab Stufe 11 ✅
 
 26. **Temporäre Effekte** — Zauber, Monsterangriffe, Zustände und Verletzungen als Effekte am Charakter: 37 Vorlagen mit Quellen oder frei definiert, Freitext-Notiz (z. B. Krit-Tabelle), Auswirkungen auf Attribute (auch CHA/CON-Verlust, Halbierung, „setzt auf“), Rettungswürfe (einzeln/alle, auch Auren), Angriff, Schaden, RK, Bewegung, Angriffe/Runde, Wahrnehmung, Proben, Diebesfertigkeiten, Zauberpatzer; Zustände wie bewusstlos, gehalten, kein GE-Bonus. Automatische Verrechnung in Play Mode, Charakterbogen („effektiv X“), GM-Karten und Dashboard; temporäre TP als Puffer. Nur der Spieler setzt Effekte, Ende manuell. Nebenbei: vier Attribut-Resolver zu `resolveEffectiveStats()` vereinheitlicht, Realtime-Kanäle mit Instanz-Suffix ✅
+
+27. **Rückgängig/Wiederherstellen** — Pfeil-Buttons in der Modus-Leiste eigener Charaktere mit Tooltip „Rückgängig: X“, Historie pro Charakter und Tab (50 Schritte, bleibt beim Moduswechsel, verfällt beim Neuladen). Abgedeckt: Spielmodus (TP, Schaden inkl. temporärer TP, Münzen, Zauber wirken, Rast, Inventar, Magische Items), Effekte, epische Ausrüstung (Klingen, Schadensstufe, Overclock), Charakterbogen (Entwurf schrittweise, Speichern als ein Schritt, alle Reiter), XP, Klassen, Stufenaufstieg. Konfliktprüfung gegen zwischenzeitliche Änderungen, Bestätigungsdialoge bleiben. Nebenbei: Mengen-/Bonusfelder speichern entprellt statt pro Tastendruck ✅

@@ -63,7 +63,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
         const result = await applyEntry(createClient(), entry, direction);
         if (result.ok) {
           update(direction === "undo" ? markUndone : markRedone);
-          for (const listener of listeners.current) listener(entry.changes, direction);
+          for (const listener of listeners.current) listener(entry.changes, direction, entry.kind);
           if (entry.kind === "db") router.refresh();
           toast.success(
             t(direction === "undo" ? "undone" : "redone", { label: label(entry.label) })
@@ -92,21 +92,31 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  // Stable callbacks: pages use them in effects (e.g. dropDraft on unmount).
+  const undo = useCallback(() => run("undo"), [run]);
+  const redo = useCallback(() => run("redo"), [run]);
+  const dropDraft = useCallback(() => update(dropDraftState), [update]);
+  const collapseDraft = useCallback(
+    (saved: NewEntry) => update((h) => collapseDraftState(h, saved, Date.now())),
+    [update]
+  );
+  const clear = useCallback(() => update(createHistory), [update]);
+
   const value = useMemo<UndoContextValue>(
     () => ({
       record,
-      undo: () => run("undo"),
-      redo: () => run("redo"),
+      undo,
+      redo,
       undoLabel: peekUndo(history)?.label ?? null,
       redoLabel: peekRedo(history)?.label ?? null,
       busy,
       subscribe,
-      dropDraft: () => update(dropDraftState),
-      collapseDraft: (saved) => update((h) => collapseDraftState(h, saved, Date.now())),
+      dropDraft,
+      collapseDraft,
       hasDraft: hasDraftState(history),
-      clear: () => update(createHistory),
+      clear,
     }),
-    [busy, history, record, run, subscribe, update]
+    [busy, history, record, undo, redo, subscribe, dropDraft, collapseDraft, clear]
   );
 
   return <UndoContext.Provider value={value}>{children}</UndoContext.Provider>;

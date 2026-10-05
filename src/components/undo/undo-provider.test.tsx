@@ -81,7 +81,8 @@ describe("UndoProvider + UndoButtons", () => {
     await waitFor(() => expect(screen.getByTestId("redo-button")).toBeEnabled());
     expect(listener).toHaveBeenCalledWith(
       [expect.objectContaining({ before: { hp_current: 10 } })],
-      "undo"
+      "undo",
+      "db"
     );
     expect(refresh).toHaveBeenCalled();
     expect(toast.success).toHaveBeenCalledWith("Rückgängig: TP 10 → 5");
