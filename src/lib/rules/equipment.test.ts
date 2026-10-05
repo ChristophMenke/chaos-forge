@@ -464,3 +464,29 @@ describe("getShieldProficiencyBonus", () => {
     ).toBe(3);
   });
 });
+
+describe("calculateAC with temporary effects", () => {
+  const base = { equippedArmorAC: 5, shieldEquipped: true, dexDefenseAdj: -2 }; // 5 - 1 - 2 = 2
+
+  it("applies an effect bonus in player terms (+ = better AC)", () => {
+    expect(calculateAC(base)).toBe(2);
+    expect(calculateAC({ ...base, effectAcBonus: -4 })).toBe(6);
+    expect(calculateAC({ ...base, effectAcBonus: 1 })).toBe(1);
+  });
+
+  it("replaces armor, Dexterity and shield with a set-to AC, then applies effect bonuses", () => {
+    expect(calculateAC({ ...base, effectAcSet: 6 })).toBe(6);
+    expect(calculateAC({ ...base, effectAcSet: 6, effectAcBonus: -4 })).toBe(10);
+  });
+
+  it("removes only a Dexterity bonus, never a penalty", () => {
+    expect(calculateAC({ ...base, noDexBonus: true })).toBe(4);
+    expect(calculateAC({ ...base, dexDefenseAdj: 1, noDexBonus: true })).toBe(5);
+  });
+
+  it("drops shield and shield proficiency without granting the single-weapon style bonus", () => {
+    const withProf = { ...base, shieldProficiencyBonus: 2, singleWeaponStyleBonus: 2 };
+    expect(calculateAC(withProf)).toBe(0);
+    expect(calculateAC({ ...withProf, noShield: true })).toBe(3);
+  });
+});

@@ -6,6 +6,7 @@ import {
   getIntelligenceModifiers,
   getWisdomModifiers,
   getCharismaModifiers,
+  toModifierScore,
   rollAbilityScoresMethodI,
   rollAbilityScoresMethodII,
   rollAbilityScoresMethodIII,
@@ -539,5 +540,27 @@ describe("ABILITY-014: getTotalLanguageSlots", () => {
     // INT 10 with Knowledge 16: uses Knowledge for numberOfLanguages (5)
     // Elf: 2 racial + 5 = 7
     expect(getTotalLanguageSlots(10, "elf", 16)).toBe(7);
+  });
+});
+
+describe("toModifierScore", () => {
+  // The ability tables start at 3; temporary effects can push a score lower.
+  it("clamps scores into the table range 3–25", () => {
+    expect(toModifierScore(0)).toBe(3);
+    expect(toModifierScore(2)).toBe(3);
+    expect(toModifierScore(14)).toBe(14);
+    expect(toModifierScore(30)).toBe(25);
+  });
+
+  it("keeps every modifier lookup working for scores 0–2", () => {
+    for (const score of [0, 1, 2]) {
+      const s = toModifierScore(score);
+      expect(getStrengthModifiers(s).hitAdj).toBeTypeOf("number");
+      expect(getDexterityModifiers(s).defensiveAdj).toBeTypeOf("number");
+      expect(getConstitutionModifiers(s).hpAdj).toBeTypeOf("number");
+      expect(() => getWisdomModifiers(s)).not.toThrow();
+      expect(getIntelligenceModifiers(s)).toBeDefined();
+      expect(getCharismaModifiers(s)).toBeDefined();
+    }
   });
 });
