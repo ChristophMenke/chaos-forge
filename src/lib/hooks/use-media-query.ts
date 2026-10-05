@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 /**
  * Client-only media query hook. Returns false on the server and on first
@@ -9,12 +9,17 @@ import { useSyncExternalStore } from "react";
  * MediaQueryList without a setState-in-effect anti-pattern.
  */
 export function useMediaQuery(query: string): boolean {
-  const subscribe = (callback: () => void) => {
-    if (typeof window === "undefined") return () => {};
-    const mql = window.matchMedia(query);
-    mql.addEventListener("change", callback);
-    return () => mql.removeEventListener("change", callback);
-  };
+  // Stable per query — a new function on every render would make React
+  // unsubscribe and resubscribe each time.
+  const subscribe = useCallback(
+    (callback: () => void) => {
+      if (typeof window === "undefined") return () => {};
+      const mql = window.matchMedia(query);
+      mql.addEventListener("change", callback);
+      return () => mql.removeEventListener("change", callback);
+    },
+    [query]
+  );
   const getSnapshot = () =>
     typeof window === "undefined" ? false : window.matchMedia(query).matches;
   const getServerSnapshot = () => false;

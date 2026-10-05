@@ -12,6 +12,7 @@ import { ApprovalErrorToast } from "@/components/approval-error-toast";
 import { SkipToMain } from "@/components/skip-to-main";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "@/components/ui/sonner";
+import { VIEW_MODE_INIT_SCRIPT } from "@/lib/view-mode";
 import "./globals.css";
 
 const cinzel = Cinzel({
@@ -79,10 +80,11 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col overflow-x-hidden">
-        {/* Embed mode: hide header, sidebar, nav when loaded in iframe */}
+        {/* Before first paint: embed mode (hide chrome in iframes) and the
+            device's view mode (see src/lib/view-mode.ts) */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `if(new URLSearchParams(location.search).has('embed'))document.documentElement.classList.add('embed-mode')`,
+            __html: `if(new URLSearchParams(location.search).has('embed'))document.documentElement.classList.add('embed-mode');${VIEW_MODE_INIT_SCRIPT}`,
           }}
         />
         <NextIntlClientProvider messages={messages}>

@@ -4,6 +4,54 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * View mode (src/lib/view-mode.ts): the breakpoint variants are redefined so a
+ * class on <html> can override the viewport width.
+ * - .view-mobile switches every breakpoint off → phone layout at any width.
+ * - .view-desktop forces `sm` (the layout breakpoint) on below 640px; md+ stay
+ *   width-based (md is mostly text sizes; forcing it shrinks inputs on phones).
+ * :where() keeps the specificity and order identical to Tailwind's defaults.
+ * Widths match the defaults; max-* variants are untouched and ignore the mode.
+ */
+@custom-variant sm {
+  @media (width >= 40rem) {
+    &:where(:root:not(.view-mobile) *) {
+      @slot;
+    }
+  }
+  &:where(:root.view-desktop *) {
+    @slot;
+  }
+}
+@custom-variant md {
+  @media (width >= 48rem) {
+    &:where(:root:not(.view-mobile) *) {
+      @slot;
+    }
+  }
+}
+@custom-variant lg {
+  @media (width >= 64rem) {
+    &:where(:root:not(.view-mobile) *) {
+      @slot;
+    }
+  }
+}
+@custom-variant xl {
+  @media (width >= 80rem) {
+    &:where(:root:not(.view-mobile) *) {
+      @slot;
+    }
+  }
+}
+@custom-variant 2xl {
+  @media (width >= 96rem) {
+    &:where(:root:not(.view-mobile) *) {
+      @slot;
+    }
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
