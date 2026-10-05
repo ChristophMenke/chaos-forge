@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isPriestCaster, getPriestSpheres } from "@/lib/rules/magic";
 import type { ClassId, PriestSphere } from "@/lib/rules/types";
+import { fetchAllRows } from "./fetch-all-rows";
 import type { CharacterRow, CharacterClassRow, SpellRow } from "./types";
 
 /**
@@ -57,32 +58,55 @@ export async function fetchAvailablePriestSpells(
   // Build DB query with sphere + level filter
   // For major spheres: all levels up to maxSpellLevel
   // For minor spheres: only levels 1-3 (and capped by maxSpellLevel)
-  let query = supabase
-    .from("spells")
-    .select("*")
-    .eq("spell_type", "priest")
-    .order("level")
-    .order("name");
-
+  let sphereFilter: PriestSphere[];
+  let levelCap: number;
   if (minorSpheres.length === 0) {
     // Only major spheres — simple filter
-    query = query.in("sphere", majorSpheres).lte("level", maxSpellLevel);
+    sphereFilter = majorSpheres;
+    levelCap = maxSpellLevel;
   } else if (majorSpheres.length === 0) {
     // Only minor spheres — cap at level 3
-    const minorMaxLevel = Math.min(3, maxSpellLevel);
-    query = query.in("sphere", minorSpheres).lte("level", minorMaxLevel);
+    sphereFilter = minorSpheres;
+    levelCap = Math.min(3, maxSpellLevel);
   } else {
     // Both access levels — fetch all up to maxSpellLevel,
     // then cap minor spheres in JS post-filter (can't express per-group level cap in a single SQL IN clause)
-    query = query.in("sphere", allSphereNames).lte("level", maxSpellLevel);
+    sphereFilter = allSphereNames;
+    levelCap = maxSpellLevel;
   }
 
-  const { data: spells, error } = await query.returns<SpellRow[]>();
-  if (error) {
-    console.error("[fetchAvailablePriestSpells] DB query failed:", error.message);
+  // A high-level priest with many spheres can match more spells than the
+  // 1000 rows PostgREST returns per response, so the result is paged.
+  let spells: SpellRow[];
+  try {
+    spells = await fetchAllRows<SpellRow>(
+      () =>
+        supabase
+          .from("spells")
+          .select("id", { count: "exact", head: true })
+          .eq("spell_type", "priest")
+          .in("sphere", sphereFilter)
+          .lte("level", levelCap),
+      (from, to) =>
+        supabase
+          .from("spells")
+          .select("*")
+          .eq("spell_type", "priest")
+          .in("sphere", sphereFilter)
+          .lte("level", levelCap)
+          .order("level")
+          .order("name")
+          .order("id")
+          .range(from, to)
+    );
+  } catch (error) {
+    console.error(
+      "[fetchAvailablePriestSpells] DB query failed:",
+      error instanceof Error ? error.message : error
+    );
     return [];
   }
-  if (!spells || spells.length === 0) return [];
+  if (spells.length === 0) return [];
 
   // Post-filter: cap minor sphere spells to level 3 (only needed when both major+minor exist)
   let available =

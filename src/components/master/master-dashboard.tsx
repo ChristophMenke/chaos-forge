@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Shield, Zap, ArrowLeft } from "lucide-react";
+import { invalidateEquipmentCatalogs } from "@/lib/catalog/equipment-catalog";
 import { createClient } from "@/lib/supabase/client";
 import { MasterPartyPanel } from "./master-party-panel";
 import { MasterItemsPanel } from "./master-items-panel";
@@ -92,6 +93,7 @@ export function MasterDashboard({
     setMonsters(await fetchMonstersGm());
   }, []);
   const refreshAllItems = useCallback(async () => {
+    invalidateEquipmentCatalogs(); // character sheets in this tab must not show stale items
     const [w, a, g] = await Promise.all([fetchWeaponsGm(), fetchArmorGm(), fetchGeneralItemsGm()]);
     setWeapons(w);
     setArmor(a);
@@ -141,6 +143,7 @@ export function MasterDashboard({
   );
 
   const refreshMagicItems = useCallback(async () => {
+    invalidateEquipmentCatalogs();
     const [items, dist] = await Promise.all([fetchMagicItems(), fetchMagicItemDistribution()]);
     setMagicItems(items);
     setMagicItemDistribution(dist);

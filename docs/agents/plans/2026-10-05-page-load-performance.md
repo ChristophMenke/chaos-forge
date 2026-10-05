@@ -234,7 +234,7 @@ Kataloge werden pro Browser-Sitzung im Speicher gehalten. Der Zauberkatalog wird
 
 **Tasks**:
 
-- [ ] `src/lib/supabase/fetch-all-rows.ts` (neu) anlegen: Der Helper holt die Anzahl und lädt dann alle Seiten parallel per `range(from, to)`. Bei einem Fehler wirft er. Aufrufer müssen nach einem eindeutigen Schlüssel sortieren (Doc-Kommentar).
+- [x] `src/lib/supabase/fetch-all-rows.ts` (neu) anlegen: Der Helper holt die Anzahl und lädt dann alle Seiten parallel per `range(from, to)`. Bei einem Fehler wirft er. Aufrufer müssen nach einem eindeutigen Schlüssel sortieren (Doc-Kommentar).
   ```ts
   export async function fetchAllRows<T>(
     count: () => PromiseLike<{ count: number | null; error: unknown }>,
@@ -242,29 +242,29 @@ Kataloge werden pro Browser-Sitzung im Speicher gehalten. Der Zauberkatalog wird
     pageSize = 1000
   ): Promise<T[]>;
   ```
-- [ ] `src/lib/catalog/spell-catalog.ts` (neu) anlegen: `getSpellCatalog(type: "wizard" | "priest")` mit einem Promise-Cache auf Modulebene pro Typ (gleichzeitige Aufrufe teilen sich den Request). Abfrage: `select("*")`, `eq spell_type`, `order level, name, id`, über `fetchAllRows`. Bei Fehler wird der Cache-Eintrag verworfen. Dazu `invalidateSpellCatalog()`.
-- [ ] `src/lib/catalog/equipment-catalog.ts` (neu) anlegen: `getEquipmentCatalogs()` mit einem Promise-Cache für `{ weapons, armor, generalItems, magicItems }` (Queries und Sortierung wie in `tab-equipment.tsx:146-151`) und `invalidateEquipmentCatalogs()`.
-- [ ] `tab-spells.tsx` `loadAllSpells` auf `getSpellCatalog(spellType)` umstellen. Nach erfolgreichem Custom-Spell-Insert (`handleCreateCustomSpell`, `:521`) `invalidateSpellCatalog()` aufrufen und den neuen Zauber lokal in `allSpellsLoaded` ergänzen.
-- [ ] `tab-equipment.tsx:140-158`: Den Katalog-Effekt auf `getEquipmentCatalogs()` umstellen. Nach den Custom-Inserts in `weapons` (`:488`) und `armor` (`:548`) `invalidateEquipmentCatalogs()` aufrufen.
-- [ ] `master-dashboard.tsx`: In `refreshAllItems` bzw. den Item- und Magic-Item-CRUD-Callbacks `invalidateEquipmentCatalogs()` aufrufen.
-- [ ] `src/lib/supabase/priest-spells.ts`: Die Query mit `order(..., "id")` über `fetchAllRows` laufen lassen. Ein Fehler wird gefangen, geloggt und ergibt `[]` wie bisher.
-- [ ] `rescan-view.tsx:36-51` und `characters/import/page.tsx:450-467`: Die sequenziellen Paging-Schleifen durch `fetchAllRows` ersetzen (Sortierung um `id` ergänzen).
+- [x] `src/lib/catalog/spell-catalog.ts` (neu) anlegen: `getSpellCatalog(type: "wizard" | "priest")` mit einem Promise-Cache auf Modulebene pro Typ (gleichzeitige Aufrufe teilen sich den Request). Abfrage: `select("*")`, `eq spell_type`, `order level, name, id`, über `fetchAllRows`. Bei Fehler wird der Cache-Eintrag verworfen. Dazu `invalidateSpellCatalog()`.
+- [x] `src/lib/catalog/equipment-catalog.ts` (neu) anlegen: `getEquipmentCatalogs()` mit einem Promise-Cache für `{ weapons, armor, generalItems, magicItems }` (Queries und Sortierung wie in `tab-equipment.tsx:146-151`) und `invalidateEquipmentCatalogs()`.
+- [x] `tab-spells.tsx` `loadAllSpells` auf `getSpellCatalog(spellType)` umstellen. Nach erfolgreichem Custom-Spell-Insert (`handleCreateCustomSpell`, `:521`) `invalidateSpellCatalog()` aufrufen und den neuen Zauber lokal in `allSpellsLoaded` ergänzen.
+- [x] `tab-equipment.tsx:140-158`: Den Katalog-Effekt auf `getEquipmentCatalogs()` umstellen. Nach den Custom-Inserts in `weapons` (`:488`) und `armor` (`:548`) `invalidateEquipmentCatalogs()` aufrufen.
+- [x] `master-dashboard.tsx`: In `refreshAllItems` bzw. den Item- und Magic-Item-CRUD-Callbacks `invalidateEquipmentCatalogs()` aufrufen.
+- [x] `src/lib/supabase/priest-spells.ts`: Die Query mit `order(..., "id")` über `fetchAllRows` laufen lassen. Ein Fehler wird gefangen, geloggt und ergibt `[]` wie bisher.
+- [x] `rescan-view.tsx:36-51` und `characters/import/page.tsx:450-467`: Die unsortierten, sequenziellen Paging-Schleifen durch das neue `getSpellNameIndex()` (`spell-catalog.ts`, `fetchAllRows` mit `order("id")`, Session-Cache) ersetzen.
 
 **Automated Verification**:
 
-- [ ] Unit (`fetch-all-rows.test.ts`):
+- [x] Unit (`fetch-all-rows.test.ts`):
   - 0 Zeilen ergeben `[]` ohne Seitenabruf.
   - 1.908 Zeilen ergeben die Seitenaufrufe `(0,999)` und `(1000,1999)`; das Ergebnis enthält alle 1.908 Zeilen in Reihenfolge. Das ist die Regression zum 1000er-Bug.
   - Ein Fehler in Count oder einer Seite wirft.
-- [ ] Unit (`spell-catalog.test.ts`):
+- [x] Unit (`spell-catalog.test.ts`):
   - Ein zweiter Aufruf erzeugt keinen neuen Request.
   - Parallele Aufrufe teilen sich einen Request.
   - Nach `invalidateSpellCatalog()` wird neu geladen.
   - Ein Fehler wird nicht gecacht.
   - Die Query sortiert nach `level`, `name` und `id`.
-- [ ] Unit (`equipment-catalog.test.ts`): analog zum Spell-Catalog.
-- [ ] Unit (`priest-spells.test.ts`): Bei gemockten 1.200 passenden Zeilen kommen alle 1.200 zurück, ein DB-Fehler ergibt `[]`.
-- [ ] `npm run verify` ist grün.
+- [x] Unit (`equipment-catalog.test.ts`): analog zum Spell-Catalog.
+- [x] Unit (`priest-spells.test.ts`): Bei gemockten 1.200 passenden Zeilen kommen alle 1.200 zurück, ein DB-Fehler ergibt `[]`.
+- [x] `npm run verify` ist grün.
 
 **Manual Verification**:
 

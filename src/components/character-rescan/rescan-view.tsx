@@ -13,6 +13,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
+import { getSpellNameIndex } from "@/lib/catalog/spell-catalog";
 import { Button } from "@/components/ui/button";
 import { buildChangeSet } from "@/lib/scan/character-diff";
 import { buildApplyPlan } from "@/lib/scan/character-apply";
@@ -30,22 +31,6 @@ import { ScanUploadPanel } from "./scan-upload-panel";
 export interface RescanViewProps {
   snapshot: CharacterSnapshot;
   basePath?: string;
-}
-
-/** Lädt die komplette Zauber-Tabelle in Seiten — sie sprengt das 1000er-Limit. */
-async function loadAllSpells(supabase: ReturnType<typeof createClient>) {
-  const batchSize = 1000;
-  const all: MatchCatalogs["spells"] = [];
-  for (let from = 0; ; from += batchSize) {
-    const { data } = await supabase
-      .from("spells")
-      .select("id, name, name_en, level")
-      .range(from, from + batchSize - 1);
-    if (!data || data.length === 0) break;
-    all.push(...data);
-    if (data.length < batchSize) break;
-  }
-  return all;
 }
 
 /**
@@ -79,7 +64,7 @@ async function loadCatalogs(
           .select("id, name, name_en")
           .then((r) => r.data ?? [])
       : Promise.resolve([]),
-    needsSpells ? loadAllSpells(supabase) : Promise.resolve([]),
+    needsSpells ? getSpellNameIndex() : Promise.resolve([]),
   ]);
 
   return { weapons, armor, nwps, spells };
