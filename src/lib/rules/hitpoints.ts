@@ -92,3 +92,25 @@ export function getHpStatus(currentHp: number, maxHp: number): HpStatus {
   if (currentHp <= getDeathThreshold(maxHp)) return "dead";
   return "unconscious";
 }
+
+/**
+ * Last level at which a class group still rolls a hit die (PHB): warriors and
+ * priests through 9th, rogues and wizards through 10th. Beyond it they gain a
+ * fixed amount per level and no Constitution bonus.
+ */
+export function getHitDiceLevelCap(classGroup: ClassGroup): number {
+  return classGroup === "warrior" || classGroup === "priest" ? 9 : 10;
+}
+
+/** Fixed hit points per level after the last hit die (PHB): 3 / 2 / 2 / 1. */
+export function getFixedHitPointsAfterNameLevel(classGroup: ClassGroup): number {
+  switch (classGroup) {
+    case "warrior":
+      return 3;
+    case "priest":
+    case "rogue":
+      return 2;
+    case "wizard":
+      return 1;
+  }
+}

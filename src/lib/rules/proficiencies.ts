@@ -19,7 +19,8 @@ export function getWeaponProficiencySlots(classGroup: ClassGroup, level: number)
 
 /**
  * Non-weapon proficiency slots by class group and level.
- * PHB Table 34. Base slots + additional every 3 levels.
+ * PHB Table 34: warrior 3 (+1 every 3 levels), wizard 4 (+1/3),
+ * priest 4 (+1/3), rogue 3 (+1 every 4 levels).
  */
 export function getNonweaponProficiencySlots(
   classGroup: ClassGroup,
@@ -27,7 +28,8 @@ export function getNonweaponProficiencySlots(
   _intScore?: number
 ): number {
   const base = classGroup === "priest" || classGroup === "wizard" ? 4 : 3;
-  return base + Math.floor((level - 1) / 3);
+  const levelsPerSlot = classGroup === "rogue" ? 4 : 3;
+  return base + Math.floor((level - 1) / levelsPerSlot);
 }
 
 /**

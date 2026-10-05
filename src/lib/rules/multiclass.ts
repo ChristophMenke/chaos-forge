@@ -236,3 +236,29 @@ export function getHighestActiveClassLevel(
   const activeLevels = classes.filter((c) => c.is_active).map((c) => c.level);
   return activeLevels.length > 0 ? Math.max(...activeLevels) : fallbackLevel;
 }
+
+/**
+ * The class entries that drive THAC0 and saves. Multiclass: every active
+ * class. Dual-class (the original class carries `switch_level`): only the new
+ * class while it is dormant (new level ≤ switch level), afterwards the original
+ * class at its switch level plus the new class (PHB: dormant until exceeded).
+ */
+export function getEffectiveClassEntries(
+  classes: { class_id: string; level: number; is_active: boolean; switch_level: number | null }[]
+): ClassEntry[] {
+  const activeClasses = classes.filter((cc) => cc.is_active);
+  const classEntries = activeClasses.map((cc) => ({
+    classId: cc.class_id as ClassId,
+    level: cc.level,
+  }));
+
+  const dualOrig = classes.find((cc) => cc.switch_level != null);
+  if (!dualOrig) return classEntries;
+
+  const dualNew = activeClasses.find((cc) => cc.class_id !== dualOrig.class_id);
+  if (!dualNew) return classEntries;
+
+  const newEntry = { classId: dualNew.class_id as ClassId, level: dualNew.level };
+  if (dualNew.level <= dualOrig.switch_level!) return [newEntry];
+  return [{ classId: dualOrig.class_id as ClassId, level: dualOrig.switch_level! }, newEntry];
+}

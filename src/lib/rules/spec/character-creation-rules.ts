@@ -726,16 +726,21 @@ export const CHARACTER_CREATION_RULES: readonly RuleEntry[] = [
     chapter: "ch3-classes",
     phbReference: "Chapter 3: Hit Points Beyond 1st Level",
     description:
-      "TP-Gewinn ab Stufe 2: CON-Bonus-Cap +2 für Nicht-Krieger, nur Krieger bekommen +3/+4",
+      "TP-Gewinn ab Stufe 2: CON-Bonus-Cap +2 für Nicht-Krieger, nur Krieger bekommen +3/+4. Trefferwürfel bis Stufe 9 (Krieger/Priester) bzw. 10 (Schurke/Magier), danach feste TP 3/2/2/1 ohne CON",
     status: "implemented",
     implementationFiles: ["hitpoints.ts"],
-    implementationFunctions: ["getConBonusCap"],
-    testFiles: ["hitpoints.test.ts"],
+    implementationFunctions: [
+      "getConBonusCap",
+      "getHitDiceLevelCap",
+      "getFixedHitPointsAfterNameLevel",
+    ],
+    testFiles: ["hitpoints.test.ts", "level-up.test.ts"],
     scenarios: [
       { description: "Krieger CON 18: +4 HP pro Level" },
       { description: "Priester CON 18: nur +2 HP pro Level (Cap)" },
       { description: "Magier CON 18: nur +2 HP pro Level (Cap)" },
-      { description: "Nach Level 9 nur noch feste HP (kein CON-Bonus)" },
+      { description: "Krieger/Priester ab Stufe 10 feste TP (+3/+2, kein CON-Bonus)" },
+      { description: "Schurke/Magier ab Stufe 11 feste TP (+2/+1, kein CON-Bonus)" },
     ],
   },
   {
@@ -770,6 +775,25 @@ export const CHARACTER_CREATION_RULES: readonly RuleEntry[] = [
       { description: "Wenn neue Klasse höheres Level erreicht: alte Fähigkeiten kommen zurück" },
     ],
     notes: "Hausregel: Dualclass für alle Rassen, nicht nur Menschen.",
+  },
+  {
+    id: "CLASS-014",
+    chapter: "ch3-classes",
+    phbReference: "Chapter 3: Hit Points; Multi-Class and Dual-Class Characters",
+    description:
+      "TP pro Stufenaufstieg: Klassenwürfel (Kit-Override) + gekappter CON-Bonus, min. 1; Multiclass: Würfel und CON je ÷ Klassenanzahl; Dual-Class: keine TP bis die neue Klasse die alte übersteigt",
+    status: "implemented",
+    implementationFiles: ["level-up.ts"],
+    implementationFunctions: ["getLevelUpHitPoints", "getPendingLevelUps", "buildLevelUpSummary"],
+    testFiles: ["level-up.test.ts"],
+    scenarios: [
+      { description: "Dieb 9→10, Wurf 4, CON 15: +5 TP" },
+      {
+        description:
+          "Kämpfer/Magier, Magier-Aufstieg, Wurf 3, CON 18: floor(3/2) + floor(4/2) = +3",
+      },
+      { description: "Dual-Class ruhend: keine TP" },
+    ],
   },
 
   // =========================================================================
@@ -879,7 +903,7 @@ export const CHARACTER_CREATION_RULES: readonly RuleEntry[] = [
     chapter: "ch5-proficiencies",
     phbReference: "Table 34: Proficiency Slots",
     description:
-      "Allgemeine Fertigkeits-Slots: Priests/Wizards 4 base, Others 3 base, + floor((L-1)/3)",
+      "Allgemeine Fertigkeits-Slots: Priests/Wizards 4 base, Others 3 base; +1 alle 3 Stufen, Rogues +1 alle 4 Stufen",
     status: "implemented",
     implementationFiles: ["proficiencies.ts"],
     implementationFunctions: ["getNonweaponProficiencySlots"],
@@ -888,7 +912,7 @@ export const CHARACTER_CREATION_RULES: readonly RuleEntry[] = [
       { description: "Warrior L1: 3 Slots" },
       { description: "Priest L1: 4 Slots" },
       { description: "Wizard L1: 4 Slots" },
-      { description: "Rogue L4: 4 Slots" },
+      { description: "Rogue L4: 3 Slots, L5: 4 Slots" },
     ],
   },
   {
@@ -1404,15 +1428,20 @@ export const CHARACTER_CREATION_RULES: readonly RuleEntry[] = [
     description:
       "7 Basis-Diebesfähigkeiten: Pick Locks 15%, Find Traps 5%, Move Silently 10%, Hide 5%, Climb 60%, Detect Noise 15%, Read Languages 0%",
     status: "implemented",
-    implementationFiles: ["thief.ts"],
-    implementationFunctions: ["getBaseThiefSkills"],
-    testFiles: ["thief.test.ts"],
+    implementationFiles: ["thief.ts", "level-up.ts"],
+    implementationFunctions: [
+      "getBaseThiefSkills",
+      "getLevelUpSkillPoints",
+      "validateSkillAllocation",
+    ],
+    testFiles: ["thief.test.ts", "level-up.test.ts"],
     scenarios: [
       {
         description: "L1: pickLocks 15, climbWalls 60",
         example: "getBaseThiefSkills(1).pickLocks === 15",
       },
-      { description: "30 Punkte pro Level zum Verteilen" },
+      { description: "30 Punkte pro Level zum Verteilen (max. 15 je Fertigkeit, max. 95 %)" },
+      { description: "Barde: 15 Punkte pro Level auf Klettern, Geräusche hören, Sprachen lesen" },
     ],
   },
   {

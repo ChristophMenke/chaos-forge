@@ -51,6 +51,19 @@ describe("PROF-002: Non-Weapon Proficiency Slots", () => {
       getNonweaponProficiencySlots("warrior", 1)
     );
   });
+
+  // PHB Table 34: rogues gain a slot every 4 levels, the others every 3.
+  it("gives rogues one more slot every 4 levels", () => {
+    expect([1, 4, 5, 8, 9].map((l) => getNonweaponProficiencySlots("rogue", l))).toEqual([
+      3, 3, 4, 4, 5,
+    ]);
+  });
+
+  it("keeps warriors, priests and wizards at one slot every 3 levels", () => {
+    expect([1, 4, 7].map((l) => getNonweaponProficiencySlots("warrior", l))).toEqual([3, 4, 5]);
+    expect([1, 4, 7].map((l) => getNonweaponProficiencySlots("priest", l))).toEqual([4, 5, 6]);
+    expect([1, 4, 7].map((l) => getNonweaponProficiencySlots("wizard", l))).toEqual([4, 5, 6]);
+  });
 });
 
 describe("PROF-003: Non-proficiency Penalty", () => {
