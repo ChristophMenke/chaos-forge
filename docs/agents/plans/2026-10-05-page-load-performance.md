@@ -49,7 +49,7 @@ Grundlage: `docs/agents/research/2026-10-05-page-load-performance.md`. Kernpunkt
 - Zauber- und Ausrüstungskataloge werden pro Browser-Sitzung **einmal** geladen. Der Zauberkatalog ist vollständig, ohne 1000er-Kappung.
 - Bilder aus `public/` und `/_next/image` sind im Browser einen Tag lang cachebar.
 - GM-Panels werden erst geladen, wenn sie geöffnet werden.
-- `npm run verify` ist grün, die E2E-Suite ist grün.
+- `npm run verify` ist grün.
 
 ## What We're NOT Doing
 
@@ -147,9 +147,9 @@ Entfernt die sequenziellen Auth-Roundtrips pro Seite sowie die doppelten Approva
 
 **Tasks**:
 
-- [ ] `src/middleware.ts` per Codemod (`npx @next/codemod@canary middleware-to-proxy .`) zu `src/proxy.ts` migrieren. Matcher unverändert.
-- [ ] `src/lib/supabase/middleware.ts` `updateSession`: `getUser()` → `getClaims()`.
-- [ ] `src/lib/supabase/auth.ts`: Typ `AuthUser = { id: string; email: string | null }` und `getAuthUser = cache(async () => …)` anlegen. Die Funktion mappt `claims.sub` → `id` und `claims.email` → `email` und gibt bei Fehler oder fehlenden Claims `null` zurück. Der DEV_USER-Pfad bleibt.
+- [x] `src/middleware.ts` per Codemod (`npx @next/codemod@canary middleware-to-proxy .`) zu `src/proxy.ts` migrieren. Matcher unverändert.
+- [x] `src/lib/supabase/middleware.ts` `updateSession`: `getUser()` → `getClaims()`.
+- [x] `src/lib/supabase/auth.ts`: Typ `AuthUser = { id: string; email: string | null }` und `getAuthUser = cache(async () => …)` anlegen. Die Funktion mappt `claims.sub` → `id` und `claims.email` → `email` und gibt bei Fehler oder fehlenden Claims `null` zurück. Der DEV_USER-Pfad bleibt.
   ```ts
   export const getAuthUser = cache(async (): Promise<AuthUser | null> => {
     const supabase = await createClient();
@@ -157,30 +157,30 @@ Entfernt die sequenziellen Auth-Roundtrips pro Seite sowie die doppelten Approva
     return data?.claims ? { id: data.claims.sub, email: data.claims.email ?? null } : null;
   });
   ```
-- [ ] `requireAuth()` und `getOptionalUser()` auf `getAuthUser()` umstellen, mit Rückgabetyp `AuthUser`. TypeScript-Fehler der Aufrufer beheben.
-- [ ] `src/app/sessions/page.tsx:41-43`: direkten `getUser()`-Call durch `requireAuth()` ersetzen.
-- [ ] `src/components/approval-provider.tsx` (neu) anlegen: Der Client-Provider ermittelt die userId per `supabase.auth.getClaims()` und übernimmt die Logik aus `useApprovalStatus`: 1 Profil-Query, 1 Channel `approval-${userId}-${useId-Suffix}`, `removeChannel` im Cleanup. Er stellt `useApproval(): { userId, isApproved, isLoading }` bereit.
-- [ ] `src/app/layout.tsx`: `ApprovalProvider` innerhalb von `NextIntlClientProvider` um den App-Baum legen.
-- [ ] `approval-banner.tsx` und `approval-gate.tsx`: `getUser()` und `useApprovalStatus` entfernen und `useApproval()` nutzen. Das bisherige Verhalten bleibt: permissiv während des Ladens, Banner nicht auf `/login` und `/master`.
-- [ ] `use-approval-status.ts` entfernen, Importe anpassen und den Kommentar in `notification-bell.tsx:58` aktualisieren.
-- [ ] `tutorial/tutorial-overlay.tsx:189`: `getUser()` → `getClaims()` (`claims.sub`).
+- [x] `requireAuth()` und `getOptionalUser()` auf `getAuthUser()` umstellen, mit Rückgabetyp `AuthUser`. TypeScript-Fehler der Aufrufer beheben.
+- [x] `src/app/sessions/page.tsx:41-43`: direkten `getUser()`-Call durch `getOptionalUser()` ersetzen (Layout erzwingt Auth bereits; Semantik bleibt).
+- [x] `src/components/approval-provider.tsx` (neu) anlegen: Der Client-Provider ermittelt die userId per `supabase.auth.getClaims()` und übernimmt die Logik aus `useApprovalStatus`: 1 Profil-Query, 1 Channel `approval-${userId}-${useId-Suffix}`, `removeChannel` im Cleanup. Er stellt `useApproval(): { userId, isApproved, isLoading }` bereit.
+- [x] `src/app/layout.tsx`: `ApprovalProvider` innerhalb von `NextIntlClientProvider` um den App-Baum legen.
+- [x] `approval-banner.tsx` und `approval-gate.tsx`: `getUser()` und `useApprovalStatus` entfernen und `useApproval()` nutzen. Das bisherige Verhalten bleibt: permissiv während des Ladens, Banner nicht auf `/login` und `/master`.
+- [x] `use-approval-status.ts` entfernen, Importe anpassen und den Kommentar in `notification-bell.tsx:58` aktualisieren.
+- [x] `tutorial/tutorial-overlay.tsx:189`: `getUser()` → `getClaims()` (`claims.sub`).
 
 **Automated Verification**:
 
-- [ ] Unit (`auth.test.ts`, neu, mit gemocktem `createClient`):
+- [x] Unit (`auth.test.ts`, neu, mit gemocktem `createClient`):
   - `getAuthUser` mappt Claims auf `AuthUser` und gibt bei `error` oder `claims: null` `null` zurück.
   - `requireAuth` ruft ohne Claims `redirect("/login")` auf.
   - `getUser` wird nicht aufgerufen.
   - Die Deduplizierung wird mit gemocktem `react.cache` als Memo-Wrapper geprüft; das echte `cache()` ist in Vitest ein No-op.
-- [ ] Unit (`supabase/middleware.test.ts`, neu): `updateSession` ruft `getClaims` auf und nicht `getUser`.
-- [ ] Unit (`approval-provider.test.tsx`, aus `use-approval-status.test.ts` überführt, gleicher Channel-Mock):
+- [x] Unit (`supabase/middleware.test.ts`, neu): `updateSession` ruft `getClaims` auf und nicht `getUser`.
+- [x] Unit (`approval-provider.test.tsx`, aus `use-approval-status.test.ts` überführt, gleicher Channel-Mock):
   - Zwei `useApproval()`-Konsumenten erzeugen genau 1 Profil-Query und 1 Channel.
   - Ein Realtime-UPDATE setzt `isApproved`.
   - Der Unmount ruft `removeChannel` auf.
   - Ein StrictMode-Doppel-Mount wirft nicht (Regression #174).
-- [ ] Unit (`approval-gate.test.tsx`): Mit `isApproved=false` wird der Fallback gerendert, während des Ladens und bei Freigabe die Children.
-- [ ] `npm run verify` ist grün.
-- [ ] `npm run test:e2e` ist grün (Auth-Redirect, Dashboard, Notifications, Layout).
+- [x] Unit (`approval-gate.test.tsx`): Mit `isApproved=false` wird der Fallback gerendert, während des Ladens und bei Freigabe die Children.
+- [x] `npm run verify` ist grün.
+- ~~`npm run test:e2e`~~ entfällt (E2E-Suite am 2026-10-05 auf Wunsch entfernt)
 
 **Manual Verification**:
 
@@ -198,26 +198,26 @@ Ersetzt sequenzielle Queries durch parallele, nimmt blockierende Writes aus dem 
 
 **Tasks**:
 
-- [ ] `src/app/sessions/[id]/page.tsx`:
+- [x] `src/app/sessions/[id]/page.tsx`:
   - Welle 1 `Promise.all`: `sessions`, `session_entries`, `characters` (eigene, aktiv), `session_tags`, `tags`, `xp_history`, `session_participants` und `characters` (alle aktiven, nicht-NPC).
   - Danach `notFound()`.
   - Welle 2 `Promise.all`: `characters` `.in(entry ids)` und `characters` `.in(participant ids)`. Leere ID-Listen lösen keine Query aus.
-- [ ] `src/app/characters/[id]/epic/page.tsx`: Eine Welle `Promise.all` mit `characters`, `character_classes *`, `character_shares` (eigener Share) und `epic_items`. `classesForLevel` wird aus `characterClasses.filter(is_active)` abgeleitet. Die Redirect-Logik für Nicht-Owner ohne Share bleibt gleich.
-- [ ] `src/app/master/actions.ts`: Aus `autoShareCharacters` den cookie-freien Teil als `shareActiveCharactersWith(userId)` extrahieren (Select + Upsert über den Service-Client). `autoShareCharacters` (mit `checkGmSession`) delegiert daran.
-- [ ] `src/app/master/page.tsx:33`: Nach dem bestehenden `isGm`-Check `after(() => shareActiveCharactersWith(user.id))` aus `next/server` aufrufen.
-- [ ] `src/components/master/master-dashboard.tsx:150-153`: Der Mount-Effekt lädt nur `fetchMagicItemDistribution()`. `refreshMagicItems` bleibt für CRUD.
-- [ ] `src/lib/hooks/use-realtime-refresh.ts`: Ist der Tab bei einem Event nicht sichtbar, wird `pendingRefresh` gesetzt. Ein `visibilitychange`-Listener holt den Refresh beim Sichtbarwerden einmal nach. Listener-Cleanup im Effekt.
+- [x] `src/app/characters/[id]/epic/page.tsx`: Eine Welle `Promise.all` mit `characters`, `character_classes *`, `character_shares` (eigener Share) und `epic_items`. `classesForLevel` wird über den neuen, getesteten Helfer `getHighestActiveClassLevel()` (`src/lib/rules/multiclass.ts`) abgeleitet. Die Redirect-Logik für Nicht-Owner ohne Share bleibt gleich.
+- [x] Cookie-freien Auto-Share als `shareActiveCharactersWith(userId)` in `src/lib/master/auto-share.ts` (`server-only`, **kein** Server-Action-Export, weil jede Funktion aus der `"use server"`-Datei `master/actions.ts` öffentlich aufrufbar wäre). `autoShareCharacters` entfernt (einziger Aufrufer war die Master-Page).
+- [x] `src/app/master/page.tsx:33`: Nach dem bestehenden `isGm`-Check `after(() => shareActiveCharactersWith(user.id))` aus `next/server` aufrufen.
+- [x] `src/components/master/master-dashboard.tsx:150-153`: Der Mount-Effekt lädt nur `fetchMagicItemDistribution()`. `refreshMagicItems` bleibt für CRUD.
+- [x] `src/lib/hooks/use-realtime-refresh.ts`: Ist der Tab bei einem Event nicht sichtbar, wird `pendingRefresh` gesetzt. Ein `visibilitychange`-Listener holt den Refresh beim Sichtbarwerden einmal nach. Listener-Cleanup im Effekt.
 
 **Automated Verification**:
 
-- [ ] Unit (`use-realtime-refresh.test.ts`, neu):
+- [x] Unit (`use-realtime-refresh.test.ts`, neu):
   - Ein Event im sichtbaren Tab ruft nach dem Debounce `router.refresh` auf.
   - Ein Event im verborgenen Tab ruft es nicht auf; nach `visibilitychange` → visible wird genau einmal refresht.
   - Mehrere verborgene Events führen zu genau 1 Refresh.
   - Der Listener wird beim Unmount entfernt.
-- [ ] Unit (`master/actions.test.ts`, bestehend erweitern oder neu): `shareActiveCharactersWith` upsertet alle aktiven Charakter-IDs mit `ignoreDuplicates` und ruft kein `cookies()` auf.
-- [ ] `npm run verify` ist grün.
-- [ ] `npm run test:e2e` ist grün (`master.spec.ts`, Session-Share).
+- [x] Unit (`src/lib/master/auto-share.test.ts`): `shareActiveCharactersWith` upsertet alle aktiven Charakter-IDs mit `ignoreDuplicates` und ruft kein `cookies()` auf.
+- [x] `npm run verify` ist grün.
+- ~~`npm run test:e2e`~~ entfällt (E2E-Suite am 2026-10-05 auf Wunsch entfernt)
 
 **Manual Verification**:
 
@@ -294,7 +294,7 @@ Statische Bilder werden cachebar, und das sichtbare Bild bekommt die richtige Pr
 - [ ] Unit (`next-config.test.ts`, neu): `headers()` enthält die Regel mit dem erwarteten `Cache-Control`-Wert für das Bild-Pattern, und `images.minimumCacheTTL === 86400`.
 - [ ] Unit (`character-card.test.tsx`, neu): Ohne Prop rendert das Avatar-Bild ohne Preload-Priorität (`loading="lazy"`), mit `priority` ohne `loading="lazy"`.
 - [ ] `npm run verify` ist grün.
-- [ ] E2E Login- und Landing-Specs sind grün.
+- ~~E2E Login- und Landing-Specs~~ entfällt (E2E-Suite entfernt)
 
 **Manual Verification**:
 
@@ -317,7 +317,7 @@ Verkleinert das initiale JS des GM-Dashboards.
 **Automated Verification**:
 
 - [ ] `npm run verify` ist grün.
-- [ ] `npm run test:e2e` ist grün (`master.spec.ts` deckt alle Panels ab).
+- ~~`npm run test:e2e`~~ entfällt (E2E-Suite am 2026-10-05 auf Wunsch entfernt)
 - [ ] Gemessenes initiales gzip-JS von `/master` ist kleiner als 275 KB.
 
 **Manual Verification**:

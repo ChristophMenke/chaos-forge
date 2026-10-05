@@ -21,87 +21,78 @@ export default async function SessionPage({ params }: SessionPageProps) {
   const user = await requireAuth();
   const supabase = await createClient();
 
-  const { data: session } = await supabase
-    .from("sessions")
-    .select("*")
-    .eq("id", id)
-    .single<SessionRow>();
+  type CharacterSummary = Pick<CharacterRow, "id" | "name" | "avatar_url" | "race_id" | "class_id">;
+  const CHARACTER_SUMMARY = "id, name, avatar_url, race_id, class_id";
+
+  // Wave 1: everything that only needs the session id or the user id
+  const [
+    { data: session },
+    { data: entries },
+    { data: userCharacters },
+    { data: sessionTags },
+    { data: allTags },
+    { data: sessionXpHistory },
+    { data: participantRows },
+    { data: allActiveChars },
+  ] = await Promise.all([
+    supabase.from("sessions").select("*").eq("id", id).maybeSingle<SessionRow>(),
+    supabase
+      .from("session_entries")
+      .select("*")
+      .eq("session_id", id)
+      .order("created_at", { ascending: true })
+      .returns<SessionEntryRow[]>(),
+    supabase
+      .from("characters")
+      .select("id, name, avatar_url")
+      .eq("user_id", user.id)
+      .eq("is_active", true)
+      .returns<Pick<CharacterRow, "id" | "name" | "avatar_url">[]>(),
+    supabase.from("session_tags").select("tag_id, tags(*)").eq("session_id", id),
+    supabase.from("tags").select("*").order("name").returns<TagRow[]>(),
+    supabase
+      .from("xp_history")
+      .select("*")
+      .eq("session_id", id)
+      .order("created_at", { ascending: false })
+      .returns<XpHistoryRow[]>(),
+    supabase
+      .from("session_participants")
+      .select("*")
+      .eq("session_id", id)
+      .returns<SessionParticipantRow[]>(),
+    // All active non-NPC characters for the participant picker
+    supabase
+      .from("characters")
+      .select(CHARACTER_SUMMARY)
+      .eq("is_active", true)
+      .neq("is_npc", true)
+      .order("name")
+      .returns<CharacterSummary[]>(),
+  ]);
 
   if (!session) {
     notFound();
   }
 
-  const { data: entries } = await supabase
-    .from("session_entries")
-    .select("*")
-    .eq("session_id", id)
-    .order("created_at", { ascending: true })
-    .returns<SessionEntryRow[]>();
-
-  // Fetch characters for entries + user's own characters
-  const characterIds = [...new Set(entries?.map((e) => e.character_id) ?? [])];
-  const { data: entryCharacters } = await supabase
-    .from("characters")
-    .select("id, name, avatar_url, race_id, class_id")
-    .in("id", characterIds.length > 0 ? characterIds : ["none"])
-    .returns<Pick<CharacterRow, "id" | "name" | "avatar_url" | "race_id" | "class_id">[]>();
-
-  const { data: userCharacters } = await supabase
-    .from("characters")
-    .select("id, name, avatar_url")
-    .eq("user_id", user.id)
-    .eq("is_active", true)
-    .returns<Pick<CharacterRow, "id" | "name" | "avatar_url">[]>();
-
-  // Fetch tags
-  const { data: sessionTags } = await supabase
-    .from("session_tags")
-    .select("tag_id, tags(*)")
-    .eq("session_id", id);
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tags: TagRow[] = sessionTags?.map((st: any) => st.tags as TagRow).filter(Boolean) ?? [];
 
-  // Fetch all tags for autocomplete
-  const { data: allTags } = await supabase
-    .from("tags")
-    .select("*")
-    .order("name")
-    .returns<TagRow[]>();
+  // Wave 2: characters behind the entries and the participants
+  const fetchCharacters = async (ids: string[]): Promise<CharacterSummary[]> => {
+    if (ids.length === 0) return [];
+    const { data } = await supabase
+      .from("characters")
+      .select(CHARACTER_SUMMARY)
+      .in("id", ids)
+      .returns<CharacterSummary[]>();
+    return data ?? [];
+  };
 
-  // Fetch XP history for this session
-  const { data: sessionXpHistory } = await supabase
-    .from("xp_history")
-    .select("*")
-    .eq("session_id", id)
-    .order("created_at", { ascending: false })
-    .returns<XpHistoryRow[]>();
-
-  // Fetch session participants
-  const { data: participantRows } = await supabase
-    .from("session_participants")
-    .select("*")
-    .eq("session_id", id)
-    .returns<SessionParticipantRow[]>();
-
-  const participantCharIds = (participantRows ?? []).map((p) => p.character_id);
-  const { data: participantChars } =
-    participantCharIds.length > 0
-      ? await supabase
-          .from("characters")
-          .select("id, name, avatar_url, race_id, class_id")
-          .in("id", participantCharIds)
-          .returns<Pick<CharacterRow, "id" | "name" | "avatar_url" | "race_id" | "class_id">[]>()
-      : { data: [] as Pick<CharacterRow, "id" | "name" | "avatar_url" | "race_id" | "class_id">[] };
-
-  // Fetch all active non-NPC characters for the participant picker
-  const { data: allActiveChars } = await supabase
-    .from("characters")
-    .select("id, name, avatar_url, race_id, class_id")
-    .eq("is_active", true)
-    .neq("is_npc", true)
-    .order("name")
-    .returns<Pick<CharacterRow, "id" | "name" | "avatar_url" | "race_id" | "class_id">[]>();
+  const [entryCharacters, participantChars] = await Promise.all([
+    fetchCharacters([...new Set(entries?.map((e) => e.character_id) ?? [])]),
+    fetchCharacters((participantRows ?? []).map((p) => p.character_id)),
+  ]);
 
   return (
     <>

@@ -1,5 +1,7 @@
 import { requireAuth } from "@/lib/supabase/auth";
-import { checkGmSession, autoShareCharacters } from "./actions";
+import { after } from "next/server";
+import { checkGmSession } from "./actions";
+import { shareActiveCharactersWith } from "@/lib/master/auto-share";
 import { MasterPinGate } from "@/components/master/master-pin-gate";
 import { MasterDashboard } from "@/components/master/master-dashboard";
 import { createServiceClient } from "@/lib/supabase/service";
@@ -29,8 +31,9 @@ export default async function MasterPage() {
     return <MasterPinGate />;
   }
 
-  // Auto-share all active characters with the GM user
-  await autoShareCharacters(user.id);
+  // Auto-share all active characters with the GM user. Runs after the response
+  // is sent — it only writes shares and nothing below depends on it.
+  after(() => shareActiveCharactersWith(user.id));
 
   const service = createServiceClient();
 
