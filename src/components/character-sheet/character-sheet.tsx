@@ -7,6 +7,8 @@ import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { localized } from "@/lib/utils/localize";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
+import { buildCharacterSaveFields } from "@/lib/character/save-fields";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -458,57 +460,12 @@ export function CharacterSheet({
     // Save character fields
     const { error: charError } = await supabase
       .from("characters")
-      .update({
-        name: character.name,
-        race_id: character.race_id,
-        str: character.str,
-        str_exceptional: character.str_exceptional,
-        dex: character.dex,
-        con: character.con,
-        int: character.int,
-        wis: character.wis,
-        cha: character.cha,
-        hp_current: character.hp_current,
-        hp_max: character.hp_max,
-        alignment: character.alignment,
-        gold_pp: character.gold_pp,
-        gold_gp: character.gold_gp,
-        gold_ep: character.gold_ep,
-        gold_sp: character.gold_sp,
-        gold_cp: character.gold_cp,
-        notes: character.notes,
-        player_name: character.player_name,
-        age: character.age,
-        height_cm: character.height_cm,
-        weight_kg: character.weight_kg,
-        gender: character.gender,
-        hair_color: character.hair_color,
-        eye_color: character.eye_color,
-        str_stamina: character.str_stamina,
-        str_muscle: character.str_muscle,
-        dex_aim: character.dex_aim,
-        dex_balance: character.dex_balance,
-        con_health: character.con_health,
-        con_fitness: character.con_fitness,
-        int_reason: character.int_reason,
-        int_knowledge: character.int_knowledge,
-        wis_intuition: character.wis_intuition,
-        wis_willpower: character.wis_willpower,
-        cha_leadership: character.cha_leadership,
-        cha_appearance: character.cha_appearance,
-        thief_pick_locks: character.thief_pick_locks,
-        thief_find_traps: character.thief_find_traps,
-        thief_move_silently: character.thief_move_silently,
-        thief_hide_shadows: character.thief_hide_shadows,
-        thief_climb_walls: character.thief_climb_walls,
-        thief_detect_noise: character.thief_detect_noise,
-        thief_read_languages: character.thief_read_languages,
-        kit: character.kit,
-      })
+      .update(buildCharacterSaveFields(character))
       .eq("id", character.id);
 
     if (charError) {
       setSaving(false);
+      toast.error(t("saveFailed"));
       return;
     }
 
@@ -519,9 +476,13 @@ export function CharacterSheet({
         .update({ level: cc.level, xp_current: cc.xp_current })
         .eq("id", cc.id)
     );
-    await Promise.all(classUpdates);
-
+    const classResults = await Promise.all(classUpdates);
     setSaving(false);
+    if (classResults.some((r) => r.error)) {
+      toast.error(t("saveFailed"));
+      return;
+    }
+
     setDirty(false);
     router.refresh();
   }

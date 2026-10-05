@@ -346,7 +346,8 @@
     "xpHistory": "XP-Verlauf",
     "xpDeleteConfirm": "Diesen XP-Eintrag löschen ({amount} XP)? XP und Stufe des Charakters werden neu berechnet.",
     "xpHistoryEmpty": "Noch keine XP vergeben.",
-    "xpEarned": "Erfahrungspunkte"
+    "xpEarned": "Erfahrungspunkte",
+    "saveFailed": "Änderungen konnten nicht gespeichert werden. Bitte erneut versuchen."
   },
   "equipment": {
     "title": "Ausrüstung",
