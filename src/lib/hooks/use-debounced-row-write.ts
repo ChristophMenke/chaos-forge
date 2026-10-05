@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { UndoTable } from "@/lib/undo/tables";
+import { useUndo } from "@/components/undo/undo-context";
 
 export const ROW_WRITE_DELAY_MS = 400;
 
@@ -52,6 +53,15 @@ export function useDebouncedRowWrite(
       for (const key of [...map.keys()]) void flush(key);
     };
   }, [flush]);
+
+  // Undo/redo waits for typing that has not been saved yet.
+  const registerPending = useUndo()?.registerPending;
+  useEffect(() => {
+    if (!registerPending) return;
+    return registerPending(async () => {
+      await Promise.all([...pending.current.keys()].map((key) => flush(key)));
+    });
+  }, [registerPending, flush]);
 
   return useCallback(
     (write: RowWrite) => {

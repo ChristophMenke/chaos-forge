@@ -226,7 +226,7 @@ export function EpicEquipmentView({
   async function updateSimpleEffects(
     itemId: string,
     newEffects: Record<string, unknown>,
-    label: UndoLabel
+    label: UndoLabel | null
   ) {
     const item = items.find((i) => i.id === itemId);
     if (!item || !isOwner) return;
@@ -234,18 +234,24 @@ export function EpicEquipmentView({
     setItems((prev) =>
       prev.map((i) => (i.id === itemId ? { ...i, simple_effects: newEffects } : i))
     );
-    const supabase = createClient();
-    const { error } = await supabase
-      .from("epic_items")
-      .update({ simple_effects: newEffects })
-      .eq("id", itemId);
-    if (error) {
+    let failed: boolean;
+    try {
+      const { error } = await createClient()
+        .from("epic_items")
+        .update({ simple_effects: newEffects })
+        .eq("id", itemId);
+      failed = Boolean(error);
+    } catch {
+      failed = true;
+    }
+    if (failed) {
       setItems((prev) =>
         prev.map((i) => (i.id === itemId ? { ...i, simple_effects: oldEffects } : i))
       );
       toast.error(t("saveError"));
       return;
     }
+    if (!label) return;
     record(label, [
       rowUpdate(
         "epic_items",
@@ -256,13 +262,21 @@ export function EpicEquipmentView({
     ]);
   }
 
-  async function handleOverclockToggle(itemId: string, active: boolean, endTime: number | null) {
+  async function handleOverclockToggle(
+    itemId: string,
+    active: boolean,
+    endTime: number | null,
+    expired = false
+  ) {
     const item = items.find((i) => i.id === itemId);
     if (!item) return;
+    // An expired timer is no user action: recording it would bury older steps.
     await updateSimpleEffects(
       itemId,
       { ...item.simple_effects, overclock_active: active, overclock_end_time: endTime },
-      { key: active ? "overclockOn" : "overclockOff", values: { name: itemName(item) } }
+      expired
+        ? null
+        : { key: active ? "overclockOn" : "overclockOff", values: { name: itemName(item) } }
     );
   }
 

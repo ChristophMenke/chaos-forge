@@ -26,6 +26,11 @@ export interface UndoContextValue {
   collapseDraft: (saved: NewEntry) => void;
   hasDraft: boolean;
   clear: () => void;
+  /**
+   * Debounced writes register a flush, so an undo first saves (and records)
+   * what is still pending instead of racing with it.
+   */
+  registerPending: (flush: () => Promise<void>) => () => void;
 }
 
 export const UndoContext = createContext<UndoContextValue | null>(null);

@@ -31,6 +31,7 @@ export function createUndoStub() {
       return entries.some((e) => e.kind === "draft");
     },
     clear: vi.fn(),
+    registerPending: () => () => {},
   };
 
   /** Plays the last (or given) recorded entry back into the page. */

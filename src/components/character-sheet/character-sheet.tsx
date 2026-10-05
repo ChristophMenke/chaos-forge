@@ -235,6 +235,28 @@ export function CharacterSheet({
     };
   }
 
+  /** Potion healing: hit points saved at once; the tab records it with the potion. */
+  async function handlePotionHeal(newHp: number): Promise<RowChange | null> {
+    const before = savedRef.current.fields.hp_current;
+    setCharacter((prev) => ({ ...prev, hp_current: newHp }));
+    const { error } = await createClient()
+      .from("characters")
+      .update({ hp_current: newHp })
+      .eq("id", character.id);
+    if (error) {
+      toast.error(t("saveFailed"));
+      return null;
+    }
+    const change = rowUpdate(
+      "characters",
+      { id: character.id },
+      { hp_current: before },
+      { hp_current: newHp }
+    );
+    if (change) followSaved([change]);
+    return change;
+  }
+
   function recordDb(label: UndoLabel, changes: (RowChange | null)[]) {
     const real = changes.filter((c): c is RowChange => c !== null);
     if (real.length === 0) return;
@@ -266,7 +288,11 @@ export function CharacterSheet({
     setInventory((prev) => patchList(prev, "character_inventory", changes, direction));
     setLanguages((prev) => patchList(prev, "character_languages", changes, direction));
     setFightingStyles((prev) => patchList(prev, "character_fighting_styles", changes, direction));
-    setXpHistory((prev) => patchList(prev, "xp_history", changes, direction));
+    setXpHistory((prev) =>
+      patchList(prev, "xp_history", changes, direction).sort((a, b) =>
+        b.created_at.localeCompare(a.created_at)
+      )
+    );
     if (kind === "db") followSaved(changes, direction);
   });
 
@@ -2147,6 +2173,7 @@ export function CharacterSheet({
             hpCurrent={character.hp_current}
             hpMax={character.hp_max}
             onHpChange={(newHp) => update("hp_current", newHp)}
+            onPotionHeal={undo ? handlePotionHeal : undefined}
             onEquipmentChange={setEquipment}
             onInventoryChange={setInventory}
             onIgnoreEncumbranceChange={handleIgnoreEncumbranceChange}

@@ -31,13 +31,25 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
   const historyRef = useRef(history);
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false);
-  const pending = useRef<{ entry: NewEntry; at: number }[]>([]);
+  const runningRef = useRef(false);
+  // History changes requested while an undo/redo runs wait for it, so the
+  // cursor still points at the step that was applied.
+  const queued = useRef<((h: HistoryState) => HistoryState)[]>([]);
   const listeners = useRef(new Set<UndoListener>());
+  const flushers = useRef(new Set<() => Promise<void>>());
 
   const update = useCallback((next: (h: HistoryState) => HistoryState) => {
     historyRef.current = next(historyRef.current);
     setHistory(historyRef.current);
   }, []);
+
+  const change = useCallback(
+    (next: (h: HistoryState) => HistoryState) => {
+      if (busyRef.current) queued.current.push(next);
+      else update(next);
+    },
+    [update]
+  );
 
   const label = useCallback(
     (l: UndoLabel) => t(`labels.${l.key}` as never, l.values as never),
@@ -46,20 +58,25 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
 
   const record = useCallback(
     (entry: NewEntry) => {
-      if (busyRef.current) pending.current.push({ entry, at: Date.now() });
-      else update((h) => pushEntry(h, entry, Date.now()));
+      const at = Date.now();
+      change((h) => pushEntry(h, entry, at));
     },
-    [update]
+    [change]
   );
 
   const run = useCallback(
     async (direction: UndoDirection) => {
-      const entry =
-        direction === "undo" ? peekUndo(historyRef.current) : peekRedo(historyRef.current);
-      if (!entry || busyRef.current) return;
-      busyRef.current = true;
+      if (runningRef.current) return;
+      runningRef.current = true;
       setBusy(true);
+      // Pending debounced writes land (and record) first — before the queue
+      // closes, so they are the step undone now.
+      await Promise.all([...flushers.current].map((flush) => flush()));
+      busyRef.current = true;
       try {
+        const entry =
+          direction === "undo" ? peekUndo(historyRef.current) : peekRedo(historyRef.current);
+        if (!entry) return;
         const result = await applyEntry(createClient(), entry, direction);
         if (result.ok) {
           update(direction === "undo" ? markUndone : markRedone);
@@ -76,10 +93,11 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
         }
       } finally {
         busyRef.current = false;
+        runningRef.current = false;
         setBusy(false);
-        const queued = pending.current;
-        pending.current = [];
-        for (const { entry: e, at } of queued) update((h) => pushEntry(h, e, at));
+        const waiting = queued.current;
+        queued.current = [];
+        for (const next of waiting) update(next);
       }
     },
     [label, router, t, update]
@@ -95,12 +113,21 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
   // Stable callbacks: pages use them in effects (e.g. dropDraft on unmount).
   const undo = useCallback(() => run("undo"), [run]);
   const redo = useCallback(() => run("redo"), [run]);
-  const dropDraft = useCallback(() => update(dropDraftState), [update]);
+  const dropDraft = useCallback(() => change(dropDraftState), [change]);
   const collapseDraft = useCallback(
-    (saved: NewEntry) => update((h) => collapseDraftState(h, saved, Date.now())),
-    [update]
+    (saved: NewEntry) => {
+      const at = Date.now();
+      change((h) => collapseDraftState(h, saved, at));
+    },
+    [change]
   );
-  const clear = useCallback(() => update(createHistory), [update]);
+  const clear = useCallback(() => change(createHistory), [change]);
+  const registerPending = useCallback((flush: () => Promise<void>) => {
+    flushers.current.add(flush);
+    return () => {
+      flushers.current.delete(flush);
+    };
+  }, []);
 
   const value = useMemo<UndoContextValue>(
     () => ({
@@ -115,8 +142,9 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
       collapseDraft,
       hasDraft: hasDraftState(history),
       clear,
+      registerPending,
     }),
-    [busy, history, record, undo, redo, subscribe, dropDraft, collapseDraft, clear]
+    [busy, history, record, undo, redo, subscribe, dropDraft, collapseDraft, clear, registerPending]
   );
 
   return <UndoContext.Provider value={value}>{children}</UndoContext.Provider>;

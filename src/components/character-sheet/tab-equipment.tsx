@@ -72,6 +72,11 @@ interface TabEquipmentProps {
   hpCurrent?: number;
   hpMax?: number;
   onHpChange?: (newHp: number) => void;
+  /**
+   * Potion healing written right away (not as unsaved input), so the heal and
+   * the used potion are one undo step. Returns the change (null on error).
+   */
+  onPotionHeal?: (newHp: number) => Promise<RowChange | null>;
   onEquipmentChange: (equipment: CharacterEquipmentWithDetails[]) => void;
   onInventoryChange: (inventory: CharacterInventoryWithDetails[]) => void;
   onIgnoreEncumbranceChange: (value: boolean) => void;
@@ -106,6 +111,7 @@ export function TabEquipment({
   hpCurrent = 0,
   hpMax = 0,
   onHpChange,
+  onPotionHeal,
   onEquipmentChange,
   onInventoryChange,
   onIgnoreEncumbranceChange,
@@ -409,13 +415,15 @@ export function TabEquipment({
     const label: UndoLabel = { key: "consume", values: { name: getItemName(item) } };
     try {
       if (consumableType === "potion" || consumableType === "scroll") {
-        // Healing goes into the sheet draft (saved with "Speichern").
-        if (consumableType === "potion" && result.hpHealed && onHpChange) {
-          onHpChange(Math.min(hpMax, hpCurrent + result.hpHealed));
+        let healChange: RowChange | null = null;
+        if (consumableType === "potion" && result.hpHealed) {
+          const healed = Math.min(hpMax, hpCurrent + result.hpHealed);
+          if (onPotionHeal) healChange = await onPotionHeal(healed);
+          else onHpChange?.(healed);
         }
         const { error } = await supabase.from("character_equipment").delete().eq("id", item.id);
         onEquipmentChange(equipment.filter((e) => e.id !== item.id));
-        if (!error) record(label, [rowDelete("character_equipment", item, item)]);
+        if (!error) record(label, [healChange, rowDelete("character_equipment", item, item)]);
       } else if (consumableType === "charged" && result.chargesUsed) {
         const newCharges = Math.max(
           0,

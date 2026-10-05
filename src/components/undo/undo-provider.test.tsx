@@ -130,6 +130,17 @@ describe("UndoProvider + UndoButtons", () => {
     expect(screen.getByTestId("redo-button")).toBeDisabled();
   });
 
+  it("saves pending debounced writes before undoing, then undoes them first", async () => {
+    renderWithProvider();
+    act(() => ctx!.record(hpEntry(10, 5)));
+    act(() => {
+      ctx!.registerPending(async () => ctx!.record(hpEntry(5, 3)));
+    });
+    fireEvent.click(screen.getByTestId("undo-button"));
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith("Rückgängig: TP 5 → 3"));
+    expect(screen.getByTestId("undo-button")).toHaveAccessibleName("Rückgängig: TP 10 → 5");
+  });
+
   it("does not refresh for draft steps", async () => {
     renderWithProvider();
     act(() => ctx!.record({ ...hpEntry(10, 5), kind: "draft" }));

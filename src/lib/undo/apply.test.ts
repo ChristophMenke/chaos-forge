@@ -73,6 +73,15 @@ describe("applyEntry", () => {
     expect(db.tables.character_equipment).toEqual([{ id: "e1", weapon_id: "w1" }]);
   });
 
+  it("keeps created_at when a deleted row comes back", async () => {
+    const db = createFakeDb({ xp_history: [] });
+    const e = entry([
+      rowDelete("xp_history", { id: "x1", xp_amount: 500, created_at: "2026-09-01T10:00:00Z" }),
+    ]);
+    await applyEntry(db.client, e, "undo");
+    expect(db.tables.xp_history[0].created_at).toBe("2026-09-01T10:00:00Z");
+  });
+
   it("treats a unique or foreign key violation as a conflict", async () => {
     const db = createFakeDb({ character_languages: [] });
     db.failNext({ message: "duplicate key", code: "23505" });
@@ -120,6 +129,24 @@ describe("applyEntry", () => {
       expect(db.tables.character_effects).toHaveLength(1);
       await applyEntry(db.client, e, "redo");
       expect(db.tables.character_effects[0].ended_at).toBeNull();
+    });
+
+    it("does not revive an effect that was ended elsewhere", async () => {
+      const db = createFakeDb({
+        character_effects: [
+          { ...effect, temp_hp_remaining: 0, ended_at: "2026-10-05 11:00:00+00" },
+        ],
+      });
+      const e = entry([
+        rowUpdate(
+          "character_effects",
+          { id: "f1" },
+          { temp_hp_remaining: 6 },
+          { temp_hp_remaining: 0 }
+        )!,
+      ]);
+      expect((await applyEntry(db.client, e, "undo")).conflict).toBe(true);
+      expect(db.writes).toEqual([]);
     });
 
     it("compares the end time only as set or not set", async () => {

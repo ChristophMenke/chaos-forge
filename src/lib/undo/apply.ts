@@ -35,6 +35,10 @@ function matchesExpected(change: RowChange, current: Row | null, expected: Row |
   const gone = current === null || (softDelete !== undefined && current[softDelete] != null);
   if (expected === null) return gone;
   if (current === null) return false;
+  // Updates of a soft-deleted table expect the row to be still active.
+  if (softDelete !== undefined && !(softDelete in expected) && current[softDelete] != null) {
+    return false;
+  }
   return Object.entries(expected).every(([column, value]) => {
     if ((IGNORED_COLUMNS as readonly string[]).includes(column)) return true;
     if (column === softDelete) return (current[column] != null) === (value != null);
@@ -63,13 +67,12 @@ async function write(
   }
 
   const values = toDbRow(target);
-  for (const column of IGNORED_COLUMNS) delete values[column];
   if (current === null) {
+    // Re-inserted rows keep their original created_at (lists sort by it).
     const { error } = await table.insert({ ...values, ...change.key });
     return error;
   }
-  // A soft-deleted row comes back unless the target itself is ended.
-  if (softDelete && !(softDelete in values)) values[softDelete] = null;
+  for (const column of IGNORED_COLUMNS) delete values[column];
   const { error } = await table.update(values).match(change.key);
   return error;
 }
