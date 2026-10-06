@@ -8,6 +8,21 @@ import { getClassGroup } from "./classes";
 import { getConBonusCap } from "./hitpoints";
 import { getMulticlassHpDivisor } from "./multiclass";
 import { getEpicEffects } from "./epic-items";
+import { findOverclockItem, readOverclockState } from "./sprocket-devices";
+
+/** Effective CON from epic items; an active overclock replaces it (Kondensator). */
+function epicCon(items: EpicItemRow[], characterLevel: number, baseCon: number): number {
+  const effects = getEpicEffects(items, characterLevel);
+  const overclockItem = findOverclockItem(items);
+  if (
+    effects.overclockAbility &&
+    overclockItem &&
+    readOverclockState(overclockItem.simple_effects).active
+  ) {
+    return effects.overclockAbility.conOverride;
+  }
+  return effects.forceStatOverrides.con ?? effects.statOverrides.con ?? baseCon;
+}
 
 /**
  * HP delta when the effective CON HP adjustment differs from the stored one.
@@ -53,13 +68,8 @@ export interface HpAfterConChangeInput {
  */
 export function computeHpAfterConChange(input: HpAfterConChangeInput): number | null {
   const { itemsBefore, itemsAfter, character, activeClasses, hpCurrent, characterLevel } = input;
-  const effectsBefore = getEpicEffects(itemsBefore, characterLevel);
-  const effectsAfter = getEpicEffects(itemsAfter, characterLevel);
-
-  const before = effectsBefore.forceStatOverrides.con ?? effectsBefore.statOverrides.con;
-  const after = effectsAfter.forceStatOverrides.con ?? effectsAfter.statOverrides.con;
-  const effectiveConBefore = before ?? character.con;
-  const effectiveConAfter = after ?? character.con;
+  const effectiveConBefore = epicCon(itemsBefore, characterLevel, character.con);
+  const effectiveConAfter = epicCon(itemsAfter, characterLevel, character.con);
   if (effectiveConBefore === effectiveConAfter) return null;
 
   const storedConHpAdj = getConstitutionModifiers(

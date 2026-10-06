@@ -42,7 +42,14 @@ export function OverclockControls({
 }: OverclockControlsProps) {
   const t = useTranslations("epic");
   const [pending, setPending] = useState<"start" | "hour" | null>(null);
+  // Kept while the dialog animates out, so its text does not flip.
+  const [shown, setShown] = useState<"start" | "hour">("start");
   const nextHour = state.hours + 1;
+
+  function ask(kind: "start" | "hour") {
+    setShown(kind);
+    setPending(kind);
+  }
 
   function resolve(success: boolean) {
     if (pending) onAction({ type: pending, success });
@@ -68,7 +75,7 @@ export function OverclockControls({
         <div className="flex flex-wrap gap-2">
           <Button
             size="sm"
-            onClick={() => setPending("hour")}
+            onClick={() => ask("hour")}
             disabled={!equipped}
             data-testid="overclock-hour"
           >
@@ -86,7 +93,7 @@ export function OverclockControls({
       ) : (
         <Button
           size="sm"
-          onClick={() => setPending("start")}
+          onClick={() => ask("start")}
           disabled={!equipped}
           data-testid="overclock-start"
         >
@@ -96,14 +103,14 @@ export function OverclockControls({
 
       <SkillCheckDialog
         open={pending !== null}
-        title={pending === "hour" ? t("checkTitleCooling") : t("checkTitleStart")}
+        title={shown === "hour" ? t("checkTitleCooling") : t("checkTitleStart")}
         check={
-          pending === "hour"
+          shown === "hour"
             ? nextCoolingCheck(state, skill, baseTarget)
             : formatCheck(skill, 0, baseTarget)
         }
         hints={
-          pending === "hour"
+          shown === "hour"
             ? [
                 t("checkHintHourHealed", { hour: nextHour, hp: healsPerHour }),
                 t("checkHintCoolingFail"),

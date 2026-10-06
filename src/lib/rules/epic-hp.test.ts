@@ -80,3 +80,24 @@ describe("computeHpAfterConChange", () => {
     ).toBeNull();
   });
 });
+
+describe("computeHpAfterConChange während der Übertaktung", () => {
+  const overclock = { con_override: 20, heals_per_hour: 1 };
+  const active = (level: number) => ({
+    ...condenser(level),
+    simple_effects: { overclock, overclock_active: true },
+  });
+
+  it("ändert keine TP, solange die KON durch Übertakten 20 bleibt", () => {
+    expect(
+      computeHpAfterConChange({
+        itemsBefore: [active(0)],
+        itemsAfter: [active(4)],
+        character,
+        activeClasses,
+        hpCurrent: 30,
+        characterLevel: 5,
+      })
+    ).toBeNull();
+  });
+});

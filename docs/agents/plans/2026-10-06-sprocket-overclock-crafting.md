@@ -353,7 +353,7 @@ Dependencies: **Phase 2**, **Phase 3**
 
 **Tasks**:
 
-- [ ] `CLAUDE.md`: Projektstruktur (`sprocket-devices.ts`, `epic-hp.ts`, `skill-check-dialog.tsx`, `recipe-checklist.tsx`), Abschnitt „Sprockets Geräte“ (Zustandsfelder, Stundenzählung, Regeln, Rezeptformat), Migrationsanzahl 228 → 231, Undo-Abschnitt (Herstellen mit Gold = ein Schritt, erweiterte Label-Prüfung), Roadmap-Punkt 28
+- [x] `CLAUDE.md`: Projektstruktur (`sprocket-devices.ts`, `epic-hp.ts`, `skill-check-dialog.tsx`, `recipe-checklist.tsx`), Abschnitt „Sprockets Geräte“ (Zustandsfelder, Stundenzählung, Regeln, Rezeptformat), Migrationsanzahl 228 → 231, Undo-Abschnitt (Herstellen mit Gold = ein Schritt, erweiterte Label-Prüfung), Roadmap-Punkt 28
 - [ ] Migration `00231` erst nach Freigabe des Users per `supabase db push` einspielen
 - [ ] Plan-Status auf `implemented`
 

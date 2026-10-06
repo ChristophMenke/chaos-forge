@@ -188,6 +188,8 @@ export function RepairPanel({
         title={t("repair")}
         check={formatCheck(skill, modifier)}
         onResult={(success) => {
+          // Buttons stay clickable during the close animation.
+          if (!open) return;
           onRepair({ useElixir, success });
           close();
         }}

@@ -688,8 +688,14 @@ export function PlayMode({
       Object.keys(patch).map((key) => [key, item[key as keyof EpicItemRow]])
     );
     setEpicItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, ...patch } : i)));
-    const { error } = await createClient().from("epic_items").update(patch).eq("id", item.id);
-    if (error) {
+    let failed: boolean;
+    try {
+      const { error } = await createClient().from("epic_items").update(patch).eq("id", item.id);
+      failed = Boolean(error);
+    } catch {
+      failed = true;
+    }
+    if (failed) {
       setEpicItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, ...previous } : i)));
       toast.error(t("saveFailed"));
       return null;

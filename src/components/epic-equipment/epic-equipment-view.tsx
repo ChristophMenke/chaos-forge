@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { Sparkles } from "lucide-react";
@@ -118,6 +118,8 @@ export function EpicEquipmentView({
   const hpCurrent = live.hp_current;
   const purse = toPurse(live);
   const undo = useUndo();
+  // Crafting re-reads the gold first; a second click meanwhile would pay twice.
+  const craftingRef = useRef(false);
 
   useUndoSync((changes, direction) => {
     setItems((prev) => patchList(prev, "epic_items", changes, direction));
@@ -358,7 +360,13 @@ export function EpicEquipmentView({
       });
       return;
     }
-    await persistCraft(item, target, stock, name);
+    if (craftingRef.current) return;
+    craftingRef.current = true;
+    try {
+      await persistCraft(item, target, stock, name);
+    } finally {
+      craftingRef.current = false;
+    }
   }
 
   /**

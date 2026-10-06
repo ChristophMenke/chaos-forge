@@ -341,6 +341,19 @@ describe("Kondensator: Reparatur", () => {
     });
   });
 
+  it("repariert bei Doppelklick nur eine Stufe", async () => {
+    const undo = renderView([condenser]);
+    fireEvent.click(screen.getByTestId("repair-open"));
+    const success = await screen.findByTestId("skill-check-success");
+    fireEvent.click(success);
+    fireEvent.click(success);
+
+    await waitFor(() => expect(undo.entries).toHaveLength(1));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(undo.entries).toHaveLength(1);
+    expect(updates).toHaveLength(1);
+  });
+
   it("schreibt nichts bei Fehlschlag ohne Elixier", async () => {
     const undo = renderView([condenser]);
     await rollCheck("repair-open", "failure");
@@ -377,6 +390,24 @@ describe("Herstellung", () => {
       ],
     });
     expect(screen.getByTestId("epic-elixir-count")).toHaveTextContent("5×");
+  });
+
+  it("stellt bei Doppelklick nur einmal her und zahlt nur einmal", async () => {
+    const ready = withEffects(condenser, {
+      elixir: {
+        ...(condenser.simple_effects.elixir as object),
+        collected: ["vinegar", "salt", "oil"],
+      },
+    });
+    const undo = renderView([ready]);
+    openElixirRecipe();
+    fireEvent.click(screen.getByTestId("epic-elixir-recipe-craft"));
+    fireEvent.click(screen.getByTestId("epic-elixir-recipe-craft"));
+
+    await waitFor(() => expect(undo.entries).toHaveLength(1));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(undo.entries).toHaveLength(1);
+    expect(updates.filter((u) => u.table === "characters")).toHaveLength(1);
   });
 
   it("sperrt Herstellen bei zu wenig Geld", () => {
