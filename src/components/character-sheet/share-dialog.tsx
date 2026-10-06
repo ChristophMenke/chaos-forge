@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import type { CharacterShareRow, AppUser } from "@/lib/supabase/types";
+import { ModalPortal } from "@/components/modal-portal";
 
 interface ShareDialogProps {
   open: boolean;
@@ -124,117 +125,119 @@ export function ShareDialog({
   const availableUsers = users.filter((u) => !sharedUserIds.has(u.id) && u.id !== currentUserId);
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-      onClick={onClose}
-      role="presentation"
-      data-testid="share-dialog"
-    >
+    <ModalPortal>
       <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="share-dialog-title"
-        className="mx-4 flex w-full max-w-md flex-col gap-4 rounded-lg border border-border bg-card p-6"
-        onClick={(e) => e.stopPropagation()}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+        onClick={onClose}
+        role="presentation"
+        data-testid="share-dialog"
       >
-        <h3 id="share-dialog-title" className="font-heading text-xl text-primary">
-          {t("title", { name: characterName })}
-        </h3>
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="share-dialog-title"
+          className="mx-4 flex w-full max-w-md flex-col gap-4 rounded-lg border border-border bg-card p-6"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h3 id="share-dialog-title" className="font-heading text-xl text-primary">
+            {t("title", { name: characterName })}
+          </h3>
 
-        {/* Public toggle */}
-        <div className="flex items-center justify-between rounded-md border border-border p-3">
-          <div>
-            <p className="text-sm font-medium">{t("publicLabel")}</p>
-            <p className="text-xs text-muted-foreground">{t("publicDescription")}</p>
-          </div>
-          <Button
-            variant={isPublic ? "default" : "outline"}
-            size="sm"
-            onClick={handleTogglePublic}
-            disabled={saving}
-            data-testid="share-toggle-public"
-          >
-            {isPublic ? tcom("yes") : tcom("no")}
-          </Button>
-        </div>
-
-        {/* Shared users list */}
-        <div>
-          <p className="mb-2 text-sm font-medium">{t("sharedWith")}</p>
-          {loading ? (
-            <div className="flex justify-center py-4">
-              <Spinner />
+          {/* Public toggle */}
+          <div className="flex items-center justify-between rounded-md border border-border p-3">
+            <div>
+              <p className="text-sm font-medium">{t("publicLabel")}</p>
+              <p className="text-xs text-muted-foreground">{t("publicDescription")}</p>
             </div>
-          ) : shares.length === 0 ? (
-            <p className="py-2 text-sm text-muted-foreground">{t("noShares")}</p>
-          ) : (
-            <ul className="flex flex-col gap-2" data-testid="share-list">
-              {shares.map((share) => {
-                const user = users.find((u) => u.id === share.shared_with_user_id);
-                return (
-                  <li
-                    key={share.id}
-                    className="flex items-center justify-between rounded-md border border-border px-3 py-2"
-                    data-testid={`share-item-${share.id}`}
-                  >
-                    <span className="text-sm">
-                      {user ? displayName(user) : share.shared_with_user_id}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRemoveShare(share.id)}
-                      data-testid={`share-remove-${share.id}`}
-                    >
-                      {tcom("remove")}
-                    </Button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-
-        {/* Add share */}
-        {!loading && availableUsers.length === 0 && shares.length === 0 && (
-          <p className="text-sm text-muted-foreground" data-testid="share-no-users">
-            {t("noUsers")}
-          </p>
-        )}
-        {!loading && availableUsers.length > 0 && (
-          <div className="flex gap-2">
-            <select
-              className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm"
-              value={selectedUserId}
-              onChange={(e) => setSelectedUserId(e.target.value)}
-              aria-label={t("selectUser")}
-              data-testid="share-user-select"
-            >
-              <option value="">{t("selectUser")}</option>
-              {availableUsers.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {displayName(u)}
-                </option>
-              ))}
-            </select>
             <Button
-              onClick={handleAddShare}
-              disabled={!selectedUserId || saving}
-              data-testid="share-add-button"
+              variant={isPublic ? "default" : "outline"}
+              size="sm"
+              onClick={handleTogglePublic}
+              disabled={saving}
+              data-testid="share-toggle-public"
             >
-              {saving ? <Spinner className="mr-2" /> : null}
-              {tcom("add")}
+              {isPublic ? tcom("yes") : tcom("no")}
             </Button>
           </div>
-        )}
 
-        {/* Close */}
-        <div className="flex justify-end">
-          <Button variant="outline" onClick={onClose} data-testid="share-close-button">
-            {tcom("close")}
-          </Button>
+          {/* Shared users list */}
+          <div>
+            <p className="mb-2 text-sm font-medium">{t("sharedWith")}</p>
+            {loading ? (
+              <div className="flex justify-center py-4">
+                <Spinner />
+              </div>
+            ) : shares.length === 0 ? (
+              <p className="py-2 text-sm text-muted-foreground">{t("noShares")}</p>
+            ) : (
+              <ul className="flex flex-col gap-2" data-testid="share-list">
+                {shares.map((share) => {
+                  const user = users.find((u) => u.id === share.shared_with_user_id);
+                  return (
+                    <li
+                      key={share.id}
+                      className="flex items-center justify-between rounded-md border border-border px-3 py-2"
+                      data-testid={`share-item-${share.id}`}
+                    >
+                      <span className="text-sm">
+                        {user ? displayName(user) : share.shared_with_user_id}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveShare(share.id)}
+                        data-testid={`share-remove-${share.id}`}
+                      >
+                        {tcom("remove")}
+                      </Button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+
+          {/* Add share */}
+          {!loading && availableUsers.length === 0 && shares.length === 0 && (
+            <p className="text-sm text-muted-foreground" data-testid="share-no-users">
+              {t("noUsers")}
+            </p>
+          )}
+          {!loading && availableUsers.length > 0 && (
+            <div className="flex gap-2">
+              <select
+                className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm"
+                value={selectedUserId}
+                onChange={(e) => setSelectedUserId(e.target.value)}
+                aria-label={t("selectUser")}
+                data-testid="share-user-select"
+              >
+                <option value="">{t("selectUser")}</option>
+                {availableUsers.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {displayName(u)}
+                  </option>
+                ))}
+              </select>
+              <Button
+                onClick={handleAddShare}
+                disabled={!selectedUserId || saving}
+                data-testid="share-add-button"
+              >
+                {saving ? <Spinner className="mr-2" /> : null}
+                {tcom("add")}
+              </Button>
+            </div>
+          )}
+
+          {/* Close */}
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={onClose} data-testid="share-close-button">
+              {tcom("close")}
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }

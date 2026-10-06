@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { AvatarDisplay } from "@/components/avatar-display";
 import { uploadAvatar, deleteAvatar, validateFile } from "@/lib/avatar/upload";
 import type { CropArea } from "@/lib/avatar/resize";
+import { ModalPortal } from "@/components/modal-portal";
 
 const Cropper = lazy(() => import("react-easy-crop"));
 
@@ -152,159 +153,161 @@ export function AvatarUpload({
 
       {/* Upload / Crop Modal */}
       {isOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-          onClick={handleClose}
-          role="presentation"
-          data-testid="avatar-upload-modal"
-        >
+        <ModalPortal>
           <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="avatar-upload-title"
-            className="mx-4 flex w-full max-w-md flex-col gap-4 rounded-lg border border-border bg-card p-6"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+            onClick={handleClose}
+            role="presentation"
+            data-testid="avatar-upload-modal"
           >
-            <h3 id="avatar-upload-title" className="font-heading text-xl text-primary">
-              {t("uploadTitle")}
-            </h3>
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="avatar-upload-title"
+              className="mx-4 flex w-full max-w-md flex-col gap-4 rounded-lg border border-border bg-card p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 id="avatar-upload-title" className="font-heading text-xl text-primary">
+                {t("uploadTitle")}
+              </h3>
 
-            {/* Show cropper when a file is selected, otherwise show drop zone */}
-            {previewUrl && selectedFile ? (
-              <>
-                {/* Crop area */}
-                <div
-                  className="relative h-72 w-full overflow-hidden rounded-md bg-black"
-                  data-testid="avatar-crop-area"
-                >
-                  <Suspense
-                    fallback={
-                      <div className="flex h-full items-center justify-center">
-                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                      </div>
-                    }
+              {/* Show cropper when a file is selected, otherwise show drop zone */}
+              {previewUrl && selectedFile ? (
+                <>
+                  {/* Crop area */}
+                  <div
+                    className="relative h-72 w-full overflow-hidden rounded-md bg-black"
+                    data-testid="avatar-crop-area"
                   >
-                    <Cropper
-                      image={previewUrl}
-                      crop={crop}
-                      zoom={zoom}
-                      aspect={1}
-                      onCropChange={setCrop}
-                      onZoomChange={setZoom}
-                      onCropComplete={onCropComplete}
+                    <Suspense
+                      fallback={
+                        <div className="flex h-full items-center justify-center">
+                          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                        </div>
+                      }
+                    >
+                      <Cropper
+                        image={previewUrl}
+                        crop={crop}
+                        zoom={zoom}
+                        aspect={1}
+                        onCropChange={setCrop}
+                        onZoomChange={setZoom}
+                        onCropComplete={onCropComplete}
+                      />
+                    </Suspense>
+                  </div>
+
+                  {/* Zoom slider */}
+                  <div className="flex items-center gap-3" data-testid="avatar-zoom-control">
+                    <label htmlFor="avatar-zoom" className="text-sm text-muted-foreground">
+                      {t("zoom")}
+                    </label>
+                    <input
+                      id="avatar-zoom"
+                      type="range"
+                      min={1}
+                      max={3}
+                      step={0.05}
+                      value={zoom}
+                      onChange={(e) => setZoom(Number(e.target.value))}
+                      className="h-2 w-full cursor-pointer accent-primary"
+                      style={{ minHeight: 44 }}
                     />
-                  </Suspense>
-                </div>
+                  </div>
 
-                {/* Zoom slider */}
-                <div className="flex items-center gap-3" data-testid="avatar-zoom-control">
-                  <label htmlFor="avatar-zoom" className="text-sm text-muted-foreground">
-                    {t("zoom")}
-                  </label>
-                  <input
-                    id="avatar-zoom"
-                    type="range"
-                    min={1}
-                    max={3}
-                    step={0.05}
-                    value={zoom}
-                    onChange={(e) => setZoom(Number(e.target.value))}
-                    className="h-2 w-full cursor-pointer accent-primary"
-                    style={{ minHeight: 44 }}
-                  />
-                </div>
-
-                {/* Pick a different file */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    resetCropState();
-                    fileInputRef.current?.click();
-                  }}
-                  className="text-sm text-muted-foreground underline"
-                  data-testid="avatar-pick-another"
-                >
-                  {t("pickAnother")}
-                </button>
-              </>
-            ) : (
-              <>
-                <div className="flex justify-center">
-                  <AvatarDisplay name={characterName} avatarUrl={currentAvatarUrl} size={120} />
-                </div>
-
-                {/* Drop Zone */}
-                <div
-                  className={`flex cursor-pointer flex-col items-center gap-2 rounded-md border-2 border-dashed p-8 transition-colors ${
-                    dragOver ? "border-primary bg-primary/10" : "border-border"
-                  }`}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setDragOver(true);
-                  }}
-                  onDragLeave={() => setDragOver(false)}
-                  onDrop={handleDrop}
-                  onClick={() => fileInputRef.current?.click()}
-                  data-testid="avatar-dropzone"
-                >
-                  <p className="text-sm text-muted-foreground">{t("dropzone")}</p>
-                  <p className="text-xs text-muted-foreground">{t("formats")}</p>
-                </div>
-                {currentAvatarUrl && (
+                  {/* Pick a different file */}
                   <button
                     type="button"
-                    onClick={handleRemoveAvatar}
-                    disabled={uploading}
-                    className="text-sm text-destructive underline hover:text-destructive/80"
-                    data-testid="avatar-remove-button"
+                    onClick={() => {
+                      resetCropState();
+                      fileInputRef.current?.click();
+                    }}
+                    className="text-sm text-muted-foreground underline"
+                    data-testid="avatar-pick-another"
                   >
-                    {t("remove")}
+                    {t("pickAnother")}
                   </button>
-                )}
-              </>
-            )}
+                </>
+              ) : (
+                <>
+                  <div className="flex justify-center">
+                    <AvatarDisplay name={characterName} avatarUrl={currentAvatarUrl} size={120} />
+                  </div>
 
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={handleFileSelect}
-              className="hidden"
-              data-testid="avatar-file-input"
-            />
-
-            {uploading && (
-              <p className="text-center text-sm text-muted-foreground">{t("uploading")}</p>
-            )}
-
-            {error && (
-              <p className="text-sm text-destructive" data-testid="avatar-upload-error">
-                {error}
-              </p>
-            )}
-
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={handleClose}
-                style={{ minHeight: 44 }}
-                data-testid="avatar-cancel-button"
-              >
-                {tcom("cancel")}
-              </Button>
-              {selectedFile && croppedAreaPixels && (
-                <Button
-                  onClick={handleSaveCrop}
-                  disabled={uploading}
-                  style={{ minHeight: 44 }}
-                  data-testid="avatar-save-crop"
-                >
-                  {uploading ? tcom("saving") : tcom("save")}
-                </Button>
+                  {/* Drop Zone */}
+                  <div
+                    className={`flex cursor-pointer flex-col items-center gap-2 rounded-md border-2 border-dashed p-8 transition-colors ${
+                      dragOver ? "border-primary bg-primary/10" : "border-border"
+                    }`}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragOver(true);
+                    }}
+                    onDragLeave={() => setDragOver(false)}
+                    onDrop={handleDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                    data-testid="avatar-dropzone"
+                  >
+                    <p className="text-sm text-muted-foreground">{t("dropzone")}</p>
+                    <p className="text-xs text-muted-foreground">{t("formats")}</p>
+                  </div>
+                  {currentAvatarUrl && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveAvatar}
+                      disabled={uploading}
+                      className="text-sm text-destructive underline hover:text-destructive/80"
+                      data-testid="avatar-remove-button"
+                    >
+                      {t("remove")}
+                    </button>
+                  )}
+                </>
               )}
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleFileSelect}
+                className="hidden"
+                data-testid="avatar-file-input"
+              />
+
+              {uploading && (
+                <p className="text-center text-sm text-muted-foreground">{t("uploading")}</p>
+              )}
+
+              {error && (
+                <p className="text-sm text-destructive" data-testid="avatar-upload-error">
+                  {error}
+                </p>
+              )}
+
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={handleClose}
+                  style={{ minHeight: 44 }}
+                  data-testid="avatar-cancel-button"
+                >
+                  {tcom("cancel")}
+                </Button>
+                {selectedFile && croppedAreaPixels && (
+                  <Button
+                    onClick={handleSaveCrop}
+                    disabled={uploading}
+                    style={{ minHeight: 44 }}
+                    data-testid="avatar-save-crop"
+                  >
+                    {uploading ? tcom("saving") : tcom("save")}
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
     </div>
   );

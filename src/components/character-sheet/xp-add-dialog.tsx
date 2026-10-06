@@ -19,6 +19,7 @@ import { getPendingLevelUps } from "@/lib/rules/level-up";
 import { CLASSES } from "@/lib/rules/classes";
 import type { CharacterClassRow, SessionRow } from "@/lib/supabase/types";
 import type { ClassId } from "@/lib/rules/types";
+import { ModalPortal } from "@/components/modal-portal";
 
 interface XpAddDialogProps {
   open: boolean;
@@ -193,204 +194,206 @@ export function XpAddDialog({
   if (!open) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-      onClick={onClose}
-      onKeyDown={(e) => e.key === "Escape" && onClose()}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="xp-dialog-title"
-      tabIndex={-1}
-      data-testid="xp-add-dialog"
-    >
+    <ModalPortal>
       <div
-        className="mx-4 flex w-full max-w-lg flex-col gap-4 overflow-y-auto rounded-lg border border-border bg-card p-6"
-        style={{ maxHeight: "90vh" }}
-        onClick={(e) => e.stopPropagation()}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+        onClick={onClose}
+        onKeyDown={(e) => e.key === "Escape" && onClose()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="xp-dialog-title"
+        tabIndex={-1}
+        data-testid="xp-add-dialog"
       >
-        <h3 id="xp-dialog-title" className="font-heading text-xl text-primary">
-          {t("addXp")}
-        </h3>
+        <div
+          className="mx-4 flex w-full max-w-lg flex-col gap-4 overflow-y-auto rounded-lg border border-border bg-card p-6"
+          style={{ maxHeight: "90vh" }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h3 id="xp-dialog-title" className="font-heading text-xl text-primary">
+            {t("addXp")}
+          </h3>
 
-        {/* Total XP Amount */}
-        <div className="flex flex-col gap-1">
-          <Label htmlFor="xp-amount">{t("xpAmount")}</Label>
-          <Input
-            id="xp-amount"
-            type="number"
-            min={1}
-            value={xpAmount}
-            onChange={(e) => setXpAmount(e.target.value)}
-            placeholder="2000"
-            autoFocus
-            data-testid="xp-amount-input"
-          />
-        </div>
+          {/* Total XP Amount */}
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="xp-amount">{t("xpAmount")}</Label>
+            <Input
+              id="xp-amount"
+              type="number"
+              min={1}
+              value={xpAmount}
+              onChange={(e) => setXpAmount(e.target.value)}
+              placeholder="2000"
+              autoFocus
+              data-testid="xp-amount-input"
+            />
+          </div>
 
-        {/* Per-class XP distribution (only for multiclass) */}
-        {activeClasses.length > 1 && xpNum > 0 && (
-          <div className="flex flex-col gap-3" data-testid="xp-distribution-section">
-            {activeClasses.map((cc) => {
-              const cls = CLASSES[cc.class_id as ClassId];
-              const className = cls ? localized(cls.name, cls.name_en, locale) : cc.class_id;
-              return (
-                <div key={cc.class_id} className="flex flex-col gap-1">
-                  <Label htmlFor={`xp-class-${cc.class_id}`}>
-                    {t("xpClassLabel", { className })} (L{cc.level})
-                  </Label>
-                  <Input
-                    id={`xp-class-${cc.class_id}`}
-                    type="number"
-                    min={0}
-                    value={classXpMap[cc.class_id] ?? ""}
-                    onChange={(e) => {
-                      setHasManualOverride(true);
-                      setClassXpOverrides((prev) => ({ ...prev, [cc.class_id]: e.target.value }));
-                    }}
-                    data-testid={`xp-class-input-${cc.class_id}`}
+          {/* Per-class XP distribution (only for multiclass) */}
+          {activeClasses.length > 1 && xpNum > 0 && (
+            <div className="flex flex-col gap-3" data-testid="xp-distribution-section">
+              {activeClasses.map((cc) => {
+                const cls = CLASSES[cc.class_id as ClassId];
+                const className = cls ? localized(cls.name, cls.name_en, locale) : cc.class_id;
+                return (
+                  <div key={cc.class_id} className="flex flex-col gap-1">
+                    <Label htmlFor={`xp-class-${cc.class_id}`}>
+                      {t("xpClassLabel", { className })} (L{cc.level})
+                    </Label>
+                    <Input
+                      id={`xp-class-${cc.class_id}`}
+                      type="number"
+                      min={0}
+                      value={classXpMap[cc.class_id] ?? ""}
+                      onChange={(e) => {
+                        setHasManualOverride(true);
+                        setClassXpOverrides((prev) => ({ ...prev, [cc.class_id]: e.target.value }));
+                      }}
+                      data-testid={`xp-class-input-${cc.class_id}`}
+                    />
+                  </div>
+                );
+              })}
+
+              {/* Remaining indicator */}
+              <p
+                className={`text-sm font-medium ${remaining < 0 ? "text-red-400" : remaining === 0 ? "text-green-400" : "text-muted-foreground"}`}
+                data-testid="xp-remaining"
+              >
+                {t("xpRemaining", { xp: remaining })}
+              </p>
+            </div>
+          )}
+
+          {/* Session selection */}
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="xp-session">{t("xpSession")}</Label>
+            <select
+              id="xp-session"
+              value={selectedSessionId}
+              onChange={(e) => setSelectedSessionId(e.target.value)}
+              className="rounded-md border border-input bg-input px-3 py-2 text-sm"
+              data-testid="xp-session-select"
+            >
+              <option value="">{t("noSession")}</option>
+              {sessions.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.title} ({new Date(s.session_date).toLocaleDateString(locale)})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Note */}
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="xp-note">{t("xpNote")}</Label>
+            <Input
+              id="xp-note"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder={t("xpNotePlaceholder")}
+              data-testid="xp-note-input"
+            />
+          </div>
+
+          {/* Per-class preview + next-level info */}
+          <div
+            className="flex flex-col gap-3 rounded-md border border-border p-3"
+            data-testid="xp-preview-section"
+          >
+            <h4 className="text-sm font-medium text-muted-foreground">{t("xpPreview")}</h4>
+
+            {previews.map((p) => (
+              <div key={p.classId} className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">
+                    {p.className} (L{p.effectiveNewLevel})
+                  </span>
+                  {p.classXp > 0 && (
+                    <span className="text-sm text-muted-foreground">+{p.classXp} XP</span>
+                  )}
+                </div>
+
+                {/* XP Progress Bar */}
+                <div className="h-2 w-full rounded-full bg-muted">
+                  <div
+                    className="h-2 rounded-full bg-primary transition-all"
+                    style={{ width: `${p.progressPct}%` }}
                   />
                 </div>
-              );
-            })}
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>{p.effectiveNewXp.toLocaleString()} XP</span>
+                  <span>
+                    {p.nextLevelXp
+                      ? `${t("nextLevel")}: ${p.nextLevelXp.toLocaleString()} XP`
+                      : t("maxLevel")}
+                  </span>
+                </div>
 
-            {/* Remaining indicator */}
-            <p
-              className={`text-sm font-medium ${remaining < 0 ? "text-red-400" : remaining === 0 ? "text-green-400" : "text-muted-foreground"}`}
-              data-testid="xp-remaining"
-            >
-              {t("xpRemaining", { xp: remaining })}
-            </p>
-          </div>
-        )}
+                {/* Level-up indicator */}
+                {p.preview && p.preview.levelsGained > 0 && (
+                  <div
+                    className="rounded-md bg-green-900/30 px-3 py-2 text-sm text-green-300"
+                    data-testid={`level-up-indicator-${p.classId}`}
+                  >
+                    {t("levelUp")} {p.preview.currentLevel} → {p.preview.newLevel}
+                  </div>
+                )}
 
-        {/* Session selection */}
-        <div className="flex flex-col gap-1">
-          <Label htmlFor="xp-session">{t("xpSession")}</Label>
-          <select
-            id="xp-session"
-            value={selectedSessionId}
-            onChange={(e) => setSelectedSessionId(e.target.value)}
-            className="rounded-md border border-input bg-input px-3 py-2 text-sm"
-            data-testid="xp-session-select"
-          >
-            <option value="">{t("noSession")}</option>
-            {sessions.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.title} ({new Date(s.session_date).toLocaleDateString(locale)})
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Note */}
-        <div className="flex flex-col gap-1">
-          <Label htmlFor="xp-note">{t("xpNote")}</Label>
-          <Input
-            id="xp-note"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder={t("xpNotePlaceholder")}
-            data-testid="xp-note-input"
-          />
-        </div>
-
-        {/* Per-class preview + next-level info */}
-        <div
-          className="flex flex-col gap-3 rounded-md border border-border p-3"
-          data-testid="xp-preview-section"
-        >
-          <h4 className="text-sm font-medium text-muted-foreground">{t("xpPreview")}</h4>
-
-          {previews.map((p) => (
-            <div key={p.classId} className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <span className="font-medium">
-                  {p.className} (L{p.effectiveNewLevel})
-                </span>
-                {p.classXp > 0 && (
-                  <span className="text-sm text-muted-foreground">+{p.classXp} XP</span>
+                {/* Next-level changes (always shown) */}
+                {p.nextLevelChanges.length > 0 && (
+                  <div className="flex flex-col gap-1 rounded bg-background/30 p-2">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {t("nextLevelPreview", { level: p.effectiveNewLevel + 1 })}
+                    </span>
+                    {p.nextLevelChanges.map((change, i) => (
+                      <div key={i} className="flex justify-between text-xs text-muted-foreground">
+                        <span>
+                          {change.type === "thac0" && "THAC0"}
+                          {change.type === "saves" && t("improvedSaves")}
+                          {change.type === "spellSlots" && t("newSpellSlots")}
+                          {change.type === "attacks" && t("attacksPerRound")}
+                          {change.type === "weaponProf" && t("newProfSlots")}
+                          {change.type === "nwpProf" && t("newNwpSlots")}
+                          {change.type === "backstab" && t("backstab")}
+                        </span>
+                        {change.before && change.after ? (
+                          <span>
+                            {change.before} → <span className="text-green-400">{change.after}</span>
+                          </span>
+                        ) : (
+                          <span className="text-green-400">✓</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
+            ))}
+          </div>
 
-              {/* XP Progress Bar */}
-              <div className="h-2 w-full rounded-full bg-muted">
-                <div
-                  className="h-2 rounded-full bg-primary transition-all"
-                  style={{ width: `${p.progressPct}%` }}
-                />
-              </div>
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>{p.effectiveNewXp.toLocaleString()} XP</span>
-                <span>
-                  {p.nextLevelXp
-                    ? `${t("nextLevel")}: ${p.nextLevelXp.toLocaleString()} XP`
-                    : t("maxLevel")}
-                </span>
-              </div>
-
-              {/* Level-up indicator */}
-              {p.preview && p.preview.levelsGained > 0 && (
-                <div
-                  className="rounded-md bg-green-900/30 px-3 py-2 text-sm text-green-300"
-                  data-testid={`level-up-indicator-${p.classId}`}
-                >
-                  {t("levelUp")} {p.preview.currentLevel} → {p.preview.newLevel}
-                </div>
+          {/* Actions */}
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={onClose} data-testid="xp-cancel-button">
+              {tc("cancel")}
+            </Button>
+            <Button
+              onClick={handleApply}
+              disabled={saving || xpNum <= 0 || remaining < 0}
+              data-testid="xp-apply-button"
+            >
+              {saving ? (
+                <>
+                  <Spinner className="mr-2" />
+                  {tc("saving")}
+                </>
+              ) : (
+                t("xpApply")
               )}
-
-              {/* Next-level changes (always shown) */}
-              {p.nextLevelChanges.length > 0 && (
-                <div className="flex flex-col gap-1 rounded bg-background/30 p-2">
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {t("nextLevelPreview", { level: p.effectiveNewLevel + 1 })}
-                  </span>
-                  {p.nextLevelChanges.map((change, i) => (
-                    <div key={i} className="flex justify-between text-xs text-muted-foreground">
-                      <span>
-                        {change.type === "thac0" && "THAC0"}
-                        {change.type === "saves" && t("improvedSaves")}
-                        {change.type === "spellSlots" && t("newSpellSlots")}
-                        {change.type === "attacks" && t("attacksPerRound")}
-                        {change.type === "weaponProf" && t("newProfSlots")}
-                        {change.type === "nwpProf" && t("newNwpSlots")}
-                        {change.type === "backstab" && t("backstab")}
-                      </span>
-                      {change.before && change.after ? (
-                        <span>
-                          {change.before} → <span className="text-green-400">{change.after}</span>
-                        </span>
-                      ) : (
-                        <span className="text-green-400">✓</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Actions */}
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onClose} data-testid="xp-cancel-button">
-            {tc("cancel")}
-          </Button>
-          <Button
-            onClick={handleApply}
-            disabled={saving || xpNum <= 0 || remaining < 0}
-            data-testid="xp-apply-button"
-          >
-            {saving ? (
-              <>
-                <Spinner className="mr-2" />
-                {tc("saving")}
-              </>
-            ) : (
-              t("xpApply")
-            )}
-          </Button>
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }

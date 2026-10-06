@@ -8,6 +8,7 @@ import { AvatarDisplay } from "@/components/avatar-display";
 import { validateFile } from "@/lib/avatar/upload";
 import { uploadNpcAvatar, deleteNpcAvatar } from "@/lib/avatar/npc-upload";
 import type { CropArea } from "@/lib/avatar/resize";
+import { ModalPortal } from "@/components/modal-portal";
 
 const Cropper = lazy(() => import("react-easy-crop"));
 
@@ -127,132 +128,134 @@ export function NpcAvatarUpload({
       </button>
 
       {isOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-          role="dialog"
-          aria-modal="true"
-          aria-label={t("uploadTitle")}
-          onClick={handleClose}
-          onKeyDown={(e) => e.key === "Escape" && handleClose()}
-          data-testid="npc-avatar-modal"
-        >
+        <ModalPortal>
           <div
-            className="mx-4 flex w-full max-w-md flex-col gap-4 rounded-lg border border-border bg-card p-6"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("uploadTitle")}
+            onClick={handleClose}
+            onKeyDown={(e) => e.key === "Escape" && handleClose()}
+            data-testid="npc-avatar-modal"
           >
-            <h3 className="font-heading text-xl text-primary">{t("uploadTitle")}</h3>
+            <div
+              className="mx-4 flex w-full max-w-md flex-col gap-4 rounded-lg border border-border bg-card p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="font-heading text-xl text-primary">{t("uploadTitle")}</h3>
 
-            {previewUrl && selectedFile ? (
-              <>
-                <div className="relative h-72 w-full overflow-hidden rounded-md bg-black">
-                  <Suspense
-                    fallback={
-                      <div className="flex h-full items-center justify-center">
-                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                      </div>
-                    }
-                  >
-                    <Cropper
-                      image={previewUrl}
-                      crop={crop}
-                      zoom={zoom}
-                      aspect={1}
-                      onCropChange={setCrop}
-                      onZoomChange={setZoom}
-                      onCropComplete={onCropComplete}
+              {previewUrl && selectedFile ? (
+                <>
+                  <div className="relative h-72 w-full overflow-hidden rounded-md bg-black">
+                    <Suspense
+                      fallback={
+                        <div className="flex h-full items-center justify-center">
+                          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                        </div>
+                      }
+                    >
+                      <Cropper
+                        image={previewUrl}
+                        crop={crop}
+                        zoom={zoom}
+                        aspect={1}
+                        onCropChange={setCrop}
+                        onZoomChange={setZoom}
+                        onCropComplete={onCropComplete}
+                      />
+                    </Suspense>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <label htmlFor="npc-avatar-zoom" className="text-sm text-muted-foreground">
+                      {t("zoom")}
+                    </label>
+                    <input
+                      id="npc-avatar-zoom"
+                      type="range"
+                      min={1}
+                      max={3}
+                      step={0.05}
+                      value={zoom}
+                      onChange={(e) => setZoom(Number(e.target.value))}
+                      className="h-2 w-full cursor-pointer accent-primary"
+                      style={{ minHeight: 44 }}
                     />
-                  </Suspense>
-                </div>
-                <div className="flex items-center gap-3">
-                  <label htmlFor="npc-avatar-zoom" className="text-sm text-muted-foreground">
-                    {t("zoom")}
-                  </label>
-                  <input
-                    id="npc-avatar-zoom"
-                    type="range"
-                    min={1}
-                    max={3}
-                    step={0.05}
-                    value={zoom}
-                    onChange={(e) => setZoom(Number(e.target.value))}
-                    className="h-2 w-full cursor-pointer accent-primary"
-                    style={{ minHeight: 44 }}
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    resetCropState();
-                    fileInputRef.current?.click();
-                  }}
-                  className="text-sm text-muted-foreground underline"
-                >
-                  {t("pickAnother")}
-                </button>
-              </>
-            ) : (
-              <>
-                <div className="flex justify-center">
-                  <AvatarDisplay name={npcName} avatarUrl={currentAvatarUrl} size={120} />
-                </div>
-                <div
-                  className={`flex cursor-pointer flex-col items-center gap-2 rounded-md border-2 border-dashed p-8 transition-colors ${dragOver ? "border-primary bg-primary/10" : "border-border"}`}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setDragOver(true);
-                  }}
-                  onDragLeave={() => setDragOver(false)}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    setDragOver(false);
-                    const file = e.dataTransfer.files[0];
-                    if (file) handleFileSelected(file);
-                  }}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <p className="text-sm text-muted-foreground">{t("dropzone")}</p>
-                  <p className="text-xs text-muted-foreground">{t("formats")}</p>
-                </div>
-                {currentAvatarUrl && (
+                  </div>
                   <button
                     type="button"
-                    onClick={handleRemove}
-                    disabled={uploading}
-                    className="text-sm text-destructive underline hover:text-destructive/80"
-                    data-testid="npc-avatar-remove"
+                    onClick={() => {
+                      resetCropState();
+                      fileInputRef.current?.click();
+                    }}
+                    className="text-sm text-muted-foreground underline"
                   >
-                    {t("remove")}
+                    {t("pickAnother")}
                   </button>
-                )}
-              </>
-            )}
-
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) handleFileSelected(file);
-                if (fileInputRef.current) fileInputRef.current.value = "";
-              }}
-              className="hidden"
-            />
-
-            {error && <p className="text-sm text-destructive">{error}</p>}
-
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={handleClose} style={{ minHeight: 44 }}>
-                {tcom("cancel")}
-              </Button>
-              {selectedFile && croppedAreaPixels && (
-                <Button onClick={handleSaveCrop} disabled={uploading} style={{ minHeight: 44 }}>
-                  {uploading ? tcom("saving") : tcom("save")}
-                </Button>
+                </>
+              ) : (
+                <>
+                  <div className="flex justify-center">
+                    <AvatarDisplay name={npcName} avatarUrl={currentAvatarUrl} size={120} />
+                  </div>
+                  <div
+                    className={`flex cursor-pointer flex-col items-center gap-2 rounded-md border-2 border-dashed p-8 transition-colors ${dragOver ? "border-primary bg-primary/10" : "border-border"}`}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragOver(true);
+                    }}
+                    onDragLeave={() => setDragOver(false)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setDragOver(false);
+                      const file = e.dataTransfer.files[0];
+                      if (file) handleFileSelected(file);
+                    }}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <p className="text-sm text-muted-foreground">{t("dropzone")}</p>
+                    <p className="text-xs text-muted-foreground">{t("formats")}</p>
+                  </div>
+                  {currentAvatarUrl && (
+                    <button
+                      type="button"
+                      onClick={handleRemove}
+                      disabled={uploading}
+                      className="text-sm text-destructive underline hover:text-destructive/80"
+                      data-testid="npc-avatar-remove"
+                    >
+                      {t("remove")}
+                    </button>
+                  )}
+                </>
               )}
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleFileSelected(file);
+                  if (fileInputRef.current) fileInputRef.current.value = "";
+                }}
+                className="hidden"
+              />
+
+              {error && <p className="text-sm text-destructive">{error}</p>}
+
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={handleClose} style={{ minHeight: 44 }}>
+                  {tcom("cancel")}
+                </Button>
+                {selectedFile && croppedAreaPixels && (
+                  <Button onClick={handleSaveCrop} disabled={uploading} style={{ minHeight: 44 }}>
+                    {uploading ? tcom("saving") : tcom("save")}
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
     </div>
   );

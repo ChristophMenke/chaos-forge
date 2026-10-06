@@ -46,6 +46,7 @@ import { MonsterForm } from "./monster-form";
 import { MonsterVariantPicker, type VariantStrategy } from "./monster-variant-picker";
 import { BookmarkToggle } from "./bookmark-toggle";
 import type { MonsterRow } from "@/lib/supabase/types";
+import { ModalPortal } from "@/components/modal-portal";
 
 const SIZE_ORDER = ["T", "S", "M", "L", "H", "G"] as const;
 
@@ -703,39 +704,41 @@ export function MasterBestiaryPanel({
 
       {/* Delete Monster Confirmation */}
       {deleteConfirmId && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-          role="presentation"
-        >
+        <ModalPortal>
           <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="monster-delete-title"
-            className="mx-4 w-full max-w-sm rounded-lg border border-border bg-card p-4 shadow-xl"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+            role="presentation"
           >
-            <h3 id="monster-delete-title" className="mb-2 font-heading text-lg text-foreground">
-              {t("confirmDelete")}
-            </h3>
-            <p className="mb-3 text-sm text-muted-foreground">
-              {t("deleteMonsterConfirm", {
-                name: monsters.find((m) => m.id === deleteConfirmId)?.name ?? "",
-              })}
-            </p>
-            <div className="flex gap-2">
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => handleDeleteMonster(deleteConfirmId)}
-              >
-                <Trash2 className="mr-1 h-3 w-3" />
-                {t("deleteMonster")}
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => setDeleteConfirmId(null)}>
-                {t("cancel")}
-              </Button>
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="monster-delete-title"
+              className="mx-4 w-full max-w-sm rounded-lg border border-border bg-card p-4 shadow-xl"
+            >
+              <h3 id="monster-delete-title" className="mb-2 font-heading text-lg text-foreground">
+                {t("confirmDelete")}
+              </h3>
+              <p className="mb-3 text-sm text-muted-foreground">
+                {t("deleteMonsterConfirm", {
+                  name: monsters.find((m) => m.id === deleteConfirmId)?.name ?? "",
+                })}
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleDeleteMonster(deleteConfirmId)}
+                >
+                  <Trash2 className="mr-1 h-3 w-3" />
+                  {t("deleteMonster")}
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setDeleteConfirmId(null)}>
+                  {t("cancel")}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
       {/* Toast */}
@@ -1205,365 +1208,367 @@ function MonsterDetailModal({
   }, [fullscreen, onClose, imageUrl]);
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="monster-detail-title"
-      onClick={onClose}
-      data-testid="gm-monster-detail-overlay"
-    >
+    <ModalPortal>
       <div
-        className="glass max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-xl border border-border bg-background/95 p-0"
-        onClick={(e) => e.stopPropagation()}
-        data-testid="gm-monster-detail"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="monster-detail-title"
+        onClick={onClose}
+        data-testid="gm-monster-detail-overlay"
       >
-        {/* Fullscreen image overlay — spoiler-free for player display */}
-        {fullscreen && imageUrl && (
-          <div
-            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 p-4"
-            role="dialog"
-            aria-modal="true"
-            aria-label={displayName}
-            onClick={() => setFullscreen(false)}
-            data-testid="gm-monster-fullscreen"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={imageUrl}
-              alt={displayName}
-              className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain"
-            />
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
-              <h2 className="font-heading text-3xl font-bold text-white drop-shadow-lg">
-                {displayName}
-              </h2>
-            </div>
-            <button
+        <div
+          className="glass max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-xl border border-border bg-background/95 p-0"
+          onClick={(e) => e.stopPropagation()}
+          data-testid="gm-monster-detail"
+        >
+          {/* Fullscreen image overlay — spoiler-free for player display */}
+          {fullscreen && imageUrl && (
+            <div
+              className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 p-4"
+              role="dialog"
+              aria-modal="true"
+              aria-label={displayName}
               onClick={() => setFullscreen(false)}
-              className="absolute right-4 top-4 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
-              aria-label={tcom("close")}
+              data-testid="gm-monster-fullscreen"
             >
-              <X className="h-6 w-6" aria-hidden="true" />
-            </button>
-          </div>
-        )}
-
-        {/* Two-column layout: Image left, Stats right */}
-        <div className="flex flex-col lg:flex-row">
-          {/* Left column — Image */}
-          <div className="relative flex shrink-0 items-center justify-center bg-black/40 lg:w-2/5">
-            <div className="relative aspect-square w-full">
-              {imageUrl ? (
-                <Image
-                  src={imageUrl}
-                  alt={displayName}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 40vw"
-                  className="object-contain"
-                  data-testid="gm-monster-detail-image"
-                />
-              ) : (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={monsterAvatar(displayName, monster.size)}
-                  alt={displayName}
-                  className="h-full w-full object-contain p-8"
-                  data-testid="gm-monster-detail-image"
-                />
-              )}
-            </div>
-
-            {/* Image action buttons */}
-            <button
-              onClick={() => setFullscreen(true)}
-              className="absolute right-3 top-3 rounded-md bg-black/60 p-1.5 text-white hover:bg-black/80"
-              title={tcom("fullscreen")}
-              aria-label={tcom("fullscreen")}
-              data-testid="gm-monster-fullscreen-btn"
-            >
-              <Maximize2 className="h-4 w-4" aria-hidden="true" />
-            </button>
-            <button
-              onClick={onClose}
-              className="absolute left-3 top-3 rounded-md bg-black/60 p-1.5 text-white hover:bg-black/80 lg:hidden"
-              aria-label={tcom("close")}
-              data-testid="gm-monster-detail-close"
-            >
-              <X className="h-4 w-4" />
-            </button>
-
-            {/* Show Players button */}
-            {imageUrl && (
-              <button
-                onClick={() => setFullscreen(true)}
-                className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-md bg-primary/80 px-3 py-1.5 text-sm font-medium text-primary-foreground shadow-lg hover:bg-primary"
-                title="P"
-                aria-label={t("monsterShowPlayers")}
-                data-testid="gm-monster-show-players"
-              >
-                <Eye className="h-4 w-4" aria-hidden="true" />
-                {t("monsterShowPlayers")}
-              </button>
-            )}
-          </div>
-
-          {/* Right column — Stats */}
-          <div className="flex-1 p-5">
-            {/* Close button (desktop — on right side) */}
-            <div className="mb-3 flex items-start justify-between">
-              <div>
-                <h2
-                  id="monster-detail-title"
-                  className="font-heading text-2xl font-bold text-foreground"
-                >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageUrl}
+                alt={displayName}
+                className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain"
+              />
+              <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+                <h2 className="font-heading text-3xl font-bold text-white drop-shadow-lg">
                   {displayName}
                 </h2>
-                {monster.name !== monster.name_en && monster.name_en && (
-                  <p className="text-sm text-muted-foreground">{monster.name_en}</p>
-                )}
               </div>
               <button
-                ref={closeButtonRef}
-                onClick={onClose}
-                className="hidden rounded-md p-1.5 text-muted-foreground hover:bg-accent/30 hover:text-foreground lg:block"
+                onClick={() => setFullscreen(false)}
+                className="absolute right-4 top-4 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
                 aria-label={tcom("close")}
-                data-testid="gm-monster-detail-close-desktop"
               >
-                <X className="h-5 w-5" aria-hidden="true" />
+                <X className="h-6 w-6" aria-hidden="true" />
               </button>
             </div>
+          )}
 
-            {/* Image upload */}
-            <div className="mb-4 flex items-center gap-2">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleImageUpload}
-                data-testid="gm-monster-image-input"
-              />
+          {/* Two-column layout: Image left, Stats right */}
+          <div className="flex flex-col lg:flex-row">
+            {/* Left column — Image */}
+            <div className="relative flex shrink-0 items-center justify-center bg-black/40 lg:w-2/5">
+              <div className="relative aspect-square w-full">
+                {imageUrl ? (
+                  <Image
+                    src={imageUrl}
+                    alt={displayName}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 40vw"
+                    className="object-contain"
+                    data-testid="gm-monster-detail-image"
+                  />
+                ) : (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={monsterAvatar(displayName, monster.size)}
+                    alt={displayName}
+                    className="h-full w-full object-contain p-8"
+                    data-testid="gm-monster-detail-image"
+                  />
+                )}
+              </div>
+
+              {/* Image action buttons */}
               <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                aria-busy={uploading}
-                className="flex items-center gap-1 rounded-md bg-accent/30 px-2 py-1 text-xs text-muted-foreground hover:bg-accent/50"
-                data-testid="gm-monster-image-upload"
+                onClick={() => setFullscreen(true)}
+                className="absolute right-3 top-3 rounded-md bg-black/60 p-1.5 text-white hover:bg-black/80"
+                title={tcom("fullscreen")}
+                aria-label={tcom("fullscreen")}
+                data-testid="gm-monster-fullscreen-btn"
               >
-                <Upload className="h-3 w-3" />
-                {imageUrl ? t("monsterChangeImage") : t("monsterUploadImage")}
+                <Maximize2 className="h-4 w-4" aria-hidden="true" />
               </button>
-              {uploadError && (
-                <p className="text-xs text-red-400" role="alert">
-                  {uploadError}
-                </p>
+              <button
+                onClick={onClose}
+                className="absolute left-3 top-3 rounded-md bg-black/60 p-1.5 text-white hover:bg-black/80 lg:hidden"
+                aria-label={tcom("close")}
+                data-testid="gm-monster-detail-close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+
+              {/* Show Players button */}
+              {imageUrl && (
+                <button
+                  onClick={() => setFullscreen(true)}
+                  className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-md bg-primary/80 px-3 py-1.5 text-sm font-medium text-primary-foreground shadow-lg hover:bg-primary"
+                  title="P"
+                  aria-label={t("monsterShowPlayers")}
+                  data-testid="gm-monster-show-players"
+                >
+                  <Eye className="h-4 w-4" aria-hidden="true" />
+                  {t("monsterShowPlayers")}
+                </button>
               )}
             </div>
 
-            {/* Description — prefers intro_text (new narrative section) with legacy fallback */}
-            {(monster.intro_text ?? monster.description) && (
-              <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
-                {monster.intro_text ?? monster.description}
-              </p>
-            )}
-
-            {/* Core stats — Monster Manual style block with icons.
-                On narrow mobile viewports 4 columns clips long labels like
-                "Trefferwürfel" and "Bewegungsrate", so stack 2×2 below sm. */}
-            <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {[
-                {
-                  label: t("ac"),
-                  value: monster.ac,
-                  icon: Shield,
-                  color: "text-amber-400",
-                  valueColor: "text-amber-300",
-                },
-                {
-                  label: t("monsterHDFull"),
-                  value: monster.hit_dice,
-                  icon: Heart,
-                  color: "text-red-400",
-                  valueColor: "text-red-300",
-                },
-                {
-                  label: t("thac0"),
-                  value: monster.thac0,
-                  icon: Crosshair,
-                  color: "text-sky-400",
-                  valueColor: "text-sky-300",
-                },
-                {
-                  label: t("monsterMovementFull"),
-                  value: monster.movement,
-                  icon: null,
-                  color: "",
-                  valueColor: "",
-                },
-              ].map((s) => (
-                <div
-                  key={s.label}
-                  className="rounded-lg border border-border/50 px-2 py-2 text-center"
-                >
-                  <div className="mb-0.5 flex items-center justify-center gap-1 text-xs uppercase tracking-wider text-muted-foreground">
-                    {s.icon && <s.icon className={`h-3 w-3 ${s.color}`} />}
-                    {s.label}
-                  </div>
-                  <div className={`font-mono text-lg font-bold ${s.valueColor}`}>{s.value}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Combat stats — full labels.
-                Stack single-column on mobile so "Spezialverteidigung" and
-                long German special-attack descriptions don't clip. */}
-            <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {[
-                { label: t("monsterAttacksFull"), value: monster.attacks_per_round },
-                { label: t("monsterDamageFull"), value: monster.damage },
-                { label: t("monsterSpecialAttacks"), value: monster.special_attacks },
-                { label: t("monsterSpecialDefenses"), value: monster.special_defenses },
-              ]
-                .filter((s) => s.value)
-                .map((s) => (
-                  <div key={s.label} className="rounded border border-border/30 px-3 py-2">
-                    <div className="break-words text-xs uppercase tracking-wider text-muted-foreground">
-                      {s.label}
-                    </div>
-                    <div className="break-words text-sm">{s.value}</div>
-                  </div>
-                ))}
-            </div>
-
-            {/* Secondary stat table */}
-            <dl className="space-y-1">
-              {rows
-                .filter((r) => !PROMOTED_KEYS.has(r.key) && r.value !== null && r.value !== "")
-                .map((r) => (
-                  <div
-                    key={r.label}
-                    className="flex justify-between border-b border-border/30 py-1 text-sm"
+            {/* Right column — Stats */}
+            <div className="flex-1 p-5">
+              {/* Close button (desktop — on right side) */}
+              <div className="mb-3 flex items-start justify-between">
+                <div>
+                  <h2
+                    id="monster-detail-title"
+                    className="font-heading text-2xl font-bold text-foreground"
                   >
-                    <dt className="font-medium text-muted-foreground">{r.label}</dt>
-                    <dd className="text-right text-foreground">
-                      {r.key === "treasure" && typeof r.value === "string" ? (
-                        <TreasureValue raw={r.value} />
-                      ) : (
-                        r.value
-                      )}
-                    </dd>
-                  </div>
-                ))}
-            </dl>
-
-            {/* Typical spells */}
-            {(monster.typical_spells ?? []).length > 0 && (
-              <div className="mt-3">
-                <p className="text-xs font-medium text-muted-foreground">{t("npcSpellNotes")}:</p>
-                <p className="text-sm text-foreground">
-                  {(monster.typical_spells ?? []).join(", ")}
-                </p>
+                    {displayName}
+                  </h2>
+                  {monster.name !== monster.name_en && monster.name_en && (
+                    <p className="text-sm text-muted-foreground">{monster.name_en}</p>
+                  )}
+                </div>
+                <button
+                  ref={closeButtonRef}
+                  onClick={onClose}
+                  className="hidden rounded-md p-1.5 text-muted-foreground hover:bg-accent/30 hover:text-foreground lg:block"
+                  aria-label={tcom("close")}
+                  data-testid="gm-monster-detail-close-desktop"
+                >
+                  <X className="h-5 w-5" aria-hidden="true" />
+                </button>
               </div>
-            )}
 
-            {/* Narrative sections — MM full text (combat tactics, habitat, ecology) */}
-            {(monster.combat_tactics || monster.habitat_society || monster.ecology) && (
-              <div className="mt-6 space-y-4 border-t border-border/40 pt-4">
-                {monster.combat_tactics && (
-                  <section data-testid="monster-combat-tactics">
-                    <h3 className="mb-1 text-xs font-semibold uppercase tracking-wider text-amber-400">
-                      {t("monsterCombatTactics")}
-                    </h3>
-                    <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
-                      {monster.combat_tactics}
-                    </p>
-                  </section>
-                )}
-                {monster.habitat_society && (
-                  <section data-testid="monster-habitat-society">
-                    <h3 className="mb-1 text-xs font-semibold uppercase tracking-wider text-amber-400">
-                      {t("monsterHabitatSociety")}
-                    </h3>
-                    <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
-                      {monster.habitat_society}
-                    </p>
-                  </section>
-                )}
-                {monster.ecology && (
-                  <section data-testid="monster-ecology">
-                    <h3 className="mb-1 text-xs font-semibold uppercase tracking-wider text-amber-400">
-                      {t("monsterEcology")}
-                    </h3>
-                    <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
-                      {monster.ecology}
-                    </p>
-                  </section>
-                )}
-              </div>
-            )}
-
-            {/* Add to combat — hidden for reference entries (empty damage) */}
-            {onAddToCombat && isReferenceEntry(monster) && (
-              <div
-                className="mt-4 rounded-lg border border-border/40 bg-muted/20 px-3 py-2 text-xs italic text-muted-foreground"
-                data-testid="gm-monster-detail-reference-notice"
-              >
-                {t("monsterReferenceEntryTooltip")}
-              </div>
-            )}
-            {onAddToCombat && !isReferenceEntry(monster) && (
-              <div className="mt-4 flex items-center gap-2">
+              {/* Image upload */}
+              <div className="mb-4 flex items-center gap-2">
                 <input
-                  type="number"
-                  min={1}
-                  max={99}
-                  value={count}
-                  onChange={(e) => setCount(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="w-16 rounded-md border border-border bg-background/50 px-2 py-1.5 text-center text-sm"
-                  data-testid="gm-monster-detail-count"
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                  data-testid="gm-monster-image-input"
                 />
                 <button
-                  onClick={() => {
-                    onAddToCombat(monster, count);
-                    onClose();
-                  }}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20"
-                  data-testid="gm-monster-detail-add"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  aria-busy={uploading}
+                  className="flex items-center gap-1 rounded-md bg-accent/30 px-2 py-1 text-xs text-muted-foreground hover:bg-accent/50"
+                  data-testid="gm-monster-image-upload"
                 >
-                  <Skull className="h-4 w-4" />
-                  {count}x {t("monsterAddToCombat")}
+                  <Upload className="h-3 w-3" />
+                  {imageUrl ? t("monsterChangeImage") : t("monsterUploadImage")}
                 </button>
+                {uploadError && (
+                  <p className="text-xs text-red-400" role="alert">
+                    {uploadError}
+                  </p>
+                )}
               </div>
-            )}
 
-            {/* Edit + Delete Buttons */}
-            <div className="mt-2 flex gap-2">
-              {onEdit && (
-                <button
-                  onClick={() => onEdit(monster)}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary/20 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/30"
-                  data-testid="monster-edit-button"
-                >
-                  <Pencil className="h-4 w-4" />
-                  {t("editMonster")}
-                </button>
+              {/* Description — prefers intro_text (new narrative section) with legacy fallback */}
+              {(monster.intro_text ?? monster.description) && (
+                <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+                  {monster.intro_text ?? monster.description}
+                </p>
               )}
-              {onDelete && (
-                <button
-                  onClick={() => onDelete(monster.id)}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-900/20 px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-900/40"
-                  data-testid="gm-monster-detail-delete"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  {t("deleteMonster")}
-                </button>
+
+              {/* Core stats — Monster Manual style block with icons.
+                On narrow mobile viewports 4 columns clips long labels like
+                "Trefferwürfel" and "Bewegungsrate", so stack 2×2 below sm. */}
+              <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {[
+                  {
+                    label: t("ac"),
+                    value: monster.ac,
+                    icon: Shield,
+                    color: "text-amber-400",
+                    valueColor: "text-amber-300",
+                  },
+                  {
+                    label: t("monsterHDFull"),
+                    value: monster.hit_dice,
+                    icon: Heart,
+                    color: "text-red-400",
+                    valueColor: "text-red-300",
+                  },
+                  {
+                    label: t("thac0"),
+                    value: monster.thac0,
+                    icon: Crosshair,
+                    color: "text-sky-400",
+                    valueColor: "text-sky-300",
+                  },
+                  {
+                    label: t("monsterMovementFull"),
+                    value: monster.movement,
+                    icon: null,
+                    color: "",
+                    valueColor: "",
+                  },
+                ].map((s) => (
+                  <div
+                    key={s.label}
+                    className="rounded-lg border border-border/50 px-2 py-2 text-center"
+                  >
+                    <div className="mb-0.5 flex items-center justify-center gap-1 text-xs uppercase tracking-wider text-muted-foreground">
+                      {s.icon && <s.icon className={`h-3 w-3 ${s.color}`} />}
+                      {s.label}
+                    </div>
+                    <div className={`font-mono text-lg font-bold ${s.valueColor}`}>{s.value}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Combat stats — full labels.
+                Stack single-column on mobile so "Spezialverteidigung" and
+                long German special-attack descriptions don't clip. */}
+              <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {[
+                  { label: t("monsterAttacksFull"), value: monster.attacks_per_round },
+                  { label: t("monsterDamageFull"), value: monster.damage },
+                  { label: t("monsterSpecialAttacks"), value: monster.special_attacks },
+                  { label: t("monsterSpecialDefenses"), value: monster.special_defenses },
+                ]
+                  .filter((s) => s.value)
+                  .map((s) => (
+                    <div key={s.label} className="rounded border border-border/30 px-3 py-2">
+                      <div className="break-words text-xs uppercase tracking-wider text-muted-foreground">
+                        {s.label}
+                      </div>
+                      <div className="break-words text-sm">{s.value}</div>
+                    </div>
+                  ))}
+              </div>
+
+              {/* Secondary stat table */}
+              <dl className="space-y-1">
+                {rows
+                  .filter((r) => !PROMOTED_KEYS.has(r.key) && r.value !== null && r.value !== "")
+                  .map((r) => (
+                    <div
+                      key={r.label}
+                      className="flex justify-between border-b border-border/30 py-1 text-sm"
+                    >
+                      <dt className="font-medium text-muted-foreground">{r.label}</dt>
+                      <dd className="text-right text-foreground">
+                        {r.key === "treasure" && typeof r.value === "string" ? (
+                          <TreasureValue raw={r.value} />
+                        ) : (
+                          r.value
+                        )}
+                      </dd>
+                    </div>
+                  ))}
+              </dl>
+
+              {/* Typical spells */}
+              {(monster.typical_spells ?? []).length > 0 && (
+                <div className="mt-3">
+                  <p className="text-xs font-medium text-muted-foreground">{t("npcSpellNotes")}:</p>
+                  <p className="text-sm text-foreground">
+                    {(monster.typical_spells ?? []).join(", ")}
+                  </p>
+                </div>
               )}
+
+              {/* Narrative sections — MM full text (combat tactics, habitat, ecology) */}
+              {(monster.combat_tactics || monster.habitat_society || monster.ecology) && (
+                <div className="mt-6 space-y-4 border-t border-border/40 pt-4">
+                  {monster.combat_tactics && (
+                    <section data-testid="monster-combat-tactics">
+                      <h3 className="mb-1 text-xs font-semibold uppercase tracking-wider text-amber-400">
+                        {t("monsterCombatTactics")}
+                      </h3>
+                      <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                        {monster.combat_tactics}
+                      </p>
+                    </section>
+                  )}
+                  {monster.habitat_society && (
+                    <section data-testid="monster-habitat-society">
+                      <h3 className="mb-1 text-xs font-semibold uppercase tracking-wider text-amber-400">
+                        {t("monsterHabitatSociety")}
+                      </h3>
+                      <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                        {monster.habitat_society}
+                      </p>
+                    </section>
+                  )}
+                  {monster.ecology && (
+                    <section data-testid="monster-ecology">
+                      <h3 className="mb-1 text-xs font-semibold uppercase tracking-wider text-amber-400">
+                        {t("monsterEcology")}
+                      </h3>
+                      <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                        {monster.ecology}
+                      </p>
+                    </section>
+                  )}
+                </div>
+              )}
+
+              {/* Add to combat — hidden for reference entries (empty damage) */}
+              {onAddToCombat && isReferenceEntry(monster) && (
+                <div
+                  className="mt-4 rounded-lg border border-border/40 bg-muted/20 px-3 py-2 text-xs italic text-muted-foreground"
+                  data-testid="gm-monster-detail-reference-notice"
+                >
+                  {t("monsterReferenceEntryTooltip")}
+                </div>
+              )}
+              {onAddToCombat && !isReferenceEntry(monster) && (
+                <div className="mt-4 flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={1}
+                    max={99}
+                    value={count}
+                    onChange={(e) => setCount(Math.max(1, parseInt(e.target.value) || 1))}
+                    className="w-16 rounded-md border border-border bg-background/50 px-2 py-1.5 text-center text-sm"
+                    data-testid="gm-monster-detail-count"
+                  />
+                  <button
+                    onClick={() => {
+                      onAddToCombat(monster, count);
+                      onClose();
+                    }}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20"
+                    data-testid="gm-monster-detail-add"
+                  >
+                    <Skull className="h-4 w-4" />
+                    {count}x {t("monsterAddToCombat")}
+                  </button>
+                </div>
+              )}
+
+              {/* Edit + Delete Buttons */}
+              <div className="mt-2 flex gap-2">
+                {onEdit && (
+                  <button
+                    onClick={() => onEdit(monster)}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary/20 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/30"
+                    data-testid="monster-edit-button"
+                  >
+                    <Pencil className="h-4 w-4" />
+                    {t("editMonster")}
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    onClick={() => onDelete(monster.id)}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-900/20 px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-900/40"
+                    data-testid="gm-monster-detail-delete"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    {t("deleteMonster")}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }
 

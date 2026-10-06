@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { createNotification } from "@/lib/notifications";
 import { localized } from "@/lib/utils/localize";
 import type { CharacterInventoryWithDetails } from "@/lib/supabase/types";
+import { ModalPortal } from "@/components/modal-portal";
 
 interface TradeCharacter {
   id: string;
@@ -161,89 +162,93 @@ export function SendItemDialog({
   const availableCharacters = characters.filter((c) => c.id !== senderCharacterId);
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-      onClick={onClose}
-      onKeyDown={(e) => e.key === "Escape" && onClose()}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="send-item-dialog-title"
-      tabIndex={-1}
-      data-testid="play-send-item-dialog"
-    >
+    <ModalPortal>
       <div
-        className="mx-4 flex w-full max-w-sm flex-col gap-3 rounded-lg border border-border bg-card p-4"
-        onClick={(e) => e.stopPropagation()}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+        onClick={onClose}
+        onKeyDown={(e) => e.key === "Escape" && onClose()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="send-item-dialog-title"
+        tabIndex={-1}
+        data-testid="play-send-item-dialog"
       >
-        <h3 id="send-item-dialog-title" className="font-heading text-lg text-primary">
-          {t("sendItemTitle")}
-        </h3>
+        <div
+          className="mx-4 flex w-full max-w-sm flex-col gap-3 rounded-lg border border-border bg-card p-4"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h3 id="send-item-dialog-title" className="font-heading text-lg text-primary">
+            {t("sendItemTitle")}
+          </h3>
 
-        <p className="text-sm text-muted-foreground">
-          {name} {item.quantity > 1 && `(${item.quantity})`}
-        </p>
+          <p className="text-sm text-muted-foreground">
+            {name} {item.quantity > 1 && `(${item.quantity})`}
+          </p>
 
-        {/* Character selector */}
-        <div>
-          <label className="mb-1 block text-xs text-muted-foreground">{t("toCharacter")}</label>
-          <select
-            value={selectedCharacterId}
-            onChange={(e) => setSelectedCharacterId(e.target.value)}
-            className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm"
-            data-testid="play-send-item-character"
-          >
-            <option value="">{t("selectCharacter")}</option>
-            {availableCharacters.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Quantity */}
-        {item.quantity > 1 && (
+          {/* Character selector */}
           <div>
-            <label className="mb-1 block text-xs text-muted-foreground">
-              {t("quantity")} (max {item.quantity})
-            </label>
-            <input
-              type="number"
-              min="1"
-              max={item.quantity}
-              value={quantity}
-              onChange={(e) =>
-                setQuantity(Math.max(1, Math.min(item.quantity, parseInt(e.target.value, 10) || 1)))
-              }
+            <label className="mb-1 block text-xs text-muted-foreground">{t("toCharacter")}</label>
+            <select
+              value={selectedCharacterId}
+              onChange={(e) => setSelectedCharacterId(e.target.value)}
               className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm"
-              data-testid="play-send-item-quantity"
-            />
+              data-testid="play-send-item-character"
+            >
+              <option value="">{t("selectCharacter")}</option>
+              {availableCharacters.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
           </div>
-        )}
 
-        {error && <p className="text-xs text-red-400">{error}</p>}
+          {/* Quantity */}
+          {item.quantity > 1 && (
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">
+                {t("quantity")} (max {item.quantity})
+              </label>
+              <input
+                type="number"
+                min="1"
+                max={item.quantity}
+                value={quantity}
+                onChange={(e) =>
+                  setQuantity(
+                    Math.max(1, Math.min(item.quantity, parseInt(e.target.value, 10) || 1))
+                  )
+                }
+                className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+                data-testid="play-send-item-quantity"
+              />
+            </div>
+          )}
 
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            className="flex-1"
-            onClick={handleSend}
-            disabled={!selectedCharacterId || quantity < 1 || isSaving}
-            data-testid="play-send-item-confirm"
-          >
-            {isSaving ? t("saving") : t("sendConfirm")}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex-1"
-            onClick={onClose}
-            data-testid="play-send-item-cancel"
-          >
-            {t("cancel")}
-          </Button>
+          {error && <p className="text-xs text-red-400">{error}</p>}
+
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              className="flex-1"
+              onClick={handleSend}
+              disabled={!selectedCharacterId || quantity < 1 || isSaving}
+              data-testid="play-send-item-confirm"
+            >
+              {isSaving ? t("saving") : t("sendConfirm")}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex-1"
+              onClick={onClose}
+              data-testid="play-send-item-cancel"
+            >
+              {t("cancel")}
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }
