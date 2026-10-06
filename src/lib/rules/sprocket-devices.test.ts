@@ -15,6 +15,8 @@ import {
   craft,
   findOverclockItem,
   withDamageLevel,
+  readStock,
+  writeStock,
   type CraftableStock,
   type Recipe,
 } from "./sprocket-devices";
@@ -143,9 +145,9 @@ describe("healOneHour", () => {
 
 describe("resolveRepair", () => {
   it("senkt die Schadensstufe bei Erfolg und verbraucht das Elixier", () => {
-    expect(resolveRepair({ damageLevel: 3, elixirCount: 4, useElixir: true, success: true })).toEqual(
-      { damageLevel: 2, elixirCount: 3 }
-    );
+    expect(
+      resolveRepair({ damageLevel: 3, elixirCount: 4, useElixir: true, success: true })
+    ).toEqual({ damageLevel: 2, elixirCount: 3 });
   });
 
   it("verbraucht das Elixier auch bei Fehlschlag", () => {
@@ -161,9 +163,9 @@ describe("resolveRepair", () => {
   });
 
   it("geht nicht unter 0 (Stufe und Bestand)", () => {
-    expect(resolveRepair({ damageLevel: 0, elixirCount: 0, useElixir: true, success: true })).toEqual(
-      { damageLevel: 0, elixirCount: 0 }
-    );
+    expect(
+      resolveRepair({ damageLevel: 0, elixirCount: 0, useElixir: true, success: true })
+    ).toEqual({ damageLevel: 0, elixirCount: 0 });
   });
 });
 
@@ -252,6 +254,30 @@ describe("withDamageLevel", () => {
     expect(withDamageLevel({ damage_levels: damageLevels, simple_effects: se }, 7)).toEqual({
       damage_level: 7,
       simple_effects: se,
+    });
+  });
+});
+
+describe("readStock / writeStock", () => {
+  const elixir = { count: 4, name: "Kupferelixier", name_en: "Copper Elixir" };
+  const red = { count: 5, name: "Rauchbombe", name_en: "Smoke Bomb" };
+  const se = { elixir, mixtures: { red }, other: 1 };
+
+  it("liest Elixier und Mixtur", () => {
+    expect(readStock(se, { kind: "elixir" })).toBe(elixir);
+    expect(readStock(se, { kind: "mixture", key: "red" })).toBe(red);
+    expect(readStock(se, { kind: "mixture", key: "blue" })).toBeNull();
+    expect(readStock({}, { kind: "elixir" })).toBeNull();
+  });
+
+  it("schreibt, ohne andere Felder anzufassen", () => {
+    expect(writeStock(se, { kind: "elixir" }, { ...elixir, count: 3 })).toEqual({
+      ...se,
+      elixir: { ...elixir, count: 3 },
+    });
+    expect(writeStock(se, { kind: "mixture", key: "red" }, { ...red, count: 7 })).toEqual({
+      ...se,
+      mixtures: { red: { ...red, count: 7 } },
     });
   });
 });

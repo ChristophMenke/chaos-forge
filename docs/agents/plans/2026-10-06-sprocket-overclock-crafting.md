@@ -33,13 +33,13 @@ Sprockets Kondensator wird nach Spielregeln bedienbar: Übertakten nur nach gelu
 
 ### Spielregeln (verbindlich)
 
-| Aktion | Gelungen | Misslungen |
-|---|---|---|
-| Übertakten | `overclock_active = true`, `overclock_hours = 0` | `damage_level + 1` (max. `max_damage_level`), nicht aktiv |
-| Eine Stunde vergeht (nur aktiv) | `hours + 1`, +1 TP (bis `hp_max`) | `hours + 1`, +1 TP, `overclock_active = false`, `overclock_cooldown = true` |
-| Ein Tag ist vergangen (nur bei Sperre) | `overclock_cooldown = false` | – |
-| Reparatur (Zielwert − Schadensstufe, +4 mit Elixier) | `damage_level − 1` | nichts; Elixier trotzdem verbraucht |
-| Beenden (freiwillig) | `overclock_active = false`, keine Sperre | – |
+| Aktion                                               | Gelungen                                         | Misslungen                                                                  |
+| ---------------------------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------- |
+| Übertakten                                           | `overclock_active = true`, `overclock_hours = 0` | `damage_level + 1` (max. `max_damage_level`), nicht aktiv                   |
+| Eine Stunde vergeht (nur aktiv)                      | `hours + 1`, +1 TP (bis `hp_max`)                | `hours + 1`, +1 TP, `overclock_active = false`, `overclock_cooldown = true` |
+| Ein Tag ist vergangen (nur bei Sperre)               | `overclock_cooldown = false`                     | –                                                                           |
+| Reparatur (Zielwert − Schadensstufe, +4 mit Elixier) | `damage_level − 1`                               | nichts; Elixier trotzdem verbraucht                                         |
+| Beenden (freiwillig)                                 | `overclock_active = false`, keine Sperre         | –                                                                           |
 
 Kühlungswurf-Modifikator für die gerade vergangene Stunde `h`: `−floor((h − 1) / 2)` → Stunde 1–2: ±0, 3–4: −1, 5–6: −2.
 
@@ -50,6 +50,7 @@ Kühlungswurf-Modifikator für die gerade vergangene Stunde `h`: `−floor((h �
 **TP durch KON 20:** keine eigene Logik. Der CON-HP-Bonus ist für Nicht-Krieger bei +2 gedeckelt (`getConBonusCap`); Sprocket hat mit KON 18 schon +2, Übertakten bringt ihm also keine TP. Nur bei beschädigtem Kondensator (KON < 16) steigen die Max-TP über die bestehende `hpDelta`-Rechnung – unverändert.
 
 **Randfälle:**
+
 - Kondensator nicht angelegt: Übertakten/Stunde gesperrt mit Hinweis „Kondensator ist nicht angelegt“; Reparatur, Elixier und Rezept bleiben bedienbar.
 - Erreicht eine Schadensstufe `device_offline` (Stufe 8, per Stepper oder misslungenem Start auf Stufe 7), wird `overclock_active` im selben Schreibvorgang auf `false` gesetzt; der Übertakten-Bereich verschwindet (bestehendes Verhalten bei `device_offline`).
 - Bei `damage_level === max_damage_level` ist das Gerät offline, Übertakten ist dort nicht möglich – ein misslungener Start bei max. Stufe kann nicht auftreten.
@@ -70,6 +71,7 @@ Kühlungswurf-Modifikator für die gerade vergangene Stunde `h`: `−floor((h �
 ## UI Mockups
 
 **Epic-Seite, Kondensator-Karte (neu unterhalb der Stufenanzeige):**
+
 ```
 ┌─ ⚡ Übertakten ──────────────────────────────────────────────┐
 │ inaktiv:                                                       │
@@ -93,6 +95,7 @@ Kühlungswurf-Modifikator für die gerade vergangene Stunde `h`: `−floor((h �
 ```
 
 **Wurf-Dialog (gemeinsam für Übertakten, Kühlung, Reparatur):**
+
 ```
 ┌─ Reparatur ─────────────────────────────────┐
 │ Wurf auf Ingenieurskunst (−2)               │
@@ -101,9 +104,11 @@ Kühlungswurf-Modifikator für die gerade vergangene Stunde `h`: `−floor((h �
 │ [ Abbrechen ]  [ Misslungen ]  [ Gelungen ] │
 └─────────────────────────────────────────────┘
 ```
+
 Kühlung: Zeile „Stunde 3 vergangen: +1 TP“ und „Misslingt er, schaltet Sprocket ab.“ Übertakten: „Misslingt er, nimmt der Kondensator eine Schadensstufe.“ Im Play Mode steht statt „(−1)“ „11 (−1)“.
 
 **Klingen-Karte, Mixtur-Zeile:**
+
 ```
 ● Rauchbombe  5×  [−][+]                                    ▾ Rezept
   Dichte rote Rauchwolke …   ⏱ 1 Runde
@@ -115,6 +120,7 @@ Kühlung: Zeile „Stunde 3 vergangen: +1 TP“ und „Misslingt er, schaltet Sp
 ```
 
 **Play Mode:**
+
 ```
 gesperrt nach misslungener Kühlung (nur Besitzer):
 ⚡ Übertakten · Kondensator kühlt ab (ein Tag)     [ Ein Tag ist vergangen ]
@@ -187,13 +193,13 @@ Keine relevanten: reine Funktionen auf kleinen JSON-Objekten, keine zusätzliche
 
 **Rezepte (Daten der Migration):**
 
-| Produkt | Ertrag / Dauer | Komponenten (DE – Fundort / EN – source) |
-|---|---|---|
-| red Rauchbombe | 2 / ca. 1 Stunde | `saltpeter` Salpeter – Stall- oder Kellerwände, Gerber / Saltpeter – stable or cellar walls, tanner · `honey` Honig oder Rohzucker – Imker, Markt / Honey or raw sugar – beekeeper, market · `madder` Krappwurzel – Färber, Wegesrand / Madder root – dyer, roadside · `beeswax` Bienenwachs – Kerzenzieher, Imker / Beeswax – chandler, beekeeper |
-| blue Gefrierbrand | 2 / ca. 1 Stunde | `hartshorn` Hirschhornsalz – Bäcker / Hartshorn salt – baker · `spirits` Hochprozentiger Branntwein – Wirtshaus / Strong spirits – tavern · `mint` Pfefferminze – Kräuterfrau, Bauerngarten / Peppermint – herbalist, cottage garden · `woad` Waid – Färber / Woad – dyer · `bladder` Schweinsblase – Metzger / Pig bladder – butcher |
-| green Blenden | 2 / ca. 1 Stunde | `resin` Kiefernharz oder Pech – Wald, Böttcher, Köhler / Pine resin or pitch – forest, cooper, charcoal burner · `verdigris` Grünspan – Kupferschmied, Kesselflicker / Verdigris – coppersmith, tinker · `foxfire` Fuchsfeuer – Wald, nachts / Foxfire – forest, at night · `pepper` Gemahlener Pfeffer – Markt, Gewürzkrämer / Ground pepper – market, spice seller · `linseed` Leinöl – Ölmüller, Maler / Linseed oil – oil miller, painter |
-| purple Narkose | 2 / ca. 1 Stunde | `poppy` Mohnkapseln – Kräuterfrau, Bauerngarten / Poppy pods – herbalist, cottage garden · `valerian` Baldrianwurzel – Kräuterfrau, feuchte Wiesen / Valerian root – herbalist, damp meadows · `hops` Hopfen – Brauer, Wirtshaus / Hops – brewer, tavern · `elder` Holundersaft – Hecken, Bauernhof / Elderberry juice – hedgerows, farm · `schnapps` Schnaps – Wirtshaus / Schnapps – tavern |
-| Kupferelixier | 1 / ca. 4 Stunden, `cost_gp: 100` | `vinegar` Starker Essig – Wirtshaus, Markt / Strong vinegar – tavern, market · `salt` Grobes Salz – Krämer, Metzger / Coarse salt – grocer, butcher · `neatsfoot` Klauenöl – Sattler, Schuster / Neatsfoot oil – saddler, cobbler |
+| Produkt           | Ertrag / Dauer                    | Komponenten (DE – Fundort / EN – source)                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ----------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| red Rauchbombe    | 2 / ca. 1 Stunde                  | `saltpeter` Salpeter – Stall- oder Kellerwände, Gerber / Saltpeter – stable or cellar walls, tanner · `honey` Honig oder Rohzucker – Imker, Markt / Honey or raw sugar – beekeeper, market · `madder` Krappwurzel – Färber, Wegesrand / Madder root – dyer, roadside · `beeswax` Bienenwachs – Kerzenzieher, Imker / Beeswax – chandler, beekeeper                                                                                            |
+| blue Gefrierbrand | 2 / ca. 1 Stunde                  | `hartshorn` Hirschhornsalz – Bäcker / Hartshorn salt – baker · `spirits` Hochprozentiger Branntwein – Wirtshaus / Strong spirits – tavern · `mint` Pfefferminze – Kräuterfrau, Bauerngarten / Peppermint – herbalist, cottage garden · `woad` Waid – Färber / Woad – dyer · `bladder` Schweinsblase – Metzger / Pig bladder – butcher                                                                                                         |
+| green Blenden     | 2 / ca. 1 Stunde                  | `resin` Kiefernharz oder Pech – Wald, Böttcher, Köhler / Pine resin or pitch – forest, cooper, charcoal burner · `verdigris` Grünspan – Kupferschmied, Kesselflicker / Verdigris – coppersmith, tinker · `foxfire` Fuchsfeuer – Wald, nachts / Foxfire – forest, at night · `pepper` Gemahlener Pfeffer – Markt, Gewürzkrämer / Ground pepper – market, spice seller · `linseed` Leinöl – Ölmüller, Maler / Linseed oil – oil miller, painter |
+| purple Narkose    | 2 / ca. 1 Stunde                  | `poppy` Mohnkapseln – Kräuterfrau, Bauerngarten / Poppy pods – herbalist, cottage garden · `valerian` Baldrianwurzel – Kräuterfrau, feuchte Wiesen / Valerian root – herbalist, damp meadows · `hops` Hopfen – Brauer, Wirtshaus / Hops – brewer, tavern · `elder` Holundersaft – Hecken, Bauernhof / Elderberry juice – hedgerows, farm · `schnapps` Schnaps – Wirtshaus / Schnapps – tavern                                                 |
+| Kupferelixier     | 1 / ca. 4 Stunden, `cost_gp: 100` | `vinegar` Starker Essig – Wirtshaus, Markt / Strong vinegar – tavern, market · `salt` Grobes Salz – Krämer, Metzger / Coarse salt – grocer, butcher · `neatsfoot` Klauenöl – Sattler, Schuster / Neatsfoot oil – saddler, cobbler                                                                                                                                                                                                             |
 
 ---
 
@@ -202,12 +208,33 @@ Keine relevanten: reine Funktionen auf kleinen JSON-Objekten, keine zusätzliche
 Reine Logik, Typen und Migration – Grundlage für Phase 2 und 3.
 
 **Tasks**:
+
 - [x] `src/lib/rules/sprocket-devices.ts` anlegen (TDD, Test zuerst), Typen:
   ```ts
-  interface RecipeComponent { key: string; name: string; name_en: string; source: string; source_en: string }
-  interface Recipe { components: RecipeComponent[]; yield: number; duration: string; duration_en: string; cost_gp?: number }
-  interface CraftableStock { count: number; recipe?: Recipe; collected?: string[] }
-  interface OverclockState { active: boolean; hours: number; cooldown: boolean }
+  interface RecipeComponent {
+    key: string;
+    name: string;
+    name_en: string;
+    source: string;
+    source_en: string;
+  }
+  interface Recipe {
+    components: RecipeComponent[];
+    yield: number;
+    duration: string;
+    duration_en: string;
+    cost_gp?: number;
+  }
+  interface CraftableStock {
+    count: number;
+    recipe?: Recipe;
+    collected?: string[];
+  }
+  interface OverclockState {
+    active: boolean;
+    hours: number;
+    cooldown: boolean;
+  }
   ```
 - [x] `getCoolingModifier(hour)` → `-Math.floor((hour - 1) / 2)` (hour ≥ 1)
 - [x] `readOverclockState(se)` → `{active: se.overclock_active === true, hours: se.overclock_hours ?? 0, cooldown: se.overclock_cooldown === true}`
@@ -228,6 +255,7 @@ Reine Logik, Typen und Migration – Grundlage für Phase 2 und 3.
 - [x] Migration `supabase/migrations/00231_sprocket_overclock_crafting.sql` gemäß Migration Notes und Rezepttabelle
 
 **Automated Verification**:
+
 - [x] `sprocket-devices.test.ts`: Modifikator Stunde 1–6 = 0,0,−1,−1,−2,−2; `nextCoolingModifier` nach Start + 2 Stunden = −1
 - [x] `sprocket-devices.test.ts`: `readOverclockState` ignoriert `overclock_end_time`, fehlende Stunden = 0; `findOverclockItem` (angelegt/abgelegt/ohne Fähigkeit); `withDamageLevel` auf 8 deaktiviert Übertakten, auf 7 nicht
 - [x] `sprocket-devices.test.ts`: Start Erfolg/Fehlschlag; Start bei Sperre → null; Stunde Erfolg/Fehlschlag (Fehlschlag setzt Sperre); Stunde bei inaktiv ändert nichts; Beenden ohne Sperre; `endCooldown`
@@ -247,14 +275,15 @@ Dependencies: **Phase 1**
 Kondensator- und Klingen-Karte bekommen Übertakten mit Wurf, Reparatur, Elixier und Rezept-Checklisten.
 
 **Tasks**:
-- [ ] `epic/page.tsx`: `gold_pp, gold_gp, gold_ep, gold_sp, gold_cp` laden und durchreichen
-- [ ] `skill-check-dialog.tsx` (wird auch in Phase 3 genutzt): shadcn `Dialog` mit Titel, Hinweiszeilen, „Wurf auf {skill} {target?} ({mod})“, optionalem Kind-Slot (Elixier-Checkbox), Buttons Abbrechen/Misslungen/Gelungen → `onResult(success)`
-- [ ] `recipe-checklist.tsx`: aufklappbar, natives Checkbox-Input + `Label` je Komponente (nur Owner aktiv), Kosten-Zeile mit Börsenstand, „Ergibt N · Dauer“, Herstellen (disabled bis vollständig und bezahlbar, Hinweis bei zu wenig Geld), −/+ Bestand
-- [ ] `damage-level-card.tsx`: `OverclockPanel` ohne Timer, Start/Stunde gesperrt mit Hinweis wenn `!item.equipped`, → inaktiv „Übertakten“ (Dialog), aktiv Stunde/Badges/nächster Modifikator, „Eine Stunde vergeht“ (Dialog mit +1 TP-Hinweis), „Beenden“; `RepairPanel` (nur bei `damage_level > 0`, Owner) mit Dialog und Elixier-Checkbox (disabled bei Bestand 0); Elixier-Bereich mit `RecipeChecklist`; alte `elixirInfo`-Zeile entfällt
-- [ ] `blade-system-card.tsx`: Mixtur-Zeile mit `RecipeChecklist` (Ertrag 2) statt `handleCraft`, −/+ über `adjustStock`
-- [ ] `epic-equipment-view.tsx`: Schadensstufen-Writes (Stepper, misslungener Start, Reparatur) über `withDamageLevel` – `damage_level` und `simple_effects` in einem `update` derselben Zeile
-- [ ] `epic-equipment-view.tsx`: `persistCraft(itemId, newEffects, cost)` – liest vor dem Bezahlen den aktuellen Goldstand aus der DB (`select gold_*`), rechnet `craft()` darauf, schreibt zuerst `characters.gold_*`, dann `epic_items`; scheitert der zweite Write, wird das Gold zurückgeschrieben (Toast, kein Undo-Schritt); Erfolg = ein `record()` mit beiden `RowChange`s
-- [ ] `epic-equipment-view.tsx` Handler, jeweils genau ein `record()` mit literalem Label-Objekt `{ key: "…", values: {…} }` (damit der Coverage-Test es findet), ohne `coalesceKey`:
+
+- [x] `epic/page.tsx`: `gold_pp, gold_gp, gold_ep, gold_sp, gold_cp` laden und durchreichen
+- [x] `skill-check-dialog.tsx` (wird auch in Phase 3 genutzt): shadcn `Dialog` mit Titel, Hinweiszeilen, „Wurf auf {skill} {target?} ({mod})“, optionalem Kind-Slot (Elixier-Checkbox), Buttons Abbrechen/Misslungen/Gelungen → `onResult(success)`
+- [x] `recipe-checklist.tsx`: aufklappbar, natives Checkbox-Input + `Label` je Komponente (nur Owner aktiv), Kosten-Zeile mit Börsenstand, „Ergibt N · Dauer“, Herstellen (disabled bis vollständig und bezahlbar, Hinweis bei zu wenig Geld), −/+ Bestand
+- [x] `damage-level-card.tsx`: `OverclockPanel` ohne Timer, Start/Stunde gesperrt mit Hinweis wenn `!item.equipped`, → inaktiv „Übertakten“ (Dialog), aktiv Stunde/Badges/nächster Modifikator, „Eine Stunde vergeht“ (Dialog mit +1 TP-Hinweis), „Beenden“; `RepairPanel` (nur bei `damage_level > 0`, Owner) mit Dialog und Elixier-Checkbox (disabled bei Bestand 0); Elixier-Bereich mit `RecipeChecklist`; alte `elixirInfo`-Zeile entfällt
+- [x] `blade-system-card.tsx`: Mixtur-Zeile mit `RecipeChecklist` (Ertrag 2) statt `handleCraft`, −/+ über `adjustStock`
+- [x] `epic-equipment-view.tsx`: Schadensstufen-Writes (Stepper, misslungener Start, Reparatur) über `withDamageLevel` – `damage_level` und `simple_effects` in einem `update` derselben Zeile
+- [x] `epic-equipment-view.tsx`: `persistCraft(itemId, newEffects, cost)` – liest vor dem Bezahlen den aktuellen Goldstand aus der DB (`select gold_*`), rechnet `craft()` darauf, schreibt zuerst `characters.gold_*`, dann `epic_items`; scheitert der zweite Write, wird das Gold zurückgeschrieben (Toast, kein Undo-Schritt); Erfolg = ein `record()` mit beiden `RowChange`s
+- [x] `epic-equipment-view.tsx` Handler, jeweils genau ein `record()` mit literalem Label-Objekt `{ key: "…", values: {…} }` (damit der Coverage-Test es findet), ohne `coalesceKey`:
   - `handleOverclockStart(itemId, success)` – Erfolg: `simple_effects` (Label `overclockOn`); Fehlschlag: `damage_level + 1` + `computeHpAfterConChange` (Label `overclockFailed`)
   - `handleOverclockHour(itemId, success)` – `simple_effects` + `hp_current` via `healOneHour` (Label `overclockHour {name, hour}`; bei Fehlschlag `overclockCooledDown`)
   - `handleOverclockStop(itemId)` – Label `overclockOff`
@@ -264,23 +293,25 @@ Kondensator- und Klingen-Karte bekommen Übertakten mit Wurf, Reparatur, Elixier
   - Häkchen und −/+ über `updateSimpleEffects` (Labels `componentToggled {name}`, `stockChanged {name, count}`)
   - `useUndoSync` patcht zusätzlich die `gold_*`-Felder
   - alle Handler brechen für Nicht-Besitzer ab (`!isOwner`)
-- [ ] `messages/de.json`/`en.json`: neue `epic.*`-Texte, `undo.labels` (`overclockFailed`, `overclockHour`, `overclockCooledDown`, `overclockCooldownEnded`, `repairSucceeded`, `repairFailed`, `crafted`, `componentToggled`, `stockChanged`); `epic.overclockTimer`, `epic.elixirInfo`, `epic.repairInfo` (durch Reparatur-Panel ersetzt) entfernen
-- [ ] `src/test/undo-coverage.test.ts`: Label-Regex erweitern um positionale Label-Objekte `{ key: "x", values:` und Ternaries mit Punkt-Bedingung (`key: r.success ? "a" : "b"`); bestehende unentdeckte Labels (`blades`, `hp`) werden dadurch ebenfalls geprüft
-- [ ] `master-dashboard.tsx`: `useRealtimeRefresh` um `{ table: "epic_items", filter: character_id=in.(…) }` ergänzen
+- [x] `messages/de.json`/`en.json`: neue `epic.*`-Texte, `undo.labels` (`overclockFailed`, `overclockHour`, `overclockCooledDown`, `overclockCooldownEnded`, `repairSucceeded`, `repairFailed`, `crafted`, `componentToggled`, `stockChanged`); `epic.overclockTimer`, `epic.elixirInfo`, `epic.repairInfo` (durch Reparatur-Panel ersetzt) entfernen
+- [x] `src/test/undo-coverage.test.ts`: Label-Regex erweitern um positionale Label-Objekte `{ key: "x", values:` und Ternaries mit Punkt-Bedingung (`key: r.success ? "a" : "b"`); bestehende unentdeckte Labels (`blades`, `hp`) werden dadurch ebenfalls geprüft
+- [x] `master-dashboard.tsx`: `useRealtimeRefresh` um `{ table: "epic_items", filter: character_id=in.(…) }` ergänzen
 
 **Automated Verification**:
-- [ ] `epic-equipment-view.test.tsx`: Übertakten gelungen → ein Schritt mit `overclock_active`; misslungen → ein Schritt mit `damage_level` +1 (und ggf. HP); Undo/Redo stellt wieder her
-- [ ] `epic-equipment-view.test.tsx`: Stunde → `overclock_hours` +1 und `hp_current` +1 in einem Schritt; Kühlung misslungen → inaktiv + gesperrt (Übertakten-Button aus, „Ein Tag ist vergangen“ sichtbar); Tag vergangen → entsperrt
-- [ ] `epic-equipment-view.test.tsx`: Reparatur mit Elixier gelungen → Level −1, Bestand −1; misslungen → nur Bestand −1; misslungen ohne Elixier → kein Write, kein Schritt
-- [ ] `epic-equipment-view.test.tsx`: Stepper auf Stufe 8 bei aktiver Übertaktung → `overclock_active` false im selben Schritt
-- [ ] `epic-equipment-view.test.tsx`: Herstellen, wenn der `epic_items`-Write scheitert → Gold zurückgeschrieben, kein Schritt
-- [ ] `epic-equipment-view.test.tsx`: abgelegter Kondensator → Übertakten-Button gesperrt mit Hinweis; Nicht-Besitzer → keine Buttons
-- [ ] `epic-equipment-view.test.tsx`: Herstellen Elixier → Bestand +1, Gold −100 GM, Liste leer, ein Schritt; Button gesperrt bei unvollständiger Liste und bei zu wenig Gold
-- [ ] `recipe-checklist.test.tsx` / Klingen: Häkchen setzen, Herstellen Mixtur → +2; Nicht-Owner sieht Liste ohne aktive Checkboxen/Buttons
-- [ ] `undo-coverage.test.ts` (inkl. neuer Regex-Fälle), `modal-portal-guard.test.ts` grün
-- [ ] `npm run verify`
+
+- [x] `epic-equipment-view.test.tsx`: Übertakten gelungen → ein Schritt mit `overclock_active`; misslungen → ein Schritt mit `damage_level` +1 (und ggf. HP); Undo/Redo stellt wieder her
+- [x] `epic-equipment-view.test.tsx`: Stunde → `overclock_hours` +1 und `hp_current` +1 in einem Schritt; Kühlung misslungen → inaktiv + gesperrt (Übertakten-Button aus, „Ein Tag ist vergangen“ sichtbar); Tag vergangen → entsperrt
+- [x] `epic-equipment-view.test.tsx`: Reparatur mit Elixier gelungen → Level −1, Bestand −1; misslungen → nur Bestand −1; misslungen ohne Elixier → kein Write, kein Schritt
+- [x] `epic-equipment-view.test.tsx`: Stepper auf Stufe 8 bei aktiver Übertaktung → `overclock_active` false im selben Schritt
+- [x] `epic-equipment-view.test.tsx`: Herstellen, wenn der `epic_items`-Write scheitert → Gold zurückgeschrieben, kein Schritt
+- [x] `epic-equipment-view.test.tsx`: abgelegter Kondensator → Übertakten-Button gesperrt mit Hinweis; Nicht-Besitzer → keine Buttons
+- [x] `epic-equipment-view.test.tsx`: Herstellen Elixier → Bestand +1, Gold −100 GM, Liste leer, ein Schritt; Button gesperrt bei unvollständiger Liste und bei zu wenig Gold
+- [x] `recipe-checklist.test.tsx` / Klingen: Häkchen setzen, Herstellen Mixtur → +2; Nicht-Owner sieht Liste ohne aktive Checkboxen/Buttons
+- [x] `undo-coverage.test.ts` (inkl. neuer Regex-Fälle), `modal-portal-guard.test.ts` grün
+- [x] `npm run verify`
 
 **Manual Verification**:
+
 - [ ] Epic-Seite Sprocket: Übertakten misslungen → Schadensstufe steigt, KON sinkt; gelungen → aktiv, Stunde vergeht 3× → Modifikator −1, TP +3; Kühlung misslungen → aus
 - [ ] Reparatur mit Elixier, Bestand sinkt; Rezept abhaken, Herstellen sperrt/entsperrt, Gold sinkt um 100 GM
 - [ ] Undo/Redo über die Modus-Leiste für jeden Schritt
@@ -292,6 +323,7 @@ Kondensator- und Klingen-Karte bekommen Übertakten mit Wurf, Reparatur, Elixier
 Dependencies: **Phase 1**, **Phase 2** (`SkillCheckDialog`, Undo-Labels)
 
 **Tasks**:
+
 - [ ] `play-mode.tsx`: `const [epicItems, setEpicItems] = useState(initialEpicItems)` (Prop umbenannt); State speist `getEpicEffects`, `LevelUpDialog` und `hasEpicItems`; `useUndoSync` patcht `epic_items`; Übertakten-Item über `findOverclockItem`, Zustand über `readOverclockState`
 - [ ] `play-mode.tsx`: `updateEpicItem(itemId, patch) → RowChange | null` (optimistisch, Rollback + Toast)
 - [ ] `play-mode.tsx`: Ingenieurskunst-Zielwert = `getNwpCheckTarget(findProficiency(nonweaponProficiencies, requiresCheck, requiresCheck_en), effectiveStats.values, effectSummary.abilityChecks)`; ohne Fertigkeit `null` (Dialog zeigt nur Modifikator)
@@ -301,6 +333,7 @@ Dependencies: **Phase 1**, **Phase 2** (`SkillCheckDialog`, Undo-Labels)
 - [ ] `play-mode.tsx`: Banner rendern, wenn `epicEffects.overclockAbility` existiert (aktiv für alle, inaktiv nur Owner)
 
 **Automated Verification**:
+
 - [ ] `play-mode-undo.test.tsx`: Stunde vergeht → ein Schritt mit `epic_items.simple_effects` und `characters.hp_current`; Undo stellt beides her
 - [ ] `play-mode-undo.test.tsx`: Übertakten misslungen → `damage_level` +1 in einem Schritt
 - [ ] `play-mode-undo.test.tsx`: Übertakten gelungen → ein Schritt; Beenden → ein Schritt; Sperre: Startzeile zeigt „Kondensator kühlt ab“ mit Button „Ein Tag ist vergangen“
@@ -309,6 +342,7 @@ Dependencies: **Phase 1**, **Phase 2** (`SkillCheckDialog`, Undo-Labels)
 - [ ] `npm run verify`
 
 **Manual Verification**:
+
 - [ ] Play Mode Sprocket (Desktop- und Mobil-Ansicht, iPad-Breite): Übertakten mit Zielwert, KON 20 und Gift-Malus sichtbar, Stunde vergeht heilt, Kühlung misslungen beendet; Epic-Seite zeigt denselben Zustand
 
 ---
@@ -318,14 +352,17 @@ Dependencies: **Phase 1**, **Phase 2** (`SkillCheckDialog`, Undo-Labels)
 Dependencies: **Phase 2**, **Phase 3**
 
 **Tasks**:
+
 - [ ] `CLAUDE.md`: Projektstruktur (`sprocket-devices.ts`, `epic-hp.ts`, `skill-check-dialog.tsx`, `recipe-checklist.tsx`), Abschnitt „Sprockets Geräte“ (Zustandsfelder, Stundenzählung, Regeln, Rezeptformat), Migrationsanzahl 228 → 231, Undo-Abschnitt (Herstellen mit Gold = ein Schritt, erweiterte Label-Prüfung), Roadmap-Punkt 28
 - [ ] Migration `00231` erst nach Freigabe des Users per `supabase db push` einspielen
 - [ ] Plan-Status auf `implemented`
 
 **Automated Verification**:
+
 - [ ] `npm run verify`
 
 **Manual Verification**:
+
 - [ ] Explorativer Test (Testing-Touren) nach Phase 4 der Projekt-Richtlinien
 
 ---

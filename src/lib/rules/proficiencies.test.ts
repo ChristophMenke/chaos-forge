@@ -144,7 +144,14 @@ describe("getNwpCheckTarget", () => {
 describe("findProficiency", () => {
   const nwps = [
     { proficiency: { name: "Reiten", name_en: "Riding", ability: "wis", modifier: 3 } },
-    { proficiency: { name: "Ingenieurskunst", name_en: "Engineering", ability: "int", modifier: -3 } },
+    {
+      proficiency: {
+        name: "Ingenieurskunst",
+        name_en: "Engineering",
+        ability: "int",
+        modifier: -3,
+      },
+    },
   ];
 
   it("findet über den deutschen oder englischen Namen, ohne Groß-/Kleinschreibung", () => {

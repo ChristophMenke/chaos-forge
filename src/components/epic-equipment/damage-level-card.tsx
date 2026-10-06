@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronDown, ChevronUp, Minus, Plus, Wrench, Zap } from "lucide-react";
+import { ChevronDown, ChevronUp, Minus, Plus } from "lucide-react";
 import { EpicIcon } from "./epic-icon";
 import { GlassCard } from "@/components/glass-card";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +17,17 @@ import {
   getUnlockedSpellAbilities,
 } from "@/lib/rules/epic-items";
 import type { EpicItemRow, DamageLevelEffect } from "@/lib/supabase/types";
+import type { CoinPurse } from "@/lib/rules/equipment";
+import {
+  readStock,
+  type OverclockAction,
+  type StockChange,
+  type StockTarget,
+} from "@/lib/rules/sprocket-devices";
+import { ElixirStock, OverclockPanel, RepairPanel } from "./condenser-panels";
+
+const ELIXIR: StockTarget = { kind: "elixir" };
+const EMPTY_PURSE: CoinPurse = { pp: 0, gp: 0, ep: 0, sp: 0, cp: 0 };
 
 interface DamageLevelCardProps {
   item: EpicItemRow;
@@ -25,13 +36,11 @@ interface DamageLevelCardProps {
   characterLevel?: number;
   onToggleEquip: (itemId: string) => void;
   onDamageLevelChange: (itemId: string, newLevel: number) => void;
-  /** expired: the timer ran out (not a user action, not undoable). */
-  onOverclockToggle?: (
-    itemId: string,
-    active: boolean,
-    endTime: number | null,
-    expired?: boolean
-  ) => void;
+  /** Börse für Rezepte mit Kosten (Kupferelixier). */
+  purse?: CoinPurse;
+  onOverclockAction?: (itemId: string, action: OverclockAction) => void;
+  onRepair?: (itemId: string, input: { useElixir: boolean; success: boolean }) => void;
+  onStockChange?: (itemId: string, target: StockTarget, change: StockChange) => void;
 }
 
 function getGlowForDamage(level: number, max: number): "neutral" | "warrior" {
@@ -77,7 +86,10 @@ export function DamageLevelCard({
   characterLevel,
   onToggleEquip,
   onDamageLevelChange,
-  onOverclockToggle,
+  purse = EMPTY_PURSE,
+  onOverclockAction,
+  onRepair,
+  onStockChange,
 }: DamageLevelCardProps) {
   const t = useTranslations("epic");
   const [expanded, setExpanded] = useState(false);
@@ -100,11 +112,7 @@ export function DamageLevelCard({
 
   // Repair info from simple_effects
   const se = item.simple_effects ?? {};
-  const repairSkill = (
-    locale === "en" && se.repair_skill_en ? se.repair_skill_en : se.repair_skill
-  ) as string | undefined;
-  const elixirBonus = se.elixir_bonus as number | undefined;
-  const elixirCost = se.elixir_cost_gp as number | undefined;
+  const elixir = readStock(se, ELIXIR);
 
   // Fragility — pre-compute before return
   const fragility = getFragilityInfo(se as Record<string, unknown>);
@@ -384,160 +392,36 @@ export function DamageLevelCard({
       {/* Overclock */}
       {!!se.overclock && !effectsList.includes("device_offline") && (
         <OverclockPanel
-          overclock={se.overclock as Record<string, unknown>}
-          isActive={!!(se.overclock_active as boolean)}
-          endTime={(se.overclock_end_time as number | null) ?? null}
+          se={se}
+          equipped={item.equipped}
           locale={locale}
           isOwner={isOwner}
-          onToggle={(active, endTime, expired) =>
-            onOverclockToggle?.(item.id, active, endTime, expired)
-          }
+          onAction={(action) => onOverclockAction?.(item.id, action)}
         />
       )}
 
-      {/* Repair info */}
-      {repairSkill && (
-        <>
-          <Separator className="my-3" />
-          <div
-            className="flex items-start gap-2 text-sm text-muted-foreground"
-            data-testid={`epic-repair-info-${item.slug}`}
-          >
-            <Wrench className="mt-0.5 h-4 w-4 shrink-0" />
-            <div>
-              <p className="font-medium">{t("repair")}</p>
-              <p>
-                {t("repairInfo", {
-                  skill: repairSkill,
-                  level: effectiveLevel,
-                })}
-              </p>
-              {elixirBonus != null && elixirCost != null && (
-                <p className="mt-1 text-amber-400/80">
-                  {t("elixirInfo", {
-                    bonus: elixirBonus,
-                    cost: `${elixirCost}`,
-                  })}
-                </p>
-              )}
-            </div>
-          </div>
-        </>
+      {/* Repair */}
+      {!!se.repair_skill && (
+        <RepairPanel
+          se={se}
+          damageLevel={item.damage_level}
+          elixir={elixir}
+          locale={locale}
+          isOwner={isOwner}
+          onRepair={(input) => onRepair?.(item.id, input)}
+        />
+      )}
+
+      {/* Copper elixir */}
+      {elixir && (
+        <ElixirStock
+          elixir={elixir}
+          purse={purse}
+          locale={locale}
+          isOwner={isOwner}
+          onChange={(change) => onStockChange?.(item.id, ELIXIR, change)}
+        />
       )}
     </GlassCard>
-  );
-}
-
-function OverclockPanel({
-  overclock,
-  isActive,
-  endTime,
-  locale,
-  isOwner,
-  onToggle,
-}: {
-  overclock: Record<string, unknown>;
-  isActive: boolean;
-  endTime: number | null;
-  locale: string;
-  isOwner: boolean;
-  onToggle: (active: boolean, endTime: number | null, expired?: boolean) => void;
-}) {
-  const t = useTranslations("epic");
-  const name = locale === "en" && overclock.name_en ? overclock.name_en : overclock.name;
-  const description =
-    locale === "en" && overclock.description_en ? overclock.description_en : overclock.description;
-  const requiresCheck =
-    locale === "en" && overclock.requires_check_en
-      ? overclock.requires_check_en
-      : overclock.requires_check;
-  const durationHours = (overclock.duration_hours as number) ?? 1;
-
-  // Timer — update only via interval/rAF callbacks (React Compiler safe)
-  const [minutesLeft, setMinutesLeft] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (!isActive || !endTime) return;
-    const tick = () => {
-      const remaining = endTime - Date.now();
-      if (remaining <= 0) {
-        onToggle(false, null, true);
-      } else {
-        setMinutesLeft(Math.ceil(remaining / 60000));
-      }
-    };
-    const raf = requestAnimationFrame(tick);
-    const interval = setInterval(tick, 30000);
-    return () => {
-      cancelAnimationFrame(raf);
-      clearInterval(interval);
-    };
-  }, [isActive, endTime, onToggle]);
-
-  function handleToggle() {
-    if (isActive) {
-      onToggle(false, null);
-    } else {
-      onToggle(true, Date.now() + durationHours * 60 * 60 * 1000);
-    }
-  }
-
-  return (
-    <>
-      <Separator className="my-3" />
-      <div
-        className={`rounded-lg border p-3 ${
-          isActive ? "border-amber-500/50 bg-amber-500/10" : "border-amber-500/20 bg-amber-500/5"
-        }`}
-        data-testid="epic-overclock-panel"
-      >
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Zap className="h-4 w-4 shrink-0 text-amber-400" />
-            <span className="font-medium text-amber-400">{name as string}</span>
-            {isActive && minutesLeft != null && (
-              <Badge
-                variant="outline"
-                className="border-amber-500/50 text-amber-400"
-                data-testid="overclock-timer"
-              >
-                {t("overclockTimer", { minutes: minutesLeft })}
-              </Badge>
-            )}
-          </div>
-          {isOwner && (
-            <Button
-              variant={isActive ? "destructive" : "default"}
-              size="sm"
-              onClick={handleToggle}
-              data-testid="overclock-toggle"
-            >
-              {isActive ? t("overclockDeactivate") : t("overclockActivate")}
-            </Button>
-          )}
-        </div>
-
-        {isActive ? (
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            <Badge variant="outline" className="border-amber-500/50 text-amber-400">
-              CON → {overclock.con_override as number}
-            </Badge>
-            <Badge variant="outline" className="border-red-500/50 text-red-400">
-              {t("overclockPoisonPenalty", { penalty: overclock.poison_save_penalty as number })}
-            </Badge>
-            <Badge variant="outline" className="border-green-500/50 text-green-400">
-              {t("overclockHealing", { hp: overclock.heals_per_hour as number })}
-            </Badge>
-          </div>
-        ) : (
-          <div className="mt-1.5">
-            <p className="text-sm text-muted-foreground">{description as string}</p>
-            <p className="mt-1 text-xs text-amber-400/70">
-              {t("overclockRequiresCheck", { skill: requiresCheck as string })}
-            </p>
-          </div>
-        )}
-      </div>
-    </>
   );
 }

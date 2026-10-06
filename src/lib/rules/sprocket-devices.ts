@@ -42,6 +42,17 @@ export interface OverclockState {
   cooldown: boolean;
 }
 
+/** Bedienschritte beim Übertakten (Ergebnis des selbst gewürfelten Wurfs). */
+export type OverclockAction =
+  | { type: "start"; success: boolean }
+  | { type: "hour"; success: boolean }
+  | { type: "stop" }
+  | { type: "cooldownEnd" };
+
+/** Änderungen an einem herstellbaren Vorrat. */
+export type StockChange =
+  { type: "toggle"; key: string } | { type: "adjust"; delta: number } | { type: "craft" };
+
 // ── Übertakten ───────────────────────────────────────────────
 
 /** Erschwernis des Kühlungswurfs für Stunde `hour` (1-basiert): jede zweite Stunde −1. */
@@ -87,9 +98,7 @@ export function passOverclockHour(se: SimpleEffects, coolingSuccess: boolean): S
   const state = readOverclockState(se);
   if (!state.active) return se;
   const next = { ...se, overclock_hours: state.hours + 1 };
-  return coolingSuccess
-    ? next
-    : { ...next, overclock_active: false, overclock_cooldown: true };
+  return coolingSuccess ? next : { ...next, overclock_active: false, overclock_cooldown: true };
 }
 
 /** Freiwilliges Abschalten – ohne Sperre. */
@@ -152,9 +161,7 @@ export function toggleComponent<T extends CraftableStock>(stock: T, key: string)
   const collected = stock.collected ?? [];
   return {
     ...stock,
-    collected: collected.includes(key)
-      ? collected.filter((k) => k !== key)
-      : [...collected, key],
+    collected: collected.includes(key) ? collected.filter((k) => k !== key) : [...collected, key],
   };
 }
 
@@ -188,4 +195,28 @@ export function craft<T extends CraftableStock>(
     stock: { ...stock, count: stock.count + stock.recipe.yield, collected: [] },
     purse: remaining,
   };
+}
+
+/** Wo ein Vorrat in simple_effects liegt: das Elixier am Kondensator oder eine Mixtur der Klingen. */
+export type StockTarget = { kind: "elixir" } | { kind: "mixture"; key: string };
+
+/** Vorrat mit Anzeigenamen (Elixier und Mixturen tragen name/name_en); `bonus` nur beim Elixier. */
+export type NamedStock = CraftableStock & { name: string; name_en: string; bonus?: number };
+
+export function readStock(se: SimpleEffects, target: StockTarget): NamedStock | null {
+  const stock =
+    target.kind === "elixir"
+      ? se.elixir
+      : (se.mixtures as Record<string, unknown> | undefined)?.[target.key];
+  return stock && typeof stock === "object" ? (stock as NamedStock) : null;
+}
+
+export function writeStock(
+  se: SimpleEffects,
+  target: StockTarget,
+  stock: CraftableStock
+): SimpleEffects {
+  if (target.kind === "elixir") return { ...se, elixir: stock };
+  const mixtures = (se.mixtures as Record<string, unknown> | undefined) ?? {};
+  return { ...se, mixtures: { ...mixtures, [target.key]: stock } };
 }

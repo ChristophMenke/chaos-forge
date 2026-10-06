@@ -35,7 +35,12 @@ export function computeHpDelta(
 export interface HpAfterConChangeInput {
   itemsBefore: EpicItemRow[];
   itemsAfter: EpicItemRow[];
-  character: { con: number; con_health?: number | null; con_fitness?: number | null; hp_max: number };
+  character: {
+    con: number;
+    con_health?: number | null;
+    con_fitness?: number | null;
+    hp_max: number;
+  };
   activeClasses: Pick<CharacterClassRow, "class_id" | "level">[];
   hpCurrent: number;
   characterLevel: number;
