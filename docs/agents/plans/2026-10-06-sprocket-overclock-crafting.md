@@ -324,22 +324,22 @@ Dependencies: **Phase 1**, **Phase 2** (`SkillCheckDialog`, Undo-Labels)
 
 **Tasks**:
 
-- [ ] `play-mode.tsx`: `const [epicItems, setEpicItems] = useState(initialEpicItems)` (Prop umbenannt); State speist `getEpicEffects`, `LevelUpDialog` und `hasEpicItems`; `useUndoSync` patcht `epic_items`; Übertakten-Item über `findOverclockItem`, Zustand über `readOverclockState`
-- [ ] `play-mode.tsx`: `updateEpicItem(itemId, patch) → RowChange | null` (optimistisch, Rollback + Toast)
-- [ ] `play-mode.tsx`: Ingenieurskunst-Zielwert = `getNwpCheckTarget(findProficiency(nonweaponProficiencies, requiresCheck, requiresCheck_en), effectiveStats.values, effectSummary.abilityChecks)`; ohne Fertigkeit `null` (Dialog zeigt nur Modifikator)
-- [ ] `play-mode.tsx` Handler (je genau ein `recordChanges` ohne `coalesceKey`, literale Label-Objekte): Start (Fehlschlag: `withDamageLevel` + `computeHpAfterConChange`), Stunde (`handleHpChange(effectiveHpCurrent + healsPerHour, {record:false})` + `simple_effects`), Beenden, Sperre aufheben – gleiche Labels wie Phase 2
-- [ ] `messages/de.json`/`en.json`: neue `playMode.*`-Texte (Startzeile, Stunde, nächster Kühlungswurf, Buttons, „nicht angelegt“); `playMode.overclockTimer` und `data-testid="overclock-timer"` entfernen
-- [ ] `play-overclock-banner.tsx`: Props `ability, state, target, isOwner, onStart, onHour, onStop`; inaktiv schmale Zeile (nur Owner), aktiv Stunde/Badges/nächster Wurf + Buttons; nutzt `SkillCheckDialog`
-- [ ] `play-mode.tsx`: Banner rendern, wenn `epicEffects.overclockAbility` existiert (aktiv für alle, inaktiv nur Owner)
+- [x] `play-mode.tsx`: `const [epicItems, setEpicItems] = useState(initialEpicItems)` (Prop umbenannt); State speist `getEpicEffects`, `LevelUpDialog` und `hasEpicItems`; `useUndoSync` patcht `epic_items`; Übertakten-Item über `findOverclockItem`, Zustand über `readOverclockState`
+- [x] `play-mode.tsx`: `updateEpicItem(itemId, patch) → RowChange | null` (optimistisch, Rollback + Toast)
+- [x] `play-mode.tsx`: Ingenieurskunst-Zielwert = `getNwpCheckTarget(findProficiency(nonweaponProficiencies, requiresCheck, requiresCheck_en), effectiveStats.values, effectSummary.abilityChecks)`; ohne Fertigkeit `null` (Dialog zeigt nur Modifikator)
+- [x] `play-mode.tsx` Handler (je genau ein `recordChanges` ohne `coalesceKey`, literale Label-Objekte): Start (Fehlschlag: `withDamageLevel` + `computeHpAfterConChange`), Stunde (`handleHpChange(effectiveHpCurrent + healsPerHour, {record:false})` + `simple_effects`), Beenden, Sperre aufheben – gleiche Labels wie Phase 2
+- [x] `messages/de.json`/`en.json`: neue `playMode.*`-Texte (Startzeile, Stunde, nächster Kühlungswurf, Buttons, „nicht angelegt“); `playMode.overclockTimer` und `data-testid="overclock-timer"` entfernen
+- [x] `play-overclock-banner.tsx`: Props `ability, state, target, isOwner, onStart, onHour, onStop`; inaktiv schmale Zeile (nur Owner), aktiv Stunde/Badges/nächster Wurf + Buttons; nutzt `SkillCheckDialog`
+- [x] `play-mode.tsx`: Banner rendern, wenn `epicEffects.overclockAbility` existiert (aktiv für alle, inaktiv nur Owner)
 
 **Automated Verification**:
 
-- [ ] `play-mode-undo.test.tsx`: Stunde vergeht → ein Schritt mit `epic_items.simple_effects` und `characters.hp_current`; Undo stellt beides her
-- [ ] `play-mode-undo.test.tsx`: Übertakten misslungen → `damage_level` +1 in einem Schritt
-- [ ] `play-mode-undo.test.tsx`: Übertakten gelungen → ein Schritt; Beenden → ein Schritt; Sperre: Startzeile zeigt „Kondensator kühlt ab“ mit Button „Ein Tag ist vergangen“
-- [ ] `play-overclock-banner.test.tsx`: „Stunde 3“ bei `overclock_hours` 2 mit „Ingenieurskunst 11 (−1)“ bei Basis 12; ohne Ingenieurskunst nur „(−1)“; inaktive Zeile nur für Owner; Nicht-Owner ohne Buttons
-- [ ] `play-mode` Test: Banner fehlt, wenn die Fähigkeit fehlt oder das Gerät offline ist
-- [ ] `npm run verify`
+- [x] `play-mode-undo.test.tsx`: Stunde vergeht → ein Schritt mit `epic_items.simple_effects` und `characters.hp_current`; Undo stellt beides her
+- [x] `play-mode-undo.test.tsx`: Übertakten misslungen → `damage_level` +1 in einem Schritt
+- [x] `play-mode-undo.test.tsx`: Übertakten gelungen → ein Schritt; Beenden → ein Schritt; Sperre: Startzeile zeigt „Kondensator kühlt ab“ mit Button „Ein Tag ist vergangen“
+- [x] `play-overclock-banner.test.tsx`: „Stunde 3“ bei `overclock_hours` 2 mit „Ingenieurskunst 11 (−1)“ bei Basis 12; ohne Ingenieurskunst nur „(−1)“; inaktive Zeile nur für Owner; Nicht-Owner ohne Buttons
+- [x] `play-mode` Test: Banner fehlt, wenn die Fähigkeit fehlt oder das Gerät offline ist
+- [x] `npm run verify`
 
 **Manual Verification**:
 
