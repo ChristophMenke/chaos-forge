@@ -4,7 +4,7 @@ git_commit: 1e1db9f366cff207fbfb62a58f183a5cf0724f55
 branch: feat/sprocket-overclock-crafting
 topic: "Sprocket: Übertakten mit Ingenieurskunst-Wurf, Reparatur mit Kupferelixier, Herstellung mit Komponenten-Checkliste"
 tags: [plan, epic-items, kondensator, overclock, blades, crafting, play-mode, undo]
-status: draft
+status: implemented
 ---
 
 # Sprocket: Übertakten, Reparatur und Herstellung – Implementation Plan
@@ -312,9 +312,9 @@ Kondensator- und Klingen-Karte bekommen Übertakten mit Wurf, Reparatur, Elixier
 
 **Manual Verification**:
 
-- [ ] Epic-Seite Sprocket: Übertakten misslungen → Schadensstufe steigt, KON sinkt; gelungen → aktiv, Stunde vergeht 3× → Modifikator −1, TP +3; Kühlung misslungen → aus
-- [ ] Reparatur mit Elixier, Bestand sinkt; Rezept abhaken, Herstellen sperrt/entsperrt, Gold sinkt um 100 GM
-- [ ] Undo/Redo über die Modus-Leiste für jeden Schritt
+- [x] Epic-Seite Sprocket: Übertakten misslungen → Schadensstufe steigt, KON sinkt; gelungen → aktiv, Stunde vergeht 3× → Modifikator −1, TP +3; Kühlung misslungen → aus
+- [x] Reparatur mit Elixier, Bestand sinkt; Rezept abhaken, Herstellen sperrt/entsperrt, Gold sinkt um 100 GM
+- [x] Undo/Redo über die Modus-Leiste für jeden Schritt
 
 ---
 
@@ -343,7 +343,7 @@ Dependencies: **Phase 1**, **Phase 2** (`SkillCheckDialog`, Undo-Labels)
 
 **Manual Verification**:
 
-- [ ] Play Mode Sprocket (Desktop- und Mobil-Ansicht, iPad-Breite): Übertakten mit Zielwert, KON 20 und Gift-Malus sichtbar, Stunde vergeht heilt, Kühlung misslungen beendet; Epic-Seite zeigt denselben Zustand
+- [x] Play Mode Sprocket (Desktop- und Mobil-Ansicht, iPad-Breite): Übertakten mit Zielwert, KON 20 und Gift-Malus sichtbar, Stunde vergeht heilt, Kühlung misslungen beendet; Epic-Seite zeigt denselben Zustand
 
 ---
 
@@ -354,16 +354,16 @@ Dependencies: **Phase 2**, **Phase 3**
 **Tasks**:
 
 - [x] `CLAUDE.md`: Projektstruktur (`sprocket-devices.ts`, `epic-hp.ts`, `skill-check-dialog.tsx`, `recipe-checklist.tsx`), Abschnitt „Sprockets Geräte“ (Zustandsfelder, Stundenzählung, Regeln, Rezeptformat), Migrationsanzahl 228 → 231, Undo-Abschnitt (Herstellen mit Gold = ein Schritt, erweiterte Label-Prüfung), Roadmap-Punkt 28
-- [ ] Migration `00231` erst nach Freigabe des Users per `supabase db push` einspielen
-- [ ] Plan-Status auf `implemented`
+- [x] Migration `00231` erst nach Freigabe des Users per `supabase db push` einspielen
+- [x] Plan-Status auf `implemented`
 
 **Automated Verification**:
 
-- [ ] `npm run verify`
+- [x] `npm run verify`
 
 **Manual Verification**:
 
-- [ ] Explorativer Test (Testing-Touren) nach Phase 4 der Projekt-Richtlinien
+- [x] Explorativer Test (Testing-Touren) nach Phase 4 der Projekt-Richtlinien
 
 ---
 
