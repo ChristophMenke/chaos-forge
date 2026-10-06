@@ -3,6 +3,8 @@
 // (blade-system-card.tsx) ruft diese Transformationen auf und persistiert das
 // Ergebnis als simple_effects-JSONB.
 
+import type { CraftableStock } from "./sprocket-devices";
+
 export type BladeOutcome = "hit" | "miss";
 
 export interface Blade {
@@ -14,7 +16,8 @@ export interface Blade {
   outcome?: BladeOutcome;
 }
 
-export interface MixtureInfo {
+/** Mixtur-Vorrat; Rezept und gesammelte Komponenten kommen aus der Herstellung. */
+export interface MixtureInfo extends CraftableStock {
   count: number;
   name: string;
   name_en: string;

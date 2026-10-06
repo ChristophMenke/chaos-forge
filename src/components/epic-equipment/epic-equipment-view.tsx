@@ -15,13 +15,8 @@ import type { RowChange, UndoLabel } from "@/lib/undo/types";
 import { DamageLevelCard } from "./damage-level-card";
 import { SimpleEpicCard } from "./simple-epic-card";
 import { BladeSystemCard } from "./blade-system-card";
-import { getEpicEffects } from "@/lib/rules/epic-items";
-import { getConstitutionModifiers } from "@/lib/rules/abilities";
-import { getConBonusCap } from "@/lib/rules/hitpoints";
-import { getClassGroup } from "@/lib/rules/classes";
-import { getMulticlassHpDivisor } from "@/lib/rules/multiclass";
+import { computeHpAfterConChange } from "@/lib/rules/epic-hp";
 import type { CharacterRow, CharacterClassRow, EpicItemRow } from "@/lib/supabase/types";
-import type { ClassId } from "@/lib/rules/types";
 
 interface EpicEquipmentViewProps {
   character: Pick<
@@ -40,29 +35,6 @@ interface EpicEquipmentViewProps {
   characterClasses: CharacterClassRow[];
   epicItems: EpicItemRow[];
   isOwner: boolean;
-}
-
-/**
- * Compute the HP delta that applies when the effective CON HP adjustment
- * differs from the stored value. Multiclass-aware (divisor applied per rules).
- */
-function computeHpDelta(
-  effectiveConHpAdj: number,
-  storedConHpAdj: number,
-  activeClasses: CharacterClassRow[]
-): number {
-  if (effectiveConHpAdj === storedConHpAdj) return 0;
-  const divisor = getMulticlassHpDivisor(activeClasses.length);
-  let totalDelta = 0;
-  for (const cc of activeClasses) {
-    const group = getClassGroup(cc.class_id as ClassId);
-    const cap = getConBonusCap(group);
-    // Apply cap only to positive bonuses (penalties are uncapped per AD&D rules)
-    const cappedNew = effectiveConHpAdj < 0 ? effectiveConHpAdj : Math.min(effectiveConHpAdj, cap);
-    const cappedOld = storedConHpAdj < 0 ? storedConHpAdj : Math.min(storedConHpAdj, cap);
-    totalDelta += (cappedNew - cappedOld) * cc.level;
-  }
-  return Math.round(totalDelta / divisor);
 }
 
 export function EpicEquipmentView({
@@ -100,44 +72,15 @@ export function EpicEquipmentView({
    * CON↑ → max_hp rises, current_hp stays. CON↓ → current_hp is clamped down.
    */
   async function persistHpAfterConChange(newItems: EpicItemRow[]): Promise<RowChange | null> {
-    const activeClasses = characterClasses.filter((cc) => cc.is_active);
-    const effectsBefore = getEpicEffects(items, character.level);
-    const effectsAfter = getEpicEffects(newItems, character.level);
-
-    const before = effectsBefore.forceStatOverrides.con ?? effectsBefore.statOverrides.con;
-    const after = effectsAfter.forceStatOverrides.con ?? effectsAfter.statOverrides.con;
-    const effectiveConBefore = before ?? character.con;
-    const effectiveConAfter = after ?? character.con;
-    if (effectiveConBefore === effectiveConAfter) return null;
-
-    // Compute effective max/current BEFORE and AFTER the toggle and apply the
-    // asymmetric clamping rule on the stored current_hp.
-    const storedConHpAdj = getConstitutionModifiers(
-      character.con,
-      character.con_health ?? undefined,
-      character.con_fitness ?? undefined
-    ).hpAdj;
-    const effectiveConAfterMods = getConstitutionModifiers(effectiveConAfter).hpAdj;
-    const effectiveConBeforeMods = getConstitutionModifiers(effectiveConBefore).hpAdj;
-
-    const deltaBefore = computeHpDelta(effectiveConBeforeMods, storedConHpAdj, activeClasses);
-    const deltaAfter = computeHpDelta(effectiveConAfterMods, storedConHpAdj, activeClasses);
-    const effectiveMaxBefore = Math.max(1, character.hp_max + deltaBefore);
-    const effectiveMaxAfter = Math.max(1, character.hp_max + deltaAfter);
-
-    // Current HP visible BEFORE the toggle (this is what the player "has")
-    const visibleCurrentBefore = Math.min(hpCurrent, effectiveMaxBefore);
-    // Desired stored current_hp so that after the toggle the effective value
-    // stays at visibleCurrentBefore (CON↓) or stays at visibleCurrentBefore
-    // (CON↑, because max went up but current should not heal).
-    const desiredEffectiveCurrent = Math.min(visibleCurrentBefore, effectiveMaxAfter);
-
-    // Persist raw hp_current = desiredEffectiveCurrent (the same value, since
-    // our computation uses raw hp_current as the display value + delta clamp).
-    // After toggle, the effective view will be min(new stored + min(0, delta
-    // from stored→after), effectiveMaxAfter). With delta=0 for the new stored
-    // baseline, visible = new stored = desiredEffectiveCurrent.
-    if (desiredEffectiveCurrent === hpCurrent) return null;
+    const desiredEffectiveCurrent = computeHpAfterConChange({
+      itemsBefore: items,
+      itemsAfter: newItems,
+      character,
+      activeClasses: characterClasses.filter((cc) => cc.is_active),
+      hpCurrent,
+      characterLevel: character.level,
+    });
+    if (desiredEffectiveCurrent === null) return null;
     setHpCurrent(desiredEffectiveCurrent);
     const supabase = createClient();
     const { error } = await supabase

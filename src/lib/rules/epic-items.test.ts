@@ -167,7 +167,6 @@ describe("overclock ability", () => {
   const overclockData = {
     name: "Übertakten",
     name_en: "Overclock",
-    duration_hours: 1,
     requires_check: "Ingenieurskunst",
     requires_check_en: "Engineering",
     con_override: 20,
@@ -186,7 +185,7 @@ describe("overclock ability", () => {
     expect(effects.overclockAbility!.poisonSavePenalty).toBe(1);
     expect(effects.overclockAbility!.healsPerHour).toBe(1);
     expect(effects.overclockAbility!.requiresCheck).toBe("Ingenieurskunst");
-    expect(effects.overclockAbility!.durationHours).toBe(1);
+    expect(effects.overclockAbility).not.toHaveProperty("durationHours");
   });
 
   it("returns null when item is not equipped", () => {

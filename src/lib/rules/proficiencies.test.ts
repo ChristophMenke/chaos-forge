@@ -6,6 +6,8 @@ import {
   canSpecialize,
   isNonStandardSpecialization,
   getWeaponSpeedFactor,
+  getNwpCheckTarget,
+  findProficiency,
 } from "./proficiencies";
 
 describe("PROF-001: Weapon Proficiency Slots", () => {
@@ -122,5 +124,35 @@ describe("PROF-005: getWeaponSpeedFactor", () => {
 
   it("unknown weapon returns null", () => {
     expect(getWeaponSpeedFactor("unknown_weapon")).toBeNull();
+  });
+});
+
+describe("getNwpCheckTarget", () => {
+  const engineering = {
+    proficiency: { name: "Ingenieurskunst", name_en: "Engineering", ability: "INT", modifier: -3 },
+  };
+
+  it("rechnet Attribut + Modifikator + Effekte", () => {
+    expect(getNwpCheckTarget(engineering, { int: 15 }, -2)).toBe(10);
+  });
+
+  it("nimmt 10, wenn das Attribut fehlt", () => {
+    expect(getNwpCheckTarget(engineering, {}, 0)).toBe(7);
+  });
+});
+
+describe("findProficiency", () => {
+  const nwps = [
+    { proficiency: { name: "Reiten", name_en: "Riding", ability: "wis", modifier: 3 } },
+    { proficiency: { name: "Ingenieurskunst", name_en: "Engineering", ability: "int", modifier: -3 } },
+  ];
+
+  it("findet über den deutschen oder englischen Namen, ohne Groß-/Kleinschreibung", () => {
+    expect(findProficiency(nwps, "ingenieurskunst", "")).toBe(nwps[1]);
+    expect(findProficiency(nwps, "", "ENGINEERING")).toBe(nwps[1]);
+  });
+
+  it("liefert null, wenn der Charakter die Fertigkeit nicht hat", () => {
+    expect(findProficiency(nwps, "Schmieden", "Blacksmithing")).toBeNull();
   });
 });
