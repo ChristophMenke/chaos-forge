@@ -47,6 +47,7 @@ import { MagicItemForm, type MagicItemFormData } from "@/components/shared/magic
 import { MagicEffectBadges } from "@/components/shared/magic-effect-badges";
 import { UseConsumableDialog } from "./use-consumable-dialog";
 import { canUseConsumable, getConsumableType } from "@/lib/rules/consumables";
+import { ModalPortal } from "@/components/modal-portal";
 
 interface TabEquipmentProps {
   characterId: string;
@@ -1232,757 +1233,765 @@ export function TabEquipment({
 
       {/* Add Item Dialog (simple overlay) */}
       {showAddDialog && !readOnly && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-          role="presentation"
-          data-testid="add-item-dialog"
-        >
+        <ModalPortal>
           <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="add-item-dialog-title"
-            className="mx-4 max-h-[80vh] w-full max-w-lg overflow-hidden rounded-lg border border-border bg-background shadow-lg"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            role="presentation"
+            data-testid="add-item-dialog"
           >
-            <div className="flex items-center justify-between border-b border-border p-4">
-              <h3 id="add-item-dialog-title" className="font-heading text-lg">
-                {t("addItem")}
-              </h3>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => setShowAddDialog(false)}
-                data-testid="close-add-dialog-btn"
-              >
-                &times;
-              </Button>
-            </div>
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="add-item-dialog-title"
+              className="mx-4 max-h-[80vh] w-full max-w-lg overflow-hidden rounded-lg border border-border bg-background shadow-lg"
+            >
+              <div className="flex items-center justify-between border-b border-border p-4">
+                <h3 id="add-item-dialog-title" className="font-heading text-lg">
+                  {t("addItem")}
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => setShowAddDialog(false)}
+                  data-testid="close-add-dialog-btn"
+                >
+                  &times;
+                </Button>
+              </div>
 
-            {/* Tab switcher */}
-            <div className="flex border-b border-border">
-              <button
-                className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
-                  addTab === "weapons"
-                    ? "border-b-2 border-primary text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-                onClick={() => setAddTab("weapons")}
-                data-testid="add-dialog-tab-weapons"
-              >
-                {t("weapons")}
-              </button>
-              <button
-                className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
-                  addTab === "armor"
-                    ? "border-b-2 border-primary text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-                onClick={() => setAddTab("armor")}
-                data-testid="add-dialog-tab-armor"
-              >
-                {t("armor")}
-              </button>
-              <button
-                className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
-                  addTab === "magic"
-                    ? "border-b-2 border-primary text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-                onClick={() => setAddTab("magic")}
-                data-testid="add-dialog-tab-magic"
-              >
-                {t("magicItems")}
-              </button>
-            </div>
+              {/* Tab switcher */}
+              <div className="flex border-b border-border">
+                <button
+                  className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+                    addTab === "weapons"
+                      ? "border-b-2 border-primary text-primary"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  onClick={() => setAddTab("weapons")}
+                  data-testid="add-dialog-tab-weapons"
+                >
+                  {t("weapons")}
+                </button>
+                <button
+                  className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+                    addTab === "armor"
+                      ? "border-b-2 border-primary text-primary"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  onClick={() => setAddTab("armor")}
+                  data-testid="add-dialog-tab-armor"
+                >
+                  {t("armor")}
+                </button>
+                <button
+                  className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+                    addTab === "magic"
+                      ? "border-b-2 border-primary text-primary"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  onClick={() => setAddTab("magic")}
+                  data-testid="add-dialog-tab-magic"
+                >
+                  {t("magicItems")}
+                </button>
+              </div>
 
-            {/* Search field */}
-            <div className="border-b border-border p-4 pb-3">
-              <input
-                type="text"
-                placeholder={t("searchPlaceholder")}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                data-testid="equipment-search"
-              />
+              {/* Search field */}
+              <div className="border-b border-border p-4 pb-3">
+                <input
+                  type="text"
+                  placeholder={t("searchPlaceholder")}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  data-testid="equipment-search"
+                />
 
-              {/* Category filter for weapons */}
-              {addTab === "weapons" && (
-                <div className="mt-2 flex gap-1">
-                  {(
-                    [
-                      { key: "all", label: t("filterAll") },
-                      { key: "melee", label: t("melee") },
-                      { key: "ranged", label: t("ranged") },
-                      { key: "both", label: t("both") },
-                    ] as const
-                  ).map((filter) => (
+                {/* Category filter for weapons */}
+                {addTab === "weapons" && (
+                  <div className="mt-2 flex gap-1">
+                    {(
+                      [
+                        { key: "all", label: t("filterAll") },
+                        { key: "melee", label: t("melee") },
+                        { key: "ranged", label: t("ranged") },
+                        { key: "both", label: t("both") },
+                      ] as const
+                    ).map((filter) => (
+                      <button
+                        key={filter.key}
+                        className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+                          weaponCategoryFilter === filter.key
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground hover:text-foreground"
+                        }`}
+                        onClick={() => setWeaponCategoryFilter(filter.key)}
+                        data-testid={`equipment-filter-${filter.key}`}
+                      >
+                        {filter.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Magic bonus selector */}
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">{t("magicBonus")}:</span>
+                  {[0, 1, 2, 3, 4, 5].map((b) => (
                     <button
-                      key={filter.key}
-                      className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
-                        weaponCategoryFilter === filter.key
+                      key={b}
+                      className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
+                        magicBonus === b
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted text-muted-foreground hover:text-foreground"
                       }`}
-                      onClick={() => setWeaponCategoryFilter(filter.key)}
-                      data-testid={`equipment-filter-${filter.key}`}
+                      onClick={() => setMagicBonus(b)}
+                      data-testid={`magic-bonus-${b}`}
                     >
-                      {filter.label}
+                      {b === 0 ? "—" : `+${b}`}
                     </button>
                   ))}
+                  <span className="ml-3 text-xs text-muted-foreground">{t("quantity")}:</span>
+                  <input
+                    type="number"
+                    min={1}
+                    value={addQuantity}
+                    onChange={(e) => setAddQuantity(Math.max(1, Number(e.target.value)))}
+                    className="w-14 rounded-md border border-border bg-background px-2 py-1 text-center text-xs"
+                    data-testid="add-item-quantity"
+                  />
                 </div>
-              )}
-
-              {/* Magic bonus selector */}
-              <div className="mt-2 flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">{t("magicBonus")}:</span>
-                {[0, 1, 2, 3, 4, 5].map((b) => (
-                  <button
-                    key={b}
-                    className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
-                      magicBonus === b
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground hover:text-foreground"
-                    }`}
-                    onClick={() => setMagicBonus(b)}
-                    data-testid={`magic-bonus-${b}`}
-                  >
-                    {b === 0 ? "—" : `+${b}`}
-                  </button>
-                ))}
-                <span className="ml-3 text-xs text-muted-foreground">{t("quantity")}:</span>
-                <input
-                  type="number"
-                  min={1}
-                  value={addQuantity}
-                  onChange={(e) => setAddQuantity(Math.max(1, Number(e.target.value)))}
-                  className="w-14 rounded-md border border-border bg-background px-2 py-1 text-center text-xs"
-                  data-testid="add-item-quantity"
-                />
               </div>
-            </div>
 
-            {/* Item list */}
-            <div className="max-h-[50vh] overflow-y-auto p-4">
-              {addTab === "weapons" && (
-                <div className="flex flex-col gap-2">
-                  {/* Custom weapon creation — at top */}
-                  <div className="border-b border-border pb-2">
-                    {!showCustomWeaponForm ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        onClick={() => setShowCustomWeaponForm(true)}
-                        data-testid="create-custom-weapon-toggle"
-                      >
-                        {t("createCustomWeapon")}
-                      </Button>
-                    ) : (
-                      <div
-                        className="flex flex-col gap-2 rounded-md border border-border p-3"
-                        data-testid="custom-weapon-form"
-                      >
-                        <div className="text-sm font-medium">{t("createCustomWeapon")}</div>
-                        <input
-                          type="text"
-                          placeholder={t("name")}
-                          value={customWeapon.name}
-                          onChange={(e) =>
-                            setCustomWeapon({ ...customWeapon, name: e.target.value })
-                          }
-                          className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                          data-testid="custom-weapon-name"
-                        />
-                        {/* Proficiency Autocomplete */}
-                        <div className="relative">
-                          <span className="mb-1 block text-xs text-muted-foreground">
-                            {t("proficiency")}
-                          </span>
+              {/* Item list */}
+              <div className="max-h-[50vh] overflow-y-auto p-4">
+                {addTab === "weapons" && (
+                  <div className="flex flex-col gap-2">
+                    {/* Custom weapon creation — at top */}
+                    <div className="border-b border-border pb-2">
+                      {!showCustomWeaponForm ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => setShowCustomWeaponForm(true)}
+                          data-testid="create-custom-weapon-toggle"
+                        >
+                          {t("createCustomWeapon")}
+                        </Button>
+                      ) : (
+                        <div
+                          className="flex flex-col gap-2 rounded-md border border-border p-3"
+                          data-testid="custom-weapon-form"
+                        >
+                          <div className="text-sm font-medium">{t("createCustomWeapon")}</div>
                           <input
                             type="text"
-                            placeholder={
-                              weaponProfSelected
-                                ? (weaponProfEntries.find((e) => e.name === weaponProfSelected)
-                                    ?.label ?? weaponProfSelected)
-                                : t("proficiencyPlaceholderWeapon")
-                            }
-                            value={weaponProfSearch}
-                            onChange={(e) => {
-                              setWeaponProfSearch(e.target.value);
-                              setWeaponProfSelected(null);
-                            }}
-                            className={`w-full rounded-md border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
-                              weaponProfSelected ? "border-primary text-primary" : "border-border"
-                            }`}
-                            data-testid="custom-weapon-prof"
-                          />
-                          {weaponProfSearch &&
-                            !weaponProfSelected &&
-                            filteredWeaponProfs.length > 0 && (
-                              <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded-md border border-border bg-background shadow-lg">
-                                {filteredWeaponProfs.map((entry) => (
-                                  <button
-                                    key={entry.name}
-                                    type="button"
-                                    onClick={() => {
-                                      setWeaponProfSelected(entry.name);
-                                      setWeaponProfSearch("");
-                                    }}
-                                    className="w-full px-3 py-1.5 text-left text-sm hover:bg-accent/50"
-                                  >
-                                    {entry.label}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-                          {weaponProfSelected && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setWeaponProfSelected(null);
-                                setWeaponProfSearch("");
-                              }}
-                              className="absolute right-2 top-7 text-xs text-muted-foreground hover:text-foreground"
-                            >
-                              ✕
-                            </button>
-                          )}
-                        </div>
-                        <input
-                          type="text"
-                          placeholder={t("nameEn")}
-                          value={customWeapon.name_en}
-                          onChange={(e) =>
-                            setCustomWeapon({ ...customWeapon, name_en: e.target.value })
-                          }
-                          className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                          data-testid="custom-weapon-name-en"
-                        />
-                        <div className="grid grid-cols-2 gap-2">
-                          <input
-                            type="text"
-                            placeholder={t("damageSM")}
-                            value={customWeapon.damage_sm}
+                            placeholder={t("name")}
+                            value={customWeapon.name}
                             onChange={(e) =>
-                              setCustomWeapon({ ...customWeapon, damage_sm: e.target.value })
+                              setCustomWeapon({ ...customWeapon, name: e.target.value })
                             }
                             className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                            data-testid="custom-weapon-damage-sm"
+                            data-testid="custom-weapon-name"
                           />
-                          <input
-                            type="text"
-                            placeholder={t("damageL")}
-                            value={customWeapon.damage_l}
-                            onChange={(e) =>
-                              setCustomWeapon({ ...customWeapon, damage_l: e.target.value })
-                            }
-                            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                            data-testid="custom-weapon-damage-l"
-                          />
-                        </div>
-                        <div>
-                          <span className="mb-1 block text-xs text-muted-foreground">
-                            {t("weaponTypeLabel")}
-                          </span>
-                          <div className="flex gap-1">
-                            {(["melee", "ranged", "both"] as const).map((wt) => (
-                              <button
-                                key={wt}
-                                type="button"
-                                className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
-                                  customWeapon.weapon_type === wt
-                                    ? "bg-primary text-primary-foreground"
-                                    : "bg-muted text-muted-foreground hover:text-foreground"
-                                }`}
-                                onClick={() =>
-                                  setCustomWeapon({ ...customWeapon, weapon_type: wt })
-                                }
-                                data-testid={`custom-weapon-type-${wt}`}
-                              >
-                                {t(wt)}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                          <input
-                            type="number"
-                            placeholder={t("speed")}
-                            value={customWeapon.speed}
-                            onChange={(e) =>
-                              setCustomWeapon({ ...customWeapon, speed: e.target.value })
-                            }
-                            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                            data-testid="custom-weapon-speed"
-                          />
-                          <input
-                            type="number"
-                            placeholder={t("weight")}
-                            value={customWeapon.weight}
-                            onChange={(e) =>
-                              setCustomWeapon({ ...customWeapon, weight: e.target.value })
-                            }
-                            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                            data-testid="custom-weapon-weight"
-                          />
-                          <input
-                            type="number"
-                            placeholder={t("cost")}
-                            value={customWeapon.cost_gp}
-                            onChange={(e) =>
-                              setCustomWeapon({ ...customWeapon, cost_gp: e.target.value })
-                            }
-                            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                            data-testid="custom-weapon-cost"
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
+                          {/* Proficiency Autocomplete */}
+                          <div className="relative">
                             <span className="mb-1 block text-xs text-muted-foreground">
-                              {t("magicBonus")}
-                            </span>
-                            <div className="flex gap-1">
-                              {[0, 1, 2, 3, 4, 5].map((b) => (
-                                <button
-                                  key={b}
-                                  className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
-                                    customWeapon.magic_bonus === b
-                                      ? "bg-primary text-primary-foreground"
-                                      : "bg-muted text-muted-foreground hover:text-foreground"
-                                  }`}
-                                  onClick={() =>
-                                    setCustomWeapon({ ...customWeapon, magic_bonus: b })
-                                  }
-                                  data-testid={`custom-weapon-magic-${b}`}
-                                >
-                                  {b === 0 ? "—" : `+${b}`}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                          <div>
-                            <span className="mb-1 block text-xs text-muted-foreground">
-                              {t("quantity")}
+                              {t("proficiency")}
                             </span>
                             <input
-                              type="number"
-                              min={1}
-                              value={customWeapon.quantity}
-                              onChange={(e) =>
-                                setCustomWeapon({
-                                  ...customWeapon,
-                                  quantity: Math.max(1, Number(e.target.value)),
-                                })
+                              type="text"
+                              placeholder={
+                                weaponProfSelected
+                                  ? (weaponProfEntries.find((e) => e.name === weaponProfSelected)
+                                      ?.label ?? weaponProfSelected)
+                                  : t("proficiencyPlaceholderWeapon")
                               }
-                              className="w-full rounded-md border border-border bg-background px-3 py-1.5 text-sm"
-                              data-testid="custom-weapon-quantity"
+                              value={weaponProfSearch}
+                              onChange={(e) => {
+                                setWeaponProfSearch(e.target.value);
+                                setWeaponProfSelected(null);
+                              }}
+                              className={`w-full rounded-md border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
+                                weaponProfSelected ? "border-primary text-primary" : "border-border"
+                              }`}
+                              data-testid="custom-weapon-prof"
                             />
+                            {weaponProfSearch &&
+                              !weaponProfSelected &&
+                              filteredWeaponProfs.length > 0 && (
+                                <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded-md border border-border bg-background shadow-lg">
+                                  {filteredWeaponProfs.map((entry) => (
+                                    <button
+                                      key={entry.name}
+                                      type="button"
+                                      onClick={() => {
+                                        setWeaponProfSelected(entry.name);
+                                        setWeaponProfSearch("");
+                                      }}
+                                      className="w-full px-3 py-1.5 text-left text-sm hover:bg-accent/50"
+                                    >
+                                      {entry.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            {weaponProfSelected && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setWeaponProfSelected(null);
+                                  setWeaponProfSearch("");
+                                }}
+                                className="absolute right-2 top-7 text-xs text-muted-foreground hover:text-foreground"
+                              >
+                                ✕
+                              </button>
+                            )}
                           </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="default"
-                            size="sm"
-                            disabled={loading || !customWeapon.name.trim() || !weaponProfSelected}
-                            onClick={createCustomWeapon}
-                            data-testid="custom-weapon-submit"
-                          >
-                            {t("createAndAdd")}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setShowCustomWeaponForm(false);
-                              setCustomWeapon({
-                                name: "",
-                                name_en: "",
-                                damage_sm: "",
-                                damage_l: "",
-                                weapon_type: "melee",
-                                speed: "",
-                                weight: "",
-                                cost_gp: "",
-                                magic_bonus: 0,
-                                quantity: 1,
-                              });
-                              setWeaponProfSearch("");
-                              setWeaponProfSelected(null);
-                            }}
-                            data-testid="custom-weapon-cancel"
-                          >
-                            {t("cancel")}
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Weapons catalog list */}
-                  {filteredWeapons.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">{t("noWeapons")}</p>
-                  ) : (
-                    filteredWeapons.map((weapon) => (
-                      <div
-                        key={weapon.id}
-                        className="flex items-center justify-between rounded-md border border-border p-3"
-                        data-testid={`add-weapon-${weapon.id}`}
-                      >
-                        <div>
-                          <div className="font-medium">
-                            {localized(weapon.name, weapon.name_en, locale)}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {t("damage")}: {weapon.damage_sm}/{weapon.damage_l} | {t("speed")}:{" "}
-                            {weapon.speed} | {t("weight")}: {lbsToKg(weapon.weight)} kg |{" "}
-                            {t("cost")}: {weapon.cost_gp} GP
-                          </div>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={loading}
-                          onClick={() => addItem("weapon", weapon.id)}
-                          data-testid={`add-weapon-btn-${weapon.id}`}
-                        >
-                          {t("addItem")}
-                        </Button>
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
-              {addTab === "armor" && (
-                <div className="flex flex-col gap-2">
-                  {/* Custom armor creation — at top */}
-                  <div className="border-b border-border pb-2">
-                    {!showCustomArmorForm ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        onClick={() => setShowCustomArmorForm(true)}
-                        data-testid="create-custom-armor-toggle"
-                      >
-                        {t("createCustomArmor")}
-                      </Button>
-                    ) : (
-                      <div
-                        className="flex flex-col gap-2 rounded-md border border-border p-3"
-                        data-testid="custom-armor-form"
-                      >
-                        <div className="text-sm font-medium">{t("createCustomArmor")}</div>
-                        <input
-                          type="text"
-                          placeholder={t("name")}
-                          value={customArmor.name}
-                          onChange={(e) => setCustomArmor({ ...customArmor, name: e.target.value })}
-                          className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                          data-testid="custom-armor-name"
-                        />
-                        {/* Armor/Shield Proficiency Autocomplete */}
-                        <div className="relative">
-                          <span className="mb-1 block text-xs text-muted-foreground">
-                            {t("proficiency")}
-                          </span>
                           <input
                             type="text"
-                            placeholder={
-                              armorProfSelected
-                                ? (armorProfEntries.find((e) => e.name === armorProfSelected)
-                                    ?.label ?? armorProfSelected)
-                                : t("proficiencyPlaceholderArmor")
-                            }
-                            value={armorProfSearch}
-                            onChange={(e) => {
-                              setArmorProfSearch(e.target.value);
-                              setArmorProfSelected(null);
-                            }}
-                            className={`w-full rounded-md border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
-                              armorProfSelected ? "border-primary text-primary" : "border-border"
-                            }`}
-                            data-testid="custom-armor-prof"
-                          />
-                          {armorProfSearch &&
-                            !armorProfSelected &&
-                            filteredArmorProfs.length > 0 && (
-                              <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded-md border border-border bg-background shadow-lg">
-                                {filteredArmorProfs.map((entry) => (
-                                  <button
-                                    key={entry.name}
-                                    type="button"
-                                    onClick={() => {
-                                      setArmorProfSelected(entry.name);
-                                      setArmorProfSearch("");
-                                    }}
-                                    className="w-full px-3 py-1.5 text-left text-sm hover:bg-accent/50"
-                                  >
-                                    {entry.label}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-                          {armorProfSelected && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setArmorProfSelected(null);
-                                setArmorProfSearch("");
-                              }}
-                              className="absolute right-2 top-7 text-xs text-muted-foreground hover:text-foreground"
-                            >
-                              ✕
-                            </button>
-                          )}
-                        </div>
-                        <input
-                          type="text"
-                          placeholder={t("nameEn")}
-                          value={customArmor.name_en}
-                          onChange={(e) =>
-                            setCustomArmor({ ...customArmor, name_en: e.target.value })
-                          }
-                          className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                          data-testid="custom-armor-name-en"
-                        />
-                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                          <input
-                            type="number"
-                            placeholder={t("acValue")}
-                            value={customArmor.ac}
-                            onChange={(e) => setCustomArmor({ ...customArmor, ac: e.target.value })}
-                            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                            data-testid="custom-armor-ac"
-                          />
-                          <input
-                            type="number"
-                            placeholder={t("weight")}
-                            value={customArmor.weight}
+                            placeholder={t("nameEn")}
+                            value={customWeapon.name_en}
                             onChange={(e) =>
-                              setCustomArmor({ ...customArmor, weight: e.target.value })
+                              setCustomWeapon({ ...customWeapon, name_en: e.target.value })
                             }
                             className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                            data-testid="custom-armor-weight"
+                            data-testid="custom-weapon-name-en"
                           />
-                          <input
-                            type="number"
-                            placeholder={t("cost")}
-                            value={customArmor.cost_gp}
-                            onChange={(e) =>
-                              setCustomArmor({ ...customArmor, cost_gp: e.target.value })
-                            }
-                            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                            data-testid="custom-armor-cost"
-                          />
-                        </div>
-                        <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-                          <input
-                            type="checkbox"
-                            checked={customArmor.is_magical_protection}
-                            onChange={(e) =>
-                              setCustomArmor({
-                                ...customArmor,
-                                is_magical_protection: e.target.checked,
-                              })
-                            }
-                            data-testid="custom-armor-magical-protection"
-                          />
-                          {t("magicalProtection")}
-                        </label>
-                        <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-                          <input
-                            type="checkbox"
-                            checked={customArmor.is_shield}
-                            onChange={(e) =>
-                              setCustomArmor({
-                                ...customArmor,
-                                is_shield: e.target.checked,
-                                shield_type: e.target.checked
-                                  ? customArmor.shield_type || "small"
-                                  : "",
-                              })
-                            }
-                            data-testid="custom-armor-is-shield"
-                          />
-                          {t("isShieldLabel")}
-                        </label>
-                        {customArmor.is_shield && (
+                          <div className="grid grid-cols-2 gap-2">
+                            <input
+                              type="text"
+                              placeholder={t("damageSM")}
+                              value={customWeapon.damage_sm}
+                              onChange={(e) =>
+                                setCustomWeapon({ ...customWeapon, damage_sm: e.target.value })
+                              }
+                              className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                              data-testid="custom-weapon-damage-sm"
+                            />
+                            <input
+                              type="text"
+                              placeholder={t("damageL")}
+                              value={customWeapon.damage_l}
+                              onChange={(e) =>
+                                setCustomWeapon({ ...customWeapon, damage_l: e.target.value })
+                              }
+                              className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                              data-testid="custom-weapon-damage-l"
+                            />
+                          </div>
                           <div>
                             <span className="mb-1 block text-xs text-muted-foreground">
-                              {t("shieldTypeLabel")}
+                              {t("weaponTypeLabel")}
                             </span>
                             <div className="flex gap-1">
-                              {(["buckler", "small", "medium", "large"] as const).map((st) => (
+                              {(["melee", "ranged", "both"] as const).map((wt) => (
                                 <button
-                                  key={st}
+                                  key={wt}
                                   type="button"
-                                  className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
-                                    customArmor.shield_type === st
+                                  className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+                                    customWeapon.weapon_type === wt
                                       ? "bg-primary text-primary-foreground"
                                       : "bg-muted text-muted-foreground hover:text-foreground"
                                   }`}
                                   onClick={() =>
-                                    setCustomArmor({ ...customArmor, shield_type: st })
+                                    setCustomWeapon({ ...customWeapon, weapon_type: wt })
                                   }
-                                  data-testid={`custom-armor-shield-type-${st}`}
+                                  data-testid={`custom-weapon-type-${wt}`}
                                 >
-                                  {t(
-                                    st === "buckler"
-                                      ? "buckler"
-                                      : st === "small"
-                                        ? "smallShield"
-                                        : st === "medium"
-                                          ? "mediumShield"
-                                          : "largeShield"
-                                  )}
+                                  {t(wt)}
                                 </button>
                               ))}
                             </div>
                           </div>
-                        )}
-                        <div className="flex gap-2">
+                          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                            <input
+                              type="number"
+                              placeholder={t("speed")}
+                              value={customWeapon.speed}
+                              onChange={(e) =>
+                                setCustomWeapon({ ...customWeapon, speed: e.target.value })
+                              }
+                              className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                              data-testid="custom-weapon-speed"
+                            />
+                            <input
+                              type="number"
+                              placeholder={t("weight")}
+                              value={customWeapon.weight}
+                              onChange={(e) =>
+                                setCustomWeapon({ ...customWeapon, weight: e.target.value })
+                              }
+                              className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                              data-testid="custom-weapon-weight"
+                            />
+                            <input
+                              type="number"
+                              placeholder={t("cost")}
+                              value={customWeapon.cost_gp}
+                              onChange={(e) =>
+                                setCustomWeapon({ ...customWeapon, cost_gp: e.target.value })
+                              }
+                              className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                              data-testid="custom-weapon-cost"
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <span className="mb-1 block text-xs text-muted-foreground">
+                                {t("magicBonus")}
+                              </span>
+                              <div className="flex gap-1">
+                                {[0, 1, 2, 3, 4, 5].map((b) => (
+                                  <button
+                                    key={b}
+                                    className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
+                                      customWeapon.magic_bonus === b
+                                        ? "bg-primary text-primary-foreground"
+                                        : "bg-muted text-muted-foreground hover:text-foreground"
+                                    }`}
+                                    onClick={() =>
+                                      setCustomWeapon({ ...customWeapon, magic_bonus: b })
+                                    }
+                                    data-testid={`custom-weapon-magic-${b}`}
+                                  >
+                                    {b === 0 ? "—" : `+${b}`}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <span className="mb-1 block text-xs text-muted-foreground">
+                                {t("quantity")}
+                              </span>
+                              <input
+                                type="number"
+                                min={1}
+                                value={customWeapon.quantity}
+                                onChange={(e) =>
+                                  setCustomWeapon({
+                                    ...customWeapon,
+                                    quantity: Math.max(1, Number(e.target.value)),
+                                  })
+                                }
+                                className="w-full rounded-md border border-border bg-background px-3 py-1.5 text-sm"
+                                data-testid="custom-weapon-quantity"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="default"
+                              size="sm"
+                              disabled={loading || !customWeapon.name.trim() || !weaponProfSelected}
+                              onClick={createCustomWeapon}
+                              data-testid="custom-weapon-submit"
+                            >
+                              {t("createAndAdd")}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setShowCustomWeaponForm(false);
+                                setCustomWeapon({
+                                  name: "",
+                                  name_en: "",
+                                  damage_sm: "",
+                                  damage_l: "",
+                                  weapon_type: "melee",
+                                  speed: "",
+                                  weight: "",
+                                  cost_gp: "",
+                                  magic_bonus: 0,
+                                  quantity: 1,
+                                });
+                                setWeaponProfSearch("");
+                                setWeaponProfSelected(null);
+                              }}
+                              data-testid="custom-weapon-cancel"
+                            >
+                              {t("cancel")}
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Weapons catalog list */}
+                    {filteredWeapons.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">{t("noWeapons")}</p>
+                    ) : (
+                      filteredWeapons.map((weapon) => (
+                        <div
+                          key={weapon.id}
+                          className="flex items-center justify-between rounded-md border border-border p-3"
+                          data-testid={`add-weapon-${weapon.id}`}
+                        >
+                          <div>
+                            <div className="font-medium">
+                              {localized(weapon.name, weapon.name_en, locale)}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {t("damage")}: {weapon.damage_sm}/{weapon.damage_l} | {t("speed")}:{" "}
+                              {weapon.speed} | {t("weight")}: {lbsToKg(weapon.weight)} kg |{" "}
+                              {t("cost")}: {weapon.cost_gp} GP
+                            </div>
+                          </div>
                           <Button
-                            variant="default"
+                            variant="outline"
                             size="sm"
-                            disabled={loading || !customArmor.name.trim() || !armorProfSelected}
-                            onClick={createCustomArmor}
-                            data-testid="custom-armor-submit"
+                            disabled={loading}
+                            onClick={() => addItem("weapon", weapon.id)}
+                            data-testid={`add-weapon-btn-${weapon.id}`}
                           >
-                            {t("createAndAdd")}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setShowCustomArmorForm(false);
-                              setCustomArmor({
-                                name: "",
-                                name_en: "",
-                                ac: "",
-                                weight: "",
-                                cost_gp: "",
-                                is_magical_protection: false,
-                                is_shield: false,
-                                shield_type: "",
-                              });
-                              setArmorProfSearch("");
-                              setArmorProfSelected(null);
-                            }}
-                            data-testid="custom-armor-cancel"
-                          >
-                            {t("cancel")}
+                            {t("addItem")}
                           </Button>
                         </div>
-                      </div>
+                      ))
                     )}
                   </div>
-
-                  {/* Armor catalog list */}
-                  {filteredArmor.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">{t("noArmorAvailable")}</p>
-                  ) : (
-                    filteredArmor.map((armor) => (
-                      <div
-                        key={armor.id}
-                        className="flex items-center justify-between rounded-md border border-border p-3"
-                        data-testid={`add-armor-${armor.id}`}
-                      >
-                        <div>
-                          <div className="font-medium">
-                            {localized(armor.name, armor.name_en, locale)}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {t("acValue")}: {armor.ac} | {t("weight")}: {lbsToKg(armor.weight)} kg |{" "}
-                            {t("cost")}: {armor.cost_gp} GP
-                          </div>
-                        </div>
+                )}
+                {addTab === "armor" && (
+                  <div className="flex flex-col gap-2">
+                    {/* Custom armor creation — at top */}
+                    <div className="border-b border-border pb-2">
+                      {!showCustomArmorForm ? (
                         <Button
                           variant="outline"
                           size="sm"
-                          disabled={loading}
-                          onClick={() => addItem("armor", armor.id)}
-                          data-testid={`add-armor-btn-${armor.id}`}
+                          className="w-full"
+                          onClick={() => setShowCustomArmorForm(true)}
+                          data-testid="create-custom-armor-toggle"
                         >
-                          {t("addItem")}
+                          {t("createCustomArmor")}
                         </Button>
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
-              {addTab === "magic" && (
-                <div className="flex flex-col gap-2">
-                  {/* Create custom magic item — collapsible at top */}
-                  <div className="border-b border-border pb-2">
-                    {!showMagicItemCreate ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        onClick={() => setShowMagicItemCreate(true)}
-                        data-testid="create-magic-item-toggle"
-                      >
-                        {t("createMagicItem")}
-                      </Button>
-                    ) : (
-                      <div className="rounded-md border border-border p-3">
-                        <div className="mb-2 flex items-center justify-between">
-                          <span className="text-sm font-medium">{t("createMagicItem")}</span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setShowMagicItemCreate(false)}
-                          >
-                            X
-                          </Button>
-                        </div>
-                        <div className="max-h-[50vh] overflow-y-auto">
-                          <MagicItemForm onSubmit={createMagicItem} loading={loading} />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Magic items catalog list */}
-                  {filteredMagicItems.length === 0 ? (
-                    <p className="py-4 text-center text-sm text-muted-foreground">{t("noItems")}</p>
-                  ) : (
-                    filteredMagicItems.map((mi) => (
-                      <div
-                        key={mi.id}
-                        className="flex items-start justify-between gap-2 rounded-md border border-border p-3"
-                        data-testid={`add-magic-${mi.id}`}
-                      >
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">
-                              {localized(mi.name, mi.name_en, locale)}
+                      ) : (
+                        <div
+                          className="flex flex-col gap-2 rounded-md border border-border p-3"
+                          data-testid="custom-armor-form"
+                        >
+                          <div className="text-sm font-medium">{t("createCustomArmor")}</div>
+                          <input
+                            type="text"
+                            placeholder={t("name")}
+                            value={customArmor.name}
+                            onChange={(e) =>
+                              setCustomArmor({ ...customArmor, name: e.target.value })
+                            }
+                            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                            data-testid="custom-armor-name"
+                          />
+                          {/* Armor/Shield Proficiency Autocomplete */}
+                          <div className="relative">
+                            <span className="mb-1 block text-xs text-muted-foreground">
+                              {t("proficiency")}
                             </span>
-                            {mi.category && (
-                              <Badge variant="outline" className="text-xs">
-                                {mi.category}
-                              </Badge>
+                            <input
+                              type="text"
+                              placeholder={
+                                armorProfSelected
+                                  ? (armorProfEntries.find((e) => e.name === armorProfSelected)
+                                      ?.label ?? armorProfSelected)
+                                  : t("proficiencyPlaceholderArmor")
+                              }
+                              value={armorProfSearch}
+                              onChange={(e) => {
+                                setArmorProfSearch(e.target.value);
+                                setArmorProfSelected(null);
+                              }}
+                              className={`w-full rounded-md border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
+                                armorProfSelected ? "border-primary text-primary" : "border-border"
+                              }`}
+                              data-testid="custom-armor-prof"
+                            />
+                            {armorProfSearch &&
+                              !armorProfSelected &&
+                              filteredArmorProfs.length > 0 && (
+                                <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded-md border border-border bg-background shadow-lg">
+                                  {filteredArmorProfs.map((entry) => (
+                                    <button
+                                      key={entry.name}
+                                      type="button"
+                                      onClick={() => {
+                                        setArmorProfSelected(entry.name);
+                                        setArmorProfSearch("");
+                                      }}
+                                      className="w-full px-3 py-1.5 text-left text-sm hover:bg-accent/50"
+                                    >
+                                      {entry.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            {armorProfSelected && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setArmorProfSelected(null);
+                                  setArmorProfSearch("");
+                                }}
+                                className="absolute right-2 top-7 text-xs text-muted-foreground hover:text-foreground"
+                              >
+                                ✕
+                              </button>
                             )}
                           </div>
-                          <MagicEffectBadges effects={mi.magic_effects} />
+                          <input
+                            type="text"
+                            placeholder={t("nameEn")}
+                            value={customArmor.name_en}
+                            onChange={(e) =>
+                              setCustomArmor({ ...customArmor, name_en: e.target.value })
+                            }
+                            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                            data-testid="custom-armor-name-en"
+                          />
+                          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                            <input
+                              type="number"
+                              placeholder={t("acValue")}
+                              value={customArmor.ac}
+                              onChange={(e) =>
+                                setCustomArmor({ ...customArmor, ac: e.target.value })
+                              }
+                              className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                              data-testid="custom-armor-ac"
+                            />
+                            <input
+                              type="number"
+                              placeholder={t("weight")}
+                              value={customArmor.weight}
+                              onChange={(e) =>
+                                setCustomArmor({ ...customArmor, weight: e.target.value })
+                              }
+                              className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                              data-testid="custom-armor-weight"
+                            />
+                            <input
+                              type="number"
+                              placeholder={t("cost")}
+                              value={customArmor.cost_gp}
+                              onChange={(e) =>
+                                setCustomArmor({ ...customArmor, cost_gp: e.target.value })
+                              }
+                              className="rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                              data-testid="custom-armor-cost"
+                            />
+                          </div>
+                          <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+                            <input
+                              type="checkbox"
+                              checked={customArmor.is_magical_protection}
+                              onChange={(e) =>
+                                setCustomArmor({
+                                  ...customArmor,
+                                  is_magical_protection: e.target.checked,
+                                })
+                              }
+                              data-testid="custom-armor-magical-protection"
+                            />
+                            {t("magicalProtection")}
+                          </label>
+                          <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+                            <input
+                              type="checkbox"
+                              checked={customArmor.is_shield}
+                              onChange={(e) =>
+                                setCustomArmor({
+                                  ...customArmor,
+                                  is_shield: e.target.checked,
+                                  shield_type: e.target.checked
+                                    ? customArmor.shield_type || "small"
+                                    : "",
+                                })
+                              }
+                              data-testid="custom-armor-is-shield"
+                            />
+                            {t("isShieldLabel")}
+                          </label>
+                          {customArmor.is_shield && (
+                            <div>
+                              <span className="mb-1 block text-xs text-muted-foreground">
+                                {t("shieldTypeLabel")}
+                              </span>
+                              <div className="flex gap-1">
+                                {(["buckler", "small", "medium", "large"] as const).map((st) => (
+                                  <button
+                                    key={st}
+                                    type="button"
+                                    className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
+                                      customArmor.shield_type === st
+                                        ? "bg-primary text-primary-foreground"
+                                        : "bg-muted text-muted-foreground hover:text-foreground"
+                                    }`}
+                                    onClick={() =>
+                                      setCustomArmor({ ...customArmor, shield_type: st })
+                                    }
+                                    data-testid={`custom-armor-shield-type-${st}`}
+                                  >
+                                    {t(
+                                      st === "buckler"
+                                        ? "buckler"
+                                        : st === "small"
+                                          ? "smallShield"
+                                          : st === "medium"
+                                            ? "mediumShield"
+                                            : "largeShield"
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          <div className="flex gap-2">
+                            <Button
+                              variant="default"
+                              size="sm"
+                              disabled={loading || !customArmor.name.trim() || !armorProfSelected}
+                              onClick={createCustomArmor}
+                              data-testid="custom-armor-submit"
+                            >
+                              {t("createAndAdd")}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setShowCustomArmorForm(false);
+                                setCustomArmor({
+                                  name: "",
+                                  name_en: "",
+                                  ac: "",
+                                  weight: "",
+                                  cost_gp: "",
+                                  is_magical_protection: false,
+                                  is_shield: false,
+                                  shield_type: "",
+                                });
+                                setArmorProfSearch("");
+                                setArmorProfSelected(null);
+                              }}
+                              data-testid="custom-armor-cancel"
+                            >
+                              {t("cancel")}
+                            </Button>
+                          </div>
                         </div>
+                      )}
+                    </div>
+
+                    {/* Armor catalog list */}
+                    {filteredArmor.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">{t("noArmorAvailable")}</p>
+                    ) : (
+                      filteredArmor.map((armor) => (
+                        <div
+                          key={armor.id}
+                          className="flex items-center justify-between rounded-md border border-border p-3"
+                          data-testid={`add-armor-${armor.id}`}
+                        >
+                          <div>
+                            <div className="font-medium">
+                              {localized(armor.name, armor.name_en, locale)}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {t("acValue")}: {armor.ac} | {t("weight")}: {lbsToKg(armor.weight)} kg
+                              | {t("cost")}: {armor.cost_gp} GP
+                            </div>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={loading}
+                            onClick={() => addItem("armor", armor.id)}
+                            data-testid={`add-armor-btn-${armor.id}`}
+                          >
+                            {t("addItem")}
+                          </Button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+                {addTab === "magic" && (
+                  <div className="flex flex-col gap-2">
+                    {/* Create custom magic item — collapsible at top */}
+                    <div className="border-b border-border pb-2">
+                      {!showMagicItemCreate ? (
                         <Button
                           variant="outline"
                           size="sm"
-                          disabled={loading}
-                          onClick={() => addMagicItemFromCatalog(mi)}
-                          data-testid={`add-magic-btn-${mi.id}`}
+                          className="w-full"
+                          onClick={() => setShowMagicItemCreate(true)}
+                          data-testid="create-magic-item-toggle"
                         >
-                          {t("addItem")}
+                          {t("createMagicItem")}
                         </Button>
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
+                      ) : (
+                        <div className="rounded-md border border-border p-3">
+                          <div className="mb-2 flex items-center justify-between">
+                            <span className="text-sm font-medium">{t("createMagicItem")}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setShowMagicItemCreate(false)}
+                            >
+                              X
+                            </Button>
+                          </div>
+                          <div className="max-h-[50vh] overflow-y-auto">
+                            <MagicItemForm onSubmit={createMagicItem} loading={loading} />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Magic items catalog list */}
+                    {filteredMagicItems.length === 0 ? (
+                      <p className="py-4 text-center text-sm text-muted-foreground">
+                        {t("noItems")}
+                      </p>
+                    ) : (
+                      filteredMagicItems.map((mi) => (
+                        <div
+                          key={mi.id}
+                          className="flex items-start justify-between gap-2 rounded-md border border-border p-3"
+                          data-testid={`add-magic-${mi.id}`}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">
+                                {localized(mi.name, mi.name_en, locale)}
+                              </span>
+                              {mi.category && (
+                                <Badge variant="outline" className="text-xs">
+                                  {mi.category}
+                                </Badge>
+                              )}
+                            </div>
+                            <MagicEffectBadges effects={mi.magic_effects} />
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={loading}
+                            onClick={() => addMagicItemFromCatalog(mi)}
+                            data-testid={`add-magic-btn-${mi.id}`}
+                          >
+                            {t("addItem")}
+                          </Button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
       {/* ── Weapon Details (Equipped Weapons) ──────────────────── */}

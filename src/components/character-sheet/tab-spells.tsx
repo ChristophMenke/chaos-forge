@@ -35,6 +35,7 @@ import {
   spellDescription,
 } from "@/lib/utils/spell-display";
 import type { CharacterSpellWithDetails, SpellRow } from "@/lib/supabase/types";
+import { ModalPortal } from "@/components/modal-portal";
 
 const WIZARD_SCHOOLS = [
   "abjuration",
@@ -1298,376 +1299,382 @@ export function TabSpells({
 
       {/* Learn Spell Dialog (modal overlay) */}
       {learnDialogOpen && !readOnly && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-          role="presentation"
-          data-testid="learn-spell-dialog"
-        >
+        <ModalPortal>
           <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="learn-spell-dialog-title"
-            className="mx-4 flex max-h-[80vh] w-full max-w-2xl flex-col rounded-xl bg-card ring-1 ring-foreground/10"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            role="presentation"
+            data-testid="learn-spell-dialog"
           >
-            <div className="flex items-center justify-between border-b p-4">
-              <h2 id="learn-spell-dialog-title" className="font-heading text-lg">
-                {usesSphereSpells ? t("browseAndPrepareTitle") : t("learnSpellTitle")}
-              </h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setLearnDialogOpen(false);
-                  setLearnSearchQuery("");
-                  setLevelFilter(null);
-                  setSchoolSphereFilter(null);
-                  setBookFilter(null);
-                  setShowCustomForm(false);
-                  setCustomSpell(emptyCustomSpellForm);
-                }}
-                data-testid="learn-spell-dialog-close"
-              >
-                {t("close")}
-              </Button>
-            </div>
-            <div className="border-b p-4">
-              <input
-                type="text"
-                placeholder={t("searchSpells")}
-                value={learnSearchQuery}
-                onChange={(e) => setLearnSearchQuery(e.target.value)}
-                className="w-full rounded-md border border-input bg-input p-2 text-sm"
-                data-testid="learn-spell-search"
-              />
-
-              {/* Level filter buttons */}
-              <div className="mt-3 flex flex-wrap gap-1" data-testid="spell-level-filters">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="learn-spell-dialog-title"
+              className="mx-4 flex max-h-[80vh] w-full max-w-2xl flex-col rounded-xl bg-card ring-1 ring-foreground/10"
+            >
+              <div className="flex items-center justify-between border-b p-4">
+                <h2 id="learn-spell-dialog-title" className="font-heading text-lg">
+                  {usesSphereSpells ? t("browseAndPrepareTitle") : t("learnSpellTitle")}
+                </h2>
                 <Button
-                  variant={levelFilter === null ? "default" : "outline"}
+                  variant="ghost"
                   size="sm"
-                  onClick={() => setLevelFilter(null)}
-                  data-testid="spell-level-filter-all"
-                  className="h-7 px-2 text-xs"
+                  onClick={() => {
+                    setLearnDialogOpen(false);
+                    setLearnSearchQuery("");
+                    setLevelFilter(null);
+                    setSchoolSphereFilter(null);
+                    setBookFilter(null);
+                    setShowCustomForm(false);
+                    setCustomSpell(emptyCustomSpellForm);
+                  }}
+                  data-testid="learn-spell-dialog-close"
                 >
-                  {t("all")}
+                  {t("close")}
                 </Button>
-                {Array.from({ length: maxSpellLevel }, (_, i) => i + 1).map((n) => (
+              </div>
+              <div className="border-b p-4">
+                <input
+                  type="text"
+                  placeholder={t("searchSpells")}
+                  value={learnSearchQuery}
+                  onChange={(e) => setLearnSearchQuery(e.target.value)}
+                  className="w-full rounded-md border border-input bg-input p-2 text-sm"
+                  data-testid="learn-spell-search"
+                />
+
+                {/* Level filter buttons */}
+                <div className="mt-3 flex flex-wrap gap-1" data-testid="spell-level-filters">
                   <Button
-                    key={n}
-                    variant={levelFilter === n ? "default" : "outline"}
+                    variant={levelFilter === null ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setLevelFilter(levelFilter === n ? null : n)}
-                    data-testid={`spell-level-filter-${n}`}
-                    className="h-7 w-7 px-0 text-xs"
+                    onClick={() => setLevelFilter(null)}
+                    data-testid="spell-level-filter-all"
+                    className="h-7 px-2 text-xs"
                   >
-                    {n}
+                    {t("all")}
                   </Button>
-                ))}
-              </div>
-
-              {/* School / Sphere filter badges */}
-              <div className="mt-2 flex flex-wrap gap-1" data-testid="spell-school-filters">
-                <Badge
-                  variant={schoolSphereFilter === null ? "default" : "outline"}
-                  className="cursor-pointer text-xs"
-                  onClick={() => setSchoolSphereFilter(null)}
-                  data-testid="spell-school-filter-all"
-                >
-                  {t("all")}
-                </Badge>
-                {(isWizard ? WIZARD_SCHOOLS : PRIEST_SPHERES).map((s) => (
-                  <Badge
-                    key={s}
-                    variant={schoolSphereFilter === s ? "default" : "outline"}
-                    className="cursor-pointer text-xs capitalize"
-                    onClick={() => setSchoolSphereFilter(schoolSphereFilter === s ? null : s)}
-                    data-testid={`spell-school-filter-${s}`}
-                  >
-                    {s}
-                  </Badge>
-                ))}
-              </div>
-
-              {/* Source Book filter */}
-              {availableBooks.length > 1 && (
-                <div className="mt-2">
-                  <select
-                    value={bookFilter ?? ""}
-                    onChange={(e) => setBookFilter(e.target.value || null)}
-                    className="w-full rounded-md border border-input bg-input px-2 py-1 text-sm"
-                    aria-label={t("allBooks")}
-                    data-testid="spell-book-filter"
-                  >
-                    <option value="">{t("allBooks")}</option>
-                    {availableBooks.map((book) => (
-                      <option key={book} value={book}>
-                        {getBookAbbreviation(book)} — {book}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </div>
-            <div className="flex-1 overflow-y-auto p-4">
-              {error && (
-                <div
-                  className="mb-3 rounded-md border border-destructive bg-destructive/10 p-3 text-sm text-destructive"
-                  data-testid="learn-spell-error"
-                >
-                  {error}
-                </div>
-              )}
-              {loadingSpells ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                </div>
-              ) : filteredLearnableSpells.length === 0 ? (
-                <div className="py-4 text-center text-sm text-muted-foreground">
-                  {t("noLearnableSpells")}
-                </div>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  <div className="text-xs text-muted-foreground">
-                    {filteredLearnableSpells.length} {t("spellsFound")}
-                  </div>
-                  {filteredLearnableSpells.slice(0, displayCount).map((spell) => (
-                    <div
-                      key={spell.id}
-                      className="flex items-start justify-between rounded-md border border-border p-3"
-                      data-testid={`learnable-spell-${spell.id}`}
+                  {Array.from({ length: maxSpellLevel }, (_, i) => i + 1).map((n) => (
+                    <Button
+                      key={n}
+                      variant={levelFilter === n ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setLevelFilter(levelFilter === n ? null : n)}
+                      data-testid={`spell-level-filter-${n}`}
+                      className="h-7 w-7 px-0 text-xs"
                     >
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">{spellName(spell)}</span>
-                          <Badge variant="outline" className="text-xs">
-                            {t("level")} {spell.level}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {spell.school ?? spell.sphere}
-                          </Badge>
-                          {spellWarnings.has(spell.id) && (
-                            <span
-                              className="text-xs text-orange-400"
-                              title={spellWarnings.get(spell.id)}
-                              data-testid={`learnable-spell-warning-${spell.id}`}
-                            >
-                              ⚠ {spellWarnings.get(spell.id)}
-                            </span>
-                          )}
-                          {spell.source_book && (
-                            <span className="rounded bg-muted px-1 py-0.5 text-[9px] md:text-xs text-muted-foreground">
-                              {getBookAbbreviation(spell.source_book)}
-                            </span>
-                          )}
+                      {n}
+                    </Button>
+                  ))}
+                </div>
+
+                {/* School / Sphere filter badges */}
+                <div className="mt-2 flex flex-wrap gap-1" data-testid="spell-school-filters">
+                  <Badge
+                    variant={schoolSphereFilter === null ? "default" : "outline"}
+                    className="cursor-pointer text-xs"
+                    onClick={() => setSchoolSphereFilter(null)}
+                    data-testid="spell-school-filter-all"
+                  >
+                    {t("all")}
+                  </Badge>
+                  {(isWizard ? WIZARD_SCHOOLS : PRIEST_SPHERES).map((s) => (
+                    <Badge
+                      key={s}
+                      variant={schoolSphereFilter === s ? "default" : "outline"}
+                      className="cursor-pointer text-xs capitalize"
+                      onClick={() => setSchoolSphereFilter(schoolSphereFilter === s ? null : s)}
+                      data-testid={`spell-school-filter-${s}`}
+                    >
+                      {s}
+                    </Badge>
+                  ))}
+                </div>
+
+                {/* Source Book filter */}
+                {availableBooks.length > 1 && (
+                  <div className="mt-2">
+                    <select
+                      value={bookFilter ?? ""}
+                      onChange={(e) => setBookFilter(e.target.value || null)}
+                      className="w-full rounded-md border border-input bg-input px-2 py-1 text-sm"
+                      aria-label={t("allBooks")}
+                      data-testid="spell-book-filter"
+                    >
+                      <option value="">{t("allBooks")}</option>
+                      {availableBooks.map((book) => (
+                        <option key={book} value={book}>
+                          {getBookAbbreviation(book)} — {book}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 overflow-y-auto p-4">
+                {error && (
+                  <div
+                    className="mb-3 rounded-md border border-destructive bg-destructive/10 p-3 text-sm text-destructive"
+                    data-testid="learn-spell-error"
+                  >
+                    {error}
+                  </div>
+                )}
+                {loadingSpells ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  </div>
+                ) : filteredLearnableSpells.length === 0 ? (
+                  <div className="py-4 text-center text-sm text-muted-foreground">
+                    {t("noLearnableSpells")}
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    <div className="text-xs text-muted-foreground">
+                      {filteredLearnableSpells.length} {t("spellsFound")}
+                    </div>
+                    {filteredLearnableSpells.slice(0, displayCount).map((spell) => (
+                      <div
+                        key={spell.id}
+                        className="flex items-start justify-between rounded-md border border-border p-3"
+                        data-testid={`learnable-spell-${spell.id}`}
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium">{spellName(spell)}</span>
+                            <Badge variant="outline" className="text-xs">
+                              {t("level")} {spell.level}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {spell.school ?? spell.sphere}
+                            </Badge>
+                            {spellWarnings.has(spell.id) && (
+                              <span
+                                className="text-xs text-orange-400"
+                                title={spellWarnings.get(spell.id)}
+                                data-testid={`learnable-spell-warning-${spell.id}`}
+                              >
+                                ⚠ {spellWarnings.get(spell.id)}
+                              </span>
+                            )}
+                            {spell.source_book && (
+                              <span className="rounded bg-muted px-1 py-0.5 text-[9px] md:text-xs text-muted-foreground">
+                                {getBookAbbreviation(spell.source_book)}
+                              </span>
+                            )}
+                          </div>
+                          <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                            <ReactMarkdown>{spellDesc(spell)}</ReactMarkdown>
+                          </div>
                         </div>
-                        <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                          <ReactMarkdown>{spellDesc(spell)}</ReactMarkdown>
+                        <Button
+                          size="sm"
+                          disabled={loading}
+                          onClick={() =>
+                            usesSphereSpells
+                              ? handlePriestPrepare(spell.id)
+                              : handleLearnSpell(spell.id)
+                          }
+                          className="ml-2 shrink-0"
+                          data-testid={
+                            usesSphereSpells
+                              ? `prepare-spell-${spell.id}`
+                              : `learn-spell-${spell.id}`
+                          }
+                        >
+                          {usesSphereSpells ? t("prepareSpell") : t("learn")}
+                        </Button>
+                      </div>
+                    ))}
+                    {displayCount < filteredLearnableSpells.length && (
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => setDisplayCount((c) => c + 50)}
+                        data-testid="learn-spell-show-more"
+                      >
+                        {t("showMore")} ({filteredLearnableSpells.length - displayCount})
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Custom spell creation */}
+              <div className="border-t p-4">
+                {!showCustomForm ? (
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setShowCustomForm(true)}
+                    data-testid="create-custom-spell-button"
+                  >
+                    {t("createCustomSpell")}
+                  </Button>
+                ) : (
+                  <div className="flex flex-col gap-3" data-testid="custom-spell-form">
+                    <h3 className="font-heading text-sm">{t("createCustomSpell")}</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="col-span-2">
+                        <label className="mb-1 block text-xs text-muted-foreground">
+                          {t("name")}
+                        </label>
+                        <input
+                          type="text"
+                          value={customSpell.name}
+                          onChange={(e) => setCustomSpell({ ...customSpell, name: e.target.value })}
+                          className="w-full rounded-md border border-input bg-input p-2 text-sm"
+                          data-testid="custom-spell-name"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs text-muted-foreground">
+                          {t("level")}
+                        </label>
+                        <select
+                          value={customSpell.level}
+                          onChange={(e) =>
+                            setCustomSpell({ ...customSpell, level: Number(e.target.value) })
+                          }
+                          className="w-full rounded-md border border-input bg-input p-2 text-sm"
+                          data-testid="custom-spell-level"
+                        >
+                          {Array.from({ length: maxSpellLevel }, (_, i) => i + 1).map((n) => (
+                            <option key={n} value={n}>
+                              {n}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs text-muted-foreground">
+                          {isWizard ? t("school") : t("sphere")}
+                        </label>
+                        <select
+                          value={customSpell.schoolOrSphere}
+                          onChange={(e) =>
+                            setCustomSpell({ ...customSpell, schoolOrSphere: e.target.value })
+                          }
+                          className="w-full rounded-md border border-input bg-input p-2 text-sm capitalize"
+                          data-testid="custom-spell-school-sphere"
+                        >
+                          <option value="">{t("choose")}</option>
+                          {(isWizard ? WIZARD_SCHOOLS : PRIEST_SPHERES).map((s) => (
+                            <option key={s} value={s} className="capitalize">
+                              {s}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs text-muted-foreground">
+                          {t("range")}
+                        </label>
+                        <input
+                          type="text"
+                          value={customSpell.range}
+                          onChange={(e) =>
+                            setCustomSpell({ ...customSpell, range: e.target.value })
+                          }
+                          className="w-full rounded-md border border-input bg-input p-2 text-sm"
+                          data-testid="custom-spell-range"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs text-muted-foreground">
+                          {t("duration")}
+                        </label>
+                        <input
+                          type="text"
+                          value={customSpell.duration}
+                          onChange={(e) =>
+                            setCustomSpell({ ...customSpell, duration: e.target.value })
+                          }
+                          className="w-full rounded-md border border-input bg-input p-2 text-sm"
+                          data-testid="custom-spell-duration"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="mb-1 block text-xs text-muted-foreground">
+                          {t("areaOfEffect")}
+                        </label>
+                        <input
+                          type="text"
+                          value={customSpell.area_of_effect}
+                          onChange={(e) =>
+                            setCustomSpell({ ...customSpell, area_of_effect: e.target.value })
+                          }
+                          className="w-full rounded-md border border-input bg-input p-2 text-sm"
+                          data-testid="custom-spell-area"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="mb-1 block text-xs text-muted-foreground">
+                          {t("components")}
+                        </label>
+                        <div className="flex gap-4">
+                          {(["V", "S", "M"] as const).map((comp) => (
+                            <label key={comp} className="flex items-center gap-1 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={customSpell.components[comp]}
+                                onChange={(e) =>
+                                  setCustomSpell({
+                                    ...customSpell,
+                                    components: {
+                                      ...customSpell.components,
+                                      [comp]: e.target.checked,
+                                    },
+                                  })
+                                }
+                                data-testid={`custom-spell-component-${comp}`}
+                              />
+                              {comp}
+                            </label>
+                          ))}
                         </div>
                       </div>
+                      <div className="col-span-2">
+                        <label className="mb-1 block text-xs text-muted-foreground">
+                          {t("description")}
+                        </label>
+                        <textarea
+                          value={customSpell.description}
+                          onChange={(e) =>
+                            setCustomSpell({ ...customSpell, description: e.target.value })
+                          }
+                          rows={3}
+                          className="w-full rounded-md border border-input bg-input p-2 text-sm"
+                          data-testid="custom-spell-description"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setShowCustomForm(false);
+                          setCustomSpell(emptyCustomSpellForm);
+                        }}
+                        data-testid="custom-spell-cancel"
+                      >
+                        {t("cancel")}
+                      </Button>
                       <Button
                         size="sm"
-                        disabled={loading}
-                        onClick={() =>
-                          usesSphereSpells
-                            ? handlePriestPrepare(spell.id)
-                            : handleLearnSpell(spell.id)
-                        }
-                        className="ml-2 shrink-0"
-                        data-testid={
-                          usesSphereSpells ? `prepare-spell-${spell.id}` : `learn-spell-${spell.id}`
-                        }
+                        disabled={loading || !customSpell.name.trim()}
+                        onClick={handleCreateCustomSpell}
+                        data-testid="custom-spell-submit"
                       >
-                        {usesSphereSpells ? t("prepareSpell") : t("learn")}
+                        {t("createAndLearn")}
                       </Button>
                     </div>
-                  ))}
-                  {displayCount < filteredLearnableSpells.length && (
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => setDisplayCount((c) => c + 50)}
-                      data-testid="learn-spell-show-more"
-                    >
-                      {t("showMore")} ({filteredLearnableSpells.length - displayCount})
-                    </Button>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Custom spell creation */}
-            <div className="border-t p-4">
-              {!showCustomForm ? (
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => setShowCustomForm(true)}
-                  data-testid="create-custom-spell-button"
-                >
-                  {t("createCustomSpell")}
-                </Button>
-              ) : (
-                <div className="flex flex-col gap-3" data-testid="custom-spell-form">
-                  <h3 className="font-heading text-sm">{t("createCustomSpell")}</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="col-span-2">
-                      <label className="mb-1 block text-xs text-muted-foreground">
-                        {t("name")}
-                      </label>
-                      <input
-                        type="text"
-                        value={customSpell.name}
-                        onChange={(e) => setCustomSpell({ ...customSpell, name: e.target.value })}
-                        className="w-full rounded-md border border-input bg-input p-2 text-sm"
-                        data-testid="custom-spell-name"
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-xs text-muted-foreground">
-                        {t("level")}
-                      </label>
-                      <select
-                        value={customSpell.level}
-                        onChange={(e) =>
-                          setCustomSpell({ ...customSpell, level: Number(e.target.value) })
-                        }
-                        className="w-full rounded-md border border-input bg-input p-2 text-sm"
-                        data-testid="custom-spell-level"
-                      >
-                        {Array.from({ length: maxSpellLevel }, (_, i) => i + 1).map((n) => (
-                          <option key={n} value={n}>
-                            {n}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-xs text-muted-foreground">
-                        {isWizard ? t("school") : t("sphere")}
-                      </label>
-                      <select
-                        value={customSpell.schoolOrSphere}
-                        onChange={(e) =>
-                          setCustomSpell({ ...customSpell, schoolOrSphere: e.target.value })
-                        }
-                        className="w-full rounded-md border border-input bg-input p-2 text-sm capitalize"
-                        data-testid="custom-spell-school-sphere"
-                      >
-                        <option value="">{t("choose")}</option>
-                        {(isWizard ? WIZARD_SCHOOLS : PRIEST_SPHERES).map((s) => (
-                          <option key={s} value={s} className="capitalize">
-                            {s}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-xs text-muted-foreground">
-                        {t("range")}
-                      </label>
-                      <input
-                        type="text"
-                        value={customSpell.range}
-                        onChange={(e) => setCustomSpell({ ...customSpell, range: e.target.value })}
-                        className="w-full rounded-md border border-input bg-input p-2 text-sm"
-                        data-testid="custom-spell-range"
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-xs text-muted-foreground">
-                        {t("duration")}
-                      </label>
-                      <input
-                        type="text"
-                        value={customSpell.duration}
-                        onChange={(e) =>
-                          setCustomSpell({ ...customSpell, duration: e.target.value })
-                        }
-                        className="w-full rounded-md border border-input bg-input p-2 text-sm"
-                        data-testid="custom-spell-duration"
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <label className="mb-1 block text-xs text-muted-foreground">
-                        {t("areaOfEffect")}
-                      </label>
-                      <input
-                        type="text"
-                        value={customSpell.area_of_effect}
-                        onChange={(e) =>
-                          setCustomSpell({ ...customSpell, area_of_effect: e.target.value })
-                        }
-                        className="w-full rounded-md border border-input bg-input p-2 text-sm"
-                        data-testid="custom-spell-area"
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <label className="mb-1 block text-xs text-muted-foreground">
-                        {t("components")}
-                      </label>
-                      <div className="flex gap-4">
-                        {(["V", "S", "M"] as const).map((comp) => (
-                          <label key={comp} className="flex items-center gap-1 text-sm">
-                            <input
-                              type="checkbox"
-                              checked={customSpell.components[comp]}
-                              onChange={(e) =>
-                                setCustomSpell({
-                                  ...customSpell,
-                                  components: {
-                                    ...customSpell.components,
-                                    [comp]: e.target.checked,
-                                  },
-                                })
-                              }
-                              data-testid={`custom-spell-component-${comp}`}
-                            />
-                            {comp}
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="col-span-2">
-                      <label className="mb-1 block text-xs text-muted-foreground">
-                        {t("description")}
-                      </label>
-                      <textarea
-                        value={customSpell.description}
-                        onChange={(e) =>
-                          setCustomSpell({ ...customSpell, description: e.target.value })
-                        }
-                        rows={3}
-                        className="w-full rounded-md border border-input bg-input p-2 text-sm"
-                        data-testid="custom-spell-description"
-                      />
-                    </div>
                   </div>
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setShowCustomForm(false);
-                        setCustomSpell(emptyCustomSpellForm);
-                      }}
-                      data-testid="custom-spell-cancel"
-                    >
-                      {t("cancel")}
-                    </Button>
-                    <Button
-                      size="sm"
-                      disabled={loading || !customSpell.name.trim()}
-                      onClick={handleCreateCustomSpell}
-                      data-testid="custom-spell-submit"
-                    >
-                      {t("createAndLearn")}
-                    </Button>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
     </div>
   );

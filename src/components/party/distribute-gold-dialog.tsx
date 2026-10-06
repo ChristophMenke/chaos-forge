@@ -10,6 +10,7 @@ import { createNotification } from "@/lib/notifications";
 import { COINS } from "@/components/party/party-constants";
 import type { CoinPurse } from "@/lib/rules/equipment";
 import type { PartyLootGoldRow } from "@/lib/supabase/types";
+import { ModalPortal } from "@/components/modal-portal";
 
 interface CharacterOption {
   id: string;
@@ -120,100 +121,102 @@ export function DistributeGoldDialog({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-      onClick={onClose}
-      onKeyDown={(e) => e.key === "Escape" && onClose()}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="distribute-gold-dialog-title"
-      tabIndex={-1}
-      data-testid="party-distribute-gold-dialog"
-    >
+    <ModalPortal>
       <div
-        className="mx-4 flex w-full max-w-sm flex-col gap-3 rounded-lg border border-border bg-card p-4"
-        onClick={(e) => e.stopPropagation()}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+        onClick={onClose}
+        onKeyDown={(e) => e.key === "Escape" && onClose()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="distribute-gold-dialog-title"
+        tabIndex={-1}
+        data-testid="party-distribute-gold-dialog"
       >
-        <h3 id="distribute-gold-dialog-title" className="font-heading text-lg text-primary">
-          {t("distributeGoldTitle")}
-        </h3>
+        <div
+          className="mx-4 flex w-full max-w-sm flex-col gap-3 rounded-lg border border-border bg-card p-4"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h3 id="distribute-gold-dialog-title" className="font-heading text-lg text-primary">
+            {t("distributeGoldTitle")}
+          </h3>
 
-        {/* Character selector */}
-        <div>
-          <label className="mb-1 block text-xs text-muted-foreground">{t("toCharacter")}</label>
-          <select
-            value={selectedCharacterId}
-            onChange={(e) => setSelectedCharacterId(e.target.value)}
-            className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm"
-            data-testid="party-distribute-gold-character"
-          >
-            <option value="">{t("selectCharacter")}</option>
-            {characters.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
+          {/* Character selector */}
+          <div>
+            <label className="mb-1 block text-xs text-muted-foreground">{t("toCharacter")}</label>
+            <select
+              value={selectedCharacterId}
+              onChange={(e) => setSelectedCharacterId(e.target.value)}
+              className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+              data-testid="party-distribute-gold-character"
+            >
+              <option value="">{t("selectCharacter")}</option>
+              {characters.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Coin inputs */}
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+            {COINS.map((coin) => (
+              <div key={coin.key} className="text-center">
+                <label className="text-[10px] md:text-xs text-muted-foreground">
+                  {coin.label} ({gold[coin.key]})
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max={gold[coin.key]}
+                  value={amounts[coin.key] || ""}
+                  onChange={(e) =>
+                    setAmounts((prev) => ({
+                      ...prev,
+                      [coin.key]: parseInt(e.target.value, 10) || 0,
+                    }))
+                  }
+                  className={`w-full rounded-md border bg-background px-1 py-1 text-center text-sm ${
+                    amounts[coin.key] > gold[coin.key] ? "border-red-500" : "border-border"
+                  }`}
+                  aria-label={coin.label}
+                  data-testid={`party-distribute-gold-${coin.key}`}
+                />
+              </div>
             ))}
-          </select>
-        </div>
+          </div>
 
-        {/* Coin inputs */}
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
-          {COINS.map((coin) => (
-            <div key={coin.key} className="text-center">
-              <label className="text-[10px] md:text-xs text-muted-foreground">
-                {coin.label} ({gold[coin.key]})
-              </label>
-              <input
-                type="number"
-                min="0"
-                max={gold[coin.key]}
-                value={amounts[coin.key] || ""}
-                onChange={(e) =>
-                  setAmounts((prev) => ({
-                    ...prev,
-                    [coin.key]: parseInt(e.target.value, 10) || 0,
-                  }))
-                }
-                className={`w-full rounded-md border bg-background px-1 py-1 text-center text-sm ${
-                  amounts[coin.key] > gold[coin.key] ? "border-red-500" : "border-border"
-                }`}
-                aria-label={coin.label}
-                data-testid={`party-distribute-gold-${coin.key}`}
-              />
-            </div>
-          ))}
-        </div>
+          {exceeds && (
+            <p className="text-xs text-red-400" data-testid="party-distribute-gold-error">
+              {t("insufficientGold")}
+            </p>
+          )}
 
-        {exceeds && (
-          <p className="text-xs text-red-400" data-testid="party-distribute-gold-error">
-            {t("insufficientGold")}
-          </p>
-        )}
+          {error && <p className="text-xs text-red-400">{error}</p>}
 
-        {error && <p className="text-xs text-red-400">{error}</p>}
-
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            className="flex-1"
-            onClick={handleDistribute}
-            disabled={!selectedCharacterId || !hasAny || exceeds || isSaving}
-            data-testid="party-distribute-gold-confirm"
-          >
-            {isSaving && <Loader2 className="mr-1.5 size-4 animate-spin" />}
-            {isSaving ? t("saving") : t("distribute")}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex-1"
-            onClick={onClose}
-            data-testid="party-distribute-gold-cancel"
-          >
-            {t("cancel")}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              className="flex-1"
+              onClick={handleDistribute}
+              disabled={!selectedCharacterId || !hasAny || exceeds || isSaving}
+              data-testid="party-distribute-gold-confirm"
+            >
+              {isSaving && <Loader2 className="mr-1.5 size-4 animate-spin" />}
+              {isSaving ? t("saving") : t("distribute")}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex-1"
+              onClick={onClose}
+              data-testid="party-distribute-gold-cancel"
+            >
+              {t("cancel")}
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }

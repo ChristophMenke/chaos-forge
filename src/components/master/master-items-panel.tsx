@@ -47,6 +47,7 @@ import type {
   MagicItemRow,
   BookmarkEntityType,
 } from "@/lib/supabase/types";
+import { ModalPortal } from "@/components/modal-portal";
 
 interface MasterItemsPanelProps {
   weapons: WeaponRow[];
@@ -1244,58 +1245,60 @@ export function MasterItemsPanel({
 
       {/* Delete Confirmation Dialog */}
       {deleteConfirm && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-          role="presentation"
-        >
+        <ModalPortal>
           <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="items-delete-title"
-            className="mx-4 w-full max-w-sm rounded-lg border border-border bg-card p-4 shadow-xl"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+            role="presentation"
           >
-            <h3 id="items-delete-title" className="mb-2 font-heading text-lg text-foreground">
-              {t("confirmDelete")}
-            </h3>
-            <p className="mb-3 text-sm text-muted-foreground">
-              {t("confirmDeleteItem", { name: deleteConfirm.name })}
-            </p>
-            {deleteError && (
-              <div className="mb-3 rounded-md bg-red-900/30 p-2 text-sm text-red-300">
-                <p className="font-medium">{t("itemInUse")}</p>
-                <ul className="mt-1 list-inside list-disc text-xs">
-                  {deleteError.usedBy.map((u) => (
-                    <li key={u.id}>{u.name}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            <div className="flex gap-2">
-              {!deleteError && (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleDelete(deleteConfirm.id, deleteConfirm.type)}
-                  data-testid="gm-confirm-delete"
-                >
-                  <Trash2 className="mr-1 h-3 w-3" />
-                  {t("deleteItem")}
-                </Button>
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="items-delete-title"
+              className="mx-4 w-full max-w-sm rounded-lg border border-border bg-card p-4 shadow-xl"
+            >
+              <h3 id="items-delete-title" className="mb-2 font-heading text-lg text-foreground">
+                {t("confirmDelete")}
+              </h3>
+              <p className="mb-3 text-sm text-muted-foreground">
+                {t("confirmDeleteItem", { name: deleteConfirm.name })}
+              </p>
+              {deleteError && (
+                <div className="mb-3 rounded-md bg-red-900/30 p-2 text-sm text-red-300">
+                  <p className="font-medium">{t("itemInUse")}</p>
+                  <ul className="mt-1 list-inside list-disc text-xs">
+                    {deleteError.usedBy.map((u) => (
+                      <li key={u.id}>{u.name}</li>
+                    ))}
+                  </ul>
+                </div>
               )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setDeleteConfirm(null);
-                  setDeleteError(null);
-                }}
-                data-testid="gm-cancel-delete"
-              >
-                {t("cancel")}
-              </Button>
+              <div className="flex gap-2">
+                {!deleteError && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(deleteConfirm.id, deleteConfirm.type)}
+                    data-testid="gm-confirm-delete"
+                  >
+                    <Trash2 className="mr-1 h-3 w-3" />
+                    {t("deleteItem")}
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setDeleteConfirm(null);
+                    setDeleteError(null);
+                  }}
+                  data-testid="gm-cancel-delete"
+                >
+                  {t("cancel")}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
       {/* Toast */}

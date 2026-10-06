@@ -102,6 +102,7 @@ import type {
   CharacterFightingStyleRow,
   EpicItemRow,
 } from "@/lib/supabase/types";
+import { ModalPortal } from "@/components/modal-portal";
 
 interface CharacterSheetProps {
   character: CharacterRow;
@@ -1088,62 +1089,64 @@ export function CharacterSheet({
       )}
 
       {showDuplicateDialog && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-          role="presentation"
-          data-testid="duplicate-dialog"
-          onClick={() => !duplicating && setShowDuplicateDialog(false)}
-        >
+        <ModalPortal>
           <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="duplicate-dialog-title"
-            className="glass mx-4 w-full max-w-md rounded-xl p-6"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            role="presentation"
+            data-testid="duplicate-dialog"
+            onClick={() => !duplicating && setShowDuplicateDialog(false)}
           >
-            <h3 id="duplicate-dialog-title" className="font-heading text-lg text-primary">
-              {tc("duplicateTitle")}
-            </h3>
-            <p className="mt-2 text-sm text-muted-foreground">{tc("duplicateMessage")}</p>
-            <Input
-              className="mt-3"
-              value={duplicateName}
-              onChange={(e) => setDuplicateName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleDuplicate();
-                if (e.key === "Escape") setShowDuplicateDialog(false);
-              }}
-              autoFocus
-              data-testid="duplicate-name-input"
-            />
-            <div className="mt-4 flex justify-end gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowDuplicateDialog(false)}
-                disabled={duplicating}
-                data-testid="duplicate-cancel-button"
-              >
-                {tcom("cancel")}
-              </Button>
-              <Button
-                size="sm"
-                onClick={handleDuplicate}
-                disabled={duplicating || !duplicateName.trim()}
-                data-testid="duplicate-confirm-button"
-              >
-                {duplicating ? (
-                  <>
-                    <Spinner className="mr-2" />
-                    {tc("duplicating")}
-                  </>
-                ) : (
-                  tc("duplicate")
-                )}
-              </Button>
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="duplicate-dialog-title"
+              className="glass mx-4 w-full max-w-md rounded-xl p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 id="duplicate-dialog-title" className="font-heading text-lg text-primary">
+                {tc("duplicateTitle")}
+              </h3>
+              <p className="mt-2 text-sm text-muted-foreground">{tc("duplicateMessage")}</p>
+              <Input
+                className="mt-3"
+                value={duplicateName}
+                onChange={(e) => setDuplicateName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleDuplicate();
+                  if (e.key === "Escape") setShowDuplicateDialog(false);
+                }}
+                autoFocus
+                data-testid="duplicate-name-input"
+              />
+              <div className="mt-4 flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowDuplicateDialog(false)}
+                  disabled={duplicating}
+                  data-testid="duplicate-cancel-button"
+                >
+                  {tcom("cancel")}
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleDuplicate}
+                  disabled={duplicating || !duplicateName.trim()}
+                  data-testid="duplicate-confirm-button"
+                >
+                  {duplicating ? (
+                    <>
+                      <Spinner className="mr-2" />
+                      {tc("duplicating")}
+                    </>
+                  ) : (
+                    tc("duplicate")
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
       {isOwner && (

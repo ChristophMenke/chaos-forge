@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { MagicEffectBadges } from "@/components/shared/magic-effect-badges";
 import type { CharacterEquipmentWithDetails } from "@/lib/supabase/types";
 import type { ConsumableType } from "@/lib/rules/consumables";
+import { ModalPortal } from "@/components/modal-portal";
 
 interface UseConsumableDialogProps {
   item: CharacterEquipmentWithDetails;
@@ -35,41 +36,43 @@ export function UseConsumableDialog({
   const fx = item.magic_effects;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-      onClick={onCancel}
-      onKeyDown={(e) => e.key === "Escape" && onCancel()}
-      data-testid="use-consumable-dialog"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="consumable-dialog-title"
-    >
+    <ModalPortal>
       <div
-        className="mx-4 flex w-full max-w-sm flex-col gap-4 rounded-lg border border-border bg-card p-6"
-        onClick={(e) => e.stopPropagation()}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+        onClick={onCancel}
+        onKeyDown={(e) => e.key === "Escape" && onCancel()}
+        data-testid="use-consumable-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="consumable-dialog-title"
       >
-        <h3 id="consumable-dialog-title" className="font-heading text-xl text-primary">
-          {itemName}
-        </h3>
+        <div
+          className="mx-4 flex w-full max-w-sm flex-col gap-4 rounded-lg border border-border bg-card p-6"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h3 id="consumable-dialog-title" className="font-heading text-xl text-primary">
+            {itemName}
+          </h3>
 
-        {fx && <MagicEffectBadges effects={fx} />}
+          {fx && <MagicEffectBadges effects={fx} />}
 
-        {consumableType === "potion" && (
-          <PotionContent
-            hpCurrent={hpCurrent}
-            hpMax={hpMax}
-            inputRef={inputRef}
-            onUse={onUse}
-            onCancel={onCancel}
-            t={t}
-          />
-        )}
-        {consumableType === "scroll" && <ScrollContent onUse={onUse} onCancel={onCancel} t={t} />}
-        {consumableType === "charged" && (
-          <ChargedContent fx={fx} inputRef={inputRef} onUse={onUse} onCancel={onCancel} t={t} />
-        )}
+          {consumableType === "potion" && (
+            <PotionContent
+              hpCurrent={hpCurrent}
+              hpMax={hpMax}
+              inputRef={inputRef}
+              onUse={onUse}
+              onCancel={onCancel}
+              t={t}
+            />
+          )}
+          {consumableType === "scroll" && <ScrollContent onUse={onUse} onCancel={onCancel} t={t} />}
+          {consumableType === "charged" && (
+            <ChargedContent fx={fx} inputRef={inputRef} onUse={onUse} onCancel={onCancel} t={t} />
+          )}
+        </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }
 
