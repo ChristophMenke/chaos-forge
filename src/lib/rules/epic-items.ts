@@ -39,7 +39,6 @@ export interface SpecialAttack {
 export interface OverclockAbility {
   name: string;
   name_en: string;
-  durationHours: number;
   requiresCheck: string;
   requiresCheck_en: string;
   conOverride: number;
@@ -328,7 +327,6 @@ export function getEpicEffects(items: EpicItemRow[], characterLevel?: number): E
         overclockCandidate = {
           name: (oc.name as string) ?? "",
           name_en: (oc.name_en as string) ?? "",
-          durationHours: (oc.duration_hours as number) ?? 1,
           requiresCheck: (oc.requires_check as string) ?? "",
           requiresCheck_en: (oc.requires_check_en as string) ?? "",
           conOverride: (oc.con_override as number) ?? 20,

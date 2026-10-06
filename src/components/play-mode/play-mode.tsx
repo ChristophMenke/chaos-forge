@@ -46,6 +46,19 @@ import { hasThiefSkills, getBackstabMultiplier } from "@/lib/rules/thief";
 import { getConBonusCap, clampHpCurrentToMax, getDeathThreshold } from "@/lib/rules/hitpoints";
 import { CLASSES, getClassGroup } from "@/lib/rules/classes";
 import { getEpicEffects } from "@/lib/rules/epic-items";
+import { computeHpAfterConChange } from "@/lib/rules/epic-hp";
+import { findProficiency, getNwpCheckTarget } from "@/lib/rules/proficiencies";
+import {
+  endCooldown,
+  findOverclockItem,
+  healOneHour,
+  passOverclockHour,
+  readOverclockState,
+  startOverclock,
+  stopOverclock,
+  withDamageLevel,
+  type OverclockAction,
+} from "@/lib/rules/sprocket-devices";
 import type { EpicEffects } from "@/lib/rules/epic-items";
 import { getMagicItemEffects, isMagicItem } from "@/lib/rules/magic-items";
 import { getClassGroupColors } from "@/lib/utils/class-colors";
@@ -227,7 +240,7 @@ export function PlayMode({
   weaponProficiencies,
   nonweaponProficiencies,
   inventory: initialInventory,
-  epicItems = [],
+  epicItems: initialEpicItems = [],
   fightingStyles = [],
   effects: initialEffects = [],
   priestAvailableSpells = [],
@@ -252,6 +265,7 @@ export function PlayMode({
   const [equipment, setEquipment] = useState(initialEquipment);
   const [spells, setSpells] = useState(initialSpells);
   const [inventory, setInventory] = useState(initialInventory);
+  const [epicItems, setEpicItems] = useState(initialEpicItems);
   const [activePanel, setActivePanel] = useState<PanelId>("combat");
   const [tradeCharacters, setTradeCharacters] = useState<
     { id: string; name: string; user_id: string }[]
@@ -277,6 +291,7 @@ export function PlayMode({
     setSpells((prev) => patchList(prev, "character_spells", changes, direction));
     setEquipment((prev) => patchList(prev, "character_equipment", changes, direction));
     setInventory((prev) => patchList(prev, "character_inventory", changes, direction));
+    setEpicItems((prev) => patchList(prev, "epic_items", changes, direction));
     // Class levels are props (router.refresh() brings them); drop the bridge.
     if (touches(changes, "character_classes")) setAppliedLevels({});
   });
@@ -304,18 +319,10 @@ export function PlayMode({
   );
   const magicEffects = useMemo(() => getMagicItemEffects(equipment), [equipment]);
   const hasMagicItems = useMemo(() => equipment.some(isMagicItem), [equipment]);
-  // Overclock state — read from epicItems simple_effects (persisted in DB via Epic Equipment page)
-  // Plain function — React Compiler handles memoization automatically
-  let overclockState = { active: false, endTime: null as number | null };
-  for (const item of epicItems) {
-    if (!item.equipped) continue;
-    const se = item.simple_effects as Record<string, unknown> | null;
-    if (se?.overclock_active) {
-      overclockState = { active: true, endTime: (se.overclock_end_time as number | null) ?? null };
-      break;
-    }
-  }
-  const overclockActive = overclockState.active;
+  // Overclock (Kondensator): state lives in the item's simple_effects
+  const overclockItem = findOverclockItem(epicItems);
+  const overclockState = overclockItem ? readOverclockState(overclockItem.simple_effects) : null;
+  const overclockActive = overclockState?.active ?? false;
 
   // Overclock is only effective when the ability exists and is active
   const overclockEffective = overclockActive && epicEffects.overclockAbility != null;
@@ -672,6 +679,104 @@ export function PlayMode({
     [absorbDamage, handleHpChange, effectiveHpMax, effectiveHpCurrent, recordChanges]
   );
 
+  /** Optimistic write of one epic item row; null (with toast) on failure. */
+  async function updateEpicItem(
+    item: EpicItemRow,
+    patch: Partial<Pick<EpicItemRow, "damage_level" | "simple_effects">>
+  ): Promise<RowChange | null> {
+    const previous = Object.fromEntries(
+      Object.keys(patch).map((key) => [key, item[key as keyof EpicItemRow]])
+    );
+    setEpicItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, ...patch } : i)));
+    let failed: boolean;
+    try {
+      const { error } = await createClient().from("epic_items").update(patch).eq("id", item.id);
+      failed = Boolean(error);
+    } catch {
+      failed = true;
+    }
+    if (failed) {
+      setEpicItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, ...previous } : i)));
+      toast.error(t("saveFailed"));
+      return null;
+    }
+    return rowUpdate("epic_items", { id: item.id }, previous, patch);
+  }
+
+  /** Overclock steps from the banner; each is one undo step. */
+  async function handleOverclockAction(action: OverclockAction) {
+    const item = overclockItem;
+    const ability = epicEffects.overclockAbility;
+    if (!item || !ability || !isOwner) return;
+    const se = item.simple_effects;
+    const name = localized(item.name, item.name_en, locale);
+
+    if (action.type === "start") {
+      const result = startOverclock(se, action.success);
+      if (!result) return;
+      if (result.damageLevelDelta === 0) {
+        const change = await updateEpicItem(item, { simple_effects: result.effects });
+        recordChanges({ key: "overclockOn", values: { name } }, [change]);
+        return;
+      }
+      // Failed start: the Condenser takes a damage level (CON drops, HP follow).
+      const level = Math.min(item.max_damage_level, item.damage_level + result.damageLevelDelta);
+      const next = withDamageLevel(item, level);
+      const patch = next.simple_effects === se ? { damage_level: level } : next;
+      const change = await updateEpicItem(item, patch);
+      if (!change) return;
+      const hp = computeHpAfterConChange({
+        itemsBefore: epicItems,
+        itemsAfter: epicItems.map((i) => (i.id === item.id ? { ...i, ...patch } : i)),
+        character,
+        activeClasses: characterClasses.filter((cc) => cc.is_active),
+        hpCurrent: character.hp_current,
+        characterLevel: character.level,
+      });
+      const hpChange = hp === null ? null : await updateCharacter({ hp_current: hp });
+      recordChanges({ key: "overclockFailed", values: { name, level } }, [change, hpChange]);
+      return;
+    }
+
+    if (action.type === "hour") {
+      const next = passOverclockHour(se, action.success);
+      if (next === se) return;
+      const itemChange = await updateEpicItem(item, { simple_effects: next });
+      if (!itemChange) return;
+      const healed = healOneHour(effectiveHpCurrent, effectiveHpMax, ability.healsPerHour);
+      const hpChange =
+        healed === effectiveHpCurrent ? null : await handleHpChange(healed, { record: false });
+      const hour = readOverclockState(next).hours;
+      recordChanges(
+        { key: action.success ? "overclockHour" : "overclockCooledDown", values: { name, hour } },
+        [itemChange, hpChange]
+      );
+      return;
+    }
+
+    if (action.type === "stop") {
+      const change = await updateEpicItem(item, { simple_effects: stopOverclock(se) });
+      recordChanges({ key: "overclockOff", values: { name } }, [change]);
+      return;
+    }
+
+    const change = await updateEpicItem(item, { simple_effects: endCooldown(se) });
+    recordChanges({ key: "overclockCooldownEnded", values: { name } }, [change]);
+  }
+
+  // Engineering target for the overclock checks (null without the proficiency)
+  const overclockCheck = epicEffects.overclockAbility;
+  const engineering = overclockCheck
+    ? findProficiency(
+        nonweaponProficiencies,
+        overclockCheck.requiresCheck,
+        overclockCheck.requiresCheck_en
+      )
+    : null;
+  const overclockBaseTarget = engineering
+    ? getNwpCheckTarget(engineering, effectiveStats.values, effectSummary.abilityChecks)
+    : null;
+
   /** Coin purse; money sent to another character is not undoable. */
   const handleCoinChange = useCallback(
     async (newPurse: CoinPurse, options: { record?: boolean } = {}) => {
@@ -963,12 +1068,15 @@ export function PlayMode({
         />
       )}
 
-      {/* Overclock banner (Kondensator) — read-only display of active overclock */}
-      {overclockEffective && epicEffects.overclockAbility && (
+      {/* Overclock (Kondensator): active for everyone, start/cooldown only for the owner */}
+      {epicEffects.overclockAbility && overclockState && (overclockState.active || isOwner) && (
         <div className="mt-2">
           <PlayOverclockBanner
             ability={epicEffects.overclockAbility}
-            endTime={overclockState.endTime}
+            state={overclockState}
+            baseTarget={overclockBaseTarget}
+            isOwner={isOwner}
+            onAction={handleOverclockAction}
           />
         </div>
       )}

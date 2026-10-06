@@ -104,3 +104,37 @@ const WEAPON_SPEED_FACTORS: Record<string, number> = {
 export function getWeaponSpeedFactor(weaponId: string): number | null {
   return WEAPON_SPEED_FACTORS[weaponId] ?? null;
 }
+
+/** The fields of a character's nonweapon proficiency the check rules need. */
+export interface NwpLike {
+  proficiency: { name: string; name_en: string | null; ability: string; modifier: number };
+}
+
+/**
+ * Target number of a nonweapon proficiency check (roll d20 ≤ target):
+ * effective ability score + proficiency modifier + check modifiers from effects.
+ */
+export function getNwpCheckTarget(
+  nwp: NwpLike,
+  abilityValues: Record<string, number>,
+  checkModifier: number
+): number {
+  const ability = abilityValues[nwp.proficiency.ability.toLowerCase()] ?? 10;
+  return ability + nwp.proficiency.modifier + checkModifier;
+}
+
+/** A character's proficiency by German or English name (case-insensitive). */
+export function findProficiency<T extends NwpLike>(
+  nwps: T[],
+  name: string,
+  nameEn: string
+): T | null {
+  const wanted = [name, nameEn].filter(Boolean).map((n) => n.toLowerCase());
+  return (
+    nwps.find((nwp) =>
+      [nwp.proficiency.name, nwp.proficiency.name_en].some(
+        (n) => n != null && wanted.includes(n.toLowerCase())
+      )
+    ) ?? null
+  );
+}

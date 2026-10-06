@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { Sparkles } from "lucide-react";
@@ -15,13 +15,63 @@ import type { RowChange, UndoLabel } from "@/lib/undo/types";
 import { DamageLevelCard } from "./damage-level-card";
 import { SimpleEpicCard } from "./simple-epic-card";
 import { BladeSystemCard } from "./blade-system-card";
-import { getEpicEffects } from "@/lib/rules/epic-items";
-import { getConstitutionModifiers } from "@/lib/rules/abilities";
-import { getConBonusCap } from "@/lib/rules/hitpoints";
-import { getClassGroup } from "@/lib/rules/classes";
-import { getMulticlassHpDivisor } from "@/lib/rules/multiclass";
+import { computeHpAfterConChange } from "@/lib/rules/epic-hp";
+import type { CoinPurse } from "@/lib/rules/equipment";
+import {
+  adjustStock,
+  craft,
+  endCooldown,
+  healOneHour,
+  passOverclockHour,
+  readOverclockState,
+  readStock,
+  resolveRepair,
+  startOverclock,
+  stopOverclock,
+  toggleComponent,
+  withDamageLevel,
+  writeStock,
+  type NamedStock,
+  type OverclockAction,
+  type StockChange,
+  type StockTarget,
+} from "@/lib/rules/sprocket-devices";
 import type { CharacterRow, CharacterClassRow, EpicItemRow } from "@/lib/supabase/types";
-import type { ClassId } from "@/lib/rules/types";
+
+const GOLD_COLUMNS = "gold_pp, gold_gp, gold_ep, gold_sp, gold_cp";
+const ELIXIR: StockTarget = { kind: "elixir" };
+
+type Gold = Pick<CharacterRow, "gold_pp" | "gold_gp" | "gold_ep" | "gold_sp" | "gold_cp">;
+/** Character columns this page writes: current HP and the coin purse. */
+type LiveCharacter = Pick<CharacterRow, "id" | "hp_current"> & Gold;
+type ItemPatch = Partial<Pick<EpicItemRow, "equipped" | "damage_level" | "simple_effects">>;
+
+function toPurse(gold: Gold): CoinPurse {
+  return {
+    pp: gold.gold_pp,
+    gp: gold.gold_gp,
+    ep: gold.gold_ep,
+    sp: gold.gold_sp,
+    cp: gold.gold_cp,
+  };
+}
+
+function toGold(purse: CoinPurse): Gold {
+  return {
+    gold_pp: purse.pp,
+    gold_gp: purse.gp,
+    gold_ep: purse.ep,
+    gold_sp: purse.sp,
+    gold_cp: purse.cp,
+  };
+}
+
+/** The current values of the patched columns (for rollback and undo). */
+function pickColumns<T extends object>(row: T, patch: object): Partial<T> {
+  return Object.fromEntries(
+    Object.keys(patch).map((key) => [key, row[key as keyof T]])
+  ) as Partial<T>;
+}
 
 interface EpicEquipmentViewProps {
   character: Pick<
@@ -36,33 +86,15 @@ interface EpicEquipmentViewProps {
     | "con_fitness"
     | "hp_max"
     | "hp_current"
+    | "gold_pp"
+    | "gold_gp"
+    | "gold_ep"
+    | "gold_sp"
+    | "gold_cp"
   >;
   characterClasses: CharacterClassRow[];
   epicItems: EpicItemRow[];
   isOwner: boolean;
-}
-
-/**
- * Compute the HP delta that applies when the effective CON HP adjustment
- * differs from the stored value. Multiclass-aware (divisor applied per rules).
- */
-function computeHpDelta(
-  effectiveConHpAdj: number,
-  storedConHpAdj: number,
-  activeClasses: CharacterClassRow[]
-): number {
-  if (effectiveConHpAdj === storedConHpAdj) return 0;
-  const divisor = getMulticlassHpDivisor(activeClasses.length);
-  let totalDelta = 0;
-  for (const cc of activeClasses) {
-    const group = getClassGroup(cc.class_id as ClassId);
-    const cap = getConBonusCap(group);
-    // Apply cap only to positive bonuses (penalties are uncapped per AD&D rules)
-    const cappedNew = effectiveConHpAdj < 0 ? effectiveConHpAdj : Math.min(effectiveConHpAdj, cap);
-    const cappedOld = storedConHpAdj < 0 ? storedConHpAdj : Math.min(storedConHpAdj, cap);
-    totalDelta += (cappedNew - cappedOld) * cc.level;
-  }
-  return Math.round(totalDelta / divisor);
 }
 
 export function EpicEquipmentView({
@@ -74,16 +106,24 @@ export function EpicEquipmentView({
   const t = useTranslations("epic");
   const locale = useLocale();
   const [items, setItems] = useState<EpicItemRow[]>(epicItems);
-  const [hpCurrent, setHpCurrent] = useState(character.hp_current);
+  const [live, setLive] = useState<LiveCharacter>({
+    id: character.id,
+    hp_current: character.hp_current,
+    gold_pp: character.gold_pp,
+    gold_gp: character.gold_gp,
+    gold_ep: character.gold_ep,
+    gold_sp: character.gold_sp,
+    gold_cp: character.gold_cp,
+  });
+  const hpCurrent = live.hp_current;
+  const purse = toPurse(live);
   const undo = useUndo();
+  // Crafting re-reads the gold first; a second click meanwhile would pay twice.
+  const craftingRef = useRef(false);
 
   useUndoSync((changes, direction) => {
     setItems((prev) => patchList(prev, "epic_items", changes, direction));
-    setHpCurrent(
-      (prev) =>
-        patchRow({ id: character.id, hp_current: prev }, "characters", changes, direction)
-          .hp_current
-    );
+    setLive((prev) => patchRow(prev, "characters", changes, direction));
   });
 
   function record(label: UndoLabel, changes: (RowChange | null)[]) {
@@ -92,6 +132,50 @@ export function EpicEquipmentView({
   }
 
   const itemName = (item: EpicItemRow) => localized(item.name, item.name_en, locale);
+  const stockName = (stock: NamedStock) => localized(stock.name, stock.name_en, locale);
+
+  /** Optimistic write of character columns; null (with toast) on failure. */
+  async function writeCharacter(
+    updates: Partial<LiveCharacter>,
+    before: LiveCharacter = live
+  ): Promise<RowChange | null> {
+    setLive((prev) => ({ ...prev, ...updates }));
+    let failed: boolean;
+    try {
+      const { error } = await createClient()
+        .from("characters")
+        .update(updates)
+        .eq("id", character.id);
+      failed = Boolean(error);
+    } catch {
+      failed = true;
+    }
+    if (failed) {
+      setLive((prev) => ({ ...prev, ...pickColumns(before, updates) }));
+      toast.error(t("saveError"));
+      return null;
+    }
+    return rowUpdate("characters", { id: character.id }, before, { ...before, ...updates });
+  }
+
+  /** Optimistic write of one epic item row; null (with toast) on failure. */
+  async function writeItem(item: EpicItemRow, patch: ItemPatch): Promise<RowChange | null> {
+    const previous = pickColumns(item, patch);
+    setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, ...patch } : i)));
+    let failed: boolean;
+    try {
+      const { error } = await createClient().from("epic_items").update(patch).eq("id", item.id);
+      failed = Boolean(error);
+    } catch {
+      failed = true;
+    }
+    if (failed) {
+      setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, ...previous } : i)));
+      toast.error(t("saveError"));
+      return null;
+    }
+    return rowUpdate("epic_items", { id: item.id }, previous, patch);
+  }
 
   /**
    * After toggling equipped/damage_level for an item that changes effective CON,
@@ -99,185 +183,241 @@ export function EpicEquipmentView({
    * "heal" the character back to a higher current_hp. Christoph's rule:
    * CON↑ → max_hp rises, current_hp stays. CON↓ → current_hp is clamped down.
    */
-  async function persistHpAfterConChange(newItems: EpicItemRow[]): Promise<RowChange | null> {
-    const activeClasses = characterClasses.filter((cc) => cc.is_active);
-    const effectsBefore = getEpicEffects(items, character.level);
-    const effectsAfter = getEpicEffects(newItems, character.level);
+  async function persistHpAfterConChange(
+    item: EpicItemRow,
+    patch: ItemPatch
+  ): Promise<RowChange | null> {
+    const desired = computeHpAfterConChange({
+      itemsBefore: items,
+      itemsAfter: items.map((i) => (i.id === item.id ? { ...i, ...patch } : i)),
+      character,
+      activeClasses: characterClasses.filter((cc) => cc.is_active),
+      hpCurrent,
+      characterLevel: character.level,
+    });
+    return desired === null ? null : writeCharacter({ hp_current: desired });
+  }
 
-    const before = effectsBefore.forceStatOverrides.con ?? effectsBefore.statOverrides.con;
-    const after = effectsAfter.forceStatOverrides.con ?? effectsAfter.statOverrides.con;
-    const effectiveConBefore = before ?? character.con;
-    const effectiveConAfter = after ?? character.con;
-    if (effectiveConBefore === effectiveConAfter) return null;
-
-    // Compute effective max/current BEFORE and AFTER the toggle and apply the
-    // asymmetric clamping rule on the stored current_hp.
-    const storedConHpAdj = getConstitutionModifiers(
-      character.con,
-      character.con_health ?? undefined,
-      character.con_fitness ?? undefined
-    ).hpAdj;
-    const effectiveConAfterMods = getConstitutionModifiers(effectiveConAfter).hpAdj;
-    const effectiveConBeforeMods = getConstitutionModifiers(effectiveConBefore).hpAdj;
-
-    const deltaBefore = computeHpDelta(effectiveConBeforeMods, storedConHpAdj, activeClasses);
-    const deltaAfter = computeHpDelta(effectiveConAfterMods, storedConHpAdj, activeClasses);
-    const effectiveMaxBefore = Math.max(1, character.hp_max + deltaBefore);
-    const effectiveMaxAfter = Math.max(1, character.hp_max + deltaAfter);
-
-    // Current HP visible BEFORE the toggle (this is what the player "has")
-    const visibleCurrentBefore = Math.min(hpCurrent, effectiveMaxBefore);
-    // Desired stored current_hp so that after the toggle the effective value
-    // stays at visibleCurrentBefore (CON↓) or stays at visibleCurrentBefore
-    // (CON↑, because max went up but current should not heal).
-    const desiredEffectiveCurrent = Math.min(visibleCurrentBefore, effectiveMaxAfter);
-
-    // Persist raw hp_current = desiredEffectiveCurrent (the same value, since
-    // our computation uses raw hp_current as the display value + delta clamp).
-    // After toggle, the effective view will be min(new stored + min(0, delta
-    // from stored→after), effectiveMaxAfter). With delta=0 for the new stored
-    // baseline, visible = new stored = desiredEffectiveCurrent.
-    if (desiredEffectiveCurrent === hpCurrent) return null;
-    setHpCurrent(desiredEffectiveCurrent);
-    const supabase = createClient();
-    const { error } = await supabase
-      .from("characters")
-      .update({ hp_current: desiredEffectiveCurrent })
-      .eq("id", character.id);
-    if (error) return null;
-    return rowUpdate(
-      "characters",
-      { id: character.id },
-      { hp_current: hpCurrent },
-      { hp_current: desiredEffectiveCurrent }
+  /**
+   * New damage level (and optionally new simple_effects) in one row update;
+   * a device that goes offline stops overclocking in the same write.
+   */
+  async function changeDamageLevel(
+    item: EpicItemRow,
+    newLevel: number,
+    simpleEffects = item.simple_effects
+  ): Promise<(RowChange | null)[] | null> {
+    const next = withDamageLevel(
+      { damage_levels: item.damage_levels, simple_effects: simpleEffects },
+      newLevel
     );
+    const patch: ItemPatch = { damage_level: next.damage_level };
+    if (next.simple_effects !== item.simple_effects) patch.simple_effects = next.simple_effects;
+    const change = await writeItem(item, patch);
+    if (!change) return null;
+    return [change, await persistHpAfterConChange(item, patch)];
+  }
+
+  function findOwnItem(itemId: string): EpicItemRow | null {
+    if (!isOwner) return null;
+    return items.find((i) => i.id === itemId) ?? null;
   }
 
   async function handleToggleEquip(itemId: string) {
-    const item = items.find((i) => i.id === itemId);
-    if (!item || !isOwner) return;
-
+    const item = findOwnItem(itemId);
+    if (!item) return;
     const newEquipped = !item.equipped;
-    const newItems = items.map((i) => (i.id === itemId ? { ...i, equipped: newEquipped } : i));
-
-    // Optimistic update
-    setItems(newItems);
-
-    const supabase = createClient();
-    const { error } = await supabase
-      .from("epic_items")
-      .update({ equipped: newEquipped })
-      .eq("id", itemId);
-
-    if (error) {
-      // Rollback on error
-      setItems((prev) => prev.map((i) => (i.id === itemId ? { ...i, equipped: !newEquipped } : i)));
-      return;
-    }
-
-    const hpChange = await persistHpAfterConChange(newItems);
+    const change = await writeItem(item, { equipped: newEquipped });
+    if (!change) return;
+    const hpChange = await persistHpAfterConChange(item, { equipped: newEquipped });
     record({ key: newEquipped ? "equip" : "unequip", values: { name: itemName(item) } }, [
-      rowUpdate(
-        "epic_items",
-        { id: itemId },
-        { equipped: item.equipped },
-        { equipped: newEquipped }
-      ),
+      change,
       hpChange,
     ]);
   }
 
   async function handleDamageLevelChange(itemId: string, newLevel: number) {
-    const item = items.find((i) => i.id === itemId);
-    if (!item || !isOwner) return;
-
-    const oldLevel = item.damage_level;
-    const newItems = items.map((i) => (i.id === itemId ? { ...i, damage_level: newLevel } : i));
-
-    // Optimistic update
-    setItems(newItems);
-
-    const supabase = createClient();
-    const { error } = await supabase
-      .from("epic_items")
-      .update({ damage_level: newLevel })
-      .eq("id", itemId);
-
-    if (error) {
-      // Rollback
-      setItems((prev) => prev.map((i) => (i.id === itemId ? { ...i, damage_level: oldLevel } : i)));
-      return;
-    }
-
-    // Damage level changes alter the CON override on items like the Kondensator
-    const hpChange = await persistHpAfterConChange(newItems);
-    record({ key: "damageLevel", values: { name: itemName(item), level: newLevel } }, [
-      rowUpdate(
-        "epic_items",
-        { id: itemId },
-        { damage_level: oldLevel },
-        { damage_level: newLevel }
-      ),
-      hpChange,
-    ]);
+    const item = findOwnItem(itemId);
+    if (!item) return;
+    const changes = await changeDamageLevel(item, newLevel);
+    if (!changes) return;
+    record({ key: "damageLevel", values: { name: itemName(item), level: newLevel } }, changes);
   }
 
-  /** Saves simple_effects (blades, overclock) optimistically and records it. */
+  /** Saves simple_effects (blades, checklists, stocks) optimistically and records it. */
   async function updateSimpleEffects(
     itemId: string,
     newEffects: Record<string, unknown>,
     label: UndoLabel | null
   ) {
-    const item = items.find((i) => i.id === itemId);
-    if (!item || !isOwner) return;
-    const oldEffects = item.simple_effects as Record<string, unknown>;
-    setItems((prev) =>
-      prev.map((i) => (i.id === itemId ? { ...i, simple_effects: newEffects } : i))
-    );
-    let failed: boolean;
-    try {
-      const { error } = await createClient()
-        .from("epic_items")
-        .update({ simple_effects: newEffects })
-        .eq("id", itemId);
-      failed = Boolean(error);
-    } catch {
-      failed = true;
-    }
-    if (failed) {
-      setItems((prev) =>
-        prev.map((i) => (i.id === itemId ? { ...i, simple_effects: oldEffects } : i))
-      );
-      toast.error(t("saveError"));
-      return;
-    }
-    if (!label) return;
-    record(label, [
-      rowUpdate(
-        "epic_items",
-        { id: itemId },
-        { simple_effects: oldEffects },
-        { simple_effects: newEffects }
-      ),
-    ]);
+    const item = findOwnItem(itemId);
+    if (!item) return;
+    const change = await writeItem(item, { simple_effects: newEffects });
+    if (label) record(label, [change]);
   }
 
-  async function handleOverclockToggle(
-    itemId: string,
-    active: boolean,
-    endTime: number | null,
-    expired = false
-  ) {
-    const item = items.find((i) => i.id === itemId);
+  async function handleOverclockAction(itemId: string, action: OverclockAction) {
+    const item = findOwnItem(itemId);
     if (!item) return;
-    // An expired timer is no user action: recording it would bury older steps.
-    await updateSimpleEffects(
-      itemId,
-      { ...item.simple_effects, overclock_active: active, overclock_end_time: endTime },
-      expired
-        ? null
-        : { key: active ? "overclockOn" : "overclockOff", values: { name: itemName(item) } }
+    const se = item.simple_effects;
+    const name = itemName(item);
+
+    if (action.type === "start") {
+      const result = startOverclock(se, action.success);
+      if (!result) return;
+      if (result.damageLevelDelta === 0) {
+        const change = await writeItem(item, { simple_effects: result.effects });
+        record({ key: "overclockOn", values: { name } }, [change]);
+        return;
+      }
+      const level = Math.min(item.max_damage_level, item.damage_level + result.damageLevelDelta);
+      const changes = await changeDamageLevel(item, level);
+      if (changes) record({ key: "overclockFailed", values: { name, level } }, changes);
+      return;
+    }
+
+    if (action.type === "hour") {
+      const next = passOverclockHour(se, action.success);
+      if (next === se) return;
+      const itemChange = await writeItem(item, { simple_effects: next });
+      if (!itemChange) return;
+      const overclock = se.overclock as Record<string, unknown>;
+      const healed = healOneHour(
+        hpCurrent,
+        character.hp_max,
+        (overclock.heals_per_hour as number) ?? 0
+      );
+      const hpChange = healed === hpCurrent ? null : await writeCharacter({ hp_current: healed });
+      const hour = readOverclockState(next).hours;
+      record(
+        { key: action.success ? "overclockHour" : "overclockCooledDown", values: { name, hour } },
+        [itemChange, hpChange]
+      );
+      return;
+    }
+
+    if (action.type === "stop") {
+      const change = await writeItem(item, { simple_effects: stopOverclock(se) });
+      record({ key: "overclockOff", values: { name } }, [change]);
+      return;
+    }
+
+    const change = await writeItem(item, { simple_effects: endCooldown(se) });
+    record({ key: "overclockCooldownEnded", values: { name } }, [change]);
+  }
+
+  async function handleRepair(itemId: string, input: { useElixir: boolean; success: boolean }) {
+    const item = findOwnItem(itemId);
+    if (!item) return;
+    const se = item.simple_effects;
+    const elixir = readStock(se, ELIXIR);
+    const result = resolveRepair({
+      damageLevel: item.damage_level,
+      elixirCount: elixir?.count ?? 0,
+      useElixir: input.useElixir && elixir !== null,
+      success: input.success,
+    });
+    if (!input.success) toast(t("repairFailedToast"));
+    const newEffects =
+      elixir && result.elixirCount !== elixir.count
+        ? writeStock(se, ELIXIR, { ...elixir, count: result.elixirCount })
+        : se;
+    // A failed repair without elixir changes nothing.
+    if (result.damageLevel === item.damage_level && newEffects === se) return;
+    const changes = await changeDamageLevel(item, result.damageLevel, newEffects);
+    if (!changes) return;
+    record(
+      {
+        key: input.success ? "repairSucceeded" : "repairFailed",
+        values: { name: itemName(item), level: result.damageLevel },
+      },
+      changes
     );
+  }
+
+  async function handleStockChange(itemId: string, target: StockTarget, change: StockChange) {
+    const item = findOwnItem(itemId);
+    if (!item) return;
+    const se = item.simple_effects;
+    const stock = readStock(se, target);
+    if (!stock) return;
+    const name = stockName(stock);
+
+    if (change.type === "toggle") {
+      const next = toggleComponent(stock, change.key);
+      await updateSimpleEffects(itemId, writeStock(se, target, next), {
+        key: "componentToggled",
+        values: { name },
+      });
+      return;
+    }
+    if (change.type === "adjust") {
+      const next = adjustStock(stock, change.delta);
+      if (next.count === stock.count) return;
+      await updateSimpleEffects(itemId, writeStock(se, target, next), {
+        key: "stockChanged",
+        values: { name, count: next.count },
+      });
+      return;
+    }
+    if (craftingRef.current) return;
+    craftingRef.current = true;
+    try {
+      await persistCraft(item, target, stock, name);
+    } finally {
+      craftingRef.current = false;
+    }
+  }
+
+  /**
+   * Crafting pays from the purse: re-read the gold first (it may have been
+   * spent elsewhere), charge it, then write the item. If the item write fails
+   * the gold is paid back and nothing is recorded.
+   */
+  async function persistCraft(
+    item: EpicItemRow,
+    target: StockTarget,
+    stock: NamedStock,
+    name: string
+  ) {
+    let before = live;
+    if (stock.recipe?.cost_gp) {
+      const { data, error } = await createClient()
+        .from("characters")
+        .select(GOLD_COLUMNS)
+        .eq("id", character.id)
+        .single<Gold>();
+      if (error || !data) {
+        toast.error(t("saveError"));
+        return;
+      }
+      before = { ...live, ...data };
+      setLive(before);
+    }
+    const result = craft(stock, toPurse(before));
+    if (!result) {
+      toast.error(t("recipeNotEnoughMoney"));
+      return;
+    }
+    const goldChange = stock.recipe?.cost_gp
+      ? await writeCharacter(toGold(result.purse), before)
+      : null;
+    if (stock.recipe?.cost_gp && !goldChange) return;
+    const itemChange = await writeItem(item, {
+      simple_effects: writeStock(item.simple_effects, target, result.stock),
+    });
+    if (!itemChange) {
+      if (goldChange)
+        await writeCharacter(pickColumns(before, toGold(result.purse)), {
+          ...before,
+          ...toGold(result.purse),
+        });
+      return;
+    }
+    record({ key: "crafted", values: { name, count: result.stock.count } }, [
+      goldChange,
+      itemChange,
+    ]);
   }
 
   return (
@@ -336,7 +476,10 @@ export function EpicEquipmentView({
                   characterLevel={character.level}
                   onToggleEquip={handleToggleEquip}
                   onDamageLevelChange={handleDamageLevelChange}
-                  onOverclockToggle={handleOverclockToggle}
+                  purse={purse}
+                  onOverclockAction={handleOverclockAction}
+                  onRepair={handleRepair}
+                  onStockChange={handleStockChange}
                 />
               );
             }
@@ -349,6 +492,8 @@ export function EpicEquipmentView({
                   isOwner={isOwner}
                   onToggleEquip={handleToggleEquip}
                   onSimpleEffectsChange={updateSimpleEffects}
+                  purse={purse}
+                  onStockChange={handleStockChange}
                 />
               );
             }

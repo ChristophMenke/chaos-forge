@@ -21,7 +21,7 @@ export default async function EpicEquipmentPage({ params }: EpicPageProps) {
       supabase
         .from("characters")
         .select(
-          "id, name, avatar_url, user_id, level, con, con_health, con_fitness, hp_max, hp_current"
+          "id, name, avatar_url, user_id, level, con, con_health, con_fitness, hp_max, hp_current, gold_pp, gold_gp, gold_ep, gold_sp, gold_cp"
         )
         .eq("id", id)
         .maybeSingle<
@@ -37,6 +37,11 @@ export default async function EpicEquipmentPage({ params }: EpicPageProps) {
             | "con_fitness"
             | "hp_max"
             | "hp_current"
+            | "gold_pp"
+            | "gold_gp"
+            | "gold_ep"
+            | "gold_sp"
+            | "gold_cp"
           >
         >(),
       supabase

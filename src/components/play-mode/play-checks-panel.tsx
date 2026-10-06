@@ -22,6 +22,7 @@ import { formatModifier, signed } from "@/components/effects/effect-format";
 import type { EpicEffects } from "@/lib/rules/epic-items";
 import type { ThiefSkillBonuses } from "@/lib/rules/magic-items";
 import { localized } from "@/lib/utils/localize";
+import { getNwpCheckTarget } from "@/lib/rules/proficiencies";
 
 interface PlayChecksPanelProps {
   saves: SavingThrows;
@@ -255,10 +256,9 @@ function PlayChecksPanelInner({
   const nwpChecks = useMemo(() => {
     const abilityMap: Record<string, number> = effective.values;
     return nonweaponProficiencies.map((nwp) => {
-      const ability = nwp.proficiency.ability.toLowerCase();
-      const baseScore = abilityMap[ability] ?? 10;
+      const baseScore = abilityMap[nwp.proficiency.ability.toLowerCase()] ?? 10;
       // Effects on ability/proficiency checks (e.g. heat exhaustion −2) apply here too.
-      const target = baseScore + nwp.proficiency.modifier + effectSummary.abilityChecks;
+      const target = getNwpCheckTarget(nwp, abilityMap, effectSummary.abilityChecks);
       return {
         name: localized(nwp.proficiency.name, nwp.proficiency.name_en, locale),
         ability: nwp.proficiency.ability.toUpperCase(),

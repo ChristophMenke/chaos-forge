@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Datenbank & Auth:** Supabase (PostgreSQL + Row Level Security)
 - **Styling:** Tailwind CSS v4 + shadcn/ui + Glassmorphism Design-System
 - **i18n:** next-intl (Cookie-basiert, DE/EN) + `localized()` Utility für DB-Daten
-- **Unit-/Integrationstests:** Vitest (2150+ Tests)
+- **Unit-/Integrationstests:** Vitest (2250+ Tests)
 - **E2E-Tests:** keine automatisierte E2E-Suite mehr (Playwright-Specs, Test-Login-Routen und QA-Test-Domain entfernt). UI-Verhalten wird explorativ über `playwright-cli` geprüft. Das Paket `playwright` bleibt nur für die Spell-Card-Render-Skripte unter `scripts/spell-cards/`.
 - **Linting/Formatting:** ESLint (next config) + Prettier (0 Warnings, 0 Errors)
 - **Hosting:** Vercel (Free-Tier)
@@ -68,7 +68,7 @@ src/
     master/               # GM-Dashboard: Immersive PIN-Gate (Chaos-Artwork), Party Panel (Council of Heroes mit Aggregat-Stats), Gold Panel (Treasury Vault mit Multi-Select + Split), Items Panel (CRUD + In-Use-Check), Bestiary Panel (Monster CRUD + AI Import + Precise-Mode-Toggle), MonsterForm (Create/Edit), MonsterVariantPicker (Multi-Variant-Scan), NPCs, Combat Simulator, Bookmarks, Rulebook Chat, Sidebar, Bottom Nav
     notifications/        # Notification Bell mit Delete-Funktion (einzeln + alle)
     character-rescan/     # Rescan: Upload-Panel, Änderungsliste, Änderungs-Zeile
-    epic-equipment/       # Epische Ausrüstung (Schadensstufen-Cards, Simple Items, Blade System, Spell Abilities)
+    epic-equipment/       # Epische Ausrüstung (Schadensstufen-Cards, Simple Items, Blade System, Spell Abilities) + Sprockets Geräte: Wurf-Dialog (skill-check-dialog), Übertakten-Bedienung (overclock-controls), Kondensator-Bereiche (condenser-panels), Rezept-Checkliste (recipe-checklist)
     party/                # Party-Inventar (Gold-Panel, Items-Panel, Log-Panel, Loot-Verteilung)
     settings/             # Einstellungen: Spieltermine-Panel (CRUD)
     play-mode/            # Play Mode (Kampf, Zauber, Fähigkeiten, Checks, Wahrnehmung, Inventar, Geldbörse, Untote vertreiben, Gestaltwandlung)
@@ -88,6 +88,8 @@ src/
       classes.ts          # 16 Klassen-Definitionen, Attribut-Anforderungen, Fähigkeiten
       combat.ts           # THAC0, Angriffswürfe, Rettungswürfe, Angriffe/Runde (inkl. Spezialisierung)
       epic-items.ts       # Epische Ausrüstung: Stat-Overrides, Thief-Penalties, Spell Failure, Perception, Shapeshift, Auto-Unlock
+      epic-hp.ts          # TP-Abgleich bei KON-Änderung durch epische Gegenstände (Epic-Seite + Play Mode)
+      sprocket-devices.ts # Übertakten (Stunden, Kühlungswurf, Abkühlsperre), Reparatur mit Elixier, Rezepte/Herstellen
       equipment.ts        # RK-Berechnung, Belastung, Bewegungsrate, Shield Proficiency
       fighting-styles.ts  # 4 Kampfstile (Single-Weapon, Two-Hander, Weapon & Shield, Two-Weapon)
       experience.ts       # XP-Tabellen, Stufen-Berechnung
@@ -143,7 +145,7 @@ src/
 scripts/                  # Einmalige Daten-Pipeline-Scripts (spell-cards/ ist versioniert, out/ nicht)
 messages/                 # i18n-Dateien (de.json, en.json)
 supabase/
-  migrations/             # 213 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items + Realtime + Gold RPC + Monsters + Notifications + Weapon Proficiency Split + Monster Narrative + Profiles)
+  migrations/             # 229 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items + Realtime + Gold RPC + Monsters + Notifications + Weapon Proficiency Split + Monster Narrative + Profiles)
 ressources/
   books/                  # OCR-Texte der AD&D 2e Regelbücher (metrisch konvertiert)
   compendium-snapshot/    # Monstrous Manual HTML-Snapshot + parsed/translated JSON (einmaliger Backfill)
@@ -231,7 +233,8 @@ Die AD&D-Regeln sind als **reine TypeScript-Funktionen** implementiert (kein DB-
 - Charakterbogen: Eingaben vor „Speichern“ sind `draft`-Schritte (kein DB-Zugriff); Speichern fasst sie zu „Charakterbogen gespeichert“ zusammen (Diff zu `savedRef`, das auch direkte Writes wie Stufenaufstieg/XP nachzieht); Verlassen des Bogens verwirft sie.
 - Coalescing: gleicher `coalesceKey` innerhalb 1 s = ein Schritt; Mengen-/Bonusfelder schreiben entprellt (`useDebouncedRowWrite`).
 - Nicht umkehrbar: Charakter löschen/duplizieren, Avatar, Rescan (leert die Historie), Teilen, Archivieren, Gold/Item an andere senden, Katalogeinträge.
-- `src/test/undo-coverage.test.ts` prüft, dass jede Schreibstelle im Umfang aufzeichnet (oder begründete Ausnahme ist) und jede Beschriftung in `messages/*.json` unter `undo.labels` steht.
+- Herstellen mit Kosten (Kupferelixier) ist ein Schritt aus Gold + Gegenstand: Gold wird vorher neu gelesen, zuerst abgebucht und bei Fehler zurückgebucht.
+- `src/test/undo-coverage.test.ts` prüft, dass jede Schreibstelle im Umfang aufzeichnet (oder begründete Ausnahme ist) und jede Beschriftung in `messages/*.json` unter `undo.labels` steht. Erkannt werden `label: {key…}`, `record…({key…})` und weitergereichte Label-Objekte `{ key: "…", values: … }` (auch Ternaries wie `key: r.success ? "a" : "b"`) – Labels deshalb immer literal schreiben.
 
 **Stufenaufstieg (`level-up.ts`):**
 
@@ -241,6 +244,14 @@ Die AD&D-Regeln sind als **reine TypeScript-Funktionen** implementiert (kein DB-
 - `buildLevelUpSummary(...)` — Vorher/Nachher für THAC0, Rettungswürfe (über `getEffectiveClassEntries`), Angriffe, Slots, Zauber, Hinterhalt, Untote vertreiben, Granted Powers, Epic-Freischaltungen, Hinweise
 - `applyLevelUp` (`src/lib/level-up/`) schreibt `character_classes.level`, `characters.hp_max`, `characters.level` (= höchste aktive Klassenstufe, steuert Epic-Schwellen) und `thief_*`
 - Hinweis: Die CON-Delta-Rechnung für Epic-CON-Overrides (`play-mode.tsx`, `epic-equipment-view.tsx`) kappt pro Klassengruppe, der Aufstieg nach PHB für den ganzen Multiclass-Charakter
+
+**Sprockets Geräte (`sprocket-devices.ts`):**
+
+- Kondensator `simple_effects`: `overclock` (Fähigkeit), `overclock_active`, `overclock_hours` (vergangene Stunden, laufende = +1), `overclock_cooldown`; `elixir` (Bestand, `bonus`, Rezept). Klingen: `mixtures[key]` mit `recipe` + `collected`. Rezepte liegen als Daten in der DB (Migration 00231), nicht im Code.
+- Keine Spielzeit und keine Würfel in der App: Der Spieler würfelt, meldet Gelungen/Misslungen (`SkillCheckDialog`) und drückt „Eine Stunde vergeht“ / „Ein Tag ist vergangen“.
+- Übertakten: Start braucht Ingenieurskunst (Fehlschlag → +1 Schadensstufe); jede Stunde +1 TP (bis `hp_max`) und Kühlungswurf mit `getCoolingModifier(h) = −floor((h−1)/2)`; Fehlschlag schaltet ab und sperrt einen Tag; freiwilliges Beenden sperrt nicht. `withDamageLevel()` beendet die Übertaktung, wenn eine Stufe `device_offline` erreicht.
+- Reparatur: Ingenieurskunst − Schadensstufe, Kupferelixier +4 (immer verbraucht); Erfolg → Stufe −1.
+- Herstellen: erst wenn alle Komponenten abgehakt sind; Mixturen ergeben 2, Kupferelixier 1 für 100 GM aus der Börse; −/+ korrigiert Bestände. Bedienung: Epic-Seite (alles), Play Mode (nur Übertakten, Zielwert aus `getNwpCheckTarget`). GM-Dashboard hört per Realtime auf `epic_items`.
 
 **Sonstiges:**
 
@@ -342,7 +353,7 @@ Diese Abweichungen vom Standard-PHB gelten für die "Chaos RPG"-Gruppe:
 - **Env-Variablen:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_API_KEY` (alle KI-Features), `VOYAGE_API_KEY` (Regelbuch-Suche), `GM_PIN` (6-Digit), optional `GM_SESSION_SECRET` und `CRON_SECRET` in `.env.local`
 - **RLS:** Alle Tabellen nutzen Row Level Security — SELECT für alle Authentifizierten, INSERT/UPDATE/DELETE nur für Owner
 - **Storage:** `voice-notes` Bucket für Sprachnotizen, `avatars` für Character-Avatare
-- **Migrationen:** 228 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
+- **Migrationen:** 229 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
 - **User-Freigabe:** `profiles.is_approved` (default false, bestehende User via Backfill auf true) + `enforce_approval`-BEFORE-Trigger auf 20+ Tabellen (`characters`, `character_equipment`, `character_spells`, `chronicle_npcs`, `chronicle_quotes`, `sessions`, `tags`, `party_loot_*`, `monsters`, `magic_items`, `epic_items`, `gm_bookmarks`). `approve_user(uuid)` RPC nur für Admin. Items mit `simple_effects.base_<stat>` (Kondensator) gehen über `forceStatOverrides` — ersetzen Basiswert unbedingt (nicht max()).
 - **Tutorials:** `profiles.skip_tutorials` (Backfill = true) blendet Overlays für bestehende User aus. Client-Side localStorage-Key `chaos-forge-tutorial-dismissed`.
 - **Spieltermine:** `game_dates` (`event_date` als reines `date`, kein Zeitstempel — Countdown darf nicht von der Serverzeitzone abhängen). Jeder freigegebene Nutzer darf CRUD. Ein `AFTER`-Trigger verteilt Benachrichtigungen an alle anderen freigegebenen Spieler; Auslöser aus der QA-Domain und System-Kontext (kein `auth.uid()`) sind ausgenommen.
@@ -424,3 +435,5 @@ Finaler explorativer Test mit etablierten Testing-Heuristiken und gezielten "Tes
 26. **Temporäre Effekte** — Zauber, Monsterangriffe, Zustände und Verletzungen als Effekte am Charakter: 37 Vorlagen mit Quellen oder frei definiert, Freitext-Notiz (z. B. Krit-Tabelle), Auswirkungen auf Attribute (auch CHA/CON-Verlust, Halbierung, „setzt auf“), Rettungswürfe (einzeln/alle, auch Auren), Angriff, Schaden, RK, Bewegung, Angriffe/Runde, Wahrnehmung, Proben, Diebesfertigkeiten, Zauberpatzer; Zustände wie bewusstlos, gehalten, kein GE-Bonus. Automatische Verrechnung in Play Mode, Charakterbogen („effektiv X“), GM-Karten und Dashboard; temporäre TP als Puffer. Nur der Spieler setzt Effekte, Ende manuell. Nebenbei: vier Attribut-Resolver zu `resolveEffectiveStats()` vereinheitlicht, Realtime-Kanäle mit Instanz-Suffix ✅
 
 27. **Rückgängig/Wiederherstellen** — Pfeil-Buttons in der Modus-Leiste eigener Charaktere mit Tooltip „Rückgängig: X“, Historie pro Charakter und Tab (50 Schritte, bleibt beim Moduswechsel, verfällt beim Neuladen). Abgedeckt: Spielmodus (TP, Schaden inkl. temporärer TP, Münzen, Zauber wirken, Rast, Inventar, Magische Items), Effekte, epische Ausrüstung (Klingen, Schadensstufe, Overclock), Charakterbogen (Entwurf schrittweise, Speichern als ein Schritt, alle Reiter), XP, Klassen, Stufenaufstieg. Konfliktprüfung gegen zwischenzeitliche Änderungen, Bestätigungsdialoge bleiben. Nebenbei: Mengen-/Bonusfelder speichern entprellt statt pro Tastendruck ✅
+
+28. **Sprockets Kondensator & Herstellung** — Übertakten nur nach Ingenieurskunst-Wurf (Fehlschlag kostet eine Schadensstufe), statt Echtzeit-Timer „Eine Stunde vergeht“ mit +1 TP und Kühlungswurf (jede zweite Stunde −1), misslungene Kühlung schaltet ab und sperrt einen Tag; bedienbar auf der Epic-Seite und im Play Mode (Zielwert aus der Fertigkeit). Reparatur-Dialog mit Kupferelixier (+4, Bestand), Komponenten-Checklisten mit Fundorten für die vier Mixturen (Ertrag 2) und das Kupferelixier (100 GM aus der Börse). Jede Aktion ein Undo-Schritt; GM-Dashboard per Realtime. Nebenbei: TP-Abgleich (`epic-hp.ts`) und NWP-Zielwert (`getNwpCheckTarget`) herausgelöst, Undo-Label-Prüfung erkennt weitergereichte Labels ✅

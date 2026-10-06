@@ -216,12 +216,15 @@ export function MasterDashboard({
   // Keyed on the IDs: a router.refresh (e.g. after an effect change) creates
   // a new partyData array but must not tear down the HP channel.
   const characterIdsKey = partyData.map((p) => p.character.id).join(",");
-  // Effects are set by the players: re-run the server query on any change
-  // so cards show chips, temp HP and effective values.
+  // Effects and epic items (e.g. Sprocket's overclock → CON 20) are changed by
+  // the players: re-run the server query so cards show the effective values.
   useRealtimeRefresh(
     "gm-effects",
     characterIdsKey
-      ? [{ table: "character_effects", filter: `character_id=in.(${characterIdsKey})` }]
+      ? [
+          { table: "character_effects", filter: `character_id=in.(${characterIdsKey})` },
+          { table: "epic_items", filter: `character_id=in.(${characterIdsKey})` },
+        ]
       : []
   );
   const simulatorPartyData = useMemo(

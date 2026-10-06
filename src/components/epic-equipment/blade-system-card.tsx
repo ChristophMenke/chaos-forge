@@ -2,18 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import {
-  Swords,
-  RotateCcw,
-  Plus,
-  Target,
-  Ban,
-  Trash2,
-  Hammer,
-  Check,
-  X,
-  PackagePlus,
-} from "lucide-react";
+import { Swords, RotateCcw, Plus, Target, Ban, Trash2, Hammer, Check, X } from "lucide-react";
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -32,6 +21,11 @@ import {
 } from "@/lib/rules/blades";
 import type { EpicItemRow } from "@/lib/supabase/types";
 import type { UndoLabel } from "@/lib/undo/types";
+import type { CoinPurse } from "@/lib/rules/equipment";
+import type { StockChange, StockTarget } from "@/lib/rules/sprocket-devices";
+import { RecipeChecklist, StockControls } from "./recipe-checklist";
+
+const EMPTY_PURSE: CoinPurse = { pp: 0, gp: 0, ep: 0, sp: 0, cp: 0 };
 
 interface BladeSystemCardProps {
   item: EpicItemRow;
@@ -44,6 +38,10 @@ interface BladeSystemCardProps {
     effects: Record<string, unknown>,
     label: UndoLabel
   ) => Promise<void>;
+  /** Börse für Rezepte mit Kosten. */
+  purse?: CoinPurse;
+  /** Mixtur-Vorrat: Häkchen, Korrektur, Herstellen (Eltern-Komponente schreibt). */
+  onStockChange?: (itemId: string, target: StockTarget, change: StockChange) => void;
 }
 
 export function BladeSystemCard({
@@ -52,6 +50,8 @@ export function BladeSystemCard({
   isOwner,
   onToggleEquip,
   onSimpleEffectsChange,
+  purse = EMPTY_PURSE,
+  onStockChange,
 }: BladeSystemCardProps) {
   const t = useTranslations("epic");
   const tcom = useTranslations("common");
@@ -105,14 +105,8 @@ export function BladeSystemCard({
     persistState(newBlades, mixtures);
   }
 
-  function handleCraft(mixtureKey: string) {
-    const mix = mixtures[mixtureKey];
-    if (!mix) return;
-    const newMixtures = {
-      ...mixtures,
-      [mixtureKey]: { ...mix, count: mix.count + 1 },
-    };
-    persistState(blades, newMixtures);
+  function changeMixture(key: string, change: StockChange) {
+    onStockChange?.(item.id, { kind: "mixture", key }, change);
   }
 
   const thrownBlades = blades.filter((b) => b.status === "thrown");
@@ -391,11 +385,11 @@ export function BladeSystemCard({
           {Object.entries(mixtures).map(([key, mix]) => (
             <div
               key={key}
-              className="flex items-center gap-3 rounded-md border border-border/50 px-3 py-2"
+              className="flex items-start gap-3 rounded-md border border-border/50 px-3 py-2"
               data-testid={`mixture-${key}`}
             >
               <div
-                className="h-4 w-4 shrink-0 rounded-full"
+                className="mt-0.5 h-4 w-4 shrink-0 rounded-full"
                 style={{ backgroundColor: mix.color }}
               />
               <div className="min-w-0 flex-1">
@@ -403,9 +397,17 @@ export function BladeSystemCard({
                   <span className="text-sm font-medium">
                     {localized(mix.name, mix.name_en, locale)}
                   </span>
-                  <Badge variant="outline" className="text-xs">
+                  <Badge variant="outline" className="text-xs" data-testid={`mixture-count-${key}`}>
                     {mix.count}×
                   </Badge>
+                  {isOwner && (
+                    <StockControls
+                      testId={`mixture-${key}-stock`}
+                      count={mix.count}
+                      disabled={saving}
+                      onAdjust={(delta) => changeMixture(key, { type: "adjust", delta })}
+                    />
+                  )}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {localized(mix.effect, mix.effect_en, locale)}
@@ -413,19 +415,19 @@ export function BladeSystemCard({
                 <p className="text-xs text-primary/70">
                   ⏱ {localized(mix.duration, mix.duration_en, locale)}
                 </p>
-              </div>
-              {isOwner && (
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  onClick={() => handleCraft(key)}
+                <RecipeChecklist
+                  testId={`mixture-${key}-recipe`}
+                  stock={mix}
+                  purse={purse}
+                  locale={locale}
+                  isOwner={isOwner}
                   disabled={saving}
-                  data-testid={`mixture-craft-${key}`}
-                >
-                  <PackagePlus className="mr-1 h-3.5 w-3.5" />
-                  {t("mixtureCraft")}
-                </Button>
-              )}
+                  onToggle={(componentKey) =>
+                    changeMixture(key, { type: "toggle", key: componentKey })
+                  }
+                  onCraft={() => changeMixture(key, { type: "craft" })}
+                />
+              </div>
             </div>
           ))}
         </div>

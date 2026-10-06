@@ -53,8 +53,10 @@ describe("undo coverage", () => {
 
   it("translates every undo label", () => {
     const keys = new Set<string>();
+    // Labels as `label: {…}`, as first argument of record…(), or passed on as a
+    // positional `{ key: "…", values: … }` object; ternaries may test a property.
     const pattern =
-      /(?:label:\s*|record(?:Changes|Db)?\(\s*)\{\s*key:\s*(?:\w+\s*\?\s*)?"(\w+)"(?:\s*:\s*"(\w+)")?/g;
+      /(?:label:\s*|record(?:Changes|Db)?\(\s*|(?=\{\s*key:\s*(?:[\w.]+\s*\?\s*)?"\w+"(?:\s*:\s*"\w+")?,\s*values:))\{\s*key:\s*(?:[\w.]+\s*\?\s*)?"(\w+)"(?:\s*:\s*"(\w+)")?/g;
     for (const { text } of [
       ...sources,
       ...files("src/components/undo").map((f) => ({ text: readFileSync(f, "utf8") })),

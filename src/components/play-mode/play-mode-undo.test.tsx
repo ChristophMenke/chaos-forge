@@ -2,7 +2,12 @@ import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/de.json";
-import type { CharacterInventoryWithDetails, CharacterRow } from "@/lib/supabase/types";
+import type {
+  CharacterInventoryWithDetails,
+  CharacterNWPWithDetails,
+  CharacterRow,
+  EpicItemRow,
+} from "@/lib/supabase/types";
 import { createUndoStub } from "@/components/undo/undo-test-utils";
 import { baseCharacter } from "./effect-test-helpers";
 
@@ -97,7 +102,12 @@ const missile = {
   },
 };
 
-function renderPlayMode({ wizard = false } = {}) {
+function renderPlayMode({
+  wizard = false,
+  epicItems = [] as EpicItemRow[],
+  nonweaponProficiencies = [] as CharacterNWPWithDetails[],
+  userId = "user-1",
+} = {}) {
   const undo = createUndoStub();
   render(
     <NextIntlClientProvider locale="de" messages={messages}>
@@ -114,12 +124,13 @@ function renderPlayMode({ wizard = false } = {}) {
               is_active: true,
             } as never,
           ]}
-          userId="user-1"
+          userId={userId}
           equipment={[]}
           spells={wizard ? [missile as never] : []}
           weaponProficiencies={[]}
-          nonweaponProficiencies={[]}
+          nonweaponProficiencies={nonweaponProficiencies}
           inventory={[rope]}
+          epicItems={epicItems}
         />
       </undo.Wrapper>
     </NextIntlClientProvider>
@@ -233,5 +244,170 @@ describe("PlayMode undo", () => {
     expect(cast()).toBeDisabled();
     undo.replay("undo");
     expect(cast()).toBeEnabled();
+  });
+});
+
+const condenser = {
+  id: "epic-c",
+  character_id: "char-1",
+  slug: "constitution_condenser",
+  name: "Kondensator",
+  name_en: "Condenser",
+  description: "",
+  description_en: "",
+  icon: "",
+  equipped: true,
+  damage_level: 0,
+  max_damage_level: 8,
+  damage_levels: {
+    "0": { description: "", stat_overrides: { con: 18 } },
+    "1": { description: "", stat_overrides: { con: 17 } },
+    "8": { description: "", stat_overrides: { con: 5 }, effects: ["device_offline"] },
+  },
+  simple_effects: {
+    overclock: {
+      name: "Übertakten",
+      name_en: "Overclock",
+      requires_check: "Ingenieurskunst",
+      requires_check_en: "Engineering",
+      con_override: 20,
+      poison_save_penalty: 1,
+      heals_per_hour: 1,
+      description: "",
+      description_en: "",
+    },
+  },
+  notes: "",
+  created_at: "",
+  updated_at: "",
+} as EpicItemRow;
+
+const engineering = {
+  id: "nwp-1",
+  character_id: "char-1",
+  proficiency_id: "engineering",
+  proficiency: {
+    id: "engineering",
+    name: "Ingenieurskunst",
+    name_en: "Engineering",
+    ability: "int",
+    modifier: -3,
+  },
+} as unknown as CharacterNWPWithDetails;
+
+function overclocked(se: Record<string, unknown>, extra: Partial<EpicItemRow> = {}) {
+  return { ...condenser, ...extra, simple_effects: { ...condenser.simple_effects, ...se } };
+}
+
+async function roll(openTestId: string, result: "success" | "failure") {
+  fireEvent.click(screen.getByTestId(openTestId));
+  fireEvent.click(await screen.findByTestId(`skill-check-${result}`));
+}
+
+describe("PlayMode Übertakten", () => {
+  it("zeigt den Besitzer-Start mit Ingenieurskunst-Zielwert (INT 12 − 3)", () => {
+    renderPlayMode({ wizard: true, epicItems: [condenser], nonweaponProficiencies: [engineering] });
+    expect(screen.getByTestId("play-overclock-idle")).toHaveTextContent("Ingenieurskunst 9");
+  });
+
+  it("startet nach gelungenem Wurf als ein Schritt", async () => {
+    const undo = renderPlayMode({ wizard: true, epicItems: [condenser] });
+    await roll("overclock-start", "success");
+
+    await waitFor(() => expect(undo.entries).toHaveLength(1));
+    expect(undo.entries[0]).toMatchObject({
+      label: { key: "overclockOn" },
+      changes: [{ table: "epic_items", after: { simple_effects: { overclock_active: true } } }],
+    });
+    expect(screen.getByTestId("play-overclock")).toHaveTextContent("Stunde 1");
+  });
+
+  it("nimmt bei misslungenem Start eine Schadensstufe", async () => {
+    const undo = renderPlayMode({ wizard: true, epicItems: [condenser] });
+    await roll("overclock-start", "failure");
+
+    await waitFor(() => expect(undo.entries).toHaveLength(1));
+    expect(undo.entries[0]).toMatchObject({
+      label: { key: "overclockFailed", values: { level: 1 } },
+      changes: [{ table: "epic_items", before: { damage_level: 0 }, after: { damage_level: 1 } }],
+    });
+  });
+
+  it("„Eine Stunde vergeht“ zählt, heilt und ist ein Schritt; Undo stellt beides her", async () => {
+    const undo = renderPlayMode({
+      wizard: true,
+      epicItems: [overclocked({ overclock_active: true, overclock_hours: 2 })],
+      nonweaponProficiencies: [engineering],
+    });
+    expect(screen.getByTestId("play-overclock")).toHaveTextContent("Stunde 3");
+    expect(screen.getByTestId("play-overclock-next-check")).toHaveTextContent(
+      "Ingenieurskunst 8 (−1)"
+    );
+    const hpText = () => screen.getByTestId("play-hp-text").textContent;
+    expect(hpText()).toMatch(/^20/);
+
+    await roll("overclock-hour", "success");
+
+    await waitFor(() => expect(undo.entries).toHaveLength(1));
+    expect(undo.entries[0]).toMatchObject({
+      label: { key: "overclockHour", values: { hour: 3 } },
+      changes: [
+        { table: "epic_items", after: { simple_effects: { overclock_hours: 3 } } },
+        { table: "characters", before: { hp_current: 20 }, after: { hp_current: 21 } },
+      ],
+    });
+    expect(undo.entries[0].coalesceKey).toBeUndefined();
+    expect(hpText()).toMatch(/^21/);
+    expect(screen.getByTestId("play-overclock")).toHaveTextContent("Stunde 4");
+
+    undo.replay("undo");
+    expect(hpText()).toMatch(/^20/);
+    expect(screen.getByTestId("play-overclock")).toHaveTextContent("Stunde 3");
+  });
+
+  it("schaltet bei misslungener Kühlung ab und zeigt die Abkühlsperre", async () => {
+    const undo = renderPlayMode({
+      wizard: true,
+      epicItems: [overclocked({ overclock_active: true, overclock_hours: 0 })],
+    });
+    await roll("overclock-hour", "failure");
+
+    await waitFor(() => expect(undo.entries).toHaveLength(1));
+    expect(undo.entries[0].label.key).toBe("overclockCooledDown");
+    expect(screen.getByTestId("play-overclock-idle")).toHaveTextContent("kühlt ab");
+    expect(screen.getByTestId("overclock-day-passed")).toBeInTheDocument();
+  });
+
+  it("beendet freiwillig als ein Schritt", async () => {
+    const undo = renderPlayMode({
+      wizard: true,
+      epicItems: [overclocked({ overclock_active: true, overclock_hours: 1 })],
+    });
+    fireEvent.click(screen.getByTestId("overclock-stop"));
+
+    await waitFor(() => expect(undo.entries).toHaveLength(1));
+    expect(undo.entries[0].label.key).toBe("overclockOff");
+    expect(screen.getByTestId("overclock-start")).toBeInTheDocument();
+  });
+
+  it("zeigt anderen nur die laufende Übertaktung, ohne Knöpfe", () => {
+    renderPlayMode({ wizard: true, epicItems: [condenser], userId: "user-2" });
+    expect(screen.queryByTestId("play-overclock-idle")).toBeNull();
+    cleanup();
+    renderPlayMode({
+      wizard: true,
+      epicItems: [overclocked({ overclock_active: true })],
+      userId: "user-2",
+    });
+    expect(screen.getByTestId("play-overclock")).toBeInTheDocument();
+    expect(screen.queryByTestId("overclock-hour")).toBeNull();
+  });
+
+  it("zeigt nichts, wenn das Gerät ausgefallen oder abgelegt ist", () => {
+    renderPlayMode({ wizard: true, epicItems: [{ ...condenser, damage_level: 8 }] });
+    expect(screen.queryByTestId("play-overclock-idle")).toBeNull();
+    cleanup();
+    renderPlayMode({ wizard: true, epicItems: [{ ...condenser, equipped: false }] });
+    expect(screen.queryByTestId("play-overclock-idle")).toBeNull();
   });
 });
