@@ -28,6 +28,7 @@ import {
   validateProfileAvatarFile,
 } from "@/lib/avatar/profile-upload";
 import { AvatarCropDialog } from "@/components/avatar-crop-dialog";
+import { ReleaseNotesSection } from "@/components/release-notes/release-notes-section";
 import type { CropArea } from "@/lib/avatar/resize";
 
 interface SettingsClientProps {
@@ -338,6 +339,9 @@ export function SettingsClient({
           {t("resetTutorials")}
         </Button>
       </GlassCard>
+
+      {/* ── Neuigkeiten ───────────────────────────────────── */}
+      <ReleaseNotesSection />
 
       {/* ── Danger Zone ───────────────────────────────────── */}
       <GlassCard hover={false} data-testid="settings-section-danger">

@@ -2,10 +2,10 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { BookOpen, Sparkles } from "lucide-react";
 import { ChatMessage } from "./chat-message";
 import { ChatInput } from "./chat-input";
 import { BookFilter, ALL_SLUGS } from "./book-filter";
+import { SvenBotAvatar } from "@/components/svenbot/svenbot-avatar";
 
 interface Message {
   role: "user" | "assistant";
@@ -129,10 +129,13 @@ export function RulebookChat() {
   return (
     <div className="flex min-h-0 flex-1 flex-col p-3 sm:p-6" data-testid="rulebook-chat">
       {/* Header */}
-      <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <BookOpen className="h-5 w-5 text-primary" />
-          <h1 className="font-cinzel text-xl font-bold text-foreground">{t("title")}</h1>
+      <div className="mb-3 flex items-center justify-between" data-testid="rulebook-chat-header">
+        <div className="flex items-center gap-3">
+          <SvenBotAvatar size="md" />
+          <div className="leading-tight">
+            <h1 className="font-cinzel text-xl font-bold text-foreground">{t("botName")}</h1>
+            <p className="text-xs text-muted-foreground">{t("title")}</p>
+          </div>
         </div>
         <button
           type="button"
@@ -176,7 +179,7 @@ export function RulebookChat() {
               className="flex items-center gap-2 text-sm text-muted-foreground"
               data-testid="chat-loading"
             >
-              <Sparkles className="h-4 w-4 animate-pulse text-primary" />
+              <SvenBotAvatar size="sm" className="animate-pulse" />
               <span>{t("thinking")}</span>
             </div>
           )}
@@ -203,7 +206,7 @@ function WelcomeScreen({
       className="flex flex-1 flex-col items-center justify-center text-center px-4"
       data-testid="chat-welcome"
     >
-      <BookOpen className="h-12 w-12 text-primary/40 mb-4" />
+      <SvenBotAvatar size="lg" className="mb-4" />
       <p className="text-sm text-muted-foreground max-w-md mb-6">{t("welcome")}</p>
       <p className="text-xs text-muted-foreground mb-3">{t("exampleQuestions")}</p>
       <div className="flex flex-col gap-2">

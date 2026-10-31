@@ -9,6 +9,7 @@ import { AppFooter } from "@/components/app-footer";
 import { ApprovalBanner } from "@/components/approval-banner";
 import { ApprovalProvider } from "@/components/approval-provider";
 import { ApprovalErrorToast } from "@/components/approval-error-toast";
+import { ReleaseNotesDialog } from "@/components/release-notes/release-notes-dialog";
 import { SkipToMain } from "@/components/skip-to-main";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "@/components/ui/sonner";
@@ -95,6 +96,7 @@ export default async function RootLayout({
                 <AppHeader />
                 <ApprovalBanner />
                 <ApprovalErrorToast />
+                <ReleaseNotesDialog />
 
                 <main id="main" className="flex flex-1 flex-col pb-16 sm:pb-0">
                   {children}

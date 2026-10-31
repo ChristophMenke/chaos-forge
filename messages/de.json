@@ -33,8 +33,8 @@
     "featureCharacterDesc": "Erstelle Helden mit dem geführten Wizard oder importiere bestehende Bögen per Foto. Attribute, Zauber, Ausrüstung und epische Items in einer Ansicht.",
     "featureSessionTitle": "Chronik des Chaos",
     "featureSessionDesc": "Dokumentiere Abenteuer, verteile XP, halte NPCs und Zitate fest — inklusive Sprachnotizen für unterwegs.",
-    "featureChatTitle": "Regelbuch-KI",
-    "featureChatDesc": "Frage den Assistenten alles zu AD&D 2e. Antworten kommen direkt aus den offiziellen Büchern, inklusive Monstrous-Manual-Taktik.",
+    "featureChatTitle": "SvenBot",
+    "featureChatDesc": "Frag euren Spielleiter alles zu AD&D 2e und zur App. Die Antworten kommen direkt aus den offiziellen Büchern, die Häme gibt es gratis dazu.",
     "featureGmTitle": "Spielleiter-Werkzeuge",
     "featureGmDesc": "Eigenes PIN-geschütztes GM-Dashboard mit Party-Überblick in Realtime, Loot-Verteilung, Monster-Bestiarium und Kampfsimulator.",
     "howItWorksTitle": "So schlägst du den ersten Funken",
@@ -75,7 +75,7 @@
     "more": "Mehr",
     "settings": "Einstellungen",
     "newCharacter": "Neuer Charakter",
-    "rulebook": "Chat",
+    "rulebook": "SvenBot",
     "party": "Beutekasse"
   },
   "notFound": {
@@ -1367,10 +1367,11 @@
   },
   "rulebook": {
     "title": "Regelwerk & App-Hilfe",
-    "placeholder": "Frag was zu AD&D oder der App...",
+    "botName": "SvenBot",
+    "placeholder": "Frag SvenBot zu AD&D oder der App…",
     "send": "Senden",
-    "thinking": "Der Orakel-Krake denkt nach...",
-    "welcome": "Grüße, Abenteurer! Ich kenne die AD&D 2nd Edition Regelbücher auswendig — und die Chaos Forge App ebenso. Frag mich zu Regeln, Monstern, Kampftaktiken ODER zur Bedienung der App.",
+    "thinking": "SvenBot reibt sich die Hände…",
+    "welcome": "Na, wieder Fragen? Frag. Aber jammer nicht über die Antwort. Ich kenne die AD&D-2nd-Edition-Regelbücher und die Chaos Forge besser als ihr eure Charakterbögen.",
     "exampleQuestions": "Zum Beispiel:",
     "example1": "Welche THAC0 hat ein Kämpfer auf Stufe 5?",
     "example2": "Wie lege ich ein magisches Item an meinen Charakter an?",
@@ -1381,6 +1382,12 @@
     "filterBooks": "Bücher filtern",
     "allBooks": "Alle Bücher",
     "source": "Quelle"
+  },
+  "releaseNotes": {
+    "sectionTitle": "Neuigkeiten",
+    "dialogTitle": "Neu in der Chaos Forge",
+    "confirm": "Verstanden",
+    "allNotesLink": "Alle Neuigkeiten in den Einstellungen"
   },
   "party": {
     "title": "Party-Inventar",
@@ -1949,7 +1956,7 @@
       "notificationsTitle": "Benachrichtigungen",
       "notificationsDesc": "Erhaltenes Gold, neue Items, zugewiesene XP — alles landet hier. Die Glocke leuchtet rot bei ungelesenen Nachrichten.",
       "chatTitle": "Hilfe jederzeit",
-      "chatDesc": "Fragen zu Regeln oder zur App? Der Chat im More-Menü beantwortet beides — AD&D 2e Regeln direkt aus den Büchern und alles zur Bedienung von Chaos Forge."
+      "chatDesc": "Fragen zu Regeln oder zur App? SvenBot im More-Menü beantwortet beides — AD&D 2e Regeln direkt aus den Büchern und alles zur Bedienung von Chaos Forge."
     },
     "characters": {
       "welcomeTitle": "Dein Charakter",
@@ -1957,7 +1964,7 @@
       "modesTitle": "Modi wechseln",
       "modesDesc": "Verwalten für die ruhige Pflege, Spielen für die Session, Episch für Schadensstufen und Spezialitems.",
       "chatTitle": "Unsicher bei einer Regel?",
-      "chatDesc": "Der Chat hilft bei THAC0, Spruchlisten, Turn Undead und vielem mehr. Auch App-Fragen werden beantwortet — einfach fragen."
+      "chatDesc": "SvenBot hilft bei THAC0, Spruchlisten, Turn Undead und vielem mehr. Auch App-Fragen werden beantwortet — einfach fragen."
     },
     "party": {
       "welcomeTitle": "Die Beutekasse",
@@ -1967,7 +1974,7 @@
       "itemsTitle": "Item-Pool",
       "itemsDesc": "Gefundene Items landen hier, bevor sie an Charaktere verteilt werden. Der Beschenkte bekommt eine Notification.",
       "chatTitle": "Fragen zur Verteilung?",
-      "chatDesc": "Der Chat im More-Menü erklärt alle Party-Loot-Funktionen im Detail."
+      "chatDesc": "SvenBot im More-Menü erklärt alle Party-Loot-Funktionen im Detail."
     },
     "chronicle": {
       "welcomeTitle": "Chronik des Chaos",
@@ -1977,7 +1984,7 @@
       "quotesTitle": "Zitate sammeln",
       "quotesDesc": "Die besten Sprüche der Session — hier werden sie verewigt. Ideal für den Throwback beim nächsten Mal.",
       "chatTitle": "Mehr erfahren",
-      "chatDesc": "Der Chat erklärt jede Chronik-Funktion und hilft auch bei Regelfragen zum aktuellen Abenteuer."
+      "chatDesc": "SvenBot erklärt jede Chronik-Funktion und hilft auch bei Regelfragen zum aktuellen Abenteuer."
     }
   },
   "rescan": {

@@ -47,7 +47,7 @@ Chaos Forge ersetzt umständliche Offline-Editoren aus den 90er Jahren durch ein
   - **Realtime HP** — Supabase Postgres-Changes für Live-HP der Party während der Session
   - **Bestiary + NPCs** — 400+ Monster aus dem Monstrous Manual (Compendium-Backfill mit Narrativ-Texten, Sub-Varianten, Treasure-Code-Legende) + Custom-NPC-Management
   - **Monster-Import-Pipeline** — 5-Schritt-Prozess (Snapshot → Parse → Backfill → Translate → Images), dokumentiert in `docs/monster-import.md`
-  - **Rulebook Chat** — Eingebetteter KI-Chat für Regelfragen mit Quellenbuch-Filter
+  - **SvenBot** — Eingebetteter KI-Chat für Regelfragen mit Quellenbuch-Filter
   - **Eigene Navigation** — Sidebar + Bottom-Nav, PWA-Manifest für Homescreen-Installation
 - **Notifications** — Live-Notifications für Item/Gold-Transfer, XP-Vergabe, Freigabe-Events etc. mit Delete-Funktion (einzeln + alle)
 - **Avatar-Silhouetten** — Rassen-/Klassen-spezifische Silhouetten als Fallback wenn Character kein Avatar hat
@@ -56,8 +56,8 @@ Chaos Forge ersetzt umständliche Offline-Editoren aus den 90er Jahren durch ein
 - **Regelwerk-Engine** — Reine TypeScript-Funktionen für alle PHB-Regeln + Player's Option
 - **Landing Page** — Immersives Showcase mit Party-Artwork, 4 Feature-Cards mit Klassen-Glows, How-It-Works Timeline, Footer-CTA
 - **User-Freigabe-System** — Neue Registrierungen bekommen Read-Only-Zugriff bis der Admin sie via `/admin/approve/[id]` freischaltet oder ablehnt (Account-Delete). Persistenter Banner für Wartende. BEFORE-Trigger auf 20+ Tabellen blocken Writes konsistent (auch durch SECURITY DEFINER RPCs). In-App-Notification + Discord-Webhook bei neuen Usern
-- **Tutorial-System** — Custom Overlay (kein Library-Bloat) mit Spotlight-Clip-Path, auf Dashboard, Charakterbogen, Party Loot, Chronik. Einmalig, skippbar, letzter Schritt verweist auf Chat. Bestehende User via `skip_tutorials`-Flag ausgenommen
-- **Rulebook Chat (dual mode)** — beantwortet AD&D-Regelfragen (RAG mit Voyage AI + Regelbuch-Chunks) UND App-Nutzungsfragen ("Wie lege ich ein Magic Item an?") in einem
+- **Tutorial-System** — Custom Overlay (kein Library-Bloat) mit Spotlight-Clip-Path, auf Dashboard, Charakterbogen, Party Loot, Chronik. Einmalig, skippbar, letzter Schritt verweist auf SvenBot. Bestehende User via `skip_tutorials`-Flag ausgenommen
+- **SvenBot (Regelbuch-Chat, dual mode)** — antwortet als leicht fieser Spielleiter Sven (Avatar aus dem Master-of-Chaos-Artwork) und beantwortet AD&D-Regelfragen (RAG mit Voyage AI + Regelbuch-Chunks) UND App-Nutzungsfragen ("Wie lege ich ein Magic Item an?") in einem
 - **User-Settings** (`/settings`) — Profil editieren (Name, Avatar), Theme/Sprache, Tutorials zurücksetzen, DSGVO-konforme Account-Selbstlöschung
 - **Legal Pages** — `/impressum` + `/datenschutz` mit allen externen Diensten, DSGVO-Rechten, Footer-Links auf allen Seiten
 - **Kondensator-Stat-Override** — Neue `forceStatOverrides`-Semantik für Epic Items mit `simple_effects.base_<stat>` (ersetzt Basiswert unbedingt). `computeEffectiveMaxHp` passt Max-HP bei CON-Änderung dynamisch an (Delta-basiert, Warrior-Cap beachtet, asymmetrische Current-HP-Clamping-Regel: CON↑ = max steigt/current bleibt, CON↓ = current wird geclamped)

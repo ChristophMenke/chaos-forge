@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { X, ChevronRight, ChevronLeft, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { whenReleaseNotesClosed } from "@/lib/release-notes";
 import {
   TUTORIAL_STEPS,
   type TutorialStep,
@@ -178,7 +179,14 @@ export function TutorialOverlay({ page, forceShow = false, onClose }: TutorialOv
     if (isTutorialDismissed(page)) return;
 
     let timer: number | undefined;
+    let cancelWait = () => {};
     let cancelled = false;
+    // Never stack on top of the release-notes dialog: start once it is closed.
+    const start = () => {
+      timer = window.setTimeout(() => {
+        cancelWait = whenReleaseNotesClosed(() => setActive(true));
+      }, 600);
+    };
 
     // Also respect profile.skip_tutorials (set for users that existed before
     // the tutorial feature shipped). If the flag is true, cache in localStorage
@@ -199,15 +207,16 @@ export function TutorialOverlay({ page, forceShow = false, onClose }: TutorialOv
           dismissTutorial(page);
           return;
         }
-        timer = window.setTimeout(() => setActive(true), 600);
+        start();
       } catch {
-        if (!cancelled) timer = window.setTimeout(() => setActive(true), 600);
+        if (!cancelled) start();
       }
     })();
 
     return () => {
       cancelled = true;
       if (timer !== undefined) window.clearTimeout(timer);
+      cancelWait();
     };
   }, [page, forceShow]);
 
