@@ -49,12 +49,12 @@ export default function DatenschutzPage() {
             Authentifizierung.
           </li>
           <li>
-            <strong>KI-Interaktionen:</strong> Deine Fragen an den Regelbuch-Chat, hochgeladene
-            Charakterbögen und Monster-Statblocks sowie Session-Beiträge zur Zusammenfassung werden
-            zur Bearbeitung an Google (Gemini) übermittelt; für die Regelbuch-Suche zusätzlich an
-            Voyage AI (Embeddings). Charakter-/NPC-Bilder werden ebenfalls via Google Gemini
-            generiert. Keine dauerhafte Speicherung durch die Anbieter im Rahmen der
-            Standardverträge.
+            <strong>KI-Interaktionen:</strong> Deine Fragen an den Regelbuch-Chat (SvenBot),
+            hochgeladene Charakterbögen und Monster-Statblocks sowie Session-Beiträge zur
+            Zusammenfassung werden zur Bearbeitung an Google (Gemini) übermittelt; für die
+            Regelbuch-Suche zusätzlich an Voyage AI (Embeddings). Charakter-/NPC-Bilder werden
+            ebenfalls via Google Gemini generiert. Keine dauerhafte Speicherung durch die Anbieter
+            im Rahmen der Standardverträge.
           </li>
         </ul>
 

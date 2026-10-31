@@ -51,7 +51,7 @@ src/
     characters/import/    # OCR/Vision-Import (Gemini Vision)
     api/scan-character/   # Gemini Vision Endpoint für Character-Import (mode=create|update)
     api/scan-monster/     # Gemini Vision Endpoint für Monster-Import (Flash/Pro Precise Mode)
-    api/rulebook-chat/    # Gemini Endpoint für GM Rulebook Chat (Streaming, Realms-Persona)
+    api/rulebook-chat/    # Gemini Endpoint für SvenBot (Regelbuch-Chat, Streaming; Persona in lib/rulebook-chat/)
     dashboard/            # Dashboard mit 8 Widgets (Zitat, NPCs, XP, Tags, Party-Übersicht, etc.)
     party/                # Party-Inventar & Loot-Verteilung (Gold + Items + Audit-Log)
     master/               # GM-Dashboard: PIN-Gate, Party-Übersicht, Loot-Verteilung, Gold, Chat
@@ -65,12 +65,14 @@ src/
     level-badge.tsx       # Hexagonales Level-Badge (CSS clip-path)
     app-sidebar.tsx       # Desktop Left-Sidebar (Icons, Tooltips, Logout)
     app-nav.tsx           # Mobile Bottom-Nav + More-Menu
-    master/               # GM-Dashboard: Immersive PIN-Gate (Chaos-Artwork), Party Panel (Council of Heroes mit Aggregat-Stats), Gold Panel (Treasury Vault mit Multi-Select + Split), Items Panel (CRUD + In-Use-Check), Bestiary Panel (Monster CRUD + AI Import + Precise-Mode-Toggle), MonsterForm (Create/Edit), MonsterVariantPicker (Multi-Variant-Scan), NPCs, Combat Simulator, Bookmarks, Rulebook Chat, Sidebar, Bottom Nav
+    master/               # GM-Dashboard: Immersive PIN-Gate (Chaos-Artwork), Party Panel (Council of Heroes mit Aggregat-Stats), Gold Panel (Treasury Vault mit Multi-Select + Split), Items Panel (CRUD + In-Use-Check), Bestiary Panel (Monster CRUD + AI Import + Precise-Mode-Toggle), MonsterForm (Create/Edit), MonsterVariantPicker (Multi-Variant-Scan), NPCs, Combat Simulator, Bookmarks, SvenBot (Rulebook Chat), Sidebar, Bottom Nav
+    svenbot/              # SvenBotAvatar (Chat, alt = Name) + SvenBotIcon (Navigationen, dekorativ); Bild: public/images/svenbot/ via scripts/svenbot-avatar.ts
     notifications/        # Notification Bell mit Delete-Funktion (einzeln + alle)
     character-rescan/     # Rescan: Upload-Panel, Änderungsliste, Änderungs-Zeile
     epic-equipment/       # Epische Ausrüstung (Schadensstufen-Cards, Simple Items, Blade System, Spell Abilities) + Sprockets Geräte: Wurf-Dialog (skill-check-dialog), Übertakten-Bedienung (overclock-controls), Kondensator-Bereiche (condenser-panels), Rezept-Checkliste (recipe-checklist)
     party/                # Party-Inventar (Gold-Panel, Items-Panel, Log-Panel, Loot-Verteilung)
     settings/             # Einstellungen: Spieltermine-Panel (CRUD)
+    release-notes/        # Release Notes: Liste (Dialog + Einstellungen), Sektion „Neuigkeiten“, Dialog-Gate im Root-Layout (Inhalt per next/dynamic)
     play-mode/            # Play Mode (Kampf, Zauber, Fähigkeiten, Checks, Wahrnehmung, Inventar, Geldbörse, Untote vertreiben, Gestaltwandlung)
     spellbook/            # Standalone Spellbook-Seite (Suche, Filter, Prepare, Learn, Source-Book-Filter)
     print-sheet/          # Druckansicht + Word-Export (.docx), Customization Panel
@@ -122,7 +124,9 @@ src/
       treasure-codes.ts   # DMG-Treasure-Code-Legende (A-Z → DE-Kurzbeschreibung, Tooltip im Bestiary)
     rules/
       magic-items.ts      # getMagicItemEffects(equipment) — Aggregiert AC-Bonus, Saves etc. aus character_equipment.magic_effects
+    rulebook-chat/        # system-prompt.ts: SvenBot-Persona (SYSTEM_PROMPT) + App-Doku (APP_HELP_CONTEXT), unit-getestet
     gemini/               # Google Gemini: Imagen-Client für Bilder + `generate-text.ts`/`text-request.ts` für alle Text- und Vision-Aufrufe (Rassen, Klassen, Banner)
+    release-notes/        # releases.ts (RELEASES, neueste oben) + index.ts (getUnseenReleases, isReleaseNotesRoute, Cache pro Nutzer, Offen-Signal fürs Tutorial)
     game-dates/           # Spieltermine: reine Datumslogik (index.ts) + Supabase-I/O (api.ts)
     scan/                 # AI-Scan-Prompts + Charakterbogen-Rescan-Engine
       monster-scan-prompt.ts # Gemini Vision Prompt für Monster-Import (ScannedMonsterVariant-Schema)
@@ -145,7 +149,7 @@ src/
 scripts/                  # Einmalige Daten-Pipeline-Scripts (spell-cards/ ist versioniert, out/ nicht)
 messages/                 # i18n-Dateien (de.json, en.json)
 supabase/
-  migrations/             # 229 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items + Realtime + Gold RPC + Monsters + Notifications + Weapon Proficiency Split + Monster Narrative + Profiles)
+  migrations/             # 230 SQL-Migrationen (Schema + Seed-Daten + Spell Compendium + Epic Items + Realtime + Gold RPC + Monsters + Notifications + Weapon Proficiency Split + Monster Narrative + Profiles)
 ressources/
   books/                  # OCR-Texte der AD&D 2e Regelbücher (metrisch konvertiert)
   compendium-snapshot/    # Monstrous Manual HTML-Snapshot + parsed/translated JSON (einmaliger Backfill)
@@ -353,9 +357,11 @@ Diese Abweichungen vom Standard-PHB gelten für die "Chaos RPG"-Gruppe:
 - **Env-Variablen:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_API_KEY` (alle KI-Features), `VOYAGE_API_KEY` (Regelbuch-Suche), `GM_PIN` (6-Digit), optional `GM_SESSION_SECRET` und `CRON_SECRET` in `.env.local`
 - **RLS:** Alle Tabellen nutzen Row Level Security — SELECT für alle Authentifizierten, INSERT/UPDATE/DELETE nur für Owner
 - **Storage:** `voice-notes` Bucket für Sprachnotizen, `avatars` für Character-Avatare
-- **Migrationen:** 229 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
+- **Migrationen:** 230 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
 - **User-Freigabe:** `profiles.is_approved` (default false, bestehende User via Backfill auf true) + `enforce_approval`-BEFORE-Trigger auf 20+ Tabellen (`characters`, `character_equipment`, `character_spells`, `chronicle_npcs`, `chronicle_quotes`, `sessions`, `tags`, `party_loot_*`, `monsters`, `magic_items`, `epic_items`, `gm_bookmarks`). `approve_user(uuid)` RPC nur für Admin. Items mit `simple_effects.base_<stat>` (Kondensator) gehen über `forceStatOverrides` — ersetzen Basiswert unbedingt (nicht max()).
-- **Tutorials:** `profiles.skip_tutorials` (Backfill = true) blendet Overlays für bestehende User aus. Client-Side localStorage-Key `chaos-forge-tutorial-dismissed`.
+- **Tutorials:** `profiles.skip_tutorials` (Backfill = true) blendet Overlays für bestehende User aus. Client-Side localStorage-Key `chaos-forge-tutorial-dismissed`. Das Tutorial startet erst, wenn kein Release-Dialog offen ist (`whenReleaseNotesClosed`).
+- **Release Notes:** `src/lib/release-notes/releases.ts` — neue Release = Eintrag **oben** in `RELEASES`, ID = Release-Tag `YYYY-MM-DD` (zweite am selben Tag `-2` … `-9`), Texte DE/EN. Der Dialog im Root-Layout zeigt ungesehene Releases (`id > profiles.last_seen_release` **und** Release-Tag nach dem Kalendertag von `profiles.created_at` in Europe/Berlin) nur auf eingeloggten App-Seiten (nicht `/`, `/login`, `/impressum`, `/datenschutz`, `/share`, `/master`, `/admin`, Druckansicht, Embed). Jedes Schließen speichert die neueste ID; localStorage `chaos-forge-release-seen:<userId>` spart danach die Abfrage. Einstellungen → „Neuigkeiten“ zeigt alle Releases.
+- **Profil-Spaltenschutz:** Trigger `protect_profile_columns` (Migration 00232) lehnt Client-Updates an `is_approved`, `email` und `id` ab (42501). Freigabe nur über `approve_user` (SECURITY DEFINER) bzw. Service-Role.
 - **Spieltermine:** `game_dates` (`event_date` als reines `date`, kein Zeitstempel — Countdown darf nicht von der Serverzeitzone abhängen). Jeder freigegebene Nutzer darf CRUD. Ein `AFTER`-Trigger verteilt Benachrichtigungen an alle anderen freigegebenen Spieler; Auslöser aus der QA-Domain und System-Kontext (kein `auth.uid()`) sind ausgenommen.
 
 ## AD&D 2e Regelwerk-Spezifika
@@ -437,3 +443,5 @@ Finaler explorativer Test mit etablierten Testing-Heuristiken und gezielten "Tes
 27. **Rückgängig/Wiederherstellen** — Pfeil-Buttons in der Modus-Leiste eigener Charaktere mit Tooltip „Rückgängig: X“, Historie pro Charakter und Tab (50 Schritte, bleibt beim Moduswechsel, verfällt beim Neuladen). Abgedeckt: Spielmodus (TP, Schaden inkl. temporärer TP, Münzen, Zauber wirken, Rast, Inventar, Magische Items), Effekte, epische Ausrüstung (Klingen, Schadensstufe, Overclock), Charakterbogen (Entwurf schrittweise, Speichern als ein Schritt, alle Reiter), XP, Klassen, Stufenaufstieg. Konfliktprüfung gegen zwischenzeitliche Änderungen, Bestätigungsdialoge bleiben. Nebenbei: Mengen-/Bonusfelder speichern entprellt statt pro Tastendruck ✅
 
 28. **Sprockets Kondensator & Herstellung** — Übertakten nur nach Ingenieurskunst-Wurf (Fehlschlag kostet eine Schadensstufe), statt Echtzeit-Timer „Eine Stunde vergeht“ mit +1 TP und Kühlungswurf (jede zweite Stunde −1), misslungene Kühlung schaltet ab und sperrt einen Tag; bedienbar auf der Epic-Seite und im Play Mode (Zielwert aus der Fertigkeit). Reparatur-Dialog mit Kupferelixier (+4, Bestand), Komponenten-Checklisten mit Fundorten für die vier Mixturen (Ertrag 2) und das Kupferelixier (100 GM aus der Börse). Jede Aktion ein Undo-Schritt; GM-Dashboard per Realtime. Nebenbei: TP-Abgleich (`epic-hp.ts`) und NWP-Zielwert (`getNwpCheckTarget`) herausgelöst, Undo-Label-Prüfung erkennt weitergereichte Labels ✅
+
+29. **Release Notes & SvenBot** — Der Regelbuch-Chat heißt SvenBot und antwortet als leicht fieser Spielleiter Sven (höchstens eine Stichelei, Regeln bleiben quellentreu); Svens Gesicht aus dem Master-of-Chaos-Artwork neben jeder Antwort, im Chat-Kopf und in allen Navigationen. Release Notes als versionierte Daten (DE/EN): Dialog einmal pro Release nach dem Login (gesehen in `profiles.last_seen_release`, neue Konten ausgenommen), Sektion „Neuigkeiten“ in den Einstellungen. Nebenbei: Persona nach `src/lib/rulebook-chat/` ausgelagert und getestet, App-Doku zum Stufenaufstieg korrigiert, Sicherheitsfix: Spieler konnten sich per Profil-Update selbst freischalten (Trigger `protect_profile_columns`) ✅

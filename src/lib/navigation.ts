@@ -1,4 +1,5 @@
-import { LayoutDashboard, Users, ScrollText, Package, FileUp, BookOpen } from "lucide-react";
+import { LayoutDashboard, Users, ScrollText, Package, FileUp } from "lucide-react";
+import { SvenBotIcon } from "@/components/svenbot/svenbot-avatar";
 
 export const NAV_ITEMS = [
   {
@@ -38,7 +39,7 @@ export const NAV_ITEMS = [
   },
   {
     href: "/chat",
-    icon: BookOpen,
+    icon: SvenBotIcon,
     labelKey: "rulebook" as const,
     testId: "nav-rulebook",
     mobileBar: false,
