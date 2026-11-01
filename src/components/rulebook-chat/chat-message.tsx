@@ -4,6 +4,7 @@ import { MarkdownRenderer as ReactMarkdown } from "@/components/markdown-rendere
 import remarkBreaks from "remark-breaks";
 import { cn } from "@/lib/utils";
 import { convertImperialText } from "@/lib/utils/units";
+import { SvenBotAvatar } from "@/components/svenbot/svenbot-avatar";
 
 interface ChatMessageProps {
   role: "user" | "assistant";
@@ -22,6 +23,7 @@ export function ChatMessage({ role, content, isStreaming }: ChatMessageProps) {
       className={cn("flex w-full gap-3", isUser ? "justify-end" : "justify-start")}
       data-testid={`chat-message-${role}`}
     >
+      {!isUser && <SvenBotAvatar size="sm" className="self-start" />}
       <div
         className={cn(
           "max-w-[85%] rounded-xl px-4 py-3",

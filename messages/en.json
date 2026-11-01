@@ -33,8 +33,8 @@
     "featureCharacterDesc": "Build heroes with the guided wizard or import existing sheets from a photo. Abilities, spells, equipment and epic items — all in one view.",
     "featureSessionTitle": "Chronicle of Chaos",
     "featureSessionDesc": "Log adventures, award XP, capture NPCs and memorable quotes — voice notes included for on-the-go entries.",
-    "featureChatTitle": "Rulebook AI",
-    "featureChatDesc": "Ask the assistant anything about AD&D 2e. Answers come straight from the official books, including Monstrous Manual tactics.",
+    "featureChatTitle": "SvenBot",
+    "featureChatDesc": "Ask your game master anything about AD&D 2e and the app. Answers come straight from the official books, the gloating is free.",
     "featureGmTitle": "Game Master Tools",
     "featureGmDesc": "A PIN-gated GM dashboard with realtime party overview, loot distribution, monster bestiary and combat simulator.",
     "howItWorksTitle": "How to strike the first spark",
@@ -75,7 +75,7 @@
     "more": "More",
     "settings": "Settings",
     "newCharacter": "New Character",
-    "rulebook": "Chat",
+    "rulebook": "SvenBot",
     "party": "Party Loot"
   },
   "notFound": {
@@ -1367,10 +1367,11 @@
   },
   "rulebook": {
     "title": "Rules & App Help",
-    "placeholder": "Ask about AD&D or the app...",
+    "botName": "SvenBot",
+    "placeholder": "Ask SvenBot about AD&D or the app…",
     "send": "Send",
-    "thinking": "The Oracle-Kraken is pondering...",
-    "welcome": "Greetings, adventurer! I know the AD&D 2nd Edition rulebooks by heart — and the Chaos Forge app too. Ask me about rules, monsters, combat tactics OR how to use the app.",
+    "thinking": "SvenBot rubs his hands…",
+    "welcome": "Questions again? Ask. Just don’t whine about the answer. I know the AD&D 2nd Edition rulebooks and Chaos Forge better than you know your character sheets.",
     "exampleQuestions": "For example:",
     "example1": "What THAC0 does a Fighter have at level 5?",
     "example2": "How do I attach a magic item to my character?",
@@ -1381,6 +1382,12 @@
     "filterBooks": "Filter books",
     "allBooks": "All books",
     "source": "Source"
+  },
+  "releaseNotes": {
+    "sectionTitle": "What’s new",
+    "dialogTitle": "New in Chaos Forge",
+    "confirm": "Got it",
+    "allNotesLink": "All updates in settings"
   },
   "party": {
     "title": "Party Inventory",
@@ -1966,7 +1973,7 @@
       "notificationsTitle": "Notifications",
       "notificationsDesc": "Received gold, new items, awarded XP — all land here. The bell glows red for unread messages.",
       "chatTitle": "Help, anytime",
-      "chatDesc": "Questions about rules or the app? The chat in the More menu answers both — AD&D 2e rules straight from the books and anything about using Chaos Forge."
+      "chatDesc": "Questions about rules or the app? SvenBot in the More menu answers both — AD&D 2e rules straight from the books and anything about using Chaos Forge."
     },
     "characters": {
       "welcomeTitle": "Your character",
@@ -1974,7 +1981,7 @@
       "modesTitle": "Switch modes",
       "modesDesc": "Manage for calm upkeep, Play for the session, Epic for damage tiers and special items.",
       "chatTitle": "Unsure about a rule?",
-      "chatDesc": "The chat helps with THAC0, spell lists, Turn Undead and more. App questions are answered too — just ask."
+      "chatDesc": "SvenBot helps with THAC0, spell lists, Turn Undead and more. App questions are answered too — just ask."
     },
     "party": {
       "welcomeTitle": "The party loot",
@@ -1984,7 +1991,7 @@
       "itemsTitle": "Item pool",
       "itemsDesc": "Found items land here before being distributed. The recipient gets a notification.",
       "chatTitle": "Questions about distribution?",
-      "chatDesc": "The chat in the More menu explains every party loot feature in detail."
+      "chatDesc": "SvenBot in the More menu explains every party loot feature in detail."
     },
     "chronicle": {
       "welcomeTitle": "Chronicle of Chaos",
@@ -1994,7 +2001,7 @@
       "quotesTitle": "Capture quotes",
       "quotesDesc": "The best lines from the session — immortalised here. Ideal for throwback next time.",
       "chatTitle": "Learn more",
-      "chatDesc": "The chat explains every chronicle feature and helps with rules for your current adventure."
+      "chatDesc": "SvenBot explains every chronicle feature and helps with rules for your current adventure."
     }
   },
   "rescan": {

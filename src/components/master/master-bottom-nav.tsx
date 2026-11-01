@@ -2,17 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import {
-  Users,
-  Swords,
-  Coins,
-  BookOpen,
-  MoreHorizontal,
-  UserRound,
-  Bug,
-  Flame,
-  Star,
-} from "lucide-react";
+import { Users, Swords, Coins, MoreHorizontal, UserRound, Bug, Flame, Star } from "lucide-react";
+import { SvenBotIcon } from "@/components/svenbot/svenbot-avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { LogoutButton } from "@/components/logout-button";
@@ -48,7 +39,7 @@ export function MasterBottomNav({ activeTab, onTabChange, userEmail }: MasterBot
     { id: "party", icon: <Users className="h-5 w-5" />, label: t("partyTab") },
     { id: "items", icon: <Swords className="h-5 w-5" />, label: t("itemsTab") },
     { id: "gold", icon: <Coins className="h-5 w-5" />, label: t("goldTab") },
-    { id: "chat", icon: <BookOpen className="h-5 w-5" />, label: tn("rulebook") },
+    { id: "chat", icon: <SvenBotIcon className="h-5 w-5" />, label: tn("rulebook") },
   ];
 
   const moreTabs: { id: TabId; icon: React.ReactNode; label: string }[] = [

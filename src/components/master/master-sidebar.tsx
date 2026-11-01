@@ -1,7 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Users, Swords, Coins, BookOpen, LogOut, UserRound, Bug, Flame, Star } from "lucide-react";
+import { Users, Swords, Coins, LogOut, UserRound, Bug, Flame, Star } from "lucide-react";
+import { SvenBotIcon } from "@/components/svenbot/svenbot-avatar";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LocaleToggle } from "@/components/locale-toggle";
@@ -84,7 +85,7 @@ export function MasterSidebar({ activeTab, onTabChange, userEmail }: MasterSideb
             aria-label={tn("rulebook")}
             data-testid="gm-sidebar-chat"
           >
-            <BookOpen className="h-5 w-5 shrink-0" />
+            <SvenBotIcon className="h-5 w-5 shrink-0" />
             <span className="hidden text-sm font-medium xl:inline">{tn("rulebook")}</span>
           </TooltipTrigger>
           <TooltipContent side="right" className="xl:hidden">
