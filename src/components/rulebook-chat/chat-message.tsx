@@ -4,16 +4,23 @@ import { MarkdownRenderer as ReactMarkdown } from "@/components/markdown-rendere
 import remarkBreaks from "remark-breaks";
 import { cn } from "@/lib/utils";
 import { convertImperialText } from "@/lib/utils/units";
+import { useTranslations } from "next-intl";
+import { TriangleAlert } from "lucide-react";
 import { SvenBotAvatar } from "@/components/svenbot/svenbot-avatar";
+import type { ChatStatus } from "@/lib/rulebook-chat/chat-history";
 
 interface ChatMessageProps {
   role: "user" | "assistant";
   content: string;
-  isStreaming?: boolean;
+  /** Defaults to "done". */
+  status?: ChatStatus;
+  errorMessage?: string;
 }
 
-export function ChatMessage({ role, content, isStreaming }: ChatMessageProps) {
+export function ChatMessage({ role, content, status = "done", errorMessage }: ChatMessageProps) {
+  const t = useTranslations("rulebook");
   const isUser = role === "user";
+  const isStreaming = status === "streaming";
 
   // Apply metric conversion to assistant messages
   const displayContent = isUser ? content : convertImperialText(content);
@@ -35,9 +42,29 @@ export function ChatMessage({ role, content, isStreaming }: ChatMessageProps) {
         {isUser ? (
           <p className="text-sm whitespace-pre-wrap">{displayContent}</p>
         ) : (
-          <div className="prose prose-sm prose-invert max-w-none">
-            <ReactMarkdown remarkPlugins={[remarkBreaks]}>{displayContent}</ReactMarkdown>
-          </div>
+          (displayContent || status === "error") && (
+            <div className="prose prose-sm prose-invert max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkBreaks]}>
+                {status === "error"
+                  ? // Prefix rendered now, so it follows the current language.
+                    [displayContent, `**${t("error")}:** ${errorMessage ?? ""}`]
+                      .filter(Boolean)
+                      .join("\n\n")
+                  : displayContent}
+              </ReactMarkdown>
+            </div>
+          )
+        )}
+        {status === "interrupted" && (
+          <p
+            className={cn(
+              "flex items-center gap-1.5 text-xs text-amber-400",
+              displayContent && "mt-2"
+            )}
+          >
+            <TriangleAlert className="h-3.5 w-3.5" />
+            {t("interrupted")}
+          </p>
         )}
         {isStreaming && <span className="mt-1 inline-block h-4 w-1 animate-pulse bg-primary/60" />}
       </div>

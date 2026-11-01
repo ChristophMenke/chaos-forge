@@ -1381,7 +1381,12 @@
     "error": "Error with the query. Please try again.",
     "filterBooks": "Filter books",
     "allBooks": "All books",
-    "source": "Source"
+    "source": "Source",
+    "interrupted": "The answer was interrupted.",
+    "truncated": "Older messages were removed.",
+    "newChat": "New chat",
+    "newChatConfirmTitle": "New chat?",
+    "newChatConfirmText": "The current conversation will be deleted."
   },
   "releaseNotes": {
     "sectionTitle": "What’s new",

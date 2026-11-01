@@ -18,7 +18,7 @@ describe("ChatMessage", () => {
   });
 
   it("shows the face while an answer is still streaming", () => {
-    render(<ChatMessage role="assistant" content="ETW" isStreaming />);
+    render(<ChatMessage role="assistant" content="ETW" status="streaming" />);
 
     expect(screen.getByTestId("svenbot-avatar")).toBeInTheDocument();
   });
@@ -27,5 +27,28 @@ describe("ChatMessage", () => {
     render(<ChatMessage role="user" content="Was ist mein ETW0?" />);
 
     expect(screen.queryByTestId("svenbot-avatar")).not.toBeInTheDocument();
+  });
+});
+
+describe("ChatMessage status", () => {
+  it("marks an interrupted answer", async () => {
+    render(<ChatMessage role="assistant" content="Stufe 5 und" status="interrupted" />);
+
+    expect(await screen.findByText("Stufe 5 und")).toBeInTheDocument();
+    expect(screen.getByText(/interrupted/)).toBeInTheDocument();
+  });
+
+  it("shows only the note when nothing arrived before the interruption", () => {
+    render(<ChatMessage role="assistant" content="" status="interrupted" />);
+
+    expect(screen.getByTestId("chat-message-assistant").textContent).toMatch(/interrupted/);
+  });
+
+  it("prefixes errors in the current language, after any partial answer", async () => {
+    render(<ChatMessage role="assistant" content="Teil" status="error" errorMessage="HTTP 500" />);
+
+    await screen.findByText("Teil");
+    const row = screen.getByTestId("chat-message-assistant");
+    expect(row.textContent).toContain("error: HTTP 500");
   });
 });

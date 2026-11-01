@@ -22,6 +22,7 @@ import { GlassCard } from "@/components/glass-card";
 import { createClient } from "@/lib/supabase/client";
 import { useTheme } from "@/components/theme-provider";
 import { resetTutorials } from "@/lib/tutorial/steps";
+import { clearSvenBotChats } from "@/lib/rulebook-chat/chat-store";
 import {
   uploadProfileAvatarCropped,
   deleteProfileAvatar,
@@ -160,6 +161,7 @@ export function SettingsClient({
       const res = await fetch("/api/account/delete", { method: "POST" });
       if (!res.ok) throw new Error(await res.text());
       toast.success(t("accountDeleted"));
+      clearSvenBotChats(userId);
       const supabase = createClient();
       await supabase.auth.signOut();
       // Full reload on purpose: the account is gone and the session was

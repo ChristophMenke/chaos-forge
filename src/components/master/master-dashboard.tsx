@@ -519,7 +519,7 @@ export function MasterDashboard({
             onAddToCombat={handleAddToCombatFromBestiary}
           />
         )}
-        {activeTab === "chat" && <RulebookChat />}
+        {activeTab === "chat" && <RulebookChat scope="gm" userId={userId} />}
       </div>
 
       {/* Mobile Bottom Nav with tab switching */}

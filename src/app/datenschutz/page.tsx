@@ -149,6 +149,12 @@ export default function DatenschutzPage() {
           Wir setzen ausschließlich technisch notwendige Cookies (Supabase-Auth-Session,
           Theme-Preference, Sprache). Keine Tracking- oder Marketing-Cookies.
         </p>
+        <p>
+          Gespräche mit SvenBot (Regelbuch-Chat) werden nur lokal in deinem Browser gespeichert
+          (localStorage), bis du „Neuer Chat“ wählst oder deinen Account löschst. Auf unseren
+          Servern werden sie nicht abgelegt; für die Beantwortung gehen die Fragen und die letzten
+          Nachrichten wie oben beschrieben an Google.
+        </p>
 
         <h2 className="font-heading text-lg text-primary">7. Speicherdauer</h2>
         <p>
