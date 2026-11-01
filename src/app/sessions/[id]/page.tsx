@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/supabase/auth";
+import { isAdminEmail } from "@/lib/admin";
 import { SessionDetail } from "@/components/session/session-detail";
 import { RealtimeRefresh } from "@/components/realtime-refresh";
 import type {
@@ -114,6 +115,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
         participants={participantChars ?? []}
         externalParticipants={session.external_participants}
         allActiveCharacters={allActiveChars ?? []}
+        isAdmin={isAdminEmail(user.email)}
       />
     </>
   );

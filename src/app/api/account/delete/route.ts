@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
-
-const ADMIN_EMAIL = "christoph.menke@gmail.com";
+import { isAdminEmail } from "@/lib/admin";
 
 /**
  * Self-service account deletion (DSGVO Art. 17 Recht auf Löschung).
@@ -22,7 +21,7 @@ export async function POST() {
     return NextResponse.json({ error: "Nicht authentifiziert." }, { status: 401 });
   }
 
-  if (user.email === ADMIN_EMAIL) {
+  if (isAdminEmail(user.email)) {
     return NextResponse.json({ error: "cannot_delete_admin" }, { status: 400 });
   }
 

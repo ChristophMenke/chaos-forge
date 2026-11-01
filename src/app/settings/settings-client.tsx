@@ -29,22 +29,24 @@ import {
 } from "@/lib/avatar/profile-upload";
 import { AvatarCropDialog } from "@/components/avatar-crop-dialog";
 import { ReleaseNotesSection } from "@/components/release-notes/release-notes-section";
+import { BackupSection } from "@/components/backup/backup-section";
 import type { CropArea } from "@/lib/avatar/resize";
 
 interface SettingsClientProps {
   userId: string;
   email: string;
+  /** Computed on the server from the login e-mail (see src/lib/admin.ts). */
+  isAdmin?: boolean;
   initialDisplayName: string;
   initialAvatarUrl: string | null;
   /** Spieltermine-Sektion — serverseitig mit Daten befüllt und hier eingehängt. */
   gameDatesSlot?: React.ReactNode;
 }
 
-const ADMIN_EMAIL = "christoph.menke@gmail.com";
-
 export function SettingsClient({
   userId,
   email,
+  isAdmin = false,
   initialDisplayName,
   initialAvatarUrl,
   gameDatesSlot,
@@ -169,8 +171,6 @@ export function SettingsClient({
       setDeleting(false);
     }
   }
-
-  const isAdmin = email === ADMIN_EMAIL;
 
   return (
     <div className="flex flex-col gap-5">
@@ -342,6 +342,9 @@ export function SettingsClient({
 
       {/* ── Neuigkeiten ───────────────────────────────────── */}
       <ReleaseNotesSection />
+
+      {/* ── Backup (nur Admin) ────────────────────────────── */}
+      {isAdmin && <BackupSection />}
 
       {/* ── Danger Zone ───────────────────────────────────── */}
       <GlassCard hover={false} data-testid="settings-section-danger">

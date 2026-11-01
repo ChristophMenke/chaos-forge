@@ -1888,6 +1888,23 @@
       "deleteError": "Could not delete the date"
     }
   },
+  "backup": {
+    "sectionTitle": "Backup",
+    "hint": "Saves all group data and uploaded images as a ZIP. On iPhone: “Save to iCloud” → “Save to Files” → iCloud Drive.",
+    "create": "Create backup",
+    "loadingData": "Loading group data …",
+    "loadingImages": "Loading images … {done} / {total}",
+    "zipping": "Packing the ZIP …",
+    "ready": "{name} · {size}",
+    "failedImages": "{count, plural, one {# image} other {# images}} could not be loaded (see manifest.json).",
+    "share": "Save to iCloud",
+    "download": "Download",
+    "error": "The backup could not be created.",
+    "retry": "Try again",
+    "offerTitle": "Save a backup?",
+    "offerText": "Your text is saved. Save all group data and images to your iCloud now.",
+    "later": "Later"
+  },
   "notifications": {
     "title": "Notifications",
     "navLabel": "Alerts",
