@@ -4,21 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { embedQuery } from "@/lib/embeddings";
 import { createServiceClient } from "@/lib/supabase/service";
 import { APP_HELP_CONTEXT, SYSTEM_PROMPT } from "@/lib/rulebook-chat/system-prompt";
-
-// Simple in-memory rate limiter (sufficient for ~10 users)
-const rateLimitMap = new Map<string, number[]>();
-const RATE_LIMIT = 20;
-const RATE_WINDOW = 60_000;
-
-function checkRateLimit(userId: string): boolean {
-  const now = Date.now();
-  const timestamps = rateLimitMap.get(userId) ?? [];
-  const recent = timestamps.filter((t) => now - t < RATE_WINDOW);
-  if (recent.length >= RATE_LIMIT) return false;
-  recent.push(now);
-  rateLimitMap.set(userId, recent);
-  return true;
-}
+import { API_HISTORY_LENGTH, MAX_HISTORY_CONTENT_LENGTH } from "@/lib/rulebook-chat/chat-history";
+import { checkRateLimit } from "@/lib/rulebook-chat/rate-limit";
+import { MAX_SUMMARY_LENGTH } from "@/lib/rulebook-chat/summary-request";
 
 export async function POST(request: NextRequest) {
   // Auth check
@@ -53,7 +41,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { message, history, bookFilter } = await request.json();
+    const { message, history, bookFilter, summary } = await request.json();
 
     if (!message || typeof message !== "string" || message.trim().length === 0) {
       return Response.json({ error: "Leere Nachricht." }, { status: 400 });
@@ -175,7 +163,7 @@ export async function POST(request: NextRequest) {
 
     const contextBlock = rulesContext + monsterContext + "\n\n" + APP_HELP_CONTEXT;
 
-    // 5. Build message history (max 4 previous exchanges = 8 messages)
+    // 5. Build message history (max 10 previous exchanges = API_HISTORY_LENGTH messages)
     // Validate and sanitize history entries
     const previousMessages: Array<{ role: "user" | "assistant"; content: string }> = Array.isArray(
       history
@@ -189,17 +177,23 @@ export async function POST(request: NextRequest) {
               "content" in m &&
               (m.role === "user" || m.role === "assistant") &&
               typeof m.content === "string" &&
-              m.content.length <= 10000
+              m.content.length <= MAX_HISTORY_CONTENT_LENGTH
           )
-          .slice(-8)
+          .slice(-API_HISTORY_LENGTH)
           .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }))
       : [];
+
+    // Running summary of older messages (the last 10 exchanges come as history).
+    const summaryBlock =
+      typeof summary === "string" && summary.trim() && summary.length <= MAX_SUMMARY_LENGTH
+        ? `Zusammenfassung des bisherigen Gesprächs (ältere Nachrichten):\n${summary.trim()}\n\n---\n\n`
+        : "";
 
     // 6. Stream Claude response
     const stream = streamText({
       system: SYSTEM_PROMPT,
       history: previousMessages,
-      prompt: `Relevante Regelbuch-Ausschnitte:\n\n${contextBlock}\n\n---\n\nFrage: ${message}`,
+      prompt: `${summaryBlock}Relevante Regelbuch-Ausschnitte:\n\n${contextBlock}\n\n---\n\nFrage: ${message}`,
       // Auf Gemini 3 zählt das Nachdenken des Modells gegen dieses Budget,
       // deshalb spürbar mehr als die 2048 der früheren Claude-Anbindung.
       maxOutputTokens: 8192,

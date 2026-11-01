@@ -40,6 +40,11 @@ describe("APP_HELP_CONTEXT", () => {
     expect(APP_HELP_CONTEXT).toMatch(/Desktop: direkt in der Sidebar/);
   });
 
+  it("explains that the conversation is kept until 'Neuer Chat'", () => {
+    expect(APP_HELP_CONTEXT).toMatch(/Neuer Chat/);
+    expect(APP_HELP_CONTEXT).toMatch(/Spieler- und GM-Chat sind getrennt/);
+  });
+
   it("describes the level-up assistant instead of an automatic level-up", () => {
     expect(APP_HELP_CONTEXT).not.toMatch(/Stufenaufstieg passiert automatisch/);
     expect(APP_HELP_CONTEXT).toMatch(/Stufenaufstieg verfügbar/);

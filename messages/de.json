@@ -1381,7 +1381,12 @@
     "error": "Fehler bei der Abfrage. Bitte versuche es erneut.",
     "filterBooks": "Bücher filtern",
     "allBooks": "Alle Bücher",
-    "source": "Quelle"
+    "source": "Quelle",
+    "interrupted": "Antwort wurde unterbrochen.",
+    "truncated": "Ältere Nachrichten wurden entfernt.",
+    "newChat": "Neuer Chat",
+    "newChatConfirmTitle": "Neuer Chat?",
+    "newChatConfirmText": "Der bisherige Verlauf wird gelöscht."
   },
   "releaseNotes": {
     "sectionTitle": "Neuigkeiten",

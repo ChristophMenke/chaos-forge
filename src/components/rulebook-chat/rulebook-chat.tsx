@@ -1,130 +1,58 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { RotateCcw } from "lucide-react";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { ChatMessage } from "./chat-message";
 import { ChatInput } from "./chat-input";
 import { BookFilter, ALL_SLUGS } from "./book-filter";
 import { SvenBotAvatar } from "@/components/svenbot/svenbot-avatar";
+import { useRulebookChat } from "./use-rulebook-chat";
+import type { ChatScope } from "@/lib/rulebook-chat/chat-store";
 
-interface Message {
-  role: "user" | "assistant";
-  content: string;
+interface RulebookChatProps {
+  /** Player page and GM area keep separate conversations. */
+  scope: ChatScope;
+  userId: string;
 }
 
-export function RulebookChat() {
+/**
+ * SvenBot. The conversation lives in the chat store (src/lib/rulebook-chat),
+ * so it survives page and tab switches, reloads, and answers keep streaming
+ * while this view is unmounted.
+ */
+export function RulebookChat({ scope, userId }: RulebookChatProps) {
   const t = useTranslations("rulebook");
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [streamingContent, setStreamingContent] = useState("");
-  const [selectedBooks, setSelectedBooks] = useState<string[]>([]);
+  const { chat, isLoading, send, setBooks, reset } = useRulebookChat(scope, userId);
+  const { messages, selectedBooks, truncated } = chat;
   const [showFilter, setShowFilter] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const abortRef = useRef<AbortController | null>(null);
 
-  // Abort in-flight request on unmount
-  useEffect(() => {
-    return () => {
-      abortRef.current?.abort();
-    };
-  }, []);
-
-  // Auto-scroll to bottom on new messages
+  // Auto-scroll to bottom on new messages and while streaming
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, streamingContent]);
+  }, [messages]);
 
   function handleToggleBook(slug: string) {
-    setSelectedBooks((prev) => {
-      // If currently "all" (empty array), switch to all-except-this
-      if (prev.length === 0) {
-        return ALL_SLUGS.filter((s) => s !== slug);
-      }
-      if (prev.includes(slug)) {
-        const next = prev.filter((s) => s !== slug);
-        return next.length === 0 ? [] : next; // If none left, go back to "all"
-      }
-      const next = [...prev, slug];
-      return next.length === ALL_SLUGS.length ? [] : next; // If all selected, use empty = "all"
-    });
+    // Empty selection means "all books".
+    if (selectedBooks.length === 0) return setBooks(ALL_SLUGS.filter((s) => s !== slug));
+    if (selectedBooks.includes(slug)) return setBooks(selectedBooks.filter((s) => s !== slug));
+    const next = [...selectedBooks, slug];
+    setBooks(next.length === ALL_SLUGS.length ? [] : next);
   }
 
-  function handleSelectAll() {
-    setSelectedBooks([]);
+  function handleSend(message: string) {
+    if (!isLoading) send(message);
   }
 
-  const handleSend = useCallback(
-    async (message: string) => {
-      const userMessage: Message = { role: "user", content: message };
-      setMessages((prev) => [...prev, userMessage]);
-      setIsLoading(true);
-      setStreamingContent("");
-
-      // Abort previous request if still running
-      abortRef.current?.abort();
-      const controller = new AbortController();
-      abortRef.current = controller;
-
-      try {
-        // Build history (last 4 exchanges = 8 messages)
-        const history = messages.slice(-8).map((m) => ({
-          role: m.role,
-          content: m.content,
-        }));
-
-        const response = await fetch("/api/rulebook-chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          signal: controller.signal,
-          body: JSON.stringify({
-            message,
-            history,
-            bookFilter: selectedBooks.length > 0 ? selectedBooks : undefined,
-          }),
-        });
-
-        if (!response.ok) {
-          const data = await response.json().catch(() => ({}));
-          throw new Error(data.error || `HTTP ${response.status}`);
-        }
-
-        // Read streaming response
-        const reader = response.body?.getReader();
-        if (!reader) throw new Error("No response body");
-
-        const decoder = new TextDecoder();
-        let fullContent = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          fullContent += chunk;
-          setStreamingContent(fullContent);
-        }
-
-        // Add complete assistant message
-        setMessages((prev) => [...prev, { role: "assistant", content: fullContent }]);
-        setStreamingContent("");
-      } catch (err) {
-        // Ignore abort errors (component unmounted or new request)
-        if (err instanceof DOMException && err.name === "AbortError") return;
-        const errorMessage = err instanceof Error ? err.message : t("error");
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: `**${t("error")}:** ${errorMessage}` },
-        ]);
-        setStreamingContent("");
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [messages, selectedBooks, t]
-  );
-
-  const isEmpty = messages.length === 0 && !streamingContent;
+  const lastMessage = messages.at(-1);
+  const waitingForFirstWords =
+    isLoading && lastMessage?.status === "streaming" && lastMessage.content === "";
+  const isEmpty = messages.length === 0;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col p-3 sm:p-6" data-testid="rulebook-chat">
@@ -137,14 +65,27 @@ export function RulebookChat() {
             <p className="text-xs text-muted-foreground">{t("title")}</p>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={() => setShowFilter((v) => !v)}
-          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-          data-testid="toggle-book-filter"
-        >
-          {t("filterBooks")}
-        </button>
+        <div className="flex items-center gap-3">
+          {!isEmpty && (
+            <button
+              type="button"
+              onClick={() => setConfirmReset(true)}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              data-testid="new-chat"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              {t("newChat")}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setShowFilter((v) => !v)}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            data-testid="toggle-book-filter"
+          >
+            {t("filterBooks")}
+          </button>
+        </div>
       </div>
 
       {/* Chat area */}
@@ -154,7 +95,7 @@ export function RulebookChat() {
           <BookFilter
             selectedBooks={selectedBooks}
             onToggle={handleToggleBook}
-            onSelectAll={handleSelectAll}
+            onSelectAll={() => setBooks([])}
           />
         )}
 
@@ -166,15 +107,26 @@ export function RulebookChat() {
         >
           {isEmpty && <WelcomeScreen t={t} onExampleClick={handleSend} />}
 
-          {messages.map((msg, i) => (
-            <ChatMessage key={i} role={msg.role} content={msg.content} />
-          ))}
-
-          {streamingContent && (
-            <ChatMessage role="assistant" content={streamingContent} isStreaming />
+          {truncated && (
+            <p className="text-center text-xs text-muted-foreground" data-testid="chat-truncated">
+              {t("truncated")}
+            </p>
           )}
 
-          {isLoading && !streamingContent && (
+          {messages.map((msg) =>
+            // The empty streaming answer is shown as the loading line below.
+            msg.status === "streaming" && msg.content === "" ? null : (
+              <ChatMessage
+                key={msg.id}
+                role={msg.role}
+                content={msg.content}
+                status={msg.status}
+                errorMessage={msg.errorMessage}
+              />
+            )
+          )}
+
+          {waitingForFirstWords && (
             <div
               className="flex items-center gap-2 text-sm text-muted-foreground"
               data-testid="chat-loading"
@@ -188,6 +140,18 @@ export function RulebookChat() {
         {/* Input */}
         <ChatInput onSend={handleSend} disabled={isLoading} />
       </div>
+
+      <ConfirmDialog
+        open={confirmReset}
+        title={t("newChatConfirmTitle")}
+        message={t("newChatConfirmText")}
+        confirmLabel={t("newChat")}
+        onConfirm={() => {
+          reset();
+          setConfirmReset(false);
+        }}
+        onCancel={() => setConfirmReset(false)}
+      />
     </div>
   );
 }
