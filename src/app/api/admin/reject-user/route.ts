@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
-
-const ADMIN_EMAIL = "christoph.menke@gmail.com";
+import { isAdminEmail } from "@/lib/admin";
 
 /**
  * Admin-only: rejects a pending user by deleting their auth account.
@@ -19,12 +18,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Nicht authentifiziert." }, { status: 401 });
   }
 
-  const { data: self } = await supabase
-    .from("profiles")
-    .select("email")
-    .eq("id", user.id)
-    .maybeSingle();
-  if (self?.email !== ADMIN_EMAIL) {
+  // Auth e-mail, not profiles.email: the login address cannot be changed by the client.
+  if (!isAdminEmail(user.email)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 403 });
   }
 
@@ -45,7 +40,7 @@ export async function POST(request: NextRequest) {
   if (!target) {
     return NextResponse.json({ error: "user_not_found" }, { status: 404 });
   }
-  if (target.email === ADMIN_EMAIL) {
+  if (isAdminEmail(target.email)) {
     return NextResponse.json({ error: "cannot_reject_admin" }, { status: 400 });
   }
   if (target.is_approved) {

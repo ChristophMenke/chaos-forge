@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { requireAuth } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
 import { fetchGameDates } from "@/lib/game-dates/api";
+import { isAdminEmail } from "@/lib/admin";
 import { GameDatesPanel } from "@/components/settings/game-dates-panel";
 import { SettingsClient } from "./settings-client";
 
@@ -33,6 +34,7 @@ export default async function SettingsPage() {
       <SettingsClient
         userId={user.id}
         email={profile.email ?? user.email ?? ""}
+        isAdmin={isAdminEmail(user.email)}
         initialDisplayName={profile.display_name}
         initialAvatarUrl={profile.avatar_url}
         gameDatesSlot={

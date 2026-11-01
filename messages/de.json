@@ -1881,6 +1881,23 @@
       "deleteError": "Termin konnte nicht gelöscht werden"
     }
   },
+  "backup": {
+    "sectionTitle": "Backup",
+    "hint": "Sichert alle Gruppendaten und hochgeladenen Bilder als ZIP. Auf dem iPhone: „In iCloud sichern“ → „In Dateien sichern“ → iCloud Drive.",
+    "create": "Backup erstellen",
+    "loadingData": "Lade Gruppendaten …",
+    "loadingImages": "Lade Bilder … {done} / {total}",
+    "zipping": "Packe das ZIP …",
+    "ready": "{name} · {size}",
+    "failedImages": "{count, plural, one {# Bild konnte} other {# Bilder konnten}} nicht geladen werden (siehe manifest.json).",
+    "share": "In iCloud sichern",
+    "download": "Herunterladen",
+    "error": "Das Backup konnte nicht erstellt werden.",
+    "retry": "Erneut versuchen",
+    "offerTitle": "Backup sichern?",
+    "offerText": "Dein Text ist gespeichert. Sichere jetzt alle Gruppendaten und Bilder in deine iCloud.",
+    "later": "Später"
+  },
   "notifications": {
     "title": "Benachrichtigungen",
     "navLabel": "Meldungen",

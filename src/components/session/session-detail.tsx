@@ -22,6 +22,8 @@ import { TagManager } from "./tag-manager";
 import { SessionParticipants } from "./session-participants";
 import { SessionXpDistribute } from "./session-xp-distribute";
 import { ShareSessionButton } from "./share-session-button";
+import { BackupOfferDialog } from "@/components/backup/backup-offer-dialog";
+import { useBackupOffer } from "@/components/backup/use-backup-offer";
 import type {
   SessionRow,
   SessionEntryRow,
@@ -59,6 +61,8 @@ interface SessionDetailProps {
   participants: ParticipantCharacter[];
   externalParticipants: string[];
   allActiveCharacters: ParticipantCharacter[];
+  /** Admin gets a backup offer after saving a session text. */
+  isAdmin?: boolean;
 }
 
 export function SessionDetail({
@@ -75,10 +79,12 @@ export function SessionDetail({
   participants: initialParticipants,
   externalParticipants: initialExternal,
   allActiveCharacters,
+  isAdmin = false,
 }: SessionDetailProps) {
   const router = useRouter();
   const t = useTranslations("sessions");
   const tc = useTranslations("common");
+  const backupOffer = useBackupOffer({ isAdmin, sessionId: session.id });
   const [summary, setSummary] = useState(session.summary);
   const [savingSummary, setSavingSummary] = useState(false);
   const [generatingSummary, setGeneratingSummary] = useState(false);
@@ -130,10 +136,11 @@ export function SessionDetail({
   async function handleSaveSummary() {
     setSavingSummary(true);
     const supabase = createClient();
-    await supabase.from("sessions").update({ summary }).eq("id", session.id);
+    const { error } = await supabase.from("sessions").update({ summary }).eq("id", session.id);
     setLocalUpdatedAt(new Date().toISOString());
     setSavingSummary(false);
     setSummaryDirty(false);
+    if (!error) backupOffer.offer();
   }
 
   async function handleGenerateSummary() {
@@ -414,6 +421,7 @@ export function SessionDetail({
                 } as SessionEntryRow,
               ]);
               setLocalUpdatedAt(new Date().toISOString());
+              backupOffer.offer();
             }}
           />
         )}
@@ -529,6 +537,10 @@ export function SessionDetail({
         message={t("deleteMessage", { title: session.title })}
         onConfirm={handleDeleteSession}
         onCancel={() => setShowDeleteConfirm(false)}
+      />
+      <BackupOfferDialog
+        open={backupOffer.open}
+        onOpenChange={(open) => !open && backupOffer.close()}
       />
     </div>
   );

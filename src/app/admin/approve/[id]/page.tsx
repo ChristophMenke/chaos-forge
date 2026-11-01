@@ -2,8 +2,8 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { requireAuth } from "@/lib/supabase/auth";
-import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { isAdminEmail } from "@/lib/admin";
 import { GlassCard } from "@/components/glass-card";
 import { ApproveUserForm } from "./approve-user-form";
 
@@ -11,22 +11,14 @@ interface ApproveUserPageProps {
   params: Promise<{ id: string }>;
 }
 
-const ADMIN_EMAIL = "christoph.menke@gmail.com";
-
 export default async function ApproveUserPage({ params }: ApproveUserPageProps) {
   const { id } = await params;
   const user = await requireAuth();
   const t = await getTranslations("approval");
   const tCommon = await getTranslations("common");
 
-  // Admin-only gate
-  const supabase = await createClient();
-  const { data: self } = await supabase
-    .from("profiles")
-    .select("email")
-    .eq("id", user.id)
-    .maybeSingle();
-  if (self?.email !== ADMIN_EMAIL) {
+  // Admin-only gate (login e-mail from the verified JWT)
+  if (!isAdminEmail(user.email)) {
     redirect("/dashboard");
   }
 

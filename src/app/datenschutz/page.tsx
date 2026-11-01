@@ -56,6 +56,12 @@ export default function DatenschutzPage() {
             generiert. Keine dauerhafte Speicherung durch die Anbieter im Rahmen der
             Standardverträge.
           </li>
+          <li>
+            <strong>Datensicherung:</strong> Der Administrator erstellt nach Spielabenden
+            Sicherungskopien aller Spieldaten — einschließlich der Profile mit E-Mail-Adressen, der
+            Benachrichtigungen und der hochgeladenen Bilder. Sie dienen ausschließlich der
+            Wiederherstellung nach einem Datenverlust.
+          </li>
         </ul>
 
         <h2 className="font-heading text-lg text-primary">4. Rechtsgrundlagen (DSGVO)</h2>
@@ -66,7 +72,7 @@ export default function DatenschutzPage() {
           </li>
           <li>
             Art. 6 Abs. 1 lit. f DSGVO — berechtigte Interessen (Sicherheit, Betrieb,
-            Missbrauchsabwehr).
+            Missbrauchsabwehr, Datensicherung).
           </li>
           <li>
             Art. 6 Abs. 1 lit. a DSGVO — Einwilligung bei optionalen Funktionen (Sprachnotizen).
@@ -124,6 +130,18 @@ export default function DatenschutzPage() {
             <strong>Discord Inc.</strong> (USA) — Benachrichtigung des Administrators per Webhook
             bei neuen Registrierungen.
           </li>
+          <li>
+            <strong>Apple (iCloud)</strong> — privater Speicherort der Sicherungskopien beim
+            Administrator; für Nutzer in der EU Apple Distribution International Ltd., Irland.{" "}
+            <a
+              href="https://www.apple.com/de/legal/privacy/"
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary hover:underline"
+            >
+              Datenschutzerklärung
+            </a>
+          </li>
         </ul>
 
         <h2 className="font-heading text-lg text-primary">6. Cookies</h2>
@@ -136,7 +154,9 @@ export default function DatenschutzPage() {
         <p>
           Daten werden gespeichert, solange der Account aktiv ist. Nach Löschung des Accounts werden
           alle personenbezogenen Daten innerhalb von 30 Tagen entfernt; anonymisierte Charakterdaten
-          aus gemeinsamen Sessions können für die Gruppenchronik erhalten bleiben.
+          aus gemeinsamen Sessions können für die Gruppenchronik erhalten bleiben. Sicherungskopien
+          werden höchstens 12 Monate aufbewahrt; auf Anfrage entfernt der Administrator die Daten
+          eines gelöschten Accounts auch aus vorhandenen Sicherungen.
         </p>
 
         <h2 className="font-heading text-lg text-primary">8. Deine Rechte</h2>

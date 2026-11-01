@@ -52,6 +52,7 @@ src/
     api/scan-character/   # Gemini Vision Endpoint für Character-Import (mode=create|update)
     api/scan-monster/     # Gemini Vision Endpoint für Monster-Import (Flash/Pro Precise Mode)
     api/rulebook-chat/    # Gemini Endpoint für GM Rulebook Chat (Streaming, Realms-Persona)
+    api/admin/backup/     # Admin-only: alle Gruppendaten als JSON fürs Backup (getUser + isAdminEmail, Service-Client)
     dashboard/            # Dashboard mit 8 Widgets (Zitat, NPCs, XP, Tags, Party-Übersicht, etc.)
     party/                # Party-Inventar & Loot-Verteilung (Gold + Items + Audit-Log)
     master/               # GM-Dashboard: PIN-Gate, Party-Übersicht, Loot-Verteilung, Gold, Chat
@@ -71,6 +72,7 @@ src/
     epic-equipment/       # Epische Ausrüstung (Schadensstufen-Cards, Simple Items, Blade System, Spell Abilities) + Sprockets Geräte: Wurf-Dialog (skill-check-dialog), Übertakten-Bedienung (overclock-controls), Kondensator-Bereiche (condenser-panels), Rezept-Checkliste (recipe-checklist)
     party/                # Party-Inventar (Gold-Panel, Items-Panel, Log-Panel, Loot-Verteilung)
     settings/             # Einstellungen: Spieltermine-Panel (CRUD)
+    backup/               # BackupPanel (Erstellen → In iCloud sichern/Herunterladen), Einstellungen-Sektion, Angebots-Dialog nach Session-Texten
     play-mode/            # Play Mode (Kampf, Zauber, Fähigkeiten, Checks, Wahrnehmung, Inventar, Geldbörse, Untote vertreiben, Gestaltwandlung)
     spellbook/            # Standalone Spellbook-Seite (Suche, Filter, Prepare, Learn, Source-Book-Filter)
     print-sheet/          # Druckansicht + Word-Export (.docx), Customization Panel
@@ -124,6 +126,8 @@ src/
       magic-items.ts      # getMagicItemEffects(equipment) — Aggregiert AC-Bonus, Saves etc. aus character_equipment.magic_effects
     gemini/               # Google Gemini: Imagen-Client für Bilder + `generate-text.ts`/`text-request.ts` für alle Text- und Vision-Aufrufe (Rassen, Klassen, Banner)
     game-dates/           # Spieltermine: reine Datumslogik (index.ts) + Supabase-I/O (api.ts)
+    backup/               # tables.ts (FULL/CUSTOM/EXCLUDED, Guard-Test gegen Migrationen), images.ts, archive.ts (fflate-ZIP + manifest + LIESMICH), build-backup.ts (Browser), load-tables.ts (Server)
+    admin.ts              # ADMIN_EMAIL + isAdminEmail() — immer gegen die Login-E-Mail prüfen, nie profiles.email
     scan/                 # AI-Scan-Prompts + Charakterbogen-Rescan-Engine
       monster-scan-prompt.ts # Gemini Vision Prompt für Monster-Import (ScannedMonsterVariant-Schema)
       character-scan-prompt.ts # Create-/Update-Prompt, Typen, parseUpdateScanResponse()
@@ -356,6 +360,7 @@ Diese Abweichungen vom Standard-PHB gelten für die "Chaos RPG"-Gruppe:
 - **Migrationen:** 229 Migrationen unter `supabase/migrations/`, ausführen via `supabase db push`
 - **User-Freigabe:** `profiles.is_approved` (default false, bestehende User via Backfill auf true) + `enforce_approval`-BEFORE-Trigger auf 20+ Tabellen (`characters`, `character_equipment`, `character_spells`, `chronicle_npcs`, `chronicle_quotes`, `sessions`, `tags`, `party_loot_*`, `monsters`, `magic_items`, `epic_items`, `gm_bookmarks`). `approve_user(uuid)` RPC nur für Admin. Items mit `simple_effects.base_<stat>` (Kondensator) gehen über `forceStatOverrides` — ersetzen Basiswert unbedingt (nicht max()).
 - **Tutorials:** `profiles.skip_tutorials` (Backfill = true) blendet Overlays für bestehende User aus. Client-Side localStorage-Key `chaos-forge-tutorial-dismissed`.
+- **Backup (Admin):** Einstellungen → „Backup“ (nur `isAdminEmail(user.email)`, serverseitig berechnet). `GET /api/admin/backup` liefert die Tabellen aus `src/lib/backup/tables.ts` (Gruppendaten komplett, Buch-Tabellen nur `is_custom`; ausgeschlossen: Monster, `rulebook_chunks`, Stammdaten). Der Browser lädt die hochgeladenen Bilder (Avatare, NPCs, Session-Bilder) aus den öffentlichen Buckets und baut das ZIP mit `fflate` — so greift das Vercel-Limit von 4,5 MB nicht. Zwei Schritte (Erstellen → Teilen), weil Safari das Teilen-Menü nur direkt nach einem Tipp öffnet; geteilt wird nur `{ files }`. **Neue Tabelle → in `tables.ts` einsortieren**, sonst schlägt `tables.test.ts` fehl. Datenschutz nennt Apple iCloud und 12 Monate Aufbewahrung. Nach dem Speichern eines Session-Eintrags oder der Zusammenfassung bietet `useBackupOffer` dem Admin einmal pro Session (localStorage `chaos-forge-backup-offered`) den Dialog `BackupOfferDialog` an.
 - **Spieltermine:** `game_dates` (`event_date` als reines `date`, kein Zeitstempel — Countdown darf nicht von der Serverzeitzone abhängen). Jeder freigegebene Nutzer darf CRUD. Ein `AFTER`-Trigger verteilt Benachrichtigungen an alle anderen freigegebenen Spieler; Auslöser aus der QA-Domain und System-Kontext (kein `auth.uid()`) sind ausgenommen.
 
 ## AD&D 2e Regelwerk-Spezifika
@@ -437,3 +442,5 @@ Finaler explorativer Test mit etablierten Testing-Heuristiken und gezielten "Tes
 27. **Rückgängig/Wiederherstellen** — Pfeil-Buttons in der Modus-Leiste eigener Charaktere mit Tooltip „Rückgängig: X“, Historie pro Charakter und Tab (50 Schritte, bleibt beim Moduswechsel, verfällt beim Neuladen). Abgedeckt: Spielmodus (TP, Schaden inkl. temporärer TP, Münzen, Zauber wirken, Rast, Inventar, Magische Items), Effekte, epische Ausrüstung (Klingen, Schadensstufe, Overclock), Charakterbogen (Entwurf schrittweise, Speichern als ein Schritt, alle Reiter), XP, Klassen, Stufenaufstieg. Konfliktprüfung gegen zwischenzeitliche Änderungen, Bestätigungsdialoge bleiben. Nebenbei: Mengen-/Bonusfelder speichern entprellt statt pro Tastendruck ✅
 
 28. **Sprockets Kondensator & Herstellung** — Übertakten nur nach Ingenieurskunst-Wurf (Fehlschlag kostet eine Schadensstufe), statt Echtzeit-Timer „Eine Stunde vergeht“ mit +1 TP und Kühlungswurf (jede zweite Stunde −1), misslungene Kühlung schaltet ab und sperrt einen Tag; bedienbar auf der Epic-Seite und im Play Mode (Zielwert aus der Fertigkeit). Reparatur-Dialog mit Kupferelixier (+4, Bestand), Komponenten-Checklisten mit Fundorten für die vier Mixturen (Ertrag 2) und das Kupferelixier (100 GM aus der Börse). Jede Aktion ein Undo-Schritt; GM-Dashboard per Realtime. Nebenbei: TP-Abgleich (`epic-hp.ts`) und NWP-Zielwert (`getNwpCheckTarget`) herausgelöst, Undo-Label-Prüfung erkennt weitergereichte Labels ✅
+
+29. **Backup in iCloud** — Admin-Backup als ZIP direkt im Browser: alle Gruppendaten (JSON pro Tabelle, Buch-Tabellen nur eigene Einträge, ohne Monster/Stammdaten/Embeddings) plus hochgeladene Bilder, `manifest.json` und `LIESMICH.txt`. Einstellungen → „Backup“ mit zwei Schritten (Erstellen → „In iCloud sichern“ über das Teilen-Menü bzw. Herunterladen), Angebots-Dialog nach dem Speichern eines Session-Texts. Guard-Test zwingt neue Tabellen zur Einordnung. Nebenbei: `ADMIN_EMAIL` zentral in `src/lib/admin.ts`, alle Admin-Prüfungen auf die Login-E-Mail umgestellt; Datenschutz um Datensicherung/Apple ergänzt ✅
