@@ -1145,7 +1145,6 @@ export function PlayMode({
             <PlaySpellbookPanel
               spells={spells}
               character={character}
-              classGroups={classGroups}
               classEntries={classEntries}
               wisScore={effectiveWis}
               readOnly={!isOwner}
@@ -1273,7 +1272,6 @@ export function PlayMode({
           <PlaySpellbookPanel
             spells={spells}
             character={character}
-            classGroups={classGroups}
             classEntries={classEntries}
             wisScore={effectiveWis}
             readOnly={!isOwner}

@@ -52,9 +52,13 @@ export default function DatenschutzPage() {
             <strong>KI-Interaktionen:</strong> Deine Fragen an den Regelbuch-Chat (SvenBot),
             hochgeladene Charakterbögen und Monster-Statblocks sowie Session-Beiträge zur
             Zusammenfassung werden zur Bearbeitung an Google (Gemini) übermittelt; für die
-            Regelbuch-Suche zusätzlich an Voyage AI (Embeddings). Charakter-/NPC-Bilder werden
-            ebenfalls via Google Gemini generiert. Keine dauerhafte Speicherung durch die Anbieter
-            im Rahmen der Standardverträge.
+            Regelbuch-Suche zusätzlich an Voyage AI (Embeddings). Nennst du im Chat einen Helden
+            beim Namen (oder fragst nach der ganzen Gruppe), gehen dessen Spielwerte mit an Google —
+            Attribute, Kampfwerte, Zauber, Ausrüstung, Fertigkeiten und aktive Effekte, nur von
+            Helden, die du auch in der App sehen kannst; keine Notizen und keine persönlichen
+            Angaben wie Spielername, Alter oder Aussehen. Charakter-/NPC-Bilder werden ebenfalls via
+            Google Gemini generiert. Keine dauerhafte Speicherung durch die Anbieter im Rahmen der
+            Standardverträge.
           </li>
           <li>
             <strong>Datensicherung:</strong> Der Administrator erstellt nach Spielabenden
@@ -152,8 +156,8 @@ export default function DatenschutzPage() {
         <p>
           Gespräche mit SvenBot (Regelbuch-Chat) werden nur lokal in deinem Browser gespeichert
           (localStorage), bis du „Neuer Chat“ wählst oder deinen Account löschst. Auf unseren
-          Servern werden sie nicht abgelegt; für die Beantwortung gehen die Fragen und die letzten
-          Nachrichten wie oben beschrieben an Google.
+          Servern werden sie nicht abgelegt; für die Beantwortung gehen die Fragen, die letzten
+          Nachrichten und die Spielwerte genannter Helden wie oben beschrieben an Google.
         </p>
 
         <h2 className="font-heading text-lg text-primary">7. Speicherdauer</h2>

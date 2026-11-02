@@ -16,6 +16,7 @@ import {
   type ChatMessage,
   type StoredChat,
 } from "./chat-history";
+import { CHARACTER_HEADER, decodeCharacterHeader } from "./character-info";
 
 export type ChatScope = "player" | "gm";
 
@@ -209,13 +210,15 @@ async function maybeSummarize(key: string, fetchImpl: FetchLike) {
 
 interface SendOptions {
   fetchImpl?: FetchLike;
+  /** Player or GM chat — the GM chat may also find NPCs. */
+  scope?: ChatScope;
 }
 
 /** Asks SvenBot. Keeps running when every view has unmounted. */
 export async function sendMessage(
   key: string,
   text: string,
-  { fetchImpl = fetch }: SendOptions = {}
+  { fetchImpl = fetch, scope = "player" }: SendOptions = {}
 ): Promise<void> {
   if (controllers.has(key)) return; // one answer at a time
   const before = getChat(key).chat;
@@ -249,6 +252,7 @@ export async function sendMessage(
         history: apiHistory(before.messages),
         bookFilter: before.selectedBooks.length > 0 ? before.selectedBooks : undefined,
         summary: before.summary || undefined,
+        scope,
       }),
     });
     if (!isCurrent()) return;
@@ -256,6 +260,12 @@ export async function sendMessage(
       const data = await response.json().catch(() => ({}));
       throw new Error(data.error || `HTTP ${response.status}`);
     }
+    // Which characters SvenBot knew — kept even if the stream breaks later.
+    const context = decodeCharacterHeader(response.headers.get(CHARACTER_HEADER));
+    if (context) {
+      update(key, (chat) => updateMessage(chat, answerId, { context }), { persist: "throttled" });
+    }
+
     const reader = response.body?.getReader();
     if (!reader) throw new Error("No response body");
 

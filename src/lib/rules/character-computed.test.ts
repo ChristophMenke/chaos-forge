@@ -1443,6 +1443,18 @@ describe("computeCharacterCombatData with temporary effects", () => {
     expect(weakened.perception).toBe(Math.floor((5 + 6) / 2));
     expect(weakened.ac).toBeGreaterThanOrEqual(base.ac);
   });
+
+  it("exposes the effective abilities next to the stored ones", () => {
+    const character = makeCharacter();
+    const plain = compute([], character);
+    expect(plain.effectiveStats.values.int).toBe(character.int);
+    const cunning = compute(
+      [fx("Fuchslist", [{ target: "int", op: "delta", value: 2 }])],
+      character
+    );
+    expect(cunning.effectiveStats.values.int).toBe(character.int + 2);
+    expect(cunning.effectiveStats.modified.int).toBe(true);
+  });
 });
 
 describe("applyLiveHp", () => {

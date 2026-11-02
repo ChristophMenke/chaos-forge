@@ -7,6 +7,8 @@ import { APP_HELP_CONTEXT, SYSTEM_PROMPT } from "@/lib/rulebook-chat/system-prom
 import { API_HISTORY_LENGTH, MAX_HISTORY_CONTENT_LENGTH } from "@/lib/rulebook-chat/chat-history";
 import { checkRateLimit } from "@/lib/rulebook-chat/rate-limit";
 import { MAX_SUMMARY_LENGTH } from "@/lib/rulebook-chat/summary-request";
+import { buildCharacterContext } from "@/lib/rulebook-chat/character-context";
+import { CHARACTER_HEADER, encodeCharacterHeader } from "@/lib/rulebook-chat/character-info";
 
 export async function POST(request: NextRequest) {
   // Auth check
@@ -41,7 +43,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { message, history, bookFilter, summary } = await request.json();
+    const { message, history, bookFilter, summary, scope } = await request.json();
 
     if (!message || typeof message !== "string" || message.trim().length === 0) {
       return Response.json({ error: "Leere Nachricht." }, { status: 400 });
@@ -51,8 +53,21 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: "Nachricht zu lang (max. 5000 Zeichen)." }, { status: 400 });
     }
 
-    // 1. Embed the user's question via Voyage AI
-    const queryEmbedding = await embedQuery(message);
+    const previousMessages = sanitizeHistory(history);
+    const summaryText =
+      typeof summary === "string" && summary.length <= MAX_SUMMARY_LENGTH ? summary.trim() : "";
+
+    // 1. Embed the user's question via Voyage AI; meanwhile find the characters
+    //    the question is about (user client → only heroes the asker may see).
+    const [queryEmbedding, characters] = await Promise.all([
+      embedQuery(message),
+      buildCharacterContext(supabase, {
+        message,
+        history: previousMessages,
+        summary: summaryText,
+        scope: scope === "gm" ? "gm" : "player",
+      }),
+    ]);
 
     // 2. Vector similarity search
     const { data: chunks, error: searchError } = await supabase.rpc("match_rulebook_chunks", {
@@ -163,37 +178,19 @@ export async function POST(request: NextRequest) {
 
     const contextBlock = rulesContext + monsterContext + "\n\n" + APP_HELP_CONTEXT;
 
-    // 5. Build message history (max 10 previous exchanges = API_HISTORY_LENGTH messages)
-    // Validate and sanitize history entries
-    const previousMessages: Array<{ role: "user" | "assistant"; content: string }> = Array.isArray(
-      history
-    )
-      ? history
-          .filter(
-            (m: unknown): m is { role: string; content: string } =>
-              typeof m === "object" &&
-              m !== null &&
-              "role" in m &&
-              "content" in m &&
-              (m.role === "user" || m.role === "assistant") &&
-              typeof m.content === "string" &&
-              m.content.length <= MAX_HISTORY_CONTENT_LENGTH
-          )
-          .slice(-API_HISTORY_LENGTH)
-          .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }))
-      : [];
+    // 5. Running summary of older messages (the last 10 exchanges come as history).
+    const summaryBlock = summaryText
+      ? `Zusammenfassung des bisherigen Gesprächs (ältere Nachrichten):\n${summaryText}\n\n---\n\n`
+      : "";
+    const characterBlock = characters.block
+      ? `--- Charakterdaten (Chaos Forge, aktueller Stand) ---\n${characters.block}\n\n---\n\n`
+      : "";
 
-    // Running summary of older messages (the last 10 exchanges come as history).
-    const summaryBlock =
-      typeof summary === "string" && summary.trim() && summary.length <= MAX_SUMMARY_LENGTH
-        ? `Zusammenfassung des bisherigen Gesprächs (ältere Nachrichten):\n${summary.trim()}\n\n---\n\n`
-        : "";
-
-    // 6. Stream Claude response
+    // 6. Stream Gemini response
     const stream = streamText({
       system: SYSTEM_PROMPT,
       history: previousMessages,
-      prompt: `${summaryBlock}Relevante Regelbuch-Ausschnitte:\n\n${contextBlock}\n\n---\n\nFrage: ${message}`,
+      prompt: `${summaryBlock}${characterBlock}Relevante Regelbuch-Ausschnitte:\n\n${contextBlock}\n\n---\n\nFrage: ${message}`,
       // Auf Gemini 3 zählt das Nachdenken des Modells gegen dieses Budget,
       // deshalb spürbar mehr als die 2048 der früheren Claude-Anbindung.
       maxOutputTokens: 8192,
@@ -214,16 +211,36 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return new Response(readable, {
-      headers: {
-        "Content-Type": "text/plain; charset=utf-8",
-        "Cache-Control": "no-cache",
-        "Transfer-Encoding": "chunked",
-      },
-    });
+    const headers: Record<string, string> = {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "no-cache",
+      "Transfer-Encoding": "chunked",
+    };
+    const characterHeader = encodeCharacterHeader(characters);
+    if (characterHeader) headers[CHARACTER_HEADER] = characterHeader;
+
+    return new Response(readable, { headers });
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : "Regelbuch-Abfrage fehlgeschlagen.";
     console.error("Rulebook chat error:", errorMessage);
     return Response.json({ error: errorMessage }, { status: 500 });
   }
+}
+
+/** Valid history entries only, at most the last API_HISTORY_LENGTH. */
+function sanitizeHistory(history: unknown): Array<{ role: "user" | "assistant"; content: string }> {
+  if (!Array.isArray(history)) return [];
+  return history
+    .filter(
+      (m: unknown): m is { role: "user" | "assistant"; content: string } =>
+        typeof m === "object" &&
+        m !== null &&
+        "role" in m &&
+        "content" in m &&
+        (m.role === "user" || m.role === "assistant") &&
+        typeof m.content === "string" &&
+        m.content.length <= MAX_HISTORY_CONTENT_LENGTH
+    )
+    .slice(-API_HISTORY_LENGTH)
+    .map((m) => ({ role: m.role, content: m.content }));
 }

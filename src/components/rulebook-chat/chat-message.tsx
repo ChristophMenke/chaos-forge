@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { TriangleAlert } from "lucide-react";
 import { SvenBotAvatar } from "@/components/svenbot/svenbot-avatar";
 import type { ChatStatus } from "@/lib/rulebook-chat/chat-history";
+import type { CharacterContextInfo } from "@/lib/rulebook-chat/character-info";
 
 interface ChatMessageProps {
   role: "user" | "assistant";
@@ -15,12 +16,29 @@ interface ChatMessageProps {
   /** Defaults to "done". */
   status?: ChatStatus;
   errorMessage?: string;
+  /** Characters SvenBot knew for this answer. */
+  context?: CharacterContextInfo;
 }
 
-export function ChatMessage({ role, content, status = "done", errorMessage }: ChatMessageProps) {
+export function ChatMessage({
+  role,
+  content,
+  status = "done",
+  errorMessage,
+  context,
+}: ChatMessageProps) {
   const t = useTranslations("rulebook");
   const isUser = role === "user";
   const isStreaming = status === "streaming";
+
+  const knew = context
+    ? [
+        context.names.join(", "),
+        context.groupSize !== null ? t("knewGroup", { count: context.groupSize }) : "",
+      ]
+        .filter(Boolean)
+        .join(" · ")
+    : "";
 
   // Apply metric conversion to assistant messages
   const displayContent = isUser ? content : convertImperialText(content);
@@ -67,6 +85,12 @@ export function ChatMessage({ role, content, status = "done", errorMessage }: Ch
           </p>
         )}
         {isStreaming && <span className="mt-1 inline-block h-4 w-1 animate-pulse bg-primary/60" />}
+        {!isUser && knew && (
+          <p className="mt-2 text-xs text-muted-foreground" data-testid="chat-message-context">
+            <span aria-hidden="true">📜 </span>
+            {t("knewCharacters", { names: knew })}
+          </p>
+        )}
       </div>
     </div>
   );

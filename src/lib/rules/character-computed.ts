@@ -27,7 +27,7 @@ import type { EpicEffects } from "./epic-items";
 import { getMagicItemEffects } from "./magic-items";
 import { getConstitutionModifiers } from "./abilities";
 import { applyThiefPenalty } from "./epic-items";
-import { resolveEffectiveStats } from "./effective-stats";
+import { resolveEffectiveStats, type EffectiveStats } from "./effective-stats";
 import { aggregateEffects, scaleAttacksPerRound, type EffectSummary } from "./temporary-effects";
 import { hasThiefSkills, getBackstabMultiplier } from "./thief";
 import { getSingleWeaponStyleBonus } from "./fighting-styles";
@@ -97,6 +97,8 @@ export interface CharacterCombatData {
   magicSpellAbilities: MagicSpellAbility[];
   /** Primary equipped weapon data for combat simulation */
   primaryWeapon: PrimaryWeaponData | null;
+  /** Effective abilities and modifiers (items, overclock, temporary effects). */
+  effectiveStats: EffectiveStats;
 }
 
 /**
@@ -361,6 +363,7 @@ export function computeCharacterCombatData(
     magicPassiveAbilities: magicEffects.passiveAbilities,
     magicSpellAbilities: magicEffects.spellAbilities,
     primaryWeapon,
+    effectiveStats: stats,
   };
 }
 
