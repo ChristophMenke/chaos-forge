@@ -13,28 +13,14 @@ import {
 import { GlassCard } from "@/components/glass-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  getBardSpellSlots,
-  getWizardSpellSlots,
-  getPriestSpellSlots,
-  getPriestBonusSlots,
-  getPriestSpellPoints,
-  getPriestBonusSpellPoints,
-  getPriestSpellCost,
-  getWizardSpellPoints,
-  getWizardBonusSpellPoints,
-  getWizardSpellCost,
-  getSpecialistBonusSlots,
-} from "@/lib/rules/spellslots";
-import { getClassGroup } from "@/lib/rules/classes";
-import type { ClassGroup, ClassId } from "@/lib/rules/types";
+import { getPriestSpellCost, getWizardSpellCost } from "@/lib/rules/spellslots";
+import { computeSpellResources } from "@/lib/rules/spell-resources";
 import type { CharacterRow, CharacterSpellWithDetails, SpellRow } from "@/lib/supabase/types";
 import { getKit, getKitSpellFailure } from "@/lib/rules/kits";
 
 interface PlaySpellbookPanelProps {
   spells: CharacterSpellWithDetails[];
   character: CharacterRow;
-  classGroups: ClassGroup[];
   classEntries: { classId: string; level: number }[];
   wisScore: number;
   readOnly: boolean;
@@ -56,7 +42,6 @@ interface PlaySpellbookPanelProps {
 function PlaySpellbookPanelInner({
   spells,
   character,
-  classGroups,
   classEntries,
   wisScore,
   readOnly,
@@ -84,20 +69,20 @@ function PlaySpellbookPanelInner({
   const [expandedLevels, setExpandedLevels] = useState<Set<number>>(new Set([1]));
   const [showAllPerLevel, setShowAllPerLevel] = useState<Set<number>>(new Set());
 
-  const isBard = classEntries.some((ce) => ce.classId === "bard");
-  const isWizard = classGroups.includes("wizard") || isBard;
-  const isPriest = classGroups.includes("priest");
+  const resources = useMemo(
+    () =>
+      computeSpellResources({
+        character,
+        classEntries,
+        effectiveWis: wisScore,
+        epicBonusSpellPoints,
+        spells,
+      }),
+    [character, classEntries, wisScore, epicBonusSpellPoints, spells]
+  );
+  const { isWizard, isPriest, maxSpellLevel, totalPoints, pointsRemaining } = resources;
+  const { totalSlots, expendedByLevel } = resources;
   const usesSphereSpells = isPriest && priestAvailableSpells.length > 0;
-  const casterClass = useMemo(() => {
-    for (const ce of classEntries) {
-      if (ce.classId === "bard") return ce;
-      const group = getClassGroup(ce.classId as ClassId);
-      if (group === "wizard" || group === "priest") return ce;
-    }
-    return classEntries[0] ?? { classId: "fighter", level: 1 };
-  }, [classEntries]);
-  const casterLevel = casterClass.level;
-
   const isPointsMode = character.spell_system === "points";
 
   // Prepared spells only
@@ -112,81 +97,6 @@ function PlaySpellbookPanelInner({
       groups[lvl].push(s);
     }
     return groups;
-  }, [preparedSpells]);
-
-  const maxSpellLevel = isBard ? 6 : isWizard ? 9 : 7;
-
-  // Resource tracking
-  const totalPoints = useMemo(() => {
-    if (!isPointsMode) return 0;
-    if (isWizard) {
-      return (
-        getWizardSpellPoints(casterLevel) +
-        getWizardBonusSpellPoints(character.int) +
-        epicBonusSpellPoints
-      );
-    }
-    if (isPriest) {
-      return (
-        getPriestSpellPoints(casterLevel) +
-        getPriestBonusSpellPoints(wisScore) +
-        epicBonusSpellPoints
-      );
-    }
-    return 0;
-  }, [
-    isPointsMode,
-    isWizard,
-    isPriest,
-    casterLevel,
-    character.int,
-    wisScore,
-    epicBonusSpellPoints,
-  ]);
-
-  const pointsRemaining = totalPoints - character.spell_points_used;
-
-  // Slot tracking
-  const baseSlots = useMemo(() => {
-    if (isPointsMode) return [];
-    if (isBard) return getBardSpellSlots(casterLevel);
-    if (isWizard) return getWizardSpellSlots(casterLevel);
-    if (isPriest) return getPriestSpellSlots(casterLevel);
-    return [];
-  }, [isPointsMode, isBard, isWizard, isPriest, casterLevel]);
-
-  const bonusSlots = useMemo(() => {
-    if (isPointsMode || !isPriest) return new Array(maxSpellLevel).fill(0);
-    return getPriestBonusSlots(wisScore);
-  }, [isPointsMode, isPriest, wisScore, maxSpellLevel]);
-
-  const specialistBonus = useMemo(() => {
-    if (isPointsMode || !isWizard) return new Array(maxSpellLevel).fill(0);
-    return getSpecialistBonusSlots(casterClass.classId as ClassId, casterLevel);
-  }, [isPointsMode, isWizard, casterClass.classId, casterLevel, maxSpellLevel]);
-
-  // Wrap in useMemo so the object reference is stable while character.spell_slots_adj is null,
-  // otherwise `?? {}` would create a new object every render and destabilize totalSlots' deps.
-  const slotsAdj = useMemo(() => character.spell_slots_adj ?? {}, [character.spell_slots_adj]);
-
-  const totalSlots = useMemo(
-    () =>
-      baseSlots.map(
-        (base, i) =>
-          base + (bonusSlots[i] ?? 0) + (specialistBonus[i] ?? 0) + (slotsAdj[String(i + 1)] ?? 0)
-      ),
-    [baseSlots, bonusSlots, specialistBonus, slotsAdj]
-  );
-
-  const expendedByLevel = useMemo(() => {
-    const counts: Record<number, number> = {};
-    for (const s of preparedSpells) {
-      if (s.expended) {
-        const lvl = s.spell.level;
-        counts[lvl] = (counts[lvl] ?? 0) + 1;
-      }
-    }
-    return counts;
   }, [preparedSpells]);
 
   // Priest sphere spells grouped by level (for play mode)

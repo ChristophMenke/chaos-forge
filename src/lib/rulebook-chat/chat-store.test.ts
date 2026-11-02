@@ -11,12 +11,13 @@ import {
   subscribeChat,
 } from "./chat-store";
 import { emptyChat, type StoredChat } from "./chat-history";
+import { CHARACTER_HEADER, encodeCharacterHeader } from "./character-info";
 
 const KEY = chatKey("player", "u1");
 const STORAGE_KEY = `${CHAT_STORAGE_PREFIX}:player:u1`;
 
 /** A streaming Response the test feeds chunk by chunk. */
-function controllableStream() {
+function controllableStream(headers: Record<string, string> = {}) {
   const encoder = new TextEncoder();
   let controller!: ReadableStreamDefaultController<Uint8Array>;
   let cancelled = false;
@@ -29,7 +30,7 @@ function controllableStream() {
     },
   });
   return {
-    response: new Response(body, { status: 200 }),
+    response: new Response(body, { status: 200, headers }),
     push: (text: string) => controller.enqueue(encoder.encode(text)),
     close: () => controller.close(),
     fail: () => controller.error(new TypeError("network error")),
@@ -473,5 +474,85 @@ describe("running summary", () => {
     expect(
       fetchImpl.mock.calls.filter(([url]) => url === "/api/rulebook-chat/summary")
     ).toHaveLength(1);
+  });
+});
+
+describe("character context", () => {
+  const sentBody = (fetchImpl: ReturnType<typeof vi.fn>) =>
+    JSON.parse((fetchImpl.mock.calls[0] as unknown as [string, RequestInit])[1].body as string);
+
+  it("sends the chat scope with the question", async () => {
+    const fetchImpl = vi.fn(async () => controllableStream().response);
+    void sendMessage(chatKey("gm", "u1"), "Was kann Grimbold?", { fetchImpl, scope: "gm" });
+    await flush();
+    expect(sentBody(fetchImpl).scope).toBe("gm");
+  });
+
+  it("defaults to the player scope", async () => {
+    const fetchImpl = vi.fn(async () => controllableStream().response);
+    void sendMessage(KEY, "Hallo", { fetchImpl });
+    await flush();
+    expect(sentBody(fetchImpl).scope).toBe("player");
+  });
+
+  it("stores the characters SvenBot knew with the answer, also after a reload", async () => {
+    const header = encodeCharacterHeader({ names: ["Thorin"], groupSize: 5 })!;
+    const stream = controllableStream({ [CHARACTER_HEADER]: header });
+    void sendMessage(KEY, "Ist Thorin der Stärkste in der Gruppe?", {
+      fetchImpl: async () => stream.response,
+    });
+    await flush();
+    expect(getChat(KEY).chat.messages[1].context).toEqual({ names: ["Thorin"], groupSize: 5 });
+
+    stream.push("Natürlich.");
+    stream.close();
+    await flush();
+
+    __resetChatStoreForTests();
+    expect(getChat(KEY).chat.messages[1].context).toEqual({ names: ["Thorin"], groupSize: 5 });
+  });
+
+  it("keeps the context when the stream breaks later", async () => {
+    const header = encodeCharacterHeader({ names: ["Thorin"], groupSize: null })!;
+    const stream = controllableStream({ [CHARACTER_HEADER]: header });
+    void sendMessage(KEY, "Thorin?", { fetchImpl: async () => stream.response });
+    await flush();
+    stream.fail();
+    await flush();
+    const answer = getChat(KEY).chat.messages[1];
+    expect(answer.status).toBe("error");
+    expect(answer.context).toEqual({ names: ["Thorin"], groupSize: null });
+  });
+
+  it("ignores a missing or broken header", async () => {
+    const plain = controllableStream();
+    void sendMessage(KEY, "Was ist ETW0?", { fetchImpl: async () => plain.response });
+    await flush();
+    expect(getChat(KEY).chat.messages[1]).not.toHaveProperty("context");
+    plain.close();
+    await flush();
+
+    const broken = controllableStream({ [CHARACTER_HEADER]: "%E0%A4%A" });
+    void sendMessage(KEY, "Und jetzt?", { fetchImpl: async () => broken.response });
+    await flush();
+    expect(getChat(KEY).chat.messages[3]).not.toHaveProperty("context");
+  });
+
+  it("never sends the context back to the API", async () => {
+    const header = encodeCharacterHeader({ names: ["Thorin"], groupSize: null })!;
+    const first = controllableStream({ [CHARACTER_HEADER]: header });
+    void sendMessage(KEY, "Thorin?", { fetchImpl: async () => first.response });
+    await flush();
+    first.push("RK 2.");
+    first.close();
+    await flush();
+
+    const fetchImpl = vi.fn(async () => controllableStream().response);
+    void sendMessage(KEY, "Und seine RW?", { fetchImpl });
+    await flush();
+    expect(sentBody(fetchImpl).history).toEqual([
+      { role: "user", content: "Thorin?" },
+      { role: "assistant", content: "RK 2." },
+    ]);
   });
 });

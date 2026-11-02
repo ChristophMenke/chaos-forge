@@ -117,6 +117,34 @@ describe("parseChat / restoreChat", () => {
   ])("falls back to an empty chat for %s", (_label, raw) => {
     expect(restoreChat(raw)).toEqual(emptyChat());
   });
+
+  describe("character context on answers", () => {
+    const withContext = (context: unknown) =>
+      JSON.stringify(
+        chatOf([msg("user", "Thorin?"), { ...msg("assistant", "RK 2"), context } as ChatMessage])
+      );
+
+    it("keeps a valid context", () => {
+      const chat = parseChat(withContext({ names: ["Thorin"], groupSize: null }));
+      expect(chat.messages[1].context).toEqual({ names: ["Thorin"], groupSize: null });
+    });
+
+    it("reads messages without context as before", () => {
+      const chat = parseChat(JSON.stringify(chatOf(pair("q", "a"))));
+      expect(chat.messages[1]).not.toHaveProperty("context");
+    });
+
+    it.each([
+      ["a string", "Thorin"],
+      ["names that are no strings", { names: [1], groupSize: null }],
+      ["an empty context", { names: [], groupSize: null }],
+    ])("drops only the context for %s and keeps the chat", (_label, context) => {
+      const chat = parseChat(withContext(context));
+      expect(chat.messages).toHaveLength(2);
+      expect(chat.messages[1].content).toBe("RK 2");
+      expect(chat.messages[1]).not.toHaveProperty("context");
+    });
+  });
 });
 
 describe("pendingForSummary / applySummary", () => {

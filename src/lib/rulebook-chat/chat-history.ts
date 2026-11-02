@@ -3,6 +3,8 @@
  * trimming, what goes to the API as context, and reading it back.
  */
 
+import { parseCharacterInfo, type CharacterContextInfo } from "./character-info";
+
 export type ChatStatus = "done" | "streaming" | "interrupted" | "error";
 
 export interface ChatMessage {
@@ -12,6 +14,8 @@ export interface ChatMessage {
   status: ChatStatus;
   /** Server/network error text for status "error" (the UI adds the localized "Error:"). */
   errorMessage?: string;
+  /** Characters SvenBot knew for this answer ("Knew: …"). */
+  context?: CharacterContextInfo;
 }
 
 export interface StoredChat {
@@ -127,17 +131,25 @@ function isMessage(value: unknown): value is ChatMessage {
   );
 }
 
+/** Drops a malformed `context` so one bad field never discards the whole chat. */
+function withValidContext(value: unknown): unknown {
+  if (typeof value !== "object" || value === null || !("context" in value)) return value;
+  const { context, ...rest } = value as Record<string, unknown>;
+  const parsed = parseCharacterInfo(context);
+  return parsed ? { ...rest, context: parsed } : rest;
+}
+
 /** Reads a stored chat as-is (another tab may still be streaming into it). */
 export function parseChat(raw: string | null): StoredChat {
   if (!raw) return emptyChat();
   try {
     const data = JSON.parse(raw) as Partial<StoredChat>;
-    if (data.version !== 1 || !Array.isArray(data.messages) || !data.messages.every(isMessage)) {
-      return emptyChat();
-    }
+    if (data.version !== 1 || !Array.isArray(data.messages)) return emptyChat();
+    const messages: unknown[] = data.messages.map(withValidContext);
+    if (!messages.every(isMessage)) return emptyChat();
     return {
       version: 1,
-      messages: data.messages,
+      messages,
       selectedBooks: Array.isArray(data.selectedBooks)
         ? data.selectedBooks.filter((b): b is string => typeof b === "string")
         : [],

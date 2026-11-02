@@ -19,7 +19,7 @@ export function useRulebookChat(scope: ChatScope, userId: string) {
   const getSnapshot = useCallback(() => getChat(key), [key]);
   const { chat, isLoading } = useSyncExternalStore(subscribe, getSnapshot, () => EMPTY_SNAPSHOT);
 
-  const send = useCallback((text: string) => void sendMessage(key, text), [key]);
+  const send = useCallback((text: string) => void sendMessage(key, text, { scope }), [key, scope]);
   const setBooks = useCallback((books: string[]) => setSelectedBooks(key, books), [key]);
   const reset = useCallback(() => resetChat(key), [key]);
 

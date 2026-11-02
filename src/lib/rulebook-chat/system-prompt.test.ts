@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { APP_HELP_CONTEXT, SYSTEM_PROMPT } from "./system-prompt";
+import { APP_HELP_CONTEXT, SUMMARY_SYSTEM_PROMPT, SYSTEM_PROMPT } from "./system-prompt";
 
 describe("SYSTEM_PROMPT (SvenBot)", () => {
   it("speaks as SvenBot, the group's game master Sven", () => {
@@ -32,7 +32,40 @@ describe("SYSTEM_PROMPT (SvenBot)", () => {
   });
 });
 
+describe("SYSTEM_PROMPT character data", () => {
+  it("treats the character block as facts and combines it with the rules", () => {
+    expect(SYSTEM_PROMPT).toContain("CHARAKTERDATEN");
+    expect(SYSTEM_PROMPT).toMatch(/aktuelle Stand aus der Chaos Forge/);
+    expect(SYSTEM_PROMPT).toMatch(/mit den Regelbuch-Ausschnitten kombinieren/);
+  });
+
+  it("never invents character values and asks for the hero instead", () => {
+    expect(SYSTEM_PROMPT).toMatch(/Erfinde NIEMALS Werte, Zauber oder Gegenstände eines Helden/);
+    expect(SYSTEM_PROMPT).toMatch(/frage nach, welcher Held gemeint ist/);
+  });
+
+  it("only mocks the heroes, never the players", () => {
+    expect(SYSTEM_PROMPT).toMatch(/Spott über die Helden ist erlaubt, über die Spieler nicht/);
+  });
+});
+
+describe("SUMMARY_SYSTEM_PROMPT", () => {
+  it("always records the character discussed last", () => {
+    expect(SUMMARY_SYSTEM_PROMPT).toContain("Aktueller Charakter:");
+  });
+});
+
 describe("APP_HELP_CONTEXT", () => {
+  it("explains that SvenBot knows heroes by name", () => {
+    expect(APP_HELP_CONTEXT).toMatch(/Nenne einen Helden beim Namen/);
+    expect(APP_HELP_CONTEXT).toMatch(/die du auch in der App sehen kannst/);
+  });
+
+  it("points to existing spell pages only", () => {
+    expect(APP_HELP_CONTEXT).not.toContain("/characters/[id]/spellbook");
+    expect(APP_HELP_CONTEXT).toMatch(/Tab Zauber/);
+  });
+
   it("calls the chat SvenBot and describes where to find it", () => {
     expect(APP_HELP_CONTEXT).not.toMatch(/Rulebook Chat/);
     expect(APP_HELP_CONTEXT).not.toMatch(/\bChat\)/);

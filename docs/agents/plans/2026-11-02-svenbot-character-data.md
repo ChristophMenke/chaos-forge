@@ -181,8 +181,8 @@ Ziel der Phase: Wer in der Frage einen sichtbaren Charakter nennt, bekommt Antwo
 
 **Tasks**:
 
-- [ ] `play-spellbook-panel.test.tsx` neu anlegen: Charakterisierungstests der heutigen Slot- und Punkte-Anzeige (Magier 7 mit Slots, Priester mit WE-Bonus, Punkte-Modus, `spell_slots_adj`, gewirkte Zauber). Sie müssen vor dem Umbau grün sein.
-- [ ] `src/lib/rules/spell-resources.ts` und Tests anlegen. Die Logik kommt aus `play-spellbook-panel.tsx:87-196`: Caster-Klasse, Barde/Magier/Priester, Punkte, Basis-Slots, WE-Bonus, Spezialistenbonus, `spell_slots_adj` und `expendedByLevel`. Tests decken ab:
+- [x] `play-spellbook-panel.test.tsx` neu anlegen: Charakterisierungstests der heutigen Slot- und Punkte-Anzeige (Magier 7 mit Slots, Priester mit WE-Bonus, Punkte-Modus, `spell_slots_adj`, gewirkte Zauber). Sie müssen vor dem Umbau grün sein.
+- [x] `src/lib/rules/spell-resources.ts` und Tests anlegen. Die Logik kommt aus `play-spellbook-panel.tsx:87-196`: Caster-Klasse, Barde/Magier/Priester, Punkte, Basis-Slots, WE-Bonus, Spezialistenbonus, `spell_slots_adj` und `expendedByLevel`. Tests decken ab:
   - Magier 7 mit Slots
   - Hervorrufer mit Bonus-Slots
   - Priester WE 17 mit Bonus
@@ -191,9 +191,9 @@ Ziel der Phase: Wer in der Frage einen sichtbaren Charakter nennt, bekommt Antwo
   - Nicht-Zauberer (`mode: "none"`)
   - `spell_slots_adj`
   - Dual-Class ruhend
-- [ ] `play-spellbook-panel.tsx` auf `computeSpellResources` umstellen. Die Charakterisierungstests bleiben grün.
-- [ ] `character-computed.ts`: `effectiveStats` in `CharacterCombatData` aufnehmen und `character-computed.test.ts` um eine Assertion erweitern.
-- [ ] `src/lib/rulebook-chat/character-match.ts` und Tests anlegen, zunächst `normalizeName`, `findMentionedCharacters` und `selectCharacters` nur für die aktuelle Frage. Tests decken ab:
+- [x] `play-spellbook-panel.tsx` auf `computeSpellResources` umstellen. Die Charakterisierungstests bleiben grün.
+- [x] `character-computed.ts`: `effectiveStats` in `CharacterCombatData` aufnehmen und `character-computed.test.ts` um eine Assertion erweitern.
+- [x] `src/lib/rulebook-chat/character-match.ts` und Tests anlegen, zunächst `normalizeName`, `findMentionedCharacters` und `selectCharacters` nur für die aktuelle Frage. Tests decken ab:
   - ganzer Name
   - Vorname aus „Elandril der Weise“
   - Groß- und Kleinschreibung
@@ -203,8 +203,8 @@ Ziel der Phase: Wer in der Frage einen sichtbaren Charakter nennt, bekommt Antwo
   - zwei Charaktere mit gleichem Vornamen kommen beide
   - höchstens 3
   - NPC nur bei `scope: "gm"`
-- [ ] `src/lib/rulebook-chat/character-bundle.ts` anlegen. `loadCharacterBundles(supabase, ids, detail)` lädt alles in einem `Promise.all` mit `.in()`, inklusive `character_languages`, Effekte nur aktiv, und gruppiert nach `character_id`. Bei leeren `ids` gibt es keine Abfrage. Tests laufen gegen einen Fake-Supabase-Builder (`from().select().in().is()`).
-- [ ] `src/lib/rulebook-chat/character-format.ts` und Tests anlegen, mit `formatCharacter(bundle, "full")`. Fixtures:
+- [x] `src/lib/rulebook-chat/character-bundle.ts` anlegen. `loadCharacterBundles(supabase, ids, detail)` lädt alles in einem `Promise.all` mit `.in()`, inklusive `character_languages`, Effekte nur aktiv, und gruppiert nach `character_id`. Bei leeren `ids` gibt es keine Abfrage. Tests laufen gegen einen Fake-Supabase-Builder (`from().select().in().is()`).
+- [x] `src/lib/rulebook-chat/character-format.ts` und Tests anlegen, mit `formatCharacter(bundle, "full")`. Fixtures:
   - Magier-Spezialist mit Zauberbuch und memorierten Zaubern
   - Priester mit Sphären und Punkten
   - Krieger mit magischem Ring und epischem Item
@@ -213,10 +213,10 @@ Ziel der Phase: Wer in der Frage einen sichtbaren Charakter nennt, bekommt Antwo
 
   Die Tests prüfen Schlüsselzeilen. Außerdem prüfen sie, dass Notizen und persönliche Angaben nicht vorkommen und dass die Länge gedeckelt ist. Zauberpatzer = Epic + Effekte + Kit/Rüstung (`getKitSpellFailure`). Priester: nur eigene Zauber und Sphären-Namen, kein Katalog.
 
-- [ ] `src/lib/rulebook-chat/character-context.ts` und Tests anlegen. `buildCharacterContext` holt die Kandidaten (`characters` mit `id, name, is_npc, is_active`), wählt aus, lädt und formatiert. Bei einem Fehler kommt ein leerer Kontext zurück. Ein Test stellt sicher, dass `loadCharacterBundles` nur IDs aus der Kandidaten-Query bekommt (Sicherheitsgrenze).
-- [ ] `route.ts`: `scope` aus dem Body lesen, nur `"gm"` oder `"player"` zulassen, Standard ist `"player"`. `buildCharacterContext` per `Promise.all` zusammen mit `embedQuery` starten. Reihenfolge im Prompt: Zusammenfassung → `Charakterdaten:` (nur wenn vorhanden) → `Relevante Regelbuch-Ausschnitte:` → Monster → App-Hilfe → Frage. Der Header folgt in Phase 3.
-- [ ] `chat-store.ts`: `scope` explizit über `SendOptions` mitschicken, `use-rulebook-chat.ts` reicht es durch. `chat-store.test.ts` um einen Test erweitern, der den Body prüft.
-- [ ] `system-prompt.ts`: Abschnitt „CHARAKTERDATEN“ in `SYSTEM_PROMPT` einfügen:
+- [x] `src/lib/rulebook-chat/character-context.ts` und Tests anlegen. `buildCharacterContext` holt die Kandidaten (`characters` mit `id, name, is_npc, is_active`), wählt aus, lädt und formatiert. Bei einem Fehler kommt ein leerer Kontext zurück. Ein Test stellt sicher, dass `loadCharacterBundles` nur IDs aus der Kandidaten-Query bekommt (Sicherheitsgrenze).
+- [x] `route.ts`: `scope` aus dem Body lesen, nur `"gm"` oder `"player"` zulassen, Standard ist `"player"`. `buildCharacterContext` per `Promise.all` zusammen mit `embedQuery` starten. Reihenfolge im Prompt: Zusammenfassung → `Charakterdaten:` (nur wenn vorhanden) → `Relevante Regelbuch-Ausschnitte:` → Monster → App-Hilfe → Frage. Der Header folgt in Phase 3.
+- [x] `chat-store.ts`: `scope` explizit über `SendOptions` mitschicken, `use-rulebook-chat.ts` reicht es durch. `chat-store.test.ts` um einen Test erweitern, der den Body prüft.
+- [x] `system-prompt.ts`: Abschnitt „CHARAKTERDATEN“ in `SYSTEM_PROMPT` einfügen:
   - Werte im Block sind der aktuelle Stand aus der App und gelten als Fakten über den Helden.
   - Regeln weiter aus den Ausschnitten.
   - Nichts ergänzen, was nicht im Block steht.
@@ -225,18 +225,18 @@ Ziel der Phase: Wer in der Frage einen sichtbaren Charakter nennt, bekommt Antwo
 
   Modus A wird angepasst: Charakterdaten dürfen mit den Ausschnitten kombiniert werden. `system-prompt.test.ts` erweitern, auch mit einer Assertion auf die Nachfrage-Regel.
 
-- [ ] `APP_HELP_CONTEXT`:
+- [x] `APP_HELP_CONTEXT`:
   - `/characters/[id]/spellbook` ersetzen durch „Zauber: Charakterbogen → Tab Zauber bzw. Play Mode“.
   - Unter SVENBOT ergänzen: „Nenne einen Helden beim Namen, dann kenne ich seine Werte, Zauber und Ausrüstung (nur Helden, die du auch in der App sehen kannst).“
-- [ ] `src/app/datenschutz/page.tsx`:
+- [x] `src/app/datenschutz/page.tsx`:
   - KI-Abschnitt (:52-57) ergänzen: Werden Charaktere im SvenBot-Chat genannt, gehen deren Spielwerte (Werte, Zauber, Ausrüstung, Effekte; keine Notizen oder persönlichen Angaben) zur Beantwortung an Google.
   - Abschnitt :153-156 entsprechend anpassen.
 
 **Automated Verification**:
 
-- [ ] `npx vitest run src/lib/rules/spell-resources.test.ts src/lib/rulebook-chat` grün
-- [ ] Play-Mode-Tests (`npx vitest run src/components/play-mode`) grün
-- [ ] `npm run verify` grün
+- [x] `npx vitest run src/lib/rules/spell-resources.test.ts src/lib/rulebook-chat` grün
+- [x] Play-Mode-Tests (`npx vitest run src/components/play-mode`) grün
+- [x] `npm run verify` grün
 
 **Manual Verification**:
 
@@ -252,12 +252,12 @@ Ziel der Phase: Folgefragen ohne Namen und Fragen zur ganzen Gruppe funktioniere
 
 **Tasks**:
 
-- [ ] `selectCharacters` erweitern: Ohne Treffer in der Frage den `history` vom neuesten zum ältesten Eintrag durchsuchen (Nutzer- und SvenBot-Nachrichten), danach die `summary`. Die erste Quelle mit Treffern gewinnt. Tests:
+- [x] `selectCharacters` erweitern: Ohne Treffer in der Frage den `history` vom neuesten zum ältesten Eintrag durchsuchen (Nutzer- und SvenBot-Nachrichten), danach die `summary`. Die erste Quelle mit Treffern gewinnt. Tests:
   - Folgefrage nach einer Antwort, die „Elandril“ nennt
   - Die aktuelle Frage schlägt den Verlauf
   - Fallback auf die Zusammenfassung
   - Ohne irgendeinen Namen kommt nichts
-- [ ] `hasGroupWords` mit eindeutigen Gruppenausdrücken (DE/EN, siehe Acceptance Criteria) und Wortgrenzen anlegen. Gilt nur für die aktuelle Frage. Ergebnis `groupIds` = alle Kandidaten mit `is_active && !is_npc` außer den `fullIds`. Tests:
+- [x] `hasGroupWords` mit eindeutigen Gruppenausdrücken (DE/EN, siehe Acceptance Criteria) und Wortgrenzen anlegen. Gilt nur für die aktuelle Frage. Ergebnis `groupIds` = alle Kandidaten mit `is_active && !is_npc` außer den `fullIds`. Tests:
   - „Wer von uns …“
   - „unsere Gruppe“
   - „our party“
@@ -266,13 +266,13 @@ Ziel der Phase: Folgefragen ohne Namen und Fragen zur ganzen Gruppe funktioniere
   - „Gruppenzwang“ zählt nicht
   - Name und Gruppe zusammen
   - Kurzfassung schließt NPCs aus, auch bei `scope: "gm"`
-- [ ] `formatCharacter(bundle, "compact")`: eine bis drei Zeilen (Rasse/Klasse/Stufe, TP, RK, ETW0, Rettungswürfe, Angriffe pro Runde, Wahrnehmung, Diebesfertigkeiten, Magieresistenz), Test dazu. `buildCharacterContext` lädt die Gruppe mit `detail: "compact"`.
-- [ ] `SUMMARY_SYSTEM_PROMPT`: Wurde im Gespräch ein bestimmter Held besprochen, beginnt die Zusammenfassung mit „Aktueller Charakter: <Name>“, gefolgt vom zuletzt besprochenen. `system-prompt.test.ts` erweitern.
+- [x] `formatCharacter(bundle, "compact")`: eine bis drei Zeilen (Rasse/Klasse/Stufe, TP, RK, ETW0, Rettungswürfe, Angriffe pro Runde, Wahrnehmung, Diebesfertigkeiten, Magieresistenz), Test dazu. `buildCharacterContext` lädt die Gruppe mit `detail: "compact"`.
+- [x] `SUMMARY_SYSTEM_PROMPT`: Wurde im Gespräch ein bestimmter Held besprochen, beginnt die Zusammenfassung mit „Aktueller Charakter: <Name>“, gefolgt vom zuletzt besprochenen. `system-prompt.test.ts` erweitern.
 
 **Automated Verification**:
 
-- [ ] `npx vitest run src/lib/rulebook-chat` grün
-- [ ] `npm run verify` grün
+- [x] `npx vitest run src/lib/rulebook-chat` grün
+- [x] `npm run verify` grün
 
 **Manual Verification**:
 
@@ -287,30 +287,30 @@ Ziel der Phase: Man sieht unter der Antwort, welche Charakterdaten SvenBot hatte
 
 **Tasks**:
 
-- [ ] `route.ts`: Header `X-SvenBot-Characters` setzen, wenn `names.length > 0` oder `groupSize` gesetzt ist. Inhalt ist `encodeURIComponent(JSON.stringify({ names, groupSize }))`. Ein Helfer `encodeCharacterHeader`/`decodeCharacterHeader` in `character-context.ts` bekommt Roundtrip-Tests mit Umlauten und kaputten Werten.
-- [ ] `chat-history.ts`: `ChatMessage.context?: { names: string[]; groupSize: number | null }`. `parseChat` bereinigt zuerst (ein ungültiges `context` wird entfernt) und validiert dann. Ein kaputtes `context` darf nie den ganzen Verlauf verwerfen (`every(isMessage)`, :135). `chat-history.test.ts`: gültig, fehlend, kaputt (Verlauf bleibt).
-- [ ] `chat-store.ts`: Nach `response.ok` den Header lesen und `context` mit dem ersten Stream-Update an die Antwortnachricht schreiben. Es bleibt auch bei späterem Fehler oder Abbruch erhalten. `apiHistory` schickt `context` nicht mit. Tests:
+- [x] `route.ts`: Header `X-SvenBot-Characters` setzen, wenn `names.length > 0` oder `groupSize` gesetzt ist. Inhalt ist `encodeURIComponent(JSON.stringify({ names, groupSize }))`. Ein Helfer `encodeCharacterHeader`/`decodeCharacterHeader` in `character-context.ts` bekommt Roundtrip-Tests mit Umlauten und kaputten Werten.
+- [x] `chat-history.ts`: `ChatMessage.context?: { names: string[]; groupSize: number | null }`. `parseChat` bereinigt zuerst (ein ungültiges `context` wird entfernt) und validiert dann. Ein kaputtes `context` darf nie den ganzen Verlauf verwerfen (`every(isMessage)`, :135). `chat-history.test.ts`: gültig, fehlend, kaputt (Verlauf bleibt).
+- [x] `chat-store.ts`: Nach `response.ok` den Header lesen und `context` mit dem ersten Stream-Update an die Antwortnachricht schreiben. Es bleibt auch bei späterem Fehler oder Abbruch erhalten. `apiHistory` schickt `context` nicht mit. Tests:
   - mit Header
   - ohne Header
   - kaputter Header
   - `context` übersteht das Neuladen
-- [ ] `chat-message.tsx`: Prop `context`. Unter der Antwort, außer bei `streaming` mit leerem Inhalt, steht `t("knewCharacters", { names })` bzw. bei Gruppe `t("knewGroup", { count })`, in `text-xs text-muted-foreground` mit 📜. `rulebook-chat.tsx` reicht das Feld durch. `chat-message.test.tsx` erweitern.
-- [ ] i18n `rulebook`:
+- [x] `chat-message.tsx`: Prop `context`. Unter der Antwort, außer bei `streaming` mit leerem Inhalt, steht `t("knewCharacters", { names })` bzw. bei Gruppe `t("knewGroup", { count })`, in `text-xs text-muted-foreground` mit 📜. `rulebook-chat.tsx` reicht das Feld durch. `chat-message.test.tsx` erweitern.
+- [x] i18n `rulebook`:
   - `knewCharacters`: „Kannte: {names}“ / „Knew: {names}“
   - `knewGroup`: „Gruppe ({count})“ / „Party ({count})“
 
   Mit Namen und Gruppe zusammen lautet die Zeile „Kannte: Elandril · Gruppe (5)“.
 
-- [ ] `releases.ts`: neuer Eintrag oben, ID = Release-Tag. Der Text sagt, dass SvenBot eure Helden kennt, wenn man sie beim Namen nennt, inklusive Gruppenfragen. Icon `svenbot`, DE/EN.
-- [ ] `CLAUDE.md`:
+- [x] `releases.ts`: neuer Eintrag oben, ID = Release-Tag. Der Text sagt, dass SvenBot eure Helden kennt, wenn man sie beim Namen nennt, inklusive Gruppenfragen. Icon `svenbot`, DE/EN.
+- [x] `CLAUDE.md`:
   - Roadmap 32 „SvenBot kennt die Charaktere“
   - im Supabase-Abschnitt ein Stichpunkt „SvenBot-Charakterkontext“ (Matcher, RLS über den Nutzer-Client, GM über Auto-Share, Header, Grenzen)
   - Projektstruktur `lib/rulebook-chat/` und `lib/rules/spell-resources.ts` ergänzen
 
 **Automated Verification**:
 
-- [ ] `npx vitest run src/lib/rulebook-chat src/components/rulebook-chat` grün
-- [ ] `npm run verify` grün
+- [x] `npx vitest run src/lib/rulebook-chat src/components/rulebook-chat` grün
+- [x] `npm run verify` grün
 
 **Manual Verification**:
 
@@ -319,6 +319,11 @@ Ziel der Phase: Man sieht unter der Antwort, welche Charakterdaten SvenBot hatte
 - [ ] Der Release-Dialog zeigt den neuen Eintrag.
 
 ## Implementation Notes
+
+- Phase 1–3 wurden in einem Durchgang umgesetzt: `selectCharacters` kann Verlauf, Zusammenfassung und Gruppe von Anfang an, die Header-Helfer liegen in `character-info.ts` (schlank, damit der Browser-Bundle nicht den Formatierer samt Regel-Engine lädt).
+- Gruppenfrage ohne Namen holt bewusst **nicht** den zuletzt besprochenen Helden aus dem Verlauf (sonst „Kannte: Thorin · Gruppe (5)“ bei jeder Gruppenfrage).
+- Bekannte Eigenheit: Nach einer Frage zu einem Helden bekommt auch eine reine Regelfrage („Was macht Schlaf?“) dessen Daten mit (jüngste Nennung im Verlauf) — sichtbar an „Kannte: …“, kostet nur Tokens.
+- Name-Matching akzeptiert den deutschen Genitiv („Thorins RK“).
 
 - Abweichung von der Freigabe (Review-Befund): Bloßes „wir/uns/unser“ löst keine Gruppe aus, weil es in normalen Regelfragen ständig vorkommt. Nur eindeutige Gruppenausdrücke zählen.
 - Kandidaten werden pro Frage neu geladen (kleine Gruppe, wenige Zeilen). Ein Cache ist nicht nötig.

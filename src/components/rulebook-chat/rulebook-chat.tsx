@@ -122,6 +122,7 @@ export function RulebookChat({ scope, userId }: RulebookChatProps) {
                 content={msg.content}
                 status={msg.status}
                 errorMessage={msg.errorMessage}
+                context={msg.context}
               />
             )
           )}

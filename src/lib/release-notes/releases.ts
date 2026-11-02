@@ -29,6 +29,20 @@ export interface Release {
 
 export const RELEASES: Release[] = [
   {
+    id: "2026-11-02",
+    date: "2026-11-02",
+    items: [
+      {
+        icon: "svenbot",
+        title: { de: "SvenBot kennt eure Helden", en: "SvenBot knows your heroes" },
+        text: {
+          de: "Nennt im Chat einen Helden beim Namen, und Sven kennt seine Werte, Zauber und Ausrüstung – auch bei Folgefragen. Fragt ihr „Wer von uns …?“, vergleicht er die ganze Gruppe. Unter der Antwort steht, wen er kannte.",
+          en: "Name a hero in the chat and Sven knows their stats, spells and gear – follow-up questions included. Ask “Which of us …?” and he compares the whole party. The line below each answer shows whom he knew.",
+        },
+      },
+    ],
+  },
+  {
     id: "2026-10-31",
     date: "2026-10-31",
     items: [

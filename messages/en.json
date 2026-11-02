@@ -1383,6 +1383,8 @@
     "allBooks": "All books",
     "source": "Source",
     "interrupted": "The answer was interrupted.",
+    "knewCharacters": "Knew: {names}",
+    "knewGroup": "Party ({count})",
     "truncated": "Older messages were removed.",
     "newChat": "New chat",
     "newChatConfirmTitle": "New chat?",

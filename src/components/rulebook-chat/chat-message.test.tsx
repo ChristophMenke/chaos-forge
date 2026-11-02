@@ -2,7 +2,14 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string) => (key === "botName" ? "SvenBot" : key),
+  useTranslations: () => (key: string, values?: Record<string, unknown>) =>
+    key === "botName"
+      ? "SvenBot"
+      : key === "knewCharacters"
+        ? `Kannte: ${values?.names}`
+        : key === "knewGroup"
+          ? `Gruppe (${values?.count})`
+          : key,
 }));
 
 const { ChatMessage } = await import("./chat-message");
@@ -50,5 +57,38 @@ describe("ChatMessage status", () => {
     await screen.findByText("Teil");
     const row = screen.getByTestId("chat-message-assistant");
     expect(row.textContent).toContain("error: HTTP 500");
+  });
+});
+
+describe("ChatMessage character context", () => {
+  it("names the characters SvenBot knew under the answer", () => {
+    render(
+      <ChatMessage
+        role="assistant"
+        content="Thorin hat RK 2."
+        context={{ names: ["Thorin", "Elandril"], groupSize: null }}
+      />
+    );
+    expect(screen.getByTestId("chat-message-context")).toHaveTextContent(
+      "Kannte: Thorin, Elandril"
+    );
+  });
+
+  it("shows the party size for group questions, next to named heroes", () => {
+    render(
+      <ChatMessage
+        role="assistant"
+        content="Thorin."
+        context={{ names: ["Thorin"], groupSize: 5 }}
+      />
+    );
+    expect(screen.getByTestId("chat-message-context")).toHaveTextContent(
+      "Kannte: Thorin · Gruppe (5)"
+    );
+  });
+
+  it("shows nothing without character data", () => {
+    render(<ChatMessage role="assistant" content="ETW0 ist …" />);
+    expect(screen.queryByTestId("chat-message-context")).not.toBeInTheDocument();
   });
 });
