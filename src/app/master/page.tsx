@@ -21,6 +21,7 @@ import type {
   SpellRow,
   MagicItemRow,
   GmBookmarkRow,
+  GalleryImageRow,
   CharacterEffectRow,
 } from "@/lib/supabase/types";
 
@@ -55,6 +56,7 @@ export default async function MasterPage() {
     { data: magicItems },
     { data: gmBookmarks },
     { data: allEffects },
+    { data: galleryImages },
   ] = await Promise.all([
     service.from("characters").select("*").order("name").returns<CharacterRow[]>(),
     service.from("character_classes").select("*").returns<CharacterClassRow[]>(),
@@ -90,6 +92,11 @@ export default async function MasterPage() {
       .is("ended_at", null)
       .order("created_at")
       .returns<CharacterEffectRow[]>(),
+    service
+      .from("gallery_images")
+      .select("*")
+      .order("sort_order", { ascending: false })
+      .returns<GalleryImageRow[]>(),
   ]);
 
   // Build lookup maps for O(1) access per character
@@ -166,6 +173,7 @@ export default async function MasterPage() {
       characterSpells={characterSpells}
       initialMagicItems={(magicItems as MagicItemRow[]) ?? []}
       initialBookmarks={(gmBookmarks as GmBookmarkRow[]) ?? []}
+      initialGalleryImages={galleryImages ?? []}
       userId={user.id}
       userEmail={user.email ?? ""}
     />

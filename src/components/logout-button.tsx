@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { createClient } from "@/lib/supabase/client";
+import { signOut } from "@/lib/supabase/sign-out";
 import { Button } from "@/components/ui/button";
 
 export function LogoutButton() {
@@ -10,8 +10,7 @@ export function LogoutButton() {
   const t = useTranslations("nav");
 
   async function handleLogout() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    await signOut();
     router.push("/login");
   }
 

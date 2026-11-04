@@ -34,6 +34,7 @@ export const FULL_TABLES = [
   "notifications",
   "gm_bookmarks",
   "game_dates",
+  "gallery_images",
 ] as const;
 
 /** Book reference data the group extends: only rows with is_custom = true. */
@@ -53,6 +54,8 @@ export const EXCLUDED_TABLES: Record<string, string> = {
   race_class_restrictions: "Stammdaten aus dem Player's Handbook (Seed-Migrationen)",
   rulebook_chunks: "Regelbuch-Embeddings, neu erzeugbar mit scripts/embed-books.ts",
   monsters: "Monster sind laut Entscheidung vom 2026-10-31 nicht Teil des Backups",
+  push_subscriptions:
+    "Geräte-Abos für Push, erneuerbar durch Wiedereinschalten in den Einstellungen",
 };
 
 export type BackupTable = (typeof FULL_TABLES)[number] | (typeof CUSTOM_ROW_TABLES)[number];

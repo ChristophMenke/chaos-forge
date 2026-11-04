@@ -28,6 +28,16 @@ describe("next.config caching", () => {
     });
   });
 
+  it("never caches the push service worker, so updates reach every device", async () => {
+    const rules = await nextConfig.headers!();
+    const swRule = rules.find((rule) => rule.source === "/sw.js");
+
+    expect(swRule?.headers).toContainEqual({
+      key: "Cache-Control",
+      value: "no-cache, no-store, must-revalidate",
+    });
+  });
+
   it("keeps optimized images for a day", () => {
     expect(nextConfig.images?.minimumCacheTTL).toBe(86400);
   });

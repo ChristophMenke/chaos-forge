@@ -24,6 +24,11 @@ const nextConfig: NextConfig = {
         headers: [{ key: "Cache-Control", value: PUBLIC_ASSET_CACHE }],
       },
       {
+        // The push service worker must update as soon as it changes.
+        source: "/sw.js",
+        headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }],
+      },
+      {
         source: "/:file(.*\\.webmanifest)",
         headers: [{ key: "Cache-Control", value: "public, max-age=86400" }],
       },

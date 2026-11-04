@@ -45,6 +45,20 @@ export default function DatenschutzPage() {
             Session-Einträge, Kampagnen-NPCs, Zitate, Tags, Sprachnotizen (optional aufgenommen).
           </li>
           <li>
+            <strong>Galerie des Chaos:</strong> Szenenbilder, die der Spielleiter hochlädt, mit
+            optionalem Titel und Beschreibung. Die Bilder können Personen am Spieltisch zeigen. Sie
+            sind für alle angemeldeten Mitglieder sichtbar und über ihre (nicht erratbare) Bild-URL
+            abrufbar. Der Spielleiter kann jedes Bild jederzeit löschen; sprich ihn an, wenn du auf
+            einem Bild nicht zu sehen sein möchtest.
+          </li>
+          <li>
+            <strong>Push-Benachrichtigungen (optional):</strong> Schaltest du in den Einstellungen
+            Push für ein Gerät ein, speichern wir dessen Push-Adresse (Endpoint und Schlüssel des
+            Browsers), die gewählte Sprache und die Browserkennung. Der Inhalt jeder
+            Benachrichtigung (z. B. „Neuer Spieltermin“) wird über den Push-Dienst deines Browsers
+            zugestellt. Beim Ausschalten, beim Abmelden und mit dem Account wird das Abo gelöscht.
+          </li>
+          <li>
             <strong>Technische Daten:</strong> Login-Zeitpunkt, Session-Cookies zur
             Authentifizierung.
           </li>
@@ -63,7 +77,8 @@ export default function DatenschutzPage() {
           <li>
             <strong>Datensicherung:</strong> Der Administrator erstellt nach Spielabenden
             Sicherungskopien aller Spieldaten — einschließlich der Profile mit E-Mail-Adressen, der
-            Benachrichtigungen und der hochgeladenen Bilder. Sie dienen ausschließlich der
+            Benachrichtigungen und der hochgeladenen Avatar-, NPC- und Session-Bilder (die
+            Szenenbilder der Galerie sind nicht enthalten). Sie dienen ausschließlich der
             Wiederherstellung nach einem Datenverlust.
           </li>
         </ul>
@@ -79,7 +94,8 @@ export default function DatenschutzPage() {
             Missbrauchsabwehr, Datensicherung).
           </li>
           <li>
-            Art. 6 Abs. 1 lit. a DSGVO — Einwilligung bei optionalen Funktionen (Sprachnotizen).
+            Art. 6 Abs. 1 lit. a DSGVO — Einwilligung bei optionalen Funktionen (Sprachnotizen,
+            Push-Benachrichtigungen).
           </li>
         </ul>
 
@@ -133,6 +149,11 @@ export default function DatenschutzPage() {
           <li>
             <strong>Discord Inc.</strong> (USA) — Benachrichtigung des Administrators per Webhook
             bei neuen Registrierungen.
+          </li>
+          <li>
+            <strong>Push-Dienste der Browser-Hersteller</strong> — nur wenn du Push einschaltest:
+            Apple (Safari/iOS), Google (Chrome/Android) bzw. Mozilla (Firefox) stellen die
+            Benachrichtigung auf dein Gerät zu. Welcher Dienst genutzt wird, bestimmt dein Browser.
           </li>
           <li>
             <strong>Apple (iCloud)</strong> — privater Speicherort der Sicherungskopien beim

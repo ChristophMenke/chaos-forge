@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpCircle, Cog, Sparkles, Undo2 } from "lucide-react";
+import { ArrowUpCircle, BellRing, Cog, Images, Sparkles, Undo2 } from "lucide-react";
 import { useLocale } from "next-intl";
 import { SvenBotIcon } from "@/components/svenbot/svenbot-avatar";
 import { parseGameDate } from "@/lib/game-dates";
@@ -13,6 +13,8 @@ const ICONS: Record<ReleaseIcon, React.ComponentType<{ className?: string }>> = 
   effects: Sparkles,
   undo: Undo2,
   sprocket: Cog,
+  gallery: Images,
+  push: BellRing,
 };
 
 /** "31. Oktober 2026" / "October 31, 2026" — local midnight, no UTC shift. */

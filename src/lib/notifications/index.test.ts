@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { createNotification } from "./notifications";
+import { createNotification, notifyApprovedUsers } from "./index";
 import type { NotificationType } from "@/lib/supabase/types";
 
 function createMockSupabase() {
@@ -103,5 +103,58 @@ describe("createNotification", () => {
         },
       })
     );
+  });
+});
+
+describe("notifyApprovedUsers", () => {
+  function createFanOutMock(profiles: { id: string }[] | null, insertError: unknown = null) {
+    const insertFn = vi.fn().mockResolvedValue({ error: insertError });
+    const eqFn = vi.fn().mockResolvedValue({ data: profiles, error: null });
+    const selectFn = vi.fn().mockReturnValue({ eq: eqFn });
+    const from = vi.fn((table: string) =>
+      table === "profiles" ? { select: selectFn } : { insert: insertFn }
+    );
+    return { client: { from }, insertFn, eqFn };
+  }
+
+  it("inserts one row per approved user except the actor, in a single insert", async () => {
+    const { client, insertFn, eqFn } = createFanOutMock([{ id: "a" }, { id: "gm" }, { id: "b" }]);
+
+    await notifyApprovedUsers(client as never, {
+      exceptUserId: "gm",
+      type: "gallery_images_added",
+      details: { count: 3 },
+    });
+
+    expect(eqFn).toHaveBeenCalledWith("is_approved", true);
+    expect(insertFn).toHaveBeenCalledTimes(1);
+    expect(insertFn).toHaveBeenCalledWith([
+      { user_id: "a", character_id: null, type: "gallery_images_added", details: { count: 3 } },
+      { user_id: "b", character_id: null, type: "gallery_images_added", details: { count: 3 } },
+    ]);
+  });
+
+  it("skips the insert without recipients", async () => {
+    const { client, insertFn } = createFanOutMock([{ id: "gm" }]);
+    await notifyApprovedUsers(client as never, {
+      exceptUserId: "gm",
+      type: "gallery_images_added",
+      details: { count: 1 },
+    });
+    expect(insertFn).not.toHaveBeenCalled();
+  });
+
+  it("only logs a failed insert", async () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { client } = createFanOutMock([{ id: "a" }], { message: "boom" });
+    await expect(
+      notifyApprovedUsers(client as never, {
+        exceptUserId: null,
+        type: "gallery_images_added",
+        details: { count: 1 },
+      })
+    ).resolves.toBeUndefined();
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
   });
 });

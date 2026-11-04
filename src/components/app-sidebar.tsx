@@ -9,7 +9,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { NAV_ITEMS } from "@/lib/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { signOut } from "@/lib/supabase/sign-out";
 import { useRouter } from "next/navigation";
 
 interface AppSidebarProps {
@@ -24,8 +24,7 @@ export function AppSidebar({ userEmail, userId, userAvatarUrl }: AppSidebarProps
   const router = useRouter();
 
   async function handleLogout() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    await signOut();
     router.push("/login");
   }
 

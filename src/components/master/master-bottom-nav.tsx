@@ -2,7 +2,17 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { Users, Swords, Coins, MoreHorizontal, UserRound, Bug, Flame, Star } from "lucide-react";
+import {
+  Users,
+  Swords,
+  Coins,
+  MoreHorizontal,
+  UserRound,
+  Bug,
+  Flame,
+  Star,
+  Images,
+} from "lucide-react";
 import { SvenBotIcon } from "@/components/svenbot/svenbot-avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LocaleToggle } from "@/components/locale-toggle";
@@ -15,7 +25,7 @@ interface MasterBottomNavProps {
   userEmail?: string;
 }
 
-const MORE_TABS: TabId[] = ["npcs", "bestiary", "bookmarks", "combat"];
+const MORE_TABS: TabId[] = ["npcs", "bestiary", "gallery", "bookmarks", "combat"];
 
 export function MasterBottomNav({ activeTab, onTabChange, userEmail }: MasterBottomNavProps) {
   const t = useTranslations("master");
@@ -45,6 +55,7 @@ export function MasterBottomNav({ activeTab, onTabChange, userEmail }: MasterBot
   const moreTabs: { id: TabId; icon: React.ReactNode; label: string }[] = [
     { id: "npcs", icon: <UserRound className="h-5 w-5" />, label: t("npcsTab") },
     { id: "bestiary", icon: <Bug className="h-5 w-5" />, label: t("bestiaryTab") },
+    { id: "gallery", icon: <Images className="h-5 w-5" />, label: t("galleryTab") },
     { id: "bookmarks", icon: <Star className="h-5 w-5" />, label: t("bookmarksTab") },
     { id: "combat", icon: <Flame className="h-5 w-5" />, label: t("combatTab") },
   ];

@@ -48,6 +48,10 @@ const RulebookChat = dynamic(
   () => import("@/components/rulebook-chat/rulebook-chat").then((m) => m.RulebookChat),
   { loading: PanelSkeleton }
 );
+const MasterGalleryPanel = dynamic(
+  () => import("./master-gallery-panel").then((m) => m.MasterGalleryPanel),
+  { loading: PanelSkeleton }
+);
 const MasterBookmarksPanel = dynamic(
   () => import("./master-bookmarks-panel").then((m) => m.MasterBookmarksPanel),
   { loading: PanelSkeleton }
@@ -65,6 +69,7 @@ import type {
   MagicItemRow,
   GmBookmarkRow,
   BookmarkEntityType,
+  GalleryImageRow,
 } from "@/lib/supabase/types";
 import type { CharacterCombatData } from "@/lib/rules/character-computed";
 import {
@@ -95,12 +100,13 @@ interface MasterDashboardProps {
   characterSpells: Map<string, SpellRow[]>;
   initialMagicItems: MagicItemRow[];
   initialBookmarks: GmBookmarkRow[];
+  initialGalleryImages: GalleryImageRow[];
   userId: string;
   userEmail?: string;
 }
 
 export type TabId =
-  "party" | "items" | "gold" | "chat" | "npcs" | "bestiary" | "combat" | "bookmarks";
+  "party" | "items" | "gold" | "chat" | "npcs" | "bestiary" | "gallery" | "combat" | "bookmarks";
 
 export function MasterDashboard({
   partyData,
@@ -112,6 +118,7 @@ export function MasterDashboard({
   characterSpells,
   initialMagicItems,
   initialBookmarks,
+  initialGalleryImages,
   userId,
   userEmail,
 }: MasterDashboardProps) {
@@ -495,6 +502,7 @@ export function MasterDashboard({
             onMonstersChange={refreshMonsters}
           />
         )}
+        {activeTab === "gallery" && <MasterGalleryPanel initialImages={initialGalleryImages} />}
         {activeTab === "combat" && (
           <MasterCombatSimulator
             partyData={simulatorPartyData}

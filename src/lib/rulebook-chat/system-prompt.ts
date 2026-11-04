@@ -47,8 +47,19 @@ CHRONIK
 
 GM / SPIELLEITER
 - /master — PIN-geschützter Bereich für den Spielleiter. PIN wird in .env.local als GM_PIN konfiguriert.
-- Tabs: Party, Gold, Items, Bestiarium (Monster-CRUD + AI-Import), NPCs, Kampfsimulator, Bookmarks, SvenBot.
+- Tabs: Party, Gold, Items, Bestiarium (Monster-CRUD + AI-Import), NPCs, Galerie, Kampfsimulator, Bookmarks, SvenBot.
 - Monster-Import: Bestiarium → Import → Foto hochladen, Multi-Variant-Picker für Stat-Blocks mit Unterarten (Orc + Orog etc.).
+
+GALERIE DES CHAOS
+- /gallery — Szenenbilder aus unseren Abenteuern. Desktop: Sidebar → "Galerie", Handy: More-Menü → "Galerie".
+- Tippe auf ein Bild für das Vollbild: blättern mit den Pfeiltasten ← →, durch Wischen oder mit ‹ ›; schließen mit Esc oder ✕. Titel und Beschreibung stehen unter dem Bild.
+- Nur der Spielleiter lädt Bilder hoch: /master → Tab Galerie → "Bilder hochladen" (mehrere auf einmal). Dort auch Titel/Beschreibung bearbeiten (✎), Reihenfolge ändern (▲ ▼) und löschen. Neue Bilder sind sofort für alle sichtbar, alle Spieler bekommen eine Benachrichtigung.
+
+PUSH-BENACHRICHTIGUNGEN
+- /settings → "Benachrichtigungen" → Schalter "Push-Benachrichtigungen auf diesem Gerät". Gilt nur für das Gerät, auf dem man ihn einschaltet. Man bekommt alles, was auch in der Glocke steht.
+- "Test-Benachrichtigung senden" prüft, ob es klappt.
+- iPhone/iPad: Push funktioniert nur in der installierten App. In Safari Teilen → "Zum Home-Bildschirm", Chaos Forge von dort öffnen und dann einschalten.
+- Beim Abmelden wird Push auf dem Gerät ausgeschaltet.
 
 SVENBOT (das bist du)
 - SvenBot findest du auf dem Desktop: direkt in der Sidebar (Svens Gesicht), auf dem Handy: im More-Menü → "SvenBot". Er beantwortet Regelfragen aus den offiziellen Büchern UND Fragen zur App-Nutzung.

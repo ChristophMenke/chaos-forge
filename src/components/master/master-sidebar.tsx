@@ -1,12 +1,12 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Users, Swords, Coins, LogOut, UserRound, Bug, Flame, Star } from "lucide-react";
+import { Users, Swords, Coins, LogOut, UserRound, Bug, Flame, Star, Images } from "lucide-react";
 import { SvenBotIcon } from "@/components/svenbot/svenbot-avatar";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LocaleToggle } from "@/components/locale-toggle";
-import { createClient } from "@/lib/supabase/client";
+import { signOut } from "@/lib/supabase/sign-out";
 import { useRouter } from "next/navigation";
 
 import type { TabId } from "./master-dashboard";
@@ -23,8 +23,7 @@ export function MasterSidebar({ activeTab, onTabChange, userEmail }: MasterSideb
   const router = useRouter();
 
   async function handleLogout() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    await signOut();
     router.push("/login");
   }
 
@@ -34,6 +33,7 @@ export function MasterSidebar({ activeTab, onTabChange, userEmail }: MasterSideb
     { id: "gold", icon: Coins, label: t("goldTab") },
     { id: "npcs", icon: UserRound, label: t("npcsTab") },
     { id: "bestiary", icon: Bug, label: t("bestiaryTab") },
+    { id: "gallery", icon: Images, label: t("galleryTab") },
     { id: "bookmarks", icon: Star, label: t("bookmarksTab") },
     { id: "combat", icon: Flame, label: t("combatTab") },
   ];

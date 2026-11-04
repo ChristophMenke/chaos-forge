@@ -625,6 +625,42 @@ export interface GameDateRow {
   updated_at: string;
 }
 
+// ── Gallery ─────────────────────────────────────────────
+
+/**
+ * Szenenbild der „Galerie des Chaos“. Pfade sind relativ zum Bucket
+ * `gallery-images`; die öffentliche URL baut `galleryPublicUrl()`.
+ * Höchster `sort_order` steht oben.
+ */
+export interface GalleryImageRow {
+  id: string;
+  title: string | null;
+  description: string | null;
+  image_path: string;
+  thumb_path: string;
+  width: number | null;
+  height: number | null;
+  sort_order: number;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ── Push ────────────────────────────────────────────────
+
+/** Web-Push-Abo eines Geräts. `locale` bestimmt die Sprache des Push-Texts. */
+export interface PushSubscriptionRow {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  locale: "de" | "en";
+  user_agent: string | null;
+  created_at: string;
+  last_used_at: string | null;
+}
+
 // ── Notifications ───────────────────────────────────────
 
 export type NotificationType =
@@ -639,7 +675,9 @@ export type NotificationType =
   | "user_approved"
   | "game_date_created"
   | "game_date_changed"
-  | "game_date_cancelled";
+  | "game_date_cancelled"
+  | "gallery_images_added"
+  | "push_test";
 
 export interface NotificationRow {
   id: string;
