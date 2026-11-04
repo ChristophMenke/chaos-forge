@@ -53,6 +53,8 @@ GM / SPIELLEITER
 GALERIE DES CHAOS
 - /gallery — Szenenbilder aus unseren Abenteuern. Desktop: Sidebar → "Galerie", Handy: More-Menü → "Galerie".
 - Tippe auf ein Bild für das Vollbild: blättern mit den Pfeiltasten ← →, durch Wischen oder mit ‹ ›; schließen mit Esc oder ✕. Titel und Beschreibung stehen unter dem Bild.
+- Zoomen: am Handy mit zwei Fingern spreizen oder doppelt tippen, gezoomt mit einem Finger verschieben; am PC mit + / − / 0, Mausrad oder Doppelklick, verschieben durch Ziehen. Solange gezoomt ist, blättert Wischen nicht.
+- Nur das Bild sehen: Symbol ⛶ oben rechts (am PC Taste F) blendet alles andere aus; im Querformat am Handy passiert das automatisch. Ein Tipp aufs Bild zeigt die Bedienung kurz wieder an, Esc verlässt den Modus.
 - Nur der Spielleiter lädt Bilder hoch: /master → Tab Galerie → "Bilder hochladen" (mehrere auf einmal). Dort auch Titel/Beschreibung bearbeiten (✎), Reihenfolge ändern (▲ ▼) und löschen. Neue Bilder sind sofort für alle sichtbar, alle Spieler bekommen eine Benachrichtigung.
 
 PUSH-BENACHRICHTIGUNGEN

@@ -69,7 +69,7 @@ src/
     app-sidebar.tsx       # Desktop Left-Sidebar (Icons, Tooltips, Logout)
     app-nav.tsx           # Mobile Bottom-Nav + More-Menu
     master/               # GM-Dashboard: Immersive PIN-Gate (Chaos-Artwork), Party Panel (Council of Heroes mit Aggregat-Stats), Gold Panel (Treasury Vault mit Multi-Select + Split), Items Panel (CRUD + In-Use-Check), Bestiary Panel (Monster CRUD + AI Import + Precise-Mode-Toggle), MonsterForm (Create/Edit), MonsterVariantPicker (Multi-Variant-Scan), NPCs, Galerie (master-gallery-panel: Mehrfach-Upload, ▲▼, ✎, 🗑), Combat Simulator, Bookmarks, SvenBot (Rulebook Chat), Sidebar, Bottom Nav
-    gallery/              # Spieler-Galerie: GalleryGrid (Thumbs), GalleryLightbox (← → Wischen Esc, kein Umlauf, Portal), useSwipe
+    gallery/              # Spieler-Galerie: GalleryGrid (Thumbs), GalleryLightbox (← → Wischen Esc, kein Umlauf, Portal; Zoom per react-zoom-pan-pinch: Pinch/Doppeltipp/Mausrad/+ − 0, gezoomt verschieben statt blättern; „Nur Bild“ per ⛶/F und automatisch im Handy-Querformat, Tipp blendet Bedienung 3 s ein), useSwipe (Wischen, Tipp, Pinch-Erkennung), useCompactLandscape
     svenbot/              # SvenBotAvatar (Chat, alt = Name) + SvenBotIcon (Navigationen, dekorativ); Bild: public/images/svenbot/ via scripts/svenbot-avatar.ts
     notifications/        # Notification Bell mit Delete-Funktion (einzeln + alle); Texte/Ziele aus lib/notifications/describe.ts
     character-rescan/     # Rescan: Upload-Panel, Änderungsliste, Änderungs-Zeile

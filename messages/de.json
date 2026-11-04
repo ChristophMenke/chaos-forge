@@ -2452,6 +2452,8 @@
     "open": "Szene öffnen: {name}",
     "previous": "Vorherige Szene",
     "next": "Nächste Szene",
+    "imageOnly": "Nur Bild (F)",
+    "exitImageOnly": "Bedienung wieder einblenden",
     "close": "Schließen"
   }
 }

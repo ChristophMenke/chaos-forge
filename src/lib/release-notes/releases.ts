@@ -30,6 +30,20 @@ export interface Release {
 
 export const RELEASES: Release[] = [
   {
+    id: "2026-11-04-2",
+    date: "2026-11-04",
+    items: [
+      {
+        icon: "gallery",
+        title: { de: "Galerie: Zoomen und nur das Bild", en: "Gallery: zoom and image only" },
+        text: {
+          de: "Im Vollbild der Galerie zoomt ihr jetzt mit zwei Fingern oder Doppeltipp (am PC mit + / − und dem Mausrad). Dreht das Handy quer oder tippt auf ⛶, dann seht ihr nur noch das Bild.",
+          en: "In the gallery's fullscreen view you can now zoom with two fingers or a double tap (on the PC with + / − and the mouse wheel). Turn your phone sideways or tap ⛶ to see nothing but the image.",
+        },
+      },
+    ],
+  },
+  {
     id: "2026-11-04",
     date: "2026-11-04",
     items: [

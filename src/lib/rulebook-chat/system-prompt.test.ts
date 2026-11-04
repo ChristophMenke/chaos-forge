@@ -79,6 +79,8 @@ describe("APP_HELP_CONTEXT", () => {
     expect(APP_HELP_CONTEXT).toMatch(/Tab Galerie/);
     expect(APP_HELP_CONTEXT).toMatch(/PUSH-BENACHRICHTIGUNGEN/);
     expect(APP_HELP_CONTEXT).toMatch(/Zum Home-Bildschirm/);
+    expect(APP_HELP_CONTEXT).toMatch(/Zoomen/);
+    expect(APP_HELP_CONTEXT).toMatch(/Nur das Bild sehen/);
   });
 
   it("explains that the conversation is kept until 'Neuer Chat'", () => {
