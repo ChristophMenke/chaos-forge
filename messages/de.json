@@ -76,7 +76,8 @@
     "settings": "Einstellungen",
     "newCharacter": "Neuer Charakter",
     "rulebook": "SvenBot",
-    "party": "Beutekasse"
+    "party": "Beutekasse",
+    "gallery": "Galerie"
   },
   "notFound": {
     "title": "404",
@@ -1619,6 +1620,31 @@
     "cancel": "Abbrechen",
     "npcsTab": "NPCs",
     "bestiaryTab": "Monster",
+    "galleryTab": "Galerie",
+    "galleryTitle": "Die Galerie des Chaos",
+    "galleryUpload": "Bilder hochladen",
+    "galleryProgress": "Upload läuft: {done} / {total}",
+    "galleryUploaded": "{count, plural, one {Eine Szene hochgeladen} other {# Szenen hochgeladen}}",
+    "galleryUploadPartial": "{done} von {total} hochgeladen – fehlgeschlagen: {files}",
+    "galleryUploadFailed": "Upload fehlgeschlagen. Bitte versuche es erneut.",
+    "galleryTooMany": "Höchstens {max} Bilder auf einmal – die ersten {max} werden hochgeladen.",
+    "galleryEmpty": "Noch keine Szenen. Lade die ersten Bilder hoch.",
+    "galleryUntitled": "(ohne Titel)",
+    "galleryUploadedAt": "hochgeladen {date}",
+    "galleryMoveUp": "Nach oben",
+    "galleryMoveDown": "Nach unten",
+    "galleryEdit": "Bearbeiten",
+    "galleryEditTitle": "Szene bearbeiten",
+    "galleryFieldTitle": "Titel (optional)",
+    "galleryFieldTitlePlaceholder": "z. B. Der Fall von Burg Grauzahn",
+    "galleryFieldDescription": "Beschreibung (optional)",
+    "galleryFieldDescriptionPlaceholder": "Was geschah in dieser Szene?",
+    "gallerySaved": "Szene gespeichert",
+    "gallerySaveFailed": "Änderung konnte nicht gespeichert werden.",
+    "galleryDeleteTitle": "Szene endgültig löschen?",
+    "galleryDeleteMessage": "Das Bild verschwindet für alle Spieler aus der Galerie.",
+    "galleryDeleted": "Szene gelöscht",
+    "galleryDeleteFailed": "Szene konnte nicht gelöscht werden.",
     "combatTab": "Kampf",
     "bookmarksTab": "Lesezeichen",
     "noBookmarks": "Noch keine Lesezeichen. Markiere Monster, NPCs oder Items mit dem Stern-Symbol.",
@@ -1893,7 +1919,18 @@
       "deleted": "Termin gelöscht",
       "saveError": "Termin konnte nicht gespeichert werden",
       "deleteError": "Termin konnte nicht gelöscht werden"
-    }
+    },
+    "sectionPush": "Benachrichtigungen",
+    "pushToggle": "Push-Benachrichtigungen auf diesem Gerät",
+    "pushHint": "Du bekommst alles, was auch in der Glocke erscheint – nur auf diesem Gerät.",
+    "pushIosInstall": "Auf dem iPhone/iPad funktioniert Push nur in der installierten App: Tippe in Safari auf Teilen → „Zum Home-Bildschirm“, öffne Chaos Forge von dort und schalte Push hier ein.",
+    "pushUnsupported": "Dieser Browser unterstützt keine Push-Benachrichtigungen.",
+    "pushDenied": "Benachrichtigungen sind für Chaos Forge blockiert. Erlaube sie in den Einstellungen deines Browsers bzw. unter iOS-Einstellungen → Mitteilungen und lade die Seite neu.",
+    "pushEnabled": "Push ist auf diesem Gerät eingeschaltet",
+    "pushError": "Push konnte nicht umgeschaltet werden.",
+    "pushTest": "Test-Benachrichtigung senden",
+    "pushTestSent": "Test-Benachrichtigung ist unterwegs",
+    "pushTestFailed": "Test-Benachrichtigung konnte nicht gesendet werden."
   },
   "backup": {
     "sectionTitle": "Backup",
@@ -1940,6 +1977,8 @@
     "gameDateChanged": "Spieltermin verschoben auf {date}",
     "gameDateCancelled": "Spieltermin am {date} abgesagt",
     "gameDatePrevious": "vorher: {date}",
+    "galleryImagesAdded": "{count, plural, one {Der Meister hat eine neue Szene in die Galerie gehängt} other {Der Meister hat # neue Szenen in die Galerie gehängt}}",
+    "pushTest": "Push funktioniert! Sven hört mit.",
     "approveNow": "Jetzt freischalten",
     "approveSuccess": "{email} wurde freigeschaltet",
     "approveError": "Freischaltung fehlgeschlagen",
@@ -2403,5 +2442,16 @@
       "level": "Stufe",
       "xp_current": "EP"
     }
+  },
+  "gallery": {
+    "title": "Die Galerie des Chaos",
+    "subtitle": "{count, plural, one {Szenen aus unseren Abenteuern · ein Bild} other {Szenen aus unseren Abenteuern · # Bilder}}",
+    "empty": "Noch keine Szenen – der Meister hat die Galerie noch nicht bestückt.",
+    "sceneLabel": "Szene {index} von {total}",
+    "counter": "{index} / {total}",
+    "open": "Szene öffnen: {name}",
+    "previous": "Vorherige Szene",
+    "next": "Nächste Szene",
+    "close": "Schließen"
   }
 }

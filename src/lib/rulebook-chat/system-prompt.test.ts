@@ -73,6 +73,14 @@ describe("APP_HELP_CONTEXT", () => {
     expect(APP_HELP_CONTEXT).toMatch(/Desktop: direkt in der Sidebar/);
   });
 
+  it("explains the gallery and push notifications", () => {
+    expect(APP_HELP_CONTEXT).toMatch(/GALERIE DES CHAOS/);
+    expect(APP_HELP_CONTEXT).toMatch(/\/gallery/);
+    expect(APP_HELP_CONTEXT).toMatch(/Tab Galerie/);
+    expect(APP_HELP_CONTEXT).toMatch(/PUSH-BENACHRICHTIGUNGEN/);
+    expect(APP_HELP_CONTEXT).toMatch(/Zum Home-Bildschirm/);
+  });
+
   it("explains that the conversation is kept until 'Neuer Chat'", () => {
     expect(APP_HELP_CONTEXT).toMatch(/Neuer Chat/);
     expect(APP_HELP_CONTEXT).toMatch(/Spieler- und GM-Chat sind getrennt/);

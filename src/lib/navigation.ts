@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, ScrollText, Package, FileUp } from "lucide-react";
+import { LayoutDashboard, Users, ScrollText, Package, FileUp, Images } from "lucide-react";
 import { SvenBotIcon } from "@/components/svenbot/svenbot-avatar";
 
 export const NAV_ITEMS = [
@@ -35,6 +35,13 @@ export const NAV_ITEMS = [
     icon: FileUp,
     labelKey: "import" as const,
     testId: "nav-import",
+    mobileBar: false,
+  },
+  {
+    href: "/gallery",
+    icon: Images,
+    labelKey: "gallery" as const,
+    testId: "nav-gallery",
     mobileBar: false,
   },
   {

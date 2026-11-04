@@ -76,7 +76,8 @@
     "settings": "Settings",
     "newCharacter": "New Character",
     "rulebook": "SvenBot",
-    "party": "Party Loot"
+    "party": "Party Loot",
+    "gallery": "Gallery"
   },
   "notFound": {
     "title": "404",
@@ -1619,6 +1620,31 @@
     "cancel": "Cancel",
     "npcsTab": "NPCs",
     "bestiaryTab": "Monsters",
+    "galleryTab": "Gallery",
+    "galleryTitle": "The Gallery of Chaos",
+    "galleryUpload": "Upload images",
+    "galleryProgress": "Uploading: {done} / {total}",
+    "galleryUploaded": "{count, plural, one {Uploaded one scene} other {Uploaded # scenes}}",
+    "galleryUploadPartial": "{done} of {total} uploaded – failed: {files}",
+    "galleryUploadFailed": "Upload failed. Please try again.",
+    "galleryTooMany": "At most {max} images at once – uploading the first {max}.",
+    "galleryEmpty": "No scenes yet. Upload the first images.",
+    "galleryUntitled": "(untitled)",
+    "galleryUploadedAt": "uploaded {date}",
+    "galleryMoveUp": "Move up",
+    "galleryMoveDown": "Move down",
+    "galleryEdit": "Edit",
+    "galleryEditTitle": "Edit scene",
+    "galleryFieldTitle": "Title (optional)",
+    "galleryFieldTitlePlaceholder": "e.g. The fall of Castle Greyfang",
+    "galleryFieldDescription": "Description (optional)",
+    "galleryFieldDescriptionPlaceholder": "What happened in this scene?",
+    "gallerySaved": "Scene saved",
+    "gallerySaveFailed": "Could not save the change.",
+    "galleryDeleteTitle": "Delete scene permanently?",
+    "galleryDeleteMessage": "The image disappears from the gallery for all players.",
+    "galleryDeleted": "Scene deleted",
+    "galleryDeleteFailed": "Could not delete the scene.",
     "combatTab": "Combat",
     "bookmarksTab": "Bookmarks",
     "noBookmarks": "No bookmarks yet. Mark monsters, NPCs, or items with the star icon.",
@@ -1893,7 +1919,18 @@
       "deleted": "Date deleted",
       "saveError": "Could not save the date",
       "deleteError": "Could not delete the date"
-    }
+    },
+    "sectionPush": "Notifications",
+    "pushToggle": "Push notifications on this device",
+    "pushHint": "You get everything that also shows up in the bell – on this device only.",
+    "pushIosInstall": "On iPhone/iPad, push only works in the installed app: in Safari tap Share → “Add to Home Screen”, open Chaos Forge from there and turn push on here.",
+    "pushUnsupported": "This browser does not support push notifications.",
+    "pushDenied": "Notifications are blocked for Chaos Forge. Allow them in your browser settings or iOS Settings → Notifications and reload the page.",
+    "pushEnabled": "Push is on for this device",
+    "pushError": "Could not switch push.",
+    "pushTest": "Send test notification",
+    "pushTestSent": "Test notification is on its way",
+    "pushTestFailed": "Could not send the test notification."
   },
   "backup": {
     "sectionTitle": "Backup",
@@ -1940,6 +1977,8 @@
     "gameDateChanged": "Game date moved to {date}",
     "gameDateCancelled": "Game date on {date} cancelled",
     "gameDatePrevious": "previously: {date}",
+    "galleryImagesAdded": "{count, plural, one {The master hung a new scene in the gallery} other {The master hung # new scenes in the gallery}}",
+    "pushTest": "Push works! Sven is listening.",
     "approveNow": "Approve now",
     "approveSuccess": "{email} has been approved",
     "approveError": "Approval failed",
@@ -2403,5 +2442,16 @@
       "level": "Level",
       "xp_current": "XP"
     }
+  },
+  "gallery": {
+    "title": "The Gallery of Chaos",
+    "subtitle": "{count, plural, one {Scenes from our adventures · one image} other {Scenes from our adventures · # images}}",
+    "empty": "No scenes yet – the master hasn't stocked the gallery.",
+    "sceneLabel": "Scene {index} of {total}",
+    "counter": "{index} / {total}",
+    "open": "Open scene: {name}",
+    "previous": "Previous scene",
+    "next": "Next scene",
+    "close": "Close"
   }
 }

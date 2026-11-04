@@ -13,10 +13,12 @@ import {
   CheckCircle2,
   XCircle,
   CalendarDays,
+  Images,
+  BellRing,
 } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import { formatGameDate } from "@/lib/game-dates";
+import { describeNotification } from "@/lib/notifications/describe";
 import type { NotificationRow } from "@/lib/supabase/types";
 
 interface NotificationItemProps {
@@ -48,61 +50,8 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Notific
   const [confirmReject, setConfirmReject] = useState(false);
   const details = notification.details;
 
-  const character = (details.character_name as string) ?? "";
-  const item = (details.item_name as string) ?? "";
-  const from = (details.from_character as string) ?? "";
-  const quantity = (details.quantity as number) ?? 1;
+  const { message, subtitle, href } = describeNotification(notification, t, locale);
   const isGameDate = notification.type.startsWith("game_date");
-  const gameDate = (details.event_date as string) ?? "";
-  const gameDateLabel = gameDate ? formatGameDate(gameDate, locale) : "";
-
-  const messageMap: Record<string, string> = {
-    gm_item_received: t("gmItemReceived", { character, item }),
-    gm_gold_received: t("gmGoldReceived", { character }),
-    party_item_received: t("partyItemReceived", { character, item }),
-    party_gold_received: t("partyGoldReceived", { character }),
-    trade_item_received: t("tradeItemReceived", { character, from, item }),
-    trade_gold_received: t("tradeGoldReceived", { character, from }),
-    session_xp_awarded: t("sessionXpAwarded", {
-      character,
-      xp: ((details.xp_amount as number) ?? 0).toLocaleString(),
-      sessionTitle: (details.session_title as string) ?? "",
-    }),
-    new_user_registered: t("newUserRegistered", {
-      email: (details.user_email as string) ?? "",
-    }),
-    user_approved: t("userApproved"),
-    game_date_created: t("gameDateCreated", { date: gameDateLabel }),
-    game_date_changed: t("gameDateChanged", { date: gameDateLabel }),
-    game_date_cancelled: t("gameDateCancelled", { date: gameDateLabel }),
-  };
-
-  const message = messageMap[notification.type] ?? notification.type;
-
-  let subtitle = "";
-  if (isGameDate) {
-    const parts: string[] = [];
-    const gameDateTitle = (details.title as string) ?? "";
-    if (gameDateTitle) parts.push(gameDateTitle);
-    const previous = (details.previous_event_date as string) ?? "";
-    if (notification.type === "game_date_changed" && previous) {
-      parts.push(t("gameDatePrevious", { date: formatGameDate(previous, locale) }));
-    }
-    subtitle = parts.join(" · ");
-  } else if (notification.type.includes("gold") && !notification.type.includes("item")) {
-    const pp = (details.pp as number) ?? 0;
-    const gp = (details.gp as number) ?? 0;
-    const sp = (details.sp as number) ?? 0;
-    const cp = (details.cp as number) ?? 0;
-    const parts = [];
-    if (pp > 0) parts.push(`${pp} PP`);
-    if (gp > 0) parts.push(`${gp} GP`);
-    if (sp > 0) parts.push(`${sp} SP`);
-    if (cp > 0) parts.push(`${cp} CP`);
-    subtitle = parts.join(", ");
-  } else if (notification.type !== "session_xp_awarded" && quantity > 1) {
-    subtitle = t("quantityDetail", { count: quantity });
-  }
 
   const iconClassName = `mt-0.5 h-4 w-4 shrink-0 ${
     notification.is_read ? "text-muted-foreground" : "text-primary"
@@ -110,6 +59,10 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Notific
 
   const icon = isGameDate ? (
     <CalendarDays className={iconClassName} />
+  ) : notification.type === "gallery_images_added" ? (
+    <Images className={iconClassName} />
+  ) : notification.type === "push_test" ? (
+    <BellRing className={iconClassName} />
   ) : notification.type === "new_user_registered" ? (
     <UserPlus className={iconClassName} />
   ) : notification.type === "user_approved" ? (
@@ -128,24 +81,7 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Notific
     if (!notification.is_read) {
       onMarkRead(notification.id);
     }
-
-    // Spieltermine werden in den Einstellungen gepflegt.
-    if (isGameDate) {
-      router.push("/settings");
-      return;
-    }
-
-    // Navigate to XP dialog for session_xp_awarded notifications
-    if (notification.type === "session_xp_awarded" && notification.character_id) {
-      const xpAmount = (details.xp_amount as number) ?? 0;
-      const sessionId = (details.session_id as string) ?? "";
-      const params = new URLSearchParams({
-        openXp: "1",
-        ...(sessionId && { sessionId }),
-        ...(xpAmount > 0 && { xpAmount: xpAmount.toString() }),
-      });
-      router.push(`/characters/${notification.character_id}/manage?${params.toString()}`);
-    }
+    if (href) router.push(href);
   }
 
   async function handleApprove(e: React.MouseEvent) {

@@ -7,7 +7,8 @@
  * created on or after that day won't get the dialog for it.
  */
 
-export type ReleaseIcon = "svenbot" | "level-up" | "effects" | "undo" | "sprocket";
+export type ReleaseIcon =
+  "svenbot" | "level-up" | "effects" | "undo" | "sprocket" | "gallery" | "push";
 
 interface LocalizedText {
   de: string;
@@ -28,6 +29,28 @@ export interface Release {
 }
 
 export const RELEASES: Release[] = [
+  {
+    id: "2026-11-04",
+    date: "2026-11-04",
+    items: [
+      {
+        icon: "gallery",
+        title: { de: "Die Galerie des Chaos", en: "The Gallery of Chaos" },
+        text: {
+          de: "Euer Spielleiter hängt jetzt Szenen aus unseren Abenteuern auf. Ihr findet sie im Menü unter „Galerie“ – tippt auf ein Bild und blättert im Vollbild mit Wischen oder den Pfeiltasten.",
+          en: "Your game master now hangs up scenes from our adventures. Find them under “Gallery” in the menu – tap an image and page through in fullscreen by swiping or with the arrow keys.",
+        },
+      },
+      {
+        icon: "push",
+        title: { de: "Benachrichtigungen aufs Handy", en: "Notifications on your phone" },
+        text: {
+          de: "Unter Einstellungen → „Benachrichtigungen“ schaltet ihr Push pro Gerät ein: Neue Szenen, Spieltermine, Gold und EP kommen dann direkt aufs Handy. Auf dem iPhone legt ihr Chaos Forge dafür zuerst über Teilen → „Zum Home-Bildschirm“ ab.",
+          en: "Turn on push per device under Settings → “Notifications”: new scenes, game dates, gold and XP then arrive right on your phone. On iPhone, first add Chaos Forge via Share → “Add to Home Screen”.",
+        },
+      },
+    ],
+  },
   {
     id: "2026-11-02",
     date: "2026-11-02",

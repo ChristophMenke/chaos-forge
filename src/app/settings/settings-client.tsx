@@ -31,6 +31,7 @@ import {
 import { AvatarCropDialog } from "@/components/avatar-crop-dialog";
 import { ReleaseNotesSection } from "@/components/release-notes/release-notes-section";
 import { BackupSection } from "@/components/backup/backup-section";
+import { PushSettingsSection } from "@/components/settings/push-settings-section";
 import type { CropArea } from "@/lib/avatar/resize";
 
 interface SettingsClientProps {
@@ -322,6 +323,9 @@ export function SettingsClient({
           <p className="text-xs text-muted-foreground">{t("viewModeHint")}</p>
         </div>
       </GlassCard>
+
+      {/* ── Push-Benachrichtigungen ───────────────────────── */}
+      <PushSettingsSection />
 
       {/* ── Spieltermine ──────────────────────────────────── */}
       {gameDatesSlot}
