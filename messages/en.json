@@ -1395,7 +1395,13 @@
     "sectionTitle": "What’s new",
     "dialogTitle": "New in Chaos Forge",
     "confirm": "Got it",
-    "allNotesLink": "All updates in settings"
+    "allNotesLink": "All updates in settings",
+    "olderButton": "Older news ({count})",
+    "olderTitle": "Older news",
+    "cardPosition": "{index} of {total}",
+    "previous": "Previous news",
+    "next": "Next news",
+    "close": "Close"
   },
   "party": {
     "title": "Party Inventory",
