@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { BellRing, Info, Loader2 } from "lucide-react";
+import { BellRing, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { GlassCard } from "@/components/glass-card";
 import {
   disablePush,
@@ -73,7 +74,6 @@ export function PushSettingsSection() {
   }
 
   const hintKey = support ? HINT_KEYS[support] : undefined;
-  const disabled = busy || support !== "supported";
 
   return (
     <GlassCard hover={false} data-testid="settings-section-push">
@@ -89,28 +89,14 @@ export function PushSettingsSection() {
           </p>
           <p className="text-xs text-muted-foreground">{t("pushHint")}</p>
         </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={enabled}
+        <Switch
+          checked={enabled}
+          onCheckedChange={() => void handleToggle()}
+          disabled={support !== "supported"}
+          busy={busy}
           aria-labelledby="settings-push-label"
-          disabled={disabled}
-          onClick={() => void handleToggle()}
-          className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-            enabled ? "bg-primary" : "bg-muted"
-          }`}
           data-testid="settings-push-toggle"
-        >
-          {busy ? (
-            <Loader2 className="mx-auto h-4 w-4 animate-spin text-primary-foreground" />
-          ) : (
-            <span
-              className={`inline-block h-5 w-5 rounded-full bg-background shadow transition-transform ${
-                enabled ? "translate-x-5" : "translate-x-0.5"
-              }`}
-            />
-          )}
-        </button>
+        />
       </div>
 
       {hintKey && (
