@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   getUnseenReleases,
+  groupReleasesByDay,
   isReleaseNotesOpen,
   isReleaseNotesRoute,
   readSeenRelease,
@@ -161,5 +162,34 @@ describe("release-notes open signal", () => {
     setReleaseNotesOpen(false);
 
     expect(callback).not.toHaveBeenCalled();
+  });
+});
+
+describe("groupReleasesByDay", () => {
+  const item = (title: string) => ({
+    icon: "undo" as const,
+    title: { de: title, en: title },
+    text: { de: "", en: "" },
+  });
+
+  it("merges releases of the same day, newest items first, and keeps the order of days", () => {
+    const days = groupReleasesByDay([
+      { id: "2026-11-04-2", date: "2026-11-04", items: [item("Zoom")] },
+      { id: "2026-11-04", date: "2026-11-04", items: [item("Galerie"), item("Push")] },
+      { id: "2026-11-02", date: "2026-11-02", items: [item("SvenBot")] },
+    ]);
+
+    expect(days.map((d) => d.date)).toEqual(["2026-11-04", "2026-11-02"]);
+    expect(days[0].id).toBe("2026-11-04-2");
+    expect(days[0].items.map((i) => i.title.de)).toEqual(["Zoom", "Galerie", "Push"]);
+  });
+
+  it("does not change the input", () => {
+    const input = [
+      { id: "a-2", date: "a", items: [item("1")] },
+      { id: "a", date: "a", items: [item("2")] },
+    ];
+    groupReleasesByDay(input);
+    expect(input[0].items).toHaveLength(1);
   });
 });

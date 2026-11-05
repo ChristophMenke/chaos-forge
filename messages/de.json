@@ -1395,7 +1395,13 @@
     "sectionTitle": "Neuigkeiten",
     "dialogTitle": "Neu in der Chaos Forge",
     "confirm": "Verstanden",
-    "allNotesLink": "Alle Neuigkeiten in den Einstellungen"
+    "allNotesLink": "Alle Neuigkeiten in den Einstellungen",
+    "olderButton": "Ältere Neuigkeiten ({count})",
+    "olderTitle": "Ältere Neuigkeiten",
+    "cardPosition": "{index} von {total}",
+    "previous": "Vorherige Neuigkeiten",
+    "next": "Nächste Neuigkeiten",
+    "close": "Schließen"
   },
   "party": {
     "title": "Party-Inventar",

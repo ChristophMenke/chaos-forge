@@ -28,6 +28,20 @@ export function getUnseenReleases(releases: Release[], viewer: ReleaseViewer): R
   );
 }
 
+/**
+ * One entry per calendar day, newest first: releases of the same day (`…-2`)
+ * are merged, the newest one's items on top. The settings show news per day.
+ */
+export function groupReleasesByDay(releases: Release[]): Release[] {
+  const days: Release[] = [];
+  for (const release of releases) {
+    const day = days.find((d) => d.date === release.date);
+    if (day) day.items = [...day.items, ...release.items];
+    else days.push({ ...release, items: [...release.items] });
+  }
+  return days;
+}
+
 const SKIPPED_PREFIXES = ["/login", "/impressum", "/datenschutz", "/share", "/master", "/admin"];
 
 /**
