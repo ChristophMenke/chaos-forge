@@ -86,7 +86,7 @@ src/
     undo/                 # Rückgängig/Wiederherstellen: UndoProvider (pro Charakter), useUndo/useUndoSync, Buttons in der Modus-Leiste, Test-Stub
     session/              # Session-Einträge, Sprachnotizen (MediaRecorder)
     wizard/               # Character Wizard (8 Steps: Basics, Abilities, Race, Class, Kit, Priesthood, Combat, Summary)
-    ui/                   # shadcn/ui Komponenten
+    ui/                   # shadcn/ui Komponenten + Switch (einziger An/Aus-Schalter)
   lib/
     rules/                # AD&D 2e Regelwerk-Engine (reine TypeScript-Logik)
       spec/               # Regelwerk-Spezifikation + Coverage-Meta-Test
@@ -331,6 +331,12 @@ CSS-Klassen in `globals.css`:
 - `.glow-neutral` — Gold-Glow für generische Karten
 - `.hp-bar-warrior/priest/rogue/wizard` — Gradient-HP-Balken
 - `.hex-badge` — Hexagonaler Clip-Path für Level-Badge
+
+### Bedienelemente sichtbar halten
+
+- **Im Dark-Theme sind `--muted`, `--input` und `--background` fast gleich dunkel.** Ein Bedienelement darf sich nie nur über diese Flächen vom Hintergrund abheben — sonst sieht niemand, dass man dort tippen kann (passiert beim Push-Schalter). Ruhezustände brauchen eine Kontur (`border-muted-foreground/…`) oder einen Vordergrund in `muted-foreground`/`foreground`; „an“ wird zusätzlich über Farbe (`primary`) und Position erkennbar.
+- **An/Aus-Schalter nur über `Switch`** (`src/components/ui/switch.tsx`, mit `busy` für Speichern). `src/test/switch-guard.test.ts` verbietet `role="switch"` außerhalb davon.
+- Neue Bedienelemente vor dem PR im **dunklen** Theme auf dem Handy-Viewport ansehen (Aus-, An-, Deaktiviert-Zustand).
 
 ### Ansichtsmodus (Automatisch / Mobil / Desktop)
 
